@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unit>
+    <name>Barbarian</name>
+    <life max="150">50</life>
+    <mana max="250">100</mana>
+    <stamina>15</stamina>
+    <vitality>20</vitality>
+    <dexterity evade="5%" block="10%" />
+    <agility turnRate="1.25" acceleration="5" />
+    <armors items="6">
+        <armor defense="15">Helmet</armor>
+        <armor defense="25">Shoulder Plates</armor>
+        <armor defense="50">Breast Plate</armor>
+        <armor defense="10">Greaves</armor>
+        <armor defense="10">Gloves</armor>
+        <armor defense="25">Shield</armor>
+    </armors>
+    <weapons items="6">
+        <sword damage="25">Broadsword</sword>
+        <sword damage="30">Longsword</sword>
+        <axe damage="20">Heavy Axe</axe>
+        <axe damage="25">Double-edged Axe</axe>
+        <polearm damage="50" range="3" speed="slow">Polearm</polearm>
+        <mace damage="15" speed="fast">Mace</mace>
+    </weapons>
+    <items>
+        <potions>
+            <potion>Health Potion</potion>
+            <potion>Mana Potion</potion>
+        </potions>
+        <keys>
+            <chestKey>Chest Key</chestKey>
+            <bossKey>Boss Key</bossKey>
+        </keys>
+        <food>Fruit</food>
+        <food>Bread</food>
+        <food>Vegetables</food>
+        <scrap count="25">Scrap</scrap>
+    </items>
+</unit>

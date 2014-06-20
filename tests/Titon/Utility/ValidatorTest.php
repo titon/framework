@@ -11,143 +11,143 @@ class ValidatorTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new Validator(array(
+        $this->object = new Validator([
             'username' => 'miles',
             'email' => 'miles@titon' // invalid
-        ));
+        ]);
     }
 
     public function testAddGetErrors() {
-        $this->assertEquals(array(), $this->object->getErrors());
+        $this->assertEquals([], $this->object->getErrors());
 
         $this->object->addError('username', 'Invalid username');
-        $this->assertEquals(array('username' => 'Invalid username'), $this->object->getErrors());
+        $this->assertEquals(['username' => 'Invalid username'], $this->object->getErrors());
     }
 
     public function testAddGetFields() {
-        $this->assertEquals(array(), $this->object->getFields());
+        $this->assertEquals([], $this->object->getFields());
 
         $this->object->addField('username', 'Username');
-        $this->assertEquals(array('username' => 'Username'), $this->object->getFields());
+        $this->assertEquals(['username' => 'Username'], $this->object->getFields());
     }
 
     public function testAddGetRules() {
-        $this->assertEquals(array(), $this->object->getRules());
+        $this->assertEquals([], $this->object->getRules());
 
         // via addRule()
         $this->object
             ->addField('basicRule', 'Basic Rule')
                 ->addRule('basicRule', 'alphaNumeric', 'Custom alpha-numeric message')
-                ->addRule('basicRule', 'between', 'May only be between 0 and 100 characters', array(0, 100)); // use default message
+                ->addRule('basicRule', 'between', 'May only be between 0 and 100 characters', [0, 100]); // use default message
 
-        $this->assertEquals(array(
-            'basicRule' => array(
-                'alphaNumeric' => array(
+        $this->assertEquals([
+            'basicRule' => [
+                'alphaNumeric' => [
                     'message' => 'Custom alpha-numeric message',
-                    'options' => array()
-                ),
-                'between' => array(
+                    'options' => []
+                ],
+                'between' => [
                     'message' => 'May only be between 0 and 100 characters',
-                    'options' => array(0, 100)
-                )
-            )
-        ), $this->object->getRules());
+                    'options' => [0, 100]
+                ]
+            ]
+        ], $this->object->getRules());
 
         // via third argument in addField()
-        $this->object->addMessages(array(
+        $this->object->addMessages([
             'phone' => 'Invalid phone number',
             'email' => 'Please provide an email',
             'ext' => 'Valid extensions are {0}',
             'ip' => 'Please provide an IPv4'
-        ));
+        ]);
 
-        $this->object->addField('advRule', 'Advanced Rule', array(
+        $this->object->addField('advRule', 'Advanced Rule', [
             'phone',
             'email',
-            'ext' => array(array('txt', 'pdf')),
+            'ext' => [['txt', 'pdf']],
             'ip' => Validate::IPV4
-        ));
+        ]);
 
-        $this->assertEquals(array(
-            'basicRule' => array(
-                'alphaNumeric' => array(
+        $this->assertEquals([
+            'basicRule' => [
+                'alphaNumeric' => [
                     'message' => 'Custom alpha-numeric message',
-                    'options' => array()
-                ),
-                'between' => array(
+                    'options' => []
+                ],
+                'between' => [
                     'message' => 'May only be between 0 and 100 characters',
-                    'options' => array(0, 100)
-                )
-            ),
-            'advRule' => array(
-                'phone' => array(
+                    'options' => [0, 100]
+                ]
+            ],
+            'advRule' => [
+                'phone' => [
                     'message' => 'Invalid phone number',
-                    'options' => array()
-                ),
-                'email' => array(
+                    'options' => []
+                ],
+                'email' => [
                     'message' => 'Please provide an email',
-                    'options' => array()
-                ),
-                'ext' => array(
+                    'options' => []
+                ],
+                'ext' => [
                     'message' => 'Valid extensions are {0}',
-                    'options' => array(array('txt', 'pdf'))
-                ),
-                'ip' => array(
+                    'options' => [['txt', 'pdf']]
+                ],
+                'ip' => [
                     'message' => 'Please provide an IPv4',
-                    'options' => array(Validate::IPV4)
-                )
-            )
-        ), $this->object->getRules());
+                    'options' => [Validate::IPV4]
+                ]
+            ]
+        ], $this->object->getRules());
     }
 
     public function testMessages() {
         $this->object
             ->addField('username', 'Username')
-                ->addRule('username', 'between', 'May only be between {0} and {1} characters', array(25, 45))
+                ->addRule('username', 'between', 'May only be between {0} and {1} characters', [25, 45])
             ->addField('email', 'Email')
-                ->addRule('email', 'ext', 'May only have extension: {0}', array(array('gif', 'png')));
+                ->addRule('email', 'ext', 'May only have extension: {0}', [['gif', 'png']]);
 
-        $this->assertEquals(array(
+        $this->assertEquals([
             'between' => 'May only be between {0} and {1} characters',
             'ext' => 'May only have extension: {0}'
-        ), $this->object->getMessages());
+        ], $this->object->getMessages());
 
         $this->object->validate();
 
-        $this->assertEquals(array(
+        $this->assertEquals([
             'username' => 'May only be between 25 and 45 characters',
             'email' => 'May only have extension: gif, png'
-        ), $this->object->getErrors());
+        ], $this->object->getErrors());
     }
 
     public function testMessageDetection() {
         $this->object
             ->addField('username', 'Username')
                 ->addRule('username', 'notEmpty', null)
-                ->addRule('username', 'between', '{field} may only be between {0} and {1} characters', array(10, 20))
+                ->addRule('username', 'between', '{field} may only be between {0} and {1} characters', [10, 20])
                 ->addRule('username', 'alpha', null)
-            ->addMessages(array(
+            ->addMessages([
                 'notEmpty' => '{field} cannot be empty'
-            ));
+            ]);
 
-        $this->object->addMessages(array(
+        $this->object->addMessages([
             'alpha' => '{title} may only be alpha'
-        ));
+        ]);
 
         // {field} insertion
         $this->object->validate();
 
-        $this->assertEquals(array(
+        $this->assertEquals([
             'username' => 'username may only be between 10 and 20 characters'
-        ), $this->object->getErrors());
+        ], $this->object->getErrors());
 
         // {title} insertion
-        $this->object->setData(array('username' => 'foo long name bar!'));
+        $this->object->setData(['username' => 'foo long name bar!']);
         $this->object->validate();
 
-        $this->assertEquals(array(
+        $this->assertEquals([
             'username' => 'Username may only be alpha'
-        ), $this->object->getErrors());
+        ], $this->object->getErrors());
     }
 
     /**
@@ -165,195 +165,195 @@ class ValidatorTest extends TestCase {
         $this->object->addField('username', 'Username')->addRule('username', 'alpha', 'Not alpha');
 
         $this->assertTrue($this->object->validate());
-        $this->assertEquals(array(), $this->object->getErrors());
+        $this->assertEquals([], $this->object->getErrors());
 
         // this will fail
         $this->object->addField('email', 'Email')->addRule('email', 'email', 'Invalid email');
 
         $this->assertFalse($this->object->validate());
-        $this->assertEquals(array('email' => 'Invalid email'), $this->object->getErrors());
+        $this->assertEquals(['email' => 'Invalid email'], $this->object->getErrors());
     }
 
     public function testSplitShorthand() {
         // only a rule
-        $this->assertEquals(array(
+        $this->assertEquals([
             'rule' => 'boolean',
             'message' => '',
-            'options' => array()
-        ), $this->object->splitShorthand('boolean'));
+            'options' => []
+        ], $this->object->splitShorthand('boolean'));
 
         // rule with 1 param
-        $this->assertEquals(array(
+        $this->assertEquals([
             'rule' => 'decimal',
             'message' => '',
-            'options' => array(1)
-        ), $this->object->splitShorthand('decimal:1'));
+            'options' => [1]
+        ], $this->object->splitShorthand('decimal:1'));
 
         // rule with 2 params
-        $this->assertEquals(array(
+        $this->assertEquals([
             'rule' => 'between',
             'message' => '',
-            'options' => array(1, 10)
-        ), $this->object->splitShorthand('between:1,10'));
+            'options' => [1, 10]
+        ], $this->object->splitShorthand('between:1,10'));
 
         // only a rule and message
-        $this->assertEquals(array(
+        $this->assertEquals([
             'rule' => 'boolean',
             'message' => 'Must be a boolean!',
-            'options' => array()
-        ), $this->object->splitShorthand('boolean::Must be a boolean!'));
+            'options' => []
+        ], $this->object->splitShorthand('boolean::Must be a boolean!'));
 
         // rule with 2 params and message
-        $this->assertEquals(array(
+        $this->assertEquals([
             'rule' => 'between',
             'message' => 'Must be between 1:10!',
-            'options' => array(1, 10)
-        ), $this->object->splitShorthand('between:1,10:Must be between 1:10!'));
+            'options' => [1, 10]
+        ], $this->object->splitShorthand('between:1,10:Must be between 1:10!'));
     }
 
     public function testMakeFromShorthand() {
         // simple rule
-        $obj = Validator::makeFromShorthand(array(), array(
+        $obj = Validator::makeFromShorthand([], [
             'field' => 'alphaNumeric'
-        ));
+        ]);
 
-        $this->assertEquals(array(
-            'field' => array(
-                'alphaNumeric' => array(
+        $this->assertEquals([
+            'field' => [
+                'alphaNumeric' => [
                     'message' => '',
-                    'options' => array()
-                )
-            )
-        ), $obj->getRules());
+                    'options' => []
+                ]
+            ]
+        ], $obj->getRules());
 
         // simple 2 rules
-        $obj = Validator::makeFromShorthand(array(), array(
+        $obj = Validator::makeFromShorthand([], [
             'field' => 'alphaNumeric|boolean'
-        ));
+        ]);
 
-        $this->assertEquals(array(
-            'field' => array(
-                'alphaNumeric' => array(
+        $this->assertEquals([
+            'field' => [
+                'alphaNumeric' => [
                     'message' => '',
-                    'options' => array()
-                ),
-                'boolean' => array(
+                    'options' => []
+                ],
+                'boolean' => [
                     'message' => '',
-                    'options' => array()
-                )
-            )
-        ), $obj->getRules());
+                    'options' => []
+                ]
+            ]
+        ], $obj->getRules());
 
         // simple 2 rules with options
-        $obj = Validator::makeFromShorthand(array(), array(
+        $obj = Validator::makeFromShorthand([], [
             'field' => 'between:5,10|equal:7'
-        ));
+        ]);
 
-        $this->assertEquals(array(
-            'field' => array(
-                'between' => array(
+        $this->assertEquals([
+            'field' => [
+                'between' => [
                     'message' => '',
-                    'options' => array(5, 10)
-                ),
-                'equal' => array(
+                    'options' => [5, 10]
+                ],
+                'equal' => [
                     'message' => '',
-                    'options' => array(7)
-                )
-            )
-        ), $obj->getRules());
+                    'options' => [7]
+                ]
+            ]
+        ], $obj->getRules());
 
         // split 2 rules
-        $obj = Validator::makeFromShorthand(array(), array(
-            'field' => array('between:5,10', 'equal:7')
-        ));
+        $obj = Validator::makeFromShorthand([], [
+            'field' => ['between:5,10', 'equal:7']
+        ]);
 
-        $this->assertEquals(array(
-            'field' => array(
-                'between' => array(
+        $this->assertEquals([
+            'field' => [
+                'between' => [
                     'message' => '',
-                    'options' => array(5, 10)
-                ),
-                'equal' => array(
+                    'options' => [5, 10]
+                ],
+                'equal' => [
                     'message' => '',
-                    'options' => array(7)
-                )
-            )
-        ), $obj->getRules());
+                    'options' => [7]
+                ]
+            ]
+        ], $obj->getRules());
 
         // nested 2 rules
-        $obj = Validator::makeFromShorthand(array(), array(
-            'field' => array(
+        $obj = Validator::makeFromShorthand([], [
+            'field' => [
                 'title' => 'Field',
                 'rules' => 'between:5,10|equal:7'
-            )
-        ));
+            ]
+        ]);
 
-        $this->assertEquals(array(
-            'field' => array(
-                'between' => array(
+        $this->assertEquals([
+            'field' => [
+                'between' => [
                     'message' => '',
-                    'options' => array(5, 10)
-                ),
-                'equal' => array(
+                    'options' => [5, 10]
+                ],
+                'equal' => [
                     'message' => '',
-                    'options' => array(7)
-                )
-            )
-        ), $obj->getRules());
+                    'options' => [7]
+                ]
+            ]
+        ], $obj->getRules());
 
         // nested split 2 rules
-        $obj = Validator::makeFromShorthand(array(), array(
-            'field' => array(
+        $obj = Validator::makeFromShorthand([], [
+            'field' => [
                 'title' => 'Field',
-                'rules' => array('between:5,10', 'equal:7')
-            )
-        ));
+                'rules' => ['between:5,10', 'equal:7']
+            ]
+        ]);
 
-        $this->assertEquals(array(
-            'field' => array(
-                'between' => array(
+        $this->assertEquals([
+            'field' => [
+                'between' => [
                     'message' => '',
-                    'options' => array(5, 10)
-                ),
-                'equal' => array(
+                    'options' => [5, 10]
+                ],
+                'equal' => [
                     'message' => '',
-                    'options' => array(7)
-                )
-            )
-        ), $obj->getRules());
+                    'options' => [7]
+                ]
+            ]
+        ], $obj->getRules());
 
         // advanced multiple rules
-        $obj = Validator::makeFromShorthand(array(), array(
-            'field' => array(
-                'rules' => array(
+        $obj = Validator::makeFromShorthand([], [
+            'field' => [
+                'rules' => [
                     'phone::Invalid phone number',
                     'email::Please provide an email',
                     'ext:txt:Valid extensions are txt, pdf',
                     'ip:' . Validate::IPV4 . ':Please provide an IPv4'
-                )
-            )
-        ));
+                ]
+            ]
+        ]);
 
-        $this->assertEquals(array(
-            'field' => array(
-                'phone' => array(
+        $this->assertEquals([
+            'field' => [
+                'phone' => [
                     'message' => 'Invalid phone number',
-                    'options' => array()
-                ),
-                'email' => array(
+                    'options' => []
+                ],
+                'email' => [
                     'message' => 'Please provide an email',
-                    'options' => array()
-                ),
-                'ext' => array(
+                    'options' => []
+                ],
+                'ext' => [
                     'message' => 'Valid extensions are txt, pdf',
-                    'options' => array('txt')
-                ),
-                'ip' => array(
+                    'options' => ['txt']
+                ],
+                'ip' => [
                     'message' => 'Please provide an IPv4',
-                    'options' => array(Validate::IPV4)
-                )
-            )
-        ), $obj->getRules());
+                    'options' => [Validate::IPV4]
+                ]
+            ]
+        ], $obj->getRules());
     }
 
 }

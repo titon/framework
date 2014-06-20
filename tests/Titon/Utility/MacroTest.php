@@ -62,10 +62,10 @@ class MacroTest extends TestCase {
         String::macro('lower', $lower);
         String::macro('upper', $upper);
 
-        $this->assertEquals(array(
+        $this->assertEquals([
             'lower' => $lower,
             'upper' => $upper
-        ), String::macros());
+        ], String::macros());
     }
 
 }

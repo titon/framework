@@ -6,10 +6,10 @@ use Titon\Test\TestCase;
 class InflectorTest extends TestCase {
 
     public function testCamelCase() {
-        $camelCase = array(
+        $camelCase = [
             'foo Bar', 'fOo Bar', 'foo_Bar', ' foo-_--_BAR',
             'foo-BAR', 'FOO-BAR', 'foo     bar   '
-        );
+        ];
 
         foreach ($camelCase as $value) {
             $this->assertEquals('FooBar', Inflector::camelCase($value));

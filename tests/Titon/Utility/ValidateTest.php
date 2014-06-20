@@ -15,7 +15,7 @@ class ValidateTest extends TestCase {
 
     public function testAlpha() {
         $this->assertTrue(Validate::alpha('ahjsNKHAShksdnASQfgd'));
-        $this->assertTrue(Validate::alpha('asdnasdsd.dfsdfdfsdfs;', array('.', ';')));
+        $this->assertTrue(Validate::alpha('asdnasdsd.dfsdfdfsdfs;', ['.', ';']));
 
         $this->assertFalse(Validate::alpha('asdnasdsd.dfsdfdfsdfs;'));
         $this->assertFalse(Validate::alpha('asdjn1803201'));
@@ -24,7 +24,7 @@ class ValidateTest extends TestCase {
 
     public function testAlphaNumeric() {
         $this->assertTrue(Validate::alphaNumeric('ahjsNKHAShksdnASQfgd'));
-        $this->assertTrue(Validate::alphaNumeric('asdnasdsd.dfsdfdfsdfs;', array('.', ';')));
+        $this->assertTrue(Validate::alphaNumeric('asdnasdsd.dfsdfdfsdfs;', ['.', ';']));
         $this->assertTrue(Validate::alphaNumeric('asdjn1803201'));
 
         $this->assertFalse(Validate::alphaNumeric('asdnasdsd.dfsdfdfsdfs;'));
@@ -138,8 +138,8 @@ class ValidateTest extends TestCase {
         $this->assertTrue(Validate::creditCard('869958670174621', Validate::VOYAGER));
 
         // Test multiple
-        $this->assertTrue(Validate::creditCard('375239372816422', array(Validate::AMERICAN_EXPRESS, Validate::VISA))); // = amex
-        $this->assertFalse(Validate::creditCard('869934523596112', array(Validate::AMERICAN_EXPRESS, Validate::VISA))); // = voyager
+        $this->assertTrue(Validate::creditCard('375239372816422', [Validate::AMERICAN_EXPRESS, Validate::VISA])); // = amex
+        $this->assertFalse(Validate::creditCard('869934523596112', [Validate::AMERICAN_EXPRESS, Validate::VISA])); // = voyager
 
         // Test length
         $this->assertFalse(Validate::creditCard('2346533', Validate::MASTERCARD));
@@ -198,8 +198,8 @@ class ValidateTest extends TestCase {
         $this->assertTrue(Validate::dimensions($this->image, 'height', 267));
         $this->assertFalse(Validate::dimensions($this->image, 'foobar', 267));
 
-        $this->assertTrue(Validate::dimensions(array('tmp_name' => $this->image, 'error' => 0), 'width', 200));
-        $this->assertFalse(Validate::dimensions(array('tmp_name' => 'fake.jpg', 'error' => 0), 'height', 267));
+        $this->assertTrue(Validate::dimensions(['tmp_name' => $this->image, 'error' => 0], 'width', 200));
+        $this->assertFalse(Validate::dimensions(['tmp_name' => 'fake.jpg', 'error' => 0], 'height', 267));
     }
 
     public function testEmail() {
@@ -241,30 +241,30 @@ class ValidateTest extends TestCase {
         $this->assertTrue(Validate::ext('image.gif'));
         $this->assertTrue(Validate::ext('image.jpeg'));
         $this->assertTrue(Validate::ext('doc.pdf', 'pdf'));
-        $this->assertTrue(Validate::ext('web.HTML', array('html', 'xhtml')));
+        $this->assertTrue(Validate::ext('web.HTML', ['html', 'xhtml']));
 
         $this->assertFalse(Validate::ext('image.bmp'));
         $this->assertFalse(Validate::ext('doc.doc', 'pdf'));
-        $this->assertFalse(Validate::ext('web.XML', array('html', 'xhtml')));
+        $this->assertFalse(Validate::ext('web.XML', ['html', 'xhtml']));
     }
 
     public function testFile() {
-        $this->assertTrue(Validate::file(array(
+        $this->assertTrue(Validate::file([
             'name' => 'file1.jpg',
             'type' => 'image/jpeg',
             'tmp_name' => '/tmp/phpUkYTB5',
             'error' => 0,
             'size' => 307808
-        )));
+        ]));
 
         $this->assertFalse(Validate::file('file1.jpg'));
-        $this->assertFalse(Validate::file(array(
+        $this->assertFalse(Validate::file([
             'name' => 'file1.jpg',
             'type' => 'image/jpeg',
             'tmp_name' => '/tmp/phpUkYTB5',
             'error' => UPLOAD_ERR_CANT_WRITE,
             'size' => 307808
-        )));
+        ]));
     }
 
     public function testHeight() {
@@ -273,11 +273,11 @@ class ValidateTest extends TestCase {
     }
 
     public function testInList() {
-        $this->assertTrue(Validate::inList(1, array(1, '1', 'c')));
-        $this->assertTrue(Validate::inList('foo', array('foo', 'BAR', 'wtf')));
+        $this->assertTrue(Validate::inList(1, [1, '1', 'c']));
+        $this->assertTrue(Validate::inList('foo', ['foo', 'BAR', 'wtf']));
 
-        $this->assertFalse(Validate::inList('b', array(1, '1', 'c')));
-        $this->assertFalse(Validate::inList('test', array('foo', 'BAR', 'wtf')));
+        $this->assertFalse(Validate::inList('b', [1, '1', 'c']));
+        $this->assertFalse(Validate::inList('test', ['foo', 'BAR', 'wtf']));
     }
 
     public function testInRange() {
@@ -369,18 +369,18 @@ class ValidateTest extends TestCase {
     }
 
     public function testMimeType() {
-        $this->assertTrue(Validate::mimeType($this->image, array('image/jpeg', 'image/jpg')));
-        $this->assertFalse(Validate::mimeType($this->image, array('image/gif')));
+        $this->assertTrue(Validate::mimeType($this->image, ['image/jpeg', 'image/jpg']));
+        $this->assertFalse(Validate::mimeType($this->image, ['image/gif']));
 
-        $this->assertTrue(Validate::mimeType(array('tmp_name' => $this->image, 'error' => 0), array('image/jpeg', 'image/jpg')));
-        $this->assertFalse(Validate::mimeType(array('tmp_name' => 'fake.jpg', 'error' => 0), array('image/gif')));
+        $this->assertTrue(Validate::mimeType(['tmp_name' => $this->image, 'error' => 0], ['image/jpeg', 'image/jpg']));
+        $this->assertFalse(Validate::mimeType(['tmp_name' => 'fake.jpg', 'error' => 0], ['image/gif']));
     }
 
     public function testMinFilesize() {
         $this->assertTrue(Validate::minFilesize($this->image, 13437));
-        $this->assertTrue(Validate::minFilesize(array('tmp_name' => $this->image, 'error' => 0, 'size' => 13437), 10000));
+        $this->assertTrue(Validate::minFilesize(['tmp_name' => $this->image, 'error' => 0, 'size' => 13437], 10000));
         $this->assertFalse(Validate::minFilesize($this->image, 15000));
-        $this->assertFalse(Validate::minFilesize(array('tmp_name' => $this->image, 'error' => 0, 'size' => 13437), 13458));
+        $this->assertFalse(Validate::minFilesize(['tmp_name' => $this->image, 'error' => 0, 'size' => 13437], 13458));
         $this->assertFalse(Validate::minFilesize('fake.jpg', 13458));
     }
 
@@ -405,9 +405,9 @@ class ValidateTest extends TestCase {
 
     public function testMaxFilesize() {
         $this->assertTrue(Validate::maxFilesize($this->image, 13437));
-        $this->assertTrue(Validate::maxFilesize(array('tmp_name' => $this->image, 'error' => 0, 'size' => 13437), 15000));
+        $this->assertTrue(Validate::maxFilesize(['tmp_name' => $this->image, 'error' => 0, 'size' => 13437], 15000));
         $this->assertFalse(Validate::maxFilesize($this->image, 13000));
-        $this->assertFalse(Validate::maxFilesize(array('tmp_name' => $this->image, 'error' => 0, 'size' => 13437), 12233));
+        $this->assertFalse(Validate::maxFilesize(['tmp_name' => $this->image, 'error' => 0, 'size' => 13437], 12233));
         $this->assertFalse(Validate::maxFilesize('fakq.jpg', 13000));
     }
 
@@ -433,7 +433,7 @@ class ValidateTest extends TestCase {
     public function testNotEmpty() {
         $this->assertTrue(Validate::notEmpty('abc'));
         $this->assertTrue(Validate::notEmpty(123));
-        $this->assertTrue(Validate::notEmpty(array('foo', 'bar')));
+        $this->assertTrue(Validate::notEmpty(['foo', 'bar']));
         $this->assertTrue(Validate::notEmpty(true));
         $this->assertTrue(Validate::notEmpty(0));
         $this->assertTrue(Validate::notEmpty('0'));

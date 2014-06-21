@@ -24,6 +24,6 @@
     },
     "autoload": {
         "psr-0": { "": "src/" },
-        "files": [ "src/bootstrap.php" ]
+        "files": [ "src/type.php", "src/utility.php" ]
     }
 }

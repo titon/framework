@@ -227,7 +227,9 @@ class ConverterTest extends TestCase {
         $this->assertEquals('<?xml version="1.0" encoding="utf-8"?>' . "\n" . '<root><a>1</a></root>', Converter::toXml($test));
     }
 
-
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     */
     public function testToXmlCantStartWithNumbers() {
         $items = [
             $this->createXmlItem(1),

@@ -301,7 +301,7 @@ class Converter extends Macro {
      * @return array
      */
     public static function buildArray($object) {
-        $array = array();
+        $array = [];
 
         foreach ($object as $key => $value) {
             if (is_object($value) || is_array($value)) {
@@ -355,7 +355,7 @@ class Converter extends Macro {
                 if (Hash::isNumeric(array_keys($value))) {
                     foreach ($value as $kValue) {
                         if (is_array($kValue)) {
-                            static::buildXml($xml, array($key => $kValue));
+                            static::buildXml($xml, [$key => $kValue]);
                         } else {
                             $xml->addChild($key, static::unbox($kValue));
                         }
@@ -398,7 +398,7 @@ class Converter extends Macro {
                     if (!empty($value)) {
                         foreach ($value as $aKey => $aValue) {
                             if (is_array($aValue)) {
-                                static::buildXml($node, array($aKey => $aValue));
+                                static::buildXml($node, [$aKey => $aValue]);
                             } else {
                                 $node->addChild($aKey, static::unbox($aValue));
                             }
@@ -423,11 +423,11 @@ class Converter extends Macro {
             return static::autobox((string) $xml);
         }
 
-        $array = array();
+        $array = [];
 
         /** @type SimpleXMLElement $node */
         foreach ($xml->children() as $element => $node) {
-            $data = array();
+            $data = [];
             $children = $node->children();
 
             if (!isset($array[$element])) {
@@ -440,10 +440,10 @@ class Converter extends Macro {
             } else {
                 switch ($format) {
                     case static::XML_GROUP:
-                        $data = array(
+                        $data = [
                             'value' => static::autobox((string) $node),
-                            'attributes' => array()
-                        );
+                            'attributes' => []
+                        ];
 
                         if (count($children) > 0) {
                             $data['value'] = static::xmlToArray($node, $format);

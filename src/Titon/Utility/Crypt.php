@@ -187,7 +187,7 @@ class Crypt extends Macro {
             $iv = mb_substr($iv, 0, $ivSize);
         }
 
-        return array($key, $iv);
+        return [$key, $iv];
     }
 
 }

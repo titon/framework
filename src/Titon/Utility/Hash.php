@@ -114,7 +114,7 @@ class Hash extends Macro {
      * @return array
      */
     public static function expand(array $set) {
-        $data = array();
+        $data = [];
 
         foreach ($set as $key => $value) {
             $data = static::insert($data, $key, $value);
@@ -203,7 +203,7 @@ class Hash extends Macro {
             $path = $path . '.';
         }
 
-        $data = array();
+        $data = [];
 
         foreach ($set as $key => $value) {
             if (is_array($value)) {
@@ -230,7 +230,7 @@ class Hash extends Macro {
      * @return array
      */
     public static function flip(array $set, $recursive = true, $truncate = true) {
-        $data = array();
+        $data = [];
 
         foreach ($set as $key => $value) {
             $empty = ($value === '' || $value === false || $value === null);
@@ -358,7 +358,7 @@ class Hash extends Macro {
 
             // Break out of non-existent paths early
             } else if (!array_key_exists($key, $search) || !is_array($search[$key])) {
-                $search[$key] = array();
+                $search[$key] = [];
             }
 
             $search =& $search[$key];
@@ -416,7 +416,7 @@ class Hash extends Macro {
      */
     public static function keyOf(array $set, $match) {
         $return = null;
-        $isArray = array();
+        $isArray = [];
 
         foreach ($set as $key => $value) {
             if ($value === $match) {
@@ -448,7 +448,7 @@ class Hash extends Macro {
      * @param array $args
      * @return array
      */
-    public static function map(array $set, $function, $args = array()) {
+    public static function map(array $set, $function, $args = []) {
         foreach ($set as $key => $value) {
             if (is_array($value)) {
                 $set[$key] = static::map($value, $function, $args);
@@ -484,7 +484,7 @@ class Hash extends Macro {
      */
     public static function merge() {
         $sets = func_get_args();
-        $data = array();
+        $data = [];
 
         if (!$sets) {
             return $data;
@@ -539,7 +539,7 @@ class Hash extends Macro {
      * @return array
      */
     public static function pluck(array $set, $path) {
-        $data = array();
+        $data = [];
 
         foreach ($set as $array) {
             if ($value = static::extract($array, $path)) {
@@ -560,7 +560,7 @@ class Hash extends Macro {
      * @return array
      */
     public static function range($start, $stop, $step = 1, $index = true) {
-        $array = array();
+        $array = [];
 
         if ($stop > $start) {
             for ($i = $start; $i <= $stop; $i += $step) {
@@ -592,7 +592,7 @@ class Hash extends Macro {
      * @return array
      */
     public static function reduce(array $set, array $keys) {
-        $array = array();
+        $array = [];
 
         foreach ($set as $key => $value) {
             if (in_array($key, $keys)) {

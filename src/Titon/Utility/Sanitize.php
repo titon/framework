@@ -21,7 +21,7 @@ class Sanitize extends Macro {
      * @param array $options
      * @return string
      */
-    public static function email($value, array $options = array()) {
+    public static function email($value, array $options = []) {
         return (string) filter_var($value, FILTER_SANITIZE_EMAIL, $options);
     }
 
@@ -36,12 +36,12 @@ class Sanitize extends Macro {
      * }
      * @return string
      */
-    public static function escape($value, array $options = array()) {
-        $options = $options + array(
+    public static function escape($value, array $options = []) {
+        $options = $options + [
             'encoding' => 'UTF-8',
             'flags' => ENT_QUOTES,
             'double' => false
-        );
+        ];
 
         return htmlentities($value, $options['flags'], $options['encoding'], $options['double']);
     }
@@ -66,11 +66,11 @@ class Sanitize extends Macro {
      * }
      * @return string
      */
-    public static function html($value, array $options = array()) {
-        $options = $options + array(
+    public static function html($value, array $options = []) {
+        $options = $options + [
             'strip' => true,
             'whitelist' => ''
-        );
+        ];
 
         if ($options['strip']) {
             $value = strip_tags($value, $options['whitelist']);
@@ -86,7 +86,7 @@ class Sanitize extends Macro {
      * @param array $options
      * @return string
      */
-    public static function integer($value, array $options = array()) {
+    public static function integer($value, array $options = []) {
         return (int) filter_var($value, FILTER_SANITIZE_NUMBER_INT, $options);
     }
 
@@ -103,14 +103,14 @@ class Sanitize extends Macro {
      * }
      * @return string
      */
-    public static function newlines($value, array $options = array()) {
-        $options = $options + array(
+    public static function newlines($value, array $options = []) {
+        $options = $options + [
             'cr' => true,
             'lf' => true,
             'crlf' => true,
             'limit' => 2,
             'trim' => true
-        );
+        ];
 
         if ($options['limit']) {
             $pattern = '/(?:%s){' . $options['limit'] . ',}/u';
@@ -140,13 +140,13 @@ class Sanitize extends Macro {
     }
 
     /**
-     * Sanitize a URL by removing all characters except letters, digits and $-_.+!*'(),{}|\\^~array()`<>#%";/?:@&=.
+     * Sanitize a URL by removing all characters except letters, digits and $-_.+!*'(),{}|\\^~[]`<>#%";/?:@&=.
      *
      * @param string $value
      * @param array $options
      * @return string
      */
-    public static function url($value, array $options = array()) {
+    public static function url($value, array $options = []) {
         return (string) filter_var($value, FILTER_SANITIZE_URL, $options);
     }
 
@@ -163,14 +163,14 @@ class Sanitize extends Macro {
      * }
      * @return string
      */
-    public static function whitespace($value, array $options = array()) {
-        $options = $options + array(
+    public static function whitespace($value, array $options = []) {
+        $options = $options + [
             'space' => true,
             'tab' => true,
             'limit' => 2,
             'strip' => true,
             'trim' => true
-        );
+        ];
 
         if ($options['limit']) {
             $pattern = '/%s{' . $options['limit'] . ',}/u';
@@ -209,8 +209,8 @@ class Sanitize extends Macro {
      * }
      * @return string
      */
-    public static function xss($value, array $options = array()) {
-        $options = $options + array('strip' => true);
+    public static function xss($value, array $options = []) {
+        $options = $options + ['strip' => true];
 
         $value = str_replace("\0", '', $value);
 

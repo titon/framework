@@ -49,7 +49,7 @@ class Validate extends Macro {
      * @param array $exceptions
      * @return bool
      */
-    public static function alpha($input, $exceptions = array()) {
+    public static function alpha($input, $exceptions = []) {
         return static::custom($input, '/^[\p{L}\s' . static::escape($exceptions) . ']+$/imU');
     }
 
@@ -60,7 +60,7 @@ class Validate extends Macro {
      * @param array $exceptions
      * @return bool
      */
-    public static function alphaNumeric($input, $exceptions = array()) {
+    public static function alphaNumeric($input, $exceptions = []) {
         return static::custom($input, '/^[\p{L}\p{N}\p{Nd}\s' . static::escape($exceptions) . ']+$/imU');
     }
 
@@ -85,7 +85,7 @@ class Validate extends Macro {
      * @return bool
      */
     public static function boolean($input) {
-        return in_array($input, array(true, false, 1, 0, '1', '0', 'on', 'off', 'yes', 'no'), true);
+        return in_array($input, [true, false, 1, 0, '1', '0', 'on', 'off', 'yes', 'no'], true);
     }
 
     /**
@@ -157,13 +157,13 @@ class Validate extends Macro {
      * @throws \Titon\Utility\Exception\InvalidCreditCardException
      */
     public static function creditCard($input, $types = null) {
-        $input = str_replace(array('-', ' '), '', $input);
+        $input = str_replace(['-', ' '], '', $input);
 
         if (mb_strlen($input) < 13) {
             return false;
         }
 
-        $cards = array(
+        $cards = [
             self::AMERICAN_EXPRESS  => '/^3[4|7]\\d{13}$/',
             self::BANKCARD          => '/^56(10\\d\\d|022[1-5])\\d{10}$/',
             self::DISCOVER          => '/^(?:6011|650\\d)\\d{12}$/',
@@ -177,10 +177,10 @@ class Validate extends Macro {
             self::VISA              => '/^4\\d{12}(\\d{3})?$/',
             self::VISA_ELECTRON     => '/^(?:417500|4917\\d{2}|4913\\d{2})\\d{10}$/',
             self::VOYAGER           => '/^8699[0-9]{11}$/'
-        );
+        ];
 
         if ($types) {
-            $validate = array();
+            $validate = [];
 
             foreach ((array) $types as $card) {
                 if (isset($cards[$card])) {
@@ -367,7 +367,7 @@ class Validate extends Macro {
      * @param string|array $extensions
      * @return bool
      */
-    public static function ext($input, $extensions = array('gif', 'jpeg', 'png', 'jpg')) {
+    public static function ext($input, $extensions = ['gif', 'jpeg', 'png', 'jpg']) {
         if (is_array($input) && isset($input['name'])) {
             $input = $input['name'];
         }

@@ -22,42 +22,42 @@ class Validator {
      *
      * @type array
      */
-    protected $_data = array();
+    protected $_data = [];
 
     /**
      * Errors gathered during validation.
      *
      * @type array
      */
-    protected $_errors = array();
+    protected $_errors = [];
 
     /**
      * Mapping of fields and titles.
      *
      * @type array
      */
-    protected $_fields = array();
+    protected $_fields = [];
 
     /**
      * Fallback mapping of error messages.
      *
      * @type array
      */
-    protected $_messages = array();
+    protected $_messages = [];
 
     /**
      * Mapping of fields and validation rules.
      *
      * @type array
      */
-    protected $_rules = array();
+    protected $_rules = [];
 
     /**
      * Store the data to validate.
      *
      * @param array $data
      */
-    public function __construct(array $data = array()) {
+    public function __construct(array $data = []) {
         $this->setData($data);
     }
 
@@ -82,7 +82,7 @@ class Validator {
      * @param array $rules
      * @return $this
      */
-    public function addField($field, $title, array $rules = array()) {
+    public function addField($field, $title, array $rules = []) {
         $this->_fields[$field] = $title;
 
         /**
@@ -93,7 +93,7 @@ class Validator {
             foreach ($rules as $rule => $options) {
                 if (is_numeric($rule)) {
                     $rule = $options;
-                    $options = array();
+                    $options = [];
                 }
 
                 $this->addRule($field, $rule, null, $options);
@@ -125,7 +125,7 @@ class Validator {
      * @return $this
      * @throws \Titon\Utility\Exception\InvalidArgumentException
      */
-    public function addRule($field, $rule, $message, $options = array()) {
+    public function addRule($field, $rule, $message, $options = []) {
         if (empty($this->_fields[$field])) {
             throw new InvalidArgumentException(sprintf('Field %s does not exist', $field));
         }
@@ -136,10 +136,10 @@ class Validator {
             $this->_messages[$rule] = $message;
         }
 
-        $this->_rules[$field][$rule] = array(
+        $this->_rules[$field][$rule] = [
             'message' => $message,
             'options' => (array) $options
-        );
+        ];
 
         return $this;
     }
@@ -195,8 +195,8 @@ class Validator {
      * @return $this
      */
     public function reset() {
-        $this->_data = array();
-        $this->_errors = array();
+        $this->_data = [];
+        $this->_errors = [];
 
         return $this;
     }
@@ -246,7 +246,7 @@ class Validator {
                 }
                 // @codeCoverageIgnoreEnd
 
-                if (!call_user_func(array($class, 'hasMethod'), $rule)) {
+                if (!call_user_func([$class, 'hasMethod'], $rule)) {
                     throw new InvalidValidationRuleException(sprintf('Validation rule %s does not exist', $rule));
                 }
 
@@ -260,15 +260,15 @@ class Validator {
                 if ($message) {
                     $message = String::insert($message, array_map(function($value) {
                         return is_array($value) ? implode(', ', $value) : $value;
-                    }, $options + array(
+                    }, $options + [
                         'field' => $field,
                         'title' => $fields[$field]
-                    )));
+                    ]));
                 } else {
                     throw new InvalidValidationRuleException(sprintf('Error message for rule %s does not exist', $rule));
                 }
 
-                if (!call_user_func_array(array($class, $rule), $arguments)) {
+                if (!call_user_func_array([$class, $rule], $arguments)) {
                     $this->addError($field, $message);
                     break;
                 }
@@ -285,7 +285,7 @@ class Validator {
      * @param array $fields
      * @return $this
      */
-    public static function makeFromShorthand(array $data = array(), array $fields = array()) {
+    public static function makeFromShorthand(array $data = [], array $fields = []) {
         /** @type \Titon\Utility\Validator $obj */
         $obj = new static($data);
 
@@ -294,13 +294,13 @@ class Validator {
 
             // Convert to array
             if (is_string($options)) {
-                $options = array('rules' => $options);
+                $options = ['rules' => $options];
 
             } else if (!is_array($options)) {
                 continue;
 
             } else if (Hash::isNumeric(array_keys($options))) {
-                $options = array('rules' => $options);
+                $options = ['rules' => $options];
             }
 
             // Prepare for parsing
@@ -333,7 +333,7 @@ class Validator {
     public static function splitShorthand($shorthand) {
         $rule = null;
         $message = '';
-        $opts = array();
+        $opts = [];
 
         // rule:o1,o2,o3
         // rule:o1,o2:The message here!
@@ -347,7 +347,7 @@ class Validator {
                 if (strpos($opts, ',') !== false) {
                     $opts = explode(',', $opts);
                 } else {
-                    $opts = array($opts);
+                    $opts = [$opts];
                 }
             }
 
@@ -360,11 +360,11 @@ class Validator {
             $rule = $shorthand;
         }
 
-        return array(
+        return [
             'rule' => $rule,
             'message' => $message,
             'options' => $opts
-        );
+        ];
     }
 
 }

@@ -23,14 +23,14 @@ class Macro {
      *
      * @type array
      */
-    protected static $_cache = array();
+    protected static $_cache = [];
 
     /**
      * Custom methods to magically call.
      *
      * @type \Closure[]
      */
-    protected static $_macros = array();
+    protected static $_macros = [];
 
     /**
      * Execute a macro if it has been called statically.
@@ -109,7 +109,7 @@ class Macro {
     public static function macros() {
         $class = get_called_class();
 
-        return isset(static::$_macros[$class]) ? static::$_macros[$class] : array();
+        return isset(static::$_macros[$class]) ? static::$_macros[$class] : [];
     }
 
 }

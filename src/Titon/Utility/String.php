@@ -154,12 +154,12 @@ class String extends Macro {
      * }
      * @return string
      */
-    public static function insert($string, array $data, array $options = array()) {
-        $options = $options + array(
+    public static function insert($string, array $data, array $options = []) {
+        $options = $options + [
             'before' => '{',
             'after' => '}',
             'escape' => true
-        );
+        ];
 
         foreach ($data as $key => $value) {
             $string = str_replace($options['before'] . $key . $options['after'], $value, $string);
@@ -277,15 +277,15 @@ class String extends Macro {
      * }
      * @return string
      */
-    public static function truncate($string, $limit = 25, array $options = array()) {
-        $options = $options + array(
+    public static function truncate($string, $limit = 25, array $options = []) {
+        $options = $options + [
             'html' => true,
             'word' => true,
             'suffix' => '&hellip;',
             'prefix' => '',
             'open' => '<',
             'close' => '>'
-        );
+        ];
 
         // If we should preserve HTML
         if ($options['open'] !== '<' || $options['close'] !== '>') {
@@ -306,7 +306,7 @@ class String extends Macro {
         // Generate tokens
         $open = $options['open'];
         $close = $options['close'];
-        $tokens = array();
+        $tokens = [];
         $token = '';
         $i = 0;
 

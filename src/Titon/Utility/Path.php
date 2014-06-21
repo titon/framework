@@ -39,7 +39,7 @@ class Path extends Macro {
      * @param array $paths
      * @return string
      */
-    public static function alias($file, array $paths = array()) {
+    public static function alias($file, array $paths = []) {
         if (empty($file)) {
             return '[internal]';
         }
@@ -47,7 +47,7 @@ class Path extends Macro {
         $file = static::ds($file);
 
         // Inherit titon constants
-        foreach (array('vendor', 'app', 'modules', 'resources', 'temp', 'views', 'web') as $type) {
+        foreach (['vendor', 'app', 'modules', 'resources', 'temp', 'views', 'web'] as $type) {
             $constant = strtoupper($type) . '_DIR';
 
             if (empty($paths[$type]) && defined($constant)) {
@@ -56,7 +56,7 @@ class Path extends Macro {
         }
 
         // Define source locations
-        foreach (array('src', 'lib') as $source) {
+        foreach (['src', 'lib'] as $source) {
             if (empty($paths[$source]) && strpos($file, $source) !== false) {
                 $parts = explode($source, $file);
                 $paths[$source] = $parts[0] . $source;
@@ -94,7 +94,7 @@ class Path extends Macro {
      * @return string
      */
     public static function ds($path, $endSlash = false) {
-        $path = str_replace(array('\\', '/'), static::SEPARATOR, $path);
+        $path = str_replace(['\\', '/'], static::SEPARATOR, $path);
 
         if ($endSlash && substr($path, -1) !== static::SEPARATOR) {
             $path .= static::SEPARATOR;
@@ -120,7 +120,7 @@ class Path extends Macro {
      * @return array
      */
     public static function includePath($paths) {
-        $current = array(get_include_path());
+        $current = [get_include_path()];
 
         if (is_array($paths)) {
             $current = array_merge($current, $paths);
@@ -165,8 +165,8 @@ class Path extends Macro {
      * @throws \Titon\Utility\Exception\InvalidTypeException
      */
     public static function join(array $paths, $above = true, $join = true) {
-        $clean = array();
-        $parts = array();
+        $clean = [];
+        $parts = [];
         $ds = static::SEPARATOR;
         $up = 0;
 
@@ -310,7 +310,7 @@ class Path extends Macro {
         $path = static::ds(static::stripExt($path));
 
         // Attempt to split path at source folder
-        foreach (array('lib', 'src') as $folder) {
+        foreach (['lib', 'src'] as $folder) {
             if (mb_strpos($path, $folder . static::SEPARATOR) !== false) {
                 $paths = explode($folder . static::SEPARATOR, $path);
                 $path = $paths[1];

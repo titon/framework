@@ -39,7 +39,7 @@ class Number extends Macro {
         }
 
         $number = trim((string) $number);
-        $sizes = array(
+        $sizes = [
             'k|kb|ki|kib' => 10,
             'm|mb|mi|mib' => 20,
             'g|gb|gi|gib' => 30,
@@ -49,7 +49,7 @@ class Number extends Macro {
             'z|zb|zi|zib' => 70,
             'y|yb|yi|yib' => 80,
             'b' => 0
-        );
+        ];
 
         foreach ($sizes as $format => $pow) {
             if (preg_match('/^([0-9\.]+)(' . $format . ')$/i', $number, $matches)) {
@@ -68,7 +68,7 @@ class Number extends Macro {
      * @return string
      */
     public static function bytesTo($size, $precision = 0) {
-        $sizes = array('YB', 'ZB', 'EB', 'PB', 'TB', 'GB', 'MB', 'KB', 'B');
+        $sizes = ['YB', 'ZB', 'EB', 'PB', 'TB', 'GB', 'MB', 'KB', 'B'];
         $total = count($sizes);
 
         while ($total-- && $size >= 1024) {
@@ -111,8 +111,8 @@ class Number extends Macro {
      * }
      * @return string
      */
-    public static function currency($number, array $options = array()) {
-        $defaults = array(
+    public static function currency($number, array $options = []) {
+        $defaults = [
             'thousands' => ',',
             'decimals' => '.',
             'places' => 2,
@@ -121,7 +121,7 @@ class Number extends Macro {
             'cents' => '#&cent;',
             'use' => 'dollar',
             'negative' => '(#)'
-        );
+        ];
 
         $options = $options + $defaults;
         $amount = number_format(static::precision(abs($number), $options['places']), $options['places'], $options['decimals'], $options['thousands']);
@@ -265,16 +265,16 @@ class Number extends Macro {
      * }
      * @return string
      */
-    public static function percentage($number, $options = array()) {
+    public static function percentage($number, $options = []) {
         if (!is_array($options)) {
-            $options = array('places' => $options);
+            $options = ['places' => $options];
         }
 
-        $options = $options + array(
+        $options = $options + [
             'thousands' => ',',
             'decimals' => '.',
             'places' => 2
-        );
+        ];
 
         return number_format(static::precision($number, $options['places']), $options['places'], $options['decimals'], $options['thousands']) . '%';
     }

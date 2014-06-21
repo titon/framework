@@ -316,7 +316,7 @@ class Number extends Macro {
      * @return int
      */
     public static function toBinary($number, $base = self::DECIMAL) {
-        return static::convert($number, $base, static::BINARY);
+        return static::convert($number, $base, self::BINARY);
     }
 
     /**
@@ -327,7 +327,7 @@ class Number extends Macro {
      * @return int
      */
     public static function toDecimal($number, $base = self::DECIMAL) {
-        return static::convert($number, $base, static::DECIMAL);
+        return static::convert($number, $base, self::DECIMAL);
     }
 
     /**
@@ -338,7 +338,7 @@ class Number extends Macro {
      * @return string
      */
     public static function toHex($number, $base = self::DECIMAL) {
-        return static::convert($number, $base, static::HEX);
+        return static::convert($number, $base, self::HEX);
     }
 
     /**
@@ -349,7 +349,7 @@ class Number extends Macro {
      * @return string
      */
     public static function toOctal($number, $base = self::DECIMAL) {
-        return static::convert($number, $base, static::OCTAL);
+        return static::convert($number, $base, self::OCTAL);
     }
 
 }

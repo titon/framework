@@ -64,10 +64,10 @@ class Path extends Macro {
         }
 
         foreach ($paths as $key => $path) {
-            $path = trim(static::ds($path), static::SEPARATOR) . static::SEPARATOR;
+            $path = trim(static::ds($path), self::SEPARATOR) . self::SEPARATOR;
 
             if (mb_strpos($file, $path) !== false) {
-                $file = trim(str_replace($path, '[' . $key . ']', $file), static::SEPARATOR);
+                $file = trim(str_replace($path, '[' . $key . ']', $file), self::SEPARATOR);
                 break;
             }
         }
@@ -94,10 +94,10 @@ class Path extends Macro {
      * @return string
      */
     public static function ds($path, $endSlash = false) {
-        $path = str_replace(['\\', '/'], static::SEPARATOR, $path);
+        $path = str_replace(['\\', '/'], self::SEPARATOR, $path);
 
-        if ($endSlash && substr($path, -1) !== static::SEPARATOR) {
-            $path .= static::SEPARATOR;
+        if ($endSlash && substr($path, -1) !== self::SEPARATOR) {
+            $path .= self::SEPARATOR;
         }
 
         return $path;
@@ -128,7 +128,7 @@ class Path extends Macro {
             $current[] = $paths;
         }
 
-        $path = implode(static::DELIMITER, $current);
+        $path = implode(self::DELIMITER, $current);
 
         set_include_path($path);
 
@@ -167,7 +167,7 @@ class Path extends Macro {
     public static function join(array $paths, $above = true, $join = true) {
         $clean = [];
         $parts = [];
-        $ds = static::SEPARATOR;
+        $ds = self::SEPARATOR;
         $up = 0;
 
         // First pass expands sub-paths
@@ -254,7 +254,7 @@ class Path extends Macro {
             throw new InvalidArgumentException('Cannot determine relative path without two absolute paths');
         }
 
-        $ds = static::SEPARATOR;
+        $ds = self::SEPARATOR;
         $from = explode($ds, static::ds($from, true));
         $to = explode($ds, static::ds($to, true));
         $relative = $to;
@@ -311,13 +311,13 @@ class Path extends Macro {
 
         // Attempt to split path at source folder
         foreach (['lib', 'src'] as $folder) {
-            if (mb_strpos($path, $folder . static::SEPARATOR) !== false) {
-                $paths = explode($folder . static::SEPARATOR, $path);
+            if (mb_strpos($path, $folder . self::SEPARATOR) !== false) {
+                $paths = explode($folder . self::SEPARATOR, $path);
                 $path = $paths[1];
             }
         }
 
-        return trim(str_replace('/', static::PACKAGE, $path), static::PACKAGE);
+        return trim(str_replace('/', self::PACKAGE, $path), self::PACKAGE);
     }
 
     /**
@@ -329,7 +329,7 @@ class Path extends Macro {
      * @return string
      */
     public static function toPath($path, $ext = 'php', $root = '') {
-        $ds = static::SEPARATOR;
+        $ds = self::SEPARATOR;
         $path = static::ds($path);
         $dirs = explode($ds, $path);
         $file = array_pop($dirs);

@@ -43,10 +43,10 @@ class Crypt extends Macro {
      * @return string
      */
     public static function blowfish($string, $key, $operation = self::ENCRYPT) {
-        if ($operation === static::ENCRYPT) {
-            return static::encrypt($string, $key, static::BLOWFISH);
+        if ($operation === self::ENCRYPT) {
+            return static::encrypt($string, $key, self::BLOWFISH);
         } else {
-            return static::decrypt($string, $key, static::BLOWFISH);
+            return static::decrypt($string, $key, self::BLOWFISH);
         }
     }
 
@@ -75,10 +75,10 @@ class Crypt extends Macro {
      * @return string
      */
     public static function des($string, $key, $operation = self::ENCRYPT) {
-        if ($operation === static::ENCRYPT) {
-            return static::encrypt($string, $key, static::DES);
+        if ($operation === self::ENCRYPT) {
+            return static::encrypt($string, $key, self::DES);
         } else {
-            return static::decrypt($string, $key, static::DES);
+            return static::decrypt($string, $key, self::DES);
         }
     }
 
@@ -140,10 +140,10 @@ class Crypt extends Macro {
      * @return string
      */
     public static function rijndael($string, $key, $operation = self::ENCRYPT) {
-        if ($operation === static::ENCRYPT) {
-            return static::encrypt($string, $key, static::RIJNDAEL);
+        if ($operation === self::ENCRYPT) {
+            return static::encrypt($string, $key, self::RIJNDAEL);
         } else {
-            return static::decrypt($string, $key, static::RIJNDAEL);
+            return static::decrypt($string, $key, self::RIJNDAEL);
         }
     }
 
@@ -156,10 +156,10 @@ class Crypt extends Macro {
      * @return string
      */
     public static function tripledes($string, $key, $operation = self::ENCRYPT) {
-        if ($operation === static::ENCRYPT) {
-            return static::encrypt($string, $key, static::TRIPLEDES);
+        if ($operation === self::ENCRYPT) {
+            return static::encrypt($string, $key, self::TRIPLEDES);
         } else {
-            return static::decrypt($string, $key, static::TRIPLEDES);
+            return static::decrypt($string, $key, self::TRIPLEDES);
         }
     }
 

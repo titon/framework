@@ -391,13 +391,13 @@ class String extends Macro {
      */
     public static function uuid() {
         return sprintf('%s-%s-%s%s-%s%s-%s',
-            static::generate(8, String::HEX), // 1
-            static::generate(4, String::HEX), // 2
+            static::generate(8, self::HEX), // 1
+            static::generate(4, self::HEX), // 2
             4, // 3
-            static::generate(3, String::HEX), // 3
+            static::generate(3, self::HEX), // 3
             static::generate(1, '89AB'), // 4
-            static::generate(3, String::HEX), // 4
-            static::generate(12, String::HEX)); // 5
+            static::generate(3, self::HEX), // 4
+            static::generate(12, self::HEX)); // 5
     }
 
 }

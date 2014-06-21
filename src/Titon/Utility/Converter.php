@@ -96,7 +96,7 @@ class Converter extends Macro {
         }
 
         // Check within macros
-        foreach (self::$_macros[get_called_class()] as $key => $macro) {
+        foreach (static::macros() as $key => $macro) {
             if (preg_match('/^is/', $key) && $macro($data)) {
                 return strtolower(preg_replace('/^is/', '', $key));
             }
@@ -434,12 +434,12 @@ class Converter extends Macro {
                 $array[$element] = '';
             }
 
-            if (!$node->attributes() || $format === static::XML_NONE) {
+            if (!$node->attributes() || $format === self::XML_NONE) {
                 $data = static::xmlToArray($node, $format);
 
             } else {
                 switch ($format) {
-                    case static::XML_GROUP:
+                    case self::XML_GROUP:
                         $data = [
                             'value' => static::autobox((string) $node),
                             'attributes' => []
@@ -454,7 +454,7 @@ class Converter extends Macro {
                         }
                     break;
 
-                    case static::XML_MERGE:
+                    case self::XML_MERGE:
                         if (count($children) > 0) {
                             $data = $data + static::xmlToArray($node, $format);
                         } else {
@@ -462,7 +462,7 @@ class Converter extends Macro {
                         }
                     /* fall-through */
 
-                    case static::XML_ATTRIBS:
+                    case self::XML_ATTRIBS:
                         foreach ($node->attributes() as $attr => $value) {
                             $data[$attr] = static::autobox((string) $value);
                         }

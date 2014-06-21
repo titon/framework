@@ -315,7 +315,7 @@ class Validator {
             $obj->addField($field, $title);
 
             foreach ($options['rules'] as $ruleOpts) {
-                $shorthand = self::splitShorthand($ruleOpts);
+                $shorthand = static::splitShorthand($ruleOpts);
 
                 $obj->addRule($field, $shorthand['rule'], $shorthand['message'], $shorthand['options']);
             }

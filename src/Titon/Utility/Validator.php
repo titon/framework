@@ -238,11 +238,13 @@ class Validator {
                 array_unshift($arguments, $value);
 
                 // Use G11n if it is available
+                // @codeCoverageIgnoreStart
                 if (class_exists('Titon\G11n\Utility\Validate')) {
                     $class = 'Titon\G11n\Utility\Validate';
                 } else {
                     $class = 'Titon\Utility\Validate';
                 }
+                // @codeCoverageIgnoreEnd
 
                 if (!call_user_func(array($class, 'hasMethod'), $rule)) {
                     throw new InvalidValidationRuleException(sprintf('Validation rule %s does not exist', $rule));
@@ -287,32 +289,32 @@ class Validator {
         /** @type \Titon\Utility\Validator $obj */
         $obj = new static($data);
 
-        foreach ($fields as $field => $data) {
+        foreach ($fields as $field => $options) {
             $title = $field;
 
             // Convert to array
-            if (is_string($data)) {
-                $data = array('rules' => $data);
+            if (is_string($options)) {
+                $options = array('rules' => $options);
 
-            } else if (!is_array($data)) {
+            } else if (!is_array($options)) {
                 continue;
 
-            } else if (Hash::isNumeric(array_keys($data))) {
-                $data = array('rules' => $data);
+            } else if (Hash::isNumeric(array_keys($options))) {
+                $options = array('rules' => $options);
             }
 
             // Prepare for parsing
-            if (isset($data['title'])) {
-                $title = $data['title'];
+            if (isset($options['title'])) {
+                $title = $options['title'];
             }
 
-            if (is_string($data['rules'])) {
-                $data['rules'] = explode('|', $data['rules']);
+            if (is_string($options['rules'])) {
+                $options['rules'] = explode('|', $options['rules']);
             }
 
             $obj->addField($field, $title);
 
-            foreach ($data['rules'] as $ruleOpts) {
+            foreach ($options['rules'] as $ruleOpts) {
                 $shorthand = self::splitShorthand($ruleOpts);
 
                 $obj->addRule($field, $shorthand['rule'], $shorthand['message'], $shorthand['options']);

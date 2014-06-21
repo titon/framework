@@ -109,7 +109,7 @@ class Validate extends Macro {
      * @throws \Titon\Utility\Exception\InvalidArgumentException
      */
     public static function comparison($input, $check, $mode) {
-        switch (mb_strtolower($mode)) {
+        switch (strtolower($mode)) {
             case 'greater':
             case 'gt':
             case '>':
@@ -164,19 +164,19 @@ class Validate extends Macro {
         }
 
         $cards = array(
-            static::AMERICAN_EXPRESS  => '/^3[4|7]\\d{13}$/',
-            static::BANKCARD          => '/^56(10\\d\\d|022[1-5])\\d{10}$/',
-            static::DISCOVER          => '/^(?:6011|650\\d)\\d{12}$/',
-            static::ENROUTE           => '/^2(?:014|149)\\d{11}$/',
-            static::JCB               => '/^(3\\d{4}|2100|1800)\\d{11}$/',
-            static::MAESTRO           => '/^(?:5020|6\\d{3})\\d{12}$/',
-            static::MASTERCARD        => '/^5[1-5]\\d{14}$/',
-            static::DINERS_CLUB       => '/^(?:3(0[0-5]|[68]\\d)\\d{11})|(?:5[1-5]\\d{14})$/',
-            static::SOLO_DEBIT        => '/^(6334[5-9][0-9]|6767[0-9]{2})\\d{10}(\\d{2,3})?$/',
-            static::SWITCH_DEBIT      => '/^(?:49(03(0[2-9]|3[5-9])|11(0[1-2]|7[4-9]|8[1-2])|36[0-9]{2})\\d{10}(\\d{2,3})?)|(?:564182\\d{10}(\\d{2,3})?)|(6(3(33[0-4][0-9])|759[0-9]{2})\\d{10}(\\d{2,3})?)$/',
-            static::VISA              => '/^4\\d{12}(\\d{3})?$/',
-            static::VISA_ELECTRON     => '/^(?:417500|4917\\d{2}|4913\\d{2})\\d{10}$/',
-            static::VOYAGER           => '/^8699[0-9]{11}$/'
+            self::AMERICAN_EXPRESS  => '/^3[4|7]\\d{13}$/',
+            self::BANKCARD          => '/^56(10\\d\\d|022[1-5])\\d{10}$/',
+            self::DISCOVER          => '/^(?:6011|650\\d)\\d{12}$/',
+            self::ENROUTE           => '/^2(?:014|149)\\d{11}$/',
+            self::JCB               => '/^(3\\d{4}|2100|1800)\\d{11}$/',
+            self::MAESTRO           => '/^(?:5020|6\\d{3})\\d{12}$/',
+            self::MASTERCARD        => '/^5[1-5]\\d{14}$/',
+            self::DINERS_CLUB       => '/^(?:3(0[0-5]|[68]\\d)\\d{11})|(?:5[1-5]\\d{14})$/',
+            self::SOLO_DEBIT        => '/^(6334[5-9][0-9]|6767[0-9]{2})\\d{10}(\\d{2,3})?$/',
+            self::SWITCH_DEBIT      => '/^(?:49(03(0[2-9]|3[5-9])|11(0[1-2]|7[4-9]|8[1-2])|36[0-9]{2})\\d{10}(\\d{2,3})?)|(?:564182\\d{10}(\\d{2,3})?)|(6(3(33[0-4][0-9])|759[0-9]{2})\\d{10}(\\d{2,3})?)$/',
+            self::VISA              => '/^4\\d{12}(\\d{3})?$/',
+            self::VISA_ELECTRON     => '/^(?:417500|4917\\d{2}|4913\\d{2})\\d{10}$/',
+            self::VOYAGER           => '/^8699[0-9]{11}$/'
         );
 
         if ($types) {

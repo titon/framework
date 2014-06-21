@@ -100,6 +100,13 @@ class ValidatorTest extends TestCase {
         ], $this->object->getRules());
     }
 
+    /**
+     * @expectedException \Titon\Utility\Exception\InvalidArgumentException
+     */
+    public function testAddRuleInvalidField() {
+        $this->object->addRule('field', 'rule', 'message');
+    }
+
     public function testMessages() {
         $this->object
             ->addField('username', 'Username')
@@ -161,17 +168,15 @@ class ValidatorTest extends TestCase {
         $this->object->validate();
     }
 
-    public function testValidate() {
-        $this->object->addField('username', 'Username')->addRule('username', 'alpha', 'Not alpha');
+    public function testReset() {
+        $this->assertEquals(['username' => 'miles', 'email' => 'miles@titon'], $this->object->getData());
+        $this->object->reset();
+        $this->assertEquals([], $this->object->getData());
+    }
 
-        $this->assertTrue($this->object->validate());
-        $this->assertEquals([], $this->object->getErrors());
-
-        // this will fail
-        $this->object->addField('email', 'Email')->addRule('email', 'email', 'Invalid email');
-
-        $this->assertFalse($this->object->validate());
-        $this->assertEquals(['email' => 'Invalid email'], $this->object->getErrors());
+    public function testSetGetData() {
+        $this->object->setData(['foo' => 'bar']);
+        $this->assertEquals(['foo' => 'bar'], $this->object->getData());
     }
 
     public function testSplitShorthand() {
@@ -211,10 +216,41 @@ class ValidatorTest extends TestCase {
         ], $this->object->splitShorthand('between:1,10:Must be between 1:10!'));
     }
 
+    public function testValidate() {
+        $this->object->addField('username', 'Username')->addRule('username', 'alpha', 'Not alpha');
+
+        $this->assertTrue($this->object->validate());
+        $this->assertEquals([], $this->object->getErrors());
+
+        // this will fail
+        $this->object->addField('email', 'Email')->addRule('email', 'email', 'Invalid email');
+
+        $this->assertFalse($this->object->validate());
+        $this->assertEquals(['email' => 'Invalid email'], $this->object->getErrors());
+    }
+
+    public function testValidateFailsNoData() {
+        $this->object->reset();
+
+        $this->assertFalse($this->object->validate());
+    }
+
+    /**
+     * @expectedException \Titon\Utility\Exception\InvalidValidationRuleException
+     */
+    public function testValidateMissingRule() {
+        $this->object
+            ->addField('username', 'Username')
+                ->addRule('username', 'fooBar', 'A message');
+
+        $this->object->validate();
+    }
+
     public function testMakeFromShorthand() {
         // simple rule
         $obj = Validator::makeFromShorthand([], [
-            'field' => 'alphaNumeric'
+            'field' => 'alphaNumeric',
+            'field2' => 123 // ignored
         ]);
 
         $this->assertEquals([

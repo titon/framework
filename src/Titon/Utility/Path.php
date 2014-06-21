@@ -224,6 +224,7 @@ class Path extends Macro {
      *
      * @param string $path
      * @return string
+     * @codeCoverageIgnore
      */
     public static function normalize($path) {
         return realpath($path);

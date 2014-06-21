@@ -153,7 +153,7 @@ class Hash extends Macro {
 
             // Break out of non-existent paths early
             } else if (!array_key_exists($key, $search) || !is_array($search[$key])) {
-                return null;
+                break;
             }
 
             $search =& $search[$key];
@@ -298,7 +298,7 @@ class Hash extends Macro {
 
             // Break out of non-existent paths early
             } else if (!array_key_exists($key, $search) || !is_array($search[$key])) {
-                return false;
+                break;
             }
 
             $search =& $search[$key];
@@ -636,7 +636,7 @@ class Hash extends Macro {
 
             // Break out of non-existent paths early
             } else if (!array_key_exists($key, $search) || !is_array($search[$key])) {
-                return $set;
+                break;
             }
 
             $search =& $search[$key];

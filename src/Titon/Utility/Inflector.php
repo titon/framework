@@ -93,6 +93,7 @@ class Inflector extends Macro {
      *
      * @param int $number
      * @return string
+     * @codeCoverageIgnore
      */
     public static function ordinal($number) {
         return $number;
@@ -103,6 +104,7 @@ class Inflector extends Macro {
      *
      * @param string $string
      * @return string
+     * @codeCoverageIgnore
      */
     public static function pluralize($string) {
         return $string;
@@ -125,6 +127,7 @@ class Inflector extends Macro {
      *
      * @param string $string
      * @return string
+     * @codeCoverageIgnore
      */
     public static function singularize($string) {
         return $string;
@@ -156,6 +159,7 @@ class Inflector extends Macro {
      *
      * @param string $string
      * @return string
+     * @codeCoverageIgnore
      */
     public static function snakeCase($string) {
         return static::underscore($string);
@@ -190,6 +194,7 @@ class Inflector extends Macro {
      *
      * @param string $string
      * @return string
+     * @codeCoverageIgnore
      */
     public static function transliterate($string) {
         return $string;

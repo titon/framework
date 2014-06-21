@@ -443,6 +443,51 @@ class ConverterTest extends TestCase {
         ];
 
         $this->assertEquals($expected, Converter::xmlToArray(simplexml_load_string($this->barbarian), Converter::XML_NONE));
+
+        $xml = <<<XML
+<unit>
+    <name>Barbarian</name>
+    <life>50</life>
+    <mana>100</mana>
+    <stamina>15</stamina>
+    <vitality>20</vitality>
+    <dexterity></dexterity>
+    <agility></agility>
+    <armors>
+        <armor>Helmet</armor>
+        <armor>Shoulder Plates</armor>
+        <armor>Breast Plate</armor>
+        <armor>Greaves</armor>
+        <armor>Gloves</armor>
+        <armor>Shield</armor>
+    </armors>
+    <weapons>
+        <sword>Broadsword</sword>
+        <sword>Longsword</sword>
+        <axe>Heavy Axe</axe>
+        <axe>Double-edged Axe</axe>
+        <polearm>Polearm</polearm>
+        <mace>Mace</mace>
+    </weapons>
+    <items>
+        <potions>
+            <potion>Health Potion</potion>
+            <potion>Mana Potion</potion>
+        </potions>
+        <keys>
+            <chestKey>Chest Key</chestKey>
+            <bossKey>Boss Key</bossKey>
+        </keys>
+        <food>Fruit</food>
+        <food>Bread</food>
+        <food>Vegetables</food>
+        <scrap>Scrap</scrap>
+    </items>
+</unit>
+XML;
+
+        $xmlObject = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><unit></unit>');
+        $this->assertEquals($this->prepareExpectedXml($xml), Converter::buildXml($xmlObject, $expected)->asXML());
     }
 
     public function testXmlToArrayMerge() {
@@ -492,6 +537,53 @@ class ConverterTest extends TestCase {
         ];
 
         $this->assertEquals($expected, Converter::xmlToArray(simplexml_load_string($this->barbarian), Converter::XML_MERGE));
+
+        $xml = <<<XML
+<unit>
+    <name>Barbarian</name>
+    <life max="150">50</life>
+    <mana max="250">100</mana>
+    <stamina>15</stamina>
+    <vitality>20</vitality>
+    <dexterity evade="5%" block="10%"></dexterity>
+    <agility turnRate="1.25" acceleration="5"></agility>
+    <armors>
+        <armor defense="15">Helmet</armor>
+        <armor defense="25">Shoulder Plates</armor>
+        <armor defense="50">Breast Plate</armor>
+        <armor defense="10">Greaves</armor>
+        <armor defense="10">Gloves</armor>
+        <armor defense="25">Shield</armor>
+        <items>6</items>
+    </armors>
+    <weapons>
+        <sword damage="25">Broadsword</sword>
+        <sword damage="30">Longsword</sword>
+        <axe damage="20">Heavy Axe</axe>
+        <axe damage="25">Double-edged Axe</axe>
+        <polearm damage="50" range="3" speed="slow">Polearm</polearm>
+        <mace damage="15" speed="fast">Mace</mace>
+        <items>6</items>
+    </weapons>
+    <items>
+        <potions>
+            <potion>Health Potion</potion>
+            <potion>Mana Potion</potion>
+        </potions>
+        <keys>
+            <chestKey>Chest Key</chestKey>
+            <bossKey>Boss Key</bossKey>
+        </keys>
+        <food>Fruit</food>
+        <food>Bread</food>
+        <food>Vegetables</food>
+        <scrap count="25">Scrap</scrap>
+    </items>
+</unit>
+XML;
+
+        $xmlObject = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><unit></unit>');
+        $this->assertEquals($this->prepareExpectedXml($xml), Converter::buildXml($xmlObject, $expected)->asXML());
     }
 
     public function testXmlToArrayGroup() {
@@ -566,6 +658,54 @@ class ConverterTest extends TestCase {
         ];
 
         $this->assertEquals($expected, Converter::xmlToArray(simplexml_load_string($this->barbarian), Converter::XML_GROUP));
+
+        // Unset the value so that it auto-nulls
+        unset($expected['agility']['value']);
+
+        $xml = <<<XML
+<unit>
+    <name>Barbarian</name>
+    <life max="150">50</life>
+    <mana max="250">100</mana>
+    <stamina>15</stamina>
+    <vitality>20</vitality>
+    <dexterity evade="5%" block="10%"></dexterity>
+    <agility turnRate="1.25" acceleration="5"></agility>
+    <armors items="6">
+        <armor defense="15">Helmet</armor>
+        <armor defense="25">Shoulder Plates</armor>
+        <armor defense="50">Breast Plate</armor>
+        <armor defense="10">Greaves</armor>
+        <armor defense="10">Gloves</armor>
+        <armor defense="25">Shield</armor>
+    </armors>
+    <weapons items="6">
+        <sword damage="25">Broadsword</sword>
+        <sword damage="30">Longsword</sword>
+        <axe damage="20">Heavy Axe</axe>
+        <axe damage="25">Double-edged Axe</axe>
+        <polearm damage="50" range="3" speed="slow">Polearm</polearm>
+        <mace damage="15" speed="fast">Mace</mace>
+    </weapons>
+    <items>
+        <potions>
+            <potion>Health Potion</potion>
+            <potion>Mana Potion</potion>
+        </potions>
+        <keys>
+            <chestKey>Chest Key</chestKey>
+            <bossKey>Boss Key</bossKey>
+        </keys>
+        <food>Fruit</food>
+        <food>Bread</food>
+        <food>Vegetables</food>
+        <scrap count="25">Scrap</scrap>
+    </items>
+</unit>
+XML;
+
+        $xmlObject = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><unit></unit>');
+        $this->assertEquals($this->prepareExpectedXml($xml), Converter::buildXml($xmlObject, $expected)->asXML());
     }
 
     public function testXmlToArrayAttribs() {
@@ -615,6 +755,10 @@ class ConverterTest extends TestCase {
         }
 
         return $item;
+    }
+
+    protected function prepareExpectedXml($string) {
+        return '<?xml version="1.0" encoding="utf-8"?>' . "\n" . str_replace('    ', '', $this->clean($string)) . "\n";
     }
 
 }

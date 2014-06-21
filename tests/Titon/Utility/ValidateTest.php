@@ -90,49 +90,64 @@ class ValidateTest extends TestCase {
     }
 
     public function testCreditCard() {
+        $this->assertTrue(Validate::creditCard('4916933155767'));
+        $this->assertFalse(Validate::creditCard('2346533'));
+
         // American express
         $this->assertTrue(Validate::creditCard('377147515754475', Validate::AMERICAN_EXPRESS));
         $this->assertTrue(Validate::creditCard('375239372816422', Validate::AMERICAN_EXPRESS));
+
         // Bankcard
         $this->assertTrue(Validate::creditCard('5602248780118788', Validate::BANKCARD));
         $this->assertTrue(Validate::creditCard('5610631567676765', Validate::BANKCARD));
+
         // Diners club 14
         $this->assertTrue(Validate::creditCard('30158334709185', Validate::DINERS_CLUB));
         $this->assertTrue(Validate::creditCard('30195413721186', Validate::DINERS_CLUB));
         $this->assertTrue(Validate::creditCard('5577265786122391', Validate::DINERS_CLUB));
         $this->assertTrue(Validate::creditCard('5534061404676989', Validate::DINERS_CLUB));
+
         // Discover
         $this->assertTrue(Validate::creditCard('6509735979634270', Validate::DISCOVER));
         $this->assertTrue(Validate::creditCard('6011422366775856', Validate::DISCOVER));
+
         // enRoute
         $this->assertTrue(Validate::creditCard('214945833739665', Validate::ENROUTE));
         $this->assertTrue(Validate::creditCard('214982692491187', Validate::ENROUTE));
+
         // JCB
         $this->assertTrue(Validate::creditCard('180031358949367', Validate::JCB));
         $this->assertTrue(Validate::creditCard('180033802147846', Validate::JCB));
         $this->assertTrue(Validate::creditCard('3158671691305165', Validate::JCB));
         $this->assertTrue(Validate::creditCard('3528523028771093', Validate::JCB));
+
         // Maestro
         $this->assertTrue(Validate::creditCard('5020412965470224', Validate::MAESTRO));
         $this->assertTrue(Validate::creditCard('5020129740944022', Validate::MAESTRO));
+
         // Mastercard
         $this->assertTrue(Validate::creditCard('5538725892618432', Validate::MASTERCARD));
         $this->assertTrue(Validate::creditCard('5119543573129778', Validate::MASTERCARD));
+
         // Solo
         $this->assertTrue(Validate::creditCard('6334768185398134', Validate::SOLO_DEBIT));
         $this->assertTrue(Validate::creditCard('633487484858610484', Validate::SOLO_DEBIT));
         $this->assertTrue(Validate::creditCard('6767838565218340113', Validate::SOLO_DEBIT));
+
         // Switch
         $this->assertTrue(Validate::creditCard('4936295218139423', Validate::SWITCH_DEBIT));
         $this->assertTrue(Validate::creditCard('493691609704348548', Validate::SWITCH_DEBIT));
         $this->assertTrue(Validate::creditCard('4936510653566569547', Validate::SWITCH_DEBIT));
+
         // Visa
         $this->assertTrue(Validate::creditCard('4916933155767', Validate::VISA));
         $this->assertTrue(Validate::creditCard('4024007159672', Validate::VISA));
         $this->assertTrue(Validate::creditCard('4481007485188614', Validate::VISA));
         $this->assertTrue(Validate::creditCard('4716533372139623', Validate::VISA));
+
         // Visa electron
         $this->assertTrue(Validate::creditCard('4175005028142917', Validate::VISA_ELECTRON));
+
         // Voyager
         $this->assertTrue(Validate::creditCard('869934523596112', Validate::VOYAGER));
         $this->assertTrue(Validate::creditCard('869958670174621', Validate::VOYAGER));
@@ -246,6 +261,10 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::ext('image.bmp'));
         $this->assertFalse(Validate::ext('doc.doc', 'pdf'));
         $this->assertFalse(Validate::ext('web.XML', ['html', 'xhtml']));
+    }
+
+    public function testExtFile() {
+        $this->assertTrue(Validate::ext(['name' => 'image.gif', 'error' => 0, 'type' => 'image/gif']));
     }
 
     public function testFile() {

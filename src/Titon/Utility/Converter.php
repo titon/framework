@@ -286,15 +286,12 @@ class Converter extends Macro {
     public static function toXml($resource, $root = 'root') {
         if ($resource instanceof Xmlable) {
             return $resource->toXml($root);
-
-        } else if ($array = static::toArray($resource, true)) {
-            $xml = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><' . $root . '></' . $root . '>');
-            $response = static::buildXml($xml, $array);
-
-            return trim($response->asXML());
         }
 
-        return null;
+        $xml = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><' . $root . '></' . $root . '>');
+        $response = static::buildXml($xml, static::toArray($resource, true));
+
+        return trim($response->asXML());
     }
 
     /**
@@ -390,11 +387,7 @@ class Converter extends Macro {
 
                     if (!empty($value)) {
                         foreach ($value as $aKey => $aValue) {
-                            if (is_array($aValue)) {
-                                static::buildXml($node, array($aKey => $aValue));
-                            } else {
-                                $node->addAttribute($aKey, static::unbox($aValue));
-                            }
+                            $node->addAttribute($aKey, static::unbox($aValue));
                         }
                     }
 

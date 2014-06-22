@@ -155,6 +155,13 @@ class Debugger {
     }
 
     /**
+     * Disable debugging.
+     */
+    public static function disable() {
+        static::enable(false);
+    }
+
+    /**
      * Output multiple variables in a nested HTML table.
      *
      * @param mixed $var,...

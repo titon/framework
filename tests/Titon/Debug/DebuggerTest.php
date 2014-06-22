@@ -22,6 +22,13 @@ class DebuggerTest extends TestCase {
         Debugger::setLogger(new Logger($this->vfs->path('/logs/')));
     }
 
+    protected function tearDown() {
+        parent::tearDown();
+
+        restore_exception_handler();
+        restore_error_handler();
+    }
+
     public function testBacktrace() {
         $this->assertRegExp('/^<div class="titon-debug titon-backtrace">/', Debugger::backtrace());
 
@@ -31,7 +38,7 @@ class DebuggerTest extends TestCase {
 
         $this->assertRegExp('/^<div class="titon-debug titon-backtrace">/', $actual);
 
-        Debugger::enable(false);
+        Debugger::disable();
         $this->assertEquals(null, Debugger::backtrace());
     }
 
@@ -44,7 +51,7 @@ class DebuggerTest extends TestCase {
 
         $this->assertRegExp('/^<div class="titon-debug">/', $actual);
 
-        Debugger::enable(false);
+        Debugger::disable();
         $this->assertEquals(null, Debugger::debug(1));
     }
 
@@ -57,7 +64,7 @@ class DebuggerTest extends TestCase {
 
         $this->assertRegExp('/^<div class="titon-debug">/', $actual);
 
-        Debugger::enable(false);
+        Debugger::disable();
         $this->assertEquals(null, Debugger::dump(1));
     }
 
@@ -72,7 +79,7 @@ class DebuggerTest extends TestCase {
 
         $this->assertRegExp('/^<div class="titon-debug titon-error">/', $actual);
 
-        Debugger::enable(false);
+        Debugger::disable();
         $this->assertEquals(null, Debugger::printException($e));
     }
 
@@ -85,7 +92,7 @@ class DebuggerTest extends TestCase {
         $this->assertEquals(1, ini_get('display_errors'));
         $this->assertEquals(32767, ini_get('error_reporting'));
 
-        Debugger::enable(false);
+        Debugger::disable();
         $this->assertEquals('', ini_get('display_errors'));
         $this->assertEquals(0, ini_get('error_reporting'));
     }
@@ -101,7 +108,7 @@ class DebuggerTest extends TestCase {
 
         $this->assertEquals("[\n\t0 => 123,\n]", $actual);
 
-        Debugger::enable(false);
+        Debugger::disable();
         $this->assertEquals(null, Debugger::export(123));
     }
 
@@ -142,7 +149,7 @@ class DebuggerTest extends TestCase {
         $this->assertRegExp('/<div class="titon-debug titon-error">/', $actual);
 
         // With no error reporting
-        Debugger::enable(false);
+        Debugger::disable();
 
         $this->assertFileNotExists($this->vfs->path('/logs/warning-' . date('Y-m-d') . '.log'));
 

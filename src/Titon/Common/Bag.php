@@ -17,10 +17,10 @@ interface Bag {
     /**
      * Add multiple parameters that will overwrite any previously defined parameters.
      *
-     * @param array $params
+     * @param array $data
      * @return $this
      */
-    public function add(array $params);
+    public function add(array $data);
 
     /**
      * Return all parameters and their values within the bag.

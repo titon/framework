@@ -28,7 +28,7 @@ abstract class AbstractBag extends Base implements Bag, ArrayAccess, IteratorAgg
      * @param array $data
      */
     public function __construct(array $data = []) {
-        $this->_data = $data;
+        $this->add($data);
     }
 
 }

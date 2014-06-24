@@ -5,12 +5,6 @@ use Titon\Test\TestCase;
 
 class RegistryTest extends TestCase {
 
-    protected function tearDown() {
-        parent::tearDown();
-
-        Registry::flush();
-    }
-
     public function testAll() {
         $base = new Base();
         $config = new Config();

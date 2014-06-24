@@ -16,12 +16,6 @@ use Titon\Test\TestCase;
  */
 class FactoryAwareTest extends TestCase {
 
-    protected function tearDown() {
-        parent::tearDown();
-
-        Registry::flush();
-    }
-
     public function testFactory() {
         $instance1 = FactoryStub::factory();
         $this->assertInstanceOf('Titon\Common\Mixin\FactoryStub', $instance1);

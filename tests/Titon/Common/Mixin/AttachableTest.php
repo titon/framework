@@ -33,12 +33,6 @@ class AttachableTest extends TestCase {
         };
     }
 
-    protected function tearDown() {
-        parent::tearDown();
-
-        Registry::flush();
-    }
-
     public function testAttachObject() {
         $this->assertInstanceOf('Titon\Common\Base', $this->object->base);
         $this->assertInstanceOf('Titon\Common\Config', $this->object->config);

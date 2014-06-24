@@ -29,6 +29,7 @@
         "files": [
             "src/common.php",
             "src/debug.php",
+            "src/route.php",
             "src/type.php",
             "src/utility.php"
         ]

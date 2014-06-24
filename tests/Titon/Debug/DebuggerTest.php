@@ -25,6 +25,7 @@ class DebuggerTest extends TestCase {
     protected function tearDown() {
         parent::tearDown();
 
+        // Restore or it breaks tests in other packages
         restore_exception_handler();
         restore_error_handler();
     }

@@ -7,6 +7,8 @@
 
 namespace Titon\Test;
 
+use Titon\Common\Registry;
+
 /**
  * Extends the PHPUnit TestCase class with more functionality.
  */
@@ -47,12 +49,14 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Unload fixtures.
+     * Unload fixtures and clear registry.
      */
     protected function tearDown() {
         parent::tearDown();
 
         $this->unloadFixtures();
+
+        Registry::flush();
     }
 
     /**
@@ -72,7 +76,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @return string
      */
     public function nl($string) {
-        return str_replace("\r", "", $string);
+        return str_replace("\r", '', $string);
     }
 
     /**
@@ -88,6 +92,15 @@ class TestCase extends \PHPUnit_Framework_TestCase {
         }
 
         throw new \Exception(sprintf('Fixture %s does not exist', $name));
+    }
+
+    /**
+     * Return all fixtures.
+     *
+     * @return \Titon\Test\TestFixture[]
+     */
+    public function getFixtures() {
+        return $this->_fixtures;
     }
 
     /**

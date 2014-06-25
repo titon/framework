@@ -32,10 +32,10 @@ class TestCase extends \PHPUnit_Framework_TestCase {
         $_COOKIE = [];
         $_SESSION = [];
         $_REQUEST = [];
-        $_SERVER = [
+        $_SERVER = array_merge($_SERVER, [
             'HTTP_HOST' => 'localhost',
             'DOCUMENT_ROOT' => '/root',
-            'SCRIPT_NAME' => 'index.php',
+            //'SCRIPT_NAME' => 'index.php',
             'SCRIPT_FILENAME' => '/root/index.php',
             'PHP_SELF' => '/index.php',
             'REQUEST_URI' => '/',
@@ -45,7 +45,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
             'PATH_INFO' => '/',
             'SERVER_PORT' => 80,
             'HTTPS' => 'off'
-        ];
+        ]);
     }
 
     /**

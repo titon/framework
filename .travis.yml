@@ -13,9 +13,16 @@ matrix:
     - php: hhvm
     - php: hhvm-nightly
 
+script:
+  - mkdir -p build/logs
+  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+
 before_script:
   - composer selfupdate
   - composer install
+
+after_script:
+  - php vendor/bin/coveralls -v
 
 notifications:
   email: false

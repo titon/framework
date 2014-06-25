@@ -1,1 +1,2 @@
-# Titon Framework [![Build Status](https://travis-ci.org/titon/framework.png)](https://travis-ci.org/titon/framework) #
+# Titon Framework #
+[![Build Status](https://travis-ci.org/titon/framework.png)](https://travis-ci.org/titon/framework) [![Coverage Status](https://coveralls.io/repos/titon/framework/badge.png)](https://coveralls.io/r/titon/framework)

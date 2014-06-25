@@ -13,7 +13,7 @@ use \Exception;
 /**
  * Allows fixtures to setup database records through the db layer.
  */
-class TestFixture {
+class Fixture {
 
     /**
      * Fully qualified repository class to use.

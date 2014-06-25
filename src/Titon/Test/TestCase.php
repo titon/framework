@@ -17,7 +17,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * List of loaded fixtures.
      *
-     * @type \Titon\Test\TestFixture[]
+     * @type \Titon\Test\Fixture[]
      */
     protected $_fixtures = [];
 
@@ -83,7 +83,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * Get a fixture by name.
      *
      * @param string $name
-     * @return \Titon\Test\TestFixture
+     * @return \Titon\Test\Fixture
      * @throws \Exception
      */
     public function getFixture($name) {
@@ -97,7 +97,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * Return all fixtures.
      *
-     * @return \Titon\Test\TestFixture[]
+     * @return \Titon\Test\Fixture[]
      */
     public function getFixtures() {
         return $this->_fixtures;
@@ -118,7 +118,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
         foreach ($fixtures as $fixture) {
             $className = sprintf('Titon\Test\Fixture\%sFixture', $fixture);
 
-            /** @type \Titon\Test\TestFixture $object */
+            /** @type \Titon\Test\Fixture $object */
             $object = new $className();
             $object->createTable();
             $object->insertRecords();

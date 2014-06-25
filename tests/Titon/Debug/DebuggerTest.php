@@ -8,6 +8,8 @@ use \ErrorException;
 
 /**
  * @property \VirtualFileSystem\FileSystem $vfs
+ *
+ * @runTestsInSeparateProcesses
  */
 class DebuggerTest extends TestCase {
 

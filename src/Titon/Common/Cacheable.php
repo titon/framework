@@ -5,32 +5,39 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use \Closure;
 
 /**
- * The Cacheable trait provides functionality to cache any data from the static class layer.
+ * The Cacheable trait provides functionality to cache any data from the class layer.
  * All data is unique and represented by a generated cache key.
  *
- * @package Titon\Common\Mixin
+ * @package Titon\Common
  */
-trait StaticCacheable {
+trait Cacheable {
 
     /**
      * Cached items indexed by key.
      *
      * @type array
      */
-    protected static $_cache = [];
+    protected $_cache = [];
+
+    /**
+     * Is cache on or off?
+     *
+     * @type bool
+     */
+    private $__cacheEnabled = true;
 
     /**
      * Return all the current cached items.
      *
      * @return array
      */
-    public static function allCache() {
-        return static::$_cache;
+    public function allCache() {
+        return $this->_cache;
     }
 
     /**
@@ -41,18 +48,22 @@ trait StaticCacheable {
      * @param mixed|\Closure $value
      * @return mixed
      */
-    public static function cache($key, $value) {
-        $key = static::createCacheKey($key);
+    public function cache($key, $value) {
+        $key = $this->createCacheKey($key);
 
-        if ($cache = static::getCache($key)) {
+        if ($cache = $this->getCache($key)) {
             return $cache;
         }
 
         if ($value instanceof Closure) {
-            $value = call_user_func($value);
+            $value = call_user_func($value, $this);
         }
 
-        return static::setCache($key, $value);
+        if (!$this->__cacheEnabled) {
+            return $value;
+        }
+
+        return $this->setCache($key, $value);
     }
 
     /**
@@ -61,7 +72,7 @@ trait StaticCacheable {
      * @param string|array $keys
      * @return string
      */
-    public static function createCacheKey($keys) {
+    public function createCacheKey($keys) {
         if (is_array($keys)) {
             $key = array_shift($keys);
 
@@ -83,9 +94,13 @@ trait StaticCacheable {
 
     /**
      * Empty the cache.
+     *
+     * @return $this
      */
-    public static function flushCache() {
-        static::$_cache = [];
+    public function flushCache() {
+        $this->_cache = [];
+
+        return $this;
     }
 
     /**
@@ -94,11 +109,15 @@ trait StaticCacheable {
      * @param string|array $key
      * @return mixed
      */
-    public static function getCache($key) {
-        $key = static::createCacheKey($key);
+    public function getCache($key) {
+        if (!$this->__cacheEnabled) {
+            return null;
+        }
 
-        if (static::hasCache($key)) {
-            return static::$_cache[$key];
+        $key = $this->createCacheKey($key);
+
+        if ($this->hasCache($key)) {
+            return $this->_cache[$key];
         }
 
         return null;
@@ -110,17 +129,20 @@ trait StaticCacheable {
      * @param string|array $key
      * @return bool
      */
-    public static function hasCache($key) {
-        return isset(static::$_cache[static::createCacheKey($key)]);
+    public function hasCache($key) {
+        return isset($this->_cache[$this->createCacheKey($key)]);
     }
 
     /**
      * Remove an item from the cache. Return true if the item was removed.
      *
      * @param string|array $key
+     * @return $this
      */
-    public static function removeCache($key) {
-        unset(static::$_cache[static::createCacheKey($key)]);
+    public function removeCache($key) {
+        unset($this->_cache[$this->createCacheKey($key)]);
+
+        return $this;
     }
 
     /**
@@ -132,10 +154,22 @@ trait StaticCacheable {
      * @param mixed $value
      * @return mixed
      */
-    public static function setCache($key, $value) {
-        static::$_cache[static::createCacheKey($key)] = $value;
+    public function setCache($key, $value) {
+        $this->_cache[$this->createCacheKey($key)] = $value;
 
         return $value;
+    }
+
+    /**
+     * Toggle cache on and off.
+     *
+     * @param bool $on
+     * @return $this
+     */
+    public function toggleCache($on = true) {
+        $this->__cacheEnabled = (bool) $on;
+
+        return $this;
     }
 
 }

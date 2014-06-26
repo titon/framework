@@ -7,9 +7,9 @@
 
 namespace Titon\Route;
 
-use Titon\Common\Mixin\Cacheable;
-use Titon\Common\Mixin\Configurable;
-use Titon\Common\Mixin\FactoryAware;
+use Titon\Common\Cacheable;
+use Titon\Common\Configurable;
+use Titon\Common\FactoryAware;
 use Titon\Event\Emittable;
 use Titon\Route\Exception\InvalidFilterException;
 use Titon\Route\Exception\InvalidRouteException;

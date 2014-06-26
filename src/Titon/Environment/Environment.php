@@ -7,8 +7,8 @@
 
 namespace Titon\Environment;
 
-use Titon\Common\Mixin\Configurable;
-use Titon\Common\Mixin\FactoryAware;
+use Titon\Common\Configurable;
+use Titon\Common\FactoryAware;
 use Titon\Environment\Exception\MissingBootstrapException;
 use Titon\Environment\Exception\MissingHostException;
 use Titon\Event\Emittable;

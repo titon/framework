@@ -5,9 +5,8 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
-use Titon\Common\Exception;
 use Titon\Common\Exception\InvalidObjectException;
 use Titon\Common\Exception\MissingObjectException;
 use Titon\Common\Exception\UnsupportedInterfaceException;
@@ -20,7 +19,7 @@ use \Closure;
  * It allows you to attach classes to the parent class, while encapsulating the attaching class in a Closure,
  * enabling the objects to only be instantiated when triggered; also known as lazy loading.
  *
- * @package Titon\Common\Mixin
+ * @package Titon\Common
  */
 trait Attachable {
 

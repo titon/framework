@@ -1,11 +1,11 @@
 <?php
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Common\Mixin\ConfigurableStub $object
+ * @property \Titon\Common\ConfigurableStub $object
  */
 class ConfigurableTest extends TestCase {
 

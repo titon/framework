@@ -5,14 +5,14 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Common\Bag\ReflectionBag;
 
 /**
  * Provides a reflection layer within classes.
  *
- * @package Titon\Common\Mixin
+ * @package Titon\Common
  */
 trait Reflectable {
 

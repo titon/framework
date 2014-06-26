@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Common\Base;
 use Titon\Test\TestCase;

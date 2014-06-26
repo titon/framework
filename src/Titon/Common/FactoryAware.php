@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Utility\Registry;
 use \ReflectionClass;
@@ -13,7 +13,7 @@ use \ReflectionClass;
 /**
  * Provides static methods for factoring or registering self instances.
  *
- * @package Titon\Common\Mixin
+ * @package Titon\Common
  */
 trait FactoryAware {
 

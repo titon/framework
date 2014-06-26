@@ -36,7 +36,6 @@ class TestCase extends \PHPUnit_Framework_TestCase {
         $_SERVER = array_merge($_SERVER, [
             'HTTP_HOST' => 'localhost',
             'DOCUMENT_ROOT' => '/root',
-            //'SCRIPT_NAME' => 'index.php',
             'SCRIPT_FILENAME' => '/root/index.php',
             'PHP_SELF' => '/index.php',
             'REQUEST_URI' => '/',

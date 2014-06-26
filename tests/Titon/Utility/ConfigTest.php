@@ -3,7 +3,11 @@ namespace Titon\Utility;
 
 use Titon\Io\Reader\PhpReader;
 use Titon\Test\TestCase;
+use VirtualFileSystem\FileSystem;
 
+/**
+ * @property \VirtualFileSystem\FileSystem $vfs
+ */
 class ConfigTest extends TestCase {
 
     protected $app = [
@@ -35,6 +39,8 @@ class ConfigTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
+
+        $this->vfs = new FileSystem();
 
         Config::set('app', $this->app);
         Config::set('debug', $this->debug);
@@ -127,7 +133,29 @@ class ConfigTest extends TestCase {
             $this->markTestSkipped('Test skipped; Please install titon/io via Composer');
         }
 
-        $reader = new PhpReader(TEMP_DIR . '/config.php');
+        $data = <<<CFG
+<?php
+
+return [
+    'integer' => 1234567890,
+    'number' => '1234567890',
+    'string' => 'abcdefg',
+    'emptyArray' => [],
+    'array' => [
+        'one' => true,
+        'two' => false,
+    ],
+    'false' => false,
+    'true' => true,
+    'null' => null,
+    'zero' => 0
+];
+CFG;
+
+
+        $this->vfs->createFile('/config.php', $data);
+
+        $reader = new PhpReader($this->vfs->path('/config.php'));
 
         Config::load('Php', $reader);
         $this->assertArrayHasKey('Php', Config::all());

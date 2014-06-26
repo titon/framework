@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Common\Base;
 use Titon\Test\TestCase;
@@ -16,13 +16,13 @@ class InstanceableTest extends TestCase {
         $object = InstanceableStub::getInstance();
         $object->setConfig('key', 1);
 
-        $this->assertInstanceOf('Titon\Common\Mixin\InstanceableStub', $object);
+        $this->assertInstanceOf('Titon\Common\InstanceableStub', $object);
         $this->assertEquals(1, InstanceableStub::countInstances());
 
         $object2 = InstanceableStub::getInstance('alternate');
         $object2->setConfig('key', 2);
 
-        $this->assertInstanceOf('Titon\Common\Mixin\InstanceableStub', $object);
+        $this->assertInstanceOf('Titon\Common\InstanceableStub', $object);
         $this->assertEquals(2, InstanceableStub::countInstances());
 
         // Test differences
@@ -42,12 +42,12 @@ class InstanceableTest extends TestCase {
         $object = InstanceableStub::getInstance();
         $object->setConfig('key', 1);
 
-        $this->assertInstanceOf('Titon\Common\Mixin\InstanceableStub', $object);
+        $this->assertInstanceOf('Titon\Common\InstanceableStub', $object);
         $this->assertEquals(1, InstanceableStub::countInstances());
 
         $object2 = InstanceableStub::getInstance();
 
-        $this->assertInstanceOf('Titon\Common\Mixin\InstanceableStub', $object);
+        $this->assertInstanceOf('Titon\Common\InstanceableStub', $object);
         $this->assertEquals(1, InstanceableStub::countInstances());
         $this->assertEquals(1, InstanceableStub::getInstance()->getConfig('key'));
 

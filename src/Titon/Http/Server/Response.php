@@ -7,8 +7,8 @@
 
 namespace Titon\Http\Server;
 
-use Titon\Common\Mixin\Attachable;
-use Titon\Common\Mixin\FactoryAware;
+use Titon\Common\Attachable;
+use Titon\Common\FactoryAware;
 use Titon\Http\AbstractMessage;
 use Titon\Http\Bag\CookieBag;
 use Titon\Http\Http;

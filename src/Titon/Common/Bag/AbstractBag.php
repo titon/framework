@@ -9,7 +9,7 @@ namespace Titon\Common\Bag;
 
 use Titon\Common\Bag;
 use Titon\Common\Base;
-use Titon\Common\Mixin\Mutable;
+use Titon\Common\Mutable;
 use \ArrayAccess;
 use \IteratorAggregate;
 use \Countable;

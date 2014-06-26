@@ -8,7 +8,7 @@
 namespace Titon\Http;
 
 use Titon\Http\Exception\InvalidExtensionException;
-use Titon\Common\Mixin\StaticCacheable;
+use Titon\Common\StaticCacheable;
 
 /**
  * MIME type related constants and static variables.

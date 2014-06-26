@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Utility\Converter;
 use Titon\Utility\Hash;
@@ -16,7 +16,7 @@ use \ArrayIterator;
  * It also provides methods for array access, iteration, and counting.
  * This trait is useful when an object should represent a set of data or an entity.
  *
- * @package Titon\Common\Mixin
+ * @package Titon\Common
  */
 trait Mutable {
 

@@ -1,11 +1,11 @@
 <?php
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Common\Mixin\CacheableStub $object
+ * @property \Titon\Common\CacheableStub $object
  */
 class CacheableTest extends TestCase {
 
@@ -33,7 +33,7 @@ class CacheableTest extends TestCase {
         $this->object->cache('class', function($parent) {
             return get_class($parent);
         });
-        $this->assertEquals('Titon\Common\Mixin\CacheableStub', $this->object->getCache('class'));
+        $this->assertEquals('Titon\Common\CacheableStub', $this->object->getCache('class'));
     }
 
     public function testCreateCacheKey() {

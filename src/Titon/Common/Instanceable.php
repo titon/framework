@@ -5,14 +5,14 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use \ReflectionClass;
 
 /**
  * The Instanceable trait provides a low-level multiton interface for classes.
  *
- * @package Titon\Common\Mixin
+ * @package Titon\Common
  */
 trait Instanceable {
 

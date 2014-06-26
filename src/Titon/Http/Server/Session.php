@@ -8,7 +8,7 @@
 namespace Titon\Http\Server;
 
 use Titon\Common\Base;
-use Titon\Common\Mixin\Mutable;
+use Titon\Common\Mutable;
 use Titon\Http\Request as BaseRequest;
 use Titon\Http\RequestAware;
 use Titon\Utility\Config;

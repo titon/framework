@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Common\Bag\ConfigBag;
 use Titon\Utility\Hash;
@@ -13,7 +13,7 @@ use Titon\Utility\Hash;
 /**
  * Provides a configuration layer within classes.
  *
- * @package Titon\Common\Mixin
+ * @package Titon\Common
  */
 trait Configurable {
 

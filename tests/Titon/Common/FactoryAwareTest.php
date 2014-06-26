@@ -5,22 +5,22 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Common\Mixin\FactoryStub $object
+ * @property \Titon\Common\FactoryStub $object
  */
 class FactoryAwareTest extends TestCase {
 
     public function testFactory() {
         $instance1 = FactoryStub::factory();
-        $this->assertInstanceOf('Titon\Common\Mixin\FactoryStub', $instance1);
+        $this->assertInstanceOf('Titon\Common\FactoryStub', $instance1);
 
         $instance2 = FactoryStub::factory();
-        $this->assertInstanceOf('Titon\Common\Mixin\FactoryStub', $instance2);
+        $this->assertInstanceOf('Titon\Common\FactoryStub', $instance2);
 
         $this->assertNotSame($instance1, $instance2);
     }
@@ -28,7 +28,7 @@ class FactoryAwareTest extends TestCase {
     public function testRegistry() {
         $instance = FactoryStub::registry();
 
-        $this->assertInstanceOf('Titon\Common\Mixin\FactoryStub', $instance);
+        $this->assertInstanceOf('Titon\Common\FactoryStub', $instance);
         $this->assertSame($instance, FactoryStub::registry());
     }
 

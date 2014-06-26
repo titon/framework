@@ -2,7 +2,7 @@
 namespace Titon\Common\Bag;
 
 use Titon\Common\Base;
-use Titon\Common\Mixin\Cacheable;
+use Titon\Common\Cacheable;
 use Titon\Test\TestCase;
 
 /**
@@ -142,9 +142,9 @@ class ReflectionBagTest extends TestCase {
 
     public function testTraits() {
         $traits = [
-            'Titon\Common\Mixin\Cacheable',
-            'Titon\Common\Mixin\Configurable',
-            'Titon\Common\Mixin\Reflectable'
+            'Titon\Common\Cacheable',
+            'Titon\Common\Configurable',
+            'Titon\Common\Reflectable'
         ];
 
         $this->assertArraysEqual($traits, $this->object->traits);

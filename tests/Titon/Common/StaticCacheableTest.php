@@ -1,5 +1,5 @@
 <?php
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Common\Base;
 use Titon\Test\TestCase;
@@ -28,9 +28,9 @@ class StaticCacheableTest extends TestCase {
         $this->assertEquals(2200, StaticCacheableStub::getCache('closure'));
 
         StaticCacheableStub::cache('class', function() {
-            return 'Titon\Common\Mixin\StaticCacheableStub';
+            return 'Titon\Common\StaticCacheableStub';
         });
-        $this->assertEquals('Titon\Common\Mixin\StaticCacheableStub', StaticCacheableStub::getCache('class'));
+        $this->assertEquals('Titon\Common\StaticCacheableStub', StaticCacheableStub::getCache('class'));
     }
 
     public function testCreateCacheKey() {

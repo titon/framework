@@ -7,8 +7,8 @@
 
 namespace Titon\Common;
 
-use Titon\Common\Mixin\Configurable;
-use Titon\Common\Mixin\Reflectable;
+use Titon\Common\Configurable;
+use Titon\Common\Reflectable;
 use \Serializable;
 use \JsonSerializable;
 

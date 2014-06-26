@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Mixin;
+namespace Titon\Common;
 
 use Titon\Test\TestCase;
 use \ArrayAccess;
@@ -13,7 +13,7 @@ use \IteratorAggregate;
 use \Countable;
 
 /**
- * @property \Titon\Common\Mixin\MutableStub $object
+ * @property \Titon\Common\MutableStub $object
  */
 class MutableTest extends TestCase {
 

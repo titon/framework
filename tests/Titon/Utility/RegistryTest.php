@@ -1,5 +1,5 @@
 <?php
-namespace Titon\Common;
+namespace Titon\Utility;
 
 use Titon\Test\TestCase;
 
@@ -62,7 +62,7 @@ class RegistryTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Common\Exception\InvalidObjectException
+     * @expectedException \Titon\Utility\Exception\InvalidObjectException
      */
     public function testSetInvalidObject() {
         Registry::set(12345);
@@ -100,7 +100,7 @@ class RegistryTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Common\Exception\MissingObjectException
+     * @expectedException \Titon\Utility\Exception\MissingObjectException
      */
     public function testGetInvalidKey() {
         Registry::get('missingKey');

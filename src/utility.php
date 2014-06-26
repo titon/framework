@@ -5,12 +5,52 @@
  * @link        http://titon.io
  */
 
+use Titon\Utility\Config;
 use Titon\Utility\Converter;
 use Titon\Utility\Hash;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
+use Titon\Utility\Registry;
 use Titon\Utility\Sanitize;
 use Titon\Utility\String;
+
+/**
+ * @see Titon\Utility\Config::get()
+ * @see Titon\Utility\Config::set()
+ */
+if (!function_exists('config')) {
+    function config($key, $value = null) {
+        if ($value !== null) {
+            Config::set($key, $value);
+            return true;
+        }
+
+        return Config::get($key);
+    }
+}
+
+/**
+ * @see Titon\Utility\Registry::get()
+ * @see Titon\Utility\Registry::set()
+ */
+if (!function_exists('registry')) {
+    function registry($key, $object = null) {
+        if ($object !== null) {
+            return Registry::set($object, $key);
+        }
+
+        return Registry::get($key);
+    }
+}
+
+/**
+ * @see Titon\Utility\Registry::factory()
+ */
+if (!function_exists('factory')) {
+    function factory($key) {
+        return Registry::factory($key);
+    }
+}
 
 /**
  * @see Titon\Utility\Hash::depth()

@@ -8,10 +8,10 @@
 namespace Titon\Http\Server;
 
 use Titon\Common\Base;
-use Titon\Common\Config;
 use Titon\Common\Mixin\Mutable;
 use Titon\Http\Request as BaseRequest;
 use Titon\Http\RequestAware;
+use Titon\Utility\Config;
 use Titon\Utility\Hash;
 use Titon\Utility\Time;
 use \SessionHandlerInterface;
@@ -192,7 +192,7 @@ class Session extends Base implements ArrayAccess, IteratorAggregate, Countable 
     /**
      * Persist the session security params.
      *
-     * @uses Titon\Common\Config
+     * @uses Titon\Utility\Config
      * @uses Titon\Utility\Time
      *
      * @return $this
@@ -318,7 +318,7 @@ class Session extends Base implements ArrayAccess, IteratorAggregate, Countable 
     /**
      * Validate the session and regenerate or destroy if necessary.
      *
-     * @uses Titon\Common\Config
+     * @uses Titon\Utility\Config
      *
      * @return $this
      */

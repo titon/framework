@@ -7,7 +7,6 @@
 
 namespace Titon\Http\Server;
 
-use Titon\Common\Config;
 use Titon\Common\Mixin\Attachable;
 use Titon\Common\Mixin\FactoryAware;
 use Titon\Http\AbstractMessage;
@@ -17,6 +16,7 @@ use Titon\Http\Mime;
 use Titon\Http\Request as BaseRequest;
 use Titon\Http\Response as BaseResponse;
 use Titon\Http\RequestAware;
+use Titon\Utility\Config;
 use Titon\Utility\Format;
 use Titon\Utility\Number;
 use Titon\Utility\String;
@@ -306,7 +306,7 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * Set the Content-Type header. If the type is text based, include the app charset.
      *
-     * @uses Titon\Common\Config
+     * @uses Titon\Utility\Config
      * @uses Titon\Http\Mime
      * @uses Titon\Utility\String
      *

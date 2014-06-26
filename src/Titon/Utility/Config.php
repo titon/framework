@@ -5,10 +5,9 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common;
+namespace Titon\Utility;
 
 use Titon\Io\Reader;
-use Titon\Utility\Hash;
 
 /**
  * Stores the current configuration options for the application.

@@ -1,5 +1,5 @@
 <?php
-namespace Titon\Common;
+namespace Titon\Utility;
 
 use Titon\Io\Reader\PhpReader;
 use Titon\Test\TestCase;

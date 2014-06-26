@@ -7,7 +7,6 @@
 
 namespace Titon\Route;
 
-use Titon\Common\Config;
 use Titon\Common\Mixin\Cacheable;
 use Titon\Common\Mixin\Configurable;
 use Titon\Common\Mixin\FactoryAware;
@@ -19,6 +18,7 @@ use Titon\Route\Exception\MissingSegmentException;
 use Titon\Route\Exception\MissingRouteException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
+use Titon\Utility\Config;
 use Titon\Utility\Inflector;
 use Titon\Utility\Hash;
 use Titon\Utility\String;

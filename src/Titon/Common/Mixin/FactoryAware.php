@@ -7,7 +7,7 @@
 
 namespace Titon\Common\Mixin;
 
-use Titon\Common\Registry;
+use Titon\Utility\Registry;
 use \ReflectionClass;
 
 /**

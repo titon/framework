@@ -1,7 +1,7 @@
 <?php
 namespace Titon\Route;
 
-use Titon\Common\Config;
+use Titon\Utility\Config;
 use Titon\Test\TestCase;
 
 /**

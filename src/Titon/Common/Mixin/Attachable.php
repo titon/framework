@@ -11,7 +11,7 @@ use Titon\Common\Exception;
 use Titon\Common\Exception\InvalidObjectException;
 use Titon\Common\Exception\MissingObjectException;
 use Titon\Common\Exception\UnsupportedInterfaceException;
-use Titon\Common\Registry;
+use Titon\Utility\Registry;
 use Titon\Utility\Inflector;
 use \Closure;
 
@@ -178,7 +178,7 @@ trait Attachable {
      * Primary method to detect if the object being called can be returned; based on restrictions and instantiation.
      * If an object is not instantiated, it will create it based off the Closure (if applicable) or the options namespace.
      *
-     * @uses Titon\Common\Registry
+     * @uses Titon\Utility\Registry
      *
      * @param string $class
      * @return object

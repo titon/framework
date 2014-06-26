@@ -14,7 +14,7 @@ use Titon\Io\Reader;
  * Configuration can be loaded from multiple sources including environment, bootstraps and internal system classes.
  * Various readers can be used to import specific configuration files.
  *
- * @package Titon\Common
+ * @package Titon\Utility
  */
 class Config {
 
@@ -54,6 +54,13 @@ class Config {
      */
     public static function encoding() {
         return static::get('app.encoding') ?: 'UTF-8';
+    }
+
+    /**
+     * Flush configuration by removing all settings.
+     */
+    public static function flush() {
+        static::$_config = [];
     }
 
     /**

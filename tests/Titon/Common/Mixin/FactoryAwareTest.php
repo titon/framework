@@ -8,7 +8,6 @@
 namespace Titon\Common\Mixin;
 
 use Titon\Common\Base;
-use Titon\Common\Registry;
 use Titon\Test\TestCase;
 
 /**

@@ -3,7 +3,7 @@ namespace Titon\Common\Mixin;
 
 use Titon\Common\Bag\ConfigBag;
 use Titon\Common\Base;
-use Titon\Common\Registry;
+use Titon\Utility\Registry;
 use Titon\Test\TestCase;
 
 /**
@@ -24,7 +24,7 @@ class AttachableTest extends TestCase {
         // by class
         $this->object->attachObject([
             'alias' => 'config',
-            'class' => 'Titon\Common\Config'
+            'class' => 'Titon\Utility\Config'
         ]);
 
         // by property
@@ -35,8 +35,8 @@ class AttachableTest extends TestCase {
 
     public function testAttachObject() {
         $this->assertInstanceOf('Titon\Common\Base', $this->object->base);
-        $this->assertInstanceOf('Titon\Common\Config', $this->object->config);
-        $this->assertInstanceOf('Titon\Common\Registry', $this->object->registry);
+        $this->assertInstanceOf('Titon\Utility\Config', $this->object->config);
+        $this->assertInstanceOf('Titon\Utility\Registry', $this->object->registry);
     }
 
     public function testAttachObjectWithInterface() {
@@ -101,11 +101,11 @@ class AttachableTest extends TestCase {
         $this->assertInstanceOf('Titon\Common\Base', $this->object->base);
         $this->assertInstanceOf('Titon\Common\Base', $this->object->getObject('base'));
 
-        $this->assertInstanceOf('Titon\Common\Config', $this->object->config);
-        $this->assertInstanceOf('Titon\Common\Config', $this->object->getObject('config'));
+        $this->assertInstanceOf('Titon\Utility\Config', $this->object->config);
+        $this->assertInstanceOf('Titon\Utility\Config', $this->object->getObject('config'));
 
-        $this->assertInstanceOf('Titon\Common\Registry', $this->object->registry);
-        $this->assertInstanceOf('Titon\Common\Registry', $this->object->getObject('registry'));
+        $this->assertInstanceOf('Titon\Utility\Registry', $this->object->registry);
+        $this->assertInstanceOf('Titon\Utility\Registry', $this->object->getObject('registry'));
     }
 
     /**

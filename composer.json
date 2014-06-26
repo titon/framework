@@ -28,7 +28,6 @@
     "autoload": {
         "psr-0": { "": "src/" },
         "files": [
-            "src/common.php",
             "src/debug.php",
             "src/route.php",
             "src/type.php",

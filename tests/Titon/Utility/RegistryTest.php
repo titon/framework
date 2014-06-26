@@ -1,6 +1,7 @@
 <?php
 namespace Titon\Utility;
 
+use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 class RegistryTest extends TestCase {
@@ -16,8 +17,8 @@ class RegistryTest extends TestCase {
 
         $this->assertEquals([
             'Titon\Common\Base' => $base,
-            'Titon\Common\Config' => $config,
-            'Titon\Common\Registry' => $registry
+            'Titon\Utility\Config' => $config,
+            'Titon\Utility\Registry' => $registry
         ], Registry::all());
     }
 
@@ -62,7 +63,7 @@ class RegistryTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Utility\Exception\InvalidObjectException
+     * @expectedException \Titon\Common\Exception\InvalidObjectException
      */
     public function testSetInvalidObject() {
         Registry::set(12345);
@@ -100,7 +101,7 @@ class RegistryTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Utility\Exception\MissingObjectException
+     * @expectedException \Titon\Common\Exception\MissingObjectException
      */
     public function testGetInvalidKey() {
         Registry::get('missingKey');

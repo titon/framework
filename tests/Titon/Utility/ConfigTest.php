@@ -69,6 +69,18 @@ class ConfigTest extends TestCase {
         $this->assertEquals(Config::encoding(), 'UTF-8');
     }
 
+    public function testFlush() {
+        $this->assertEquals([
+            'app' => $this->app,
+            'debug' => $this->debug,
+            'test' => $this->test
+        ], Config::all());
+
+        Config::flush();
+
+        $this->assertEquals([], Config::all());
+    }
+
     public function testGet() {
         $this->assertEquals(Config::get('app.name'), $this->app['name']);
         $this->assertEquals(Config::get('app.seed'), $this->app['seed']);

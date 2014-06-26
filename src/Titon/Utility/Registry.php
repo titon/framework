@@ -5,11 +5,10 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common;
+namespace Titon\Utility;
 
 use Titon\Common\Exception\InvalidObjectException;
 use Titon\Common\Exception\MissingObjectException;
-use Titon\Utility\Path;
 use \Closure;
 use \ReflectionClass;
 
@@ -17,7 +16,7 @@ use \ReflectionClass;
  * The Registry acts a central hub where any part of the application can access a single instance of a stored object.
  * It registers all objects into the class to store in memory and be re-usable later at any given time.
  *
- * @package Titon\Common
+ * @package Titon\Utility
  */
 class Registry {
 

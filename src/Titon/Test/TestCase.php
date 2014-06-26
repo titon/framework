@@ -7,7 +7,8 @@
 
 namespace Titon\Test;
 
-use Titon\Common\Registry;
+use Titon\Utility\Config;
+use Titon\Utility\Registry;
 
 /**
  * Extends the PHPUnit TestCase class with more functionality.
@@ -56,6 +57,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 
         $this->unloadFixtures();
 
+        Config::flush();
         Registry::flush();
     }
 

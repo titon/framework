@@ -542,7 +542,7 @@ class Debugger {
 
         ob_start();
 
-        include sprintf('%s/views/%s.php', dirname(dirname(__DIR__)), $template);
+        include sprintf('%s/templates/%s.php', __DIR__, $template);
 
         return ob_get_clean();
     }

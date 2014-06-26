@@ -28,10 +28,10 @@
     "autoload": {
         "psr-0": { "": "src/" },
         "files": [
-            "src/debug.php",
-            "src/route.php",
-            "src/type.php",
-            "src/utility.php"
+            "src/Titon/Debug/functions.php",
+            "src/Titon/Route/functions.php",
+            "src/Titon/Type/functions.php",
+            "src/Titon/Utility/functions.php"
         ]
     }
 }

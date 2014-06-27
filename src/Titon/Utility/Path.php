@@ -64,10 +64,10 @@ class Path extends Macro {
         }
 
         foreach ($paths as $key => $path) {
-            $path = trim(static::ds($path), self::SEPARATOR) . self::SEPARATOR;
+            $path = trim(static::ds($path), '/') . '/';
 
             if (mb_strpos($file, $path) !== false) {
-                $file = trim(str_replace($path, '[' . $key . ']', $file), self::SEPARATOR);
+                $file = trim(str_replace($path, '[' . $key . ']', $file), '/');
                 break;
             }
         }
@@ -94,10 +94,10 @@ class Path extends Macro {
      * @return string
      */
     public static function ds($path, $endSlash = false) {
-        $path = str_replace(['\\', '/'], self::SEPARATOR, $path);
+        $path = str_replace('\\', '/', $path);
 
-        if ($endSlash && substr($path, -1) !== self::SEPARATOR) {
-            $path .= self::SEPARATOR;
+        if ($endSlash && substr($path, -1) !== '/') {
+            $path .= '/';
         }
 
         return $path;
@@ -167,7 +167,6 @@ class Path extends Macro {
     public static function join(array $paths, $above = true, $join = true) {
         $clean = [];
         $parts = [];
-        $ds = self::SEPARATOR;
         $up = 0;
 
         // First pass expands sub-paths
@@ -176,10 +175,10 @@ class Path extends Macro {
                 throw new InvalidTypeException('Path parts must be strings');
             }
 
-            $path = trim(static::ds($path), $ds);
+            $path = trim(static::ds($path), '/');
 
-            if (strpos($path, $ds) !== false) {
-                $clean = array_merge($clean, explode($ds, $path));
+            if (strpos($path, '/') !== false) {
+                $clean = array_merge($clean, explode('/', $path));
             } else {
                 $clean[] = $path;
             }
@@ -212,7 +211,7 @@ class Path extends Macro {
         $parts = array_reverse($parts);
 
         if ($join) {
-            return implode($parts, $ds);
+            return implode($parts, '/');
         }
 
         return $parts;
@@ -254,9 +253,8 @@ class Path extends Macro {
             throw new InvalidArgumentException('Cannot determine relative path without two absolute paths');
         }
 
-        $ds = self::SEPARATOR;
-        $from = explode($ds, static::ds($from, true));
-        $to = explode($ds, static::ds($to, true));
+        $from = explode('/', static::ds($from, true));
+        $to = explode('/', static::ds($to, true));
         $relative = $to;
 
         foreach ($from as $depth => $dir) {
@@ -274,16 +272,16 @@ class Path extends Macro {
                     $relative = array_pad($relative, $padLength, '..');
                     break;
                 } else {
-                    $relative[0] = '.' . $ds . $relative[0];
+                    $relative[0] = './' . $relative[0];
                 }
             }
         }
 
         if (!$relative) {
-            return '.' . $ds;
+            return './';
         }
 
-        return implode($ds, $relative);
+        return implode('/', $relative);
     }
 
     /**
@@ -311,8 +309,8 @@ class Path extends Macro {
 
         // Attempt to split path at source folder
         foreach (['lib', 'src'] as $folder) {
-            if (mb_strpos($path, $folder . self::SEPARATOR) !== false) {
-                $paths = explode($folder . self::SEPARATOR, $path);
+            if (mb_strpos($path, $folder . '/') !== false) {
+                $paths = explode($folder . '/', $path);
                 $path = $paths[1];
             }
         }
@@ -329,11 +327,10 @@ class Path extends Macro {
      * @return string
      */
     public static function toPath($path, $ext = 'php', $root = '') {
-        $ds = self::SEPARATOR;
         $path = static::ds($path);
-        $dirs = explode($ds, $path);
+        $dirs = explode('/', $path);
         $file = array_pop($dirs);
-        $path = implode($ds, $dirs) . $ds . str_replace('_', $ds, $file);
+        $path = implode('/', $dirs) . '/' . str_replace('_', '/', $file);
 
         if ($ext && mb_substr($path, -mb_strlen($ext)) !== $ext) {
             $path .= '.' . $ext;

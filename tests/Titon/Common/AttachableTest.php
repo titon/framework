@@ -7,7 +7,7 @@ use Titon\Utility\Registry;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Common\\AttachableStub $object
+ * @property \Titon\Common\AttachableStub $object
  */
 class AttachableTest extends TestCase {
 
@@ -151,10 +151,10 @@ class AttachableTest extends TestCase {
     }
 
     public function testChaining() {
-        $this->assertInstanceOf('Titon\Common\\AttachableStub', $this->object->relation);
+        $this->assertInstanceOf('Titon\Common\AttachableStub', $this->object->relation);
 
         // We can go as deep as we want
-        $this->assertInstanceOf('Titon\Common\\AttachableStub', $this->object->relation->relation->relation->relation->relation->relation->relation->relation->relation->relation->relation);
+        $this->assertInstanceOf('Titon\Common\AttachableStub', $this->object->relation->relation->relation->relation->relation->relation->relation->relation->relation->relation->relation);
     }
 }
 

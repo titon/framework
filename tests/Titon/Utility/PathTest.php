@@ -7,9 +7,9 @@ class PathTest extends TestCase {
 
     public function testAlias() {
         $this->assertEquals('[internal]', Path::alias(null));
-        $this->assertEquals('[vendor]Titon' . DS . 'Debug' . DS . 'Debugger.php', Path::alias(VENDOR_DIR . '/Titon/Debug/Debugger.php'));
-        $this->assertEquals('[src]Titon' . DS . 'Debug' . DS . 'Debugger.php', Path::alias(dirname(TEST_DIR) . '/src/Titon/Debug/Debugger.php'));
-        $this->assertEquals('[app]some' . DS . 'file.txt', Path::alias('/app/some/file.txt', ['app' => '/app']));
+        $this->assertEquals('[vendor]Titon/Debug/Debugger.php', Path::alias(VENDOR_DIR . '/Titon/Debug/Debugger.php'));
+        $this->assertEquals('[src]Titon/Debug/Debugger.php', Path::alias(dirname(TEST_DIR) . '/src/Titon/Debug/Debugger.php'));
+        $this->assertEquals('[app]some/file.txt', Path::alias('/app/some/file.txt', ['app' => '/app']));
     }
 
     public function testClassName() {
@@ -26,20 +26,20 @@ class PathTest extends TestCase {
 
     public function testDs() {
         // linux
-        $this->assertEquals(DS . 'some' . DS . 'fake' . DS . 'folder' . DS . 'path' . DS . 'fileName.php', Path::ds('/some/fake/folder/path/fileName.php'));
-        $this->assertEquals(DS . 'some' . DS . 'fake' . DS . 'folder' . DS . 'path' . DS . 'fileName.php', Path::ds('/some\fake/folder\path/fileName.php'));
+        $this->assertEquals('/some/fake/folder/path/fileName.php', Path::ds('/some/fake/folder/path/fileName.php'));
+        $this->assertEquals('/some/fake/folder/path/fileName.php', Path::ds('/some\fake/folder\path/fileName.php'));
 
         // windows
-        $this->assertEquals('C:' . DS . 'some' . DS . 'fake' . DS . 'folder' . DS . 'path' . DS . 'fileName.php', Path::ds('C:\some\fake\folder\path\fileName.php'));
-        $this->assertEquals('C:' . DS . 'some' . DS . 'fake' . DS . 'folder' . DS . 'path' . DS . 'fileName.php', Path::ds('C:\some/fake\folder/path\fileName.php'));
+        $this->assertEquals('C:/some/fake/folder/path/fileName.php', Path::ds('C:\some\fake\folder\path\fileName.php'));
+        $this->assertEquals('C:/some/fake/folder/path/fileName.php', Path::ds('C:\some/fake\folder/path\fileName.php'));
 
         // linux
-        $this->assertEquals(DS . 'some' . DS . 'fake' . DS . 'folder' . DS . 'path' . DS . 'fileName' . DS, Path::ds('/some/fake/folder/path/fileName', true));
-        $this->assertEquals(DS . 'some' . DS . 'fake' . DS . 'folder' . DS . 'path' . DS . 'fileName' . DS, Path::ds('/some\fake/folder\path/fileName/', true));
+        $this->assertEquals('/some/fake/folder/path/fileName/', Path::ds('/some/fake/folder/path/fileName', true));
+        $this->assertEquals('/some/fake/folder/path/fileName/', Path::ds('/some\fake/folder\path/fileName/', true));
 
         // windows
-        $this->assertEquals('C:' . DS . 'some' . DS . 'fake' . DS . 'folder' . DS . 'path' . DS . 'fileName' . DS, Path::ds('C:\some\fake\folder\path\fileName/'));
-        $this->assertEquals('C:' . DS . 'some' . DS . 'fake' . DS . 'folder' . DS . 'path' . DS . 'fileName' . DS, Path::ds('C:\some/fake\folder/path\fileName\\'));
+        $this->assertEquals('C:/some/fake/folder/path/fileName/', Path::ds('C:\some\fake\folder\path\fileName/'));
+        $this->assertEquals('C:/some/fake/folder/path/fileName/', Path::ds('C:\some/fake\folder/path\fileName\\'));
     }
 
     public function testIncludePath() {
@@ -80,13 +80,13 @@ class PathTest extends TestCase {
     }
 
     public function testJoin() {
-        $this->assertEquals('foo' . DS . 'bar', Path::join(['foo', 'bar']));
-        $this->assertEquals('foo' . DS . 'bar', Path::join(['foo/', '/bar/']));
-        $this->assertEquals('foo' . DS . 'baz', Path::join(['foo/', '/bar/', '..', '//baz']));
+        $this->assertEquals('foo/bar', Path::join(['foo', 'bar']));
+        $this->assertEquals('foo/bar', Path::join(['foo/', '/bar/']));
+        $this->assertEquals('foo/baz', Path::join(['foo/', '/bar/', '..', '//baz']));
         $this->assertEquals('baz', Path::join(['foo/', '/bar/', '..', '..', '//baz']));
-        $this->assertEquals('..' . DS . 'baz', Path::join(['foo/', '..', '/bar', '.', '..', '..', '//baz']));
+        $this->assertEquals('../baz', Path::join(['foo/', '..', '/bar', '.', '..', '..', '//baz']));
         $this->assertEquals('baz', Path::join(['foo/', '..', '/bar', '.', '..', '..', '//baz'], false));
-        $this->assertEquals('foo' . DS . 'bar' . DS . 'foo' . DS . 'a' . DS . 'b' . DS . 'c' . DS . 'e', Path::join(['foo', '.', 'bar\\baz', '..', 'foo', '.', 'a/b/c', 'd/../e']));
+        $this->assertEquals('foo/bar/foo/a/b/c/e', Path::join(['foo', '.', 'bar\\baz', '..', 'foo', '.', 'a/b/c', 'd/../e']));
         $this->assertEquals(['foo', 'baz'], Path::join(['foo/', '/bar/', '..', '//baz'], true, false));
     }
 
@@ -98,10 +98,10 @@ class PathTest extends TestCase {
     }
 
     public function testRelativeTo() {
-        $this->assertEquals('.' . DS, Path::relativeTo('/foo/bar', '/foo/bar'));
-        $this->assertEquals('..' . DS, Path::relativeTo('/foo/bar', '/foo'));
-        $this->assertEquals('.' . DS . 'baz' . DS, Path::relativeTo('/foo/bar', '/foo/bar/baz'));
-        $this->assertEquals('..' . DS . '..' . DS . '..' . DS . '..' . DS . 'd' . DS . 'e' . DS . 'f' . DS, Path::relativeTo('/foo/bar/a/b/c', '/foo/d/e/f'));
+        $this->assertEquals('./', Path::relativeTo('/foo/bar', '/foo/bar'));
+        $this->assertEquals('../', Path::relativeTo('/foo/bar', '/foo'));
+        $this->assertEquals('./baz/', Path::relativeTo('/foo/bar', '/foo/bar/baz'));
+        $this->assertEquals('../../../../d/e/f/', Path::relativeTo('/foo/bar/a/b/c', '/foo/d/e/f'));
     }
 
     /**
@@ -132,20 +132,20 @@ class PathTest extends TestCase {
     }
 
     public function testToPath() {
-        $this->assertEquals(DS . 'test' . DS . 'namespace' . DS . 'ClassName.php', Path::toPath('\test\namespace\ClassName'));
-        $this->assertEquals(DS . 'test' . DS . 'namespace' . DS . 'Class' . DS . 'Name.php', Path::toPath('\test\namespace\Class_Name'));
+        $this->assertEquals('/test/namespace/ClassName.php', Path::toPath('\test\namespace\ClassName'));
+        $this->assertEquals('/test/namespace/Class/Name.php', Path::toPath('\test\namespace\Class_Name'));
 
-        $this->assertEquals(DS . 'Test' . DS . 'NameSpace' . DS . 'ClassName.php', Path::toPath('\Test\NameSpace\ClassName'));
-        $this->assertEquals(DS . 'Test' . DS . 'NameSpace' . DS . 'Class' . DS . 'Name.php', Path::toPath('\Test\NameSpace\Class_Name'));
+        $this->assertEquals('/Test/NameSpace/ClassName.php', Path::toPath('\Test\NameSpace\ClassName'));
+        $this->assertEquals('/Test/NameSpace/Class/Name.php', Path::toPath('\Test\NameSpace\Class_Name'));
 
-        $this->assertEquals(DS . 'test' . DS . 'namespace' . DS . 'ClassName.PHP', Path::toPath('\test\namespace\ClassName', 'PHP'));
-        $this->assertEquals(DS . 'test' . DS . 'namespace' . DS . 'Class' . DS . 'Name.PHP', Path::toPath('\test\namespace\Class_Name', 'PHP'));
+        $this->assertEquals('/test/namespace/ClassName.PHP', Path::toPath('\test\namespace\ClassName', 'PHP'));
+        $this->assertEquals('/test/namespace/Class/Name.PHP', Path::toPath('\test\namespace\Class_Name', 'PHP'));
 
-        $this->assertEquals(TEST_DIR . DS . 'test' . DS . 'namespace' . DS . 'ClassName.php', Path::toPath('\test\namespace\ClassName', 'php', TEST_DIR));
-        $this->assertEquals(TEST_DIR . DS . 'test' . DS . 'namespace' . DS . 'Class' . DS . 'Name.php', Path::toPath('\test\namespace\Class_Name', 'php', TEST_DIR));
+        $this->assertEquals(TEST_DIR . '/test/namespace/ClassName.php', Path::toPath('\test\namespace\ClassName', 'php', TEST_DIR));
+        $this->assertEquals(TEST_DIR . '/test/namespace/Class/Name.php', Path::toPath('\test\namespace\Class_Name', 'php', TEST_DIR));
 
-        $this->assertEquals(VENDOR_DIR . DS . 'test' . DS . 'namespace' . DS . 'ClassName.php', Path::toPath('\test\namespace\ClassName', 'php', VENDOR_DIR));
-        $this->assertEquals(VENDOR_DIR . DS . 'test' . DS . 'namespace' . DS . 'Class' . DS . 'Name.php', Path::toPath('\test\namespace\Class_Name', 'php', VENDOR_DIR));
+        $this->assertEquals(VENDOR_DIR . '/test/namespace/ClassName.php', Path::toPath('\test\namespace\ClassName', 'php', VENDOR_DIR));
+        $this->assertEquals(VENDOR_DIR . '/test/namespace/Class/Name.php', Path::toPath('\test\namespace\Class_Name', 'php', VENDOR_DIR));
     }
 
 }

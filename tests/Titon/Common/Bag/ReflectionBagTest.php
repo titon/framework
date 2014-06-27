@@ -44,8 +44,8 @@ class ReflectionBagTest extends TestCase {
     }
 
     public function testFilePath() {
-        $this->assertEquals('Titon' . DS . 'Common' . DS . 'Bag' . DS . 'ReflectionStub.php', $this->object->filePath);
-        $this->assertEquals('Titon' . DS . 'Common' . DS . 'Bag' . DS . 'ReflectionStub.php', $this->object->filePath());
+        $this->assertEquals('Titon/Common/Bag/ReflectionStub.php', $this->object->filePath);
+        $this->assertEquals('Titon/Common/Bag/ReflectionStub.php', $this->object->filePath());
     }
 
     public function testMethods() {

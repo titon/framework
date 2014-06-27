@@ -7,7 +7,7 @@
 
 namespace Titon\View\View;
 
-use Titon\Cache\StorageAware;
+use Titon\Cache\Storage;
 use Titon\Common\Base;
 use Titon\Common\Attachable;
 use Titon\Common\Cacheable;
@@ -31,7 +31,7 @@ use Titon\View\View;
  * @package Titon\View\View
  */
 abstract class AbstractView extends Base implements View, Listener {
-    use Attachable, Cacheable, Emittable, FactoryAware, StorageAware;
+    use Attachable, Cacheable, Emittable, FactoryAware;
 
     /**
      * Configuration.
@@ -64,6 +64,13 @@ abstract class AbstractView extends Base implements View, Listener {
      * @type array
      */
     protected $_paths = [];
+
+    /**
+     * Storage engine.
+     *
+     * @type \Titon\Cache\Storage
+     */
+    protected $_storage;
 
     /**
      * Add paths through the constructor.
@@ -106,7 +113,7 @@ abstract class AbstractView extends Base implements View, Listener {
      * {@inheritdoc}
      */
     public function addPath($path) {
-        $this->_paths[] = $path;
+        $this->_paths[] = Path::ds($path, true);
 
         return $this;
     }
@@ -173,6 +180,13 @@ abstract class AbstractView extends Base implements View, Listener {
     /**
      * {@inheritdoc}
      */
+    public function getStorage() {
+        return $this->_storage;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getVariable($key) {
         return isset($this->_data[$key]) ? $this->_data[$key] : null;
     }
@@ -207,24 +221,24 @@ abstract class AbstractView extends Base implements View, Listener {
             // Determine parent path
             switch ($type) {
                 case self::LAYOUT:
-                    $template = sprintf('/private/layouts/%s', $template);
+                    $template = sprintf('private/layouts/%s', $template);
                 break;
 
                 case self::WRAPPER:
-                    $template = sprintf('/private/wrappers/%s', $template);
+                    $template = sprintf('private/wrappers/%s', $template);
                 break;
 
                 case self::PARTIAL:
-                    $template = sprintf('/private/partials/%s', $template);
+                    $template = sprintf('private/partials/%s', $template);
                 break;
 
                 case self::TEMPLATE:
-                    $template = sprintf('/public/%s', $template);
+                    $template = sprintf('public/%s', $template);
                 break;
 
                 case self::PRIVATE_TEMPLATE:
                 default:
-                    $template = sprintf('/private/%s', $template);
+                    $template = sprintf('private/%s', $template);
                 break;
             }
 
@@ -288,6 +302,15 @@ abstract class AbstractView extends Base implements View, Listener {
             'view.preRender' => ['method' => 'preRender', 'priority' => 1],
             'view.postRender' => ['method' => 'postRender', 'priority' => 1]
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setStorage(Storage $storage) {
+        $this->_storage = $storage;
+
+        return $this;
     }
 
     /**

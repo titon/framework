@@ -19,7 +19,7 @@
         "satooshi/php-coveralls": "dev-master",
         "phpunit/phpunit": "*",
         "mockery/mockery": "*",
-        "php-vfs/php-vfs": "*",
+        "php-vfs/php-vfs": "1.1.x-dev",
         "psr/log": "*",
         "ext-mcrypt": "*",
         "ext-simplexml": "*",

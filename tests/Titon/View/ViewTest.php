@@ -21,14 +21,10 @@ class ViewTest extends TestCase {
         $this->vfs = new FileSystem();
         $this->vfs->createStructure([
             '/views/' => [
-                'css/' => [
-                    'test.css' => ''
-                ],
                 'fallback/' => [
                     'private/' => [
                         'emails/' => [
                             'example.html.tpl' => "<!DOCTYPE html>\n<html>\n<body>\n    This is an example email template.<br>\n    It is an <b>HTML</b> specific <i>template</i>.<br>\n    - Titon\n</body>\n</html>",
-                            'example.tpl' => "This is an example email template.\nIt is also a plain text email.\n- Titon"
                         ],
                         'layouts/' => [
                             'fallback.tpl' => '<fallbackLayout><?php echo $this->getContent(); ?></fallbackLayout>'
@@ -40,44 +36,33 @@ class ViewTest extends TestCase {
                 ],
                 'private/' => [
                     'errors/' => [
-                        '404.tpl' => '404.tpl',
-                        'error.tpl' => '<?php echo $message; ?>'
+                        '404.tpl' => '404.tpl'
                     ],
                     'layouts/' => [
-                        'blank.tpl' => '<?php echo $this->getContent(); ?>',
-                        'blank.xml.tpl' => '<?php echo $this->getContent(); ?>',
-                        'default.tpl' => '<layout><?php echo $this->getContent(); ?></layout>',
-                        'error.tpl' => '<error><?php echo $this->getContent(); ?></error>'
+                        'default.tpl' => '<layout><?php echo $this->getContent(); ?></layout>'
                     ],
                     'partials/' => [
                         'nested/' => [
                             'include.tpl' => 'nested/include.tpl'
                         ],
-                        'include.tpl' => 'include.tpl',
-                        'variables.tpl' => '<?php echo $name; ?> - <?php echo $type; ?> - <?php echo $filename; ?>'
+                        'include.tpl' => 'include.tpl'
                     ],
                     'wrappers/' => [
                         'wrapper.tpl' => '<wrapper><?php echo $this->getContent(); ?></wrapper>'
-                    ],
-                    'root.tpl' => 'private/root.tpl'
+                    ]
                 ],
                 'public/' => [
                     'index/' => [
                         'add.tpl' => 'add.tpl',
-                        'edit.tpl' => 'edit.tpl',
-                        'index.tpl' => 'index.tpl',
-                        'test-include.tpl' => 'test-include.tpl <?php echo $this->open(\nested/include\'); ?>',
-                        'view.tpl' => 'view.tpl',
                         'view.xml.tpl' => 'view.xml.tpl',
-                    ],
-                    'root.tpl' => 'public/root.tpl'
+                    ]
                 ]
             ]
         ]);
 
         $this->object = new ViewStub([
-            $this->vfs->path('/views/'),
-            $this->vfs->path('/views/fallback/')
+            $this->vfs->path('/views'),
+            $this->vfs->path('/views/fallback')
         ]);
     }
 
@@ -89,10 +74,13 @@ class ViewTest extends TestCase {
         $this->assertEquals($expected, $this->object->getPaths());
 
         $this->object->addPath(TEST_DIR);
-        $expected[] = TEST_DIR;
+        $expected[] = str_replace('\\', '/', TEST_DIR) . '/';
         $this->assertEquals($expected, $this->object->getPaths());
     }
 
+    /**
+     * @expectedException \Titon\View\Exception\MissingTemplateException
+     */
     public function testPathsNotDefined() {
         $view = new ViewStub();
         $view->locateTemplate('index/add');
@@ -118,6 +106,9 @@ class ViewTest extends TestCase {
         $this->assertInstanceOf('Titon\View\Helper', $this->object->getHelper('html'));
     }
 
+    /**
+     * @expectedException \Titon\View\Exception\MissingHelperException
+     */
     public function testHelperMissing() {
         $this->object->getHelper('foobar');
     }
@@ -168,6 +159,9 @@ class ViewTest extends TestCase {
         $this->assertEquals($this->vfs->path('/views/fallback/private/emails/example.html.tpl'), $this->object->locateTemplate(['emails', 'example', 'ext' => 'html'], 'INVALID'));
     }
 
+    /**
+     * @expectedException \Titon\View\Exception\MissingTemplateException
+     */
     public function testLocateTemplateMissing() {
         $this->object->locateTemplate(['index', 'missing']);
     }
@@ -185,7 +179,7 @@ class ViewTest extends TestCase {
         $this->object->locateTemplate('index/add');
 
         $this->assertEquals([
-            '/public/index/add.tpl'
+            'public/index/add.tpl'
         ], $testTemplates);
 
         Config::set('titon.locale.cascade', ['en']);
@@ -194,8 +188,8 @@ class ViewTest extends TestCase {
         $this->object->locateTemplate('index/add');
 
         $this->assertEquals([
-            '/public/index/add.en.tpl',
-            '/public/index/add.tpl'
+            'public/index/add.en.tpl',
+            'public/index/add.tpl'
         ], $testTemplates);
 
         Config::set('titon.locale.cascade', ['en-us', 'en', 'fr']);
@@ -204,10 +198,10 @@ class ViewTest extends TestCase {
         $this->object->locateTemplate('index/add');
 
         $this->assertEquals([
-            '/public/index/add.en-us.tpl',
-            '/public/index/add.en.tpl',
-            '/public/index/add.fr.tpl',
-            '/public/index/add.tpl'
+            'public/index/add.en-us.tpl',
+            'public/index/add.en.tpl',
+            'public/index/add.fr.tpl',
+            'public/index/add.tpl'
         ], $testTemplates);
     }
 

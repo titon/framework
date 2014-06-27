@@ -1,6 +1,7 @@
 <?php
 namespace Titon\Controller;
 
+use Titon\Controller\Action\AbstractAction;
 use Titon\Controller\Controller\AbstractController;
 use Titon\Controller\Controller\ErrorController;
 use Titon\Http\Exception\NotFoundException;
@@ -9,15 +10,37 @@ use Titon\Http\Server\Response;
 use Titon\Test\TestCase;
 use Titon\View\View\Engine\TemplateEngine;
 use Titon\View\View\TemplateView;
-use \Exception;
+use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\Controller\Controller $object
+ * @property \VirtualFileSystem\FileSystem $vfs
  */
 class ControllerTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
+
+        $this->vfs = new FileSystem();
+        $this->vfs->createStructure([
+            '/views/' => [
+                'private/' => [
+                    'errors/' => [
+                        'error.tpl' => '<?php echo $message; ?>',
+                        'http.tpl' => '<?php echo $code . \': \' . $message; ?>'
+                    ],
+                    'layouts/' => [
+                        'default.tpl' => '<?php echo $this->getContent(); ?>'
+                    ]
+                ],
+                'public/' => [
+                    'core/' => [
+                        'custom.tpl' => 'core:custom',
+                        'index.tpl' => 'core:index'
+                    ]
+                ]
+            ]
+        ]);
 
         $this->object = new ControllerStub([
             'module' => 'module',
@@ -37,64 +60,37 @@ class ControllerTest extends TestCase {
         $this->assertEquals(555, $this->object->dispatchAction('actionWithArgs', [505, 50]));
         $this->assertEquals(335, $this->object->dispatchAction('actionWithArgs', [335]));
         $this->assertEquals(0, $this->object->dispatchAction('actionWithArgs', ['foo', 'bar']));
+    }
 
-        try {
-            $this->object->dispatchAction(null); // wrong action name
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+    /**
+     * @expectedException \Titon\Controller\Exception\InvalidActionException
+     */
+    public function testDispatchActionNullAction() {
+        $this->object->dispatchAction(null);
+    }
 
-        try {
-            $this->object->dispatchAction('noAction'); // wrong action name
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+    /**
+     * @expectedException \Titon\Controller\Exception\InvalidActionException
+     */
+    public function testDispatchActionMissingAction() {
+        $this->object->dispatchAction('noAction');
+    }
 
-        try {
-            $this->object->dispatchAction('_actionPseudoPrivate'); // underscored private action
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+    /**
+     * @expectedException \Titon\Controller\Exception\InvalidActionException
+     */
+    public function testDispatchActionPrivateAction() {
+        $this->object->dispatchAction('actionPrivate');
+    }
 
-        try {
-            $this->object->dispatchAction('actionProtected'); // protected action
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
-
-        try {
-            $this->object->dispatchAction('actionPrivate'); // private action
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
-
-        try {
-            $this->object->dispatchAction('dispatchAction'); // method from parent
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+    /**
+     * @expectedException \Titon\Controller\Exception\InvalidActionException
+     */
+    public function testDispatchActionInheritedAction() {
+        $this->object->dispatchAction('dispatchAction');
     }
 
     public function testForwardAction() {
-        try {
-            $this->object->forwardAction(null);
-            $this->object->forwardAction('noAction');
-            $this->object->forwardAction('_actionPseudoPrivate');
-            $this->object->forwardAction('actionProtected');
-            $this->object->forwardAction('actionPrivate');
-            $this->object->forwardAction('dispatchAction');
-            $this->assertTrue(false);
-
-        } catch (\Exception $e) {
-            $this->assertTrue(true);
-        }
-
         $this->object->forwardAction('actionNoArgs');
         $this->assertEquals('actionNoArgs', $this->object->getConfig('action'));
 
@@ -103,7 +99,7 @@ class ControllerTest extends TestCase {
     }
 
     public function testRendering() {
-        $view = new TemplateView(TEMP_DIR . '/views/');
+        $view = new TemplateView($this->vfs->path('/views/'));
         $view->setEngine(new TemplateEngine());
 
         $controller = new ErrorController(['module' => 'main', 'controller' => 'core', 'action' => 'index']);
@@ -128,7 +124,7 @@ class ControllerTest extends TestCase {
         $this->assertEquals(null, $controller->renderView());
 
         // Error rendering
-        $this->assertEquals('Message', $controller->renderError(new Exception('Message')));
+        $this->assertEquals('Message', $controller->renderError(new \Exception('Message')));
         $this->assertEquals(500, $controller->getResponse()->getStatusCode());
 
         // Turn off errors
@@ -136,19 +132,6 @@ class ControllerTest extends TestCase {
 
         $this->assertEquals('404: Not Found', $controller->renderError(new NotFoundException('Not Found')));
         $this->assertEquals(404, $controller->getResponse()->getStatusCode());
-    }
-
-    public function testRunAction() {
-        $this->object->setConfig('foo', 'bar');
-
-        $this->assertEquals('bar', $this->object->getConfig('foo'));
-        $this->assertArrayNotHasKey('test', $this->object->allConfig());
-
-        $this->object->runAction(new ActionStub());
-
-        $this->assertNotEquals('bar', $this->object->getConfig('foo'));
-        $this->assertEquals('baz', $this->object->getConfig('foo'));
-        $this->assertArrayHasKey('test', $this->object->allConfig());
     }
 
     public function testGetSetView() {

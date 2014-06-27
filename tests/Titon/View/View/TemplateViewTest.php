@@ -4,18 +4,62 @@ namespace Titon\View\View;
 use Titon\Cache\Storage\FileSystemStorage;
 use Titon\View\View;
 use Titon\Test\TestCase;
+use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\View\View\TemplateView $object
+ * @property \VirtualFileSystem\FileSystem $vfs
  */
 class TemplateViewTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
 
+        $this->vfs = new FileSystem();
+        $this->vfs->createStructure([
+            '/views/' => [
+                'fallback/' => [
+                    'private/' => [
+                        'layouts/' => [
+                            'fallback.tpl' => '<fallbackLayout><?php echo $this->getContent(); ?></fallbackLayout>'
+                        ],
+                        'wrappers/' => [
+                            'fallback.tpl' => '<fallbackWrapper><?php echo $this->getContent(); ?></fallbackWrapper>'
+                        ]
+                    ]
+                ],
+                'private/' => [
+                    'layouts/' => [
+                        'default.tpl' => '<layout><?php echo $this->getContent(); ?></layout>'
+                    ],
+                    'partials/' => [
+                        'nested/' => [
+                            'include.tpl' => 'nested/include.tpl'
+                        ],
+                        'variables.tpl' => '<?php echo $name; ?> - <?php echo $type; ?> - <?php echo $filename; ?>'
+                    ],
+                    'wrappers/' => [
+                        'wrapper.tpl' => '<wrapper><?php echo $this->getContent(); ?></wrapper>'
+                    ],
+                    'root.tpl' => 'private/root.tpl'
+                ],
+                'public/' => [
+                    'index/' => [
+                        'add.tpl' => 'add.tpl',
+                        'edit.tpl' => 'edit.tpl',
+                        'index.tpl' => 'index.tpl',
+                        'test-include.tpl' => 'test-include.tpl <?php echo $this->open(\'nested/include\'); ?>',
+                        'view.tpl' => 'view.tpl',
+                        'view.xml.tpl' => 'view.xml.tpl'
+                    ],
+                    'root.tpl' => 'public/root.tpl'
+                ]
+            ]
+        ]);
+
         $this->object = new TemplateView([
-            TEMP_DIR,
-            TEMP_DIR . '/fallback'
+            $this->vfs->path('/views'),
+            $this->vfs->path('/views/fallback')
         ]);
     }
 
@@ -53,6 +97,10 @@ class TemplateViewTest extends TestCase {
     }
 
     public function testViewCaching() {
+        if (!class_exists('Titon\Cache\Storage\FileSystemStorage')) {
+            $this->markTestSkipped('Test skipped; Please install titon/cache via Composer');
+        }
+
         $storage = new FileSystemStorage(['directory' => TEMP_DIR . '/cache/']);
         $this->object->setStorage($storage);
 

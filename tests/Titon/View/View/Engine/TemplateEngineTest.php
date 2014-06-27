@@ -4,22 +4,41 @@ namespace Titon\View\View\Engine;
 use Titon\View\View;
 use Titon\View\View\TemplateView;
 use Titon\Test\TestCase;
+use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\View\View\TemplateView $object
  * @property \Titon\View\View\Engine\TemplateEngine $engine
+ * @property \VirtualFileSystem\FileSystem $vfs
  */
 class TemplateEngineTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
 
+        $this->vfs = new FileSystem();
+        $this->vfs->createStructure([
+            '/views/' => [
+                'private/' => [
+                    'partials/' => [
+                        'nested/' => [
+                            'include.tpl' => 'nested/include.tpl'
+                        ],
+                        'variables.tpl' => '<?php echo $name; ?> - <?php echo $type; ?> - <?php echo $filename; ?>'
+                    ]
+                ],
+                'public/' => [
+                    'index/' => [
+                        'add.tpl' => 'add.tpl',
+                        'test-include.tpl' => 'test-include.tpl <?php echo $this->open(\'nested/include\'); ?>'
+                    ]
+                ]
+            ]
+        ]);
+
         $this->engine = new TemplateEngine();
 
-        $this->object = new TemplateView([
-            TEMP_DIR,
-            TEMP_DIR . '/fallback'
-        ]);
+        $this->object = new TemplateView([$this->vfs->path('/views')]);
         $this->object->setEngine($this->engine);
     }
 
@@ -33,6 +52,9 @@ class TemplateEngineTest extends TestCase {
         ]));
     }
 
+    /**
+     * @expectedException \Titon\View\Exception\MissingTemplateException
+     */
     public function testOpenMissingFile() {
         $this->object->getEngine()->open('foobar');
     }
@@ -40,10 +62,6 @@ class TemplateEngineTest extends TestCase {
     public function testRender() {
         $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate(['index', 'add'])));
         $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate(['index', 'test-include'])));
-    }
-
-    public function testRenderMissingFile() {
-        $this->object->renderTemplate($this->object->locateTemplate(['index', 'add']));
     }
 
     public function testData() {

@@ -3,6 +3,7 @@ namespace Titon\View\Helper\Xhtml;
 
 use Titon\Utility\Config;
 use Titon\Test\TestCase;
+use VirtualFileSystem\FileSystem;
 
 class AssetHelperTest extends TestCase {
 
@@ -107,24 +108,34 @@ class AssetHelperTest extends TestCase {
     }
 
     public function testTimestamping() {
+        $vfs = new FileSystem();
+        $vfs->createDirectory('/css/');
+        $vfs->createFile('/css/test.css');
+
+        $helper = new AssetHelper(['timestamp' => true, 'webroot' => $vfs->path('/')]);
+        $helper->addStylesheet('/css/test.css');
+
+        $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css" \/>/', $helper->stylesheets());
+    }
+
+    public function testTimestampingNoWebroot() {
         $helper = new AssetHelper(['timestamp' => true]);
         $helper->addStylesheet('/css/test.css');
 
         $this->assertEquals('<link href="/css/test.css" media="screen" rel="stylesheet" type="text/css" />' . PHP_EOL, $helper->stylesheets());
+    }
 
-        $helper = new AssetHelper(['timestamp' => true, 'webroot' => TEMP_DIR]);
-        $helper->addStylesheet('/css/test.css');
+    public function testTimestampingThroughConfig() {
+        $vfs = new FileSystem();
+        $vfs->createDirectory('/css/');
+        $vfs->createFile('/css/test.css');
 
-        $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css" \/>/', $helper->stylesheets());
-
-        Config::set('titon.webroot', TEMP_DIR);
+        Config::set('titon.webroot', $vfs->path('/'));
 
         $helper = new AssetHelper(['timestamp' => true, 'webroot' => null]);
         $helper->addStylesheet('/css/test.css');
 
         $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css" \/>/', $helper->stylesheets());
-
-        Config::remove('titon.webroot');
     }
 
 }

@@ -27,6 +27,10 @@ class FormHelperTest extends TestCase {
     }
 
     public function testValueOverrides() {
+        if (!class_exists('Titon\Model\Model')) {
+            $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
+        }
+
         $this->assertEquals('<input id="text" name="text" type="text" value="">' . PHP_EOL, $this->object->text('text'));
 
         // Value set through argument
@@ -577,8 +581,13 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('key-nested', $this->object->formatID('key.nested'));
         $this->assertEquals('key-nested-again', $this->object->formatID('key.nested.again'));
         $this->assertEquals('key-nested-again', $this->object->formatID('key.nested.again..'));
+    }
 
-        // with a model
+    public function testFormatIDWithModel() {
+        if (!class_exists('Titon\Model\Model')) {
+            $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
+        }
+
         $this->object->setModel(new Model());
 
         $this->assertEquals('model-key', $this->object->formatID('key'));
@@ -628,6 +637,10 @@ class FormHelperTest extends TestCase {
     }
 
     public function testGetValueModel() {
+        if (!class_exists('Titon\Model\Model')) {
+            $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
+        }
+
         $model = new Model([
             'foo' => 'bar',
             'key' => 123,
@@ -1075,6 +1088,10 @@ class FormHelperTest extends TestCase {
     }
 
     public function testModel() {
+        if (!class_exists('Titon\Model\Model')) {
+            $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
+        }
+
         $model = new Model();
 
         $this->assertEquals('<form accept-charset="UTF-8" action="/" enctype="application/x-www-form-urlencoded" id="model-form-2" method="POST">' . PHP_EOL, $this->object->model($model, '/'));

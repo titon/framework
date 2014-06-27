@@ -17,7 +17,7 @@
     },
     "require-dev": {
         "satooshi/php-coveralls": "dev-master",
-        "phpunit/phpunit": "3.*",
+        "phpunit/phpunit": "*",
         "mockery/mockery": "*",
         "php-vfs/php-vfs": "*",
         "psr/log": "*",

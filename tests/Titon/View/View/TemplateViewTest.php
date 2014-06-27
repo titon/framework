@@ -54,7 +54,8 @@ class TemplateViewTest extends TestCase {
                     ],
                     'root.tpl' => 'public/root.tpl'
                 ]
-            ]
+            ],
+            '/cache/' => []
         ]);
 
         $this->object = new TemplateView([
@@ -101,12 +102,12 @@ class TemplateViewTest extends TestCase {
             $this->markTestSkipped('Test skipped; Please install titon/cache via Composer');
         }
 
-        $storage = new FileSystemStorage(['directory' => TEMP_DIR . '/cache/']);
+        $storage = new FileSystemStorage(['directory' => $this->vfs->path('/cache/')]);
         $this->object->setStorage($storage);
 
         $path = $this->object->locateTemplate(['index', 'test-include']);
         $key = md5($path);
-        $cachePath = TEMP_DIR . '/cache/' . $key . '.cache';
+        $cachePath = $this->vfs->path('/cache/' . $key . '.cache');
 
         $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($path));
         $this->assertFileNotExists($cachePath);

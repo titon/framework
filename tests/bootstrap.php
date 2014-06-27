@@ -24,4 +24,5 @@ if (!file_exists(VENDOR_DIR . '/autoload.php')) {
     exit('Please install Composer in the root folder before running tests!');
 }
 
-require VENDOR_DIR . '/autoload.php';
+$loader = require VENDOR_DIR . '/autoload.php';
+$loader->add('', TEST_DIR);

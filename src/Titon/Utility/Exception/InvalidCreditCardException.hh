@@ -1,4 +1,4 @@
-<?php
+<?hh
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -8,10 +8,10 @@
 namespace Titon\Utility\Exception;
 
 /**
- * Exception thrown for an invalid validation rule.
+ * Exception thrown for an invalid credit card.
  *
  * @package Titon\Utility\Exception
  */
-class InvalidValidationRuleException extends \UnexpectedValueException {
+class InvalidCreditCardException extends \UnexpectedValueException {
 
 }

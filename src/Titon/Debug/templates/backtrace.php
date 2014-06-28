@@ -1,42 +1,42 @@
 <div class="titon-debug titon-backtrace">
     <table>
-        <?php $rand = rand(0, 100);
+        <?hh $rand = rand(0, 100);
 
         foreach ($backtrace as $i => $trace) { ?>
 
             <tr class="trace-call">
                 <td class="cell-no">
-                    <?php echo $i + 1; ?>:
+                    <?hh echo $i + 1; ?>:
                 </td>
                 <td class="cell-method">
-                    <?php if (!empty($trace['args'])) { ?>
-                        <a href="javascript:;" onclick="return toggleArgs(<?php echo $rand; ?>, <?php echo $i; ?>);" class="debug-method"><?php echo $trace['method']; ?></a>
-                    <?php } else { ?>
-                        <span class="debug-method"><?php echo $trace['method']; ?></span>
-                    <?php } ?>
+                    <?hh if (!empty($trace['args'])) { ?>
+                        <a href="javascript:;" onclick="return toggleArgs(<?hh echo $rand; ?>, <?hh echo $i; ?>);" class="debug-method"><?hh echo $trace['method']; ?></a>
+                    <?hh } else { ?>
+                        <span class="debug-method"><?hh echo $trace['method']; ?></span>
+                    <?hh } ?>
                 </td>
                 <td class="cell-file">
-                    <abbr title="<?php echo $trace['file']; ?>" class="debug-file">
-                        <?php echo \Titon\Utility\Path::alias($trace['file']) . ':'; ?><!--
-                        --><span class="debug-line"><?php echo $trace['line']; ?></span>
+                    <abbr title="<?hh echo $trace['file']; ?>" class="debug-file">
+                        <?hh echo \Titon\Utility\Path::alias($trace['file']) . ':'; ?><!--
+                        --><span class="debug-line"><?hh echo $trace['line']; ?></span>
                     </abbr>
                 </td>
             </tr>
 
-            <?php if (!empty($trace['args'])) { ?>
+            <?hh if (!empty($trace['args'])) { ?>
 
-                <tr id="titon-args-<?php echo $rand; ?>-<?php echo $i; ?>" class="trace-args" style="display: none">
+                <tr id="titon-args-<?hh echo $rand; ?>-<?hh echo $i; ?>" class="trace-args" style="display: none">
                     <td> </td>
                     <td colspan="2">
                         <ol>
-                            <?php foreach ($trace['args'] as $arg) { ?>
-                                <li><?php echo static::parseValue($arg, true); ?></li>
-                            <?php } ?>
+                            <?hh foreach ($trace['args'] as $arg) { ?>
+                                <li><?hh echo static::parseValue($arg, true); ?></li>
+                            <?hh } ?>
                         </ol>
                     </td>
                 </tr>
 
-            <?php }
+            <?hh }
         } ?>
     </table>
 

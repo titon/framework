@@ -1,28 +1,28 @@
 <div class="titon-debug titon-error">
-    <?php
+    <?hh
     $backtrace = static::backtrace($exception);
     $class = get_class($exception); ?>
 
     <div class="debug-head">
-        <?php if ($backtrace) { ?>
-            <a href="javascript:;" onclick="return toggleBacktrace();" class="debug-method"><?php echo $class; ?></a>:
-        <?php } else { ?>
-            <span class="debug-method"><?php echo $class; ?></span>:
-        <?php } ?>
+        <?hh if ($backtrace) { ?>
+            <a href="javascript:;" onclick="return toggleBacktrace();" class="debug-method"><?hh echo $class; ?></a>:
+        <?hh } else { ?>
+            <span class="debug-method"><?hh echo $class; ?></span>:
+        <?hh } ?>
 
-        <span class="debug-message"><?php echo esc($exception->getMessage()); ?></span>
+        <span class="debug-message"><?hh echo esc($exception->getMessage()); ?></span>
 
-        <abbr title="<?php echo $exception->getFile(); ?>" class="debug-file">
-            <?php echo \Titon\Utility\Path::alias($exception->getFile()) . ':'; ?><!--
-            --><span class="debug-line"><?php echo $exception->getLine(); ?></span>
+        <abbr title="<?hh echo $exception->getFile(); ?>" class="debug-file">
+            <?hh echo \Titon\Utility\Path::alias($exception->getFile()) . ':'; ?><!--
+            --><span class="debug-line"><?hh echo $exception->getLine(); ?></span>
         </abbr>
     </div>
 
-    <?php if ($backtrace) { ?>
+    <?hh if ($backtrace) { ?>
         <div class="debug-body" id="titon-error-backtrace" style="display: none">
-            <?php echo $backtrace; ?>
+            <?hh echo $backtrace; ?>
         </div>
-    <?php } ?>
+    <?hh } ?>
 
     <script type="text/javascript">
         if (typeof toggleBacktrace === 'undefined') {

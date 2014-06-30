@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;
@@ -59,13 +59,13 @@ class MacroTest extends TestCase {
             return strtoupper($value);
         };
 
-        String::macro('lower', $lower);
-        String::macro('upper', $upper);
+        Crypt::macro('lower', $lower);
+        Crypt::macro('upper', $upper);
 
-        $this->assertEquals([
+        $this->assertEquals(new Map([
             'lower' => $lower,
             'upper' => $upper
-        ], String::macros());
+        ]), Crypt::macros());
     }
 
 }

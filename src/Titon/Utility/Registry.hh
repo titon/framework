@@ -24,16 +24,16 @@ class Registry {
      * Objects that have been registered into memory. The array index is represented by the namespace convention,
      * where as the array value would be the matching instantiated object.
      *
-     * @type object[]
+     * @type Map<string, mixed>
      */
-    protected static $_registered = [];
+    protected static Map<string, mixed> $_registered = Map {};
 
     /**
      * Return all registered objects.
      *
-     * @return object[]
+     * @return Map<string, mixed>
      */
-    public static function all() {
+    public static function all(): Map<string, mixed> {
         return static::$_registered;
     }
 
@@ -47,7 +47,7 @@ class Registry {
      * @param bool $store
      * @return object
      */
-    public static function &factory($key, array $params = [], $store = true) {
+    public static function &factory(string $key, array $params = [], bool $store = true): mixed {
         if (static::has($key)) {
             return static::get($key);
         }
@@ -66,8 +66,8 @@ class Registry {
     /**
      * Flush the registry by removing all stored objects.
      */
-    public static function flush() {
-        static::$_registered = [];
+    public static function flush(): void {
+        static::$_registered->clear();
     }
 
     /**
@@ -77,7 +77,7 @@ class Registry {
      * @return object
      * @throws \Titon\Common\Exception\MissingObjectException
      */
-    public static function &get($key) {
+    public static function &get(string $key): mixed {
         if (static::has($key)) {
             $object = static::$_registered[$key];
 
@@ -97,17 +97,17 @@ class Registry {
      * @param string $key
      * @return bool
      */
-    public static function has($key) {
-        return isset(static::$_registered[$key]);
+    public static function has(string $key): bool {
+        return static::$_registered->contains($key);
     }
 
     /**
      * Returns an array of all objects that have been registered; returns the keys and not the objects.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public static function keys() {
-        return array_keys(static::$_registered);
+    public static function keys(): Vector<string> {
+        return static::$_registered->keys();
     }
 
     /**
@@ -116,7 +116,7 @@ class Registry {
      * @param string $key
      * @param \Closure $callback
      */
-    public static function register($key, Closure $callback) {
+    public static function register(string $key, Closure $callback): void {
         static::set($callback, $key);
     }
 
@@ -125,8 +125,8 @@ class Registry {
      *
      * @param string $key
      */
-    public static function remove($key) {
-        unset(static::$_registered[$key]);
+    public static function remove(string $key): void {
+        static::$_registered->remove($key);
     }
 
     /**
@@ -137,7 +137,7 @@ class Registry {
      * @return object
      * @throws \Titon\Common\Exception\InvalidObjectException
      */
-    public static function set($object, $key = null) {
+    public static function set(mixed $object, ?string $key = null): mixed {
         if (!is_object($object)) {
             throw new InvalidObjectException('The object to register must be instantiated');
         }
@@ -146,7 +146,7 @@ class Registry {
             $key = get_class($object);
         }
 
-        static::$_registered[$key] = $object;
+        static::$_registered->set($key, $object);
 
         return $object;
     }

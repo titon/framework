@@ -21,7 +21,7 @@ class Sanitize extends Macro {
      * @param array $options
      * @return string
      */
-    public static function email($value, array $options = []) {
+    public static function email(string $value, array $options = []): string {
         return (string) filter_var($value, FILTER_SANITIZE_EMAIL, $options);
     }
 
@@ -36,7 +36,7 @@ class Sanitize extends Macro {
      * }
      * @return string
      */
-    public static function escape($value, array $options = []) {
+    public static function escape(string $value, array $options = []): string {
         $options = $options + [
             'encoding' => 'UTF-8',
             'flags' => ENT_QUOTES,
@@ -50,9 +50,9 @@ class Sanitize extends Macro {
      * Sanitize a float by removing all characters except digits, +- and .,eE.
      *
      * @param string $value
-     * @return string
+     * @return float
      */
-    public static function float($value) {
+    public static function float(string $value): float {
         return (float) filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION | FILTER_FLAG_ALLOW_THOUSAND | FILTER_FLAG_ALLOW_SCIENTIFIC);
     }
 
@@ -66,7 +66,7 @@ class Sanitize extends Macro {
      * }
      * @return string
      */
-    public static function html($value, array $options = []) {
+    public static function html(string $value, array $options = []): string {
         $options = $options + [
             'strip' => true,
             'whitelist' => ''
@@ -84,9 +84,9 @@ class Sanitize extends Macro {
      *
      * @param string $value
      * @param array $options
-     * @return string
+     * @return int
      */
-    public static function integer($value, array $options = []) {
+    public static function integer(string $value, array $options = []): int {
         return (int) filter_var($value, FILTER_SANITIZE_NUMBER_INT, $options);
     }
 
@@ -103,7 +103,7 @@ class Sanitize extends Macro {
      * }
      * @return string
      */
-    public static function newlines($value, array $options = []) {
+    public static function newlines(string $value, array $options = []): string {
         $options = $options + [
             'cr' => true,
             'lf' => true,
@@ -146,7 +146,7 @@ class Sanitize extends Macro {
      * @param array $options
      * @return string
      */
-    public static function url($value, array $options = []) {
+    public static function url(string $value, array $options = []): string {
         return (string) filter_var($value, FILTER_SANITIZE_URL, $options);
     }
 
@@ -163,7 +163,7 @@ class Sanitize extends Macro {
      * }
      * @return string
      */
-    public static function whitespace($value, array $options = []) {
+    public static function whitespace(string $value, array $options = []): string {
         $options = $options + [
             'space' => true,
             'tab' => true,
@@ -209,7 +209,7 @@ class Sanitize extends Macro {
      * }
      * @return string
      */
-    public static function xss($value, array $options = []) {
+    public static function xss(string $value, array $options = []): string {
         $options = $options + ['strip' => true];
 
         $value = str_replace("\0", '', $value);

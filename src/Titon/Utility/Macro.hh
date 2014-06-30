@@ -10,6 +10,8 @@ namespace Titon\Utility;
 use \Titon\Utility\Exception\UnsupportedMethodException;
 use \Closure;
 
+type CallbackFunction = (function(): mixed);
+
 /**
  * Base class that all utility classes should extend.
  * Provides custom static magic methods through a macro interface.
@@ -21,16 +23,16 @@ class Macro {
     /**
      * Cached method results.
      *
-     * @type array
+     * @type Map<string, CallbackFunction>
      */
-    protected static $_cache = [];
+    protected static Map<string, CallbackFunction> $_cache = Map {};
 
     /**
      * Custom methods to magically call.
      *
-     * @type \Closure[]
+     * @type Map<string, Map<string, CallbackFunction>>
      */
-    protected static $_macros = [];
+    protected static Map<string, Map<string, CallbackFunction>> $_macros = Map {};
 
     /**
      * Execute a macro if it has been called statically.
@@ -40,14 +42,12 @@ class Macro {
      * @return mixed
      * @throws \Titon\Utility\Exception\UnsupportedMethodException
      */
-    public static function __callStatic($key, array $args) {
-        $class = get_called_class();
-
+    public static function __callStatic(string $key, array $args): void {
         if (static::hasMacro($key)) {
-            return call_user_func_array(static::$_macros[$class][$key], $args);
+            return call_user_func_array(static::macros()->get($key), $args);
         }
 
-        throw new UnsupportedMethodException(sprintf('Macro %s has not been defined for %s', $key, $class));
+        throw new UnsupportedMethodException(sprintf('Macro %s has not been defined for %s', $key, static::class));
     }
 
     /**
@@ -55,20 +55,20 @@ class Macro {
      *
      * @param string|array $key
      * @param \Closure $callback
-     * @return string
+     * @return mixed
      */
-    public static function cache($key, Closure $callback) {
+    public static function cache(mixed $key, Closure $callback): mixed {
         if (is_array($key)) {
             $key = implode('-', $key);
         }
 
-        if (isset(static::$_cache[$key])) {
-            return static::$_cache[$key];
+        if (static::$_cache->contains($key)) {
+            return static::$_cache->get($key);
         }
 
-        static::$_cache[$key] = $callback();
+        static::$_cache->set($key, $callback());
 
-        return static::$_cache[$key];
+        return static::$_cache->get($key);
     }
 
     /**
@@ -77,8 +77,8 @@ class Macro {
      * @param string $key
      * @return bool
      */
-    public static function hasMacro($key) {
-        return isset(static::$_macros[get_called_class()][$key]);
+    public static function hasMacro(string $key): bool {
+        return static::macros()->contains($key);
     }
 
     /**
@@ -87,8 +87,8 @@ class Macro {
      * @param string $key
      * @return bool
      */
-    public static function hasMethod($key) {
-        return (method_exists(get_called_class(), $key) || static::hasMacro($key));
+    public static function hasMethod(string $key): bool {
+        return (method_exists(static::class, $key) || static::hasMacro($key));
     }
 
     /**
@@ -97,19 +97,24 @@ class Macro {
      * @param string $key
      * @param \Closure $callback
      */
-    public static function macro($key, Closure $callback) {
-        static::$_macros[get_called_class()][$key] = $callback;
+    public static function macro(string $key, Closure $callback): void {
+        static::macros()->set($key, $callback);
     }
 
     /**
-     * Return all defined macros.
+     * Return all defined macros for a class.
      *
-     * @return \Closure[]
+     * @return Map<string, CallbackFunction>
      */
-    public static function macros() {
-        $class = get_called_class();
+    public static function macros(): Map<string, CallbackFunction> {
+        $macros = static::$_macros;
+        $class = static::class;
 
-        return isset(static::$_macros[$class]) ? static::$_macros[$class] : [];
+        if (!$macros->contains($class)) {
+            $macros->set($class, new Map());
+        }
+
+        return $macros->get($class);
     }
 
 }

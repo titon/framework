@@ -18,21 +18,21 @@ class Crypt extends Macro {
     /**
      * Default ciphers.
      */
-    const BLOWFISH = MCRYPT_BLOWFISH;
-    const DES = MCRYPT_DES;
-    const RIJNDAEL = MCRYPT_RIJNDAEL_128; // AES compliant
-    const TRIPLEDES = MCRYPT_3DES;
+    const string BLOWFISH = MCRYPT_BLOWFISH;
+    const string DES = MCRYPT_DES;
+    const string RIJNDAEL = MCRYPT_RIJNDAEL_128; // AES compliant
+    const string TRIPLEDES = MCRYPT_3DES;
 
     /**
      * Operations.
      */
-    const DECRYPT = MCRYPT_DECRYPT;
-    const ENCRYPT = MCRYPT_ENCRYPT;
+    const int DECRYPT = MCRYPT_DECRYPT;
+    const int ENCRYPT = MCRYPT_ENCRYPT;
 
     /**
      * Framework salt.
      */
-    const SALT = 'dDFUMG4gZlI0bTNXMFJr';
+    const string SALT = 'dDFUMG4gZlI0bTNXMFJr';
 
     /**
      * Encrypt and decrypt a string using the Blowfish algorithm with CBC mode.
@@ -42,7 +42,7 @@ class Crypt extends Macro {
      * @param int $operation
      * @return string
      */
-    public static function blowfish($string, $key, $operation = self::ENCRYPT) {
+    public static function blowfish(string $string, string $key, int $operation = self::ENCRYPT): string {
         if ($operation === self::ENCRYPT) {
             return static::encrypt($string, $key, self::BLOWFISH);
         } else {
@@ -60,7 +60,7 @@ class Crypt extends Macro {
      * @param string $mode
      * @return string
      */
-    public static function decrypt($string, $key, $cipher, $mode = MCRYPT_MODE_CBC) {
+    public static function decrypt(string $string, string $key, string $cipher, string $mode = MCRYPT_MODE_CBC): string {
         list($key, $iv) = static::vector($key, $cipher, $mode);
 
         return rtrim(mcrypt_decrypt($cipher, $key, $string, $mode, $iv), "\0");
@@ -74,7 +74,7 @@ class Crypt extends Macro {
      * @param int $operation
      * @return string
      */
-    public static function des($string, $key, $operation = self::ENCRYPT) {
+    public static function des(string $string, string $key, int $operation = self::ENCRYPT): string {
         if ($operation === self::ENCRYPT) {
             return static::encrypt($string, $key, self::DES);
         } else {
@@ -92,7 +92,7 @@ class Crypt extends Macro {
      * @param string $mode
      * @return string
      */
-    public static function encrypt($string, $key, $cipher, $mode = MCRYPT_MODE_CBC) {
+    public static function encrypt(string $string, string $key, string $cipher, string $mode = MCRYPT_MODE_CBC): string {
         list($key, $iv) = static::vector($key, $cipher, $mode);
 
         return mcrypt_encrypt($cipher, $key, $string, $mode, $iv);
@@ -107,7 +107,7 @@ class Crypt extends Macro {
      * @param string $salt
      * @return string
      */
-    public static function hash($cipher, $string, $salt = self::SALT) {
+    public static function hash(string $cipher, string $string, string $salt = self::SALT): string {
         return hash_hmac($cipher, $string, $salt);
     }
 
@@ -117,7 +117,7 @@ class Crypt extends Macro {
      * @param string $string
      * @return string
      */
-    public static function obfuscate($string) {
+    public static function obfuscate(string $string): string {
         $string = (string) $string;
         $length = mb_strlen($string);
         $scrambled = '';
@@ -139,7 +139,7 @@ class Crypt extends Macro {
      * @param int $operation
      * @return string
      */
-    public static function rijndael($string, $key, $operation = self::ENCRYPT) {
+    public static function rijndael(string $string, string $key, int $operation = self::ENCRYPT): string {
         if ($operation === self::ENCRYPT) {
             return static::encrypt($string, $key, self::RIJNDAEL);
         } else {
@@ -155,7 +155,7 @@ class Crypt extends Macro {
      * @param int $operation
      * @return string
      */
-    public static function tripledes($string, $key, $operation = self::ENCRYPT) {
+    public static function tripledes(string $string, string $key, int $operation = self::ENCRYPT): string {
         if ($operation === self::ENCRYPT) {
             return static::encrypt($string, $key, self::TRIPLEDES);
         } else {
@@ -170,9 +170,9 @@ class Crypt extends Macro {
      * @param string $key
      * @param string $cipher
      * @param string $mode
-     * @return string[]
+     * @return Pair
      */
-    public static function vector($key, $cipher, $mode) {
+    public static function vector(string $key, string $cipher, string $mode): Pair {
         $keySize = mcrypt_get_key_size($cipher, $mode);
         $key = str_pad(static::hash('md5', $key), $keySize, mb_substr($cipher, -1), STR_PAD_BOTH);
 
@@ -187,7 +187,7 @@ class Crypt extends Macro {
             $iv = mb_substr($iv, 0, $ivSize);
         }
 
-        return [$key, $iv];
+        return Pair {$key, $iv};
     }
 
 }

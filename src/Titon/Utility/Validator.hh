@@ -299,7 +299,7 @@ class Validator {
             } else if (!is_array($options)) {
                 continue;
 
-            } else if (Hash::isNumeric(array_keys($options))) {
+            } else if (Traverse::isNumeric(array_keys($options))) {
                 $options = ['rules' => $options];
             }
 

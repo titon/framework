@@ -20,10 +20,10 @@ echo "alias composer='hhvm -v ResourceLimit.SocketDefaultTimeout=30 -v Http.Slow
 source ~/.bashrc
 
 # Install MySQL & PGSQL
-DEBIAN_FRONTEND=noninteractive sudo apt-get -y install mysql-server mysql-client sqlite3 postgresql
+#DEBIAN_FRONTEND=noninteractive sudo apt-get -y install mysql-server mysql-client sqlite3 postgresql
 
-mysql -u root -e "CREATE DATABASE titon_test;"
+#mysql -u root -e "CREATE DATABASE titon_test;"
 #psql -U postgres -c "CREATE DATABASE titon_test;"
 
 # Install Redis & Memcache
-sudo apt-get -y install redis-server memcached
+#sudo apt-get -y install redis-server memcached

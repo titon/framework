@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;
@@ -9,7 +9,7 @@ class PathTest extends TestCase {
         $this->assertEquals('[internal]', Path::alias(null));
         $this->assertEquals('[vendor]Titon/Debug/Debugger.php', Path::alias(VENDOR_DIR . '/Titon/Debug/Debugger.php'));
         $this->assertEquals('[src]Titon/Debug/Debugger.php', Path::alias(dirname(TEST_DIR) . '/src/Titon/Debug/Debugger.php'));
-        $this->assertEquals('[app]some/file.txt', Path::alias('/app/some/file.txt', ['app' => '/app']));
+        $this->assertEquals('[app]some/file.txt', Path::alias('/app/some/file.txt', Map {'app' => '/app'}));
     }
 
     public function testClassName() {
@@ -50,10 +50,10 @@ class PathTest extends TestCase {
 
         $this->assertEquals($baseIncludePath, get_include_path());
 
-        Path::includePath($selfPath1);
+        Path::includePath(Vector {$selfPath1});
         $this->assertEquals($baseIncludePath . PATH_SEPARATOR . $selfPath1, get_include_path());
 
-        Path::includePath([$selfPath2, $selfPath3]);
+        Path::includePath(Vector {$selfPath2, $selfPath3});
         $this->assertEquals($baseIncludePath . PATH_SEPARATOR . $selfPath1 . PATH_SEPARATOR . $selfPath2 . PATH_SEPARATOR . $selfPath3, get_include_path());
     }
 
@@ -80,21 +80,14 @@ class PathTest extends TestCase {
     }
 
     public function testJoin() {
-        $this->assertEquals('foo/bar', Path::join(['foo', 'bar']));
-        $this->assertEquals('foo/bar', Path::join(['foo/', '/bar/']));
-        $this->assertEquals('foo/baz', Path::join(['foo/', '/bar/', '..', '//baz']));
-        $this->assertEquals('baz', Path::join(['foo/', '/bar/', '..', '..', '//baz']));
-        $this->assertEquals('../baz', Path::join(['foo/', '..', '/bar', '.', '..', '..', '//baz']));
-        $this->assertEquals('baz', Path::join(['foo/', '..', '/bar', '.', '..', '..', '//baz'], false));
-        $this->assertEquals('foo/bar/foo/a/b/c/e', Path::join(['foo', '.', 'bar\\baz', '..', 'foo', '.', 'a/b/c', 'd/../e']));
-        $this->assertEquals(['foo', 'baz'], Path::join(['foo/', '/bar/', '..', '//baz'], true, false));
-    }
-
-    /**
-     * @expectedException \Titon\Utility\Exception\InvalidTypeException
-     */
-    public function testJoinErrorsOnNonString() {
-        Path::join(['foo', 123]);
+        $this->assertEquals('foo/bar', Path::join(Vector {'foo', 'bar'}));
+        $this->assertEquals('foo/bar', Path::join(Vector {'foo/', '/bar/'}));
+        $this->assertEquals('foo/baz', Path::join(Vector {'foo/', '/bar/', '..', '//baz'}));
+        $this->assertEquals('baz', Path::join(Vector {'foo/', '/bar/', '..', '..', '//baz'}));
+        $this->assertEquals('../baz', Path::join(Vector {'foo/', '..', '/bar', '.', '..', '..', '//baz'}));
+        $this->assertEquals('baz', Path::join(Vector {'foo/', '..', '/bar', '.', '..', '..', '//baz'}, false));
+        $this->assertEquals('foo/bar/foo/a/b/c/e', Path::join(Vector {'foo', '.', 'bar\\baz', '..', 'foo', '.', 'a/b/c', 'd/../e'}));
+        $this->assertEquals(Vector {'foo', 'baz'}, Path::join(Vector {'foo/', '/bar/', '..', '//baz'}, true, false));
     }
 
     public function testRelativeTo() {

@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;
@@ -72,8 +72,10 @@ class TimeTest extends TestCase {
         $this->assertTrue(is_numeric(Time::toUnix(time())));
         $this->assertTrue(is_numeric(Time::toUnix('+1 week')));
         $this->assertTrue(is_numeric(Time::toUnix(new DateTime())));
+    }
 
-        $this->assertFalse(is_numeric(Time::toUnix('string')));
+    public function testToUnixInvalidReturnsZero() {
+        $this->assertEquals(0, Time::toUnix('string'));
     }
 
     public function testWasLastWeek() {

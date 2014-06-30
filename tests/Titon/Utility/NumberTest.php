@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;
@@ -7,7 +7,7 @@ class NumberTest extends TestCase {
 
     public function testBytesFrom() {
         $this->assertEquals('0', Number::bytesFrom(''));
-        $this->assertEquals(null, Number::bytesFrom('123AB'));
+        $this->assertEquals('0', Number::bytesFrom('123AB'));
 
         // b
         $this->assertEquals('1', Number::bytesFrom('1B'));
@@ -39,28 +39,28 @@ class NumberTest extends TestCase {
 
     public function testBytesTo() {
         $this->assertEquals('1B', Number::bytesTo('1'));
-        $this->assertEquals('225.0B', Number::bytesTo('225', 1));
-        $this->assertEquals('100.00B', Number::bytesTo('100', 2));
+        $this->assertEquals('225B', Number::bytesTo('225', 1));
+        $this->assertEquals('100B', Number::bytesTo('100', 2));
 
         // kb
         $this->assertEquals('1KB', Number::bytesTo('1024'));
-        $this->assertEquals('225.0KB', Number::bytesTo('230400', 1));
-        $this->assertEquals('100.00KB', Number::bytesTo('102400', 2));
+        $this->assertEquals('225KB', Number::bytesTo('230400', 1));
+        $this->assertEquals('100KB', Number::bytesTo('102400', 2));
 
         // mb
         $this->assertEquals('1MB', Number::bytesTo('1048576'));
-        $this->assertEquals('225.0MB', Number::bytesTo('235929600', 1));
-        $this->assertEquals('100.00MB', Number::bytesTo('104857600', 2));
+        $this->assertEquals('225MB', Number::bytesTo('235929600', 1));
+        $this->assertEquals('100MB', Number::bytesTo('104857600', 2));
 
         // gb
         $this->assertEquals('1GB', Number::bytesTo('1073741824'));
-        $this->assertEquals('225.0GB', Number::bytesTo('241591910400', 1));
-        $this->assertEquals('100.00GB', Number::bytesTo('107374182400', 2));
+        $this->assertEquals('225GB', Number::bytesTo('241591910400', 1));
+        $this->assertEquals('100GB', Number::bytesTo('107374182400', 2));
 
         // tb
         $this->assertEquals('1TB', Number::bytesTo('1099511627776'));
-        $this->assertEquals('225.0TB', Number::bytesTo('2.473901162496E+14', 1));
-        $this->assertEquals('100.00TB', Number::bytesTo('109951162777600', 2));
+        $this->assertEquals('225TB', Number::bytesTo('2.473901162496E+14', 1));
+        $this->assertEquals('100TB', Number::bytesTo('109951162777600', 2));
 
         // PHPUnit blows up on higher numbers
     }
@@ -92,7 +92,7 @@ class NumberTest extends TestCase {
 
     public function testIn() {
         $this->assertTrue(Number::in(5, 1, 10));
-        $this->assertTrue(Number::in('6', 1, 10));
+        $this->assertTrue(Number::in(6, 1, 10));
         $this->assertTrue(Number::in(3.3, 1, 10));
         $this->assertFalse(Number::in(11, 1, 10));
         $this->assertFalse(Number::in(0, 1, 10));

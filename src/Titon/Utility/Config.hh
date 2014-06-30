@@ -23,7 +23,7 @@ class Config {
      *
      * @type array
      */
-    protected static $_config = [];
+    protected static Map<string, mixed> $_config = Map {};
 
     /**
      * Add a value to a key. If the value is not an array, make it one.
@@ -60,7 +60,7 @@ class Config {
      * Flush configuration by removing all settings.
      */
     public static function flush() {
-        static::$_config = [];
+        static::$_config->clear();
     }
 
     /**
@@ -71,7 +71,7 @@ class Config {
      * @return mixed
      */
     public static function get($key, $default = null) {
-        $value = Hash::get(static::$_config, $key);
+        $value = Traverse::get(static::$_config, $key);
 
         if ($value === null) {
             return $default;
@@ -89,7 +89,7 @@ class Config {
      * @return bool
      */
     public static function has($key) {
-        return Hash::has(static::$_config, $key);
+        return Traverse::has(static::$_config, $key);
     }
 
     /**
@@ -122,7 +122,7 @@ class Config {
      * @param string $key
      */
     public static function remove($key) {
-        static::$_config = Hash::remove(static::$_config, $key);
+        static::$_config = Traverse::remove(static::$_config, $key);
     }
 
     /**
@@ -143,7 +143,7 @@ class Config {
      * @param mixed $value
      */
     public static function set($key, $value) {
-        static::$_config = Hash::set(static::$_config, $key, $value);
+        static::$_config = Traverse::set(static::$_config, $key, $value);
     }
 
 }

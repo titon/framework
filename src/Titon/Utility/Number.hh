@@ -18,24 +18,24 @@ class Number extends Macro {
     /**
      * Bases.
      */
-    const BINARY = 2;
-    const OCTAL = 8;
-    const DECIMAL = 10;
-    const HEX = 16;
+    const int BINARY = 2;
+    const int OCTAL = 8;
+    const int DECIMAL = 10;
+    const int HEX = 16;
 
     /**
      * Convert a readable string notated form of bytes (1KB) to the numerical equivalent (1024).
      * Supports all the different format variations: k, kb, ki, kib, etc.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @return int
      */
-    public static function bytesFrom($number) {
+    public static function bytesFrom(mixed $number): int {
         if (!$number) {
             return 0;
 
         } else if (is_numeric($number)) {
-            return $number;
+            return (int) $number;
         }
 
         $number = trim((string) $number);
@@ -53,21 +53,21 @@ class Number extends Macro {
 
         foreach ($sizes as $format => $pow) {
             if (preg_match('/^([0-9\.]+)(' . $format . ')$/i', $number, $matches)) {
-                return (((float) $matches[1]) * pow(2, $pow));
+                return (int) (((float) $matches[1]) * pow(2, $pow));
             }
         }
 
-        return null;
+        return 0;
     }
 
     /**
      * Convert a numerical value to the readable string notated equivalent.
      *
-     * @param int $size
+     * @param string|int|float $size
      * @param int $precision
      * @return string
      */
-    public static function bytesTo($size, $precision = 0) {
+    public static function bytesTo(mixed $size, int $precision = 0): string {
         $sizes = ['YB', 'ZB', 'EB', 'PB', 'TB', 'GB', 'MB', 'KB', 'B'];
         $total = count($sizes);
 
@@ -81,14 +81,14 @@ class Number extends Macro {
     /**
      * Convert a number from one base to another.
      *
-     * @param int $no
+     * @param string|int|float $no
      * @param int $fromBase
      * @param int $toBase
-     * @return int
+     * @return string
      */
-    public static function convert($no, $fromBase, $toBase) {
-        if ($fromBase == $toBase) {
-            return $no;
+    public static function convert(mixed $no, int $fromBase, int $toBase): string {
+        if ($fromBase === $toBase) {
+            return (string) $no;
         }
 
         return base_convert($no, $fromBase, $toBase);
@@ -98,7 +98,7 @@ class Number extends Macro {
      * Convert a number to it's currency equivalent, respecting locale.
      * Allow for overrides through an options array.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param array $options {
      *      @type string $thousands Character used for thousands place
      *      @type string $decimals  Character used for decimal
@@ -111,7 +111,7 @@ class Number extends Macro {
      * }
      * @return string
      */
-    public static function currency($number, array $options = []) {
+    public static function currency(mixed $number, array $options = []): string {
         $defaults = [
             'thousands' => ',',
             'decimals' => '.',
@@ -150,114 +150,106 @@ class Number extends Macro {
     /**
      * Return true if the number is within the min and max.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param int $min
      * @param int $max
      * @return bool
      */
-    public static function in($number, $min, $max) {
+    public static function in(mixed $number, int $min, int $max): bool {
         return ($number >= $min && $number <= $max);
     }
 
     /**
      * Is the current value even?
      *
-     * @param int $number
+     * @param string|int|float $number
      * @return bool
      */
-    public static function isEven($number) {
+    public static function isEven(mixed $number): bool {
         return ($number % 2 === 0);
     }
 
     /**
      * Is the current value negative; less than zero.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @return bool
      */
-    public static function isNegative($number) {
+    public static function isNegative(mixed $number): bool {
         return ($number < 0);
     }
 
     /**
      * Is the current value odd?
      *
-     * @param int $number
+     * @param string|int|float $number
      * @return bool
      */
-    public static function isOdd($number) {
+    public static function isOdd(mixed $number): bool {
         return !static::isEven($number);
     }
 
     /**
      * Is the current value positive; greater than or equal to zero.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param bool $zero
      * @return bool
      */
-    public static function isPositive($number, $zero = true) {
+    public static function isPositive(mixed $number, bool $zero = true): bool {
         return ($zero ? ($number >= 0) : ($number > 0));
     }
 
     /**
      * Limits the number between two bounds.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param int $min
      * @param int $max
      * @return int
      */
-    public static function limit($number, $min, $max) {
+    public static function limit(mixed $number, int $min, int $max): int {
         return static::max(static::min($number, $min), $max);
     }
 
     /**
      * Increase the number to the minimum if below threshold.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param int $min
      * @return int
      */
-    public static function min($number, $min) {
-        if ($number < $min) {
-            $number = $min;
-        }
-
-        return $number;
+    public static function min(mixed $number, int $min): int {
+        return ($number < $min) ? $min : $number;
     }
 
     /**
      * Decrease the number to the maximum if above threshold.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param int $max
      * @return int
      */
-    public static function max($number, $max) {
-        if ($number > $max) {
-            $number = $max;
-        }
-
-        return $number;
+    public static function max(mixed $number, int $max): int {
+        return ($number > $max) ? $max : $number;
     }
 
     /**
      * Return true if the number is outside the min and max.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param int $min
      * @param int $max
      * @return bool
      */
-    public static function out($number, $min, $max) {
+    public static function out(mixed $number, int $min, int $max): bool {
         return ($number < $min || $number > $max);
     }
 
     /**
      * Convert a number to a percentage string with decimal and comma separations.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param int|array $options {
      *      @type string $thousands Character used for thousands place
      *      @type string $decimals  Character used for decimal
@@ -265,7 +257,7 @@ class Number extends Macro {
      * }
      * @return string
      */
-    public static function percentage($number, $options = []) {
+    public static function percentage(mixed $number, $options = []): string {
         if (!is_array($options)) {
             $options = ['places' => $options];
         }
@@ -282,21 +274,21 @@ class Number extends Macro {
     /**
      * Formats a number with a level of precision (even if it had none).
      *
-     * @param float $number
+     * @param string|int|float $number
      * @param int $precision
      * @return float
      */
-    public static function precision($number, $precision = 2) {
-        return sprintf('%01.' . $precision . 'F', $number);
+    public static function precision(mixed $number, int $precision = 2): float {
+        return (float) sprintf('%01.' . $precision . 'F', $number);
     }
 
     /**
      * Returns -1 if the value is negative, 0 if the value equals 0, or 1 if the value is positive.
      *
-     * @param int $number
+     * @param string|int|float $number
      * @return int
      */
-    public static function signum($number) {
+    public static function signum(mixed $number): int {
         if ($number < 0) {
             return -1;
 
@@ -311,44 +303,44 @@ class Number extends Macro {
     /**
      * Returns as an unsigned integer in base 2 (binary).
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param int $base
-     * @return int
+     * @return string
      */
-    public static function toBinary($number, $base = self::DECIMAL) {
+    public static function toBinary(mixed $number, int $base = self::DECIMAL): string {
         return static::convert($number, $base, self::BINARY);
     }
 
     /**
      * Returns as an unsigned integer in base 10 (decimal).
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param int $base
-     * @return int
+     * @return string
      */
-    public static function toDecimal($number, $base = self::DECIMAL) {
+    public static function toDecimal(mixed $number, int $base = self::DECIMAL): string {
         return static::convert($number, $base, self::DECIMAL);
     }
 
     /**
      * Returns as an unsigned integer in base 16 (hexadecimal).
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param int $base
      * @return string
      */
-    public static function toHex($number, $base = self::DECIMAL) {
+    public static function toHex(mixed $number, int $base = self::DECIMAL): string {
         return static::convert($number, $base, self::HEX);
     }
 
     /**
      * Returns as an unsigned integer in base 8 (octal).
      *
-     * @param int $number
+     * @param string|int|float $number
      * @param int $base
      * @return string
      */
-    public static function toOctal($number, $base = self::DECIMAL) {
+    public static function toOctal(mixed $number, int $base = self::DECIMAL): string {
         return static::convert($number, $base, self::OCTAL);
     }
 

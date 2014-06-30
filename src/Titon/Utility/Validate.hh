@@ -22,34 +22,34 @@ class Validate extends Macro {
     /**
      * IP version constants.
      */
-    const IPV4 = FILTER_FLAG_IPV4;
-    const IPV6 = FILTER_FLAG_IPV6;
+    const int IPV4 = FILTER_FLAG_IPV4;
+    const int IPV6 = FILTER_FLAG_IPV6;
 
     /**
      * Credit card constants.
      */
-    const AMERICAN_EXPRESS = 'americanExpress';
-    const BANKCARD = 'bankcard';
-    const DINERS_CLUB = 'diners';
-    const DISCOVER = 'discover';
-    const ENROUTE = 'enroute';
-    const JCB = 'jcb';
-    const MAESTRO = 'maestro';
-    const MASTERCARD = 'mastercard';
-    const SOLO_DEBIT = 'solo';
-    const SWITCH_DEBIT = 'switch';
-    const VISA = 'visa';
-    const VISA_ELECTRON = 'electron';
-    const VOYAGER = 'voyager';
+    const string AMERICAN_EXPRESS = 'americanExpress';
+    const string BANKCARD = 'bankcard';
+    const string DINERS_CLUB = 'diners';
+    const string DISCOVER = 'discover';
+    const string ENROUTE = 'enroute';
+    const string JCB = 'jcb';
+    const string MAESTRO = 'maestro';
+    const string MASTERCARD = 'mastercard';
+    const string SOLO_DEBIT = 'solo';
+    const string SWITCH_DEBIT = 'switch';
+    const string VISA = 'visa';
+    const string VISA_ELECTRON = 'electron';
+    const string VOYAGER = 'voyager';
 
     /**
      * Validate input is alphabetical.
      *
      * @param string $input
-     * @param array $exceptions
+     * @param string $exceptions
      * @return bool
      */
-    public static function alpha($input, $exceptions = []) {
+    public static function alpha(mixed $input, string $exceptions = ''): bool {
         return static::custom($input, '/^[\p{L}\s' . static::escape($exceptions) . ']+$/imU');
     }
 
@@ -57,10 +57,10 @@ class Validate extends Macro {
      * Validate input is numerical and alphabetical (does not include punctuation).
      *
      * @param string $input
-     * @param array $exceptions
+     * @param string $exceptions
      * @return bool
      */
-    public static function alphaNumeric($input, $exceptions = []) {
+    public static function alphaNumeric(mixed $input, string $exceptions = ''): bool {
         return static::custom($input, '/^[\p{L}\p{N}\p{Nd}\s' . static::escape($exceptions) . ']+$/imU');
     }
 
@@ -72,7 +72,7 @@ class Validate extends Macro {
      * @param int $max
      * @return bool
      */
-    public static function between($input, $min, $max) {
+    public static function between(mixed $input, int $min, int $max): bool {
         $length = mb_strlen($input);
 
         return ($length <= $max && $length >= $min);
@@ -84,7 +84,7 @@ class Validate extends Macro {
      * @param string $input
      * @return bool
      */
-    public static function boolean($input) {
+    public static function boolean(mixed $input): bool {
         return in_array($input, [true, false, 1, 0, '1', '0', 'on', 'off', 'yes', 'no'], true);
     }
 
@@ -95,7 +95,7 @@ class Validate extends Macro {
      * @param \Closure $callback
      * @return bool
      */
-    public static function callback($input, Closure $callback) {
+    public static function callback(mixed $input, Closure $callback): bool {
         return (bool) $callback($input);
     }
 
@@ -108,7 +108,7 @@ class Validate extends Macro {
      * @return bool
      * @throws \Titon\Utility\Exception\InvalidArgumentException
      */
-    public static function comparison($input, $check, $mode) {
+    public static function comparison(mixed $input, mixed $check, string $mode): bool {
         switch (strtolower($mode)) {
             case 'greater':
             case 'gt':
@@ -152,18 +152,18 @@ class Validate extends Macro {
      * Validate input is a credit card number. If $types is defined, will only validate against those cards, else will validate against all.
      *
      * @param string $input
-     * @param string|array $types
+     * @param mixed $types
      * @return bool
      * @throws \Titon\Utility\Exception\InvalidCreditCardException
      */
-    public static function creditCard($input, $types = null) {
+    public static function creditCard(mixed $input, ?mixed $types = null): bool {
         $input = str_replace(['-', ' '], '', $input);
 
         if (mb_strlen($input) < 13) {
             return false;
         }
 
-        $cards = [
+        $cards = Map{
             self::AMERICAN_EXPRESS  => '/^3[4|7]\\d{13}$/',
             self::BANKCARD          => '/^56(10\\d\\d|022[1-5])\\d{10}$/',
             self::DISCOVER          => '/^(?:6011|650\\d)\\d{12}$/',
@@ -177,12 +177,14 @@ class Validate extends Macro {
             self::VISA              => '/^4\\d{12}(\\d{3})?$/',
             self::VISA_ELECTRON     => '/^(?:417500|4917\\d{2}|4913\\d{2})\\d{10}$/',
             self::VOYAGER           => '/^8699[0-9]{11}$/'
-        ];
+        };
 
         if ($types) {
-            $validate = [];
+            if (is_string($types)) {
+                $types = new Vector([$types]);
+            }
 
-            foreach ((array) $types as $card) {
+            foreach ($types as $card) {
                 if (isset($cards[$card])) {
                     $validate[$card] = $cards[$card];
                 } else {
@@ -209,7 +211,7 @@ class Validate extends Macro {
      * @param string $format
      * @return bool
      */
-    public static function currency($input, $format = '/^\$[0-9,]+(?:\.[0-9]{2})?$/') {
+    public static function currency(mixed $input, string $format = '/^\$[0-9,]+(?:\.[0-9]{2})?$/'): bool {
         return static::custom($input, $format);
     }
 
@@ -220,7 +222,7 @@ class Validate extends Macro {
      * @param string $expression
      * @return bool
      */
-    public static function custom($input, $expression) {
+    public static function custom(mixed $input, string $expression): bool {
         return (bool) preg_match($expression, $input);
     }
 
@@ -232,7 +234,7 @@ class Validate extends Macro {
      * @param string $input
      * @return bool
      */
-    public static function date($input) {
+    public static function date(mixed $input): bool {
         $input = Time::toUnix($input);
 
         if (!$input) {
@@ -251,7 +253,7 @@ class Validate extends Macro {
      * @param int $places
      * @return bool
      */
-    public static function decimal($input, $places = 2) {
+    public static function decimal(mixed $input, int $places = 2): bool {
         if (!$places) {
             $regex = '/^[-+]?[0-9]*\.{1}[0-9]+(?:[eE][-+]?[0-9]+)?$/';
         } else {
@@ -269,7 +271,7 @@ class Validate extends Macro {
      * @param int $size
      * @return bool
      */
-    public static function dimensions($input, $type, $size) {
+    public static function dimensions(mixed $input, string $type, int $size): bool {
         if (static::file($input)) {
             $input = $input['tmp_name'];
         }
@@ -302,7 +304,7 @@ class Validate extends Macro {
      * @param bool $dns
      * @return bool
      */
-    public static function email($input, $dns = true) {
+    public static function email(mixed $input, bool $dns = true): bool {
         $result = (bool) filter_var($input, FILTER_VALIDATE_EMAIL);
 
         if (!$result) {
@@ -329,7 +331,7 @@ class Validate extends Macro {
      * @param string $check
      * @return bool
      */
-    public static function equal($input, $check) {
+    public static function equal(mixed $input, mixed $check): bool {
         return ($input == $check);
     }
 
@@ -340,21 +342,17 @@ class Validate extends Macro {
      * @param string $check
      * @return bool
      */
-    public static function exact($input, $check) {
+    public static function exact(mixed $input, mixed $check): bool {
         return ($input === $check);
     }
 
     /**
      * Escapes characters that would break the regex.
      *
-     * @param array|string $characters
+     * @param string $characters
      * @return string
      */
-    public static function escape($characters) {
-        if (is_array($characters)) {
-            $characters = implode('', $characters);
-        }
-
+    public static function escape(string $characters): string {
         return preg_quote($characters, '/');
     }
 
@@ -364,24 +362,24 @@ class Validate extends Macro {
      * @uses Titon\Utility\Loader
      *
      * @param string $input
-     * @param string|array $extensions
+     * @param Vector<string> $extensions
      * @return bool
      */
-    public static function ext($input, $extensions = ['gif', 'jpeg', 'png', 'jpg']) {
+    public static function ext(mixed $input, Vector<string> $extensions = Vector {'gif', 'jpeg', 'png', 'jpg'}): bool {
         if (is_array($input) && isset($input['name'])) {
             $input = $input['name'];
         }
 
-        return in_array(Path::ext($input), (array) $extensions, true);
+        return in_array(Path::ext($input), $extensions, true);
     }
 
     /**
      * Validate input is a file upload by checking for tmp_name and verifying error.
      *
-     * @param string $input
+     * @param mixed $input
      * @return bool
      */
-    public static function file($input) {
+    public static function file(mixed $input): bool {
         return (is_array($input) && !empty($input['tmp_name']) && $input['error'] == 0);
     }
 
@@ -392,7 +390,7 @@ class Validate extends Macro {
      * @param int $size
      * @return bool
      */
-    public static function height($input, $size = 0) {
+    public static function height(mixed $input, int $size = 0): bool {
         return static::dimensions($input, 'height', $size);
     }
 
@@ -403,7 +401,7 @@ class Validate extends Macro {
      * @param array $list
      * @return bool
      */
-    public static function inList($input, array $list) {
+    public static function inList(mixed $input, array $list): bool {
         return in_array($input, $list, true);
     }
 
@@ -415,7 +413,7 @@ class Validate extends Macro {
      * @param int $max
      * @return bool
      */
-    public static function inRange($input, $min, $max) {
+    public static function inRange(mixed $input, int $min, int $max): bool {
         return ($input <= $max && $input >= $min);
     }
 
@@ -426,7 +424,7 @@ class Validate extends Macro {
      * @param int $flags
      * @return bool
      */
-    public static function ip($input, $flags = 0) {
+    public static function ip(mixed $input, int $flags = 0): bool {
         return (bool) filter_var($input, FILTER_VALIDATE_IP, $flags);
     }
 
@@ -437,7 +435,7 @@ class Validate extends Macro {
      * @return bool
      * @link http://en.wikipedia.org/wiki/Luhn_algorithm
      */
-    public static function luhn($input) {
+    public static function luhn(mixed $input): bool {
         if ($input == 0) {
             return false;
         }
@@ -461,10 +459,10 @@ class Validate extends Macro {
      * Validate a files mime type is in the whitelist.
      *
      * @param string $input
-     * @param string|array $mimes
+     * @param Vector<string> $mimes
      * @return bool
      */
-    public static function mimeType($input, $mimes) {
+    public static function mimeType(mixed $input, Vector<string> $mimes): bool {
         if (static::file($input)) {
             $input = $input['tmp_name'];
         }
@@ -477,7 +475,7 @@ class Validate extends Macro {
         $type = finfo_file($file, $input);
         finfo_close($file);
 
-        return in_array($type, (array) $mimes);
+        return in_array($type, $mimes);
     }
 
     /**
@@ -487,7 +485,7 @@ class Validate extends Macro {
      * @param int $min
      * @return bool
      */
-    public static function minFilesize($input, $min) {
+    public static function minFilesize(mixed $input, int $min): bool {
         if (static::file($input)) {
             $size = $input['size'];
 
@@ -508,7 +506,7 @@ class Validate extends Macro {
      * @param int $min
      * @return bool
      */
-    public static function minHeight($input, $min) {
+    public static function minHeight(mixed $input, int $min): bool {
         return static::dimensions($input, 'minHeight', $min);
     }
 
@@ -519,7 +517,7 @@ class Validate extends Macro {
      * @param int $min
      * @return bool
      */
-    public static function minLength($input, $min) {
+    public static function minLength(mixed $input, int $min): bool {
         return (mb_strlen($input) >= $min);
     }
 
@@ -530,7 +528,7 @@ class Validate extends Macro {
      * @param int $min
      * @return bool
      */
-    public static function minWidth($input, $min) {
+    public static function minWidth(mixed $input, int $min): bool {
         return static::dimensions($input, 'minWidth', $min);
     }
 
@@ -543,7 +541,7 @@ class Validate extends Macro {
      * @param int $max
      * @return bool
      */
-    public static function maxFilesize($input, $max) {
+    public static function maxFilesize(mixed $input, int $max): bool {
         if (static::file($input)) {
             $size = $input['size'];
 
@@ -564,7 +562,7 @@ class Validate extends Macro {
      * @param int $max
      * @return bool
      */
-    public static function maxHeight($input, $max) {
+    public static function maxHeight(mixed $input, int $max): bool {
         return static::dimensions($input, 'maxHeight', $max);
     }
 
@@ -575,7 +573,7 @@ class Validate extends Macro {
      * @param int $max
      * @return bool
      */
-    public static function maxLength($input, $max) {
+    public static function maxLength(mixed $input, int $max): bool {
         return (mb_strlen($input) <= $max);
     }
 
@@ -586,7 +584,7 @@ class Validate extends Macro {
      * @param int $max
      * @return bool
      */
-    public static function maxWidth($input, $max) {
+    public static function maxWidth(mixed $input, int $max): bool {
         return static::dimensions($input, 'maxWidth', $max);
     }
 
@@ -596,7 +594,7 @@ class Validate extends Macro {
      * @param string $input
      * @return bool
      */
-    public static function notEmpty($input) {
+    public static function notEmpty(mixed $input): bool {
         return (!empty($input) || $input === 0 || $input === '0');
     }
 
@@ -606,7 +604,7 @@ class Validate extends Macro {
      * @param string $input
      * @return bool
      */
-    public static function numeric($input) {
+    public static function numeric(mixed $input): bool {
         return is_numeric($input);
     }
 
@@ -617,7 +615,7 @@ class Validate extends Macro {
      * @param string $format
      * @return bool
      */
-    public static function phone($input, $format = '/^(?:\+?1)?\s?(?:\([0-9]{3}\))?\s?[0-9]{3}-[0-9]{4}$/') {
+    public static function phone(mixed $input, string $format = '/^(?:\+?1)?\s?(?:\([0-9]{3}\))?\s?[0-9]{3}-[0-9]{4}$/'): bool {
         return static::custom($input, $format);
     }
 
@@ -628,7 +626,7 @@ class Validate extends Macro {
      * @param string $format
      * @return bool
      */
-    public static function postalCode($input, $format = '/^[0-9]{5}(?:-[0-9]{4})?$/') {
+    public static function postalCode(mixed $input, string $format = '/^[0-9]{5}(?:-[0-9]{4})?$/'): bool {
         return static::custom($input, $format);
     }
 
@@ -639,7 +637,7 @@ class Validate extends Macro {
      * @param string $format
      * @return bool
      */
-    public static function ssn($input, $format = '/^[0-9]{3}-[0-9]{2}-[0-9]{4}$/') {
+    public static function ssn(mixed $input, string $format = '/^[0-9]{3}-[0-9]{2}-[0-9]{4}$/'): bool {
         return static::custom($input, $format);
     }
 
@@ -649,7 +647,7 @@ class Validate extends Macro {
      * @param string $input
      * @return bool
      */
-    public static function uuid($input) {
+    public static function uuid(mixed $input): bool {
         return static::custom($input, '/^[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12}$/i');
     }
 
@@ -659,7 +657,7 @@ class Validate extends Macro {
      * @param string $input
      * @return bool
      */
-    public static function url($input) {
+    public static function url(mixed $input): bool {
         return (bool) filter_var($input, FILTER_VALIDATE_URL);
     }
 
@@ -670,7 +668,7 @@ class Validate extends Macro {
      * @param int $size
      * @return bool
      */
-    public static function width($input, $size) {
+    public static function width(mixed $input, int $size): bool {
         return static::dimensions($input, 'width', $size);
     }
 

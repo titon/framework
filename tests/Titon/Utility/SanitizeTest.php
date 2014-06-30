@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;

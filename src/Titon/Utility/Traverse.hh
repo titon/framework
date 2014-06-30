@@ -7,42 +7,31 @@
 
 namespace Titon\Utility;
 
-use Titon\Utility\Exception\InvalidTypeException;
 use \Closure;
 
 /**
- * Manipulates, manages and processes multiple types of result sets: objects and arrays.
+ * Mutates and traverses multiple types of data structures (collections).
  *
  * @package Titon\Utility
  */
-class Hash extends Macro {
+class Traverse extends Macro {
 
     /**
      * Determines the total depth of a multi-dimensional array or object.
      * Has two methods of determining depth: based on recursive depth, or based on tab indentation (faster).
      *
-     * @uses Titon\Utility\Converter
-     *
-     * @param array|object $set
+     * @param Collection $collection
      * @return int
-     * @throws \Titon\Utility\Exception\InvalidTypeException
      */
-    public static function depth($set) {
-        if (is_object($set)) {
-            $set = Converter::toArray($set);
-
-        } else if (!is_array($set)) {
-            throw new InvalidTypeException('Value passed must be an array');
-        }
-
-        if (!$set) {
+    public static function depth(Collection $collection): int {
+        if ($collection->isEmpty()) {
             return 0;
         }
 
         $depth = 1;
 
-        foreach ($set as $value) {
-            if (is_array($value)) {
+        foreach ($collection as $value) {
+            if ($value instanceof Collection) {
                 $count = static::depth($value) + 1;
 
                 if ($count > $depth) {
@@ -58,33 +47,33 @@ class Hash extends Macro {
      * Calls a function for each key-value pair in the set.
      * If recursive is true, will apply the callback to nested arrays as well.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param \Closure $callback
      * @param bool $recursive
-     * @return array
+     * @return Collection
      */
-    public static function each(array $set, Closure $callback, $recursive = true) {
-        foreach ($set as $key => $value) {
-            if (is_array($value) && $recursive) {
-                $set[$key] = static::each($value, $callback, $recursive);
+    public static function each(Collection $collection, Closure $callback, bool $recursive = true): Collection {
+        foreach ($collection as $key => $value) {
+            if ($value instanceof Collection && $recursive) {
+                $collection->set($key, static::each($value, $callback, $recursive));
             } else {
-                $set[$key] = $callback($value, $key);
+                $collection->set($key, call_user_func_array($callback, [$value, $key]));
             }
         }
 
-        return $set;
+        return $collection;
     }
 
     /**
      * Returns true if every element in the array satisfies the provided testing function.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param \Closure $callback
      * @return bool
      */
-    public static function every(array $set, Closure $callback) {
-        foreach ($set as $key => $value) {
-            if (!$callback($value, $key)) {
+    public static function every(Collection $collection, Closure $callback): bool {
+        foreach ($collection as $key => $value) {
+            if (!call_user_func_array($callback, [$value, $key])) {
                 return false;
             }
         }
@@ -95,28 +84,28 @@ class Hash extends Macro {
     /**
      * Exclude specific keys from the array and return the new array.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param array $keys
-     * @return array
+     * @return Collection
      */
-    public static function exclude(array $set, array $keys) {
+    public static function exclude(Collection $collection, array $keys): Collection {
         foreach ($keys as $key) {
-            unset($set[$key]);
+            unset($collection[$key]);
         }
 
-        return $set;
+        return $collection;
     }
 
     /**
      * Expand an array to a fully workable multi-dimensional array, where the values key is a dot notated path.
      *
-     * @param array $set
-     * @return array
+     * @param Map $collection
+     * @return Map<string, mixed>
      */
-    public static function expand(array $set) {
-        $data = [];
+    public static function expand(Map $collection): Map<string, mixed> {
+        $data = Map {};
 
-        foreach ($set as $key => $value) {
+        foreach ($collection as $key => $value) {
             $data = static::insert($data, $key, $value);
         }
 
@@ -126,37 +115,35 @@ class Hash extends Macro {
     /**
      * Extract the value of an array, depending on the paths given, represented by key.key.key notation.
      *
-     * @param array $set
+     * @param Map $collection
      * @param string $path
      * @return mixed
      */
-    public static function extract(array $set, $path) {
-        if (!$set) {
-            return null;
-        }
+    public static function extract(Map $collection, string $path): ?mixed {
 
         // Exit early for faster processing
         if (strpos($path, '.') === false) {
-            return isset($set[$path]) ? $set[$path] : null;
+            return $collection->get($path);
         }
 
-        $search =& $set;
-        $paths = explode('.', (string) $path);
+        $search = $collection;
+        $paths = explode('.', $path);
         $total = count($paths);
 
         while ($total > 0) {
             $key = $paths[0];
+            $value = $search->get($key);
 
             // Within the last path
             if ($total === 1) {
-                return array_key_exists($key, $search) ? $search[$key] : null;
+                return $value;
 
             // Break out of non-existent paths early
-            } else if (!array_key_exists($key, $search) || !is_array($search[$key])) {
+            } else if (!$search->contains($key) || !($value instanceof Collection)) {
                 break;
             }
 
-            $search =& $search[$key];
+            $search = $value;
             array_shift($paths);
             $total--;
         }
@@ -168,85 +155,52 @@ class Hash extends Macro {
      * Filter out all keys within an array that have an empty value, excluding 0 (string and numeric).
      * If $recursive is set to true, will remove all empty values within all sub-arrays.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param bool $recursive
      * @param \Closure $callback
-     * @return array
+     * @return Collection
      */
-    public static function filter(array $set, $recursive = true, Closure $callback = null) {
-        if ($recursive) {
-            foreach ($set as $key => $value) {
-                if (is_array($value)) {
-                    $set[$key] = static::filter($value, $recursive);
-                }
-            }
-        }
-
+    public static function filter(Collection $collection, bool $recursive = true, ?Closure $callback = null): Collection {
         if ($callback === null) {
             $callback = function($var) {
                 return ($var === 0 || $var === '0' || !empty($var));
             };
         }
 
-        return array_filter($set, $callback);
+        if ($recursive) {
+            foreach ($collection as $key => $value) {
+                if ($value instanceof Collection) {
+                    $collection->set($key, static::filter($value, $recursive, $callback));
+                }
+            }
+        }
+
+        return $collection->filter($callback);
     }
 
     /**
      * Flatten a multi-dimensional array by returning the values with their keys representing their previous pathing.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param string $path
-     * @return array
+     * @return Map<string, mixed>
      */
-    public static function flatten(array $set, $path = null) {
+    public static function flatten(Collection $collection, string $path = ''): Map<string, mixed> {
         if ($path) {
             $path = $path . '.';
         }
 
-        $data = [];
+        $data = Map {};
 
-        foreach ($set as $key => $value) {
-            if (is_array($value)) {
-                if ($value) {
-                    $data += static::flatten($value, $path . $key);
+        foreach ($collection as $key => $value) {
+            if ($value instanceof Collection) {
+                if ($value->isEmpty()) {
+                    $data->set($path . $key, null);
                 } else {
-                    $data[$path . $key] = null;
+                    $data->setAll(static::flatten($value, $path . $key));
                 }
             } else {
-                $data[$path . $key] = $value;
-            }
-        }
-
-        return $data;
-    }
-
-    /**
-     * Flip the array by replacing all array keys with their value, if the value is a string and the key is numeric.
-     * If the value is empty/false/null and $truncate is true, that key will be removed.
-     *
-     * @param array $set
-     * @param bool $recursive
-     * @param bool $truncate
-     * @return array
-     */
-    public static function flip(array $set, $recursive = true, $truncate = true) {
-        $data = [];
-
-        foreach ($set as $key => $value) {
-            $empty = ($value === '' || $value === false || $value === null);
-
-            if (is_array($value)) {
-                if ($recursive) {
-                    $data[$key] = static::flip($value, $truncate);
-                }
-
-            } else if (is_int($key) && !$empty) {
-                $data[$value] = '';
-
-            } else {
-                if ($truncate && !$empty) {
-                    $data[$value] = $key;
-                }
+                $data->set($path . $key, $value);
             }
         }
 
@@ -256,37 +210,39 @@ class Hash extends Macro {
     /**
      * Get a value from the set. If they path doesn't exist, return null, or if the path is empty, return the whole set.
      *
-     * @param array $set
+     * @param Map $collection
      * @param string $path
      * @return mixed
      */
-    public static function get(array $set, $path = null) {
+    public static function get(Map $collection, string $path = ''): ?mixed {
+
+        // Allow whole collection to be returned
         if (!$path) {
-            return $set;
+            return $collection;
         }
 
-        return static::extract($set, $path);
+        return static::extract($collection, $path);
     }
 
     /**
      * Checks to see if a key/value pair exists within an array, determined by the given path.
      *
-     * @param array $set
+     * @param Map $collection
      * @param string $path
      * @return bool
      */
-    public static function has(array $set, $path) {
-        if (!$set || !$path) {
+    public static function has(Map $collection, string $path): bool {
+        if ($collection->isEmpty() || !$path) {
             return false;
         }
 
         // Exit early for faster processing
         if (strpos($path, '.') === false) {
-            return isset($set[$path]);
+            return $collection->contains($path);
         }
 
-        $search =& $set;
-        $paths = explode('.', (string) $path);
+        $search = $collection;
+        $paths = explode('.', $path);
         $total = count($paths);
 
         while ($total > 0) {
@@ -294,14 +250,14 @@ class Hash extends Macro {
 
             // Within the last path
             if ($total === 1) {
-                return array_key_exists($key, $search);
+                return $search->contains($key);
 
             // Break out of non-existent paths early
-            } else if (!array_key_exists($key, $search) || !is_array($search[$key])) {
+            } else if (!$search->contains($key) || !($search->get($key) instanceof Collection)) {
                 break;
             }
 
-            $search =& $search[$key];
+            $search = $search->get($key);
             array_shift($paths);
             $total--;
         }
@@ -312,40 +268,40 @@ class Hash extends Macro {
     /**
      * Includes the specified key-value pair in the set if the key doesn't already exist.
      *
-     * @param array $set
+     * @param Map $collection
      * @param string $path
      * @param mixed $value
-     * @return array
+     * @return Map<string, mixed>
      */
-    public static function inject(array $set, $path, $value) {
-        if (static::has($set, $path)) {
-            return $set;
+    public static function inject(Map $collection, string $path, mixed $value): Map<string, mixed> {
+        if (static::has($collection, $path)) {
+            return $collection;
         }
 
-        return static::insert($set, $path, $value);
+        return static::insert($collection, $path, $value);
     }
 
     /**
      * Inserts a value into the array set based on the given path.
      *
-     * @param array $set
+     * @param Map $collection
      * @param string $path
      * @param mixed $value
-     * @return array
+     * @return Map<string, mixed>
      */
-    public static function insert(array $set, $path, $value) {
+    public static function insert(Map $collection, string $path, mixed $value): Map<string, mixed> {
         if (!$path) {
-            return $set;
+            return $collection;
         }
 
         // Exit early for faster processing
         if (strpos($path, '.') === false) {
-            $set[$path] = $value;
+            $collection->set($path, $value);
 
-            return $set;
+            return $collection;
         }
 
-        $search =& $set;
+        $search = $collection;
         $paths = explode('.', $path);
         $total = count($paths);
 
@@ -354,33 +310,31 @@ class Hash extends Macro {
 
             // Within the last path
             if ($total === 1) {
-                $search[$key] = $value;
+                $search->set($key, $value);
 
             // Break out of non-existent paths early
-            } else if (!array_key_exists($key, $search) || !is_array($search[$key])) {
-                $search[$key] = [];
+            } else if (!$search->contains($key) || !($search->get($key) instanceof Collection)) {
+                $search->set($key, Map {});
             }
 
-            $search =& $search[$key];
+            $search = $search->get($key);
             array_shift($paths);
             $total--;
         }
 
-        unset($search);
-
-        return $set;
+        return $collection;
     }
 
     /**
      * Checks to see if all values in the array are strings, returns false if not.
      * If $strict is true, method will fail if there are values that are numerical strings, but are not cast as integers.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param bool $strict
      * @return bool
      */
-    public static function isAlpha(array $set, $strict = true) {
-        return static::every($set, function($value) use ($strict) {
+    public static function isAlpha(Collection $collection, bool $strict = true): bool {
+        return static::every($collection, function($value) use ($strict) {
             if (!is_string($value)) {
                 return false;
             }
@@ -398,11 +352,11 @@ class Hash extends Macro {
     /**
      * Checks to see if all values in the array are numeric, returns false if not.
      *
-     * @param array $set
+     * @param Collection $collection
      * @return bool
      */
-    public static function isNumeric(array $set) {
-        return static::every($set, function($value) {
+    public static function isNumeric(Collection $collection): bool {
+        return static::every($collection, function($value) {
             return is_numeric($value);
         });
     }
@@ -410,27 +364,27 @@ class Hash extends Macro {
     /**
      * Returns the key of the specified value. Will recursively search if the first pass doesn't match.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param mixed $match
      * @return mixed
      */
-    public static function keyOf(array $set, $match) {
+    public static function keyOf(Collection $collection, mixed $match): ?mixed {
         $return = null;
-        $isArray = [];
+        $isArray = Vector {};
 
-        foreach ($set as $key => $value) {
+        foreach ($collection as $key => $value) {
             if ($value === $match) {
                 $return = $key;
             }
 
-            if (is_array($value)) {
+            if (is_array($value) || $value instanceof Collection) {
                 $isArray[] = $key;
             }
         }
 
         if (!$return && $isArray) {
             foreach ($isArray as $key) {
-                if ($value = static::keyOf($set[$key], $match)) {
+                if ($value = static::keyOf($collection->get($key), $match)) {
                     $return = $key . '.' . $value;
                 }
             }
@@ -440,60 +394,23 @@ class Hash extends Macro {
     }
 
     /**
-     * Works in a similar fashion to array_map() but can be used recursively as well as supply arguments for the function callback.
-     * Additionally, the $function argument can be a string or array containing the class and method name.
-     *
-     * @param array $set
-     * @param string|\Closure $function
-     * @param array $args
-     * @return array
-     */
-    public static function map(array $set, $function, $args = []) {
-        foreach ($set as $key => $value) {
-            if (is_array($value)) {
-                $set[$key] = static::map($value, $function, $args);
-
-            } else {
-                $temp = $args;
-                array_unshift($temp, $value);
-
-                $set[$key] = call_user_func_array($function, $temp);
-            }
-        }
-
-        return $set;
-    }
-
-    /**
-     * Compares to see if the first array set matches the second set exactly.
-     *
-     * @param array $set1
-     * @param array $set2
-     * @return bool
-     */
-    public static function matches(array $set1, array $set2) {
-        return ($set1 === $set2);
-    }
-
-    /**
      * Merge is a combination of array_merge() and array_merge_recursive(). However, when merging two keys with the same key,
      * the previous value will be overwritten instead of being added into an array. The later array takes precedence when merging.
      *
-     * @param array $array,...
-     * @return array
+     * @return Map<string, mixed>
      */
     public static function merge() {
-        $sets = func_get_args();
-        $data = [];
+        $collections = func_get_args();
+        $data = Map {};
 
-        if (!$sets) {
+        if (!$collections) {
             return $data;
         }
 
-        foreach ($sets as $set) {
-            foreach ((array) $set as $key => $value) {
+        foreach ($collections as $collection) {
+            foreach ($collection as $key => $value) {
                 if (isset($data[$key])) {
-                    if (is_array($value) && is_array($data[$key])) {
+                    if ($value instanceof Collection && $data[$key] instanceof Collection) {
                         $data[$key] = static::merge($data[$key], $value);
 
                     } else {
@@ -511,38 +428,38 @@ class Hash extends Macro {
     /**
      * Works similar to merge(), except that it will only overwrite/merge values if the keys exist in the previous array.
      *
-     * @param array $set1 - The base array
-     * @param array $set2 - The array to overwrite the base array
+     * @param array $collection1 - The base array
+     * @param array $collection2 - The array to overwrite the base array
      * @return array
      */
-    public static function overwrite(array $set1, array $set2) {
-        $overwrite = array_intersect_key($set2, $set1);
+    public static function overwrite(array $collection1, array $collection2) {
+        $overwrite = array_intersect_key($collection2, $collection1);
 
         if ($overwrite) {
             foreach ($overwrite as $key => $value) {
                 if (is_array($value)) {
-                    $set1[$key] = static::overwrite($set1[$key], $value);
+                    $collection1[$key] = static::overwrite($collection1[$key], $value);
                 } else {
-                    $set1[$key] = $value;
+                    $collection1[$key] = $value;
                 }
             }
         }
 
-        return $set1;
+        return $collection1;
     }
 
     /**
      * Pluck a value out of each child-array and return an array of the plucked values.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param string $path
-     * @return array
+     * @return Vector<mixed>
      */
-    public static function pluck(array $set, $path) {
-        $data = [];
+    public static function pluck(Collection $collection, string $path): Vector<mixed> {
+        $data = Vector {};
 
-        foreach ($set as $array) {
-            if ($value = static::extract($array, $path)) {
+        foreach ($collection as $coll) {
+            if ($value = static::extract($coll, $path)) {
                 $data[] = $value;
             }
         }
@@ -557,10 +474,10 @@ class Hash extends Macro {
      * @param int $stop
      * @param int $step
      * @param bool $index
-     * @return array
+     * @return Vector<int>
      */
-    public static function range($start, $stop, $step = 1, $index = true) {
-        $array = [];
+    public static function range(int $start, int $stop, int $step = 1, bool $index = true): Vector<int> {
+        $array = Vector {};
 
         if ($stop > $start) {
             for ($i = $start; $i <= $stop; $i += $step) {
@@ -587,14 +504,14 @@ class Hash extends Macro {
     /**
      * Reduce an array by removing all keys that have not been defined for persistence.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param array $keys
-     * @return array
+     * @return Collection
      */
-    public static function reduce(array $set, array $keys) {
-        $array = [];
+    public static function reduce(Collection $collection, array $keys): Collection {
+        $array = Map {};
 
-        foreach ($set as $key => $value) {
+        foreach ($collection as $key => $value) {
             if (in_array($key, $keys)) {
                 $array[$key] = $value;
             }
@@ -606,24 +523,24 @@ class Hash extends Macro {
     /**
      * Remove an index from the array, determined by the given path.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param string $path
-     * @return array
+     * @return Collection
      */
-    public static function remove(array $set, $path) {
+    public static function remove(Collection $collection, string $path) {
         if (!$path) {
-            return $set;
+            return $collection;
         }
 
         // Exit early for faster processing
         if (strpos($path, '.') === false) {
-            unset($set[$path]);
+            $collection->remove($path);
 
-            return $set;
+            return $collection;
         }
 
-        $search =& $set;
-        $paths = explode('.', (string) $path);
+        $search = $collection;
+        $paths = explode('.', $path);
         $total = count($paths);
 
         while ($total > 0) {
@@ -631,51 +548,52 @@ class Hash extends Macro {
 
             // Within the last path
             if ($total === 1) {
-                unset($search[$key]);
-                return $set;
+                $collection->remove($key);
+
+                return $collection;
 
             // Break out of non-existent paths early
-            } else if (!array_key_exists($key, $search) || !is_array($search[$key])) {
+            } else if (!$search->contains($key) || !($search->get($key) instanceof Collection)) {
                 break;
             }
 
-            $search =& $search[$key];
+            $search = $search->get($key);
             array_shift($paths);
             $total--;
         }
 
-        return $set;
+        return $collection;
     }
 
     /**
      * Set a value into the result set. If the paths is an array, loop over each one and insert the value.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param array|string $path
      * @param mixed $value
-     * @return array
+     * @return Collection
      */
-    public static function set(array $set, $path, $value = null) {
-        if (is_array($path)) {
+    public static function set(Collection $collection, mixed $path, ?mixed $value = null): Collection {
+        if ($path instanceof Collection) {
             foreach ($path as $key => $value) {
-                $set = static::insert($set, $key, $value);
+                $collection = static::insert($collection, $key, $value);
             }
         } else {
-            $set = static::insert($set, $path, $value);
+            $collection = static::insert($collection, $path, $value);
         }
 
-        return $set;
+        return $collection;
     }
 
     /**
      * Returns true if at least one element in the array satisfies the provided testing function.
      *
-     * @param array $set
+     * @param Collection $collection
      * @param \Closure $callback
      * @return bool
      */
-    public static function some(array $set, Closure $callback) {
-        foreach ($set as $value) {
+    public static function some(Collection $collection, Closure $callback): bool {
+        foreach ($collection as $value) {
             if ($callback($value, $value)) {
                 return true;
             }

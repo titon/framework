@@ -53,128 +53,128 @@ if (!function_exists('factory')) {
 }
 
 /**
- * @see Titon\Utility\Hash::depth()
+ * @see Titon\Utility\Traverse::depth()
  */
 if (!function_exists('array_depth')) {
     function array_depth($set) {
-        return Hash::depth($set);
+        return Traverse::depth($set);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::each()
+ * @see Titon\Utility\Traverse::each()
  */
 if (!function_exists('array_each')) {
     function array_each(array $set, Closure $callback, $recursive = true) {
-        return Hash::each($set, $callback, $recursive);
+        return Traverse::each($set, $callback, $recursive);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::every()
+ * @see Titon\Utility\Traverse::every()
  */
 if (!function_exists('array_every')) {
     function array_every(array $set, Closure $callback) {
-        return Hash::every($set, $callback);
+        return Traverse::every($set, $callback);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::exclude()
+ * @see Titon\Utility\Traverse::exclude()
  */
 if (!function_exists('array_exclude')) {
     function array_exclude(array $set, array $keys) {
-        return Hash::exclude($set, $keys);
+        return Traverse::exclude($set, $keys);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::expand()
+ * @see Titon\Utility\Traverse::expand()
  */
 if (!function_exists('array_expand')) {
     function array_expand(array $set) {
-        return Hash::expand($set);
+        return Traverse::expand($set);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::flatten()
+ * @see Titon\Utility\Traverse::flatten()
  */
 if (!function_exists('array_flatten')) {
     function array_flatten(array $set, $path = null) {
-        return Hash::flatten($set, $path);
+        return Traverse::flatten($set, $path);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::get()
+ * @see Titon\Utility\Traverse::get()
  */
 if (!function_exists('array_get')) {
     function array_get(array $set, $path = null) {
-        return Hash::get($set, $path);
+        return Traverse::get($set, $path);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::has()
+ * @see Titon\Utility\Traverse::has()
  */
 if (!function_exists('array_has')) {
     function array_has(array $set, $path) {
-        return Hash::has($set, $path);
+        return Traverse::has($set, $path);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::inject()
+ * @see Titon\Utility\Traverse::inject()
  */
 if (!function_exists('array_inject')) {
     function array_inject(array $set, $path, $value) {
-        return Hash::inject($set, $path, $value);
+        return Traverse::inject($set, $path, $value);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::keyOf()
+ * @see Titon\Utility\Traverse::keyOf()
  */
 if (!function_exists('array_key_of')) {
     function array_key_of(array $set, $match) {
-        return Hash::keyOf($set, $match);
+        return Traverse::keyOf($set, $match);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::pluck()
+ * @see Titon\Utility\Traverse::pluck()
  */
 if (!function_exists('array_pluck')) {
     function array_pluck(array $set, $path) {
-        return Hash::pluck($set, $path);
+        return Traverse::pluck($set, $path);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::remove()
+ * @see Titon\Utility\Traverse::remove()
  */
 if (!function_exists('array_remove')) {
     function array_remove(array $set, $path) {
-        return Hash::remove($set, $path);
+        return Traverse::remove($set, $path);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::set()
+ * @see Titon\Utility\Traverse::set()
  */
 if (!function_exists('array_set')) {
     function array_set(array $set, $path, $value) {
-        return Hash::set($set, $path, $value);
+        return Traverse::set($set, $path, $value);
     }
 }
 
 /**
- * @see Titon\Utility\Hash::some()
+ * @see Titon\Utility\Traverse::some()
  */
 if (!function_exists('array_some')) {
     function array_some(array $set, Closure $callback) {
-        return Hash::some($set, $callback);
+        return Traverse::some($set, $callback);
     }
 }
 

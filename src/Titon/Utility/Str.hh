@@ -12,20 +12,20 @@ namespace Titon\Utility;
  *
  * @package Titon\Utility
  */
-class String extends Macro {
+class Str extends Macro {
 
     /**
      * Generator types.
      */
-    const ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const ALPHA_LOWER = 'abcdefghijklmnopqrstuvwxyz';
-    const ALPHA_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const NUMERIC = '0123456789';
-    const NUMERIC_NOZERO = '123456789';
-    const NUMERIC_EVEN = '02468';
-    const NUMERIC_ODD = '13579';
-    const ALNUM = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const HEX = '0123456789abcdef';
+    const string ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const string ALPHA_LOWER = 'abcdefghijklmnopqrstuvwxyz';
+    const string ALPHA_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const string NUMERIC = '0123456789';
+    const string NUMERIC_NOZERO = '123456789';
+    const string NUMERIC_EVEN = '02468';
+    const string NUMERIC_ODD = '13579';
+    const string ALNUM = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const string HEX = '0123456789abcdef';
 
     /**
      * Return the character at the specified index, if not found returns null.
@@ -34,7 +34,7 @@ class String extends Macro {
      * @param int $index
      * @return string
      */
-    public static function charAt($string, $index) {
+    public static function charAt(string $string, int $index): ?string {
         return isset($string[$index]) ? $string[$index] : null;
     }
 
@@ -46,7 +46,7 @@ class String extends Macro {
      * @param int $length
      * @return int
      */
-    public static function compare($string, $value, $length = 0) {
+    public static function compare(string $string, string $value, int $length = 0): int {
         $string = (string) $string;
         $value = (string) $value;
 
@@ -66,8 +66,8 @@ class String extends Macro {
      * @param int $offset
      * @return bool
      */
-    public static function contains($string, $needle, $strict = true, $offset = 0) {
-        return (static::indexOf($string, $needle, $strict, $offset) !== false);
+    public static function contains(string $string, string $needle, bool $strict = true, int $offset = 0): bool {
+        return (static::indexOf($string, $needle, $strict, $offset) >= 0);
     }
 
     /**
@@ -78,7 +78,7 @@ class String extends Macro {
      * @param bool $strict
      * @return bool
      */
-    public static function endsWith($string, $needle, $strict = true) {
+    public static function endsWith(string $string, string $needle, bool $strict = true): bool {
         $end = static::extract($string, -mb_strlen($needle));
 
         if ($strict) {
@@ -96,7 +96,7 @@ class String extends Macro {
      * @param int $length
      * @return string
      */
-    public static function extract($string, $offset, $length = null) {
+    public static function extract(string $string, int $offset, int $length = 0): string {
         if ($length) {
             return mb_substr($string, $offset, $length);
         }
@@ -111,7 +111,7 @@ class String extends Macro {
      * @param string $seed
      * @return string
      */
-    public static function generate($length, $seed = self::ALNUM) {
+    public static function generate(int $length, string $seed = self::ALNUM): string {
         $return = '';
         $seed = (string) $seed;
         $totalChars = mb_strlen($seed) - 1;
@@ -124,7 +124,7 @@ class String extends Macro {
     }
 
     /**
-     * Grab the index of the first matched character.
+     * Grab the index of the first matched character. Returns -1 when the needle is not found.
      *
      * @param string $string
      * @param string $needle
@@ -132,12 +132,14 @@ class String extends Macro {
      * @param int $offset
      * @return int
      */
-    public static function indexOf($string, $needle, $strict = true, $offset = 0) {
+    public static function indexOf(string $string, string $needle, bool $strict = true, int $offset = 0): int {
         if ($strict) {
-            return mb_strpos($string, $needle, $offset);
+            $index = mb_strpos($string, $needle, $offset);
+        } else {
+            $index = mb_stripos($string, $needle, $offset);
         }
 
-        return mb_stripos($string, $needle, $offset);
+        return ($index === false) ? -1 : $index;
     }
 
     /**
@@ -146,7 +148,7 @@ class String extends Macro {
      * @uses Titon\Utility\Sanitize
      *
      * @param string $string
-     * @param array $data
+     * @param Map<string, mixed> $data
      * @param array $options {
      *      @type string $before    Opening variable delimiter
      *      @type string $after     Closing variable delimiter
@@ -154,7 +156,7 @@ class String extends Macro {
      * }
      * @return string
      */
-    public static function insert($string, array $data, array $options = []) {
+    public static function insert(string $string, Map<string, mixed> $data, array $options = []): string {
         $options = $options + [
             'before' => '{',
             'after' => '}',
@@ -173,7 +175,7 @@ class String extends Macro {
     }
 
     /**
-     * Grab the index of the last matched character.
+     * Grab the index of the last matched character. Returns -1 when the needle is not found.
      *
      * @param string $string
      * @param string $needle
@@ -181,33 +183,33 @@ class String extends Macro {
      * @param int $offset
      * @return int
      */
-    public static function lastIndexOf($string, $needle, $strict = true, $offset = 0) {
+    public static function lastIndexOf(string $string, string $needle, bool $strict = true, int $offset = 0): int {
         if ($strict) {
-            return mb_strrpos($string, $needle, $offset);
+            $index = mb_strrpos($string, $needle, $offset);
+        } else {
+            $index = mb_strripos($string, $needle, $offset);
         }
 
-        return mb_strripos($string, $needle, $offset);
+        return ($index === false) ? -1 : $index;
     }
 
     /**
      * Creates a comma separated list with the last item having an ampersand prefixing it.
      *
-     * @param array $items
+     * @param Vector<string> $items
      * @param string $glue
      * @param string $sep
      * @return string
      */
-    public static function listing($items, $glue = ' &amp; ', $sep = ', ') {
-        if (is_array($items)) {
-            $lastItem = array_pop($items);
+    public static function listing(Vector<string> $items, string $glue = ' &amp; ', string $sep = ', '): string {
+        $lastItem = $items->pop();
 
-            if (count($items) === 0) {
-                return $lastItem;
-            }
-
-            $items = implode($sep, $items);
-            $items = $items . $glue . $lastItem;
+        if ($items->count() === 0) {
+            return $lastItem;
         }
+
+        $items = implode($sep, $items);
+        $items = $items . $glue . $lastItem;
 
         return $items;
     }
@@ -220,22 +222,26 @@ class String extends Macro {
      * @param string $glue
      * @return string
      */
-    public static function shorten($string, $limit = 25, $glue = ' &hellip; ') {
+    public static function shorten(string $string, int $limit = 25, string $glue = ' &hellip; '): string {
         if (mb_strlen($string) > $limit) {
             $width = round($limit / 2);
 
-            // prefix
+            // Prefix
             $pre = mb_substr($string, 0, $width);
 
             if (mb_substr($pre, -1) !== ' ' && ($i = static::lastIndexOf($pre, ' '))) {
-                $pre = mb_substr($pre, 0, $i);
+                if ($i >= 0) {
+                    $pre = mb_substr($pre, 0, $i);
+                }
             }
 
-            // suffix
+            // Suffix
             $suf = mb_substr($string, -$width);
 
             if (mb_substr($suf, 0, 1) !== ' ' && ($i = static::indexOf($suf, ' '))) {
-                $suf = mb_substr($suf, $i);
+                if ($i >= 0) {
+                    $suf = mb_substr($suf, $i);
+                }
             }
 
             return trim($pre) . $glue . trim($suf);
@@ -252,7 +258,7 @@ class String extends Macro {
      * @param bool $strict
      * @return bool
      */
-    public static function startsWith($string, $needle, $strict = true) {
+    public static function startsWith(string $string, string $needle, bool $strict = true): bool {
         $start = static::extract($string, 0, mb_strlen($needle));
 
         if ($strict) {
@@ -277,7 +283,7 @@ class String extends Macro {
      * }
      * @return string
      */
-    public static function truncate($string, $limit = 25, array $options = []) {
+    public static function truncate(string $string, int $limit = 25, array $options = []): string {
         $options = $options + [
             'html' => true,
             'word' => true,
@@ -389,7 +395,7 @@ class String extends Macro {
      *
      * @return string
      */
-    public static function uuid() {
+    public static function uuid(): string {
         return sprintf('%s-%s-%s%s-%s%s-%s',
             static::generate(8, self::HEX), // 1
             static::generate(4, self::HEX), // 2

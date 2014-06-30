@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;
@@ -15,7 +15,7 @@ class ValidateTest extends TestCase {
 
     public function testAlpha() {
         $this->assertTrue(Validate::alpha('ahjsNKHAShksdnASQfgd'));
-        $this->assertTrue(Validate::alpha('asdnasdsd.dfsdfdfsdfs;', ['.', ';']));
+        $this->assertTrue(Validate::alpha('asdnasdsd.dfsdfdfsdfs;', '.;'));
 
         $this->assertFalse(Validate::alpha('asdnasdsd.dfsdfdfsdfs;'));
         $this->assertFalse(Validate::alpha('asdjn1803201'));
@@ -24,7 +24,7 @@ class ValidateTest extends TestCase {
 
     public function testAlphaNumeric() {
         $this->assertTrue(Validate::alphaNumeric('ahjsNKHAShksdnASQfgd'));
-        $this->assertTrue(Validate::alphaNumeric('asdnasdsd.dfsdfdfsdfs;', ['.', ';']));
+        $this->assertTrue(Validate::alphaNumeric('asdnasdsd.dfsdfdfsdfs;', '.;'));
         $this->assertTrue(Validate::alphaNumeric('asdjn1803201'));
 
         $this->assertFalse(Validate::alphaNumeric('asdnasdsd.dfsdfdfsdfs;'));
@@ -153,8 +153,8 @@ class ValidateTest extends TestCase {
         $this->assertTrue(Validate::creditCard('869958670174621', Validate::VOYAGER));
 
         // Test multiple
-        $this->assertTrue(Validate::creditCard('375239372816422', [Validate::AMERICAN_EXPRESS, Validate::VISA])); // = amex
-        $this->assertFalse(Validate::creditCard('869934523596112', [Validate::AMERICAN_EXPRESS, Validate::VISA])); // = voyager
+        $this->assertTrue(Validate::creditCard('375239372816422', Vector {Validate::AMERICAN_EXPRESS, Validate::VISA})); // = amex
+        $this->assertFalse(Validate::creditCard('869934523596112', Vector {Validate::AMERICAN_EXPRESS, Validate::VISA})); // = voyager
 
         // Test length
         $this->assertFalse(Validate::creditCard('2346533', Validate::MASTERCARD));
@@ -255,12 +255,12 @@ class ValidateTest extends TestCase {
     public function testExt() {
         $this->assertTrue(Validate::ext('image.gif'));
         $this->assertTrue(Validate::ext('image.jpeg'));
-        $this->assertTrue(Validate::ext('doc.pdf', 'pdf'));
-        $this->assertTrue(Validate::ext('web.HTML', ['html', 'xhtml']));
+        $this->assertTrue(Validate::ext('doc.pdf', Vector {'pdf'}));
+        $this->assertTrue(Validate::ext('web.HTML', Vector {'html', 'xhtml'}));
 
         $this->assertFalse(Validate::ext('image.bmp'));
-        $this->assertFalse(Validate::ext('doc.doc', 'pdf'));
-        $this->assertFalse(Validate::ext('web.XML', ['html', 'xhtml']));
+        $this->assertFalse(Validate::ext('doc.doc', Vector {'pdf'}));
+        $this->assertFalse(Validate::ext('web.XML', Vector {'html', 'xhtml'}));
     }
 
     public function testExtFile() {
@@ -388,11 +388,11 @@ class ValidateTest extends TestCase {
     }
 
     public function testMimeType() {
-        $this->assertTrue(Validate::mimeType($this->image, ['image/jpeg', 'image/jpg']));
-        $this->assertFalse(Validate::mimeType($this->image, ['image/gif']));
+        $this->assertTrue(Validate::mimeType($this->image, Vector {'image/jpeg', 'image/jpg'}));
+        $this->assertFalse(Validate::mimeType($this->image, Vector {'image/gif'}));
 
-        $this->assertTrue(Validate::mimeType(['tmp_name' => $this->image, 'error' => 0], ['image/jpeg', 'image/jpg']));
-        $this->assertFalse(Validate::mimeType(['tmp_name' => 'fake.jpg', 'error' => 0], ['image/gif']));
+        $this->assertTrue(Validate::mimeType(['tmp_name' => $this->image, 'error' => 0], Vector {'image/jpeg', 'image/jpg'}));
+        $this->assertFalse(Validate::mimeType(['tmp_name' => 'fake.jpg', 'error' => 0], Vector {'image/gif'}));
     }
 
     public function testMinFilesize() {

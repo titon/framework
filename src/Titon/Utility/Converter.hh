@@ -23,16 +23,16 @@ use \SimpleXmlElement;
 class Converter extends Macro {
 
     /** Disregard XML attributes and only return the value */
-    const XML_NONE = 0;
+    const int XML_NONE = 0;
 
     /** Merge attributes and the value into a single dimension; the values key will be "value" */
-    const XML_MERGE = 1;
+    const int XML_MERGE = 1;
 
     /** Group the attributes into a key "attributes" and the value into a key of "value" */
-    const XML_GROUP = 2;
+    const int XML_GROUP = 2;
 
     /** Attributes will only be returned */
-    const XML_ATTRIBS = 3;
+    const int XML_ATTRIBS = 3;
 
     /**
      * Autobox a value by type casting it.
@@ -40,7 +40,7 @@ class Converter extends Macro {
      * @param mixed $value
      * @return mixed
      */
-    public static function autobox($value) {
+    public static function autobox(mixed $value): mixed {
         if (is_numeric($value)) {
             if (strpos($value, '.') !== false) {
                 return (float) $value;
@@ -64,7 +64,7 @@ class Converter extends Macro {
      * @param mixed $value
      * @return string
      */
-    public static function unbox($value) {
+    public static function unbox(mixed $value): string {
         if (is_bool($value)) {
             return $value ? 'true' : 'false';
         }
@@ -78,7 +78,7 @@ class Converter extends Macro {
      * @param mixed $data
      * @return string
      */
-    public static function is($data) {
+    public static function is(mixed $data): string {
         if (static::isArray($data)) {
             return 'array';
 
@@ -112,7 +112,7 @@ class Converter extends Macro {
      * @param mixed $data
      * @return bool
      */
-    public static function isArray($data) {
+    public static function isArray(mixed $data): bool {
         return is_array($data);
     }
 
@@ -122,7 +122,7 @@ class Converter extends Macro {
      * @param mixed $data
      * @return bool
      */
-    public static function isJson($data) {
+    public static function isJson(mixed $data): bool {
         if (!is_string($data) || empty($data)) {
             return false;
         }
@@ -138,7 +138,7 @@ class Converter extends Macro {
      * @param mixed $data
      * @return bool
      */
-    public static function isObject($data) {
+    public static function isObject(mixed $data): bool {
         return is_object($data);
     }
 
@@ -148,7 +148,7 @@ class Converter extends Macro {
      * @param mixed $data
      * @return bool
      */
-    public static function isSerialized($data) {
+    public static function isSerialized(mixed $data): bool {
         if (!is_string($data) || empty($data)) {
             return false;
         }
@@ -162,7 +162,7 @@ class Converter extends Macro {
      * @param mixed $data
      * @return bool
      */
-    public static function isXml($data) {
+    public static function isXml(mixed $data): bool {
         // Do manually checks on the string since HHVM blows up
         if (!is_string($data) || substr($data, 0, 5) !== '<?xml') {
             return false;
@@ -178,7 +178,7 @@ class Converter extends Macro {
      * @param bool $recursive
      * @return array
      */
-    public static function toArray($resource, $recursive = false) {
+    public static function toArray(mixed $resource, bool $recursive = false): array {
         if ($resource instanceof Arrayable) {
             $resource = $resource->toArray();
 
@@ -208,7 +208,7 @@ class Converter extends Macro {
      * @param int $options
      * @return string
      */
-    public static function toJson($resource, $options = 0) {
+    public static function toJson(mixed $resource, int $options = 0): string {
         if ($resource instanceof JsonSerializable) {
             // pass-through
 
@@ -238,7 +238,7 @@ class Converter extends Macro {
      * @param bool $recursive
      * @return object
      */
-    public static function toObject($resource, $recursive = false) {
+    public static function toObject(mixed $resource, bool $recursive = false) { // @todo no object type hint
         if (static::isObject($resource)) {
             if (!$recursive) {
                 return $resource;
@@ -266,7 +266,7 @@ class Converter extends Macro {
      * @param mixed $resource
      * @return string
      */
-    public static function toSerialize($resource) {
+    public static function toSerialize(mixed $resource): string {
         if ($resource instanceof Serializable) {
             // pass-through
         } else {
@@ -283,7 +283,7 @@ class Converter extends Macro {
      * @param string $root
      * @return string
      */
-    public static function toXml($resource, $root = 'root') {
+    public static function toXml(mixed $resource, string $root = 'root'): string {
         if ($resource instanceof Xmlable) {
             return $resource->toXml($root);
         }
@@ -300,7 +300,7 @@ class Converter extends Macro {
      * @param object|array $object
      * @return array
      */
-    public static function buildArray($object) {
+    public static function buildArray(mixed $object): array {
         $array = [];
 
         foreach ($object as $key => $value) {
@@ -320,7 +320,7 @@ class Converter extends Macro {
      * @param array|object $array
      * @return object
      */
-    public static function buildObject($array) {
+    public static function buildObject(mixed $array) { // @todo no object type hint
         $obj = new \stdClass();
 
         foreach ($array as $key => $value) {
@@ -341,7 +341,7 @@ class Converter extends Macro {
      * @param array $array
      * @return \SimpleXMLElement
      */
-    public static function buildXml(SimpleXMLElement &$xml, $array) {
+    public static function buildXml(SimpleXMLElement &$xml, array $array): SimpleXmlElement {
         if (is_array($array)) {
             foreach ($array as $key => $value) {
 
@@ -352,7 +352,7 @@ class Converter extends Macro {
                 }
 
                 // Multiple nodes of the same name
-                if (Hash::isNumeric(array_keys($value))) {
+                if (Traverse::isNumeric(array_keys($value))) {
                     foreach ($value as $kValue) {
                         if (is_array($kValue)) {
                             static::buildXml($xml, [$key => $kValue]);
@@ -418,7 +418,7 @@ class Converter extends Macro {
      * @param int $format
      * @return array
      */
-    public static function xmlToArray(SimpleXMLElement $xml, $format = self::XML_GROUP) {
+    public static function xmlToArray(SimpleXMLElement $xml, int $format = self::XML_GROUP): array {
         if (count($xml->children()) <= 0) {
             return static::autobox((string) $xml);
         }

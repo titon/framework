@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Utility;
 
 use Titon\Common\Base;
@@ -8,18 +8,18 @@ class RegistryTest extends TestCase {
 
     public function testAll() {
         $base = new Base();
-        $config = new Config();
+        //$config = new Config();
         $registry = new Registry();
 
         Registry::set($base);
-        Registry::set($config);
+        //Registry::set($config);
         Registry::set($registry);
 
-        $this->assertEquals([
+        $this->assertEquals(new Map([
             'Titon\Common\Base' => $base,
-            'Titon\Utility\Config' => $config,
+            //'Titon\Utility\Config' => $config,
             'Titon\Utility\Registry' => $registry
-        ], Registry::all());
+        ]), Registry::all());
     }
 
     public function testFactory() {
@@ -30,7 +30,7 @@ class RegistryTest extends TestCase {
     }
 
     public function testFlushAndKeys() {
-        $test = [];
+        $test = Vector {};
 
         for ($i = 1; $i <= 10; $i++) {
             Registry::set(new Base(), 'key' . $i);

@@ -8,7 +8,6 @@
 namespace Titon\Utility;
 
 use Titon\Utility\Exception\InvalidArgumentException;
-use Titon\Utility\Exception\InvalidTypeException;
 
 /**
  * Provides convenience functions for inflecting notation paths, namespace paths and file system paths.
@@ -20,34 +19,34 @@ class Path extends Macro {
     /**
      * Directory separator.
      */
-    const SEPARATOR = DIRECTORY_SEPARATOR;
+    const string SEPARATOR = DIRECTORY_SEPARATOR;
 
     /**
      * Include path separator.
      */
-    const DELIMITER = PATH_SEPARATOR;
+    const string DELIMITER = PATH_SEPARATOR;
 
     /**
      * Namespace package separator.
      */
-    const PACKAGE = '\\';
+    const string PACKAGE = '\\';
 
     /**
      * Parse the file path to remove absolute paths and replace with a constant name.
      *
      * @param string $file
-     * @param array $paths
+     * @param Map<string, string> $paths
      * @return string
      */
-    public static function alias($file, array $paths = []) {
-        if (empty($file)) {
+    public static function alias(?string $file, ?Map<string, string> $paths = Map {}): string {
+        if ($file === null) {
             return '[internal]';
         }
 
         $file = static::ds($file);
 
         // Inherit titon constants
-        foreach (['vendor', 'app', 'modules', 'resources', 'temp', 'views', 'web'] as $type) {
+        foreach (Vector {'vendor', 'app', 'modules', 'resources', 'temp', 'views', 'web'} as $type) {
             $constant = strtoupper($type) . '_DIR';
 
             if (empty($paths[$type]) && defined($constant)) {
@@ -56,7 +55,7 @@ class Path extends Macro {
         }
 
         // Define source locations
-        foreach (['src', 'lib'] as $source) {
+        foreach (Vector {'src', 'lib'} as $source) {
             if (empty($paths[$source]) && strpos($file, $source) !== false) {
                 $parts = explode($source, $file);
                 $paths[$source] = $parts[0] . $source;
@@ -82,7 +81,7 @@ class Path extends Macro {
      * @param string $separator
      * @return string
      */
-    public static function className($class, $separator = self::PACKAGE) {
+    public static function className(string $class, string $separator = self::PACKAGE): string {
         return trim(strrchr($class, $separator), $separator);
     }
 
@@ -93,7 +92,7 @@ class Path extends Macro {
      * @param bool $endSlash
      * @return string
      */
-    public static function ds($path, $endSlash = false) {
+    public static function ds(string $path, bool $endSlash = false): string {
         $path = str_replace('\\', '/', $path);
 
         if ($endSlash && substr($path, -1) !== '/') {
@@ -109,24 +108,19 @@ class Path extends Macro {
      * @param string $path
      * @return string
      */
-    public static function ext($path) {
+    public static function ext(string $path): string {
         return strtolower(pathinfo($path, PATHINFO_EXTENSION));
     }
 
     /**
      * Define additional include paths for PHP to detect within.
      *
-     * @param string|array $paths
-     * @return array
+     * @param Vector<string> $paths
+     * @return string
      */
-    public static function includePath($paths) {
-        $current = [get_include_path()];
-
-        if (is_array($paths)) {
-            $current = array_merge($current, $paths);
-        } else {
-            $current[] = $paths;
-        }
+    public static function includePath(Vector<string> $paths): string {
+        $current = new Vector([get_include_path()]);
+        $current->addAll($paths);
 
         $path = implode(self::DELIMITER, $current);
 
@@ -141,7 +135,7 @@ class Path extends Macro {
      * @param string $path
      * @return bool
      */
-    public static function isAbsolute($path) {
+    public static function isAbsolute(string $path): bool {
         return ($path[0] === '/' || $path[0] === '\\' || preg_match('/^[a-zA-Z0-9]+:/', $path));
     }
 
@@ -151,41 +145,38 @@ class Path extends Macro {
      * @param string $path
      * @return bool
      */
-    public static function isRelative($path) {
+    public static function isRelative(string $path): bool {
         return !static::isAbsolute($path);
     }
 
     /**
      * Join all path parts and return a normalized path.
      *
-     * @param array $paths
+     * @param Vector<string> $paths
      * @param bool $above - Go above the root path if .. is used
      * @param bool $join - Join all the path parts into a string
-     * @return string
-     * @throws \Titon\Utility\Exception\InvalidTypeException
+     * @return string|Vector<string>
      */
-    public static function join(array $paths, $above = true, $join = true) {
-        $clean = [];
-        $parts = [];
+    public static function join(Vector<string> $paths, bool $above = true, bool $join = true): mixed {
+        $clean = Vector {};
+        $parts = Vector {};
         $up = 0;
 
         // First pass expands sub-paths
         foreach ($paths as $path) {
-            if (!is_string($path)) {
-                throw new InvalidTypeException('Path parts must be strings');
-            }
-
             $path = trim(static::ds($path), '/');
 
             if (strpos($path, '/') !== false) {
-                $clean = array_merge($clean, explode('/', $path));
+                $clean->addAll(new Vector(explode('/', $path)));
             } else {
                 $clean[] = $path;
             }
         }
 
         // Second pass flattens dot paths
-        foreach (array_reverse($clean) as $path) {
+        $clean->reverse();
+
+        foreach ($clean as $path) {
             if ($path === '.' || !$path) {
                 continue;
 
@@ -208,7 +199,7 @@ class Path extends Macro {
             }
         }
 
-        $parts = array_reverse($parts);
+        $parts->reverse();
 
         if ($join) {
             return implode($parts, '/');
@@ -225,7 +216,7 @@ class Path extends Macro {
      * @return string
      * @codeCoverageIgnore
      */
-    public static function normalize($path) {
+    public static function normalize(string $path): string {
         return realpath($path);
     }
 
@@ -236,7 +227,7 @@ class Path extends Macro {
      * @param string $separator
      * @return string
      */
-    public static function packageName($class, $separator = self::PACKAGE) {
+    public static function packageName(string $class, string $separator = self::PACKAGE): string {
         return trim(mb_substr($class, 0, mb_strrpos($class, $separator)), $separator);
     }
 
@@ -248,7 +239,7 @@ class Path extends Macro {
      * @return string
      * @throws \Titon\Utility\Exception\InvalidArgumentException
      */
-    public static function relativeTo($from, $to) {
+    public static function relativeTo(string $from, string $to): string {
         if (static::isRelative($from) || static::isRelative($to)) {
             throw new InvalidArgumentException('Cannot determine relative path without two absolute paths');
         }
@@ -290,7 +281,7 @@ class Path extends Macro {
      * @param string $path
      * @return string
      */
-    public static function stripExt($path) {
+    public static function stripExt(string $path): string {
         if (mb_strpos($path, '.') !== false) {
             $path = mb_substr($path, 0, mb_strrpos($path, '.'));
         }
@@ -304,11 +295,11 @@ class Path extends Macro {
      * @param string $path
      * @return string
      */
-    public static function toNamespace($path) {
+    public static function toNamespace(string $path): string {
         $path = static::ds(static::stripExt($path));
 
         // Attempt to split path at source folder
-        foreach (['lib', 'src'] as $folder) {
+        foreach (Vector {'lib', 'src'} as $folder) {
             if (mb_strpos($path, $folder . '/') !== false) {
                 $paths = explode($folder . '/', $path);
                 $path = $paths[1];
@@ -326,7 +317,7 @@ class Path extends Macro {
      * @param string $root
      * @return string
      */
-    public static function toPath($path, $ext = 'php', $root = '') {
+    public static function toPath(string $path, string $ext = 'php', string $root = ''): string {
         $path = static::ds($path);
         $dirs = explode('/', $path);
         $file = array_pop($dirs);

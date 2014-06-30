@@ -20,13 +20,13 @@ class Time extends Macro {
     /**
      * Time constants represented as seconds.
      */
-    const YEAR = 31536000;
-    const MONTH = 2592000; // 30 days
-    const WEEK = 604800;
-    const DAY = 86400;
-    const HOUR = 3600;
-    const MINUTE = 60;
-    const SECOND = 1;
+    const int YEAR = 31536000;
+    const int MONTH = 2592000; // 30 days
+    const int WEEK = 604800;
+    const int DAY = 86400;
+    const int HOUR = 3600;
+    const int MINUTE = 60;
+    const int SECOND = 1;
 
     /**
      * Calculate the difference in seconds between 2 dates.
@@ -35,8 +35,8 @@ class Time extends Macro {
      * @param string|int $time2
      * @return int
      */
-    public static function difference($time1, $time2) {
-        return static::toUnix($time1) - static::toUnix($time2);
+    public static function difference(mixed $time1, mixed $time2): int {
+        return (int) (static::toUnix($time1) - static::toUnix($time2));
     }
 
     /**
@@ -46,7 +46,7 @@ class Time extends Macro {
      * @param string $timezone
      * @return \DateTime
      */
-    public static function factory($time = null, $timezone = null) {
+    public static function factory(?mixed $time = null, ?mixed $timezone = null): DateTime {
         $timezone = static::timezone($timezone);
 
         if ($time instanceof DateTime) {
@@ -69,7 +69,7 @@ class Time extends Macro {
      * @param string|int $time
      * @return bool
      */
-    public static function isToday($time) {
+    public static function isToday(mixed $time): bool {
         return (static::factory($time)->format('Y-m-d') === static::factory()->format('Y-m-d'));
     }
 
@@ -79,7 +79,7 @@ class Time extends Macro {
      * @param string|int $time
      * @return bool
      */
-    public static function isThisWeek($time) {
+    public static function isThisWeek(mixed $time): bool {
         return (static::factory($time)->format('W-o') === static::factory()->format('W-o'));
     }
 
@@ -89,7 +89,7 @@ class Time extends Macro {
      * @param string|int $time
      * @return bool
      */
-    public static function isThisMonth($time) {
+    public static function isThisMonth(mixed $time): bool {
         return (static::factory($time)->format('m-Y') === static::factory()->format('m-Y'));
     }
 
@@ -99,7 +99,7 @@ class Time extends Macro {
      * @param string|int $time
      * @return bool
      */
-    public static function isThisYear($time) {
+    public static function isThisYear(mixed $time): bool {
         return (static::factory($time)->format('Y') === static::factory()->format('Y'));
     }
 
@@ -109,7 +109,7 @@ class Time extends Macro {
      * @param string|int $time
      * @return bool
      */
-    public static function isTomorrow($time) {
+    public static function isTomorrow(mixed $time): bool {
         return (static::factory($time)->format('Y-m-d') === static::factory('tomorrow')->format('Y-m-d'));
     }
 
@@ -117,11 +117,10 @@ class Time extends Macro {
      * Returns true if the date passed will be within the next time frame span.
      *
      * @param string|int $time
-     * @param int $span
+     * @param string|int $span
      * @return bool
-     * static
      */
-    public static function isWithinNext($time, $span) {
+    public static function isWithinNext(mixed $time, mixed $span): bool {
         $span = static::factory($span);
         $time = static::factory($time);
         $now = static::factory();
@@ -132,10 +131,10 @@ class Time extends Macro {
     /**
      * Return a DateTimeZone object based on the current timezone.
      *
-     * @param string $timezone
+     * @param \DateTimeZone|string $timezone
      * @return \DateTimeZone
      */
-    public static function timezone($timezone = null) {
+    public static function timezone(?mixed $timezone = null): DateTimeZone {
         if ($timezone instanceof DateTimeZone) {
             return $timezone;
         }
@@ -150,18 +149,18 @@ class Time extends Macro {
     /**
      * Return a unix timestamp. If the time is a string convert it, else cast to int.
      *
-     * @param int|string $time
+     * @param string|int $time
      * @return int
      */
-    public static function toUnix($time) {
+    public static function toUnix(?mixed $time): int {
         if (!$time) {
             return time();
 
         } else if ($time instanceof DateTime) {
-            return $time->format('U');
+            return (int) $time->format('U');
         }
 
-        return is_string($time) ? strtotime($time) : (int) $time;
+        return (int) (is_string($time) ? strtotime($time) : $time);
     }
 
     /**
@@ -170,7 +169,7 @@ class Time extends Macro {
      * @param string|int $time
      * @return bool
      */
-    public static function wasLastWeek($time) {
+    public static function wasLastWeek(mixed $time): bool {
         $start = static::factory('last week 00:00:00');
 
         $end = clone $start;
@@ -187,7 +186,7 @@ class Time extends Macro {
      * @param string|int $time
      * @return bool
      */
-    public static function wasLastMonth($time) {
+    public static function wasLastMonth(mixed $time): bool {
         $start = static::factory('first day of last month 00:00:00');
 
         $end = clone $start;
@@ -204,7 +203,7 @@ class Time extends Macro {
      * @param string|int $time
      * @return bool
      */
-    public static function wasLastYear($time) {
+    public static function wasLastYear(mixed $time): bool {
         $start = static::factory('last year January 1st 00:00:00');
 
         $end = clone $start;
@@ -221,7 +220,7 @@ class Time extends Macro {
      * @param string|int $time
      * @return bool
      */
-    public static function wasYesterday($time) {
+    public static function wasYesterday(mixed $time): bool {
         return (static::factory($time)->format('Y-m-d') === static::factory('yesterday')->format('Y-m-d'));
     }
 
@@ -229,10 +228,10 @@ class Time extends Macro {
      * Returns true if the date passed was within the last time frame span.
      *
      * @param string|int $time
-     * @param int $span
+     * @param string|int $span
      * @return bool
      */
-    public static function wasWithinLast($time, $span) {
+    public static function wasWithinLast(mixed $time, mixed $span): bool {
         $span = static::factory($span);
         $time = static::factory($time);
         $now = static::factory();

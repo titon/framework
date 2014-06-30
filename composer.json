@@ -27,11 +27,6 @@
     },
     "autoload": {
         "psr-0": { "": "src/" },
-        "files": [
-            "src/Titon/Debug/functions.php",
-            "src/Titon/Route/functions.php",
-            "src/Titon/Type/functions.php",
-            "src/Titon/Utility/functions.php"
-        ]
+        "files": []
     }
 }

@@ -7,7 +7,7 @@
 
 namespace Titon\Test;
 
-use Titon\Utility\Config;
+//use Titon\Utility\Config;
 use Titon\Utility\Registry;
 
 /**
@@ -56,7 +56,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 
         $this->unloadFixtures();
 
-        Config::flush();
+        //Config::flush();
         Registry::flush();
     }
 

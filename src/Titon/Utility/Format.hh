@@ -24,7 +24,7 @@ class Format extends Macro {
      * @param string|int $time
      * @return string
      */
-    public static function atom($time) {
+    public static function atom(mixed $time): string {
         return date(DateTime::ATOM, Time::toUnix($time));
     }
 
@@ -37,7 +37,7 @@ class Format extends Macro {
      * @param string $format
      * @return string
      */
-    public static function date($time, $format = '%Y-%m-%d') {
+    public static function date(mixed $time, string $format = '%Y-%m-%d'): string {
         return strftime($format, Time::toUnix($time));
     }
 
@@ -50,7 +50,7 @@ class Format extends Macro {
      * @param string $format
      * @return string
      */
-    public static function datetime($time, $format = '%Y-%m-%d %H:%M:%S') {
+    public static function datetime(mixed $time, string $format = '%Y-%m-%d %H:%M:%S'): string {
         return strftime($format, Time::toUnix($time));
     }
 
@@ -63,11 +63,11 @@ class Format extends Macro {
      *      Format::format(1234567890123456, '****-****-####-####');    ***-****-9012-3456
      * }
      *
-     * @param int|string $value
+     * @param string|int $value
      * @param string $format
      * @return string
      */
-    public static function format($value, $format) {
+    public static function format(mixed $value, string $format): string {
         $value = (string) $value;
         $length = mb_strlen($format);
         $result = $format;
@@ -94,7 +94,7 @@ class Format extends Macro {
      * @param string|int $time
      * @return string
      */
-    public static function http($time) {
+    public static function http(mixed $time): string {
         return gmdate('D, d M Y H:i:s T', Time::toUnix($time));
     }
 
@@ -103,10 +103,10 @@ class Format extends Macro {
      * depending on how many numbers are present.
      *
      * @param int $value
-     * @param string $format
+     * @param string|array $format
      * @return string
      */
-    public static function phone($value, $format) {
+    public static function phone(mixed $value, mixed $format): string {
         $value = preg_replace('/[^0-9]+/', '', $value);
 
         if (is_array($format)) {
@@ -133,15 +133,15 @@ class Format extends Macro {
      * @param array $options
      * @return string
      */
-    public static function relativeTime($time, array $options = []) {
-        $defaults = [
-            'seconds' => ['%ss', '%s second', '%s seconds'],
-            'minutes' => ['%sm', '%s minute', '%s minutes'],
-            'hours' => ['%sh', '%s hour', '%s hours'],
-            'days' => ['%sd', '%s day', '%s days'],
-            'weeks' => ['%sw', '%s week', '%s weeks'],
-            'months' => ['%sm', '%s month', '%s months'],
-            'years' => ['%sy', '%s year', '%s years'],
+    public static function relativeTime(mixed $time, array $options = []): string {
+        $defaults = Map {
+            'seconds' => Vector {'%ss', '%s second', '%s seconds'},
+            'minutes' => Vector {'%sm', '%s minute', '%s minutes'},
+            'hours' => Vector {'%sh', '%s hour', '%s hours'},
+            'days' => Vector {'%sd', '%s day', '%s days'},
+            'weeks' => Vector {'%sw', '%s week', '%s weeks'},
+            'months' => Vector {'%sm', '%s month', '%s months'},
+            'years' => Vector {'%sy', '%s year', '%s years'},
             'now' => 'just now',
             'in' => 'in %s',
             'ago' => '%s ago',
@@ -149,9 +149,9 @@ class Format extends Macro {
             'verbose' => true,
             'depth' => 2,
             'time' => time()
-        ];
+        };
+        $options = $defaults->setAll(new Map($options));
 
-        $options = $options + $defaults;
         $diff = Time::difference($options['time'], Time::toUnix($time));
         $output = [];
 
@@ -225,7 +225,7 @@ class Format extends Macro {
      * @param string|int $time
      * @return string
      */
-    public static function rss($time) {
+    public static function rss(mixed $time): string {
         return date(DateTime::RSS, Time::toUnix($time));
     }
 
@@ -236,7 +236,7 @@ class Format extends Macro {
      * @param string $format
      * @return string
      */
-    public static function ssn($value, $format) {
+    public static function ssn(mixed $value, string $format): string {
         return static::format($value, $format);
     }
 
@@ -249,7 +249,7 @@ class Format extends Macro {
      * @param string $format
      * @return string
      */
-    public static function time($time, $format = '%H:%M:%S') {
+    public static function time(mixed $time, string $format = '%H:%M:%S'): string {
         return strftime($format, Time::toUnix($time));
     }
 

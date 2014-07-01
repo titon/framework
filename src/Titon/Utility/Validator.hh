@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -27,30 +27,30 @@ class Validator {
     /**
      * Errors gathered during validation.
      *
-     * @type array
+     * @type Map<string, string>
      */
-    protected $_errors = [];
+    protected Map<string, string> $_errors = Map {};
 
     /**
      * Mapping of fields and titles.
      *
-     * @type array
+     * @type Map<string, string>
      */
-    protected $_fields = [];
+    protected Map<string, string> $_fields = Map {};
 
     /**
      * Fallback mapping of error messages.
      *
-     * @type array
+     * @type Map<string, string>
      */
-    protected $_messages = [];
+    protected Map<string, string> $_messages = Map {};
 
     /**
      * Mapping of fields and validation rules.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_rules = [];
+    protected Map<string, mixed> $_rules = Map {};
 
     /**
      * Store the data to validate.
@@ -68,7 +68,7 @@ class Validator {
      * @param string $message
      * @return $this
      */
-    public function addError($field, $message) {
+    public function addError(string $field, string $message): this {
         $this->_errors[$field] = $message;
 
         return $this;
@@ -79,17 +79,17 @@ class Validator {
      *
      * @param string $field
      * @param string $title
-     * @param array $rules
+     * @param Map<mixed, mixed> $rules
      * @return $this
      */
-    public function addField($field, $title, array $rules = []) {
+    public function addField(string $field, string $title, Map<mixed, mixed> $rules = Map {}): this {
         $this->_fields[$field] = $title;
 
         /**
          * 0 => rule
          * rule => [opt, ...]
          */
-        if ($rules) {
+        if (!$rules->isEmpty()) {
             foreach ($rules as $rule => $options) {
                 if (is_numeric($rule)) {
                     $rule = $options;
@@ -106,11 +106,11 @@ class Validator {
     /**
      * Add messages to the list.
      *
-     * @param array $messages
+     * @param Map<string, string> $messages
      * @return $this
      */
-    public function addMessages(array $messages) {
-        $this->_messages = array_replace($this->_messages, $messages);
+    public function addMessages(Map<string, string> $messages): this {
+        $this->_messages->setAll($messages);
 
         return $this;
     }
@@ -125,7 +125,7 @@ class Validator {
      * @return $this
      * @throws \Titon\Utility\Exception\InvalidArgumentException
      */
-    public function addRule($field, $rule, $message, $options = []) {
+    public function addRule(string $field, string $rule, string $message, Vector<mixed> $options = Vector{}): this {
         if (empty($this->_fields[$field])) {
             throw new InvalidArgumentException(sprintf('Field %s does not exist', $field));
         }
@@ -136,10 +136,10 @@ class Validator {
             $this->_messages[$rule] = $message;
         }
 
-        $this->_rules[$field][$rule] = [
+        $this->_rules[$field][$rule] = Map {
             'message' => $message,
-            'options' => (array) $options
-        ];
+            'options' => $options
+        };
 
         return $this;
     }
@@ -149,43 +149,43 @@ class Validator {
      *
      * @return array
      */
-    public function getData() {
+    public function getData(): array {
         return $this->_data;
     }
 
     /**
      * Return the errors.
      *
-     * @return array
+     * @return Map<string, string>
      */
-    public function getErrors() {
+    public function getErrors(): Map<string, string> {
         return $this->_errors;
     }
 
     /**
      * Return the fields.
      *
-     * @return array
+     * @return Map<string, string>
      */
-    public function getFields() {
+    public function getFields(): Map<string, string> {
         return $this->_fields;
     }
 
     /**
      * Return the messages.
      *
-     * @return array
+     * @return Map<string, string>
      */
-    public function getMessages() {
+    public function getMessages(): Map<string, string> {
         return $this->_messages;
     }
 
     /**
      * Return the rules.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function getRules() {
+    public function getRules(): Map<string, mixed> {
         return $this->_rules;
     }
 
@@ -194,9 +194,9 @@ class Validator {
      *
      * @return $this
      */
-    public function reset() {
-        $this->_data = [];
-        $this->_errors = [];
+    public function reset(): this {
+        $this->_data->clear();
+        $this->_errors->clear();
 
         return $this;
     }
@@ -207,7 +207,7 @@ class Validator {
      * @param array $data
      * @return $this
      */
-    public function setData(array $data) {
+    public function setData(array $data): this {
         $this->_data = $data;
 
         return $this;
@@ -219,7 +219,7 @@ class Validator {
      * @return bool
      * @throws \Titon\Utility\Exception\InvalidValidationRuleException
      */
-    public function validate() {
+    public function validate(): bool {
         if (!$this->_data) {
             return false;
         }
@@ -258,12 +258,12 @@ class Validator {
                 }
 
                 if ($message) {
-                    $message = String::insert($message, array_map(function($value) {
+                    $message = Str::insert($message, array_map(function($value) {
                         return is_array($value) ? implode(', ', $value) : $value;
-                    }, $options + [
+                    }, Traverse::merge(Map {
                         'field' => $field,
                         'title' => $fields[$field]
-                    ]));
+                    }, $options)));
                 } else {
                     throw new InvalidValidationRuleException(sprintf('Error message for rule %s does not exist', $rule));
                 }
@@ -282,10 +282,10 @@ class Validator {
      * Create a validator instance from a set of shorthand or expanded rule sets.
      *
      * @param array $data
-     * @param array $fields
+     * @param Map<string, mixed> $fields
      * @return $this
      */
-    public static function makeFromShorthand(array $data = [], array $fields = []) {
+    public static function makeFromShorthand(array $data = [], Map<string, mixed> $fields = {}): Validator {
         /** @type \Titon\Utility\Validator $obj */
         $obj = new static($data);
 
@@ -294,7 +294,7 @@ class Validator {
 
             // Convert to array
             if (is_string($options)) {
-                $options = ['rules' => $options];
+                $options = Map {'rules' => $options};
 
             } else if (!is_array($options)) {
                 continue;
@@ -328,12 +328,12 @@ class Validator {
      * Split a shorthand rule into multiple parts.
      *
      * @param string $shorthand
-     * @return array
+     * @return Map<string, mixed>
      */
-    public static function splitShorthand($shorthand) {
+    public static function splitShorthand(string $shorthand): Map<string, mixed> {
         $rule = null;
         $message = '';
-        $opts = [];
+        $opts = Vector {};
 
         // rule:o1,o2,o3
         // rule:o1,o2:The message here!
@@ -345,9 +345,9 @@ class Validator {
                 $opts = $parts[1];
 
                 if (strpos($opts, ',') !== false) {
-                    $opts = explode(',', $opts);
+                    $opts = new Vector(explode(',', $opts));
                 } else {
-                    $opts = [$opts];
+                    $opts = new Vector([$opts]);
                 }
             }
 
@@ -360,11 +360,11 @@ class Validator {
             $rule = $shorthand;
         }
 
-        return [
+        return Map {
             'rule' => $rule,
             'message' => $message,
             'options' => $opts
-        ];
+        };
     }
 
 }

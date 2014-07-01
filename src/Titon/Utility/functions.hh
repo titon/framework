@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -7,19 +7,19 @@
 
 use Titon\Utility\Config;
 use Titon\Utility\Converter;
-use Titon\Utility\Hash;
+use Titon\Utility\Traverse;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 use Titon\Utility\Registry;
 use Titon\Utility\Sanitize;
-use Titon\Utility\String;
+use Titon\Utility\Str;
 
 /**
  * @see Titon\Utility\Config::get()
  * @see Titon\Utility\Config::set()
  */
 if (!function_exists('config')) {
-    function config($key, $value = null) {
+    function config(string $key, ?mixed $value = null): ?mixed {
         if ($value !== null) {
             Config::set($key, $value);
             return true;
@@ -34,7 +34,7 @@ if (!function_exists('config')) {
  * @see Titon\Utility\Registry::set()
  */
 if (!function_exists('registry')) {
-    function registry($key, $object = null) {
+    function registry(string $key, ?mixed $object = null): ?mixed {
         if ($object !== null) {
             return Registry::set($object, $key);
         }
@@ -47,7 +47,7 @@ if (!function_exists('registry')) {
  * @see Titon\Utility\Registry::factory()
  */
 if (!function_exists('factory')) {
-    function factory($key) {
+    function factory(string $key): ?mixed {
         return Registry::factory($key);
     }
 }
@@ -55,35 +55,35 @@ if (!function_exists('factory')) {
 /**
  * @see Titon\Utility\Traverse::depth()
  */
-if (!function_exists('array_depth')) {
-    function array_depth($set) {
-        return Traverse::depth($set);
+if (!function_exists('map_depth')) {
+    function map_depth(Collection $collection): Collection {
+        return Traverse::depth($collection);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::each()
  */
-if (!function_exists('array_each')) {
-    function array_each(array $set, Closure $callback, $recursive = true) {
-        return Traverse::each($set, $callback, $recursive);
+if (!function_exists('map_each')) {
+    function map_each(Collection $collection, Closure $callback, bool $recursive = true): Collection {
+        return Traverse::each($collection, $callback, $recursive);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::every()
  */
-if (!function_exists('array_every')) {
-    function array_every(array $set, Closure $callback) {
-        return Traverse::every($set, $callback);
+if (!function_exists('map_every')) {
+    function map_every(Collection $collection, Closure $callback): bool {
+        return Traverse::every($collection, $callback);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::exclude()
  */
-if (!function_exists('array_exclude')) {
-    function array_exclude(array $set, array $keys) {
+if (!function_exists('map_exclude')) {
+    function map_exclude(Map $collection, Vector<string> $keys): Map<string, mixed> {
         return Traverse::exclude($set, $keys);
     }
 }
@@ -91,162 +91,180 @@ if (!function_exists('array_exclude')) {
 /**
  * @see Titon\Utility\Traverse::expand()
  */
-if (!function_exists('array_expand')) {
-    function array_expand(array $set) {
+if (!function_exists('map_expand')) {
+    function map_expand(Map $collection): Map<string, mixed> {
         return Traverse::expand($set);
+    }
+}
+
+/**
+ * @see Titon\Utility\Traverse::filter()
+ */
+if (!function_exists('map_filter')) {
+    function map_filter(Collection $collection, bool $recursive = true, ?Closure $callback = null): Collection {
+        return Traverse::filter($collection, $recursive, $callback);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::flatten()
  */
-if (!function_exists('array_flatten')) {
-    function array_flatten(array $set, $path = null) {
-        return Traverse::flatten($set, $path);
+if (!function_exists('map_flatten')) {
+    function map_flatten(Collection $collection, string $path = ''): Map<string, mixed> {
+        return Traverse::flatten($collection, $path);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::get()
  */
-if (!function_exists('array_get')) {
-    function array_get(array $set, $path = null) {
-        return Traverse::get($set, $path);
+if (!function_exists('map_get')) {
+    function map_get(Map $collection, string $path = ''): ?mixed {
+        return Traverse::get($collection, $path);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::has()
  */
-if (!function_exists('array_has')) {
-    function array_has(array $set, $path) {
-        return Traverse::has($set, $path);
+if (!function_exists('map_has')) {
+    function map_has(Map $collection, string $path): bool {
+        return Traverse::has($collection, $path);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::inject()
  */
-if (!function_exists('array_inject')) {
-    function array_inject(array $set, $path, $value) {
-        return Traverse::inject($set, $path, $value);
+if (!function_exists('map_inject')) {
+    function map_inject(Map $collection, string $path, mixed $value): Map<string, mixed> {
+        return Traverse::inject($collection, $path, $value);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::keyOf()
  */
-if (!function_exists('array_key_of')) {
-    function array_key_of(array $set, $match) {
-        return Traverse::keyOf($set, $match);
+if (!function_exists('map_key_of')) {
+    function map_key_of(Collection $collection, mixed $match): ?mixed {
+        return Traverse::keyOf($collection, $match);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::pluck()
  */
-if (!function_exists('array_pluck')) {
-    function array_pluck(array $set, $path) {
-        return Traverse::pluck($set, $path);
+if (!function_exists('map_pluck')) {
+    function map_pluck(Collection $collection, string $path): Vector<mixed> {
+        return Traverse::pluck($collection, $path);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::remove()
  */
-if (!function_exists('array_remove')) {
-    function array_remove(array $set, $path) {
-        return Traverse::remove($set, $path);
+if (!function_exists('map_remove')) {
+    function map_remove(Map $collection, string $path): Map<string, mixed> {
+        return Traverse::remove($collection, $path);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::set()
  */
-if (!function_exists('array_set')) {
-    function array_set(array $set, $path, $value) {
-        return Traverse::set($set, $path, $value);
+if (!function_exists('map_set')) {
+    function map_set(Collection $collection, mixed $path, ?mixed $value = null): Map<string, mixed> {
+        return Traverse::set($collection, $path, $value);
     }
 }
 
 /**
  * @see Titon\Utility\Traverse::some()
  */
-if (!function_exists('array_some')) {
-    function array_some(array $set, Closure $callback) {
-        return Traverse::some($set, $callback);
+if (!function_exists('map_some')) {
+    function map_some(Collection $collection, Closure $callback): bool {
+        return Traverse::some($collection, $callback);
     }
 }
 
 /**
- * @see Titon\Utility\String::compare()
+ * @see Titon\Utility\Str::compare()
  */
 if (!function_exists('str_compare')) {
-    function str_compare($string, $value, $strict = true, $length = 0) {
-        return String::compare($string, $value, $strict, $length);
+    function str_compare(string $string, string $value, int $length = 0): int {
+        return Str::compare($string, $value, $length);
     }
 }
 
 /**
- * @see Titon\Utility\String::endsWith()
+ * @see Titon\Utility\Str::contains()
+ */
+if (!function_exists('str_contains')) {
+    function str_contains(string $string, string $needle, bool $strict = true, int $offset = 0): bool {
+        return Str::contains($string, $value, $length);
+    }
+}
+
+/**
+ * @see Titon\Utility\Str::endsWith()
  */
 if (!function_exists('str_ends_with')) {
-    function str_ends_with($string, $needle, $strict = true) {
-        return String::endsWith($string, $needle, $strict);
+    function str_ends_with(string $string, string $needle, bool $strict = true): bool {
+        return Str::endsWith($string, $needle, $strict);
     }
 }
 
 /**
- * @see Titon\Utility\String::generate()
+ * @see Titon\Utility\Str::generate()
  */
 if (!function_exists('str_generate')) {
-    function str_generate($length, $seed = String::ALNUM) {
-        return String::generate($length, $seed);
+    function str_generate(int $length, string $seed = Str::ALNUM): string {
+        return Str::generate($length, $seed);
     }
 }
 
 /**
- * @see Titon\Utility\String::insert()
+ * @see Titon\Utility\Str::insert()
  */
 if (!function_exists('str_insert')) {
-    function str_insert($string, array $data, array $options = array()) {
-        return String::insert($string, $data, $options);
+    function str_insert(string $string, Map<string, mixed> $data, Map<string, mixed> $options = Map {}): string {
+        return Str::insert($string, $data, $options);
     }
 }
 
 /**
- * @see Titon\Utility\String::listing()
+ * @see Titon\Utility\Str::listing()
  */
 if (!function_exists('str_listing')) {
-    function str_listing($items, $glue = ' &amp; ', $sep = ', ') {
-        return String::listing($items, $glue, $sep);
+    function str_listing(Vector<string> $items, string $glue = ' &amp; ', string $sep = ', '): string {
+        return Str::listing($items, $glue, $sep);
     }
 }
 
 /**
- * @see Titon\Utility\String::shorten()
+ * @see Titon\Utility\Str::shorten()
  */
 if (!function_exists('str_shorten')) {
-    function str_shorten($string, $limit = 25, $glue = ' &hellip; ') {
-        return String::shorten($string, $limit, $glue);
+    function str_shorten(string $string, int $limit = 25, string $glue = ' &hellip; '): string {
+        return Str::shorten($string, $limit, $glue);
     }
 }
 
 /**
- * @see Titon\Utility\String::startsWith()
+ * @see Titon\Utility\Str::startsWith()
  */
 if (!function_exists('str_starts_with')) {
-    function str_starts_with($string, $needle, $strict = true) {
-        return String::startsWith($string, $needle, $strict);
+    function str_starts_with(string $string, string $needle, bool $strict = true): bool {
+        return Str::startsWith($string, $needle, $strict);
     }
 }
 
 /**
- * @see Titon\Utility\String::truncate()
+ * @see Titon\Utility\Str::truncate()
  */
 if (!function_exists('str_truncate')) {
-    function str_truncate($string, $limit = 25, array $options = array()) {
-        return String::truncate($string, $limit, $options);
+    function str_truncate(string $string, int $limit = 25, Map<string, mixed> $options = Map {}): string {
+        return Str::truncate($string, $limit, $options);
     }
 }
 
@@ -254,7 +272,7 @@ if (!function_exists('str_truncate')) {
  * @see Titon\Utility\Converter::toArray()
  */
 if (!function_exists('to_array')) {
-    function to_array($data) {
+    function to_array(mixed $data): array {
         return Converter::toArray($data);
     }
 }
@@ -263,17 +281,8 @@ if (!function_exists('to_array')) {
  * @see Titon\Utility\Converter::toJson()
  */
 if (!function_exists('to_json')) {
-    function to_json($data) {
+    function to_json(mixed $data): string {
         return Converter::toJson($data);
-    }
-}
-
-/**
- * @see Titon\Utility\Converter::toObject()
- */
-if (!function_exists('to_object')) {
-    function to_object($data) {
-        return Converter::toObject($data);
     }
 }
 
@@ -281,7 +290,7 @@ if (!function_exists('to_object')) {
  * @see Titon\Utility\Converter::toSerialize()
  */
 if (!function_exists('to_serialize')) {
-    function to_serialize($data) {
+    function to_serialize(mixed $data): string {
         return Converter::toSerialize($data);
     }
 }
@@ -290,7 +299,7 @@ if (!function_exists('to_serialize')) {
  * @see Titon\Utility\Converter::toXml()
  */
 if (!function_exists('to_xml')) {
-    function to_xml($data) {
+    function to_xml(mixed $data): string {
         return Converter::toXml($data);
     }
 }
@@ -299,7 +308,7 @@ if (!function_exists('to_xml')) {
  * @see Titon\Utility\Inflector::camelCase()
  */
 if (!function_exists('camel_case')) {
-    function camel_case($string) {
+    function camel_case(string $string): string {
         return Inflector::camelCase($string);
     }
 }
@@ -308,7 +317,7 @@ if (!function_exists('camel_case')) {
  * @see Titon\Utility\Inflector::fileName()
  */
 if (!function_exists('file_name')) {
-    function file_name($string) {
+    function file_name(string $string): string {
         return Inflector::fileName($string);
     }
 }
@@ -317,7 +326,7 @@ if (!function_exists('file_name')) {
  * @see Titon\Utility\Inflector::hyphenate()
  */
 if (!function_exists('hyphenate')) {
-    function hyphenate($string) {
+    function hyphenate(string $string): string {
         return Inflector::hyphenate($string);
     }
 }
@@ -326,7 +335,7 @@ if (!function_exists('hyphenate')) {
  * @see Titon\Utility\Inflector::normalCase()
  */
 if (!function_exists('normal_case')) {
-    function normal_case($string) {
+    function normal_case(string $string): string {
         return Inflector::normalCase($string);
     }
 }
@@ -335,7 +344,7 @@ if (!function_exists('normal_case')) {
  * @see Titon\Utility\Inflector::slug()
  */
 if (!function_exists('slug')) {
-    function slug($string) {
+    function slug(string $string): string {
         return Inflector::slug($string);
     }
 }
@@ -344,7 +353,7 @@ if (!function_exists('slug')) {
  * @see Titon\Utility\Inflector::snakeCase()
  */
 if (!function_exists('snake_case')) {
-    function snake_case($string) {
+    function snake_case(string $string): string {
         return Inflector::snakeCase($string);
     }
 }
@@ -353,7 +362,7 @@ if (!function_exists('snake_case')) {
  * @see Titon\Utility\Inflector::titleCase()
  */
 if (!function_exists('title_case')) {
-    function title_case($string) {
+    function title_case(string $string): string {
         return Inflector::titleCase($string);
     }
 }
@@ -362,7 +371,7 @@ if (!function_exists('title_case')) {
  * @see Titon\Utility\Inflector::underscore()
  */
 if (!function_exists('underscore')) {
-    function underscore($string) {
+    function underscore(string $string): string {
         return Inflector::underscore($string);
     }
 }
@@ -371,7 +380,7 @@ if (!function_exists('underscore')) {
  * @see Titon\Utility\Path::className()
  */
 if (!function_exists('class_name')) {
-    function class_name($string, $separator = Path::PACKAGE) {
+    function class_name(string $string, string $separator = Path::PACKAGE): string {
         return Path::className($string, $separator);
     }
 }
@@ -380,7 +389,7 @@ if (!function_exists('class_name')) {
  * @see Titon\Utility\Path::packageName()
  */
 if (!function_exists('package_name')) {
-    function package_name($string, $separator = Path::PACKAGE) {
+    function package_name(string $string, string $separator = Path::PACKAGE): string {
         return Path::packageName($string, $separator);
     }
 }
@@ -389,7 +398,7 @@ if (!function_exists('package_name')) {
  * @see Titon\Utility\Path::ds()
  */
 if (!function_exists('ds')) {
-    function ds($string) {
+    function ds(string $string): string {
         return Path::ds($string);
     }
 }
@@ -398,7 +407,7 @@ if (!function_exists('ds')) {
  * @see Titon\Utility\Path::ext()
  */
 if (!function_exists('ext')) {
-    function ext($string) {
+    function ext(string $string): string {
         return Path::ext($string);
     }
 }
@@ -407,7 +416,7 @@ if (!function_exists('ext')) {
  * @see Titon\Utility\Sanitize::escape()
  */
 if (!function_exists('esc')) {
-    function esc($value, array $options = array()) {
+    function esc(string $value, Map<string, mixed> $options = Map {}): string {
         return Sanitize::escape($value, $options);
     }
 }
@@ -416,7 +425,7 @@ if (!function_exists('esc')) {
  * @see Titon\Utility\Sanitize::html()
  */
 if (!function_exists('html')) {
-    function html($value, array $options = array()) {
+    function html(string $value, Map<string, mixed> $options = Map {}): string {
         return Sanitize::html($value, $options);
     }
 }
@@ -425,7 +434,7 @@ if (!function_exists('html')) {
  * @see Titon\Utility\Sanitize::newlines()
  */
 if (!function_exists('nl')) {
-    function nl($value, array $options = array()) {
+    function nl(string $value, Map<string, mixed> $options = Map {}): string {
         return Sanitize::newlines($value, $options);
     }
 }
@@ -434,7 +443,7 @@ if (!function_exists('nl')) {
  * @see Titon\Utility\Sanitize::whitespace()
  */
 if (!function_exists('ws')) {
-    function ws($value, array $options = array()) {
+    function ws(string $value, Map<string, mixed> $options = Map {}): string {
         return Sanitize::whitespace($value, $options);
     }
 }
@@ -443,7 +452,7 @@ if (!function_exists('ws')) {
  * @see Titon\Utility\Sanitize::xss()
  */
 if (!function_exists('xss')) {
-    function xss($value, array $options = array()) {
+    function xss(string $value, Map<string, mixed> $options = Map {}): string {
         return Sanitize::xss($value, $options);
     }
 }

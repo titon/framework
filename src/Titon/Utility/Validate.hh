@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -268,7 +268,7 @@ class Validate {
     /**
      * Validate an images dimensions.
      *
-     * @param array $input
+     * @param mixed $input
      * @param string $type
      * @param int $size
      * @return bool
@@ -388,7 +388,7 @@ class Validate {
     /**
      * Validate an images height is exact.
      *
-     * @param array $input
+     * @param mixed $input
      * @param int $size
      * @return bool
      */
@@ -483,7 +483,7 @@ class Validate {
     /**
      * Validate an images file size is above the minimum.
      *
-     * @param array $input
+     * @param mixed $input
      * @param int $min
      * @return bool
      */
@@ -504,7 +504,7 @@ class Validate {
     /**
      * Validate an images height is above the minimum.
      *
-     * @param array $input
+     * @param mixed $input
      * @param int $min
      * @return bool
      */
@@ -526,7 +526,7 @@ class Validate {
     /**
      * Validate an images width is above the minimum.
      *
-     * @param array $input
+     * @param mixed $input
      * @param int $min
      * @return bool
      */
@@ -539,7 +539,7 @@ class Validate {
      *
      * @uses Titon\Utility\Number
      *
-     * @param array $input
+     * @param mixed $input
      * @param int $max
      * @return bool
      */
@@ -560,7 +560,7 @@ class Validate {
     /**
      * Validate an images height is below the maximum.
      *
-     * @param array $input
+     * @param mixed $input
      * @param int $max
      * @return bool
      */
@@ -582,7 +582,7 @@ class Validate {
     /**
      * Validate an images width is below the maximum.
      *
-     * @param array $input
+     * @param mixed $input
      * @param int $max
      * @return bool
      */
@@ -666,7 +666,7 @@ class Validate {
     /**
      * Validate an images width is exact.
      *
-     * @param array $input
+     * @param mixed $input
      * @param int $size
      * @return bool
      */

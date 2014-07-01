@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -102,7 +102,7 @@ class Number {
      * Allow for overrides through an options array.
      *
      * @param string|int|float $number
-     * @param array $options {
+     * @param Map<string, mixed> $options {
      *      @type string $thousands Character used for thousands place
      *      @type string $decimals  Character used for decimal
      *      @type int $places       Decimal (cent) limit
@@ -114,8 +114,8 @@ class Number {
      * }
      * @return string
      */
-    public static function currency(mixed $number, array $options = []): string {
-        $defaults = [
+    public static function currency(mixed $number, Map<string, mixed> $options = Map {}): string {
+        $options = Traverse::merge(Map {
             'thousands' => ',',
             'decimals' => '.',
             'places' => 2,
@@ -124,9 +124,8 @@ class Number {
             'cents' => '#&cent;',
             'use' => 'dollar',
             'negative' => '(#)'
-        ];
+        }, $options);
 
-        $options = $options + $defaults;
         $amount = number_format(static::precision(abs($number), $options['places']), $options['places'], $options['decimals'], $options['thousands']);
 
         // Cents
@@ -253,23 +252,19 @@ class Number {
      * Convert a number to a percentage string with decimal and comma separations.
      *
      * @param string|int|float $number
-     * @param int|array $options {
+     * @param Map<string, mixed> $options {
      *      @type string $thousands Character used for thousands place
      *      @type string $decimals  Character used for decimal
      *      @type int $places       Decimal (cent) limit
      * }
      * @return string
      */
-    public static function percentage(mixed $number, $options = []): string {
-        if (!is_array($options)) {
-            $options = ['places' => $options];
-        }
-
-        $options = $options + [
+    public static function percentage(mixed $number, Map<string, mixed> $options = Map {}): string {
+        $options = Traverse::merge(Map {
             'thousands' => ',',
             'decimals' => '.',
             'places' => 2
-        ];
+        }, $options);
 
         return number_format(static::precision($number, $options['places']), $options['places'], $options['decimals'], $options['thousands']) . '%';
     }

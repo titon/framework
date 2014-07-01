@@ -95,10 +95,10 @@ class StrTest extends TestCase {
         $this->assertEquals('Titon is the best PHP framework around!', Str::insert(':framework is the best :lang framework around!', Map {
             'framework' => 'Titon',
             'lang' => 'PHP'
-        }, [
+        }, Map {
             'before' => ':',
             'after' => ''
-        ]));
+        }));
     }
 
     public function testLastIndexOf() {
@@ -162,32 +162,32 @@ class StrTest extends TestCase {
         $this->assertEquals('This has <a href="/" class="link">anchor tags</a> &amp; entities in it. It has &quot;quotes&quot; as well.', Str::truncate($string, 0));
 
         // Preserve HTML
-        $this->assertEquals('This has <a href="/" class="link">anch</a>&hellip;', Str::truncate($string, 13, ['word' => false]));
-        $this->assertEquals('This has <a href="/" class="link">anchor tags</a> &amp; en&hellip;', Str::truncate($string, 25, ['word' => false]));
-        $this->assertEquals('This has <a href="/" class="link">anchor tags</a> &amp; entities in&hellip;', Str::truncate($string, 35, ['word' => false]));
-        $this->assertEquals('This has <a href="/" class="link">anchor tags</a> &amp; entities in it. It has&hellip;', Str::truncate($string, 45, ['word' => false]));
-        $this->assertEquals('This has <a href="/" class="link">anchor tags</a> &amp; entities in it. It has &quot;quo&hellip;', Str::truncate($string, 50, ['word' => false]));
+        $this->assertEquals('This has <a href="/" class="link">anch</a>&hellip;', Str::truncate($string, 13, Map {'word' => false}));
+        $this->assertEquals('This has <a href="/" class="link">anchor tags</a> &amp; en&hellip;', Str::truncate($string, 25, Map {'word' => false}));
+        $this->assertEquals('This has <a href="/" class="link">anchor tags</a> &amp; entities in&hellip;', Str::truncate($string, 35, Map {'word' => false}));
+        $this->assertEquals('This has <a href="/" class="link">anchor tags</a> &amp; entities in it. It has&hellip;', Str::truncate($string, 45, Map {'word' => false}));
+        $this->assertEquals('This has <a href="/" class="link">anchor tags</a> &amp; entities in it. It has &quot;quo&hellip;', Str::truncate($string, 50, Map {'word' => false}));
 
         // Preserve none
-        $this->assertEquals('This has anchor tags &amp; en&hellip;', Str::truncate($string, 25, ['word' => false, 'html' => false]));
-        $this->assertEquals('This has anchor tags &amp; entities in&hellip;', Str::truncate($string, 35, ['word' => false, 'html' => false]));
-        $this->assertEquals('This has anchor tags &amp; entities in it. It has&hellip;', Str::truncate($string, 45, ['word' => false, 'html' => false]));
-        $this->assertEquals('This has anchor tags &amp; entities in it. It has &quot;quotes&quot; as well.', Str::truncate($string, 0, ['word' => false, 'html' => false]));
+        $this->assertEquals('This has anchor tags &amp; en&hellip;', Str::truncate($string, 25, Map {'word' => false, 'html' => false}));
+        $this->assertEquals('This has anchor tags &amp; entities in&hellip;', Str::truncate($string, 35, Map {'word' => false, 'html' => false}));
+        $this->assertEquals('This has anchor tags &amp; entities in it. It has&hellip;', Str::truncate($string, 45, Map {'word' => false, 'html' => false}));
+        $this->assertEquals('This has anchor tags &amp; entities in it. It has &quot;quotes&quot; as well.', Str::truncate($string, 0, Map {'word' => false, 'html' => false}));
 
         // Preserve none with custom suffix
-        $this->assertEquals('This has anchor tags &amp; en...', Str::truncate($string, 25, ['word' => false, 'html' => false, 'suffix' => '...']));
-        $this->assertEquals('This has anchor tags &amp; entities in...', Str::truncate($string, 35, ['word' => false, 'html' => false, 'suffix' => '...']));
-        $this->assertEquals('This has anchor tags &amp; entities in it. It has...', Str::truncate($string, 45, ['word' => false, 'html' => false, 'suffix' => '...']));
-        $this->assertEquals('This has anchor tags &amp; entities in it. It has &quot;quotes&quot; as well.', Str::truncate($string, 0, ['word' => false, 'html' => false, 'suffix' => '...']));
+        $this->assertEquals('This has anchor tags &amp; en...', Str::truncate($string, 25, Map {'word' => false, 'html' => false, 'suffix' => '...'}));
+        $this->assertEquals('This has anchor tags &amp; entities in...', Str::truncate($string, 35, Map {'word' => false, 'html' => false, 'suffix' => '...'}));
+        $this->assertEquals('This has anchor tags &amp; entities in it. It has...', Str::truncate($string, 45, Map {'word' => false, 'html' => false, 'suffix' => '...'}));
+        $this->assertEquals('This has anchor tags &amp; entities in it. It has &quot;quotes&quot; as well.', Str::truncate($string, 0, Map {'word' => false, 'html' => false, 'suffix' => '...'}));
 
         // Custom tags (BB code)
         $string = 'This has [url="/"]anchor tags[/url] &amp; entities in it. It has &quot;quotes&quot; as well.';
 
-        $this->assertEquals('This has [url="/"]anchor[/url]&hellip;', Str::truncate($string, 15, ['open' => '[', 'close' => ']']));
-        $this->assertEquals('This has [url="/"]anchor tags[/url] &amp;&hellip;', Str::truncate($string, 25, ['open' => '[', 'close' => ']']));
-        $this->assertEquals('This has [url="/"]anchor tags[/url] &amp; entities in&hellip;', Str::truncate($string, 35, ['open' => '[', 'close' => ']']));
-        $this->assertEquals('This has [url="/"]anchor tags[/url] &amp; entities in it. It&hellip;', Str::truncate($string, 45, ['open' => '[', 'close' => ']']));
-        $this->assertEquals('This has [url="/"]anchor tags[/url] &amp; entities in it. It has &quot;quotes&quot; as well.', Str::truncate($string, 0, ['open' => '[', 'close' => ']']));
+        $this->assertEquals('This has [url="/"]anchor[/url]&hellip;', Str::truncate($string, 15, Map {'open' => '[', 'close' => ']'}));
+        $this->assertEquals('This has [url="/"]anchor tags[/url] &amp;&hellip;', Str::truncate($string, 25, Map {'open' => '[', 'close' => ']'}));
+        $this->assertEquals('This has [url="/"]anchor tags[/url] &amp; entities in&hellip;', Str::truncate($string, 35, Map {'open' => '[', 'close' => ']'}));
+        $this->assertEquals('This has [url="/"]anchor tags[/url] &amp; entities in it. It&hellip;', Str::truncate($string, 45, Map {'open' => '[', 'close' => ']'}));
+        $this->assertEquals('This has [url="/"]anchor tags[/url] &amp; entities in it. It has &quot;quotes&quot; as well.', Str::truncate($string, 0, Map {'open' => '[', 'close' => ']'}));
     }
 
     public function testUuid() {

@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -7,8 +7,8 @@
 
 namespace Titon\Utility;
 
-use \Closure;
 use Titon\Common\Macroable;
+use \Closure;
 
 /**
  * Mutates and traverses multiple types of data structures (collections).
@@ -449,7 +449,7 @@ class Traverse {
      * Reduce an array by removing all keys that have not been defined for persistence.
      *
      * @param Map $collection
-     * @param array $keys
+     * @param Vector<string> $keys
      * @return Map<string, mixed>
      */
     public static function reduce(Map $collection, Vector<string> $keys): Map<string, mixed> {

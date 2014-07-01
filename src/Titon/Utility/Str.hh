@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -152,19 +152,19 @@ class Str {
      *
      * @param string $string
      * @param Map<string, mixed> $data
-     * @param array $options {
+     * @param Map<string, mixed> $options {
      *      @type string $before    Opening variable delimiter
      *      @type string $after     Closing variable delimiter
      *      @type bool $escape      Escape the string
      * }
      * @return string
      */
-    public static function insert(string $string, Map<string, mixed> $data, array $options = []): string {
-        $options = $options + [
+    public static function insert(string $string, Map<string, mixed> $data, Map<string, mixed> $options = Map {}): string {
+        $options = Traverse::merge(Map {
             'before' => '{',
             'after' => '}',
             'escape' => true
-        ];
+        }, $options);
 
         foreach ($data as $key => $value) {
             $string = str_replace($options['before'] . $key . $options['after'], $value, $string);
@@ -276,7 +276,7 @@ class Str {
      *
      * @param string $string
      * @param int $limit
-     * @param array $options {
+     * @param Map<string, mixed> $options {
      *      @type bool $html        True to preserve HTML tags
      *      @type bool $word        True to preserve trailing words
      *      @type string $suffix    Will be appended to the end of the output
@@ -286,15 +286,15 @@ class Str {
      * }
      * @return string
      */
-    public static function truncate(string $string, int $limit = 25, array $options = []): string {
-        $options = $options + [
+    public static function truncate(string $string, int $limit = 25, Map<string, mixed> $options = Map {}): string {
+        $options = Traverse::merge(Map {
             'html' => true,
             'word' => true,
             'suffix' => '&hellip;',
             'prefix' => '',
             'open' => '<',
             'close' => '>'
-        ];
+        }, $options);
 
         // If we should preserve HTML
         if ($options['open'] !== '<' || $options['close'] !== '>') {

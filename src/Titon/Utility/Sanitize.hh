@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -21,10 +21,10 @@ class Sanitize {
      * Sanitize an email by removing all characters except letters, digits and !#$%&'*+-/=?^_`{|}~@.[].
      *
      * @param string $value
-     * @param array $options
+     * @param mixed $options
      * @return string
      */
-    public static function email(string $value, array $options = []): string {
+    public static function email(string $value, mixed $options = []): string {
         return (string) filter_var($value, FILTER_SANITIZE_EMAIL, $options);
     }
 
@@ -32,19 +32,19 @@ class Sanitize {
      * Escape a string using the apps encoding.
      *
      * @param string $value
-     * @param array $options {
+     * @param Map<string, mixed> $options {
      *      @type string $encoding  Character encoding set; defaults to UTF-8
      *      @type int $flags        Encoding flags; defaults to ENT_QUOTES
      *      @type bool $double      Will double escape existing entities
      * }
      * @return string
      */
-    public static function escape(string $value, array $options = []): string {
-        $options = $options + [
+    public static function escape(string $value, Map<string, mixed> $options = Map {}): string {
+        $options = Traverse::merge(Map {
             'encoding' => 'UTF-8',
             'flags' => ENT_QUOTES,
             'double' => false
-        ];
+        }, $options);
 
         return htmlentities($value, $options['flags'], $options['encoding'], $options['double']);
     }
@@ -63,17 +63,17 @@ class Sanitize {
      * Sanitize a string by removing xor escaping HTML characters and entities.
      *
      * @param string $value
-     * @param array $options {
+     * @param Map<string, mixed> $options {
      *      @type bool $strip       Will remove HTML tags
      *      @type string $whitelist List of tags to not strip
      * }
      * @return string
      */
-    public static function html(string $value, array $options = []): string {
-        $options = $options + [
+    public static function html(string $value, Map<string, mixed> $options = Map {}): string {
+        $options = Traverse::merge(Map {
             'strip' => true,
             'whitelist' => ''
-        ];
+        }, $options);
 
         if ($options['strip']) {
             $value = strip_tags($value, $options['whitelist']);
@@ -86,10 +86,10 @@ class Sanitize {
      * Sanitize an integer by removing all characters except digits, plus and minus sign.
      *
      * @param string $value
-     * @param array $options
+     * @param mixed $options
      * @return int
      */
-    public static function integer(string $value, array $options = []): int {
+    public static function integer(string $value, mixed $options = []): int {
         return (int) filter_var($value, FILTER_SANITIZE_NUMBER_INT, $options);
     }
 
@@ -97,7 +97,7 @@ class Sanitize {
      * Sanitize a string by removing excess CRLF characters.
      *
      * @param string $value
-     * @param array $options {
+     * @param Map<string, mixed> $options {
      *      @type bool $cr      Will remove carriage returns \r
      *      @type bool $lf      Will remove line feeds \n
      *      @type bool $crlf    Will remove CRLF \r\n
@@ -106,14 +106,14 @@ class Sanitize {
      * }
      * @return string
      */
-    public static function newlines(string $value, array $options = []): string {
-        $options = $options + [
+    public static function newlines(string $value, Map<string, mixed> $options = Map {}): string {
+        $options = Traverse::merge(Map {
             'cr' => true,
             'lf' => true,
             'crlf' => true,
             'limit' => 2,
             'trim' => true
-        ];
+        }, $options);
 
         if ($options['limit']) {
             $pattern = '/(?:%s){' . $options['limit'] . ',}/u';
@@ -146,10 +146,10 @@ class Sanitize {
      * Sanitize a URL by removing all characters except letters, digits and $-_.+!*'(),{}|\\^~[]`<>#%";/?:@&=.
      *
      * @param string $value
-     * @param array $options
+     * @param mixed $options
      * @return string
      */
-    public static function url(string $value, array $options = []): string {
+    public static function url(string $value, mixed $options = []): string {
         return (string) filter_var($value, FILTER_SANITIZE_URL, $options);
     }
 
@@ -157,7 +157,7 @@ class Sanitize {
      * Sanitize a string by removing excess whitespace and tab characters.
      *
      * @param string $value
-     * @param array $options {
+     * @param Map<string, mixed> $options {
      *      @type bool $space   Will remove white space
      *      @type bool $tab     Will remove tabs
      *      @type bool $strip   Will remove non-standard white space character
@@ -166,14 +166,14 @@ class Sanitize {
      * }
      * @return string
      */
-    public static function whitespace(string $value, array $options = []): string {
-        $options = $options + [
+    public static function whitespace(string $value, Map<string, mixed> $options = Map {}): string {
+        $options = Traverse::merge(Map {
             'space' => true,
             'tab' => true,
             'limit' => 2,
             'strip' => true,
             'trim' => true
-        ];
+        }, $options);
 
         if ($options['limit']) {
             $pattern = '/%s{' . $options['limit'] . ',}/u';
@@ -207,14 +207,13 @@ class Sanitize {
      * Will bubble up to html() and escape().
      *
      * @param string $value
-     * @param array $options {
+     * @param Map<string, mixed> $options {
      *      @type bool $strip   Remove HTML tags
      * }
      * @return string
      */
-    public static function xss(string $value, array $options = []): string {
-        $options = $options + ['strip' => true];
-
+    public static function xss(string $value, Map<string, mixed> $options = Map {}): string {
+        $options = Traverse::merge(Map {'strip' => true}, $options);
         $value = str_replace("\0", '', $value);
 
         if (!$options['strip']) {

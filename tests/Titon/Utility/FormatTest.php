@@ -66,35 +66,35 @@ class FormatTest extends TestCase {
         $time = mktime(16, 35, 0, 2, 26, 2012);
 
         // Current
-        $this->assertEquals('just now', Format::relativeTime(strtotime('+0 seconds', $time), ['time' => $time]));
-        $this->assertEquals('just now', Format::relativeTime($time, ['time' => $time]));
-        $this->assertEquals('in 2 hours', Format::relativeTime(strtotime('+2 hours', $time), ['time' => $time]));
-        $this->assertEquals('in 45 minutes', Format::relativeTime(strtotime('+45 minutes', $time), ['time' => $time]));
+        $this->assertEquals('just now', Format::relativeTime(strtotime('+0 seconds', $time), Map {'time' => $time}));
+        $this->assertEquals('just now', Format::relativeTime($time, Map {'time' => $time}));
+        $this->assertEquals('in 2 hours', Format::relativeTime(strtotime('+2 hours', $time), Map {'time' => $time}));
+        $this->assertEquals('in 45 minutes', Format::relativeTime(strtotime('+45 minutes', $time), Map {'time' => $time}));
 
         // Past
-        $this->assertEquals('45 seconds ago', Format::relativeTime(strtotime('-45 seconds', $time), ['time' => $time]));
-        $this->assertEquals('2 weeks, 2 days ago', Format::relativeTime(strtotime('-16 days', $time), ['time' => $time]));
-        $this->assertEquals('8 months ago', Format::relativeTime(strtotime('-33 weeks', $time), ['time' => $time]));
-        $this->assertEquals('6 months, 4 days ago', Format::relativeTime(strtotime('-6 months', $time), ['time' => $time]));
-        $this->assertEquals('2 years, 2 months ago', Format::relativeTime(strtotime('-799 days', $time), ['time' => $time]));
+        $this->assertEquals('45 seconds ago', Format::relativeTime(strtotime('-45 seconds', $time), Map {'time' => $time}));
+        $this->assertEquals('2 weeks, 2 days ago', Format::relativeTime(strtotime('-16 days', $time), Map {'time' => $time}));
+        $this->assertEquals('8 months ago', Format::relativeTime(strtotime('-33 weeks', $time), Map {'time' => $time}));
+        $this->assertEquals('6 months, 4 days ago', Format::relativeTime(strtotime('-6 months', $time), Map {'time' => $time}));
+        $this->assertEquals('2 years, 2 months ago', Format::relativeTime(strtotime('-799 days', $time), Map {'time' => $time}));
 
         // Future
-        $this->assertEquals('in 45 seconds', Format::relativeTime(strtotime('+45 seconds', $time), ['time' => $time]));
-        $this->assertEquals('in 2 weeks, 2 days', Format::relativeTime(strtotime('+16 days', $time), ['time' => $time]));
-        $this->assertEquals('in 8 months', Format::relativeTime(strtotime('+33 weeks', $time), ['time' => $time]));
-        $this->assertEquals('in 6 months, 2 days', Format::relativeTime(strtotime('+6 months', $time), ['time' => $time]));
-        $this->assertEquals('in 2 years, 2 months', Format::relativeTime(strtotime('+799 days', $time), ['time' => $time]));
+        $this->assertEquals('in 45 seconds', Format::relativeTime(strtotime('+45 seconds', $time), Map {'time' => $time}));
+        $this->assertEquals('in 2 weeks, 2 days', Format::relativeTime(strtotime('+16 days', $time), Map {'time' => $time}));
+        $this->assertEquals('in 8 months', Format::relativeTime(strtotime('+33 weeks', $time), Map {'time' => $time}));
+        $this->assertEquals('in 6 months, 2 days', Format::relativeTime(strtotime('+6 months', $time), Map {'time' => $time}));
+        $this->assertEquals('in 2 years, 2 months', Format::relativeTime(strtotime('+799 days', $time), Map {'time' => $time}));
 
         // Large depth
-        $this->assertEquals('1 year, 1 month, 4 days ago', Format::relativeTime(strtotime('-399 days', $time), ['time' => $time, 'depth' => 5]));
-        $this->assertEquals('1 year, 3 months ago', Format::relativeTime(strtotime('-444 days', $time), ['time' => $time, 'depth' => 5]));
-        $this->assertEquals('3 years ago', Format::relativeTime(strtotime('-999 days', $time), ['time' => $time, 'depth' => 5]));
-        $this->assertEquals('3 years, 5 months ago', Format::relativeTime(strtotime('-1235 days', $time), ['time' => $time, 'depth' => 5]));
-        $this->assertEquals('2 years, 2 months, 1 week, 2 days ago', Format::relativeTime(strtotime('-799 days', $time), ['time' => $time, 'depth' => 5]));
+        $this->assertEquals('1 year, 1 month, 4 days ago', Format::relativeTime(strtotime('-399 days', $time), Map {'time' => $time, 'depth' => 5}));
+        $this->assertEquals('1 year, 3 months ago', Format::relativeTime(strtotime('-444 days', $time), Map {'time' => $time, 'depth' => 5}));
+        $this->assertEquals('3 years ago', Format::relativeTime(strtotime('-999 days', $time), Map {'time' => $time, 'depth' => 5}));
+        $this->assertEquals('3 years, 5 months ago', Format::relativeTime(strtotime('-1235 days', $time), Map {'time' => $time, 'depth' => 5}));
+        $this->assertEquals('2 years, 2 months, 1 week, 2 days ago', Format::relativeTime(strtotime('-799 days', $time), Map {'time' => $time, 'depth' => 5}));
 
         // Non-verbose
-        $this->assertEquals('2y, 2m, 1w, 2d ago', Format::relativeTime(strtotime('-799 days', $time), ['time' => $time, 'depth' => 5, 'verbose' => false]));
-        $this->assertEquals('in 2y, 2m, 1w, 2d', Format::relativeTime(strtotime('+799 days', $time), ['time' => $time, 'depth' => 5, 'verbose' => false]));
+        $this->assertEquals('2y, 2m, 1w, 2d ago', Format::relativeTime(strtotime('-799 days', $time), Map {'time' => $time, 'depth' => 5, 'verbose' => false}));
+        $this->assertEquals('in 2y, 2m, 1w, 2d', Format::relativeTime(strtotime('+799 days', $time), Map {'time' => $time, 'depth' => 5, 'verbose' => false}));
     }
 
     public function testRss() {

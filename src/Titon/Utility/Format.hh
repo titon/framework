@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -132,11 +132,11 @@ class Format {
      * @uses Titon\Utility\Time
      *
      * @param string|int $time
-     * @param array $options
+     * @param Map<string, mixed> $options
      * @return string
      */
-    public static function relativeTime(mixed $time, array $options = []): string {
-        $defaults = Map {
+    public static function relativeTime(mixed $time, Map<string, mixed> $options = Map {}): string {
+        $options = Traverse::merge(Map {
             'seconds' => Vector {'%ss', '%s second', '%s seconds'},
             'minutes' => Vector {'%sm', '%s minute', '%s minutes'},
             'hours' => Vector {'%sh', '%s hour', '%s hours'},
@@ -151,8 +151,7 @@ class Format {
             'verbose' => true,
             'depth' => 2,
             'time' => time()
-        };
-        $options = $defaults->setAll(new Map($options));
+        }, $options);
 
         $diff = Time::difference($options['time'], Time::toUnix($time));
         $output = [];

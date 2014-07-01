@@ -86,13 +86,13 @@ class Traverse {
     /**
      * Exclude specific keys from the array and return the new array.
      *
-     * @param Collection $collection
-     * @param array $keys
-     * @return Collection
+     * @param Map $collection
+     * @param Vector<string> $keys
+     * @return Map<string, mixed>
      */
-    public static function exclude(Collection $collection, array $keys): Collection {
+    public static function exclude(Map $collection, Vector<string> $keys): Map<string, mixed> {
         foreach ($keys as $key) {
-            unset($collection[$key]);
+            $collection->remove($key);
         }
 
         return $collection;
@@ -411,43 +411,19 @@ class Traverse {
 
         foreach ($collections as $collection) {
             foreach ($collection as $key => $value) {
-                if (isset($data[$key])) {
-                    if ($value instanceof Collection && $data[$key] instanceof Collection) {
-                        $data[$key] = static::merge($data[$key], $value);
+                if ($data->contains($key)) {
+                    $current = $data->get($key);
 
-                    } else {
-                        $data[$key] = $value;
+                    if ($value instanceof Collection && $current instanceof Collection) {
+                        $value = static::merge($current, $value);
                     }
-                } else {
-                    $data[$key] = $value;
                 }
+
+                $data->set($key, $value);
             }
         }
 
         return $data;
-    }
-
-    /**
-     * Works similar to merge(), except that it will only overwrite/merge values if the keys exist in the previous array.
-     *
-     * @param array $collection1 - The base array
-     * @param array $collection2 - The array to overwrite the base array
-     * @return array
-     */
-    public static function overwrite(array $collection1, array $collection2) {
-        $overwrite = array_intersect_key($collection2, $collection1);
-
-        if ($overwrite) {
-            foreach ($overwrite as $key => $value) {
-                if (is_array($value)) {
-                    $collection1[$key] = static::overwrite($collection1[$key], $value);
-                } else {
-                    $collection1[$key] = $value;
-                }
-            }
-        }
-
-        return $collection1;
     }
 
     /**
@@ -470,66 +446,32 @@ class Traverse {
     }
 
     /**
-     * Generate an array with a range of numbers. Can apply a step interval to increase/decrease with larger increments.
-     *
-     * @param int $start
-     * @param int $stop
-     * @param int $step
-     * @param bool $index
-     * @return Vector<int>
-     */
-    public static function range(int $start, int $stop, int $step = 1, bool $index = true): Vector<int> {
-        $array = Vector {};
-
-        if ($stop > $start) {
-            for ($i = $start; $i <= $stop; $i += $step) {
-                if ($index) {
-                    $array[$i] = $i;
-                } else {
-                    $array[] = $i;
-                }
-            }
-
-        } else if ($stop < $start) {
-            for ($i = $start; $i >= $stop; $i -= $step) {
-                if ($index) {
-                    $array[$i] = $i;
-                } else {
-                    $array[] = $i;
-                }
-            }
-        }
-
-        return $array;
-    }
-
-    /**
      * Reduce an array by removing all keys that have not been defined for persistence.
      *
-     * @param Collection $collection
+     * @param Map $collection
      * @param array $keys
-     * @return Collection
+     * @return Map<string, mixed>
      */
-    public static function reduce(Collection $collection, array $keys): Collection {
-        $array = Map {};
+    public static function reduce(Map $collection, Vector<string> $keys): Map<string, mixed> {
+        $map = Map {};
 
         foreach ($collection as $key => $value) {
-            if (in_array($key, $keys)) {
-                $array[$key] = $value;
+            if ($keys->linearSearch($key) >= 0) {
+                $map->set($key, $value);
             }
         }
 
-        return $array;
+        return $map;
     }
 
     /**
      * Remove an index from the array, determined by the given path.
      *
-     * @param Collection $collection
+     * @param Map $collection
      * @param string $path
-     * @return Collection
+     * @return Map<string, mixed>
      */
-    public static function remove(Collection $collection, string $path) {
+    public static function remove(Map $collection, string $path): Map<string, mixed> {
         if (!$path) {
             return $collection;
         }
@@ -550,9 +492,8 @@ class Traverse {
 
             // Within the last path
             if ($total === 1) {
-                $collection->remove($key);
-
-                return $collection;
+                $search->remove($key);
+                break;
 
             // Break out of non-existent paths early
             } else if (!$search->contains($key) || !($search->get($key) instanceof Collection)) {
@@ -570,13 +511,13 @@ class Traverse {
     /**
      * Set a value into the result set. If the paths is an array, loop over each one and insert the value.
      *
-     * @param Collection $collection
-     * @param array|string $path
+     * @param Map $collection
+     * @param Map|string $path
      * @param mixed $value
-     * @return Collection
+     * @return Map<string, mixed>
      */
-    public static function set(Collection $collection, mixed $path, ?mixed $value = null): Collection {
-        if ($path instanceof Collection) {
+    public static function set(Collection $collection, mixed $path, ?mixed $value = null): Map<string, mixed> {
+        if ($path instanceof Map) {
             foreach ($path as $key => $value) {
                 $collection = static::insert($collection, $key, $value);
             }
@@ -595,8 +536,8 @@ class Traverse {
      * @return bool
      */
     public static function some(Collection $collection, Closure $callback): bool {
-        foreach ($collection as $value) {
-            if ($callback($value, $value)) {
+        foreach ($collection as $key => $value) {
+            if (call_user_func_array($callback, [$value, $key])) {
                 return true;
             }
         }

@@ -8,49 +8,31 @@ use \stdClass;
 class TraverseTest extends TestCase {
 
     protected Map<string, mixed> $expanded = Map {
-        'boolean' => true,
         'integer' => 123,
-        'strings' => 'foobar',
-        'numeric' => '1988',
-        'empty' => Vector {},
+        'number' => '456',
+        'string' => 'foobar',
+        'boolean' => true,
+        'vector' => Vector {},
         'one' => Map {
             'depth' => 1,
             'two' => Map {
                 'depth' => 2,
                 'three' => Map {
-                    'depth' => 3,
-                    'false' => false,
-                    'true' => true,
-                    'null' => null,
-                    'zero' => 0,
-                    'four' => Map {
-                        'five' => Map {
-                            'six' => Map {
-                                'seven' => Map {
-                                    'key' => 'We can go deeper!'
-                                }
-                            }
-                        }
-                    }
+                    'depth' => 3
                 }
             }
         }
     };
 
     protected Map<string, mixed> $collapsed = Map {
-        'boolean' => true,
         'integer' => 123,
-        'strings' => 'foobar',
-        'numeric' => '1988',
-        'empty' => Vector {},
+        'number' => '456',
+        'string' => 'foobar',
+        'boolean' => true,
+        'vector' => null,
         'one.depth' => 1,
         'one.two.depth' => 2,
-        'one.two.three.depth' => 3,
-        'one.two.three.false' => false,
-        'one.two.three.true' => true,
-        'one.two.three.null' => null,
-        'one.two.three.zero' => 0,
-        'one.two.three.four.five.six.seven.key' => 'We can go deeper!'
+        'one.two.three.depth' => 3
     };
 
     public function testDepth() {
@@ -158,43 +140,29 @@ class TraverseTest extends TestCase {
     }
 
     public function testExclude() {
-        $this->assertEquals(Map {'foo' => 123}, Traverse::exclude(Map {'foo' => 123, 'bar' => 456, 'baz' => 789}, ['bar', 'baz']));
+        $this->assertEquals(Map {'foo' => 123}, Traverse::exclude(Map {'foo' => 123, 'bar' => 456, 'baz' => 789}, Vector {'bar', 'baz'}));
     }
 
     public function testExpand() {
-        $this->assertEquals(Map {
-            'foo' => 'bar',
-            'one' => Map {
-                'two' => Map {}
-            }
-        }, Traverse::expand(Map {
-            'foo' => 'bar',
-            'one.two' => Map {}
-        }));
+        $map = $this->expanded;
+        $map->set('vector', null);
+
+        $this->assertEquals($map, Traverse::expand($this->collapsed));
     }
 
     public function testExtract() {
-        $map = Map {
-            'one' => Map {
-                'key' => 1,
-                'two' => Map {
-                    'key' => 2,
-                    'three' => Map {
-                        'key' => 3,
-                        'four' => Map {}
-                    }
-                }
-            }
-        };
+        $map = $this->expanded;
 
         $this->assertEquals(null, Traverse::extract($map, ''));
         $this->assertEquals(null, Traverse::extract($map, 'fake.path'));
-        $this->assertEquals(2, Traverse::extract($map, 'one.two.key'));
-        $this->assertEquals(null, Traverse::extract($map, 'one.two.three.four.key'));
+        $this->assertEquals(2, Traverse::extract($map, 'one.two.depth'));
+        $this->assertEquals(null, Traverse::extract($map, 'one.two.three.four.depth'));
         $this->assertEquals(Map {
-            'key' => 3,
-            'four' => Map {}
-        }, Traverse::extract($map, 'one.two.three'));
+            'depth' => 2,
+            'three' => Map {
+                'depth' => 3
+            }
+        }, Traverse::extract($map, 'one.two'));
     }
 
     public function testFilter() {
@@ -286,320 +254,219 @@ class TraverseTest extends TestCase {
     }
 
     public function testFlatten() {
-        $this->assertEquals(Map {
-            'foo' => 'bar',
-            'one.two.key' => 2,
-            'one.two.vector' => null,
-        }, Traverse::flatten(Map {
-            'foo' => 'bar',
-            'one' => Map {
-                'two' => Map {
-                    'key' => 2,
-                    'vector' => Vector {}
-                }
-            }
-        }));
+        $this->assertEquals($this->collapsed, Traverse::flatten($this->expanded));
     }
 
     public function testFlattenPrefix() {
         $this->assertEquals(Map {
-            'titon.foo' => 'bar',
-            'titon.one.two.key' => 2,
-            'titon.one.two.vector' => null,
-        }, Traverse::flatten(Map {
-            'foo' => 'bar',
-            'one' => Map {
-                'two' => Map {
-                    'key' => 2,
-                    'vector' => Vector {}
-                }
-            }
-        }, 'titon'));
+            'prefix.integer' => 123,
+            'prefix.number' => '456',
+            'prefix.string' => 'foobar',
+            'prefix.boolean' => true,
+            'prefix.vector' => null,
+            'prefix.one.depth' => 1,
+            'prefix.one.two.depth' => 2,
+            'prefix.one.two.three.depth' => 3
+        }, Traverse::flatten($this->expanded, 'prefix'));
     }
 
     public function testGet() {
-        $map = Map {
-            'one' => Map {
-                'key' => 1,
-                'two' => Map {
-                    'key' => 2,
-                    'three' => Map {
-                        'key' => 3,
-                        'four' => Map {}
-                    }
-                }
-            }
-        };
+        $map = $this->expanded;
 
         $this->assertEquals($map, Traverse::get($map));
         $this->assertEquals(Map {
-            'key' => 3,
-            'four' => Map {}
-        }, Traverse::get($map, 'one.two.three'));
+            'depth' => 2,
+            'three' => Map {
+                'depth' => 3
+            }
+        }, Traverse::get($map, 'one.two'));
     }
 
     public function testHas() {
-        $data = $this->expanded;
+        $map = $this->expanded;
 
-        $this->assertTrue(Traverse::has($data, 'boolean'));
-        $this->assertTrue(Traverse::has($data, 'empty'));
-        $this->assertTrue(Traverse::has($data, 'one.depth'));
-        $this->assertTrue(Traverse::has($data, 'one.two.depth'));
-        $this->assertTrue(Traverse::has($data, 'one.two.three.false'));
-        $this->assertTrue(Traverse::has($data, 'one.two.three.true'));
-        $this->assertTrue(Traverse::has($data, 'one.two.three.four.five.six.seven.key'));
-        $this->assertTrue(Traverse::has($data, 'one.two.three.null'));
+        $this->assertTrue(Traverse::has($map, 'boolean'));
+        $this->assertTrue(Traverse::has($map, 'vector'));
+        $this->assertTrue(Traverse::has($map, 'one.depth'));
+        $this->assertTrue(Traverse::has($map, 'one.two.depth'));
+        $this->assertTrue(Traverse::has($map, 'one.two.three.depth'));
 
-        $this->assertFalse(Traverse::has($data, ''));
         $this->assertFalse(Traverse::has(Map {}, 'foo'));
-        $this->assertFalse(Traverse::has($data, 'one.two.three.some.really.deep.depth'));
-        $this->assertFalse(Traverse::has($data, 'foo'));
-        $this->assertFalse(Traverse::has($data, 'foo.bar'));
-        $this->assertFalse(Traverse::has($data, 'empty.key'));
+        $this->assertFalse(Traverse::has($map, ''));
+        $this->assertFalse(Traverse::has($map, 'one.two.three.some.really.deep.depth'));
+        $this->assertFalse(Traverse::has($map, 'foo'));
+        $this->assertFalse(Traverse::has($map, 'foo.bar'));
+        $this->assertFalse(Traverse::has($map, 'empty.key'));
     }
 
     public function testInject() {
-        $data = $this->expanded;
-        $this->assertEquals($data, Traverse::inject($data, 'one.depth', 2));
+        $map = $this->expanded;
+        $this->assertEquals($map, Traverse::inject($map, 'one.depth', 2));
 
-        $result = Traverse::inject($data, 'one.foo', 'bar');
-        $data['one']['foo'] = 'bar';
-        $this->assertEquals($data, $result);
+        $result = Traverse::inject($map, 'one.foo', 'bar');
+        $map['one']['foo'] = 'bar';
+        $this->assertEquals($map, $result);
     }
 
     public function testInsert() {
-        $data = Map {};
+        $map = Map {};
 
         foreach ($this->collapsed as $key => $value) {
-            $data = Traverse::insert($data, $key, $value);
+            $map = Traverse::insert($map, $key, $value);
         }
 
-        $this->assertEquals($this->expanded, $data);
-        $this->assertEquals(Vector{'value'}, Traverse::insert(Vector {}, '', 'value'));
+        $expected = $this->expanded;
+        $expected->set('vector', null);
+
+        $this->assertEquals($expected, $map);
     }
 
     public function testIsAlpha() {
-        $this->assertTrue(Traverse::isAlpha(Vector{'foo', 'bar'}));
-        $this->assertTrue(Traverse::isAlpha(Map{'foo' => 'bar', 'number' => '123'}, false));
-        $this->assertTrue(Traverse::isAlpha(Vector{'bar', '123'}, false));
+        $this->assertTrue(Traverse::isAlpha(Vector {'foo', 'bar'}));
+        $this->assertTrue(Traverse::isAlpha(Map {'foo' => 'bar', 'number' => '123'}, false));
+        $this->assertTrue(Traverse::isAlpha(Vector {'bar', '123'}, false));
 
-        $this->assertFalse(Traverse::isAlpha(Map{'foo' => 'bar', 'number' => '123'}));
-        $this->assertFalse(Traverse::isAlpha(Vector{'bar', '123'}));
-        $this->assertFalse(Traverse::isAlpha(Map{'foo' => 123}));
-        $this->assertFalse(Traverse::isAlpha(Vector{null}));
-        $this->assertFalse(Traverse::isAlpha(Vector{true}));
-        $this->assertFalse(Traverse::isAlpha(Vector{false}));
-        $this->assertFalse(Traverse::isAlpha(Vector{Vector{}}));
-        $this->assertFalse(Traverse::isAlpha(Vector{new stdClass()}));
+        $this->assertFalse(Traverse::isAlpha(Map {'foo' => 'bar', 'number' => '123'}));
+        $this->assertFalse(Traverse::isAlpha(Vector {'bar', '123'}));
+        $this->assertFalse(Traverse::isAlpha(Map {'foo' => 123}));
+        $this->assertFalse(Traverse::isAlpha(Vector {null}));
+        $this->assertFalse(Traverse::isAlpha(Vector {true}));
+        $this->assertFalse(Traverse::isAlpha(Vector {false}));
+        $this->assertFalse(Traverse::isAlpha(Vector {Vector {}}));
+        $this->assertFalse(Traverse::isAlpha(Vector {new stdClass()}));
     }
 
     public function testIsNumeric() {
-        $this->assertTrue(Traverse::isNumeric(Vector{'123', 456}));
-        $this->assertTrue(Traverse::isNumeric(Map{'foo' => 123, 'number' => '456'}));
+        $this->assertTrue(Traverse::isNumeric(Vector {'123', 456}));
+        $this->assertTrue(Traverse::isNumeric(Map {'foo' => 123, 'number' => '456'}));
 
-        $this->assertFalse(Traverse::isNumeric(Vector{'foo', 'bar'}));
-        $this->assertFalse(Traverse::isNumeric(Map{'foo' => 'bar', 'number' => '123'}));
-        $this->assertFalse(Traverse::isNumeric(Vector{'bar', '123'}));
-        $this->assertFalse(Traverse::isNumeric(Vector{null}));
-        $this->assertFalse(Traverse::isNumeric(Vector{true}));
-        $this->assertFalse(Traverse::isNumeric(Vector{false}));
-        $this->assertFalse(Traverse::isNumeric(Vector{Vector{}}));
-        $this->assertFalse(Traverse::isNumeric(Vector{new stdClass()}));
+        $this->assertFalse(Traverse::isNumeric(Vector {'foo', 'bar'}));
+        $this->assertFalse(Traverse::isNumeric(Map {'foo' => 'bar', 'number' => '123'}));
+        $this->assertFalse(Traverse::isNumeric(Vector {'bar', '123'}));
+        $this->assertFalse(Traverse::isNumeric(Vector {null}));
+        $this->assertFalse(Traverse::isNumeric(Vector {true}));
+        $this->assertFalse(Traverse::isNumeric(Vector {false}));
+        $this->assertFalse(Traverse::isNumeric(Vector {Vector {}}));
+        $this->assertFalse(Traverse::isNumeric(Vector {new stdClass()}));
     }
 
     public function testKeyOf() {
-        $data = $this->expanded;
+        $map = $this->expanded;
 
-        $this->assertEquals(null, Traverse::keyOf($data, 'fakeValue'));
-        $this->assertEquals('boolean', Traverse::keyOf($data, true));
-        $this->assertEquals('one.two.three.depth', Traverse::keyOf($data, 3));
+        $this->assertEquals(null, Traverse::keyOf($map, 'fake'));
+        $this->assertEquals('boolean', Traverse::keyOf($map, true));
+        $this->assertEquals('one.two.three.depth', Traverse::keyOf($map, 3));
     }
 
     public function testMerge() {
-        $data1 = [
-            'foo' => 'bar',
-            'boolean' => true,
-            'string' => 'abc',
-            'number' => 123,
-            'one'
-        ];
+        $one = Map {'one' => 1};
+        $two = Map {'two' => 2};
 
-        $data2 = [
-            'foo' => 'baz',
-            'boolean' => false,
-            'string' => 'xyz',
-            'number' => 456,
-            'two'
-        ];
+        $this->assertEquals(Map {
+            'one' => 1,
+            'two' => 2
+        }, Traverse::merge($one, $two));
 
-        $this->assertEquals([
-            'foo' => 'baz',
-            'boolean' => false,
-            'string' => 'xyz',
-            'number' => 456,
-            'two'
-        ], Traverse::merge($data1, $data2));
+        $two['one'] = 'one';
 
-        $data1['array'] = [
-            'key' => 'value',
-            123,
-            true
-        ];
-
-        $data2['array'] = [];
-
-        $this->assertEquals([
-            'foo' => 'baz',
-            'boolean' => false,
-            'string' => 'xyz',
-            'number' => 456,
-            'two',
-            'array' => [
-                'key' => 'value',
-                123,
-                true
-            ]
-        ], Traverse::merge($data1, $data2));
-
-        $data2['array'] = [
-            'key' => 'base',
-            'foo' => 'bar',
-            123
-        ];
-
-        $this->assertEquals([
-            'foo' => 'bar',
-            'boolean' => true,
-            'string' => 'abc',
-            'number' => 123,
-            'one',
-            'array' => [
-                'key' => 'value',
-                'foo' => 'bar',
-                123,
-                true
-            ]
-        ], Traverse::merge($data2, $data1));
-
-        $this->assertEquals([], Traverse::merge());
+        $this->assertEquals(Map {
+            'one' => 'one',
+            'two' => 2
+        }, Traverse::merge($one, $two));
     }
 
-    public function testOverwrite() {
-        $data1 = [
-            'foo' => 'bar',
-            123,
-            'array' => [
-                'boolean' => true,
-                'left' => 'left'
-            ]
-        ];
+    public function testMergeNestedCollections() {
+        $one = Map {'one' => 1, 'three' => Map {'foo' => 'bar', 'beep' => 'boop'}};
+        $two = Map {'two' => 2, 'three' => Map {'foo' => 'baz'}};
 
-        $data2 = [
-            'foo' => 'baz',
-            456,
-            'array' => [
-                'boolean' => false,
-                'right' => 'right'
-            ]
-        ];
-
-        $this->assertEquals([
-            'foo' => 'baz',
-            456,
-            'array' => [
-                'boolean' => false,
-                'left' => 'left'
-            ]
-        ], Traverse::overwrite($data1, $data2));
+        $this->assertEquals(Map {
+            'one' => 1,
+            'two' => 2,
+            'three' => Map {
+                'foo' => 'baz',
+                'beep' => 'boop'
+            }
+        }, Traverse::merge($one, $two));
     }
 
     public function testPluck() {
         $data = Vector {
-            Map { 'name' => 'Miles', 'user' => Map { 'id' => 1}},
-            Map { 'name' => 'Foo', 'user' => Map { 'id' => 2}},
-            Map { 'key' => 'value', 'user' => Map { 'id' => 3}},
-            Map { 'name' => 'Bar', 'user' => Map { 'id' => 4}},
-            Map { 'name' => 'Baz', 'user' => Map { 'id' => 5}},
+            Map { 'name' => 'Miles', 'user' => Map {'id' => 1}},
+            Map { 'name' => 'Foo', 'user' => Map {'id' => 2}},
+            Map { 'key' => 'value', 'user' => Map {'id' => 3}},
+            Map { 'name' => 'Bar', 'user' => Map {'id' => 4}},
+            Map { 'name' => 'Baz', 'user' => Map {'id' => 5}},
         };
 
         $this->assertEquals(Vector {'Miles', 'Foo', 'Bar', 'Baz'}, Traverse::pluck($data, 'name'));
         $this->assertEquals(Vector {1, 2, 3, 4, 5}, Traverse::pluck($data, 'user.id'));
     }
 
-    public function testRange() {
-        $this->assertEquals([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Traverse::range(0, 10));
-        $this->assertEquals([0 => 0, 2 => 2, 4 => 4, 6 => 6, 8 => 8, 10 => 10], Traverse::range(0, 10, 2));
-        $this->assertEquals([0 => 0, 3 => 3, 6 => 6, 9 => 9], Traverse::range(0, 10, 3));
-        $this->assertEquals([0 => 0, 13 => 13, 26 => 26, 39 => 39, 52 => 52, 65 => 65, 78 => 78, 91 => 91], Traverse::range(0, 100, 13));
-        $this->assertEquals([23 => 23, 29 => 29, 35 => 35, 41 => 41, 47 => 47, 53 => 53, 59 => 59, 65 => 65], Traverse::range(23, 66, 6));
-
-        $this->assertEquals([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Traverse::range(0, 10, 1, false));
-        $this->assertEquals([0, 2, 4, 6, 8, 10], Traverse::range(0, 10, 2, false));
-        $this->assertEquals([0, 3, 6, 9], Traverse::range(0, 10, 3, false));
-        $this->assertEquals([0, 13, 26, 39, 52, 65, 78, 91], Traverse::range(0, 100, 13, false));
-        $this->assertEquals([23, 29, 35, 41, 47, 53, 59, 65], Traverse::range(23, 66, 6, false));
-
-        // reverse
-        $this->assertEquals([5 => 5, 4 => 4, 3 => 3, 2 => 2, 1 => 1, 0 => 0], Traverse::range(5, 0, 1));
-        $this->assertEquals([10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0], Traverse::range(10, 0, 1, false));
-        $this->assertEquals([65, 59, 53, 47, 41, 35, 29, 23], Traverse::range(65, 23, 6, false));
-    }
-
     public function testReduce() {
-        $this->assertEquals(['boolean' => true, 'integer' => 123], Traverse::reduce($this->expanded, ['boolean', 'integer', 'foobar']));
+        $this->assertEquals(Map {'boolean' => true, 'integer' => 123}, Traverse::reduce($this->expanded, Vector {'boolean', 'integer', 'foobar'}));
     }
 
     public function testRemove() {
-        $data = $this->expanded;
-        $match = $data;
+        $map = $this->expanded;
 
-        unset($match['boolean']);
-        $data = Traverse::remove($data, 'boolean');
-        $this->assertEquals($match, $data);
+        Traverse::remove($map, 'vector');
+        Traverse::remove($map, 'one.depth');
+        Traverse::remove($map, 'one.two.depth');
 
-        unset($match['one']['depth']);
-        $data = Traverse::remove($data, 'one.depth');
-        $this->assertEquals($match, $data);
+        $this->assertEquals(Map {
+            'integer' => 123,
+            'number' => '456',
+            'string' => 'foobar',
+            'boolean' => true,
+            'one' => Map {
+                'two' => Map {
+                    'three' => Map {
+                        'depth' => 3
+                    }
+                }
+            }
+        }, $map);
 
-        unset($match['one']['two']['depth']);
-        $data = Traverse::remove($data, 'one.two.depth');
-        $this->assertEquals($match, $data);
+        Traverse::remove($map, 'one');
 
-        unset($match['one']['two']['three']['depth'], $match['one']['two']['three']['zero'], $match['one']['two']['three']['null']);
-        $data = Traverse::remove($data, 'one.two.three.depth');
-        $data = Traverse::remove($data, 'one.two.three.zero');
-        $data = Traverse::remove($data, 'one.two.three.null');
-        $this->assertEquals($match, $data);
-
-        unset($match['one']['two']['three']['four']['five']['six']['seven']['key']);
-        $data = Traverse::remove($data, 'one.two.three.four.five.six.seven.key');
-        $this->assertEquals($match, $data);
-
-        $data = Traverse::remove($data, 'a.fake.path');
-        $this->assertEquals($match, $data);
+        $this->assertEquals(Map {
+            'integer' => 123,
+            'number' => '456',
+            'string' => 'foobar',
+            'boolean' => true
+        }, $map);
     }
 
     public function testSet() {
-        $data = $this->expanded;
-        $match = $data;
+        $map = $this->expanded;
 
-        $data = Traverse::set($data, 'key', 'value');
-        $match['key'] = 'value';
-        $this->assertEquals($match, $data);
-
-        $data = Traverse::set($data, 'key.key', 'value');
-        $match['key'] = ['key' => 'value'];
-        $this->assertEquals($match, $data);
-
-        $data = Traverse::set($data, Map {
-            'key.key.key' => 'value',
-            'true' => true,
-            'one.false' => false
+        Traverse::set($map, 'pair', Pair {'a', 'b'});
+        Traverse::set($map, Map {
+            'set' => Set {},
+            'one.two.three.four.depth' => 4
         });
-        $match['key']['key'] = Map {'key' => 'value'};
-        $match['true']= true;
-        $match['one']['false'] = false;
-        $this->assertEquals($match, $data);
+
+        $this->assertEquals(Map {
+            'integer' => 123,
+            'number' => '456',
+            'string' => 'foobar',
+            'boolean' => true,
+            'vector' => Vector {},
+            'one' => Map {
+                'depth' => 1,
+                'two' => Map {
+                    'depth' => 2,
+                    'three' => Map {
+                        'depth' => 3,
+                        'four' => Map {
+                            'depth' => 4
+                        }
+                    }
+                }
+            },
+            'pair' => Pair {'a', 'b'},
+            'set' => Set {}
+        }, $map);
     }
 
     public function testSome() {

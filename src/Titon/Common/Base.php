@@ -37,11 +37,11 @@ class Base implements Serializable, JsonSerializable {
      * @param array $config
      */
     public function __construct(array $config = []) {
-       // $this->applyConfig($config);
-
-       /// if ($this->getConfig('initialize')) {
-       //     $this->initialize();
-        //}
+//        $this->applyConfig($config);
+//
+//        if ($this->getConfig('initialize')) {
+//            $this->initialize();
+//        }
     }
 
     /**

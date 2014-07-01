@@ -23,7 +23,7 @@ class Config {
     /**
      * Current loaded configuration.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
     protected static Map<string, mixed> $_config = Map {};
 
@@ -33,8 +33,13 @@ class Config {
      * @param string $key
      * @param mixed $value
      */
-    public static function add($key, $value) {
-        $data = (array) static::get($key, []);
+    public static function add(string $key, mixed $value): void {
+        $data = static::get($key, Vector {});
+
+        if (!$data instanceof Vector) {
+            $data = new Vector([$data]);
+        }
+
         $data[] = $value;
 
         static::set($key, $data);
@@ -43,9 +48,9 @@ class Config {
     /**
      * Return all configuration.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public static function all() {
+    public static function all(): Map<string, mixed> {
         return static::$_config;
     }
 
@@ -54,14 +59,14 @@ class Config {
      *
      * @return string
      */
-    public static function encoding() {
+    public static function encoding(): string {
         return static::get('app.encoding') ?: 'UTF-8';
     }
 
     /**
      * Flush configuration by removing all settings.
      */
-    public static function flush() {
+    public static function flush(): void {
         static::$_config->clear();
     }
 
@@ -72,7 +77,7 @@ class Config {
      * @param mixed $default
      * @return mixed
      */
-    public static function get($key, $default = null) {
+    public static function get(string $key, ?mixed $default = null): ?mixed {
         $value = Traverse::get(static::$_config, $key);
 
         if ($value === null) {
@@ -85,12 +90,10 @@ class Config {
     /**
      * Checks to see if a key exists within the current configuration.
      *
-     * @uses Titon\Utility\Hash
-     *
      * @param string $key
      * @return bool
      */
-    public static function has($key) {
+    public static function has(string $key): bool {
         return Traverse::has(static::$_config, $key);
     }
 
@@ -101,8 +104,8 @@ class Config {
      * @param string $key
      * @param \Titon\Io\Reader $reader
      */
-    public static function load($key, Reader $reader) {
-        static::$_config[$key] = $reader->read();
+    public static function load(string $key, Reader $reader): void {
+        static::$_config->set($key, $reader->read());
 
         unset($reader);
     }
@@ -112,19 +115,17 @@ class Config {
      *
      * @return string
      */
-    public static function name() {
+    public static function name(): string {
         return static::get('app.name');
     }
 
     /**
      * Remove a value from the config.
      *
-     * @uses Titon\Utility\Hash
-     *
      * @param string $key
      */
-    public static function remove($key) {
-        static::$_config = Traverse::remove(static::$_config, $key);
+    public static function remove(string $key): void {
+        Traverse::remove(static::$_config, $key);
     }
 
     /**
@@ -132,20 +133,18 @@ class Config {
      *
      * @return string
      */
-    public static function salt() {
+    public static function salt(): string {
         return static::get('app.salt');
     }
 
     /**
      * Add values to the current loaded configuration.
      *
-     * @uses Titon\Utility\Hash
-     *
      * @param string $key
      * @param mixed $value
      */
-    public static function set($key, $value) {
-        static::$_config = Traverse::set(static::$_config, $key, $value);
+    public static function set(string $key, ?mixed $value): void {
+        Traverse::set(static::$_config, $key, $value);
     }
 
 }

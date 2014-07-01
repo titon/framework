@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Utility;
 
 use Titon\Io\Reader\PhpReader;
@@ -10,32 +10,29 @@ use VirtualFileSystem\FileSystem;
  */
 class ConfigTest extends TestCase {
 
-    protected $app = [
+    protected $app = Map {
         'name' => 'Titon',
         'salt' => '66c63d989368170aff46040ab2353923',
         'seed' => 'nsdASDn7012dn1dsjSa',
         'encoding' => 'UTF-8'
-    ];
+    };
 
-    protected $debug = [
+    protected $debug = Map {
         'level' => 2,
         'email' => ''
-    ];
+    };
 
-    protected $test = [
+    protected $test = Map {
         'integer' => 1234567890,
         'number' => '1234567890',
         'string' => 'abcdefg',
-        'emptyArray' => [],
-        'array' => [
-            'one' => true,
-            'two' => false,
-        ],
+        'vector' => Vector {},
+        'array' => [1, 2, 3],
         'false' => false,
         'true' => true,
         'null' => null,
         'zero' => 0
-    ];
+    };
 
     protected function setUp() {
         parent::setUp();
@@ -51,18 +48,18 @@ class ConfigTest extends TestCase {
         $this->assertEquals('Titon', Config::get('app.name'));
 
         Config::add('app.name', 'Framework');
-        $this->assertEquals(['Titon', 'Framework'], Config::get('app.name'));
+        $this->assertEquals(Vector {'Titon', 'Framework'}, Config::get('app.name'));
 
         Config::add('app.foobar', 'Titon');
-        $this->assertEquals(['Titon'], Config::get('app.foobar'));
+        $this->assertEquals(Vector {'Titon'}, Config::get('app.foobar'));
     }
 
     public function testAll() {
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'app' => $this->app,
             'debug' => $this->debug,
             'test' => $this->test
-        ], Config::all());
+        }, Config::all());
     }
 
     public function testEncoding() {
@@ -76,15 +73,15 @@ class ConfigTest extends TestCase {
     }
 
     public function testFlush() {
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'app' => $this->app,
             'debug' => $this->debug,
             'test' => $this->test
-        ], Config::all());
+        }, Config::all());
 
         Config::flush();
 
-        $this->assertEquals([], Config::all());
+        $this->assertEquals(Map {}, Config::all());
     }
 
     public function testGet() {
@@ -97,14 +94,14 @@ class ConfigTest extends TestCase {
         $this->assertTrue(is_integer(Config::get('test.integer')));
         $this->assertTrue(is_numeric(Config::get('test.number')));
         $this->assertTrue(is_string(Config::get('test.string')));
-        $empty = Config::get('test.emptyArray');
-        $this->assertTrue(empty($empty));
+        $this->assertTrue(empty(Config::get('test.vector')));
         $this->assertTrue(is_array(Config::get('test.array')));
-        $this->assertTrue(Config::get('test.array.one') === true);
-        $this->assertTrue(Config::get('test.false') === false);
-        $this->assertTrue(Config::get('test.true') === true);
-        $this->assertTrue(Config::get('test.zero') === 0);
-        $this->assertTrue(Config::get('test.fakeKey') === null);
+
+        $this->assertEquals([1, 2, 3], Config::get('test.array'));
+        $this->assertEquals(false, Config::get('test.false'));
+        $this->assertEquals(true, Config::get('test.true'));
+        $this->assertEquals(0, Config::get('test.zero'));
+        $this->assertEquals(null, Config::get('test.fakeKey'));
 
         $this->assertEquals(Config::get('test.string'), $this->test['string']);
 
@@ -179,6 +176,7 @@ CFG;
         $this->assertTrue(Config::has('debug.email'));
 
         Config::remove('debug');
+
         $this->assertTrue(Config::has('app.salt'));
         $this->assertFalse(Config::has('debug.email'));
     }
@@ -205,11 +203,10 @@ CFG;
 
         Config::set('Set.level4.level4.level4.level4', 4);
         $this->assertEquals(Config::get('Set.level4.level4.level4.level4'), 4);
-        $this->assertTrue(is_array(Config::get('Set.level4.level4.level4')));
         $this->assertFalse(Config::get('Set.level4.level4') === 'falsey');
 
-        Config::set('Set.level4.array', ['key' => 'value']);
-        $this->assertEquals(Config::get('Set.level4.array'), ['key' => 'value']);
+        Config::set('Set.level4.array', Map {'key' => 'value'});
+        $this->assertEquals(Config::get('Set.level4.array'), Map {'key' => 'value'});
         $this->assertEquals(Config::get('Set.level4.array.key'), 'value');
 
         Config::set('Set.level4', 'Flattened!');

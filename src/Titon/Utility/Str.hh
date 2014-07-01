@@ -7,12 +7,15 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\Macroable;
+
 /**
  * Specific methods that deal with string manipulation, truncation, formation, etc.
  *
  * @package Titon\Utility
  */
-class Str extends Macro {
+class Str {
+    use Macroable;
 
     /**
      * Generator types.

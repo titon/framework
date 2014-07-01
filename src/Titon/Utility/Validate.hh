@@ -7,6 +7,7 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\Macroable;
 use Titon\Utility\Exception\InvalidArgumentException;
 use Titon\Utility\Exception\InvalidCreditCardException;
 use \Closure;
@@ -17,7 +18,8 @@ use \Closure;
  *
  * @package Titon\Utility
  */
-class Validate extends Macro {
+class Validate {
+    use Macroable;
 
     /**
      * IP version constants.

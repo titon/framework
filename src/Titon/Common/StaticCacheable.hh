@@ -10,7 +10,7 @@ namespace Titon\Common;
 use \Closure;
 
 /**
- * The Cacheable trait provides functionality to cache any data from the static class layer.
+ * The StaticCacheable trait provides functionality to cache any data from the static class layer.
  * All data is unique and represented by a generated cache key.
  *
  * @package Titon\Common
@@ -20,16 +20,16 @@ trait StaticCacheable {
     /**
      * Cached items indexed by key.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected static $_cache = [];
+    protected static Map<string, mixed> $_cache = Map {};
 
     /**
      * Return all the current cached items.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public static function allCache() {
+    public static function allCache(): Map<string, mixed> {
         return static::$_cache;
     }
 
@@ -41,7 +41,7 @@ trait StaticCacheable {
      * @param mixed|\Closure $value
      * @return mixed
      */
-    public static function cache($key, $value) {
+    public static function cache(mixed $key, ?mixed $value): ?mixed {
         $key = static::createCacheKey($key);
 
         if ($cache = static::getCache($key)) {
@@ -61,7 +61,7 @@ trait StaticCacheable {
      * @param string|array $keys
      * @return string
      */
-    public static function createCacheKey($keys) {
+    public static function createCacheKey(mixed $keys): string {
         if (is_array($keys)) {
             $key = array_shift($keys);
 
@@ -84,8 +84,8 @@ trait StaticCacheable {
     /**
      * Empty the cache.
      */
-    public static function flushCache() {
-        static::$_cache = [];
+    public static function flushCache(): void {
+        static::$_cache->clear();
     }
 
     /**
@@ -94,11 +94,11 @@ trait StaticCacheable {
      * @param string|array $key
      * @return mixed
      */
-    public static function getCache($key) {
+    public static function getCache(mixed $key): ?mixed {
         $key = static::createCacheKey($key);
 
         if (static::hasCache($key)) {
-            return static::$_cache[$key];
+            return static::$_cache->get($key);
         }
 
         return null;
@@ -110,8 +110,8 @@ trait StaticCacheable {
      * @param string|array $key
      * @return bool
      */
-    public static function hasCache($key) {
-        return isset(static::$_cache[static::createCacheKey($key)]);
+    public static function hasCache(mixed $key): bool {
+        return static::$_cache->contains(static::createCacheKey($key));
     }
 
     /**
@@ -119,8 +119,8 @@ trait StaticCacheable {
      *
      * @param string|array $key
      */
-    public static function removeCache($key) {
-        unset(static::$_cache[static::createCacheKey($key)]);
+    public static function removeCache(mixed $key): void {
+        static::$_cache->remove(static::createCacheKey($key));
     }
 
     /**
@@ -132,8 +132,8 @@ trait StaticCacheable {
      * @param mixed $value
      * @return mixed
      */
-    public static function setCache($key, $value) {
-        static::$_cache[static::createCacheKey($key)] = $value;
+    public static function setCache(mixed $key, ?mixed $value): ?mixed {
+        static::$_cache->set(static::createCacheKey($key), $value);
 
         return $value;
     }

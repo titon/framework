@@ -7,6 +7,7 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\Macroable;
 use Titon\Type\Contract\Arrayable;
 use Titon\Type\Contract\Jsonable;
 use Titon\Type\Contract\Xmlable;
@@ -20,7 +21,8 @@ use \SimpleXmlElement;
  *
  * @package Titon\Utility
  */
-class Converter extends Macro {
+class Converter {
+    use Macroable;
 
     /** Disregard XML attributes and only return the value */
     const int XML_NONE = 0;

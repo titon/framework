@@ -7,6 +7,7 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\Macroable;
 use Titon\Utility\Exception\InvalidArgumentException;
 
 /**
@@ -14,7 +15,8 @@ use Titon\Utility\Exception\InvalidArgumentException;
  *
  * @package Titon\Utility
  */
-class Path extends Macro {
+class Path {
+    use Macroable;
 
     /**
      * Directory separator.

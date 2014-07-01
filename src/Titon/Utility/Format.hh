@@ -7,6 +7,7 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\Macroable;
 use \DateTime;
 
 /**
@@ -14,7 +15,8 @@ use \DateTime;
  *
  * @package Titon\Utility
  */
-class Format extends Macro {
+class Format {
+    use Macroable;
 
     /**
      * Format a date string to an Atom feed format.

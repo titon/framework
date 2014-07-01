@@ -7,12 +7,16 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\Macroable;
+use Titon\Common\StaticCacheable;
+
 /**
  * String and grammar inflection. Converts strings to a certain format. Camel cased, singular, plural etc.
  *
  * @package Titon\Utility
  */
-class Inflector extends Macro {
+class Inflector {
+    use Macroable, StaticCacheable;
 
     /**
      * Inflect a word to a camel case form with the first letter being capitalized.

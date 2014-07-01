@@ -9,13 +9,15 @@ namespace Titon\Utility;
 
 use \DateTime;
 use \DateTimeZone;
+use Titon\Common\Macroable;
 
 /**
  * Time provides functionality for calculating date and time ranges and making timezones easy to use.
  *
  * @package Titon\Utility
  */
-class Time extends Macro {
+class Time {
+    use Macroable;
 
     /**
      * Time constants represented as seconds.

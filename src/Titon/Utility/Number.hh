@@ -7,13 +7,16 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\Macroable;
+
 /**
  * The Number utility allows for the twiddling and calculation of numbers and floats.
  * Provides helper methods to ease in the evaluation of numbers within context.
  *
  * @package Titon\Utility
  */
-class Number extends Macro {
+class Number {
+    use Macroable;
 
     /**
      * Bases.

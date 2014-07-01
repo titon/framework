@@ -11,6 +11,7 @@ use Titon\Common\Exception\InvalidObjectException;
 use Titon\Common\Exception\MissingObjectException;
 use \Closure;
 use \ReflectionClass;
+use Titon\Common\Macroable;
 
 /**
  * The Registry acts a central hub where any part of the application can access a single instance of a stored object.
@@ -19,6 +20,7 @@ use \ReflectionClass;
  * @package Titon\Utility
  */
 class Registry {
+    use Macroable;
 
     /**
      * Objects that have been registered into memory. The array index is represented by the namespace convention,

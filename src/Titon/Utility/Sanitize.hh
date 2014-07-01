@@ -7,12 +7,15 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\Macroable;
+
 /**
  * Makes dirty values clean! Sanitize will process an input and return a safe output depending on the scope of the cleaner.
  *
  * @package Titon\Utility
  */
-class Sanitize extends Macro {
+class Sanitize {
+    use Macroable;
 
     /**
      * Sanitize an email by removing all characters except letters, digits and !#$%&'*+-/=?^_`{|}~@.[].

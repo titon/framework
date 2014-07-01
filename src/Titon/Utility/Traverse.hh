@@ -8,13 +8,15 @@
 namespace Titon\Utility;
 
 use \Closure;
+use Titon\Common\Macroable;
 
 /**
  * Mutates and traverses multiple types of data structures (collections).
  *
  * @package Titon\Utility
  */
-class Traverse extends Macro {
+class Traverse {
+    use Macroable;
 
     /**
      * Determines the total depth of a multi-dimensional array or object.

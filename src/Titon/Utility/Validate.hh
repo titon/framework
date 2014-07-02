@@ -386,6 +386,16 @@ class Validate {
     }
 
     /**
+     * Check if a rule exists either as a class method or custom macro.
+     *
+     * @param string $method
+     * @return bool
+     */
+    public static function hasRule(string $method): bool {
+        return (method_exists(static::class, $method) || static::hasMacro($method));
+    }
+
+    /**
      * Validate an images height is exact.
      *
      * @param mixed $input

@@ -24,7 +24,7 @@ trait Macroable {
      * @return mixed
      * @throws \Titon\Utility\Exception\UnsupportedMethodException
      */
-    public static function callMacro(string $key, array $args): void {
+    public static function __callStatic(string $key, array $args): mixed {
         if (static::hasMacro($key)) {
             return call_user_func_array(static::getMacros()->get($key), $args);
         }

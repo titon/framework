@@ -20,9 +20,9 @@ class Validator {
     /**
      * Data to validate against.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_data = [];
+    protected Map<string, mixed> $_data = Map {};
 
     /**
      * Errors gathered during validation.
@@ -55,9 +55,9 @@ class Validator {
     /**
      * Store the data to validate.
      *
-     * @param array $data
+     * @param Map<string, mixed> $data
      */
-    public function __construct(array $data = []) {
+    public function __construct(Map<string, mixed> $data = Map {}) {
         $this->setData($data);
     }
 
@@ -79,10 +79,10 @@ class Validator {
      *
      * @param string $field
      * @param string $title
-     * @param Map<mixed, mixed> $rules
+     * @param Map<string, mixed> $rules
      * @return $this
      */
-    public function addField(string $field, string $title, Map<mixed, mixed> $rules = Map {}): this {
+    public function addField(string $field, string $title, Map<string, mixed> $rules = Map {}): this {
         $this->_fields[$field] = $title;
 
         /**
@@ -91,9 +91,8 @@ class Validator {
          */
         if (!$rules->isEmpty()) {
             foreach ($rules as $rule => $options) {
-                if (is_numeric($rule)) {
-                    $rule = $options;
-                    $options = [];
+                if ($options === true) {
+                    $options = Vector {};
                 }
 
                 $this->addRule($field, $rule, null, $options);
@@ -121,25 +120,25 @@ class Validator {
      * @param string $field
      * @param string $rule
      * @param string $message
-     * @param array $options
+     * @param Vector<mixed> $options
      * @return $this
      * @throws \Titon\Utility\Exception\InvalidArgumentException
      */
-    public function addRule(string $field, string $rule, string $message, Vector<mixed> $options = Vector{}): this {
-        if (empty($this->_fields[$field])) {
+    public function addRule(string $field, string $rule, ?string $message, Vector<mixed> $options = Vector{}): this {
+        if (!$this->_fields->contains($field)) {
             throw new InvalidArgumentException(sprintf('Field %s does not exist', $field));
         }
 
-        if (isset($this->_messages[$rule])) {
+        if ($this->_messages->contains($rule)) {
             $message = $message ?: $this->_messages[$rule];
         } else {
             $this->_messages[$rule] = $message;
         }
 
-        $this->_rules[$field][$rule] = Map {
+        Traverse::set($this->_rules, $field . '.' . $rule, Map {
             'message' => $message,
             'options' => $options
-        };
+        });
 
         return $this;
     }
@@ -147,9 +146,9 @@ class Validator {
     /**
      * Return the currently set data.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function getData(): array {
+    public function getData(): Map<string, mixed> {
         return $this->_data;
     }
 
@@ -204,10 +203,10 @@ class Validator {
     /**
      * Set the data to validate against.
      *
-     * @param array $data
+     * @param Map<string, mixed> $data
      * @return $this
      */
-    public function setData(array $data): this {
+    public function setData(Map<string, mixed> $data): this {
         $this->_data = $data;
 
         return $this;
@@ -234,7 +233,7 @@ class Validator {
 
             foreach ($this->_rules[$field] as $rule => $params) {
                 $options = $params['options'];
-                $arguments = $options;
+                $arguments = $options->toVector(); // Clone another vector or else message params are out of order
                 array_unshift($arguments, $value);
 
                 // Use G11n if it is available
@@ -246,7 +245,7 @@ class Validator {
                 }
                 // @codeCoverageIgnoreEnd
 
-                if (!call_user_func([$class, 'hasMethod'], $rule)) {
+                if (!call_user_func([$class, 'hasRule'], $rule)) {
                     throw new InvalidValidationRuleException(sprintf('Validation rule %s does not exist', $rule));
                 }
 
@@ -258,12 +257,14 @@ class Validator {
                 }
 
                 if ($message) {
-                    $message = Str::insert($message, array_map(function($value) {
-                        return is_array($value) ? implode(', ', $value) : $value;
-                    }, Traverse::merge(Map {
+                    $params = Traverse::merge(Map {
                         'field' => $field,
                         'title' => $fields[$field]
-                    }, $options)));
+                    }, $options->toMap())->map(function($value) {
+                        return ($value instanceof Vector) ? implode(', ', $value) : $value;
+                    });
+
+                    $message = Str::insert($message, $params);
                 } else {
                     throw new InvalidValidationRuleException(sprintf('Error message for rule %s does not exist', $rule));
                 }
@@ -281,26 +282,28 @@ class Validator {
     /**
      * Create a validator instance from a set of shorthand or expanded rule sets.
      *
-     * @param array $data
+     * @param Map<string, mixed> $data
      * @param Map<string, mixed> $fields
      * @return $this
      */
-    public static function makeFromShorthand(array $data = [], Map<string, mixed> $fields = {}): Validator {
+    public static function makeFromShorthand(Map<string, mixed> $data = Map {}, Map<string, mixed> $fields = Map {}): Validator {
         /** @type \Titon\Utility\Validator $obj */
         $obj = new static($data);
 
         foreach ($fields as $field => $options) {
             $title = $field;
 
-            // Convert to array
+            // A string of rule(s)
             if (is_string($options)) {
                 $options = Map {'rules' => $options};
 
-            } else if (!is_array($options)) {
+            // Ignore anything else not a string, map, or vector
+            } else if (!$options instanceof Collection) {
                 continue;
 
-            } else if (Traverse::isNumeric(array_keys($options))) {
-                $options = ['rules' => $options];
+            // List of rules
+            } else if ($options instanceof Vector) {
+                $options = Map {'rules' => $options};
             }
 
             // Prepare for parsing

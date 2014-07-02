@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;
@@ -139,10 +139,16 @@ class ConverterTest extends TestCase {
     }
 
     public function testToArrayRecursive() {
+        $object1 = new \stdClass();
+        $object1->key = 1;
+
+        $object2 = new \stdClass();
+        $object2->key = 3;
+
         $array = [
-            Converter::toObject(['key' => 1]),
+            $object1,
             ['key' => 2],
-            Converter::toObject(['key' => 3])
+            $object2
         ];
 
         $this->assertEquals($array, Converter::toArray($array));
@@ -151,35 +157,6 @@ class ConverterTest extends TestCase {
             ['key' => 2],
             ['key' => 3]
         ], Converter::toArray($array, true));
-    }
-
-    public function testToObject() {
-        $this->assertEquals($this->object, Converter::toObject($this->array));
-        $this->assertEquals($this->object, Converter::toObject($this->object));
-        $this->assertEquals($this->object, Converter::toObject($this->json));
-        $this->assertEquals($this->object, Converter::toObject($this->serialized));
-        $this->assertEquals($this->object, Converter::toObject($this->xml));
-    }
-
-    public function testToObjectRecursive() {
-        $object = new \stdClass();
-        $object->a = ['key' => 1];
-        $sub = new \stdClass();
-        $sub->key = 2;
-        $object->b = $sub;
-        $object->c = ['key' => 3];
-
-        $this->assertEquals($object, Converter::toObject($object));
-
-        $expected = $object;
-        $sub = new \stdClass();
-        $sub->key = 1;
-        $expected->a = $sub;
-        $sub = new \stdClass();
-        $sub->key = 3;
-        $expected->c = $sub;
-
-        $this->assertEquals($object, Converter::toObject($object, true));
     }
 
     public function testToJson() {
@@ -346,9 +323,9 @@ class ConverterTest extends TestCase {
 
     public function testToXmlArrayOfTypes() {
         $items = ['item' => [
-            Converter::toObject($this->createXmlItem(1)),
+            (object) $this->createXmlItem(1),
             $this->createXmlItem(2),
-            Converter::toObject($this->createXmlItem(3))
+            (object) $this->createXmlItem(3)
         ]];
 
         $expected  = '<?xml version="1.0" encoding="utf-8"?><root>';
@@ -384,31 +361,6 @@ class ConverterTest extends TestCase {
         $this->assertXmlStringEqualsXmlString($expected, Converter::toXml($data));
 
         $this->assertEquals($data, Converter::xmlToArray(new SimpleXMLElement($expected)));
-    }
-
-    public function testBuildArrayObject() {
-        $array = ['one' => 1];
-        $object = new \stdClass();
-        $object->one = 1;
-
-        $this->assertEquals($array, Converter::toArray($object));
-        $this->assertEquals($object, Converter::toObject($array));
-
-        $array['one'] = ['two' => 2];
-        $level = new \stdClass();
-        $level->two = 2;
-        $object->one = $level;
-
-        $this->assertEquals($array, Converter::toArray($object));
-        $this->assertEquals($object, Converter::toObject($array));
-
-        $array['one']['two'] = ['three' => 3];
-        $level = new \stdClass();
-        $level->three = 3;
-        $object->one->two = $level;
-
-        $this->assertEquals($array, Converter::toArray($object));
-        $this->assertEquals($object, Converter::toObject($array));
     }
 
     public function testXmlToArrayNone() {
@@ -451,8 +403,8 @@ class ConverterTest extends TestCase {
     <mana>100</mana>
     <stamina>15</stamina>
     <vitality>20</vitality>
-    <dexterity></dexterity>
-    <agility></agility>
+    <dexterity/>
+    <agility/>
     <armors>
         <armor>Helmet</armor>
         <armor>Shoulder Plates</armor>
@@ -545,8 +497,8 @@ XML;
     <mana max="250">100</mana>
     <stamina>15</stamina>
     <vitality>20</vitality>
-    <dexterity evade="5%" block="10%"></dexterity>
-    <agility turnRate="1.25" acceleration="5"></agility>
+    <dexterity evade="5%" block="10%"/>
+    <agility turnRate="1.25" acceleration="5"/>
     <armors>
         <armor defense="15">Helmet</armor>
         <armor defense="25">Shoulder Plates</armor>
@@ -669,8 +621,8 @@ XML;
     <mana max="250">100</mana>
     <stamina>15</stamina>
     <vitality>20</vitality>
-    <dexterity evade="5%" block="10%"></dexterity>
-    <agility turnRate="1.25" acceleration="5"></agility>
+    <dexterity evade="5%" block="10%"/>
+    <agility turnRate="1.25" acceleration="5"/>
     <armors items="6">
         <armor defense="15">Helmet</armor>
         <armor defense="25">Shoulder Plates</armor>

@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -98,7 +98,7 @@ class Converter {
         }
 
         // Check within macros
-        foreach (static::macros() as $key => $macro) {
+        foreach (static::getMacros() as $key => $macro) {
             if (preg_match('/^is/', $key) && $macro($data)) {
                 return strtolower(preg_replace('/^is/', '', $key));
             }
@@ -234,35 +234,6 @@ class Converter {
     }
 
     /**
-     * Transforms a resource into an object.
-     *
-     * @param mixed $resource
-     * @param bool $recursive
-     * @return object
-     */
-    public static function toObject(mixed $resource, bool $recursive = false) { // @todo no object type hint
-        if (static::isObject($resource)) {
-            if (!$recursive) {
-                return $resource;
-            }
-
-        } else if (static::isArray($resource)) {
-            // Continue
-
-        } else if (static::isJson($resource)) {
-            $resource = json_decode($resource, true);
-
-        } else if (static::isSerialized($resource)) {
-            $resource = unserialize($resource);
-
-        } else if (static::isXml($resource)) {
-            $resource = static::xmlToArray(simplexml_load_string($resource));
-        }
-
-        return static::buildObject($resource);
-    }
-
-    /**
      * Transforms a resource into a serialized form.
      *
      * @param mixed $resource
@@ -308,32 +279,16 @@ class Converter {
         foreach ($object as $key => $value) {
             if (is_object($value) || is_array($value)) {
                 $array[$key] = static::buildArray($value);
+
+            } else if ($value instanceof Collection) {
+                $array[$key] = $value->toArray();
+
             } else {
                 $array[$key] = static::autobox($value);
             }
         }
 
         return $array;
-    }
-
-    /**
-     * Turn an array into an object. Alternative to array_map magic.
-     *
-     * @param array|object $array
-     * @return object
-     */
-    public static function buildObject(mixed $array) { // @todo no object type hint
-        $obj = new \stdClass();
-
-        foreach ($array as $key => $value) {
-            if (is_array($value) || is_object($value)) {
-                $obj->{$key} = static::buildObject($value);
-            } else {
-                $obj->{$key} = static::autobox($value);
-            }
-        }
-
-        return $obj;
     }
 
     /**
@@ -344,66 +299,68 @@ class Converter {
      * @return \SimpleXMLElement
      */
     public static function buildXml(SimpleXMLElement &$xml, array $array): SimpleXmlElement {
-        if (is_array($array)) {
-            foreach ($array as $key => $value) {
+        if (!is_array($array)) {
+            return $xml;
+        }
 
-                // XML_NONE
-                if (!is_array($value)) {
-                    $xml->addChild($key, static::unbox($value));
-                    continue;
+        foreach ($array as $key => $value) {
+
+            // XML_NONE
+            if (!is_array($value)) {
+                $xml->addChild($key, static::unbox($value));
+                continue;
+            }
+
+            // Multiple nodes of the same name
+            if (Traverse::isNumeric(new Vector(array_keys($value)))) {
+                foreach ($value as $kValue) {
+                    if (is_array($kValue)) {
+                        static::buildXml($xml, [$key => $kValue]);
+                    } else {
+                        $xml->addChild($key, static::unbox($kValue));
+                    }
                 }
 
-                // Multiple nodes of the same name
-                if (Traverse::isNumeric(array_keys($value))) {
-                    foreach ($value as $kValue) {
-                        if (is_array($kValue)) {
-                            static::buildXml($xml, [$key => $kValue]);
-                        } else {
-                            $xml->addChild($key, static::unbox($kValue));
-                        }
-                    }
+            // XML_GROUP
+            } else if (isset($value['attributes'])) {
+                if (!isset($value['value'])) {
+                    $value['value'] = null;
+                }
 
-                // XML_GROUP
-                } else if (isset($value['attributes'])) {
-                    if (!isset($value['value'])) {
-                        $value['value'] = null;
-                    }
-
-                    if (is_array($value['value'])) {
-                        $node = $xml->addChild($key);
-                        static::buildXml($node, $value['value']);
-                    } else {
-                        $node = $xml->addChild($key, static::unbox($value['value']));
-                    }
-
-                    if (!empty($value['attributes'])) {
-                        foreach ($value['attributes'] as $aKey => $aValue) {
-                            $node->addAttribute($aKey, static::unbox($aValue));
-                        }
-                    }
-
-                // XML_MERGE
-                } else if (isset($value['value'])) {
-                    $node = $xml->addChild($key, $value['value']);
-                    unset($value['value']);
-
-                    if (!empty($value)) {
-                        foreach ($value as $aKey => $aValue) {
-                            $node->addAttribute($aKey, static::unbox($aValue));
-                        }
-                    }
-
-                // XML_ATTRIBS
-                } else {
+                if (is_array($value['value'])) {
                     $node = $xml->addChild($key);
+                    static::buildXml($node, $value['value']);
+                } else {
+                    $node = $xml->addChild($key, static::unbox($value['value']));
+                }
 
-                    if (!empty($value)) {
-                        foreach ($value as $aKey => $aValue) {
-                            if (is_array($aValue)) {
-                                static::buildXml($node, [$aKey => $aValue]);
-                            } else {
-                                $node->addChild($aKey, static::unbox($aValue));
-                            }
+                if (!empty($value['attributes'])) {
+                    foreach ($value['attributes'] as $aKey => $aValue) {
+                        $node->addAttribute($aKey, static::unbox($aValue));
+                    }
+                }
+
+            // XML_MERGE
+            } else if (isset($value['value'])) {
+                $node = $xml->addChild($key, $value['value']);
+                unset($value['value']);
+
+                if (!empty($value)) {
+                    foreach ($value as $aKey => $aValue) {
+                        $node->addAttribute($aKey, static::unbox($aValue));
+                    }
+                }
+
+            // XML_ATTRIBS
+            } else {
+                $node = $xml->addChild($key);
+
+                if (!empty($value)) {
+                    foreach ($value as $aKey => $aValue) {
+                        if (is_array($aValue)) {
+                            static::buildXml($node, [$aKey => $aValue]);
+                        } else {
+                            $node->addChild($aKey, static::unbox($aValue));
                         }
                     }
                 }
@@ -420,7 +377,7 @@ class Converter {
      * @param int $format
      * @return array
      */
-    public static function xmlToArray(SimpleXMLElement $xml, int $format = self::XML_GROUP): array {
+    public static function xmlToArray(SimpleXMLElement $xml, int $format = self::XML_GROUP): mixed {
         if (count($xml->children()) <= 0) {
             return static::autobox((string) $xml);
         }

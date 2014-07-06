@@ -1,5 +1,5 @@
 <div class="titon-debug titon-error">
-    <?hh
+    <?hh //strict
     $backtrace = static::backtrace($exception);
     $class = get_class($exception); ?>
 

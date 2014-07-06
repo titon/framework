@@ -1,8 +1,7 @@
-<?php
+<?hh
 namespace Titon\Common;
 
 use Titon\Common\Bag\ConfigBag;
-use Titon\Common\Base;
 use Titon\Utility\Registry;
 use Titon\Test\TestCase;
 
@@ -16,18 +15,18 @@ class AttachableTest extends TestCase {
 
         $this->object = new AttachableStub();
 
-        // by closure
+        // By closure
         $this->object->attachObject('base', function() {
             return new Base();
         });
 
-        // by class
-        $this->object->attachObject([
+        // By class
+        $this->object->attachObject(Map {
             'alias' => 'config',
             'class' => 'Titon\Utility\Config'
-        ]);
+        });
 
-        // by property
+        // By property
         $this->object->registry = function() {
             return new Registry();
         };
@@ -40,11 +39,11 @@ class AttachableTest extends TestCase {
     }
 
     public function testAttachObjectWithInterface() {
-        $this->object->attachObject([
+        $this->object->attachObject(Map {
             'alias' => 'bag',
             'class' => 'Titon\Common\Bag\ConfigBag',
-            'interface' => 'ArrayAccess'
-        ]);
+            'interface' => 'Titon\Common\Bag'
+        });
 
         $this->assertInstanceOf('Titon\Common\Bag\ConfigBag', $this->object->bag);
     }
@@ -53,22 +52,22 @@ class AttachableTest extends TestCase {
      * @expectedException \Titon\Common\Exception\UnsupportedInterfaceException
      */
     public function testAttachObjectWithInterfaceFails() {
-        $this->object->attachObject([
+        $this->object->attachObject(Map {
             'alias' => 'bag',
             'interface' => 'Iterator',
-        ], function() {
-            return new ConfigBag([]);
+        }, function() {
+            return new ConfigBag(Map {});
         });
 
         $this->assertInstanceOf('Titon\Common\Bag\ConfigBag', $this->object->bag);
     }
 
     public function testAttachObjectNoRegistry() {
-        $this->object->attachObject([
+        $this->object->attachObject(Map {
             'alias' => 'bag',
             'class' => 'Titon\Common\Bag\ConfigBag',
             'register' => false
-        ]);
+        });
 
         $this->assertInstanceOf('Titon\Common\Bag\ConfigBag', $this->object->bag);
     }
@@ -77,14 +76,14 @@ class AttachableTest extends TestCase {
      * @expectedException \Titon\Common\Exception\InvalidObjectException
      */
     public function testAttachObjectErrorsNoAlias() {
-        $this->object->attachObject(['class' => 'Titon\Common\Base']);
+        $this->object->attachObject(Map {'class' => 'Titon\Common\Base'});
     }
 
     /**
      * @expectedException \Titon\Common\Exception\InvalidObjectException
      */
     public function testAttachObjectErrorsNoClass() {
-        $this->object->attachObject(['alias' => 'something']);
+        $this->object->attachObject(Map {'alias' => 'something'});
     }
 
     public function testDetachObject() {
@@ -136,14 +135,14 @@ class AttachableTest extends TestCase {
         $this->assertEquals(1, $this->object->mock3->count);
 
         // Restrict and call with argument
-        $this->object->restrictObject('mock3');
+        $this->object->restrictObjects(Vector {'mock3'});
         $this->object->notifyObjects('doNotify', [3]);
         $this->assertEquals(4, $this->object->mock1->count);
         $this->assertEquals(4, $this->object->mock2->count);
         $this->assertEquals(1, $this->object->mock3->count);
 
         // Allow
-        $this->object->allowObject('mock3');
+        $this->object->allowObjects(Vector {'mock3'});
         $this->object->notifyObjects('doNotify', [1]);
         $this->assertEquals(5, $this->object->mock1->count);
         $this->assertEquals(5, $this->object->mock2->count);

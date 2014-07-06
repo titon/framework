@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Common;
 
 use Titon\Common\Bag\AbstractBag;
@@ -7,17 +7,18 @@ use Titon\Test\TestCase;
 /**
  * @property \Titon\Common\BagStub $object
  */
-class ParamAugmentTest extends TestCase {
+class BagTest extends TestCase {
 
-    protected $defaults = [
+    protected $defaults = Map {
         'boolean' => true,
         'integer' => 12345,
         'string' => 'foobar',
         'float' => 50.25,
-        'array' => [
+        'map' => Map {
             'key' => 'value'
-        ]
-    ];
+        },
+        'vector' => Vector {1, 2, 3}
+    };
 
     protected function setUp() {
         parent::setUp();
@@ -26,10 +27,10 @@ class ParamAugmentTest extends TestCase {
     }
 
     public function testAdd() {
-        $this->object->add([
+        $this->object->add(Map {
             'boolean' => false,
             'foo' => 'bar'
-        ]);
+        });
 
         $defaults = $this->defaults;
         $defaults['boolean'] = false;
@@ -45,29 +46,25 @@ class ParamAugmentTest extends TestCase {
     public function testGet() {
         $this->assertEquals(true, $this->object->boolean);
         $this->assertEquals(true, $this->object->get('boolean'));
-        $this->assertEquals(true, $this->object['boolean']);
         $this->object->boolean = false;
         $this->assertEquals(false, $this->object->get('boolean'));
 
         $this->assertEquals('foobar', $this->object->string);
         $this->assertEquals('foobar', $this->object->get('string'));
-        $this->assertEquals('foobar', $this->object['string']);
         $this->object->string = 'barbaz';
         $this->assertEquals('barbaz', $this->object->get('string'));
 
-        // Can't use object notation for nested
-        // Nor can you set values on nested using array access
-        $this->assertEquals('value', $this->object->get('array.key'));
-        $this->assertEquals('value', $this->object['array']['key']);
-        $this->object->set('array.key', 'var');
-        $this->assertEquals('var', $this->object['array']['key']);
+        $this->assertEquals('value', $this->object->get('map.key'));
+        $this->assertEquals('value', $this->object->get('map')->get('key'));
+        $this->object->set('map.key', 'var');
+        $this->assertEquals('var', $this->object->get('map')->get('key'));
 
         // Missing key returns null
         $this->assertEquals(null, $this->object->get('fakeKey'));
     }
 
     public function testKeys() {
-        $this->assertEquals(['boolean', 'integer', 'string', 'float', 'array'], $this->object->keys());
+        $this->assertEquals(Vector {'boolean', 'integer', 'string', 'float', 'map', 'vector'}, $this->object->keys());
     }
 
     public function testSet() {
@@ -86,11 +83,11 @@ class ParamAugmentTest extends TestCase {
         $this->object->string = 'string';
         $this->assertEquals('string', $this->object->string);
 
-        $this->object->set('array.key', 50);
-        $this->assertEquals('50', $this->object['array']['key']);
+        $this->object->set('map.key', 50);
+        $this->assertEquals('50', $this->object->get('map.key'));
 
-        $this->object->set('array.key', true);
-        $this->assertEquals('1', $this->object['array']['key']);
+        $this->object->set('map.key', true);
+        $this->assertEquals('1', $this->object->get('map.key'));
 
         $this->object->set('array', ['foo', 'bar']);
         $this->assertEquals(['foo', 'bar'], $this->object->array);
@@ -103,27 +100,30 @@ class ParamAugmentTest extends TestCase {
         $this->assertTrue($this->object->has('integer'));
         $this->assertTrue(isset($this->object->integer));
 
-        $this->assertTrue($this->object->has('array.key'));
-        $this->assertTrue(isset($this->object['array']['key']));
+        $this->assertTrue($this->object->has('map.key'));
 
         $this->assertFalse($this->object->has('fakeKey'));
         $this->assertFalse(isset($this->object->fakeKey));
     }
 
     public function testRemove() {
-        $this->object->remove('string')->remove('array');
-        $this->assertEquals([
+        $this->object->remove('string')->remove('map');
+        $this->assertEquals(Map {
             'boolean' => true,
             'integer' => 12345,
-            'float' => 50.25
-        ], $this->object->all());
+            'float' => 50.25,
+            'vector' => Vector {1, 2, 3}
+        }, $this->object->all());
 
-        unset($this->object->float, $this->object['boolean']);
-        $this->assertEquals(['integer' => 12345], $this->object->all());
+        unset($this->object->float, $this->object->boolean);
+        $this->assertEquals(Map {
+            'integer' => 12345,
+            'vector' => Vector {1, 2, 3}
+        }, $this->object->all());
     }
 
     public function testIterator() {
-        $config = [];
+        $config = Map {};
 
         foreach ($this->object as $key => $value) {
             $config[$key] = $value;
@@ -133,10 +133,11 @@ class ParamAugmentTest extends TestCase {
     }
 
     public function testCount() {
-        $this->assertEquals(5, $this->object->count());
+        $this->assertEquals(6, $this->object->count());
 
         unset($this->object->string);
-        $this->assertEquals(4, $this->object->count());
+
+        $this->assertEquals(5, $this->object->count());
     }
 
 }

@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -24,24 +24,22 @@ class Base implements Serializable, JsonSerializable {
     /**
      * An array of configuration settings for the current class.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_config = ['initialize' => true];
+    protected Map<string, mixed> $_config = Map {'initialize' => true};
 
     /**
      * Merges the custom configuration with the defaults.
      * Trigger initialize method if setting is true.
      *
-     * @uses Titon\Utility\Hash
-     *
-     * @param array $config
+     * @param Map<string, mixed> $config
      */
-    public function __construct(array $config = []) {
-//        $this->applyConfig($config);
-//
-//        if ($this->getConfig('initialize')) {
-//            $this->initialize();
-//        }
+    public function __construct(Map<string, mixed> $config = Map {}) {
+        $this->applyConfig($config);
+
+        if ($this->getConfig('initialize')) {
+            $this->initialize();
+        }
     }
 
     /**
@@ -49,7 +47,7 @@ class Base implements Serializable, JsonSerializable {
      *
      * @return string
      */
-    public function __toString() {
+    public function __toString(): string {
         return $this->toString();
     }
 
@@ -58,39 +56,42 @@ class Base implements Serializable, JsonSerializable {
      *
      * @return string
      */
-    public function serialize() {
+    public function serialize(): string {
         return serialize($this->allConfig());
     }
 
     /**
      * Reconstruct the class once unserialized.
      *
-     * @param array $data
+     * todo - Type hinting here causes fatal errors, dono why.
+     * https://github.com/facebook/hhvm/blob/4916e5ad093e71f615e6a6db3d213e1ff62bb0b1/hphp/hack/hhi/interfaces.hhi#L102
+     *
+     * @param string $serialized
      */
-    public function unserialize($data) {
-        $this->__construct(unserialize($data));
+    public function unserialize($serialized): void {
+        $this->__construct(new Map(unserialize($serialized)));
     }
 
     /**
      * Return the values for JSON serialization.
      *
-     * @return array
+     * @return mixed
      */
-    public function jsonSerialize() {
-        return $this->allConfig();
+    public function jsonSerialize(): mixed {
+        return $this->allConfig()->toArray();
     }
 
     /**
      * Primary initialize method that is triggered during instantiation.
      */
-    public function initialize() {
+    public function initialize(): void {
         return;
     }
 
     /**
      * A dummy function for no operation.
      */
-    public function noop() {
+    public function noop(): void {
         return;
     }
 
@@ -99,8 +100,8 @@ class Base implements Serializable, JsonSerializable {
      *
      * @return string
      */
-    public function toString() {
-        return get_class($this);
+    public function toString(): string {
+        return static::class;
     }
 
 }

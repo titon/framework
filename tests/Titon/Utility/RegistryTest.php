@@ -8,16 +8,16 @@ class RegistryTest extends TestCase {
 
     public function testAll() {
         $base = new Base();
-        //$config = new Config();
+        $config = new Config();
         $registry = new Registry();
 
         Registry::set($base);
-        //Registry::set($config);
+        Registry::set($config);
         Registry::set($registry);
 
         $this->assertEquals(new Map([
             'Titon\Common\Base' => $base,
-            //'Titon\Utility\Config' => $config,
+            'Titon\Utility\Config' => $config,
             'Titon\Utility\Registry' => $registry
         ]), Registry::all());
     }
@@ -89,7 +89,7 @@ class RegistryTest extends TestCase {
 
     public function testRegisterAndGet() {
         Registry::register('base', function() {
-            return new Base(['key' => 'registry']);
+            return new Base(Map {'key' => 'registry'});
         });
 
         $object = Registry::get('base');

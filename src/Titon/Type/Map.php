@@ -14,7 +14,6 @@ use Titon\Type\Exception\InvalidFormatException;
 use Titon\Utility\Converter;
 use Titon\Utility\Hash;
 use \Closure;
-use \ArrayAccess;
 use \ArrayIterator;
 use \IteratorAggregate;
 use \Countable;
@@ -25,7 +24,7 @@ use \Countable;
  *
  * @package Titon\Type
  */
-class Map extends Type implements ArrayAccess, Countable, IteratorAggregate, Arrayable, Jsonable, Xmlable {
+class Map extends Type implements Countable, IteratorAggregate, Arrayable, Jsonable, Xmlable {
 
     /**
      * Add a value to the end of the array. This does not support literal keys.
@@ -994,51 +993,6 @@ class Map extends Type implements ArrayAccess, Countable, IteratorAggregate, Arr
      */
     public function write($value) {
         return parent::write((array) $value);
-    }
-
-    /**
-     * ArrayAccess: Checking if a key/index exists.
-     *
-     * @param string $key
-     * @return bool
-     */
-    public function offsetExists($key) {
-        return $this->has($key);
-    }
-
-    /**
-     * ArrayAccess: Getting a value based on key.
-     *
-     * @param string $key
-     * @return bool
-     */
-    public function offsetGet($key) {
-        return $this->get($key);
-    }
-
-    /**
-     * ArrayAccess: Setting a value.
-     *
-     * @param string $key
-     * @param string $value
-     * @return bool
-     */
-    public function offsetSet($key, $value) {
-        if ($key === null) {
-            $this->append($value);
-        } else {
-            $this->set($key, $value);
-        }
-    }
-
-    /**
-     * ArrayAccess: Deleting an array index.
-     *
-     * @param string $key
-     * @return bool
-     */
-    public function offsetUnset($key) {
-        $this->remove($key);
     }
 
     /**

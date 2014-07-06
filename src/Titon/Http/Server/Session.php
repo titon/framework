@@ -15,7 +15,6 @@ use Titon\Utility\Config;
 use Titon\Utility\Hash;
 use Titon\Utility\Time;
 use \SessionHandlerInterface;
-use \ArrayAccess;
 use \IteratorAggregate;
 use \Countable;
 
@@ -25,7 +24,7 @@ use \Countable;
  *
  * @package Titon\Http\Server
  */
-class Session extends Base implements ArrayAccess, IteratorAggregate, Countable {
+class Session extends Base implements IteratorAggregate, Countable {
     use Mutable, RequestAware;
 
     /**

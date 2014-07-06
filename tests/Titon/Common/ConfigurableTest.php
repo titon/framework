@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Common;
 
 use Titon\Common\Base;
@@ -16,31 +16,31 @@ class ConfigurableTest extends TestCase {
     }
 
     public function testApplyAndAllConfig() {
-        $this->assertEquals(['initialize' => true, 'foo' => 'bar', 'cfg' => true], $this->object->allConfig());
+        $this->assertEquals(Map {'initialize' => true, 'foo' => 'bar', 'cfg' => true}, $this->object->allConfig());
     }
 
     public function testAddAllConfig() {
         $this->object->setConfig('foo', 'bar');
         $this->object->setConfig('key', 'value');
 
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'initialize' => true,
             'foo' => 'bar',
             'cfg' => true,
             'key' => 'value'
-        ], $this->object->allConfig());
+        }, $this->object->allConfig());
 
-        $this->object->addConfig([
+        $this->object->addConfig(Map {
             'foo' => 'baz',
             'cfg' => false
-        ]);
+        });
 
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'initialize' => true,
             'foo' => 'baz',
             'cfg' => false,
             'key' => 'value'
-        ], $this->object->allConfig());
+        }, $this->object->allConfig());
     }
 
     public function testGetSetConfig() {
@@ -50,7 +50,7 @@ class ConfigurableTest extends TestCase {
 
         $this->assertEquals(null, $this->object->getConfig('key'));
         $this->object->setConfig('key.key', 'value');
-        $this->assertEquals(['key' => 'value'], $this->object->getConfig('key'));
+        $this->assertEquals(Map {'key' => 'value'}, $this->object->getConfig('key'));
     }
 
     public function testHasRemoveConfig() {
@@ -66,8 +66,9 @@ class ConfigurableTest extends TestCase {
 class ConfigurableStub extends Base {
     use Configurable;
 
-    protected $_config = array(
+    protected Map<string, mixed> $_config = Map {
         'foo' => 'bar',
         'cfg' => true
-    );
+    };
+
 }

@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Common;
 
 use Titon\Test\TestCase;
@@ -20,7 +20,7 @@ class BaseTest extends TestCase {
     }
 
     public function testSerialize() {
-        $this->assertEquals('a:1:{s:10:"initialize";b:1;}', $this->object->serialize());
+        $this->assertEquals('K:6:"HH\Map":1:{s:10:"initialize";b:1;}', $this->object->serialize());
         $this->assertEquals(['initialize' => true], $this->object->jsonSerialize());
     }
 
@@ -30,9 +30,9 @@ class BaseTest extends TestCase {
     }
 
     public function testUnserialize() {
-        $this->object->unserialize('a:1:{s:10:"initialize";b:1;}');
+        $this->object->unserialize('a:1:{s:10:"initialize";b:0;}');
 
-        $this->assertEquals(['initialize' => true], $this->object->allConfig());
+        $this->assertEquals(Map {'initialize' => false}, $this->object->allConfig());
     }
 
     public function testNoop() {

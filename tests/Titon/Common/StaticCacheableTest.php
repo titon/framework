@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Common;
 
 use Titon\Common\Base;
@@ -41,9 +41,9 @@ class StaticCacheableTest extends TestCase {
     }
 
     public function testFlushCache() {
-        $this->assertEquals(['key' => 'value'], StaticCacheableStub::allCache());
+        $this->assertEquals(Map {'key' => 'value'}, StaticCacheableStub::allCache());
         StaticCacheableStub::flushCache();
-        $this->assertEquals([], StaticCacheableStub::allCache());
+        $this->assertEquals(Map {}, StaticCacheableStub::allCache());
     }
 
     public function testGetCache() {
@@ -53,10 +53,10 @@ class StaticCacheableTest extends TestCase {
         StaticCacheableStub::setCache('foo', 'bar');
         $this->assertEquals('bar', StaticCacheableStub::getCache('foo'));
 
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'key' => 'value',
             'foo' => 'bar'
-        ], StaticCacheableStub::allCache());
+        }, StaticCacheableStub::allCache());
     }
 
     public function testHasCache() {
@@ -68,17 +68,17 @@ class StaticCacheableTest extends TestCase {
         StaticCacheableStub::removeCache('key');
         StaticCacheableStub::removeCache('foo');
 
-        $this->assertEquals([], StaticCacheableStub::allCache());
+        $this->assertEquals(Map {}, StaticCacheableStub::allCache());
     }
 
     public function testSetCache() {
         $this->assertEquals('bar', StaticCacheableStub::setCache('foo', 'bar'));
         $this->assertEquals(12345, StaticCacheableStub::setCache('key', 12345));
 
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'key' => 12345,
             'foo' => 'bar'
-        ], StaticCacheableStub::allCache());
+        }, StaticCacheableStub::allCache());
     }
 
 }

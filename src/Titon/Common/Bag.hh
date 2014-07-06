@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2014, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -17,24 +17,24 @@ interface Bag {
     /**
      * Add multiple parameters that will overwrite any previously defined parameters.
      *
-     * @param array $data
+     * @param Map<string, mixed> $data
      * @return $this
      */
-    public function add(array $data);
+    public function add(Map<string, mixed> $data): this;
 
     /**
      * Return all parameters and their values within the bag.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function all();
+    public function all(): this;
 
     /**
      * Remove all values within the bag.
      *
      * @return $this
      */
-    public function flush();
+    public function flush(): this;
 
     /**
      * Return a value defined by key, or by dot notated path.
@@ -43,19 +43,19 @@ interface Bag {
      *
      * @param string $key
      * @param mixed $default
-     * @return string
+     * @return mixed
      */
-    public function get($key, $default = null);
+    public function get(string $key, ?mixed $default = null): ?mixed;
 
     /**
      * Set a value defined by key. Can pass in a dot notated path
      * to insert into a nested structure.
      *
      * @param string $key
-     * @param string $value
+     * @param mixed $value
      * @return $this
      */
-    public function set($key, $value);
+    public function set(string $key, ?mixed $value): this;
 
     /**
      * Check if a key exists within the bag.
@@ -64,7 +64,7 @@ interface Bag {
      * @param string $key
      * @return bool
      */
-    public function has($key);
+    public function has(string $key): bool;
 
     /**
      * Remove a value defined by key, or dot notated path.
@@ -72,6 +72,6 @@ interface Bag {
      * @param string $key
      * @return $this
      */
-    public function remove($key);
+    public function remove(string $key): this;
 
 }

@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -20,23 +20,23 @@ trait Cacheable {
     /**
      * Cached items indexed by key.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_cache = [];
+    protected Map<string, mixed> $_cache = Map {};
 
     /**
      * Is cache on or off?
      *
      * @type bool
      */
-    private $__cacheEnabled = true;
+    private bool $__cacheEnabled = true;
 
     /**
      * Return all the current cached items.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function allCache() {
+    public function allCache(): Map<string, mixed> {
         return $this->_cache;
     }
 
@@ -48,7 +48,7 @@ trait Cacheable {
      * @param mixed|\Closure $value
      * @return mixed
      */
-    public function cache($key, $value) {
+    public function cache(mixed $key, ?mixed $value): ?mixed {
         $key = $this->createCacheKey($key);
 
         if ($cache = $this->getCache($key)) {
@@ -72,7 +72,7 @@ trait Cacheable {
      * @param string|array $keys
      * @return string
      */
-    public function createCacheKey($keys) {
+    public function createCacheKey(mixed $keys): string {
         if (is_array($keys)) {
             $key = array_shift($keys);
 
@@ -97,8 +97,8 @@ trait Cacheable {
      *
      * @return $this
      */
-    public function flushCache() {
-        $this->_cache = [];
+    public function flushCache(): void {
+        $this->_cache->clear();
 
         return $this;
     }
@@ -109,7 +109,7 @@ trait Cacheable {
      * @param string|array $key
      * @return mixed
      */
-    public function getCache($key) {
+    public function getCache(mixed $key): ?mixed {
         if (!$this->__cacheEnabled) {
             return null;
         }
@@ -117,7 +117,7 @@ trait Cacheable {
         $key = $this->createCacheKey($key);
 
         if ($this->hasCache($key)) {
-            return $this->_cache[$key];
+            return $this->_cache->get($key);
         }
 
         return null;
@@ -129,8 +129,8 @@ trait Cacheable {
      * @param string|array $key
      * @return bool
      */
-    public function hasCache($key) {
-        return isset($this->_cache[$this->createCacheKey($key)]);
+    public function hasCache(mixed $key): bool {
+        return $this->_cache->contains($this->createCacheKey($key));
     }
 
     /**
@@ -139,8 +139,8 @@ trait Cacheable {
      * @param string|array $key
      * @return $this
      */
-    public function removeCache($key) {
-        unset($this->_cache[$this->createCacheKey($key)]);
+    public function removeCache(mixed $key): this {
+        $this->_cache->remove($this->createCacheKey($key));
 
         return $this;
     }
@@ -154,8 +154,8 @@ trait Cacheable {
      * @param mixed $value
      * @return mixed
      */
-    public function setCache($key, $value) {
-        $this->_cache[$this->createCacheKey($key)] = $value;
+    public function setCache(mixed $key, ?mixed $value): ?mixed {
+        $this->_cache->set($this->createCacheKey($key), $value);
 
         return $value;
     }
@@ -166,8 +166,8 @@ trait Cacheable {
      * @param bool $on
      * @return $this
      */
-    public function toggleCache($on = true) {
-        $this->__cacheEnabled = (bool) $on;
+    public function toggleCache(bool $on = true): this {
+        $this->__cacheEnabled = $on;
 
         return $this;
     }

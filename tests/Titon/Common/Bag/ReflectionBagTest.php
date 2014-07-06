@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Common\Bag;
 
 use Titon\Common\Base;
@@ -49,118 +49,118 @@ class ReflectionBagTest extends TestCase {
     }
 
     public function testMethods() {
-        $methods = [
+        $methods = Vector {
             'publicMethod', 'protectedMethod', 'privateMethod', 'staticPublicMethod', 'staticProtectedMethod', 'staticPrivateMethod',
             'serialize', 'unserialize', 'jsonSerialize', 'initialize', 'noop', 'toString', '__toString', '__construct', 'allCache',
             'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
             'addConfig', 'allConfig', 'applyConfig', 'setConfig', 'getConfig', 'getConfigBag', 'removeConfig', 'hasConfig',
             'reflect', 'getReflectionBag'
-        ];
+        };
 
-        $this->assertArraysEqual($methods, $this->object->methods);
-        $this->assertArraysEqual($methods, $this->object->methods());
+        $this->assertVectorsEqual($methods, $this->object->methods);
+        $this->assertVectorsEqual($methods, $this->object->methods());
     }
 
     public function testPublicMethods() {
-        $methods = [
+        $methods = Vector {
             'publicMethod', 'staticPublicMethod',
             'serialize', 'unserialize', 'jsonSerialize', 'initialize', 'noop', 'toString', '__toString', '__construct', 'allCache',
             'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
             'addConfig', 'allConfig', 'applyConfig', 'setConfig', 'getConfig', 'getConfigBag', 'removeConfig', 'hasConfig',
             'reflect', 'getReflectionBag'
-        ];
+        };
 
-        $this->assertArraysEqual($methods, $this->object->publicMethods);
-        $this->assertArraysEqual($methods, $this->object->publicMethods());
+        $this->assertVectorsEqual($methods, $this->object->publicMethods);
+        $this->assertVectorsEqual($methods, $this->object->publicMethods());
     }
 
     public function testProtectedMethods() {
-        $methods = ['protectedMethod', 'staticProtectedMethod'];
+        $methods = Vector {'protectedMethod', 'staticProtectedMethod'};
 
-        $this->assertArraysEqual($methods, $this->object->protectedMethods);
-        $this->assertArraysEqual($methods, $this->object->protectedMethods());
+        $this->assertVectorsEqual($methods, $this->object->protectedMethods);
+        $this->assertVectorsEqual($methods, $this->object->protectedMethods());
     }
 
     public function testPrivateMethods() {
-        $methods = ['privateMethod', 'staticPrivateMethod'];
+        $methods = Vector {'privateMethod', 'staticPrivateMethod'};
 
-        $this->assertArraysEqual($methods, $this->object->privateMethods);
-        $this->assertArraysEqual($methods, $this->object->privateMethods());
+        $this->assertVectorsEqual($methods, $this->object->privateMethods);
+        $this->assertVectorsEqual($methods, $this->object->privateMethods());
     }
 
     public function testStaticMethods() {
-        $methods = ['staticPublicMethod', 'staticProtectedMethod', 'staticPrivateMethod'];
+        $methods = Vector {'staticPublicMethod', 'staticProtectedMethod', 'staticPrivateMethod'};
 
-        $this->assertArraysEqual($methods, $this->object->staticMethods);
-        $this->assertArraysEqual($methods, $this->object->staticMethods());
+        $this->assertVectorsEqual($methods, $this->object->staticMethods);
+        $this->assertVectorsEqual($methods, $this->object->staticMethods());
     }
 
     public function testProperties() {
-        $props = [
+        $props = Vector {
             'publicProp', 'protectedProp', 'privateProp', 'staticPublicProp', 'staticProtectedProp', 'staticPrivateProp',
             '_config', '_cache', '__cacheEnabled'
-        ];
+        };
 
-        $this->assertArraysEqual($props, $this->object->properties);
-        $this->assertArraysEqual($props, $this->object->properties());
+        $this->assertVectorsEqual($props, $this->object->properties);
+        $this->assertVectorsEqual($props, $this->object->properties());
     }
 
     public function testPublicProperties() {
-        $props = ['publicProp', 'staticPublicProp'];
+        $props = Vector {'publicProp', 'staticPublicProp'};
 
-        $this->assertArraysEqual($props, $this->object->publicProperties);
-        $this->assertArraysEqual($props, $this->object->publicProperties());
+        $this->assertVectorsEqual($props, $this->object->publicProperties);
+        $this->assertVectorsEqual($props, $this->object->publicProperties());
     }
 
     public function testProtectedProperties() {
-        $props = ['protectedProp', 'staticProtectedProp', '_config', '_cache'];
+        $props = Vector {'protectedProp', 'staticProtectedProp', '_config', '_cache'};
 
-        $this->assertArraysEqual($props, $this->object->protectedProperties);
-        $this->assertArraysEqual($props, $this->object->protectedProperties());
+        $this->assertVectorsEqual($props, $this->object->protectedProperties);
+        $this->assertVectorsEqual($props, $this->object->protectedProperties());
     }
 
     public function testPrivateProperties() {
-        $props = ['privateProp', 'staticPrivateProp', '__cacheEnabled'];
+        $props = Vector {'privateProp', 'staticPrivateProp', '__cacheEnabled'};
 
-        $this->assertArraysEqual($props, $this->object->privateProperties);
-        $this->assertArraysEqual($props, $this->object->privateProperties());
+        $this->assertVectorsEqual($props, $this->object->privateProperties);
+        $this->assertVectorsEqual($props, $this->object->privateProperties());
     }
 
     public function testStaticProperties() {
-        $props = ['staticPublicProp', 'staticProtectedProp', 'staticPrivateProp'];
+        $props = Vector {'staticPublicProp', 'staticProtectedProp', 'staticPrivateProp'};
 
-        $this->assertArraysEqual($props, $this->object->staticProperties);
-        $this->assertArraysEqual($props, $this->object->staticProperties());
+        $this->assertVectorsEqual($props, $this->object->staticProperties);
+        $this->assertVectorsEqual($props, $this->object->staticProperties());
     }
 
     public function testConstants() {
-        $constants = ['NO' => false, 'YES' => true];
+        $constants = Map {'NO' => false, 'YES' => true};
 
-        $this->assertArraysEqual($constants, $this->object->constants, true);
-        $this->assertArraysEqual($constants, $this->object->constants(), true);
+        $this->assertMapsEqual($constants, $this->object->constants, true);
+        $this->assertMapsEqual($constants, $this->object->constants(), true);
     }
 
     public function testTraits() {
-        $traits = [
+        $traits = Vector {
             'Titon\Common\Cacheable',
             'Titon\Common\Configurable',
             'Titon\Common\Reflectable'
-        ];
+        };
 
-        $this->assertArraysEqual($traits, $this->object->traits);
-        $this->assertArraysEqual($traits, $this->object->traits());
+        $this->assertVectorsEqual($traits, $this->object->traits);
+        $this->assertVectorsEqual($traits, $this->object->traits());
     }
 
     public function testInterfaces() {
-        $interfaces = ['Serializable', 'JsonSerializable'];
+        $interfaces = Vector {'Serializable', 'JsonSerializable'};
 
         // HHVM has a Stringish interface that defines __toString()
         if (defined('HHVM_VERSION')) {
             $interfaces[] = 'Stringish';
         }
 
-        $this->assertArraysEqual($interfaces, $this->object->interfaces);
-        $this->assertArraysEqual($interfaces, $this->object->interfaces());
+        $this->assertVectorsEqual($interfaces, $this->object->interfaces);
+        $this->assertVectorsEqual($interfaces, $this->object->interfaces());
     }
 
     public function testParent() {

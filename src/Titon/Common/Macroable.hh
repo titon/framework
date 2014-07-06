@@ -1,4 +1,9 @@
-<?hh
+<?hh // strict
+/**
+ * @copyright   2010-2013, The Titon Project
+ * @license     http://opensource.org/licenses/bsd-license.php
+ * @link        http://titon.io
+ */
 
 namespace Titon\Common;
 
@@ -7,6 +12,11 @@ use \Closure;
 
 type CallbackFunction = (function(): mixed);
 
+/**
+ * Provides a mechanism at runtime for defining static methods that can be triggered during __callStatic().
+ *
+ * @package Titon\Common
+ */
 trait Macroable {
 
     /**

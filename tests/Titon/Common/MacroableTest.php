@@ -1,9 +1,14 @@
 <?hh
-namespace Titon\Utility;
+namespace Titon\Common;
 
 use Titon\Test\TestCase;
+use Titon\Utility\Crypt;
+use Titon\Utility\Format;
+use Titon\Utility\Inflector;
+use Titon\Utility\Number;
+use Titon\Utility\Path;
 
-class MacroTest extends TestCase {
+class MacroableTest extends TestCase {
 
     public function testHasMacro() {
         $this->assertFalse(Number::hasMacro('toBinary'));
@@ -15,24 +20,14 @@ class MacroTest extends TestCase {
         $this->assertTrue(Number::hasMacro('toFloat'));
     }
 
-    public function testHasMethod() {
-        $this->assertTrue(Inflector::hasMethod('slug'));
-        $this->assertFalse(Inflector::hasMethod('slugify'));
-
-        Inflector::macro('slugify', function() {});
-
-        $this->assertTrue(Inflector::hasMethod('slug'));
-        $this->assertTrue(Inflector::hasMethod('slugify'));
-    }
-
     public function testInheritance() {
-        $this->assertFalse(Format::hasMethod('foobar'));
-        $this->assertFalse(Path::hasMethod('foobar'));
+        $this->assertFalse(Format::hasMacro('foobar'));
+        $this->assertFalse(Path::hasMacro('foobar'));
 
         Format::macro('foobar', function() {});
 
-        $this->assertTrue(Format::hasMethod('foobar'));
-        $this->assertFalse(Path::hasMethod('foobar'));
+        $this->assertTrue(Format::hasMacro('foobar'));
+        $this->assertFalse(Path::hasMacro('foobar'));
     }
 
     public function testMacro() {
@@ -50,7 +45,7 @@ class MacroTest extends TestCase {
         Inflector::lowers('foObAr');
     }
 
-    public function testMacros() {
+    public function testGetMacros() {
         $lower = function($value) {
             return strtolower($value);
         };
@@ -62,10 +57,10 @@ class MacroTest extends TestCase {
         Crypt::macro('lower', $lower);
         Crypt::macro('upper', $upper);
 
-        $this->assertEquals(new Map([
+        $this->assertEquals(Map {
             'lower' => $lower,
             'upper' => $upper
-        ]), Crypt::macros());
+        }, Crypt::getMacros());
     }
 
 }

@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Common\Bag;
 
 use Titon\Test\TestCase;
@@ -8,20 +8,21 @@ use Titon\Test\TestCase;
  */
 class ConfigBagTest extends TestCase {
 
-    protected $defaults = [
+    protected $defaults = Map {
         'boolean' => true,
         'integer' => 12345,
         'string' => 'foobar',
         'float' => 50.25,
-        'array' => [
+        'map' => Map {
             'key' => 'value'
-        ]
-    ];
+        },
+        'vector' => Vector {1, 2, 3}
+    };
 
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new ConfigBag([], $this->defaults);
+        $this->object = new ConfigBag(Map {}, $this->defaults);
     }
 
     public function testGetDefaults() {

@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Common;
 
 use Titon\Common\Base;
@@ -44,9 +44,9 @@ class CacheableTest extends TestCase {
     }
 
     public function testFlushCache() {
-        $this->assertEquals(['key' => 'value'], $this->object->allCache());
+        $this->assertEquals(Map {'key' => 'value'}, $this->object->allCache());
         $this->object->flushCache();
-        $this->assertEquals([], $this->object->allCache());
+        $this->assertEquals(Map {}, $this->object->allCache());
     }
 
     public function testGetCache() {
@@ -60,10 +60,10 @@ class CacheableTest extends TestCase {
         $this->assertEquals(null, $this->object->getCache('foo'));
 
         $this->object->toggleCache(true);
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'key' => 'value',
             'foo' => 'bar'
-        ], $this->object->allCache());
+        }, $this->object->allCache());
     }
 
     public function testHasCache() {
@@ -75,17 +75,17 @@ class CacheableTest extends TestCase {
         $this->object->removeCache('key');
         $this->object->removeCache('foo');
 
-        $this->assertEquals([], $this->object->allCache());
+        $this->assertEquals(Map {}, $this->object->allCache());
     }
 
     public function testSetCache() {
         $this->assertEquals('bar', $this->object->setCache('foo', 'bar'));
         $this->assertEquals(12345, $this->object->setCache('key', 12345));
 
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'key' => 12345,
             'foo' => 'bar'
-        ], $this->object->allCache());
+        }, $this->object->allCache());
     }
 
     public function testToggleCache() {

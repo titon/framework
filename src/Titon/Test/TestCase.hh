@@ -7,7 +7,8 @@
 
 namespace Titon\Test;
 
-//use Titon\Utility\Config;
+use Titon\Test\Fixture;
+use Titon\Utility\Config;
 use Titon\Utility\Registry;
 
 /**
@@ -18,14 +19,14 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * List of loaded fixtures.
      *
-     * @type \Titon\Test\Fixture[]
+     * @type Map<string, Fixture>
      */
-    protected $_fixtures = [];
+    protected Map<string, Fixture> $_fixtures = Map {};
 
     /**
      * Setup state.
      */
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $_GET = [];
@@ -51,12 +52,12 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * Unload fixtures and clear registry.
      */
-    protected function tearDown() {
+    protected function tearDown(): void {
         parent::tearDown();
 
         $this->unloadFixtures();
 
-        //Config::flush();
+        Config::flush();
         Registry::flush();
     }
 
@@ -66,7 +67,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @param string $string
      * @return string
      */
-    public function clean($string) {
+    public function clean(string $string): string {
         return str_replace(["\t", "\r", "\n"], '', $string);
     }
 
@@ -76,7 +77,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @param string $string
      * @return string
      */
-    public function nl($string) {
+    public function nl(string $string): string {
         return str_replace("\r", '', $string);
     }
 
@@ -87,9 +88,9 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @return \Titon\Test\Fixture
      * @throws \Exception
      */
-    public function getFixture($name) {
-        if (isset($this->_fixtures[$name])) {
-            return $this->_fixtures[$name];
+    public function getFixture(string $name): Fixture {
+        if ($this->_fixtures->contains($name)) {
+            return $this->_fixtures->get($name);
         }
 
         throw new \Exception(sprintf('Fixture %s does not exist', $name));
@@ -100,7 +101,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      *
      * @return \Titon\Test\Fixture[]
      */
-    public function getFixtures() {
+    public function getFixtures(): Map<string, Fixture> {
         return $this->_fixtures;
     }
 
@@ -109,7 +110,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      *
      * @return $this
      */
-    public function loadFixtures() {
+    public function loadFixtures(): this {
         $fixtures = func_get_args();
 
         if (is_array($fixtures[0])) {
@@ -124,7 +125,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
             $object->createTable();
             $object->insertRecords();
 
-            $this->_fixtures[$fixture] = $object;
+            $this->_fixtures->set($fixture, $object);
         }
 
         return $this;
@@ -135,10 +136,10 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      *
      * @return $this
      */
-    public function unloadFixtures() {
+    public function unloadFixtures(): this {
         foreach ($this->_fixtures as $name => $fixture) {
             $fixture->dropTable();
-            unset($this->_fixtures[$name]);
+            $this->_fixtures->remove($name);
         }
 
         return $this;
@@ -151,7 +152,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @param array $actual
      * @param bool $key
      */
-    public function assertArraysEqual(array $expected, array $actual, $key = false) {
+    public function assertArraysEqual(array $expected, array $actual, bool $key = false): void {
         if ($key) {
             ksort($actual);
             ksort($expected);
@@ -159,6 +160,32 @@ class TestCase extends \PHPUnit_Framework_TestCase {
             sort($actual);
             sort($expected);
         }
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Assert that two maps are equal, disregarding the order.
+     *
+     * @param Map<mixed, mixed> $expected
+     * @param Map<mixed, mixed> $actual
+     */
+    public function assertMapsEqual(Map<mixed, mixed> $expected, Map<mixed, mixed> $actual): void {
+        ksort($actual);
+        ksort($expected);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Assert that two vectors are equal, disregarding the order.
+     *
+     * @param Vector<mixed> $expected
+     * @param Vector<mixed> $actual
+     */
+    public function assertVectorsEqual(Vector<mixed> $expected, Vector<mixed> $actual): void {
+        sort($actual);
+        sort($expected);
 
         $this->assertEquals($expected, $actual);
     }

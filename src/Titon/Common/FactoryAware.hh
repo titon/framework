@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -22,8 +22,8 @@ trait FactoryAware {
      *
      * @return $this
      */
-    public static function factory() {
-        return (new ReflectionClass(get_called_class()))->newInstanceArgs(func_get_args());
+    public static function factory(): this {
+        return (new ReflectionClass(static::class))->newInstanceArgs(func_get_args());
     }
 
     /**
@@ -31,8 +31,8 @@ trait FactoryAware {
      *
      * @return $this
      */
-    public static function registry() {
-        return Registry::factory(get_called_class(), func_get_args());
+    public static function registry(): this {
+        return Registry::factory(static::class, func_get_args());
     }
 
 }

@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -8,7 +8,7 @@
 namespace Titon\Common;
 
 use Titon\Common\Bag\ConfigBag;
-use Titon\Utility\Hash;
+use Titon\Utility\Traverse;
 
 /**
  * Provides a configuration layer within classes.
@@ -22,15 +22,15 @@ trait Configurable {
      *
      * @type \Titon\Common\Bag\ConfigBag
      */
-    private $__config;
+    private ConfigBag $__config;
 
     /**
      * Add multiple configurations.
      *
-     * @param array $data
+     * @param Map<string, mixed> $data
      * @return $this
      */
-    public function addConfig(array $data) {
+    public function addConfig(Map<string, mixed> $data): this {
         $this->getConfigBag()->add($data);
 
         return $this;
@@ -39,30 +39,30 @@ trait Configurable {
     /**
      * Return all current configurations.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function allConfig() {
+    public function allConfig(): Map<string, mixed> {
         return $this->getConfigBag()->all();
     }
 
     /**
      * Merge the custom configuration with the defaults and inherit from parent classes.
      *
-     * @uses Titon\Utility\Hash
+     * @uses Titon\Utility\Traverse
      *
-     * @param array $config
+     * @param Map<string, mixed> $config
      * @return $this
      */
-    public function applyConfig(array $config = []) {
+    public function applyConfig(Map<string, mixed> $config = Map {}): this {
         $parent = $this;
-        $defaults = isset($this->_config) ? $this->_config : [];
+        $defaults = isset($this->_config) ? $this->_config : Map {};
 
         // Inherit config from parents
         while ($parent = get_parent_class($parent)) {
             $props = get_class_vars($parent);
 
             if (isset($props['_config'])) {
-                $defaults = Hash::merge($props['_config'], $defaults);
+                $defaults = Traverse::merge($props['_config'], $defaults);
             }
         }
 
@@ -78,7 +78,7 @@ trait Configurable {
      * @param mixed $default
      * @return mixed
      */
-    public function getConfig($key, $default = null) {
+    public function getConfig(string $key, ?mixed $default = null): ?mixed {
         return $this->getConfigBag()->get($key, $default);
     }
 
@@ -87,7 +87,7 @@ trait Configurable {
      *
      * @return \Titon\Common\Bag\ConfigBag
      */
-    public function getConfigBag() {
+    public function getConfigBag(): ConfigBag {
         return $this->__config;
     }
 
@@ -97,7 +97,7 @@ trait Configurable {
      * @param string $key
      * @return bool
      */
-    public function hasConfig($key) {
+    public function hasConfig(string $key): bool {
         return $this->getConfigBag()->has($key);
     }
 
@@ -107,7 +107,7 @@ trait Configurable {
      * @param string $key
      * @return $this
      */
-    public function removeConfig($key) {
+    public function removeConfig(string $key): this {
         $this->getConfigBag()->remove($key);
 
         return $this;
@@ -120,7 +120,7 @@ trait Configurable {
      * @param mixed $value
      * @return $this
      */
-    public function setConfig($key, $value) {
+    public function setConfig(string $key, ?mixed $value): this {
         $this->getConfigBag()->set($key, $value);
 
         return $this;

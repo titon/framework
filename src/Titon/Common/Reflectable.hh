@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -21,14 +21,14 @@ trait Reflectable {
      *
      * @type \Titon\Common\Bag\ReflectionBag
      */
-    private $__reflection;
+    private ReflectionBag $__reflection;
 
     /**
      * Return the reflection bag.
      *
      * @return \Titon\Common\Bag\ReflectionBag
      */
-    public function getReflectionBag() {
+    public function getReflectionBag(): ReflectionBag {
         if (!$this->__reflection) {
             $this->__reflection = new ReflectionBag($this);
         }
@@ -42,7 +42,7 @@ trait Reflectable {
      * @param string $key
      * @return mixed
      */
-    public function reflect($key) {
+    public function reflect(string $key): ?mixed {
         return $this->getReflectionBag()->get($key);
     }
 

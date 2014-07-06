@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2014, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -27,21 +27,21 @@ class ReflectionBag extends AbstractBag {
      *
      * @type object
      */
-    protected $_class;
+    protected mixed $_class;
 
     /**
      * Reflection object.
      *
      * @type \ReflectionClass
      */
-    protected $_reflection;
+    protected ReflectionClass $_reflection;
 
     /**
      * Store the class to grab information on and its reflection.
      *
      * @param object $class
      */
-    public function __construct($class) {
+    public function __construct(mixed $class) {
         $this->_class = $class;
         $this->_reflection = new ReflectionClass($class);
     }
@@ -54,7 +54,7 @@ class ReflectionBag extends AbstractBag {
      * @return mixed
      * @throws \Titon\Common\Exception\InvalidDescriptorException
      */
-    public function get($key, $default = null) {
+    public function get(string $key, ?mixed $default = null): ?mixed {
         if ($this->has($key)) {
             return parent::get($key);
         }
@@ -75,7 +75,7 @@ class ReflectionBag extends AbstractBag {
      *
      * @return \ReflectionClass
      */
-    public function reflection() {
+    public function reflection(): ReflectionClass {
         return $this->_reflection;
     }
 
@@ -84,7 +84,7 @@ class ReflectionBag extends AbstractBag {
      *
      * @return string
      */
-    public function className() {
+    public function className(): string {
         return $this->reflection()->getName();
     }
 
@@ -93,7 +93,7 @@ class ReflectionBag extends AbstractBag {
      *
      * @return string
      */
-    public function shortClassName() {
+    public function shortClassName(): string {
         return $this->reflection()->getShortName();
     }
 
@@ -102,7 +102,7 @@ class ReflectionBag extends AbstractBag {
      *
      * @return string
      */
-    public function namespaceName() {
+    public function namespaceName(): string {
         return $this->reflection()->getNamespaceName();
     }
 
@@ -111,28 +111,30 @@ class ReflectionBag extends AbstractBag {
      *
      * @return string
      */
-    public function filePath() {
+    public function filePath(): string {
         return Path::toPath(get_class($this->_class));
     }
 
     /**
      * Return an array of public, protected, private and static methods.
      *
-     * @return string[]
+     * @return Vector<string>
      */
     public function methods() {
-        return array_unique(array_merge(
-            $this->publicMethods(),
-            $this->protectedMethods(),
-            $this->privateMethods(),
-            $this->staticMethods()
-        ));
+        $methods = Vector {};
+        $methods->addAll($this->publicMethods());
+        $methods->addAll($this->protectedMethods());
+        $methods->addAll($this->privateMethods());
+        $methods->addAll($this->staticMethods());
+
+        // todo - Another way to do this?
+        return new Vector(array_unique($methods->toValuesArray()));
     }
 
     /**
      * Return an array of public methods.
      *
-     * @return string[]
+     * @return Vector<string>
      */
     public function publicMethods() {
         return $this->_methods(ReflectionMethod::IS_PUBLIC);
@@ -141,7 +143,7 @@ class ReflectionBag extends AbstractBag {
     /**
      * Return an array of protected methods.
      *
-     * @return string[]
+     * @return Vector<string>
      */
     public function protectedMethods() {
         return $this->_methods(ReflectionMethod::IS_PROTECTED);
@@ -150,7 +152,7 @@ class ReflectionBag extends AbstractBag {
     /**
      * Return an array of private methods.
      *
-     * @return string[]
+     * @return Vector<string>
      */
     public function privateMethods() {
         return $this->_methods(ReflectionMethod::IS_PRIVATE);
@@ -159,7 +161,7 @@ class ReflectionBag extends AbstractBag {
     /**
      * Return an array of static methods.
      *
-     * @return string[]
+     * @return Vector<string>
      */
     public function staticMethods() {
         return $this->_methods(ReflectionMethod::IS_STATIC);
@@ -168,86 +170,88 @@ class ReflectionBag extends AbstractBag {
     /**
      * Return an array of public, protected, private and static properties.
      *
-     * @return string[]
+     * @return Vector<string>
      */
     public function properties() {
-        return array_unique(array_merge(
-            $this->publicProperties(),
-            $this->protectedProperties(),
-            $this->privateProperties(),
-            $this->staticProperties()
-        ));
+        $properties = Vector {};
+        $properties->addAll($this->publicProperties());
+        $properties->addAll($this->protectedProperties());
+        $properties->addAll($this->privateProperties());
+        $properties->addAll($this->staticProperties());
+
+        // todo - Another way to do this?
+        return new Vector(array_unique($properties->toValuesArray()));
     }
 
     /**
      * Return an array of public properties.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public function publicProperties() {
+    public function publicProperties(): Vector<string> {
         return $this->_properties(ReflectionProperty::IS_PUBLIC);
     }
 
     /**
      * Return an array of protected properties.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public function protectedProperties() {
+    public function protectedProperties(): Vector<string> {
         return $this->_properties(ReflectionProperty::IS_PROTECTED);
     }
 
     /**
      * Return an array of private properties.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public function privateProperties() {
+    public function privateProperties(): Vector<string> {
         return $this->_properties(ReflectionProperty::IS_PRIVATE);
     }
 
     /**
      * Return an array of static properties.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public function staticProperties() {
+    public function staticProperties(): Vector<string> {
         return $this->_properties(ReflectionProperty::IS_STATIC);
     }
 
     /**
      * Return an array of constants defined in the class.
      *
-     * @return string[]
+     * @return Map<string, mixed>
      */
-    public function constants() {
-        return $this->reflection()->getConstants();
+    public function constants(): Map<string, mixed> {
+        return new Map($this->reflection()->getConstants());
     }
 
     /**
      * Return an array of interfaces that the class implements.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public function interfaces() {
-        return $this->reflection()->getInterfaceNames();
+    public function interfaces(): Vector<string> {
+        return new Vector($this->reflection()->getInterfaceNames());
     }
 
     /**
      * Return an array of traits that the class implements.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public function traits() {
-        $traits = $this->reflection()->getTraitNames();
+    public function traits(): Vector<string> {
+        $traits = new Vector($this->reflection()->getTraitNames());
         $parent = get_parent_class($this->_class);
 
         while ($parent) {
-            $traits = array_merge($traits, class_uses($parent));
+            $traits->addAll(class_uses($parent));
             $parent = get_parent_class($parent);
         }
 
-        return array_values($traits);
+        return $traits;
     }
 
     /**
@@ -255,7 +259,7 @@ class ReflectionBag extends AbstractBag {
      *
      * @return string
      */
-    public function parent() {
+    public function parent(): string {
         return $this->reflection()->getParentClass()->getName();
     }
 
@@ -263,10 +267,10 @@ class ReflectionBag extends AbstractBag {
      * Return an array of methods for the defined scope.
      *
      * @param int $scope
-     * @return string[]
+     * @return Vector<string>
      */
-    protected function _methods($scope) {
-        $methods = [];
+    protected function _methods(int $scope): Vector<string> {
+        $methods = Vector {};
 
         foreach ($this->reflection()->getMethods($scope) as $method) {
             $methods[] = $method->getName();
@@ -279,10 +283,10 @@ class ReflectionBag extends AbstractBag {
      * Return an array of properties for the defined scope.
      *
      * @param int $scope
-     * @return string[]
+     * @return Vector<string>
      */
-    protected function _properties($scope) {
-        $props = [];
+    protected function _properties(int $scope): Vector<string> {
+        $props = Vector {};
 
         foreach ($this->reflection()->getProperties($scope) as $prop) {
             $props[] = $prop->getName();

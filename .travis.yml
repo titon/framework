@@ -10,21 +10,22 @@ matrix:
     - php: hhvm-nightly
 
 services:
-  - memcached
-  - redis-server
+  #- memcached
+  #- redis-server
 
 script:
-  - mkdir -p build/logs
-  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+  #- mkdir -p build/logs
+  - vendor/bin/phpunit
+  #--coverage-clover build/logs/clover.xml
 
 before_script:
-  - mysql -e 'CREATE DATABASE titon_test;'
+  #- mysql -e 'CREATE DATABASE titon_test;'
   - composer selfupdate
   - composer install
 
 after_script:
-  - mysql -e 'DROP DATABASE titon_test;'
-  - php vendor/bin/coveralls -v
+  #- mysql -e 'DROP DATABASE titon_test;'
+  #- php vendor/bin/coveralls -v
 
 notifications:
   email: false

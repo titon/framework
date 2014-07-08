@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Type;
 
 use Titon\Test\TestCase;
@@ -15,13 +15,6 @@ class EnumTest extends TestCase {
         $this->warrior = new EnumStub(EnumStub::WARRIOR);
         $this->ranger = new EnumStub(EnumStub::RANGER);
         $this->mage = new EnumStub(EnumStub::MAGE);
-    }
-
-    /**
-     * @expectedException \Titon\Type\Exception\InvalidEnumerableException
-     */
-    public function testConstructorErrorString() {
-        new EnumStub('1');
     }
 
     /**
@@ -89,15 +82,15 @@ class EnumTest extends TestCase {
     }
 
     public function testValues() {
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'WARRIOR' => 0,
             'RANGER' => 1,
             'MAGE' => 2
-        ], EnumStub::values());
+        }, EnumStub::values());
     }
 
     public function testKeys() {
-        $this->assertEquals(['WARRIOR', 'RANGER', 'MAGE'], EnumStub::keys());
+        $this->assertEquals(Vector {'WARRIOR', 'RANGER', 'MAGE'}, EnumStub::keys());
     }
 
 }

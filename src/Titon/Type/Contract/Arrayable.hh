@@ -8,18 +8,17 @@
 namespace Titon\Type\Contract;
 
 /**
- * Interface for enabling to JSON support.
+ * Interface for enabling to array support.
  *
  * @package Titon\Type\Contract
  */
-interface Jsonable {
+interface Arrayable {
 
     /**
-     * Return the object as a JSON string.
+     * Return the object as an array.
      *
-     * @param int $options
-     * @return string
+     * @return array
      */
-    public function toJson($options = 0);
+    public function toArray(): array;
 
 }

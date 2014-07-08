@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Type\Enum;
 
 use Titon\Test\TestCase;

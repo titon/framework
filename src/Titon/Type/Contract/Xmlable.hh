@@ -8,17 +8,18 @@
 namespace Titon\Type\Contract;
 
 /**
- * Interface for enabling to array support.
+ * Interface for enabling to XML support.
  *
  * @package Titon\Type\Contract
  */
-interface Arrayable {
+interface Xmlable {
 
     /**
-     * Return the object as an array.
+     * Return the object as an XML string.
      *
-     * @return array
+     * @param string $root
+     * @return string
      */
-    public function toArray();
+    public function toXml(string $root = 'root'): string;
 
 }

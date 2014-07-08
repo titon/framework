@@ -723,15 +723,15 @@ class TypeContractStub implements Arrayable, Jsonable, Xmlable, \Serializable {
         $this->data = $data;
     }
 
-    public function toArray() {
+    public function toArray(): array {
         return (array) $this->data;
     }
 
-    public function toJson($options = 0) {
+    public function toJson(int $options = 0): string {
         return json_encode($this->data, $options);
     }
 
-    public function toXml($root = 'root') {
+    public function toXml(string $root = 'root'): string {
         return Converter::toXml($this->toArray(), $root);
     }
 

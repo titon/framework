@@ -16,27 +16,27 @@ use Titon\Type\Enum;
  */
 class Day extends Enum {
 
-    const SUNDAY = 0;
-    const MONDAY = 1;
-    const TUESDAY = 2;
-    const WEDNESDAY = 3;
-    const THURSDAY = 4;
-    const FRIDAY = 5;
-    const SATURDAY = 6;
+    const int SUNDAY = 0;
+    const int MONDAY = 1;
+    const int TUESDAY = 2;
+    const int WEDNESDAY = 3;
+    const int THURSDAY = 4;
+    const int FRIDAY = 5;
+    const int SATURDAY = 6;
 
     /**
      * Initialize mappings.
      *
-     * @type array
+     * @type Map<int, Vector<mixed>>
      */
-    protected $_enums = [
-        self::SUNDAY    => ['sunday'],
-        self::MONDAY    => ['monday'],
-        self::TUESDAY   => ['tuesday'],
-        self::WEDNESDAY => ['wednesday'],
-        self::THURSDAY  => ['thursday'],
-        self::FRIDAY    => ['friday'],
-        self::SATURDAY  => ['saturday']
+    protected Map<int, Vector<mixed>> $_enums = [
+        self::SUNDAY    => Vector {'sunday'},
+        self::MONDAY    => Vector {'monday'},
+        self::TUESDAY   => Vector {'tuesday'},
+        self::WEDNESDAY => Vector {'wednesday'},
+        self::THURSDAY  => Vector {'thursday'},
+        self::FRIDAY    => Vector {'friday'},
+        self::SATURDAY  => Vector {'saturday'}
     ];
 
     /**
@@ -44,42 +44,42 @@ class Day extends Enum {
      *
      * @type int
      */
-    public $order;
+    public int $order;
 
     /**
      * Localized name.
      *
      * @type string
      */
-    public $name;
+    public string $name;
 
     /**
      * Localized shorthand name.
      *
      * @type string
      */
-    public $shortName;
+    public string $shortName;
 
     /**
      * Day as a slug.
      *
      * @type string
      */
-    public $slug;
+    public string $slug;
 
     /**
      * Current day of the year.
      *
      * @type int
      */
-    public $dayOfYear;
+    public int $dayOfYear;
 
     /**
      * Set variables.
      *
      * @param string $slug
      */
-    public function initialize($slug) {
+    public function initialize(string $slug): void {
         $time = strtotime($slug);
 
         $this->order = $this->value();

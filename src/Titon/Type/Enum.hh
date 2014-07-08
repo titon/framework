@@ -7,6 +7,7 @@
 
 namespace Titon\Type;
 
+use Titon\Common\StaticCacheable;
 use Titon\Type\Exception\InvalidEnumerableException;
 use \ReflectionClass;
 
@@ -18,27 +19,21 @@ use \ReflectionClass;
  * @package Titon\Type
  */
 class Enum {
-
-    /**
-     * Constant caching.
-     *
-     * @type array
-     */
-    protected static $_cache = [];
+    use StaticCacheable;
 
     /**
      * Mapping of enum constructor arguments.
      *
-     * @type array
+     * @type Vector<mixed>
      */
-    protected $_enums = [];
+    protected Vector<mixed> $_enums = Vector {};
 
     /**
      * The current enum type.
      *
      * @type int
      */
-    protected $_type;
+    protected int $_type;
 
     /**
      * Construct the enum based on the class constants.
@@ -47,14 +42,14 @@ class Enum {
      * @param int $type
      * @throws \Titon\Type\Exception\InvalidEnumerableException
      */
-    final public function __construct($type) {
+    final public function __construct(int $type) {
         $keys = static::keys();
 
-        if (!is_int($type) || !isset($keys[$type])) {
-            throw new InvalidEnumerableException(sprintf('Invalid enum type detected for %s', get_class($this)));
+        if (!isset($keys[$type])) {
+            throw new InvalidEnumerableException(sprintf('Invalid enum type detected for %s', static::class));
         }
 
-        $this->_type = (int) $type;
+        $this->_type = $type;
 
         if (method_exists($this, 'initialize') && isset($this->_enums[$type])) {
             call_user_func_array([$this, 'initialize'], $this->_enums[$type]);
@@ -70,7 +65,7 @@ class Enum {
      * @return \Titon\Type\Enum
      * @throws \Titon\Type\Exception\InvalidEnumerableException
      */
-    final public static function __callStatic($method, $args) {
+    final public static function __callStatic(string $method, array $args): Enum {
         if (defined("static::$method")) {
             return new static(constant("static::$method"));
         }
@@ -83,7 +78,7 @@ class Enum {
      *
      * @return string
      */
-    final public function __toString() {
+    final public function __toString(): string {
         return $this->name();
     }
 
@@ -93,17 +88,17 @@ class Enum {
      * @param int $type
      * @return bool
      */
-    final public function is($type) {
+    final public function is(int $type): bool {
         return ($this->_type === $type);
     }
 
     /**
      * Returns the names (or keys) of all of constants in the enum.
      *
-     * @return array
+     * @return Vector<string>
      */
-    final public static function keys() {
-        return array_flip(static::values());
+    final public static function keys(): Vector<string> {
+        return static::values()->keys();
     }
 
     /**
@@ -111,9 +106,8 @@ class Enum {
      *
      * @return string
      */
-    final public function name() {
-        $keys = static::keys();
-        return $keys[$this->_type];
+    final public function name(): string {
+        return static::keys()[$this->_type];
     }
 
     /**
@@ -121,25 +115,21 @@ class Enum {
      *
      * @return int
      */
-    final public function value() {
+    final public function value(): int {
         return $this->_type;
     }
 
     /**
      * Return the names and values of all the constants in the enum.
      *
-     * @return array
+     * @return Map<string, int>
      */
-    final public static function values() {
-        $class = get_called_class();
+    final public static function values(): Map<string, int> {
+        $class = static::class;
 
-        if (isset(static::$_cache[$class])) {
-            return static::$_cache[$class];
-        }
-
-        $reflected = new ReflectionClass($class);
-
-        return static::$_cache[$class] = $reflected->getConstants();
+        return static::cache([__METHOD__, $class], function() use ($class) {
+            return new Map((new ReflectionClass($class))->getConstants());
+        });
     }
 
 }

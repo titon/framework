@@ -8,18 +8,18 @@
 namespace Titon\Type\Contract;
 
 /**
- * Interface for enabling to XML support.
+ * Interface for enabling to JSON support.
  *
  * @package Titon\Type\Contract
  */
-interface Xmlable {
+interface Jsonable {
 
     /**
-     * Return the object as an XML string.
+     * Return the object as a JSON string.
      *
-     * @param string $root
+     * @param int $options
      * @return string
      */
-    public function toXml($root = 'root');
+    public function toJson(int $options = 0): string;
 
 }

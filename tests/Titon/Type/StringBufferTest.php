@@ -1,17 +1,17 @@
-<?php
+<?hh
 namespace Titon\Type;
 
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Type\String $object
+ * @property \Titon\Type\StringBuffer $object
  */
 class StringTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new String('titon');
+        $this->object = new StringBuffer('titon');
     }
 
     public function testAppend() {
@@ -28,7 +28,7 @@ class StringTest extends TestCase {
     }
 
     public function testClean() {
-        $string = new String('  titon       framework' . PHP_EOL);
+        $string = new StringBuffer('  titon       framework' . PHP_EOL);
 
         $this->assertEquals('titon framework', $string->clean()->value());
     }
@@ -65,7 +65,7 @@ class StringTest extends TestCase {
     }
 
     public function testEscape() {
-        $string = new String('"Titon"');
+        $string = new StringBuffer('"Titon"');
 
         $this->assertEquals('&quot;Titon&quot;', $string->escape()->value());
     }
@@ -79,41 +79,29 @@ class StringTest extends TestCase {
     public function testIndexOf() {
         $this->assertEquals(0, $this->object->indexOf('t'));
         $this->assertEquals(4, $this->object->indexOf('n'));
-        $this->assertEquals(false, $this->object->indexOf('r'));
-    }
-
-    public function testIsBlank() {
-        $string = new String('   ');
-
-        $this->assertFalse($string->isBlank());
-
-        $string = $string->trim();
-
-        $this->assertTrue($string->isBlank());
+        $this->assertEquals(-1, $this->object->indexOf('r'));
     }
 
     public function testIsEmpty() {
-        $string = new String('   ');
+        $string = new StringBuffer('');
 
         $this->assertTrue($string->isEmpty());
-    }
 
-    public function testIsNotBlank() {
-        $string = new String('foo');
+        $string->write('foobar');
 
-        $this->assertTrue($string->isNotBlank());
-
-        $string->write('   ');
-
-        $this->assertTrue($string->isNotBlank());
+        $this->assertFalse($string->isEmpty());
     }
 
     public function testIsNotEmpty() {
-        $string = new String('');
+        $string = new StringBuffer('foobar');
 
-        $this->assertFalse($string->isNotEmpty());
+        $this->assertTrue($string->isNotEmpty());
 
         $string->write('   ');
+
+        $this->assertTrue($string->isNotEmpty());
+
+        $string = $string->trim();
 
         $this->assertFalse($string->isNotEmpty());
     }
@@ -121,7 +109,7 @@ class StringTest extends TestCase {
     public function testLastIndexOf() {
         $this->assertEquals(2, $this->object->lastIndexOf('t'));
         $this->assertEquals(4, $this->object->lastIndexOf('n'));
-        $this->assertEquals(false, $this->object->lastIndexOf('r'));
+        $this->assertEquals(-1, $this->object->lastIndexOf('r'));
     }
 
     public function testLength() {
@@ -167,6 +155,13 @@ class StringTest extends TestCase {
         $this->assertEquals('notit', $this->object->reverse()->value());
     }
 
+    public function testSerialize() {
+        $serialized = serialize($this->object);
+
+        $this->assertEquals('C:23:"Titon\Type\StringBuffer":12:{s:5:"titon";}', $serialized);
+        $this->assertEquals($this->object, unserialize($serialized));
+    }
+
     public function testShuffle() {
         $this->object->append(' framework');
         $this->object->shuffle();
@@ -178,20 +173,15 @@ class StringTest extends TestCase {
         $this->assertFalse($this->object->startsWith('tot'));
     }
 
-    public function testwrite() {
-        $this->object->write('framework');
-        $this->assertEquals('framework', $this->object->value());
-    }
-
     public function testStrip() {
         $this->assertEquals('titon', $this->object->write('<b>titon</b>')->strip()->value());
     }
 
     public function testSplit() {
-        $this->assertEquals(['t', 'i', 't', 'o', 'n'], $this->object->split());
-        $this->assertEquals(['ti', 'to', 'n'], $this->object->split(null, 2));
-        $this->assertEquals(['', 'i', 'on'], $this->object->split('t'));
-        $this->assertEquals(['', 'iton'], $this->object->split('t', 2));
+        $this->assertEquals(Vector {'t', 'i', 't', 'o', 'n'}, $this->object->split());
+        $this->assertEquals(Vector {'ti', 'to', 'n'}, $this->object->split('', 2));
+        $this->assertEquals(Vector {'', 'i', 'on'}, $this->object->split('t'));
+        $this->assertEquals(Vector {'', 'iton'}, $this->object->split('t', 2));
     }
 
     public function testToCamelCase() {
@@ -234,6 +224,11 @@ class StringTest extends TestCase {
 
         $this->object->write('Titon Framework');
         $this->assertEquals(2, $this->object->wordCount());
+    }
+
+    public function testWrite() {
+        $this->object->write('framework');
+        $this->assertEquals('framework', $this->object->value());
     }
 
 }

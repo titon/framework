@@ -235,6 +235,22 @@ class Converter {
     }
 
     /**
+     * Transform a resource into a map.
+     * If the value is an array or traversable object, pass it to the map.
+     * If it is any other value, wrap in array first.
+     *
+     * @param mixed $resouce
+     * @return Map<mixed, mixed>
+     */
+    public static function toMap(mixed $resource): Map<mixed, mixed> {
+        if ($resource instanceof Traversable || static::isArray($resource)) {
+            return new Map($resource);
+        }
+
+        return new Map([$resource]);
+    }
+
+    /**
      * Transforms a resource into a serialized form.
      *
      * @param mixed $resource

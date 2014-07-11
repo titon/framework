@@ -175,6 +175,17 @@ class ConverterTest extends TestCase {
         $this->assertEquals('{"a":1}', Converter::toJson($test));
     }
 
+    public function testToMap() {
+        $this->assertEquals(Map {}, Converter::toMap(Vector {}));
+        $this->assertEquals(Map {0 => 'foo'}, Converter::toMap(Vector {'foo'}));
+        $this->assertEquals(Map {}, Converter::toMap([]));
+        $this->assertEquals(Map {0 => 'foo'}, Converter::toMap(['foo']));
+        $this->assertEquals(Map {0 => 'foo'}, Converter::toMap('foo'));
+        $this->assertEquals(Map {0 => 123}, Converter::toMap(123));
+        $this->assertEquals(Map {}, Converter::toMap(Map {}));
+        $this->assertEquals(Map {'foo' => 'bar'}, Converter::toMap(Map {'foo' => 'bar'}));
+    }
+
     public function testToSerialize() {
         $this->assertEquals($this->serialized, Converter::toSerialize($this->array));
         $this->assertEquals($this->serialized, Converter::toSerialize($this->object));
@@ -335,6 +346,17 @@ class ConverterTest extends TestCase {
         $expected .= '</root>';
 
         $this->assertXmlStringEqualsXmlString($expected, Converter::toXml($items));
+    }
+
+    public function testToVector() {
+        $this->assertEquals(Vector {}, Converter::toVector(Vector {}));
+        $this->assertEquals(Vector {'foo'}, Converter::toVector(Vector {'foo'}));
+        $this->assertEquals(Vector {}, Converter::toVector([]));
+        $this->assertEquals(Vector {'foo'}, Converter::toVector(['foo']));
+        $this->assertEquals(Vector {'foo'}, Converter::toVector('foo'));
+        $this->assertEquals(Vector {123}, Converter::toVector(123));
+        $this->assertEquals(Vector {}, Converter::toVector(Map {}));
+        $this->assertEquals(Vector {'bar'}, Converter::toVector(Map {'foo' => 'bar'}));
     }
 
     public function testXmlTypeCasting() {

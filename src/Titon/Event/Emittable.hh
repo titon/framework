@@ -19,12 +19,12 @@ trait Emittable {
      *
      * @type \Titon\Event\Emitter
      */
-    protected $_emitter;
+    protected Emitter $_emitter;
 
     /**
      * @see \Titon\Event\Emitter::emit()
      */
-    public function emit($event, array $params = []) {
+    public function emit(mixed $event, array $params = []): mixed {
         return $this->getEmitter()->emit($event, $params);
     }
 
@@ -33,7 +33,7 @@ trait Emittable {
      *
      * @return \Titon\Event\Emitter
      */
-    public function getEmitter() {
+    public function getEmitter(): Emitter {
         if (!$this->_emitter) {
             $this->setEmitter(new Emitter());
         }
@@ -42,23 +42,23 @@ trait Emittable {
     }
 
     /**
-     * @see \Titon\Event\Emitter::on()
+     * @see \Titon\Event\Emitter::once()
      *
      * @return $this
      */
-    public function on($event, $callback, $options = Emitter::DEFAULT_PRIORITY) {
-        $this->getEmitter()->on($event, $callback, $options);
+    public function once(string $event, mixed $callback, Map<string, mixed> $options = Map {}): this {
+        $this->getEmitter()->once($event, $callback, $options);
 
         return $this;
     }
 
     /**
-     * @see \Titon\Event\Emitter::once()
+     * @see \Titon\Event\Emitter::on()
      *
      * @return $this
      */
-    public function once($event, $callback, $options = Emitter::DEFAULT_PRIORITY) {
-        $this->getEmitter()->once($event, $callback, $options);
+    public function on(?string $event, mixed $callback, Map<string, mixed> $options = Map {}): this {
+        $this->getEmitter()->on($event, $callback, $options);
 
         return $this;
     }
@@ -68,7 +68,7 @@ trait Emittable {
      *
      * @return $this
      */
-    public function off($event, $callback) {
+    public function off(?string $event, mixed $callback): this {
         $this->getEmitter()->off($event, $callback);
 
         return $this;
@@ -80,7 +80,7 @@ trait Emittable {
      * @param \Titon\Event\Emitter $emitter
      * @return $this
      */
-    public function setEmitter(Emitter $emitter) {
+    public function setEmitter(Emitter $emitter): this {
         $this->_emitter = $emitter;
 
         return $this;

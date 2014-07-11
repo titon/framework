@@ -19,8 +19,8 @@ interface Listener {
      * The array key should be the name of the event, while the value should be the callback.
      * The callback could be an array containing the method and priority, or a string of the method.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function registerEvents();
+    public function registerEvents(): Map<string, mixed>;
 
 }

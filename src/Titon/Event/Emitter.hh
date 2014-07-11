@@ -7,7 +7,7 @@
 
 namespace Titon\Event;
 
-use Titon\Event\Exception\InvalidCallbackException;
+use Titon\Utility\Traverse;
 use \Closure;
 
 /**
@@ -18,14 +18,14 @@ use \Closure;
  */
 class Emitter {
 
-    const DEFAULT_PRIORITY = 100;
+    const int DEFAULT_PRIORITY = 100;
 
     /**
      * Registered observers per event.
      *
-     * @type array
+     * @type Map<string, Vector<Map<string, mixed>>>
      */
-    protected $_observers = [];
+    protected Map<string, Vector<Map<string, mixed>>> $_observers = Map {};
 
     /**
      * Notify all observers in priority order about the event.
@@ -39,12 +39,13 @@ class Emitter {
      * @param array $params
      * @return \Titon\Event\Event|\Titon\Event\Event[]
      */
-    public function emit($event, array $params = []) {
+    public function emit(mixed $event, array $params = []): mixed {
         $events = $this->_resolveEvents($event);
-        $objects = [];
+        $objects = Vector {};
 
         foreach ($events as $event) {
             $object = new Event($event, $this->getCallStack($event));
+            $turnOff = Vector {};
 
             array_unshift($params, $object);
 
@@ -61,13 +62,18 @@ class Emitter {
                     break;
 
                 } else if ($observer['once']) {
-                    $this->off($event, $observer['callback']);
+                    $turnOff[] = $observer['callback'];
                 }
 
                 $object->next();
             }
 
             $objects[] = $object;
+
+            // We must do this as you can't remove keys while iterating
+            foreach ($turnOff as $callback) {
+                $this->off($event, $callback);
+            }
         }
 
         if (count($events) === 1 && isset($objects[0])) {
@@ -83,9 +89,9 @@ class Emitter {
      * @param string $event
      * @return $this
      */
-    public function flush($event = null) {
+    public function flush(?string $event = null): this {
         if (!$event) {
-            $this->_observers = [];
+            $this->_observers->clear();
         } else {
             unset($this->_observers[$event]);
         }
@@ -97,10 +103,10 @@ class Emitter {
      * Return the call stack (order of priority) for an event.
      *
      * @param string $event
-     * @return array
+     * @return Vector<Map<string, mixed>>
      */
-    public function getCallStack($event) {
-        $stack = [];
+    public function getCallStack(string $event): Vector<Map<string, mixed>> {
+        $stack = Vector {};
 
         if ($this->hasObservers($event)) {
             foreach ($this->getSortedObservers($event) as $observer) {
@@ -110,7 +116,11 @@ class Emitter {
                     is_callable($observer['callback'], true, $method); // Used to fetch the callable name
                 }
 
-                $stack[] = ['callback' => $method] + $observer;
+                // Clone the map so we don't update the reference
+                $options = $observer->toMap();
+                $options['callback'] = $method;
+
+                $stack[] = $options;
             }
         }
 
@@ -120,33 +130,33 @@ class Emitter {
     /**
      * Return all the currently registered events keys.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public function getEvents() {
-        return array_keys($this->_observers);
+    public function getEvents(): Vector<string> {
+        return $this->_observers->keys();
     }
 
     /**
      * Return all observers for an event.
      *
      * @param string $event
-     * @return array
+     * @return Vector<Map<string, mixed>>
      */
-    public function getObservers($event) {
+    public function getObservers(string $event): Vector<Map<string, mixed>> {
         if ($this->hasObservers($event)) {
             return $this->_observers[$event];
         }
 
-        return [];
+        return Vector {};
     }
 
     /**
      * Return all observers for an event sorted by priority.
      *
      * @param string $event
-     * @return array
+     * @return Vector<Map<string, mixed>>
      */
-    public function getSortedObservers($event) {
+    public function getSortedObservers(string $event): Vector<Map<string, mixed>> {
         if ($obs = $this->getObservers($event)) {
             usort($obs, function($a, $b) {
                 if ($a['priority'] == $b['priority']) {
@@ -159,7 +169,7 @@ class Emitter {
             return $obs;
         }
 
-        return [];
+        return Vector {};
     }
 
     /**
@@ -168,7 +178,7 @@ class Emitter {
      * @param string $event
      * @return bool
      */
-    public function hasObservers($event) {
+    public function hasObservers(string $event): bool {
         return isset($this->_observers[$event]);
     }
 
@@ -176,27 +186,25 @@ class Emitter {
      * Register an event callback or listener to only trigger once and then remove itself from the observer list.
      *
      * @param string $event
-     * @param callable $callback
-     * @param mixed $options
+     * @param mixed $callback
+     * @param Map<string, mixed> $options
      * @return $this
      */
-    public function once($event, $callback, $options = null) {
-        if (!is_array($options)) {
-            $options = ['priority' => $options];
-        }
+    public function once(string $event, mixed $callback, Map<string, mixed> $options = Map {}): this {
+        $options['once'] = true;
 
-        return $this->on($event, $callback, ['once' => true] + $options);
+        return $this->on($event, $callback, $options);
     }
 
     /**
      * Register an event callback or a listener.
      *
      * @param string $event
-     * @param callable $callback
-     * @param mixed $options
+     * @param mixed $callback
+     * @param Map<string, mixed> $options
      * @return $this
      */
-    public function on($event, $callback, $options = null) {
+    public function on(?string $event, mixed $callback, Map<string, mixed> $options = Map {}): this {
         if ($callback instanceof Listener) {
             $this->registerListener($callback);
         } else {
@@ -210,10 +218,10 @@ class Emitter {
      * Remove an event callback or a listener.
      *
      * @param string $event
-     * @param callable $callback
+     * @param mixed $callback
      * @return $this
      */
-    public function off($event, $callback) {
+    public function off(?string $event, mixed $callback): this {
         if ($callback instanceof Listener) {
             $this->removeListener($callback);
         } else {
@@ -229,35 +237,29 @@ class Emitter {
      *
      * @param string $event
      * @param callable $callback
-     * @param mixed $options
+     * @param Map<string, mixed> $options
      * @return $this
      * @throws \Titon\Event\Exception\InvalidCallbackException
      */
-    public function register($event, $callback, $options = null) {
-        if (!is_callable($callback, false)) {
-            throw new InvalidCallbackException(sprintf('Invalid observer for %s event, must be callable', $event));
-        }
-
+    public function register(string $event, callable $callback, Map<string, mixed> $options = Map {}): this {
         if (empty($this->_observers[$event])) {
-            $this->_observers[$event] = [];
+            $this->_observers[$event] = Vector {};
         }
 
-        if (!is_array($options)) {
-            $options = ['priority' => $options];
-        }
-
-        $options = $options + [
+        $options = Traverse::merge(Map {
             'priority' => null,
             'once' => false
-        ];
+        }, $options);
 
         if (!$options['priority']) {
             $options['priority'] = count($this->_observers[$event]) + self::DEFAULT_PRIORITY;
         }
 
+        $options['callback'] = $callback;
+
         unset($options['method']);
 
-        $this->_observers[$event][] = ['callback' => $callback] + $options;
+        $this->_observers[$event][] = $options;
 
         return $this;
     }
@@ -268,7 +270,7 @@ class Emitter {
      * @param \Titon\Event\Listener $listener
      * @return $this
      */
-    public function registerListener(Listener $listener) {
+    public function registerListener(Listener $listener): this {
         foreach ($listener->registerEvents() as $event => $options) {
             foreach ($this->_parseOptions($options) as $opt) {
                 $this->register($event, [$listener, $opt['method']], $opt);
@@ -285,14 +287,19 @@ class Emitter {
      * @param callable $callback
      * @return $this
      */
-    public function remove($event, $callback) {
+    public function remove(string $event, callable $callback): this {
+        $indices = Vector {};
+
         foreach ($this->getObservers($event) as $i => $observer) {
             if ($observer['callback'] === $callback) {
-                unset($this->_observers[$event][$i]);
+                $indices[] = $i;
             }
         }
 
-        $this->_observers[$event] = array_values($this->_observers[$event]);
+        // We must do this as you can't remove keys while iterating
+        foreach ($indices as $i) {
+            $this->_observers[$event]->removeKey($i);
+        }
 
         return $this;
     }
@@ -303,7 +310,7 @@ class Emitter {
      * @param \Titon\Event\Listener $listener
      * @return $this
      */
-    public function removeListener(Listener $listener) {
+    public function removeListener(Listener $listener): this {
         foreach ($listener->registerEvents() as $event => $options) {
             foreach ($this->_parseOptions($options) as $opt) {
                 $this->remove($event, [$listener, $opt['method']]);
@@ -317,23 +324,29 @@ class Emitter {
      * Parse the options from a listener into an indexed array of object method callbacks.
      *
      * @param array|string $options
-     * @return array
+     * @return Vector<Map<string, mixed>>
      */
-    protected function _parseOptions($options) {
-        if (!is_array($options) || !isset($options[0])) {
-            $options = [$options];
+    protected function _parseOptions(mixed $options): Vector<Map<string, mixed>> {
+        if (is_array($options) || $options instanceof Vector) {
+            $options = new Vector($options);
+        } else {
+            $options = new Vector([$options]);
         }
 
-        foreach ($options as $index => $opt) {
-            if (!is_array($opt)) {
-                $opt = ['method' => $opt];
-            }
-
-            $options[$index] = $opt + [
+        foreach ($options as $index => $option) {
+            $settings = Map {
                 'method' => '',
                 'priority' => null,
                 'once' => false
-            ];
+            };
+
+            if (is_string($option)) {
+                $settings->set('method', $option);
+            } else {
+                $settings->setAll($option);
+            }
+
+            $options[$index] = $settings;
         }
 
         return $options;
@@ -343,10 +356,10 @@ class Emitter {
      * Resolve an event key into multiple events by checking for space delimiters and wildcard matches.
      *
      * @param string|array $events
-     * @return array
+     * @return Vector<string>
      */
-    protected function _resolveEvents($events) {
-        $found = [];
+    protected function _resolveEvents(mixed $events): Vector<string> {
+        $found = Vector {};
 
         if (is_string($events)) {
             $events = explode(' ', $events);

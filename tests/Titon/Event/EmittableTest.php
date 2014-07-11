@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Event;
 
 use Titon\Test\TestCase;
@@ -23,13 +23,13 @@ class EmittableTest extends TestCase {
 
         $this->object->on('event.test', $obj);
 
-        $this->assertEquals([
-            ['callback' => $obj, 'priority' => 100, 'once' => false],
-        ], $this->object->getEmitter()->getObservers('event.test'));
+        $this->assertEquals(Vector {
+            Map {'callback' => $obj, 'priority' => 100, 'once' => false},
+        }, $this->object->getEmitter()->getObservers('event.test'));
 
         $this->object->off('event.test', $obj);
 
-        $this->assertEquals([], $this->object->getEmitter()->getObservers('event.test'));
+        $this->assertEquals(Vector {}, $this->object->getEmitter()->getObservers('event.test'));
     }
 
     public function testOnce() {

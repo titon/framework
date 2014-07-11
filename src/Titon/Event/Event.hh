@@ -7,7 +7,7 @@
 
 namespace Titon\Event;
 
-use Titon\Utility\Hash;
+use Titon\Utility\Traverse;
 
 /**
  * An object representing the current event being dispatched.
@@ -20,37 +20,37 @@ class Event {
     /**
      * Data to persist between observers.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_data = [];
+    protected Map<string, mixed> $_data = Map {};
 
     /**
      * The event key.
      *
      * @type string
      */
-    protected $_key;
+    protected string $_key;
 
     /**
      * The current index in the call stack.
      *
      * @type int
      */
-    protected $_index = 0;
+    protected int $_index = 0;
 
     /**
      * Has the event stopped? This will cancel upcoming listeners.
      *
      * @type bool
      */
-    protected $_stopped = false;
+    protected bool $_stopped = false;
 
     /**
      * The call stack in order of priority.
      *
-     * @type array
+     * @type Vector<Map<string, mixed>>
      */
-    protected $_stack = [];
+    protected Vector<Map<string, mixed>> $_stack;
 
     /**
      * The last state before the object was stopped.
@@ -58,22 +58,22 @@ class Event {
      *
      * @type mixed
      */
-    protected $_state = true;
+    protected mixed $_state = true;
 
     /**
      * The timestamp of when the event started.
      *
      * @type int
      */
-    protected $_time;
+    protected int $_time;
 
     /**
      * Initialize the event and pass information from the Emitter.
      *
      * @param string $key
-     * @param array $stack
+     * @param Vector<Map<string, mixed>> $stack
      */
-    public function __construct($key, array $stack = []) {
+    public function __construct(string $key, Vector<Map<string, mixed>> $stack = Vector {}) {
         $this->_key = $key;
         $this->_stack = $stack;
         $this->_time = time();
@@ -82,9 +82,9 @@ class Event {
     /**
      * Return the call stack in order of priority.
      *
-     * @return array
+     * @return Vector<Map<string, mixed>>
      */
-    public function getCallStack() {
+    public function getCallStack(): Vector<Map<string, mixed>> {
         return $this->_stack;
     }
 
@@ -94,8 +94,8 @@ class Event {
      * @param string $key
      * @return mixed
      */
-    public function getData($key = null) {
-        return Hash::get($this->_data, $key);
+    public function getData(?string $key = null): mixed {
+        return Traverse::get($this->_data, $key);
     }
 
     /**
@@ -103,7 +103,7 @@ class Event {
      *
      * @return int
      */
-    public function getIndex() {
+    public function getIndex(): int {
         return $this->_index;
     }
 
@@ -112,7 +112,7 @@ class Event {
      *
      * @return string
      */
-    public function getKey() {
+    public function getKey(): string {
         return $this->_key;
     }
 
@@ -121,7 +121,7 @@ class Event {
      *
      * @return mixed
      */
-    public function getState() {
+    public function getState(): mixed {
         return $this->_state;
     }
 
@@ -130,7 +130,7 @@ class Event {
      *
      * @return int
      */
-    public function getTime() {
+    public function getTime(): int {
         return $this->_time;
     }
 
@@ -139,7 +139,7 @@ class Event {
      *
      * @return bool
      */
-    public function isStopped() {
+    public function isStopped(): bool {
         return $this->_stopped;
     }
 
@@ -149,7 +149,7 @@ class Event {
      *
      * @return $this
      */
-    public function next() {
+    public function next(): this {
         $index = $this->_index;
         $nextIndex = $index + 1;
 
@@ -171,8 +171,8 @@ class Event {
      * @param mixed $value
      * @return $this
      */
-    public function setData($key, $value) {
-        $this->_data = Hash::set($this->_data, $key, $value);
+    public function setData(string $key, ?mixed $value): this {
+        Traverse::set($this->_data, $key, $value);
 
         return $this;
     }
@@ -183,7 +183,7 @@ class Event {
      * @param mixed $state
      * @return $this
      */
-    public function setState($state) {
+    public function setState(?mixed $state): this {
         $this->_state = $state;
 
         return $this;
@@ -194,7 +194,7 @@ class Event {
      *
      * @return $this
      */
-    public function stop() {
+    public function stop(): this {
         $this->_stopped = true;
 
         return $this;

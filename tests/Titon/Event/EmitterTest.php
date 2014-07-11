@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Event;
 
 use Titon\Test\TestCase;
@@ -21,27 +21,27 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test1', $ob1);
         $this->object->register('event.test2', $ob2);
 
-        $this->assertEquals(['event.test1', 'event.test2'], $this->object->getEvents());
+        $this->assertEquals(Vector {'event.test1', 'event.test2'}, $this->object->getEvents());
 
         $this->object->flush('event.test2');
-        $this->assertEquals(['event.test1'], $this->object->getEvents());
+        $this->assertEquals(Vector {'event.test1'}, $this->object->getEvents());
 
         $this->object->flush();
-        $this->assertEquals([], $this->object->getEvents());
+        $this->assertEquals(Vector {}, $this->object->getEvents());
     }
 
     public function testGetObservers() {
         $ob1 = function(Event $event) { };
         $ob2 = [new ListenerStub(), 'noop1'];
 
-        $this->object->register('event.test', $ob1, 20);
-        $this->object->register('event.test', $ob2, 15);
+        $this->object->register('event.test', $ob1, Map {'priority' => 20});
+        $this->object->register('event.test', $ob2, Map {'priority' => 15});
 
-        $this->assertEquals([], $this->object->getObservers('event.foobar'));
-        $this->assertEquals([
-            ['callback' => $ob1, 'priority' => 20, 'once' => false],
-            ['callback' => $ob2, 'priority' => 15, 'once' => false],
-        ], $this->object->getObservers('event.test'));
+        $this->assertEquals(Vector {}, $this->object->getObservers('event.foobar'));
+        $this->assertEquals(Vector {
+            Map {'callback' => $ob1, 'priority' => 20, 'once' => false},
+            Map {'callback' => $ob2, 'priority' => 15, 'once' => false},
+        }, $this->object->getObservers('event.test'));
     }
 
     public function testGetCallstack() {
@@ -50,26 +50,26 @@ class EmitterTest extends TestCase {
         $ob3 = function(Event $event) { };
         $ob4 = [new ListenerStub(), 'noop3'];
 
-        $this->object->register('event.test', $ob1, 20);
-        $this->object->register('event.test', $ob2, 15);
-        $this->object->register('event.test', $ob3, 5);
-        $this->object->register('event.test', $ob4, 75);
+        $this->object->register('event.test', $ob1, Map {'priority' => 20});
+        $this->object->register('event.test', $ob2, Map {'priority' => 15});
+        $this->object->register('event.test', $ob3, Map {'priority' => 5});
+        $this->object->register('event.test', $ob4, Map {'priority' => 75});
 
-        $this->assertEquals([
-            ['priority' => 5, 'callback' => '{closure}', 'once' => false],
-            ['priority' => 15, 'callback' => 'Titon\Event\ListenerStub::noop2', 'once' => false],
-            ['priority' => 20, 'callback' => '{closure}', 'once' => false],
-            ['priority' => 75, 'callback' => 'Titon\Event\ListenerStub::noop3', 'once' => false]
-        ], $this->object->getCallStack('event.test'));
+        $this->assertEquals(Vector {
+            Map {'priority' => 5, 'callback' => '{closure}', 'once' => false},
+            Map {'priority' => 15, 'callback' => 'Titon\Event\ListenerStub::noop2', 'once' => false},
+            Map {'priority' => 20, 'callback' => '{closure}', 'once' => false},
+            Map {'priority' => 75, 'callback' => 'Titon\Event\ListenerStub::noop3', 'once' => false}
+        }, $this->object->getCallStack('event.test'));
     }
 
     public function testGetEvents() {
-        $this->assertEquals([], $this->object->getEvents());
+        $this->assertEquals(Vector {}, $this->object->getEvents());
 
         $this->object->register('event.test1', function(Event $event) { });
         $this->object->register('event.test2', function(Event $event) { });
 
-        $this->assertEquals(['event.test1', 'event.test2'], $this->object->getEvents());
+        $this->assertEquals(Vector {'event.test1', 'event.test2'}, $this->object->getEvents());
     }
 
     public function testGetSortedObservers() {
@@ -77,23 +77,23 @@ class EmitterTest extends TestCase {
         $ob2 = [new ListenerStub(), 'noop1'];
         $ob3 = function(Event $event) { };
 
-        $this->object->register('event.test', $ob1, 20);
-        $this->object->register('event.test', $ob2, 15);
-        $this->object->register('event.test', $ob3, 20);
+        $this->object->register('event.test', $ob1, Map {'priority' => 20});
+        $this->object->register('event.test', $ob2, Map {'priority' => 15});
+        $this->object->register('event.test', $ob3, Map {'priority' => 20});
 
-        $this->assertEquals([], $this->object->getObservers('event.foobar'));
-        $this->assertEquals([
-            ['callback' => $ob1, 'priority' => 20, 'once' => false],
-            ['callback' => $ob2, 'priority' => 15, 'once' => false],
-            ['callback' => $ob3, 'priority' => 20, 'once' => false],
-        ], $this->object->getObservers('event.test'));
+        $this->assertEquals(Vector {}, $this->object->getObservers('event.foobar'));
+        $this->assertEquals(Vector {
+            Map {'callback' => $ob1, 'priority' => 20, 'once' => false},
+            Map {'callback' => $ob2, 'priority' => 15, 'once' => false},
+            Map {'callback' => $ob3, 'priority' => 20, 'once' => false},
+        }, $this->object->getObservers('event.test'));
 
         // Sorted
-        $this->assertEquals([
-            ['callback' => $ob2, 'priority' => 15, 'once' => false],
-            ['callback' => $ob1, 'priority' => 20, 'once' => false],
-            ['callback' => $ob3, 'priority' => 20, 'once' => false],
-        ], $this->object->getSortedObservers('event.test'));
+        $this->assertEquals(Vector {
+            Map {'callback' => $ob2, 'priority' => 15, 'once' => false},
+            Map {'callback' => $ob1, 'priority' => 20, 'once' => false},
+            Map {'callback' => $ob3, 'priority' => 20, 'once' => false},
+        }, $this->object->getSortedObservers('event.test'));
     }
 
     public function testHasObservers() {
@@ -109,16 +109,16 @@ class EmitterTest extends TestCase {
         $this->object->on('event.test1', $callback);
         $this->object->on(null, $listener);
 
-        $this->assertEquals([
-            ['callback' => $callback, 'priority' => 100, 'once' => false],
-            ['callback' => [$listener, 'noop1'], 'priority' => 101, 'once' => false],
-            ['callback' => [$listener, 'noop2'], 'priority' => 45, 'once' => false],
-        ], $this->object->getObservers('event.test1'));
+        $this->assertEquals(Vector {
+            Map {'callback' => $callback, 'priority' => 100, 'once' => false},
+            Map {'callback' => [$listener, 'noop1'], 'priority' => 101, 'once' => false},
+            Map {'callback' => [$listener, 'noop2'], 'priority' => 45, 'once' => false},
+        }, $this->object->getObservers('event.test1'));
 
         $this->object->off('event.test1', $callback);
         $this->object->off(null, $listener);
 
-        $this->assertEquals([], $this->object->getObservers('event.test1'));
+        $this->assertEquals(Vector {}, $this->object->getObservers('event.test1'));
     }
 
     public function testOnce() {
@@ -127,10 +127,10 @@ class EmitterTest extends TestCase {
         $ob3 = function(Event $event) { };
         $ob4 = [new ListenerStub(), 'noop1'];
 
-        $this->object->once('event.test', $ob1, 20);
-        $this->object->on('event.test', $ob2, 15);
-        $this->object->on('event.test', $ob3, ['priority' => 5, 'once' => true]);
-        $this->object->on('event.test', $ob4, 75);
+        $this->object->once('event.test', $ob1, Map {'priority' => 20});
+        $this->object->on('event.test', $ob2, Map {'priority' => 15});
+        $this->object->on('event.test', $ob3, Map {'priority' => 5, 'once' => true});
+        $this->object->on('event.test', $ob4, Map {'priority' => 75});
 
         $this->assertEquals(4, count($this->object->emit('event.test')->getCallStack()));
         $this->assertEquals(2, count($this->object->emit('event.test')->getCallStack()));
@@ -143,10 +143,10 @@ class EmitterTest extends TestCase {
         $ob3 = function(Event $event, &$i) { $i++; return false; };
         $ob4 = function(Event $event, &$i) { $i++; };
 
-        $this->object->on('event.test', $ob1, ['exit' => true]);
-        $this->object->on('event.test', $ob2, ['exit' => true]);
-        $this->object->on('event.test', $ob3, ['exit' => true]);
-        $this->object->on('event.test', $ob4, ['exit' => true]);
+        $this->object->on('event.test', $ob1, Map {'exit' => true});
+        $this->object->on('event.test', $ob2, Map {'exit' => true});
+        $this->object->on('event.test', $ob3, Map {'exit' => true});
+        $this->object->on('event.test', $ob4, Map {'exit' => true});
 
         $this->object->emit('event.test', [&$n]);
 
@@ -167,7 +167,7 @@ class EmitterTest extends TestCase {
         $event = $this->object->emit('event.test');
 
         $this->assertEquals(4, $event->getData('key'));
-        $this->assertEquals(['key' => 4], $event->getData());
+        $this->assertEquals(Map {'key' => 4}, $event->getData());
     }
 
     public function testRegisterAndRemove() {
@@ -177,21 +177,21 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob1);
         $this->object->register('event.test', $ob2);
 
-        $this->assertEquals([
-            ['callback' => $ob1, 'priority' => 100, 'once' => false],
-            ['callback' => $ob2, 'priority' => 101, 'once' => false]
-        ], $this->object->getObservers('event.test'));
+        $this->assertEquals(Vector {
+            Map {'callback' => $ob1, 'priority' => 100, 'once' => false},
+            Map {'callback' => $ob2, 'priority' => 101, 'once' => false}
+        }, $this->object->getObservers('event.test'));
 
         // Remove using the instance
         $this->object->remove('event.test', $ob1);
 
-        $this->assertEquals([
-            ['callback' => $ob2, 'priority' => 101, 'once' => false]
-        ], $this->object->getObservers('event.test'));
+        $this->assertEquals(Vector {
+            Map {'callback' => $ob2, 'priority' => 101, 'once' => false}
+        }, $this->object->getObservers('event.test'));
     }
 
     /**
-     * @expectedException \Titon\Event\Exception\InvalidCallbackException
+     * @expectedException \PHPUnit_Framework_Error
      */
     public function testRegisterErrorsNonCallable() {
         $this->object->register('event.test', 'notACallback');
@@ -202,17 +202,17 @@ class EmitterTest extends TestCase {
 
         $this->object->registerListener($listener);
 
-        $this->assertEquals([
-            ['callback' => 'Titon\Event\ListenerStub::noop2', 'priority' => 45, 'once' => false],
-            ['callback' => 'Titon\Event\ListenerStub::noop1', 'priority' => 100, 'once' => false],
-        ], $this->object->getCallStack('event.test1'));
+        $this->assertEquals(Vector {
+            Map {'callback' => 'Titon\Event\ListenerStub::noop2', 'priority' => 45, 'once' => false},
+            Map {'callback' => 'Titon\Event\ListenerStub::noop1', 'priority' => 100, 'once' => false},
+        }, $this->object->getCallStack('event.test1'));
 
         // Remove using the instance
-        $this->assertEquals(['event.test1', 'event.test2', 'event.test3'], $this->object->getEvents());
+        $this->assertEquals(Vector {'event.test1', 'event.test2', 'event.test3'}, $this->object->getEvents());
 
         $this->object->removeListener($listener);
 
-        $this->assertEquals([], $this->object->getCallStack('event.test1'));
+        $this->assertEquals(Vector {}, $this->object->getCallStack('event.test1'));
     }
 
     public function testEmit() {
@@ -232,7 +232,7 @@ class EmitterTest extends TestCase {
     public function testEmitNoObservers() {
         $event = $this->object->emit('fake.event');
         $this->assertInstanceOf('Titon\Event\Event', $event);
-        $this->assertEquals([], $event->getCallStack());
+        $this->assertEquals(Vector {}, $event->getCallStack());
     }
 
     public function testEmitParams() {
@@ -303,14 +303,14 @@ class EmitterTest extends TestCase {
 class ListenerStub implements Listener {
 
     public function registerEvents() {
-        return [
-            'event.test1' => [
+        return Map {
+            'event.test1' => Vector {
                 'noop1',
-                ['method' => 'noop2', 'priority' => 45]
-            ],
+                Map {'method' => 'noop2', 'priority' => 45}
+            },
             'event.test2' => 'noop1',
-            'event.test3' => ['method' => 'noop2', 'priority' => 15]
-        ];
+            'event.test3' => Map {'method' => 'noop2', 'priority' => 15}
+        };
     }
 
     public function noop1(Event $e) {}

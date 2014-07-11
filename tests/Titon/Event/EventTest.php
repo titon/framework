@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Event;
 
 use Titon\Test\TestCase;
@@ -14,19 +14,19 @@ class EventTest extends TestCase {
         parent::setUp();
 
         $this->time = time();
-        $this->object = new Event('event.test.key', [
-            ['callback' => 'ClassName::method3', 'priority' => 10],
-            ['callback' => 'ClassName::method1', 'priority' => 100],
-            ['callback' => 'ClassName::method2', 'priority' => 110]
-        ]);
+        $this->object = new Event('event.test.key', Vector {
+            Map {'callback' => 'ClassName::method3', 'priority' => 10},
+            Map {'callback' => 'ClassName::method1', 'priority' => 100},
+            Map {'callback' => 'ClassName::method2', 'priority' => 110}
+        });
     }
 
     public function testGetCallstack() {
-        $this->assertEquals([
-            ['callback' => 'ClassName::method3', 'priority' => 10],
-            ['callback' => 'ClassName::method1', 'priority' => 100],
-            ['callback' => 'ClassName::method2', 'priority' => 110]
-        ], $this->object->getCallStack());
+        $this->assertEquals(Vector {
+            Map {'callback' => 'ClassName::method3', 'priority' => 10},
+            Map {'callback' => 'ClassName::method1', 'priority' => 100},
+            Map {'callback' => 'ClassName::method2', 'priority' => 110}
+        }, $this->object->getCallStack());
     }
 
     public function testGetIndexAndNext() {

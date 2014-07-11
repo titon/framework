@@ -216,7 +216,7 @@ class Traverse {
      * @param string $path
      * @return mixed
      */
-    public static function get(Map $collection, string $path = ''): ?mixed {
+    public static function get(Map $collection, ?string $path = ''): ?mixed {
 
         // Allow whole collection to be returned
         if (!$path) {

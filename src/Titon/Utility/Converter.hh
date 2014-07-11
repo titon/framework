@@ -13,6 +13,7 @@ use Titon\Type\Contract\Jsonable;
 use Titon\Type\Contract\Xmlable;
 use \JsonSerializable;
 use \Serializable;
+use \Traversable;
 use \SimpleXmlElement;
 
 /**
@@ -247,6 +248,22 @@ class Converter {
         }
 
         return serialize($resource);
+    }
+
+    /**
+     * Transform a resource into a vector.
+     * If the value is an array or traversable object, pass it to the vector.
+     * If it is any other value, wrap in array first.
+     *
+     * @param mixed $resouce
+     * @return Vector<mixed>
+     */
+    public static function toVector(mixed $resource): Vector<mixed> {
+        if ($resource instanceof Traversable || static::isArray($resource)) {
+            return new Vector($resource);
+        }
+
+        return new Vector([$resource]);
     }
 
     /**

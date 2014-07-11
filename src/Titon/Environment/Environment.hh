@@ -30,50 +30,50 @@ class Environment {
     /**
      * Types of environments.
      */
-    const DEV = 'dev';
-    const DEVELOPMENT = 'dev';
-    const STAGING = 'staging';
-    const PROD = 'prod';
-    const PRODUCTION = 'prod';
-    const QA = 'qa';
+    const string DEV = 'dev';
+    const string DEVELOPMENT = 'dev';
+    const string STAGING = 'staging';
+    const string PROD = 'prod';
+    const string PRODUCTION = 'prod';
+    const string QA = 'qa';
 
     /**
      * Default configuration.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'bootstrapPath' => '',
         'throwMissingError' => true
-    ];
+    };
 
     /**
      * Currently active environment.
      *
      * @type \Titon\Environment\Host
      */
-    protected $_current;
+    protected ?Host $_current = null;
 
     /**
      * List of all environments.
      *
-     * @type \Titon\Environment\Host[]
+     * @type Map<string, \Titon\Environment\Host>
      */
-    protected $_hosts = [];
+    protected Map<string, Host> $_hosts = Map {};
 
     /**
      * The fallback environment.
      *
      * @type \Titon\Environment\Host
      */
-    protected $_fallback;
+    protected ?Host $_fallback = null;
 
     /**
      * Apply configuration.
      *
-     * @param array $config
+     * @param Map<string, mixed> $config
      */
-    public function __construct(array $config = []) {
+    public function __construct(Map<string, mixed> $config = Map {}) {
         $this->applyConfig($config);
     }
 
@@ -82,9 +82,9 @@ class Environment {
      *
      * @param string $key
      * @param \Titon\Environment\Host $host
-     * @return \Titon\Environment\Host
+     * @return $this
      */
-    public function addHost($key, Host $host) {
+    public function addHost(string $key, Host $host): this {
         $host->setKey($key);
 
         // Auto-set bootstrap path
@@ -99,7 +99,7 @@ class Environment {
             $this->setFallback($key);
         }
 
-        return $host;
+        return $this;
     }
 
     /**
@@ -107,7 +107,7 @@ class Environment {
      *
      * @return \Titon\Environment\Host
      */
-    public function current() {
+    public function current(): ?Host {
         return $this->_current;
     }
 
@@ -116,7 +116,7 @@ class Environment {
      *
      * @return \Titon\Environment\Host
      */
-    public function getFallback() {
+    public function getFallback(): ?Host {
         return $this->_fallback;
     }
 
@@ -127,7 +127,7 @@ class Environment {
      * @return \Titon\Environment\Host
      * @throws \Titon\Environment\Exception\MissingHostException
      */
-    public function getHost($key) {
+    public function getHost(string $key): Host {
         if (isset($this->_hosts[$key])) {
             return $this->_hosts[$key];
         }
@@ -138,9 +138,9 @@ class Environment {
     /**
      * Returns the list of environments.
      *
-     * @return \Titon\Environment\Host[]
+     * @return Map<string, \Titon\Environment\Host>
      */
-    public function getHosts() {
+    public function getHosts(): Map<string, Host> {
         return $this->_hosts;
     }
 
@@ -149,8 +149,8 @@ class Environment {
      *
      * @throws \Titon\Environment\Exception\MissingBootstrapException
      */
-    public function initialize() {
-        if (!$this->_hosts) {
+    public function initialize(): void {
+        if ($this->_hosts->isEmpty()) {
             return;
         }
 
@@ -176,7 +176,7 @@ class Environment {
         // Bootstrap environment configuration
         if ($bootstrap = $current->getBootstrap()) {
             if (file_exists($bootstrap)) {
-                include $bootstrap;
+                include_once $bootstrap;
 
                 $this->emit('env.onBootstrap', [$this, $current]);
 
@@ -192,7 +192,7 @@ class Environment {
      * @param string $key
      * @return bool
      */
-    public function is($key) {
+    public function is(string $key): bool {
         return ($this->current() === $this->getHost($key));
     }
 
@@ -202,7 +202,7 @@ class Environment {
      * @param string $name
      * @return bool
      */
-    public function isMachine($name) {
+    public function isMachine(string $name): bool {
         $name = preg_quote($name, '/');
 
         // Allow for wildcards
@@ -216,7 +216,7 @@ class Environment {
      *
      * @return bool
      */
-    public function isLocalhost() {
+    public function isLocalhost(): bool {
         return (in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']) || $_SERVER['HTTP_HOST'] === 'localhost');
     }
 
@@ -225,7 +225,7 @@ class Environment {
      *
      * @return bool
      */
-    public function isDevelopment() {
+    public function isDevelopment(): bool {
         return $this->current()->isDevelopment();
     }
 
@@ -234,7 +234,7 @@ class Environment {
      *
      * @return bool
      */
-    public function isProduction() {
+    public function isProduction(): bool {
         return $this->current()->isProduction();
     }
 
@@ -243,7 +243,7 @@ class Environment {
      *
      * @return bool
      */
-    public function isQA() {
+    public function isQA(): bool {
         return $this->current()->isQA();
     }
 
@@ -252,7 +252,7 @@ class Environment {
      *
      * @return bool
      */
-    public function isStaging() {
+    public function isStaging(): bool {
         return $this->current()->isStaging();
     }
 
@@ -262,7 +262,7 @@ class Environment {
      * @param string $key
      * @return $this
      */
-    public function setFallback($key) {
+    public function setFallback(string $key): this {
         $this->_fallback = $this->getHost($key);
 
         $this->emit('env.onFallback', [$this, $this->_fallback]);

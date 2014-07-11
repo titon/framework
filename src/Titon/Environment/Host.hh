@@ -8,6 +8,7 @@
 namespace Titon\Environment;
 
 use Titon\Environment\Exception\InvalidEnvironmentException;
+use Titon\Utility\Converter;
 
 /**
  * A Host represents a shared configuration for a collection of IPs and host names.
@@ -21,28 +22,28 @@ class Host {
      *
      * @type string
      */
-    protected $_bootstrap;
+    protected string $_bootstrap = '';
 
     /**
      * List of host names and IPs.
      *
-     * @type string[]
+     * @type Vector<string>
      */
-    protected $_hosts;
+    protected Vector<string> $_hosts;
 
     /**
      * Unique identifier.
      *
      * @type string
      */
-    protected $_key;
+    protected string $_key = '';
 
     /**
      * Type of environment.
      *
-     * @type int
+     * @type string
      */
-    protected $_type;
+    protected string $_type = '';
 
     /**
      * Set the required settings.
@@ -51,12 +52,12 @@ class Host {
      * @param string $type
      * @throws \Titon\Environment\Exception\InvalidEnvironmentException
      */
-    public function __construct($hosts, $type = Environment::DEV) {
+    public function __construct(mixed $hosts, string $type = Environment::DEV) {
         if (!in_array($type, [Environment::DEV, Environment::PROD, Environment::STAGING, Environment::QA])) {
             throw new InvalidEnvironmentException(sprintf('Invalid %s environment type detected', $type));
         }
 
-        $this->_hosts = (array) $hosts;
+        $this->_hosts = Converter::toVector($hosts);
         $this->_type = $type;
     }
 
@@ -65,16 +66,16 @@ class Host {
      *
      * @return string
      */
-    public function getBootstrap() {
+    public function getBootstrap(): string {
         return $this->_bootstrap;
     }
 
     /**
      * Return the list of hosts.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public function getHosts() {
+    public function getHosts(): Vector<string> {
         return $this->_hosts;
     }
 
@@ -83,7 +84,7 @@ class Host {
      *
      * @return string
      */
-    public function getKey() {
+    public function getKey(): string {
         return $this->_key;
     }
 
@@ -92,7 +93,7 @@ class Host {
      *
      * @return string
      */
-    public function getType() {
+    public function getType(): string {
         return $this->_type;
     }
 
@@ -101,7 +102,7 @@ class Host {
      *
      * @return bool
      */
-    public function isDevelopment() {
+    public function isDevelopment(): bool {
         return ($this->getType() === Environment::DEVELOPMENT);
     }
 
@@ -110,7 +111,7 @@ class Host {
      *
      * @return bool
      */
-    public function isProduction() {
+    public function isProduction(): bool {
         return ($this->getType() === Environment::PRODUCTION);
     }
 
@@ -119,7 +120,7 @@ class Host {
      *
      * @return bool
      */
-    public function isQA() {
+    public function isQA(): bool {
         return ($this->getType() === Environment::QA);
     }
 
@@ -128,7 +129,7 @@ class Host {
      *
      * @return bool
      */
-    public function isStaging() {
+    public function isStaging(): bool {
         return ($this->getType() === Environment::STAGING);
     }
 
@@ -138,7 +139,7 @@ class Host {
      * @param string $path
      * @return $this
      */
-    public function setBootstrap($path) {
+    public function setBootstrap(string $path): this {
         $this->_bootstrap = $path;
 
         return $this;
@@ -150,7 +151,7 @@ class Host {
      * @param string $key
      * @return $this
      */
-    public function setKey($key) {
+    public function setKey(string $key): this {
         $this->_key = $key;
 
         return $this;

@@ -6,7 +6,7 @@ php:
 
 matrix:
   allow_failures:
-    - php: hhvm
+    #- php: hhvm
     - php: hhvm-nightly
 
 services:

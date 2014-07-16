@@ -28,8 +28,8 @@
     "autoload": {
         "psr-0": { "": "src/" },
         "files": [
-            "src/Titon/Debug/Functions.hh",
-            "src/Titon/Utility/Functions.hh"
+            "src/Titon/Debug/functions.hh",
+            "src/Titon/Utility/functions.hh"
         ]
     }
 }

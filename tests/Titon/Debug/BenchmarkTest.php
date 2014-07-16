@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Debug;
 
 use Titon\Test\TestCase;
@@ -7,16 +7,16 @@ class BenchmarkTest extends TestCase {
 
     public function testBenchmarking() {
         Benchmark::start('test');
-        $this->assertArrayHasKey('startTime', Benchmark::get('test'));
-        $this->assertArrayHasKey('startMemory', Benchmark::get('test'));
-        $this->assertArrayNotHasKey('endTime', Benchmark::get('test'));
-        $this->assertArrayNotHasKey('endMemory', Benchmark::get('test'));
+        $this->assertTrue(isset(Benchmark::get('test')['startTime']));
+        $this->assertTrue(isset(Benchmark::get('test')['startMemory']));
+        $this->assertFalse(isset(Benchmark::get('test')['endTime']));
+        $this->assertFalse(isset(Benchmark::get('test')['endMemory']));
 
         Benchmark::stop('test');
-        $this->assertArrayHasKey('endTime', Benchmark::get('test'));
-        $this->assertArrayHasKey('endMemory', Benchmark::get('test'));
+        $this->assertTrue(isset(Benchmark::get('test')['endTime']));
+        $this->assertTrue(isset(Benchmark::get('test')['endMemory']));
 
-        $this->assertTrue(is_array(Benchmark::get('test')));
+        $this->assertInstanceOf('HH\Map', Benchmark::get('test'));
         $this->assertTrue(count(Benchmark::all()) == 1);
 
         // output

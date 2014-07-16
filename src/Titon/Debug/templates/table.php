@@ -1,21 +1,21 @@
-<?hh if (is_array($value) || is_object($value)) {
+<?php if (is_array($value) || is_object($value)) {
 
     // Empty data set
     if (empty($value)) { ?>
         <span class="debug-type unknown">(empty)</span>
-        <?hh return;
+        <?php return;
     } ?>
 
     <table class="debug-table">
-        <?hh foreach ($value as $key => $var) { ?>
+        <?php foreach ($value as $key => $var) { ?>
 
             <tr>
-                <td><span class="debug-type object"><?hh echo $key; ?></span></td>
-                <td><?hh echo static::parseType($var); ?></td>
-                <td><?hh echo static::_renderTemplate('table', array('value' => $var)); ?></td>
+                <td><span class="debug-type object"><?php echo $key; ?></span></td>
+                <td><?php echo static::parseType($var); ?></td>
+                <td><?php echo static::_renderTemplate('table', array('value' => $var)); ?></td>
             </tr>
 
-        <?hh }
+        <?php }
 
         // Display class methods for non-augment classes
         if (is_object($value) && strpos(get_class($value), 'Augment') === false) {
@@ -25,14 +25,14 @@
             foreach ($methods as $method) { ?>
 
             <tr>
-                <td><span class="debug-type function"><?hh echo $method; ?></span></td>
+                <td><span class="debug-type function"><?php echo $method; ?></span></td>
                 <td>method</td>
                 <td></td>
             </tr>
 
-        <?hh } } ?>
+        <?php } } ?>
     </table>
 
-<?hh } else {
+<?php } else {
     echo static::parseValue($value, true);
 } ?>

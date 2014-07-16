@@ -1,4 +1,4 @@
-<?hh //strict
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -22,9 +22,9 @@ class Debugger {
     /**
      * Complete list of all internal errors types.
      *
-     * @type array
+     * @type Map<int, string>
      */
-    public static $errorTypes = [
+    public static Map<int, string> $errorTypes = Map {
         E_ERROR             => 'Error',
         E_WARNING           => 'Warning',
         E_PARSE             => 'Parsing Error',
@@ -41,26 +41,26 @@ class Debugger {
         E_DEPRECATED        => 'Deprecated',
         E_USER_DEPRECATED   => 'User Deprecated',
         E_ALL               => 'All'
-    ];
+    };
 
     /**
      * Callback to handle exceptions.
      *
      * @type callable
      */
-    protected static $_handler;
+    protected static callable $_handler;
 
     /**
      * Logger instance.
      *
      * @type \Psr\Log\LoggerInterface
      */
-    protected static $_logger;
+    protected static LoggerInterface $_logger;
 
     /**
      * Initialize the error, exception, and debug handling.
      */
-    public static function initialize() {
+    public static function initialize(): void {
         ini_set('log_errors', true);
         ini_set('report_memleaks', true);
 
@@ -77,9 +77,9 @@ class Debugger {
      * @param \Exception $exception
      * @return string
      */
-    public static function backtrace(Exception $exception = null) {
+    public static function backtrace(?Exception $exception = null): string {
         if (error_reporting() <= 0) {
-            return null;
+            return '';
         }
 
         if ($exception) {
@@ -132,9 +132,9 @@ class Debugger {
      * @param mixed $var,...
      * @return string
      */
-    public static function debug() {
+    public static function debug(): string {
         if (error_reporting() <= 0) {
-            return null;
+            return '';
         }
 
         $file = $line = null;
@@ -157,7 +157,7 @@ class Debugger {
     /**
      * Disable debugging.
      */
-    public static function disable() {
+    public static function disable(): void {
         static::enable(false);
     }
 
@@ -167,9 +167,9 @@ class Debugger {
      * @param mixed $var,...
      * @return string
      */
-    public static function dump() {
+    public static function dump(): string {
         if (error_reporting() <= 0) {
-            return null;
+            return '';
         }
 
         $file = $line = null;
@@ -195,9 +195,7 @@ class Debugger {
      *
      * @param bool $enabled
      */
-    public static function enable($enabled = true) {
-        $enabled = (bool) $enabled;
-
+    public static function enable(bool $enabled = true): void {
         if ($enabled) {
             ini_set('error_reporting', ($enabled === true) ? E_ALL | E_STRICT : $enabled);
         } else {
@@ -216,9 +214,9 @@ class Debugger {
      * @param bool $short
      * @return string
      */
-    public static function export($var, $short = true) {
+    public static function export(?mixed $var, bool $short = true): string {
         if (error_reporting() <= 0) {
-            return null;
+            return '';
         }
 
         $export = var_export($var, true);
@@ -248,7 +246,7 @@ class Debugger {
      * @param int $code
      * @return string
      */
-    public static function getError($code = null) {
+    public static function getError(int $code = 0): string {
         if (isset(static::$errorTypes[$code])) {
             return static::$errorTypes[$code];
         }
@@ -261,7 +259,7 @@ class Debugger {
      *
      * @return callable
      */
-    public static function getHandler() {
+    public static function getHandler(): callable {
         return static::$_handler;
     }
 
@@ -270,7 +268,7 @@ class Debugger {
      *
      * @return \Psr\Log\LoggerInterface
      */
-    public static function getLogger() {
+    public static function getLogger(): LoggerInterface {
         return static::$_logger;
     }
 
@@ -286,7 +284,7 @@ class Debugger {
      * @return string
      * @throws \ErrorException
      */
-    public static function handleError($code, $message, $file = null, $line = null) {
+    public static function handleError(int $code, string $message, string $file = '', int $line = 0): void {
         $exception = new ErrorException($message, $code, 0, $file, $line);
 
         switch ($code) {
@@ -316,7 +314,7 @@ class Debugger {
      * @param \Exception $exception
      * @codeCoverageIgnore
      */
-    public static function handleException(Exception $exception) {
+    public static function handleException(Exception $exception): void {
         static::logException($exception);
         echo static::printException($exception);
         exit();
@@ -327,7 +325,7 @@ class Debugger {
      *
      * @codeCoverageIgnore
      */
-    public static function handleFatalError() {
+    public static function handleFatalError(): void {
         $error = error_get_last();
 
         if ($error['type'] != E_ERROR) {
@@ -348,7 +346,7 @@ class Debugger {
      *
      * @param \Exception $exception
      */
-    public static function logException(Exception $exception) {
+    public static function logException(Exception $exception): void {
         if ($logger = static::getLogger()) {
             $map = static::mapErrorCode($exception);
 
@@ -370,9 +368,9 @@ class Debugger {
      * @uses Titon\Debug\Logger
      *
      * @param int|\Exception $code
-     * @return array
+     * @return Map<string, string>
      */
-    public static function mapErrorCode($code) {
+    public static function mapErrorCode(mixed $code): Map<string, string> {
         $log = Logger::DEBUG;
         $error = null;
 
@@ -387,7 +385,7 @@ class Debugger {
         }
 
         if (!$error) {
-            $error = static::getError($code);
+            $error = static::getError((int) $code);
         }
 
         switch ($code) {
@@ -416,10 +414,10 @@ class Debugger {
             break;
         }
 
-        return [
+        return Map {
             'error' => $error,
             'level' => $log
-        ];
+        };
     }
 
     /**
@@ -428,7 +426,7 @@ class Debugger {
      * @param mixed $value
      * @return string
      */
-    public static function parseType($value) {
+    public static function parseType(?mixed $value): string {
         if (is_callable($value)) {
             return 'callable';
         }
@@ -448,17 +446,17 @@ class Debugger {
      * @param int $depth
      * @return string
      */
-    public static function parseValue($value, $wrap = false, $depth = 0) {
-        $var = null;
+    public static function parseValue(?mixed $value, bool $wrap = false, int $depth = 0): string {
+        $var = '';
 
         if (is_numeric($value)) {
-            $var = $value;
+            $var = (string) $value;
 
         } else if (is_bool($value)) {
             $var = $value ? 'true' : 'false';
 
         } else if (is_string($value)) {
-            $var = '"' . Sanitize::escape($value, ['flags' => ENT_NOQUOTES]) . '"';
+            $var = '"' . Sanitize::escape($value, Map {'flags' => ENT_NOQUOTES}) . '"';
 
         } else if (is_array($value)) {
             if ($depth >= 3) {
@@ -482,7 +480,7 @@ class Debugger {
             $var = '{' . get_class($value) . '}';
 
         } else if (is_resource($value)) {
-            $var = mb_strtolower(get_resource_type($value));
+            $var = strtolower(get_resource_type($value));
         }
 
         if ($wrap) {
@@ -498,9 +496,9 @@ class Debugger {
      * @param \Exception $exception
      * @return string
      */
-    public static function printException(Exception $exception) {
+    public static function printException(Exception $exception): string {
         if (error_reporting() <= 0) {
-            return null;
+            return '';
         }
 
         return static::_renderTemplate('error', [
@@ -513,7 +511,7 @@ class Debugger {
      *
      * @param callable $callback
      */
-    public static function setHandler($callback) {
+    public static function setHandler(callable $callback): void {
         static::$_handler = $callback;
 
         set_exception_handler($callback);
@@ -524,7 +522,7 @@ class Debugger {
      *
      * @param \Psr\Log\LoggerInterface $logger
      */
-    public static function setLogger(LoggerInterface $logger) {
+    public static function setLogger(LoggerInterface $logger): void {
         static::$_logger = $logger;
     }
 
@@ -535,7 +533,7 @@ class Debugger {
      * @param array $variables
      * @return string
      */
-    protected static function _renderTemplate($template, array $variables = []) {
+    protected static function _renderTemplate(string $template, array $variables = []): string {
         if ($variables) {
             extract($variables, EXTR_OVERWRITE);
         }

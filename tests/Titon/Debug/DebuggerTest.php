@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Debug;
 
 use Titon\Debug\Exception\FatalErrorException;
@@ -118,7 +118,7 @@ class DebuggerTest extends TestCase {
     public function testGetError() {
         $this->assertEquals('Error', Debugger::getError(E_ERROR));
         $this->assertEquals('Core Warning', Debugger::getError(E_CORE_WARNING));
-        $this->assertEquals('Unknown Error', Debugger::getError('Foobar'));
+        $this->assertEquals('Unknown Error', Debugger::getError(-123));
     }
 
     public function testHandleError() {
@@ -177,11 +177,11 @@ class DebuggerTest extends TestCase {
     }
 
     public function testMapErrorCode() {
-        $this->assertEquals(['error' => 'User Error', 'level' => 'error'], Debugger::mapErrorCode(E_USER_ERROR));
-        $this->assertEquals(['error' => 'Core Warning', 'level' => 'warning'], Debugger::mapErrorCode(E_CORE_WARNING));
-        $this->assertEquals(['error' => 'InvalidArgumentException', 'level' => 'debug'], Debugger::mapErrorCode(new \InvalidArgumentException()));
-        $this->assertEquals(['error' => 'Titon\Debug\Exception\FatalErrorException', 'level' => 'error'], Debugger::mapErrorCode(new FatalErrorException('Message', E_ERROR)));
-        $this->assertEquals(['error' => 'Strict Notice', 'level' => 'info'], Debugger::mapErrorCode(new ErrorException('Message', E_STRICT)));
+        $this->assertEquals(Map {'error' => 'User Error', 'level' => 'error'}, Debugger::mapErrorCode(E_USER_ERROR));
+        $this->assertEquals(Map {'error' => 'Core Warning', 'level' => 'warning'}, Debugger::mapErrorCode(E_CORE_WARNING));
+        $this->assertEquals(Map {'error' => 'InvalidArgumentException', 'level' => 'debug'}, Debugger::mapErrorCode(new \InvalidArgumentException()));
+        $this->assertEquals(Map {'error' => 'Titon\Debug\Exception\FatalErrorException', 'level' => 'error'}, Debugger::mapErrorCode(new FatalErrorException('Message', E_ERROR)));
+        $this->assertEquals(Map {'error' => 'Strict Notice', 'level' => 'info'}, Debugger::mapErrorCode(new ErrorException('Message', E_STRICT)));
     }
 
     public function testParseType() {

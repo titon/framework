@@ -27,6 +27,9 @@
     },
     "autoload": {
         "psr-0": { "": "src/" },
-        "files": []
+        "files": [
+            "src/Titon/Debug/Functions.hh",
+            "src/Titon/Utility/Functions.hh"
+        ]
     }
 }

@@ -11,7 +11,7 @@ use Titon\Debug\Debugger;
  * @see Titon\Debug\Debugger::printException()
  */
 if (!function_exists('inspect')) {
-    function inspect(Exception $e) {
+    function inspect(Exception $e): void {
         echo Debugger::printException($e);
     }
 }
@@ -20,7 +20,7 @@ if (!function_exists('inspect')) {
  * @see Titon\Debug\Debugger::backtrace()
  */
 if (!function_exists('backtrace')) {
-    function backtrace(Exception $e = null) {
+    function backtrace(?Exception $e = null): void {
         echo Debugger::backtrace($e);
     }
 }
@@ -29,7 +29,7 @@ if (!function_exists('backtrace')) {
  * @see Titon\Debug\Debugger::export()
  */
 if (!function_exists('export')) {
-    function export($var, $short = true) {
+    function export(?mixed $var, bool $short = true): void {
         echo Debugger::export($var, $short);
     }
 }
@@ -38,8 +38,8 @@ if (!function_exists('export')) {
  * @see Titon\Debug\Debugger::debug()
  */
 if (!function_exists('debug')) {
-    function debug() {
-        echo call_user_func_array(array('Titon\Debug\Debugger', 'debug'), func_get_args());
+    function debug(): void {
+        echo call_user_func_array(class_meth('Titon\Debug\Debugger', 'debug'), func_get_args());
     }
 }
 
@@ -47,7 +47,7 @@ if (!function_exists('debug')) {
  * @see Titon\Debug\Debugger::dump()
  */
 if (!function_exists('dump')) {
-    function dump() {
-        echo call_user_func_array(array('Titon\Debug\Debugger', 'dump'), func_get_args());
+    function dump(): void {
+        echo call_user_func_array(class_meth('Titon\Debug\Debugger', 'dump'), func_get_args());
     }
 }

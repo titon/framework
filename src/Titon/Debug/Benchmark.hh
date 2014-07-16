@@ -20,19 +20,19 @@ class Benchmark {
     /**
      * User and system initiated benchmarking tests.
      *
-     * @type array
+     * @type Map<string, Map<string, ?float>>
      */
-    protected static $_benchmarks = [];
+    protected static Map<string, Map<string, ?float>> $_benchmarks = Map {};
 
     /**
      * Return all benchmarks and calculate averages.
      *
-     * @return array
+     * @return Map<string, Map<string, ?float>>
      */
-    public static function all() {
-        $benchmarks = static::$_benchmarks;
+    public static function all(): Map<string, Map<string, ?float>> {
+        $benchmarks = Map {};
 
-        foreach ($benchmarks as $key => $bm) {
+        foreach (static::$_benchmarks as $key => $bm) {
             $benchmarks[$key] = static::get($key);
         }
 
@@ -43,10 +43,10 @@ class Benchmark {
      * Return a single benchmark by key and calculate averages and memory usage.
      *
      * @param string $key
-     * @return array
+     * @return Map<string, ?float>
      * @throws \Titon\Debug\Exception\MissingBenchmarkException
      */
-    public static function get($key) {
+    public static function get(string $key): Map<string, ?float> {
         if (empty(static::$_benchmarks[$key])) {
             throw new MissingBenchmarkException(sprintf('Benchmark %s does not exist', $key));
         }
@@ -54,7 +54,7 @@ class Benchmark {
         $bm = static::$_benchmarks[$key];
         $bm['avgTime'] = isset($bm['endTime']) ? ($bm['endTime'] - $bm['startTime']) : null;
         $bm['avgMemory'] = isset($bm['endMemory']) ? ($bm['endMemory'] - $bm['startMemory']) : null;
-        $bm['peakMemory'] = memory_get_peak_usage();
+        $bm['peakMemory'] = (float) memory_get_peak_usage();
 
         return $bm;
     }
@@ -65,7 +65,7 @@ class Benchmark {
      * @param string $key
      * @return string
      */
-    public static function output($key) {
+    public static function output(string $key): string {
         $benchmark = static::get($key);
 
         return sprintf('[%s] %s seconds, %s memory (%s peak)',
@@ -80,11 +80,11 @@ class Benchmark {
      *
      * @param string $key
      */
-    public static function start($key) {
-        static::$_benchmarks[$key] = [
+    public static function start(string $key): void {
+        static::$_benchmarks[$key] = Map {
             'startTime' => microtime(true),
             'startMemory' => memory_get_usage(true),
-        ];
+        };
     }
 
     /**
@@ -92,11 +92,11 @@ class Benchmark {
      *
      * @param string $key
      */
-    public static function stop($key) {
-        static::$_benchmarks[$key] += [
+    public static function stop(string $key): void {
+        static::$_benchmarks[$key]->setAll(Map {
             'endTime' => microtime(true),
             'endMemory' => memory_get_usage(true)
-        ];
+        });
     }
 
 }

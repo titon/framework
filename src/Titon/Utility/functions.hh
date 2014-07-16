@@ -395,6 +395,15 @@ if (!function_exists('package_name')) {
 }
 
 /**
+ * @see Titon\Utility\Path::alias()
+ */
+if (!function_exists('path_alias')) {
+    function path_alias(?string $file, ?Map<string, string> $paths = Map {}): string {
+        return Path::alias($file, $paths);
+    }
+}
+
+/**
  * @see Titon\Utility\Path::ds()
  */
 if (!function_exists('ds')) {

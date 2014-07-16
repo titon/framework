@@ -1,20 +1,20 @@
 <div class="titon-debug">
-    <?hh if (!empty($file)) { ?>
+    <?php if (!empty($file)) { ?>
         <div class="debug-head">
-            <abbr title="<?hh echo $file; ?>" class="debug-file">
-                <?hh echo \Titon\Utility\Path::alias($file) . ':'; ?><!--
-                --><span class="debug-line"><?hh echo $line; ?></span>
+            <abbr title="<?php echo $file; ?>" class="debug-file">
+                <?php echo path_alias($file) . ':'; ?><!--
+                --><span class="debug-line"><?php echo $line; ?></span>
             </abbr>
         </div>
-    <?hh } ?>
+    <?php } ?>
 
-    <?hh foreach ($vars as $var) { ?>
+    <?php foreach ($vars as $var) { ?>
         <div class="debug-output">
-            <?hh if (isset($dump)) {
+            <?php if (isset($dump)) {
                 echo static::_renderTemplate('table', array('value' => $var));
             } else { ?>
-                <pre><code><?hh echo esc(print_r($var, true)); ?></code></pre>
-            <?hh } ?>
+                <pre><code><?php echo esc(print_r($var, true)); ?></code></pre>
+            <?php } ?>
         </div>
-    <?hh } ?>
+    <?php } ?>
 </div>

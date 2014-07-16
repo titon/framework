@@ -12,7 +12,7 @@ use Psr\Log\LogLevel;
 use Titon\Debug\Exception\InvalidDirectoryException;
 use Titon\Debug\Exception\UnwritableDirectoryException;
 use Titon\Utility\Path;
-use Titon\Utility\String;
+use Titon\Utility\Str;
 use \DateTime;
 use \Exception;
 
@@ -24,21 +24,21 @@ use \Exception;
  */
 class Logger extends AbstractLogger {
 
-    const EMERGENCY = LogLevel::EMERGENCY; // 0
-    const ALERT = LogLevel::ALERT; // 1
-    const CRITICAL = LogLevel::CRITICAL; // 2
-    const ERROR = LogLevel::ERROR; // 3
-    const WARNING = LogLevel::WARNING; // 4
-    const NOTICE = LogLevel::NOTICE; // 5
-    const INFO = LogLevel::INFO; // 6
-    const DEBUG = LogLevel::DEBUG; // 7
+    const string EMERGENCY = LogLevel::EMERGENCY; // 0
+    const string ALERT = LogLevel::ALERT; // 1
+    const string CRITICAL = LogLevel::CRITICAL; // 2
+    const string ERROR = LogLevel::ERROR; // 3
+    const string WARNING = LogLevel::WARNING; // 4
+    const string NOTICE = LogLevel::NOTICE; // 5
+    const string INFO = LogLevel::INFO; // 6
+    const string DEBUG = LogLevel::DEBUG; // 7
 
     /**
      * Directory to store log files.
      *
      * @type string
      */
-    protected $_directory;
+    protected string $_directory;
 
     /**
      * Set the directory to log to.
@@ -49,7 +49,7 @@ class Logger extends AbstractLogger {
      * @throws \Titon\Debug\Exception\InvalidDirectoryException
      * @throws \Titon\Debug\Exception\UnwritableDirectoryException
      */
-    public function __construct($dir) {
+    public function __construct(string $dir) {
         if (!is_dir($dir)) {
             throw new InvalidDirectoryException(sprintf('Invalid log directory %s', $dir));
 
@@ -57,7 +57,7 @@ class Logger extends AbstractLogger {
             throw new UnwritableDirectoryException('Log directory is not writable');
         }
 
-        $this->_directory = $dir;
+        $this->_directory = Path::ds($dir, true);
     }
 
     /**
@@ -65,7 +65,7 @@ class Logger extends AbstractLogger {
      *
      * @return string
      */
-    public function getDirectory() {
+    public function getDirectory(): string {
         return $this->_directory;
     }
 
@@ -77,15 +77,13 @@ class Logger extends AbstractLogger {
      * @link https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
      * @link http://tools.ietf.org/html/rfc5424
      *
-     * @uses Titon\Utility\String
-     *
      * @param string $level
      * @param string $message
      * @param array $context
-     * @return int|bool
+     * @return bool
      */
-    public function log($level, $message, array $context = []) {
-        return file_put_contents(
+    public function log($level, $message, array $context = []): bool { // No type hints as it inherits from PSR
+        return (bool) file_put_contents(
             sprintf('%s/%s-%s.log', $this->getDirectory(), $level, date('Y-m-d')),
             static::createMessage($level, $message, $context),
             FILE_APPEND);
@@ -94,12 +92,14 @@ class Logger extends AbstractLogger {
     /**
      * Sharable message parsing and building method. Conforms to the PSR spec.
      *
+     * @uses Titon\Utility\String
+     *
      * @param string $level
      * @param string $message
      * @param array $context
      * @return string
      */
-    public static function createMessage($level, $message, array $context = []) {
+    public static function createMessage(string $level, string $message, array $context = []): string {
         $exception = null;
         $url = null;
 
@@ -118,7 +118,7 @@ class Logger extends AbstractLogger {
 
         $message = sprintf('[%s] %s %s',
             date(DateTime::RFC3339),
-            String::insert($message, $context, ['escape' => false]),
+            Str::insert($message, new Map($context), Map {'escape' => false}),
             $url ? '[' . $url . ']' : '') . PHP_EOL;
 
         if ($exception instanceof Exception) {

@@ -21,8 +21,8 @@ interface Filter {
      *
      * @param \Titon\Route\Router $router
      * @param \Titon\Route\Route $route
-     * @return mixed
+     * @return void
      */
-    public function filter(Router $router, Route $route);
+    public function filter(Router $router, Route $route): void;
 
 }

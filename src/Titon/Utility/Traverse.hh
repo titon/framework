@@ -399,28 +399,32 @@ class Traverse {
      * Merge is a combination of array_merge() and array_merge_recursive(). However, when merging two keys with the same key,
      * the previous value will be overwritten instead of being added into an array. The later array takes precedence when merging.
      *
+     * @param Collection $base
+     * @param Collection $collections
      * @return Map<string, mixed>|Vector<mixed>
      */
-    public static function merge() {
-        $collections = func_get_args();
-        $class = get_class($collections[0]);
-        $data = new $class();
+    public static function merge(Collection $base, ...$collections) { // todo - Add type hinting when variadic supports it
+        $isVector = ($base instanceof Vector);
 
         foreach ($collections as $collection) {
             foreach ($collection as $key => $value) {
-                if (isset($data[$key])) {
-                    $current = $data[$key];
+                if (isset($base[$key])) {
+                    $current = $base[$key];
 
                     if ($value instanceof Collection && $current instanceof Collection) {
                         $value = static::merge($current, $value);
                     }
                 }
 
-                $data[$key] = $value;
+                if ($isVector && !isset($base[$key])) {
+                    $base[] = $value;
+                } else {
+                    $base[$key] = $value;
+                }
             }
         }
 
-        return $data;
+        return $base;
     }
 
     /**

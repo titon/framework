@@ -7,9 +7,8 @@
 
 namespace Titon\Route;
 
-use Titon\Common\Base;
 use Titon\Route\Exception\MissingPatternException;
-use Titon\Utility\Hash;
+use Titon\Utility\Traverse;
 
 /**
  * Represents the skeleton for an individual route. A route matches an internal URL that gets analyzed into multiple parts:
@@ -18,88 +17,100 @@ use Titon\Utility\Hash;
  *
  * @package Titon\Route
  */
-class Route extends Base {
+class Route {
 
     /**
      * Pre-defined regex patterns.
      */
-    const ALPHA = '([a-z\_\-\+]+)';
-    const ALNUM = '([a-z0-9\_\-\+]+)';
-    const NUMERIC = '([0-9\.]+)';
-    const WILDCARD = '(.*)';
-    const LOCALE = '([a-z]{2}(?:-[a-z]{2})?)';
-
-    /**
-     * Configuration.
-     *
-     * @type array {
-     *      @type bool $secure      When true, will only match if under HTTPS
-     *      @type bool $static      A static route that contains no patterns
-     *      @type array $method     The types of acceptable HTTP methods (defaults to all)
-     *      @type array $patterns   Custom defined regex patterns
-     *      @type array $pass       Name of tokens to pass as action arguments
-     *      @type array $filters    Filters to trigger once the route has been matched
-     *      @type string $locale    Fallback locale to redirect to
-     * }
-     */
-    protected $_config = [
-        'secure' => false,
-        'static' => false,
-        'method' => [],
-        'patterns' => [],
-        'pass' => [],
-        'filters' => [],
-        'locale' => ''
-    ];
+    const string ALPHA = '([a-z\_\-\+]+)';
+    const string ALNUM = '([a-z0-9\_\-\+]+)';
+    const string NUMERIC = '([0-9\.]+)';
+    const string WILDCARD = '(.*)';
+    const string LOCALE = '([a-z]{2}(?:-[a-z]{2})?)';
 
     /**
      * The compiled regex pattern.
      *
      * @type string
      */
-    protected $_compiled;
+    protected string $_compiled = '';
 
     /**
-     * Unique name of this route.
+     * Filters to trigger once the route has been matched.
      *
-     * @type string
+     * @type Vector<string>
      */
-    protected $_key;
+    protected Vector<string> $_filters = Vector {};
 
     /**
      * Patterns matched during the isMatch() process.
      *
      * @type array
      */
-    protected $_matches = [];
+    protected array $_matches = [];
+
+    /**
+     * The types of acceptable HTTP methods (defaults to all).
+     *
+     * @type Vector<string>
+     */
+    protected Vector<string> $_methods = Vector {};
 
     /**
      * The path to match.
      *
      * @type string
      */
-    protected $_path = '';
+    protected string $_path = '';
+
+    /**
+     * Name of tokens to pass as action arguments.
+     *
+     * @type Vector<string>
+     */
+    protected Vector<string> $_pass = Vector {};
+
+    /**
+     * Custom defined regex patterns.
+     *
+     * @type Map<string, string>
+     */
+    protected Map<string, string> $_patterns = Map {};
 
     /**
      * Collection of route parameters.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_route = [];
+    protected Map<string, mixed> $_route = Map {};
+
+    /**
+     * When true, will only match if under HTTPS.
+     *
+     * @type bool
+     */
+    protected bool $_secure = false;
+
+    /**
+     * A static route that contains no patterns.
+     *
+     * @type bool
+     */
+    protected bool $_static = false;
 
     /**
      * Custom defined tokens.
      *
-     * @type array
+     * @type Vector<Map<string, mixed>>
      */
-    protected $_tokens = [];
+    protected Vector<Map<string, mixed>> $_tokens = Vector {};
 
     /**
      * The corresponding URL when a match is found.
      *
      * @type string
      */
-    protected $_url;
+    protected string $_url;
 
     /**
      * Store the routing configuration.
@@ -108,13 +119,47 @@ class Route extends Base {
      *
      * @param string $path
      * @param string|array $route
-     * @param array $config
      */
-    public function __construct($path, $route = [], array $config = []) {
+    public function __construct(string $path, mixed $route = []) {
         $this->append($path);
         $this->_route = Router::parse($route);
+    }
 
-        parent::__construct($config);
+    /**
+     * Add a filter by name.
+     *
+     * @param string $key
+     * @return $this
+     */
+    public function addFilter(string $key): this {
+        $this->_filters[] = $key;
+
+        return $this;
+    }
+
+    /**
+     * Add an HTTP method to match against.
+     *
+     * @param string $key
+     * @return $this
+     */
+    public function addMethod(string $key): this {
+        $this->_methods[] = $key;
+
+        return $this;
+    }
+
+    /**
+     * Add a regex pattern by token key.
+     *
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    public function addPattern(string $key, string $value): this {
+        $this->_patterns[$key] = $value;
+
+        return $this;
     }
 
     /**
@@ -123,7 +168,7 @@ class Route extends Base {
      * @param string $path
      * @return $this
      */
-    public function append($path) {
+    public function append(string $path): this {
         $this->_path .= '/' . trim($path, '/');
 
         return $this;
@@ -135,7 +180,7 @@ class Route extends Base {
      * @return string
      * @throws \Titon\Route\Exception\MissingPatternException
      */
-    public function compile() {
+    public function compile(): string {
         if ($this->isCompiled()) {
             return $this->_compiled;
         }
@@ -174,7 +219,7 @@ class Route extends Base {
                         list($token, $pattern) = explode(':', $token, 2);
 
                         $patterns[$token] = $pattern;
-                        $this->setConfig('patterns.' . $token, $pattern);
+                        $this->addPattern($token, $pattern);
                     }
 
                     if ($open === '{' && $close === '}') {
@@ -201,10 +246,10 @@ class Route extends Base {
 
                     $compiled = str_replace($chunk, $pattern, $compiled);
 
-                    $this->_tokens[] = ['token' => $token, 'optional' => $optional];
+                    $this->_tokens[] = Map {'token' => $token, 'optional' => $optional};
                 }
             } else {
-                $this->setConfig('static', true);
+                $this->setStatic(true);
             }
         }
 
@@ -222,19 +267,19 @@ class Route extends Base {
     /**
      * Return all filters.
      *
-     * @return array
+     * @return Vector<string>
      */
-    public function getFilters() {
-        return array_unique((array) $this->getConfig('filters'));
+    public function getFilters(): Vector<string> {
+        return $this->_filters;
     }
 
     /**
      * Return the HTTP method.
      *
-     * @return array|string
+     * @return Vector<string>
      */
-    public function getMethod() {
-        return (array) $this->getConfig('method');
+    public function getMethods(): Vector<string> {
+        return $this->_methods;
     }
 
     /**
@@ -242,47 +287,47 @@ class Route extends Base {
      *
      * @return string
      */
-    public function getPath() {
+    public function getPath(): string {
         return $this->_path;
     }
 
     /**
      * Return a param from the route.
      *
-     * @uses Titon\Utility\Hash
+     * @uses Titon\Utility\Traverse
      *
      * @param string $key
-     * @return string
+     * @return mixed
      */
-    public function getParam($key) {
-        return Hash::get($this->_route, $key);
+    public function getParam(string $key): mixed {
+        return Traverse::get($this->_route, $key);
     }
 
     /**
      * Return all params.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function getParams() {
+    public function getParams(): Map<string, mixed> {
         return $this->_route;
     }
 
     /**
      * Return all tokens to be passed as arguments.
      *
-     * @return array
+     * @return Vector<string>
      */
-    public function getPassed() {
-        return array_unique((array) $this->getConfig('pass'));
+    public function getPassed(): Vector<string> {
+        return $this->_pass;
     }
 
     /**
      * Return all the patterns used for compiling.
      *
-     * @return array
+     * @return Map<string, string>
      */
-    public function getPatterns() {
-        return $this->getConfig('patterns');
+    public function getPatterns(): Map<string, string> {
+        return $this->_patterns;
     }
 
     /**
@@ -290,8 +335,8 @@ class Route extends Base {
      *
      * @return bool
      */
-    public function getSecure() {
-        return $this->getConfig('secure');
+    public function getSecure(): bool {
+        return $this->_secure;
     }
 
     /**
@@ -299,16 +344,16 @@ class Route extends Base {
      *
      * @return bool
      */
-    public function getStatic() {
-        return $this->getConfig('static');
+    public function getStatic(): bool {
+        return $this->_static;
     }
 
     /**
      * Return the compiled tokens.
      *
-     * @return array
+     * @return Vector<Map<string, mixed>>
      */
-    public function getTokens() {
+    public function getTokens(): Vector<Map<string, mixed>> {
         return $this->_tokens;
     }
 
@@ -317,8 +362,8 @@ class Route extends Base {
      *
      * @return bool
      */
-    public function isCompiled() {
-        return ($this->_compiled !== null);
+    public function isCompiled(): bool {
+        return ($this->_compiled !== '');
     }
 
     /**
@@ -327,7 +372,7 @@ class Route extends Base {
      * @param string $url
      * @return bool
      */
-    public function isMatch($url) {
+    public function isMatch(string $url): bool {
         if (!$this->isMethod()) {
             return false;
 
@@ -338,7 +383,7 @@ class Route extends Base {
             return true;
 
         } else if (preg_match('/^' . $this->compile() . '$/i', $url, $matches)) {
-            $this->match($matches);
+            $this->match(new Vector($matches));
             return true;
         }
 
@@ -350,8 +395,8 @@ class Route extends Base {
      *
      * @return bool
      */
-    public function isMethod() {
-        $method = array_map('strtolower', $this->getMethod());
+    public function isMethod(): bool {
+        $method = array_map('strtolower', $this->getMethods());
 
         if ($method && !in_array(strtolower($_SERVER['REQUEST_METHOD']), $method, true)) {
             return false;
@@ -365,7 +410,7 @@ class Route extends Base {
      *
      * @return bool
      */
-    public function isSecure() {
+    public function isSecure(): bool {
         $isSecure = (
             isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ||
             isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443
@@ -384,7 +429,7 @@ class Route extends Base {
      *
      * @return bool
      */
-    public function isStatic() {
+    public function isStatic(): bool {
         return (bool) $this->getStatic();
     }
 
@@ -392,20 +437,24 @@ class Route extends Base {
      * Receive an array of matched values and apply it to the current route.
      * These matches will equate to tokens, arguments, and other required values.
      *
-     * @param array $matches
+     * @param Vector<string> $matches
      * @return $this
      */
-    public function match(array $matches) {
+    public function match(Vector<string> $matches): this {
         $this->_matches = $matches;
         $this->_url = array_shift($matches);
 
         if ($matches && $this->_tokens) {
-            $pass = (array) $this->getPassed();
+            $pass = $this->getPassed();
 
             foreach ($this->_tokens as $token) {
                 $arg = array_shift($matches);
 
                 $this->_route[$token['token']] = $arg;
+
+                if (!isset($this->_route['args'])) {
+                    $this->_route['args'] = Vector {};
+                }
 
                 if (in_array($token['token'], $pass)) {
                     $this->_route['args'][]  = $arg;
@@ -417,13 +466,85 @@ class Route extends Base {
     }
 
     /**
+     * Define multiple tokens to pass as arguments to a dispatched action.
+     *
+     * @param Vector<string> $tokens
+     * @return $this
+     */
+    public function pass(Vector<string> $tokens): this {
+        $this->_pass = $tokens;
+
+        return $this;
+    }
+
+    /**
      * Prepend onto the path. This must be done before compilation.
      *
      * @param string $path
      * @return $this
      */
-    public function prepend($path) {
+    public function prepend(string $path): this {
         $this->_path = '/' . trim($path, '/') . rtrim($this->_path, '/');
+
+        return $this;
+    }
+
+    /**
+     * Set the list of filters to process.
+     *
+     * @param Vector<string> $filters
+     * @return $this
+     */
+    public function setFilters(Vector<string> $filters): this {
+        $this->_filters = $filters;
+
+        return $this;
+    }
+
+    /**
+     * Set the list of HTTP methods to match against.
+     *
+     * @param Vector<string> $methods
+     * @return $this
+     */
+    public function setMethods(Vector<string> $methods): this {
+        $this->_methods = $methods;
+
+        return $this;
+    }
+
+    /**
+     * Set a mapping of regex patterns to parse URLs with.
+     *
+     * @param Map<string, string> $patterns
+     * @return $this
+     */
+    public function setPatterns(Map<string, string> $patterns): this {
+        $this->_patterns = $patterns;
+
+        return $this;
+    }
+
+    /**
+     * Set the secure flag.
+     *
+     * @param bool $secure
+     * @return $this
+     */
+    public function setSecure(bool $secure): this {
+        $this->_secure = $secure;
+
+        return $this;
+    }
+
+    /**
+     * Set the static flag.
+     *
+     * @param bool $static
+     * @return $this
+     */
+    public function setStatic(bool $static): this {
+        $this->_static = $static;
 
         return $this;
     }
@@ -433,7 +554,7 @@ class Route extends Base {
      *
      * @return string
      */
-    public function url() {
+    public function url(): string {
         return $this->_url;
     }
 

@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Route;
 
 use Titon\Test\TestCase;
@@ -24,10 +24,10 @@ class RouteTest extends TestCase {
         $route = new Route('/(wildcard?)');
         $this->assertEquals('(?:\/(.*))?\/?', $route->compile());
 
-        $route = new Route('/<regex>', [], ['patterns' => ['regex' => '[foo|bar]']]);
+        $route = (new Route('/<regex>'))->addPattern('regex', '[foo|bar]');
         $this->assertEquals('\/([foo|bar])\/?', $route->compile());
 
-        $route = new Route('/<regex?>', [], ['patterns' => ['regex' => '[foo|bar]']]);
+        $route = (new Route('/<regex?>'))->addPattern('regex', '[foo|bar]');
         $this->assertEquals('(?:\/([foo|bar]))?\/?', $route->compile());
 
         $route = new Route('/<regex:[foo|bar]>');
@@ -38,7 +38,7 @@ class RouteTest extends TestCase {
 
         $route = new Route('/<regex:([a-z0-9\w\s\d\-]+)?>');
         $this->assertEquals('(?:\/([a-z0-9\w\s\d\-]+))?\/?', $route->compile());
-        $this->assertEquals(['regex' => '([a-z0-9\w\s\d\-]+)'], $route->getPatterns());
+        $this->assertEquals(Map {'regex' => '([a-z0-9\w\s\d\-]+)'}, $route->getPatterns());
 
         $route = new Route('/{string}/[int]');
         $this->assertEquals('\/([a-z\_\-\+]+)\/([0-9\.]+)\/?', $route->compile());
@@ -55,7 +55,7 @@ class RouteTest extends TestCase {
         $moduleControllerAction = new Route('/{module}/{controller}/{action}');
         $moduleController = new Route('/{module}/{controller}');
         $module = new Route('/{module}');
-        $root = new Route('/', [], ['static' => true]);
+        $root = (new Route('/'))->setStatic(true);
 
         $this->assertEquals('\/([a-z\_\-\+]+)\/([a-z\_\-\+]+)\/([a-z\_\-\+]+)\.([a-z\_\-\+]+)\/?', $moduleControllerActionExt->compile());
         $this->assertEquals('\/([a-z\_\-\+]+)\/([a-z\_\-\+]+)\/([a-z\_\-\+]+)\/?', $moduleControllerAction->compile());
@@ -65,19 +65,15 @@ class RouteTest extends TestCase {
 
         $multi = new Route('{alpha}/[numeric]/(wildcard)/');
 
-        $patterns = new Route('<alnum>/<locale>', [], [
-            'patterns' => [
-                'alnum' => Route::ALNUM,
-                'locale' => '([a-z]{2}(?:-[a-z]{2})?)'
-            ]
-        ]);
+        $patterns = (new Route('<alnum>/<locale>'))->setPatterns(Map {
+            'alnum' => Route::ALNUM,
+            'locale' => '([a-z]{2}(?:-[a-z]{2})?)'
+        });
 
-        $allTypes = new Route('/<locale>/{alpha}/(wildcard)/[numeric]/{alnum}', [], [
-            'patterns' => [
-                'alnum' => Route::ALNUM,
-                'locale' => '([a-z]{2}(?:-[a-z]{2})?)'
-            ]
-        ]);
+        $allTypes = (new Route('/<locale>/{alpha}/(wildcard)/[numeric]/{alnum}'))->setPatterns(Map {
+            'alnum' => Route::ALNUM,
+            'locale' => '([a-z]{2}(?:-[a-z]{2})?)'
+        });
 
         $this->assertEquals('\/([a-z\_\-\+]+)\/([0-9\.]+)\/(.*)\/?', $multi->compile());
         $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([a-z]{2}(?:-[a-z]{2})?)\/?', $patterns->compile());
@@ -112,74 +108,74 @@ class RouteTest extends TestCase {
         $route = new Route('/{module}/{controller}/{action}.{ext}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => 'html',
             'module' => 'forum',
             'controller' => 'topic',
             'action' => 'stats',
-            'query' => [],
-            'args' => []
-        ], $route->getParams());
+            'query' => Map {},
+            'args' => Vector {}
+        }, $route->getParams());
 
         // single argument
         $url = '/forum/topic/view/123.xml';
         $route = new Route('/{module}/{controller}/{action}/[id].{ext}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => 'xml',
             'module' => 'forum',
             'controller' => 'topic',
             'action' => 'view',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'id' => 123
-        ], $route->getParams());
+        }, $route->getParams());
 
         // multi arguments
         $url = '/forum/topic/view/123/abc.json';
         $route = new Route('/{module}/{controller}/{action}/[id]/{slug}.{ext}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => 'json',
             'module' => 'forum',
             'controller' => 'topic',
             'action' => 'view',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'id' => 123,
             'slug' => 'abc'
-        ], $route->getParams());
+        }, $route->getParams());
 
         // invalid module
         $url = '/foobar/dashboard/edit.xhtml';
         $route = new Route('/{module}/{controller}/{action}.{ext}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => 'xhtml',
             'module' => 'foobar',
             'controller' => 'dashboard',
             'action' => 'edit',
-            'query' => [],
-            'args' => []
-        ], $route->getParams());
+            'query' => Map {},
+            'args' => Vector {}
+        }, $route->getParams());
 
         // invalid controller
         $url = '/forum/foobar/view/123.php';
         $route = new Route('/{module}/{controller}/{action}/[id].{ext}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => 'php',
             'module' => 'forum',
             'controller' => 'foobar',
             'action' => 'view',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'id' => 123
-        ], $route->getParams());
+        }, $route->getParams());
     }
 
     public function testIsMatchModuleControllerAction() {
@@ -187,74 +183,74 @@ class RouteTest extends TestCase {
         $route = new Route('/{module}/{controller}/{action}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'forum',
             'controller' => 'topic',
             'action' => 'stats',
-            'query' => [],
-            'args' => []
-        ], $route->getParams());
+            'query' => Map {},
+            'args' => Vector {}
+        }, $route->getParams());
 
         // single argument
         $url = '/forum/topic/view/123';
         $route = new Route('/{module}/{controller}/{action}/[id]');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'forum',
             'controller' => 'topic',
             'action' => 'view',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'id' => 123
-        ], $route->getParams());
+        }, $route->getParams());
 
         // multi arguments
         $url = '/forum/topic/view/123/abc';
         $route = new Route('/{module}/{controller}/{action}/[id]/{slug}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'forum',
             'controller' => 'topic',
             'action' => 'view',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'id' => 123,
             'slug' => 'abc'
-        ], $route->getParams());
+        }, $route->getParams());
 
         // invalid module
         $url = '/foobar/dashboard/edit';
         $route = new Route('/{module}/{controller}/{action}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'foobar',
             'controller' => 'dashboard',
             'action' => 'edit',
-            'query' => [],
-            'args' => []
-        ], $route->getParams());
+            'query' => Map {},
+            'args' => Vector {}
+        }, $route->getParams());
 
         // invalid controller
         $url = '/forum/foobar/view/123';
         $route = new Route('/{module}/{controller}/{action}/[id]');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'forum',
             'controller' => 'foobar',
             'action' => 'view',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'id' => 123
-        ], $route->getParams());
+        }, $route->getParams());
     }
 
     public function testIsMatchModuleController() {
@@ -262,28 +258,28 @@ class RouteTest extends TestCase {
         $route = new Route('/{module}/{controller}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'forum',
             'controller' => 'topic',
             'action' => 'index',
-            'query' => [],
-            'args' => []
-        ], $route->getParams());
+            'query' => Map {},
+            'args' => Vector {}
+        }, $route->getParams());
 
         // invalid controller
         $url = '/forum/foobar';
         $route = new Route('/{module}/{controller}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'forum',
             'controller' => 'foobar',
             'action' => 'index',
-            'query' => [],
-            'args' => []
-        ], $route->getParams());
+            'query' => Map {},
+            'args' => Vector {}
+        }, $route->getParams());
     }
 
     public function testIsMatchModule() {
@@ -291,28 +287,28 @@ class RouteTest extends TestCase {
         $route = new Route('/{module}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'users',
             'controller' => 'index',
             'action' => 'index',
-            'query' => [],
-            'args' => []
-        ], $route->getParams());
+            'query' => Map {},
+            'args' => Vector {}
+        }, $route->getParams());
 
         // invalid controller
         $url = '/foobar';
         $route = new Route('/{module}');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'foobar',
             'controller' => 'index',
             'action' => 'index',
-            'query' => [],
-            'args' => []
-        ], $route->getParams());
+            'query' => Map {},
+            'args' => Vector {}
+        }, $route->getParams());
     }
 
     public function testIsMatch() {
@@ -320,24 +316,24 @@ class RouteTest extends TestCase {
         $route = new Route('/');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'main',
             'controller' => 'index',
             'action' => 'index',
-            'query' => [],
-            'args' => []
-        ], $route->getParams());
+            'query' => Map {},
+            'args' => Vector {}
+        }, $route->getParams());
 
         // Wrong method
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $route = new Route('/', [], ['method' => ['GET']]);
+        $route = (new Route('/'))->addMethod('get');
 
         $this->assertFalse($route->isMatch($url));
 
         // Not secure
         $_SERVER['HTTPS'] = 'off';
-        $route = new Route('/', [], ['method' => ['POST'], 'secure' => true]);
+        $route = (new Route('/'))->addMethod('post')->setSecure(true);
 
         $this->assertFalse($route->isMatch($url));
 
@@ -361,15 +357,15 @@ class RouteTest extends TestCase {
         ]);
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'users',
             'controller' => 'profile',
             'action' => 'index',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'username' => 'miles'
-        ], $route->getParams());
+        }, $route->getParams());
 
         $url = '/blog/123456';
         $route = new Route('/blog/[id]', [
@@ -379,15 +375,15 @@ class RouteTest extends TestCase {
         ]);
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'blog',
             'controller' => 'api',
             'action' => 'read',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'id' => 123456
-        ], $route->getParams());
+        }, $route->getParams());
 
         $url = '/blog/2012/02/26';
         $route = new Route('/blog/[year]/[month]/[day]', [
@@ -398,77 +394,71 @@ class RouteTest extends TestCase {
         ]);
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'blog',
             'controller' => 'api',
             'action' => 'archives',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'year' => 2012,
             'month' => 2,
             'day' => 26,
             'custom' => 'value'
-        ], $route->getParams());
+        }, $route->getParams());
 
         $url = '/regex/123-abc';
-        $route = new Route('/regex/<pattern>', [
-            'module' => 'regex'
-        ], [
-            'patterns' => [
-                'pattern' => '([0-9]+\-[a-z]+)'
-            ]
-        ]);
+        $route = (new Route('/regex/<pattern>', ['module' => 'regex']))->addPattern('pattern', '([0-9]+\-[a-z]+)');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'regex',
             'controller' => 'index',
             'action' => 'index',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'pattern' => '123-abc'
-        ], $route->getParams());
+        }, $route->getParams());
 
         // with @ format
         $url = '/blog/2012/02/26';
         $route = new Route('/blog/[year]/[month]/[day]', 'Blog\Api@archives');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'blog',
             'controller' => 'api',
             'action' => 'archives',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'year' => 2012,
             'month' => 2,
             'day' => 26
-        ], $route->getParams());
+        }, $route->getParams());
 
         $url = '/blog/123456';
         $route = new Route('/blog/[id]', 'Blog\Api@read');
 
         $this->assertTrue($route->isMatch($url));
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'blog',
             'controller' => 'api',
             'action' => 'read',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'id' => 123456
-        ], $route->getParams());
+        }, $route->getParams());
     }
 
     public function testIsMethod() {
         $noMethod = new Route('/');
 
-        $singleMethod = new Route('/', [], ['method' => 'POST']);
+        $singleMethod = (new Route('/'))->addMethod('POST');
 
-        $multiMethod = new Route('/', [], ['method' => ['post', 'put']]);
+        $multiMethod = (new Route('/'))->setMethods(Vector {'post', 'put'});
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
@@ -490,8 +480,8 @@ class RouteTest extends TestCase {
     }
 
     public function testIsSecure() {
-        $unsecureRoute = new Route('/', [], ['secure' => false]);
-        $secureRoute = new Route('/', [], ['secure' => true]);
+        $unsecureRoute = (new Route('/'))->setSecure(false);
+        $secureRoute = (new Route('/'))->setSecure(true);
 
         $this->assertTrue($unsecureRoute->isSecure());
         $this->assertFalse($secureRoute->isSecure());
@@ -503,8 +493,8 @@ class RouteTest extends TestCase {
     }
 
     public function testIsStatic() {
-        $route = new Route('/', [], ['static' => false]);
-        $staticRoute = new Route('/', [], ['static' => true]);
+        $route = (new Route('/'))->setStatic(false);
+        $staticRoute = (new Route('/'))->setStatic(true);
         $tokenRoute = new Route('/{module}');
 
         $this->assertFalse($route->isStatic());
@@ -523,18 +513,18 @@ class RouteTest extends TestCase {
 
         $route->isMatch($url);
 
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'blog',
             'controller' => 'api',
             'action' => 'archives',
-            'query' => [],
-            'args' => [],
+            'query' => Map {},
+            'args' => Vector {},
             'year' => 2012,
             'month' => 2,
             'day' => 26,
             'custom' => 'value'
-        ], $route->getParams());
+        }, $route->getParams());
 
         $this->assertEquals('blog', $route->getParam('module'));
         $this->assertEquals('archives', $route->getParam('action'));
@@ -548,21 +538,21 @@ class RouteTest extends TestCase {
 
     public function testArgPassing() {
         $url = '/blog/2012/02/26';
-        $route = new Route('/blog/[year]/[month]/[day]', 'Blog\Api@archives', ['pass' => ['year', 'month', 'day']]);
+        $route = (new Route('/blog/[year]/[month]/[day]', 'Blog\Api@archives'))->pass(Vector {'year', 'month', 'day'});
 
         $route->isMatch($url);
 
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'ext' => '',
             'module' => 'blog',
             'controller' => 'api',
             'action' => 'archives',
-            'query' => [],
-            'args' => [2012, 2, 26],
+            'query' => Map {},
+            'args' => Vector {2012, 2, 26},
             'year' => 2012,
             'month' => 2,
             'day' => 26
-        ], $route->getParams());
+        }, $route->getParams());
     }
 
     public function testAppendPrepend() {

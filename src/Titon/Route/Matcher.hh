@@ -18,9 +18,9 @@ interface Matcher {
      * Attempt to match a route against the URL.
      *
      * @param string $url
-     * @param \Titon\Route\Route[] $routes
+     * @param Map<string, Route> $routes
      * @return \Titon\Route\Route
      */
-    public function match($url, array $routes);
+    public function match(string $url, Map<string, Route> $routes): ?Route;
 
 }

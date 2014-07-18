@@ -20,9 +20,10 @@ use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
 use Titon\Utility\Config;
 use Titon\Utility\Inflector;
-use Titon\Utility\Hash;
-use Titon\Utility\String;
+use Titon\Utility\Traverse;
+use Titon\Utility\Str;
 use \Closure;
+use \Traversable;
 
 /**
  * The Router determines the current routing request, based on the URL address and environment.
@@ -43,73 +44,77 @@ class Router {
      *
      * @type string
      */
-    protected static $_base = '/';
+    protected static string $_base = '/';
 
     /**
      * The matched route object.
      *
      * @type \Titon\Route\Route
      */
-    protected $_current;
+    protected ?Route $_current;
 
     /**
      * Default configuration.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_config = [
-        'defaults' => ['module' => 'main', 'controller' => 'index', 'action' => 'index'],
-        'prefixes' => ['locale', 'module'],
-        'resourceMap' => [
+    protected $_config = Map {
+        'defaults' => Map {
+            'module' => 'main',
+            'controller' => 'index',
+            'action' => 'index'
+        },
+        'prefixes' => Vector {'locale', 'module'},
+        'resourceMap' => Map {
             'list' => 'index',
             'create' => 'create',
             'read' => 'read',
             'update' => 'update',
             'delete' => 'delete'
-        ]
-    ];
+        }
+    };
 
     /**
      * List of filters to trigger for specific routes during a match.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_filters = [];
+    protected Map<string, mixed> $_filters = Map {};
 
     /**
      * List of currently open groups (and their options) in the stack.
      *
-     * @type array
+     * @type Vector<Map<string, mixed>>
      */
-    protected $_groups = [];
+    protected Vector<Map<string, mixed>> $_groups = Vector {};
 
     /**
      * The class to use for route matching.
      *
      * @type \Titon\Route\Matcher
      */
-    protected $_matcher;
+    protected Matcher $_matcher;
 
     /**
      * Manually defined aesthetic routes that re-route internally.
      *
-     * @type \Titon\Route\Route[]
+     * @type Map<string, Route>
      */
-    protected $_routes = [];
+    protected Map<string, Route> $_routes = Map {};
 
     /**
      * The current URL broken up into multiple segments: protocol, host, route, query, base
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_segments = [];
+    protected Map<string, mixed> $_segments = Map {};
 
     /**
      * Parses the current URL into multiple segments.
      *
-     * @param array $config
+     * @param Map<string, mixed> $config
      */
-    public function __construct(array $config = []) {
+    public function __construct(Map<string, mixed> $config = Map {}) {
         $this->applyConfig($config);
 
         // Determine if app is within a base folder
@@ -121,12 +126,12 @@ class Router {
         }
 
         // Store the current URL and query as router segments
-        $this->_segments = Hash::merge(parse_url($_SERVER['REQUEST_URI']), [
+        $this->_segments = Traverse::merge(new Map(parse_url($_SERVER['REQUEST_URI'])), Map {
             'scheme' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http',
-            'query' => $_GET,
+            'query' => new Map($_GET),
             'host' => $_SERVER['HTTP_HOST'],
             'port' => $_SERVER['SERVER_PORT']
-        ]);
+        });
 
         // Set a default matcher
         $this->setMatcher(new LoopMatcher());
@@ -135,16 +140,16 @@ class Router {
     /**
      * Maps the default routing objects and attempts to match.
      */
-    public function initialize() {
+    public function initialize(): void {
         $this->_current = $this->match($this->getSegment('path'));
     }
 
     /**
      * Return all routes.
      *
-     * @return \Titon\Route\Route[]
+     * @return Map<string, Route>
      */
-    public function all() {
+    public function all(): Map<string, Route> {
         return $this->getRoutes();
     }
 
@@ -153,25 +158,25 @@ class Router {
      *
      * @return string
      */
-    public static function base() {
+    public static function base(): string {
         return static::$_base;
     }
 
     /**
      * Takes a route in array format and processes it down into a single string that represents an internal URL path.
      *
-     * @param string|array $url
+     * @param string|array|Map $url
      * @return string
      * @throws \Titon\Route\Exception\InvalidRouteException
      */
-    public function build($url = []) {
+    public function build(mixed $url = []): string {
         return $this->cache([__METHOD__, $url], function() use ($url) {
 
             // Convert strings to array structure
             if (is_string($url)) {
                 // Route by key syntax
                 if (isset($this->_routes[$url])) {
-                    $url = ['route' => $url];
+                    $url = Map {'route' => $url};
 
                 // Convert @ route to array
                 } else if (strpos($url, '@') !== false) {
@@ -183,47 +188,47 @@ class Router {
                 }
             }
 
+            // Convert to map
+            if (is_array($url)) {
+                $url = new Map($url);
+            }
+
             // Convert @ routes first as the logic should be different than route keys
             if (isset($url['route']) && strpos($url['route'], '@') !== false) {
-                $url = array_merge($url, $this->parse($url['route']));
+                $url = Traverse::merge($this->parse($url['route']), $url);
                 unset($url['route']);
             }
 
             // Build it!
-            $url = $this->defaults($url, $this->getConfig('defaults'));
+            $defaults = $this->getConfig('defaults');
+            $url = $this->defaults($url, $defaults);
             $base = $this->base();
 
-            if ($url === $this->defaults([], $this->getConfig('defaults'))) {
+            if ($url == $this->defaults(Map {}, $defaults)) {
                 return $base;
             }
 
             $routes = $this->all();
-            $path = [];
-            $args = [];
-            $query = [];
+            $path = Vector {};
+            $args = Vector {};
+            $query = Map {};
             $ext = '';
             $fragment = '';
-            $prefixes = $this->getConfig('prefixes');
 
             // Extract all the values from the URL array
             foreach ($url as $key => $value) {
                 if ($key === 'args') {
-                    $args = (array) $value + $args;
+                    $args->addAll(new Vector($value));
 
                 } else if ($key === 'query') {
-                    $query = (array) $value + $query;
+                    $query->setAll(new Map($value));
 
                 } else if ($key === '#') {
                     $fragment = $value;
 
                 } else if (is_numeric($key)) {
                     $args[] = $value;
-
-                } else {
-                    continue;
                 }
-
-                unset($url[$key]);
             }
 
             if ($base !== '/' && $base !== '') {
@@ -251,7 +256,7 @@ class Router {
 
                     // Replace the token with a value
                     if (isset($url[$tokenKey])) {
-                        $routePath = String::insert($routePath, [$tokenGroup => $url[$tokenKey]], ['escape' => false]);
+                        $routePath = Str::insert($routePath, Map {$tokenGroup => $url[$tokenKey]}, Map {'escape' => false});
 
                     } else if ($token['optional']) {
                         $routePath = str_replace(sprintf('/{%s}', $tokenGroup), '', $routePath);
@@ -259,15 +264,13 @@ class Router {
                     } else {
                         throw new InvalidRouteException(sprintf('Missing %s token for %s route', $tokenKey, $url['route']));
                     }
-
-                    unset($url[$tokenKey]);
                 }
 
                 $path[] = $routePath;
 
             // Module, controller, action
             } else {
-                foreach ($prefixes as $prefix) {
+                foreach ($this->getConfig('prefixes') as $prefix) {
                     if (!empty($url[$prefix])) {
                         $path[] = $url[$prefix];
                     }
@@ -291,13 +294,6 @@ class Router {
                 }
             }
 
-            foreach (array_merge($prefixes, ['controller', 'action', 'ext', 'route']) as $unset) {
-                unset($url[$unset]);
-            }
-
-            // Append remaining to the query
-            $query = array_merge($query, $url);
-
             // Action arguments
             if ($args) {
                 foreach ($args as $arg) {
@@ -316,7 +312,7 @@ class Router {
             }
 
             if ($fragment) {
-                if (is_array($fragment)) {
+                if (is_array($fragment) || $fragment instanceof Traversable) {
                     $path .= '#' . http_build_query($fragment, '', '&', PHP_QUERY_RFC1738);
                 } else {
                     $path .= '#' . urlencode($fragment);
@@ -332,7 +328,7 @@ class Router {
      *
      * @return \Titon\Route\Route
      */
-    public function current() {
+    public function current(): ?Route {
         return $this->_current;
     }
 
@@ -342,21 +338,20 @@ class Router {
      *
      * @uses Titon\Utility\Inflector
      *
-     * @param array $data
-     * @param array $defaults
-     * @return array
+     * @param Map<string, mixed> $data
+     * @param Map<string, mixed> $defaults
+     * @return Map<string, mixed>
      */
-    public static function defaults(array $data = [], array $defaults = []) {
-        $defaults = $defaults + [
+    public static function defaults(Map<string, mixed> $data = Map {}, Map<string, mixed> $defaults = Map {}): Map<string, mixed> {
+        $data = Traverse::merge(Map {
             'module' => 'main',
             'controller' => 'index',
             'action' => 'index',
             'ext' => '',
-            'query' => [],
-            'args' => []
-        ];
+            'query' => Map {},
+            'args' => Vector {}
+        }, $defaults, $data);
 
-        $data = array_filter($data) + $defaults;
         $data['module'] = Inflector::route($data['module']);
         $data['controller'] = Inflector::route($data['controller']);
         $data['action'] = Inflector::route($data['action']);
@@ -375,8 +370,8 @@ class Router {
      * @param \Titon\Route\Route $route
      * @return $this
      */
-    public function delete($key, Route $route) {
-        return $this->map($key, $route->setConfig('method', 'delete'));
+    public function delete(string $key, Route $route): this {
+        return $this->map($key, $route->addMethod('delete'));
     }
 
     /**
@@ -384,13 +379,13 @@ class Router {
      * Bound filters are executed when a route is matched.
      *
      * @param string $key
-     * @param callable $callback
+     * @param callable|\Titon\Route\Filter $callback
      * @return $this
      * @throws \Titon\Route\Exception\InvalidFilterException
      */
-    public function filter($key, $callback) {
+    public function filter(string $key, mixed $callback): this {
         if ($callback instanceof Filter) {
-            $this->_filters[$key] = [$callback, 'filter'];
+            $this->_filters[$key] = inst_meth($callback, 'filter');
 
         } else if (is_callable($callback)) {
             $this->_filters[$key] = $callback;
@@ -409,18 +404,18 @@ class Router {
      * @param \Titon\Route\Route $route
      * @return $this
      */
-    public function get($key, Route $route) {
-        return $this->map($key, $route->setConfig('method', ['get', 'head']));
+    public function get(string $key, Route $route): this {
+        return $this->map($key, $route->setMethods(Vector {'get', 'head'}));
     }
 
     /**
      * Return a filter by key.
      *
      * @param string $key
-     * @return callable
+     * @return mixed
      * @throws \Titon\Route\Exception\MissingFilterException
      */
-    public function getFilter($key) {
+    public function getFilter(string $key): callable {
         if (isset($this->_filters[$key])) {
             return $this->_filters[$key];
         }
@@ -431,9 +426,9 @@ class Router {
     /**
      * Return all filters.
      *
-     * @return callable[]
+     * @return Map<string, mixed>
      */
-    public function getFilters() {
+    public function getFilters(): Map<string, mixed> {
         return $this->_filters;
     }
 
@@ -442,7 +437,7 @@ class Router {
      *
      * @return \Titon\Route\Matcher
      */
-    public function getMatcher() {
+    public function getMatcher(): Matcher {
         return $this->_matcher;
     }
 
@@ -453,7 +448,7 @@ class Router {
      * @return \Titon\Route\Route
      * @throws \Titon\Route\Exception\MissingRouteException
      */
-    public function getRoute($key) {
+    public function getRoute(string $key): Route {
         if (isset($this->_routes[$key])) {
             return $this->_routes[$key];
         }
@@ -464,9 +459,9 @@ class Router {
     /**
      * Return all routes.
      *
-     * @return \Titon\Route\Route[]
+     * @return Map<string, Route>
      */
-    public function getRoutes() {
+    public function getRoutes(): Map<string, Route> {
         return $this->_routes;
     }
 
@@ -474,10 +469,10 @@ class Router {
      * Return a segment by key.
      *
      * @param string $key
-     * @return string
+     * @return mixed
      * @throws \Titon\Route\Exception\MissingSegmentException
      */
-    public function getSegment($key) {
+    public function getSegment(string $key): mixed {
         if (isset($this->_segments[$key])) {
             return $this->_segments[$key];
         }
@@ -488,9 +483,9 @@ class Router {
     /**
      * Return all segments.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function getSegments() {
+    public function getSegments(): Map<string, mixed> {
         return $this->_segments;
     }
 
@@ -498,19 +493,19 @@ class Router {
      * Group multiple route mappings into a single collection and apply options to all of them.
      * Can apply path prefixes, suffixes, route config, before filters, and after filters.
      *
-     * @param array $options
+     * @param Map<string, mixed> $options
      * @param \Closure $callback
      * @return $this
      */
-    public function group(array $options, Closure $callback) {
-        $this->_groups[] = $options + [
+    public function group(Map<string, mixed> $options, Closure $callback) {
+        $this->_groups[] = Traverse::merge(Map {
             'prefix' => null,
             'suffix' => null,
             'secure' => null,
-            'patterns' => [],
-            'pass' => [],
-            'filters' => []
-        ];
+            'patterns' => Map {},
+            'pass' => Vector {},
+            'filters' => Vector {}
+        }, $options);
 
         call_user_func($callback, $this);
 
@@ -526,7 +521,7 @@ class Router {
      * @param \Titon\Route\Route $route
      * @return $this
      */
-    public function map($key, Route $route) {
+    public function map($key, Route $route): this {
         $this->_routes[$key] = $route;
 
         // Apply group options
@@ -540,19 +535,20 @@ class Router {
             }
 
             if ($group['secure'] !== null) {
-                $route->setConfig('secure', $group['secure']);
+                $route->setSecure($group['secure']);
             }
 
             if ($group['patterns']) {
-                $route->setConfig('patterns', array_merge($route->getPatterns(), (array) $group['patterns']));
+                $route->setPatterns($route->getPatterns()->setAll($group['patterns']));
             }
 
             if ($group['pass']) {
-                $route->setConfig('pass', array_merge((array) $group['pass'], $route->getPassed()));
+                // todo - Find a better way to apply uniqueness to a vector
+                $route->pass(new Vector(array_unique($route->getPassed()->addAll($group['pass'])->toArray())));
             }
 
             if ($group['filters']) {
-                $route->setConfig('filters', array_merge($route->getFilters(), (array) $group['filters']));
+                $route->setFilters($route->getFilters()->addAll($group['filters']));
             }
         }
 
@@ -569,7 +565,7 @@ class Router {
      * @return \Titon\Route\Route
      * @throws \Titon\Route\Exception\NoMatchException
      */
-    public function match($url) {
+    public function match(string $url): ?Route {
         $this->emit('route.preMatch', [$this, $url]);
 
         $match = $this->getMatcher()->match($url, $this->all());
@@ -592,23 +588,27 @@ class Router {
      * Parse a URL and apply default routes. Attempt to deconstruct @ URLs.
      *
      * @param string|array $url
-     * @return string|array
+     * @return Map<string, mixed>
      * @throws \Titon\Route\Exception\InvalidRouteException
      */
-    public static function parse($url) {
+    public static function parse(mixed $url): Map<string, mixed> {
         if (is_string($url)) {
             if (preg_match('/^(?:(\w+)\\\)?(\w+)(?:\@(\w+)(?:\.(\w+))?)?$/i', $url, $matches)) {
-                $url = array_map(function($value) {
+                $url = array_filter(array_map(function($value) {
                     return Inflector::underscore($value);
                 }, [
-                    'module' => isset($matches[1]) ? $matches[1] : null,
+                    'module' => isset($matches[1]) ? $matches[1] : '',
                     'controller' => $matches[2],
-                    'action' => isset($matches[3]) ? $matches[3] : 'index',
-                    'ext' => isset($matches[4]) ? $matches[4] : null
-                ]);
+                    'action' => isset($matches[3]) ? $matches[3] : '',
+                    'ext' => isset($matches[4]) ? $matches[4] : ''
+                ]));
             } else {
                 throw new InvalidRouteException(sprintf('Invalid @ routing format for %s', $url));
             }
+        }
+
+        if (is_array($url)) {
+            $url = new Map($url);
         }
 
         return static::defaults($url);
@@ -621,8 +621,8 @@ class Router {
      * @param \Titon\Route\Route $route
      * @return $this
      */
-    public function post($key, Route $route) {
-        return $this->map($key, $route->setConfig('method', 'post'));
+    public function post(string $key, Route $route): this {
+        return $this->map($key, $route->addMethod('post'));
     }
 
     /**
@@ -632,8 +632,8 @@ class Router {
      * @param \Titon\Route\Route $route
      * @return $this
      */
-    public function put($key, Route $route) {
-        return $this->map($key, $route->setConfig('method', 'put'));
+    public function put(string $key, Route $route): this {
+        return $this->map($key, $route->addMethod('put'));
     }
 
     /**
@@ -641,34 +641,41 @@ class Router {
      *
      * @param string $key
      * @param \Titon\Route\Route $route
-     * @param array $map
+     * @param Map<string, string> $map
      * @return $this
      */
-    public function resource($key, Route $route, array $map = []) {
-        $map = $map + $this->getConfig('resourceMap');
+    public function resource(string $key, Route $route, Map<string, string> $map = Map {}) {
+        $map = Traverse::merge($this->getConfig('resourceMap'), $map);
         $class = get_class($route);
         $path = $route->getPath();
-        $config = $route->allConfig();
         $params = $route->getParams();
-        $methods = [
-            'list' => 'get',
-            'create' => 'post',
-            'read' => 'get',
-            'update' => ['put', 'post'],
-            'delete' => ['delete', 'post']
-        ];
+        $methods = Map {
+            'list' => Vector {'get'},
+            'create' => Vector {'post'},
+            'read' => Vector {'get'},
+            'update' => Vector {'put', 'post'},
+            'delete' => Vector {'delete', 'post'}
+        };
 
         foreach ($map as $type => $action) {
             $newPath = $path;
             $params['action'] = $action;
-            $config['method'] = $methods[$type];
+            $pass = $route->getPassed()->toVector();
 
-            if (in_array($type, ['read', 'update', 'delete'])) {
+            if (in_array($type, Vector {'read', 'update', 'delete'})) {
                 $newPath .= '/(id)';
-                $config['pass'] = ['id'];
+                $pass[] = 'id';
             }
 
-            $this->map($key . '.' . $type, new $class($newPath, $params, $config));
+            $newRoute = new $class($newPath, $params);
+            $newRoute->setStatic($route->getStatic());
+            $newRoute->setSecure($route->getSecure());
+            $newRoute->setFilters($route->getFilters());
+            $newRoute->setPatterns($route->getPatterns());
+            $newRoute->setMethods($methods[$type]);
+            $newRoute->pass($pass);
+
+            $this->map($key . '.' . $type, $newRoute);
         }
 
         return $this;
@@ -680,7 +687,7 @@ class Router {
      * @param \Titon\Route\Matcher $matcher
      * @return $this
      */
-    public function setMatcher(Matcher $matcher) {
+    public function setMatcher(Matcher $matcher): this {
         $this->_matcher = $matcher;
 
         return $this;
@@ -691,7 +698,7 @@ class Router {
      *
      * @return string
      */
-    public function url() {
+    public function url(): string {
         $segments = $this->getSegments();
         $base = $this->base();
 

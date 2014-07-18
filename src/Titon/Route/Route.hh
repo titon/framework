@@ -45,9 +45,9 @@ class Route {
     /**
      * Patterns matched during the isMatch() process.
      *
-     * @type array
+     * @type Vector<string>
      */
-    protected array $_matches = [];
+    protected Vector<string> $_matches = Vector {};
 
     /**
      * The types of acceptable HTTP methods (defaults to all).
@@ -451,10 +451,6 @@ class Route {
                 $arg = array_shift($matches);
 
                 $this->_route[$token['token']] = $arg;
-
-                if (!isset($this->_route['args'])) {
-                    $this->_route['args'] = Vector {};
-                }
 
                 if (in_array($token['token'], $pass)) {
                     $this->_route['args'][]  = $arg;

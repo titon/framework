@@ -58,7 +58,7 @@ class Router {
      *
      * @type Map<string, mixed>
      */
-    protected $_config = Map {
+    protected Map<string, mixed> $_config = Map {
         'defaults' => Map {
             'module' => 'main',
             'controller' => 'index',
@@ -176,7 +176,7 @@ class Router {
             if (is_string($url)) {
                 // Route by key syntax
                 if (isset($this->_routes[$url])) {
-                    $url = Map {'route' => $url};
+                    $url = ['route' => $url];
 
                 // Convert @ route to array
                 } else if (strpos($url, '@') !== false) {

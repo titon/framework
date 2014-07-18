@@ -125,11 +125,11 @@ class Validator {
      * @throws \Titon\Utility\Exception\InvalidArgumentException
      */
     public function addRule(string $field, string $rule, ?string $message, Vector<mixed> $options = Vector{}): this {
-        if (!$this->_fields->contains($field)) {
+        if (!isset($this->_fields[$field])) {
             throw new InvalidArgumentException(sprintf('Field %s does not exist', $field));
         }
 
-        if ($this->_messages->contains($rule)) {
+        if (isset($this->_messages[$rule])) {
             $message = $message ?: $this->_messages[$rule];
         } else {
             $this->_messages[$rule] = $message;

@@ -100,7 +100,7 @@ class Registry {
      * @return bool
      */
     public static function has(string $key): bool {
-        return static::$_registered->contains($key);
+        return isset(static::$_registered[$key]);
     }
 
     /**
@@ -128,7 +128,7 @@ class Registry {
      * @param string $key
      */
     public static function remove(string $key): void {
-        static::$_registered->remove($key);
+        unset(static::$_registered[$key]);
     }
 
     /**
@@ -148,7 +148,7 @@ class Registry {
             $key = get_class($object);
         }
 
-        static::$_registered->set($key, $object);
+        static::$_registered[$key] = $object;
 
         return $object;
     }

@@ -41,7 +41,7 @@ class Path {
      * @return string
      */
     public static function alias(?string $file, ?Map<string, string> $paths = Map {}): string {
-        if ($file === null) {
+        if (!$file) {
             return '[internal]';
         }
 
@@ -121,7 +121,7 @@ class Path {
      * @return string
      */
     public static function includePath(Vector<string> $paths): string {
-        $current = new Vector([get_include_path()]);
+        $current = Vector {get_include_path()};
         $current->addAll($paths);
 
         $path = implode(self::DELIMITER, $current);

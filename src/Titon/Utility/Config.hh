@@ -34,12 +34,7 @@ class Config {
      * @param mixed $value
      */
     public static function add(string $key, mixed $value): void {
-        $data = static::get($key, Vector {});
-
-        if (!$data instanceof Vector) {
-            $data = new Vector([$data]);
-        }
-
+        $data = Converter::toVector(static::get($key, []));
         $data[] = $value;
 
         static::set($key, $data);
@@ -105,7 +100,7 @@ class Config {
      * @param \Titon\Io\Reader $reader
      */
     public static function load(string $key, Reader $reader): void {
-        static::$_config->set($key, $reader->read());
+        static::$_config[$key] = $reader->read();
 
         unset($reader);
     }

@@ -57,9 +57,9 @@ class Traverse {
     public static function each(Collection $collection, Closure $callback, bool $recursive = true): Collection {
         foreach ($collection as $key => $value) {
             if ($value instanceof Collection && $recursive) {
-                $collection->set($key, static::each($value, $callback, $recursive));
+                $collection[$key] = static::each($value, $callback, $recursive);
             } else {
-                $collection->set($key, call_user_func_array($callback, [$value, $key]));
+                $collection[$key] = call_user_func_array($callback, [$value, $key]);
             }
         }
 
@@ -92,7 +92,7 @@ class Traverse {
      */
     public static function exclude(Map $collection, Vector<string> $keys): Map<string, mixed> {
         foreach ($keys as $key) {
-            $collection->remove($key);
+            unset($collection[$key]);
         }
 
         return $collection;
@@ -141,7 +141,7 @@ class Traverse {
                 return $value;
 
             // Break out of non-existent paths early
-            } else if (!$search->contains($key) || !($value instanceof Collection)) {
+            } else if (!isset($search[$key]) || !($value instanceof Collection)) {
                 break;
             }
 
@@ -172,7 +172,7 @@ class Traverse {
         if ($recursive) {
             foreach ($collection as $key => $value) {
                 if ($value instanceof Collection) {
-                    $collection->set($key, static::filter($value, $recursive, $callback));
+                    $collection[$key] = static::filter($value, $recursive, $callback);
                 }
             }
         }
@@ -197,12 +197,12 @@ class Traverse {
         foreach ($collection as $key => $value) {
             if ($value instanceof Collection) {
                 if ($value->isEmpty()) {
-                    $data->set($path . $key, null);
+                    $data[$path . $key] = null;
                 } else {
                     $data->setAll(static::flatten($value, $path . $key));
                 }
             } else {
-                $data->set($path . $key, $value);
+                $data[$path . $key] = $value;
             }
         }
 
@@ -240,7 +240,7 @@ class Traverse {
 
         // Exit early for faster processing
         if (strpos($path, '.') === false) {
-            return $collection->contains($path);
+            return isset($collection[$path]);
         }
 
         $search = $collection;
@@ -252,14 +252,14 @@ class Traverse {
 
             // Within the last path
             if ($total === 1) {
-                return $search->contains($key);
+                return isset($search[$key]);
 
             // Break out of non-existent paths early
-            } else if (!$search->contains($key) || !($search->get($key) instanceof Collection)) {
+            } else if (!isset($search[$key]) || !($search[$key] instanceof Collection)) {
                 break;
             }
 
-            $search = $search->get($key);
+            $search = $search[$key];
             array_shift($paths);
             $total--;
         }
@@ -298,7 +298,7 @@ class Traverse {
 
         // Exit early for faster processing
         if (strpos($path, '.') === false) {
-            $collection->set($path, $value);
+            $collection[$path] = $value;
 
             return $collection;
         }
@@ -312,14 +312,14 @@ class Traverse {
 
             // Within the last path
             if ($total === 1) {
-                $search->set($key, $value);
+                $search[$key] = $value;
 
             // Break out of non-existent paths early
-            } else if (!$search->contains($key) || !($search->get($key) instanceof Collection)) {
-                $search->set($key, Map {});
+            } else if (!isset($search[$key]) || !($search[$key] instanceof Collection)) {
+                $search[$key] = Map {};
             }
 
-            $search = $search->get($key);
+            $search = $search[$key];
             array_shift($paths);
             $total--;
         }
@@ -386,7 +386,7 @@ class Traverse {
 
         if (!$return && $isArray) {
             foreach ($isArray as $key) {
-                if ($value = static::keyOf($collection->get($key), $match)) {
+                if ($value = static::keyOf($collection[$key], $match)) {
                     $return = $key . '.' . $value;
                 }
             }
@@ -399,27 +399,24 @@ class Traverse {
      * Merge is a combination of array_merge() and array_merge_recursive(). However, when merging two keys with the same key,
      * the previous value will be overwritten instead of being added into an array. The later array takes precedence when merging.
      *
-     * @return Map<string, mixed>
+     * @return Map<string, mixed>|Vector<mixed>
      */
     public static function merge() {
         $collections = func_get_args();
-        $data = Map {};
-
-        if (!$collections) {
-            return $data;
-        }
+        $class = get_class($collections[0]);
+        $data = new $class();
 
         foreach ($collections as $collection) {
             foreach ($collection as $key => $value) {
-                if ($data->contains($key)) {
-                    $current = $data->get($key);
+                if (isset($data[$key])) {
+                    $current = $data[$key];
 
                     if ($value instanceof Collection && $current instanceof Collection) {
                         $value = static::merge($current, $value);
                     }
                 }
 
-                $data->set($key, $value);
+                $data[$key] = $value;
             }
         }
 
@@ -456,8 +453,8 @@ class Traverse {
         $map = Map {};
 
         foreach ($collection as $key => $value) {
-            if ($keys->linearSearch($key) >= 0) {
-                $map->set($key, $value);
+            if (in_array($key, $keys)) {
+                $map[$key] = $value;
             }
         }
 
@@ -478,7 +475,7 @@ class Traverse {
 
         // Exit early for faster processing
         if (strpos($path, '.') === false) {
-            $collection->remove($path);
+            unset($collection[$path]);
 
             return $collection;
         }
@@ -492,15 +489,15 @@ class Traverse {
 
             // Within the last path
             if ($total === 1) {
-                $search->remove($key);
+                unset($search[$key]);
                 break;
 
             // Break out of non-existent paths early
-            } else if (!$search->contains($key) || !($search->get($key) instanceof Collection)) {
+            } else if (!isset($search[$key]) || !($search[$key] instanceof Collection)) {
                 break;
             }
 
-            $search = $search->get($key);
+            $search = $search[$key];
             array_shift($paths);
             $total--;
         }

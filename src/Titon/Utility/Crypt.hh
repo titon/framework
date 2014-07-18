@@ -121,7 +121,6 @@ class Crypt {
      * @return string
      */
     public static function obfuscate(string $string): string {
-        $string = (string) $string;
         $length = mb_strlen($string);
         $scrambled = '';
 

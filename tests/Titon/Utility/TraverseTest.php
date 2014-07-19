@@ -379,11 +379,11 @@ class TraverseTest extends TestCase {
         $one = Vector {'foo', 'bar'};
         $two = Vector {'baz'};
 
-        $this->assertEquals(Vector {'baz', 'bar'}, Traverse::merge($one, $two));
+        $this->assertEquals(Vector {'foo', 'bar', 'baz'}, Traverse::merge($one, $two));
 
         $two[] = 'boo';
 
-        $this->assertEquals(Vector {'baz', 'boo'}, Traverse::merge($one, $two));
+        $this->assertEquals(Vector {'foo', 'bar', 'baz', 'boo'}, Traverse::merge($one, $two));
     }
 
     public function testMergeNestedCollections() {
@@ -397,7 +397,7 @@ class TraverseTest extends TestCase {
                 'foo' => 'baz',
                 'beep' => 'boop'
             },
-            'four' => Vector {4, 2, 3}
+            'four' => Vector {1, 2, 3, 4}
         }, Traverse::merge($one, $two));
     }
 

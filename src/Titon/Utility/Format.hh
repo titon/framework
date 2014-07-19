@@ -111,7 +111,7 @@ class Format {
     public static function phone(mixed $value, mixed $format): string {
         $value = preg_replace('/[^0-9]+/', '', $value);
 
-        if (is_array($format)) {
+        if (is_traversable($format)) {
             $length = mb_strlen($value);
 
             if ($length >= 11) {

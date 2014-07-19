@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\View\View\Engine;
 
 use Titon\View\View;
@@ -45,11 +45,11 @@ class TemplateEngineTest extends TestCase {
     public function testOpen() {
         $this->assertEquals('nested/include.tpl', $this->object->getEngine()->open('nested/include'));
         $this->assertEquals('nested/include.tpl', $this->object->getEngine()->open('nested/include.tpl'));
-        $this->assertEquals('Titon - partial - variables.tpl', $this->object->getEngine()->open('variables', [
+        $this->assertEquals('Titon - partial - variables.tpl', $this->object->getEngine()->open('variables', Map {
             'name' => 'Titon',
             'type' => 'partial',
             'filename' => 'variables.tpl'
-        ]));
+        }));
     }
 
     /**
@@ -65,9 +65,9 @@ class TemplateEngineTest extends TestCase {
     }
 
     public function testData() {
-        $this->assertEquals('add.tpl', $this->engine->render($this->object->locateTemplate(['index', 'add']), [
+        $this->assertEquals('add.tpl', $this->engine->render($this->object->locateTemplate(['index', 'add']), Map {
             'foo' => 'bar'
-        ]));
+        }));
 
         $this->assertEquals('bar', $this->engine->data('foo'));
         $this->assertEquals(null, $this->engine->data('key'));

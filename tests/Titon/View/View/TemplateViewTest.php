@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\View\View;
 
 use Titon\Cache\Storage\FileSystemStorage;
@@ -59,8 +59,8 @@ class TemplateViewTest extends TestCase {
         ]);
 
         $this->object = new TemplateView([
-            $this->vfs->path('/views'),
-            $this->vfs->path('/views/fallback')
+            $this->vfs->path('/views/'),
+            $this->vfs->path('/views/fallback/')
         ]);
     }
 
@@ -73,10 +73,10 @@ class TemplateViewTest extends TestCase {
         $this->object->getEngine()->wrapWith('wrapper');
         $this->assertEquals('<fallbackLayout><wrapper>index.tpl</wrapper></fallbackLayout>', $this->object->render(['index', 'index']));
 
-        $this->object->getEngine()->wrapWith(['wrapper', 'fallback']);
+        $this->object->getEngine()->wrapWith('wrapper', 'fallback');
         $this->assertEquals('<fallbackLayout><fallbackWrapper><wrapper>view.tpl</wrapper></fallbackWrapper></fallbackLayout>', $this->object->render(['index', 'view']));
 
-        $this->object->getEngine()->wrapWith(false)->useLayout(false);
+        $this->object->getEngine()->wrapWith()->useLayout('');
         $this->assertEquals('view.xml.tpl', $this->object->render(['index', 'view', 'ext' => 'xml']));
     }
 
@@ -90,19 +90,17 @@ class TemplateViewTest extends TestCase {
         $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate(['index', 'test-include'])));
 
         // variables
-        $this->assertEquals('Titon - partial - variables.tpl', $this->object->renderTemplate($this->object->locateTemplate('variables', View::PARTIAL), [
+        $this->assertEquals('Titon - partial - variables.tpl', $this->object->renderTemplate($this->object->locateTemplate('variables', View::PARTIAL), Map {
             'name' => 'Titon',
             'type' => 'partial',
             'filename' => 'variables.tpl'
-        ]));
+        }));
     }
 
     public function testViewCaching() {
-        if (!class_exists('Titon\Cache\Storage\FileSystemStorage')) {
-            $this->markTestSkipped('Test skipped; Please install titon/cache via Composer');
-        }
+        $this->markTestSkipped('Test skipped; Please install titon/cache via Composer');
 
-        $storage = new FileSystemStorage(['directory' => $this->vfs->path('/cache/')]);
+        $storage = new FileSystemStorage(Map {'directory' => $this->vfs->path('/cache/')});
         $this->object->setStorage($storage);
 
         $path = $this->object->locateTemplate(['index', 'test-include']);
@@ -112,11 +110,11 @@ class TemplateViewTest extends TestCase {
         $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($path));
         $this->assertFileNotExists($cachePath);
 
-        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($path, ['cache' => '+5 minutes']));
+        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($path, Map {'cache' => '+5 minutes'}));
         $this->assertFileExists($cachePath);
         $mtime = filemtime($cachePath);
 
-        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($path, ['cache' => '+5 minutes']));
+        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($path, Map {'cache' => '+5 minutes'}));
         $this->assertEquals($mtime, filemtime($cachePath));
 
         $storage->flush();

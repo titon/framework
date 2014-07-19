@@ -12,7 +12,7 @@ use Titon\Common\Attachable;
 use Titon\Event\Event;
 use Titon\Http\Request;
 use Titon\Utility\Sanitize;
-use Titon\Utility\String;
+use Titon\Utility\Str;
 use Titon\View\Helper;
 use Titon\View\View;
 
@@ -28,43 +28,43 @@ abstract class AbstractHelper extends Base implements Helper {
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type bool $escape  Global escaping
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'escape' => true
-    ];
+    };
 
     /**
      * Mapping of HTML tags.
      *
-     * @type array
+     * @type tags
      */
-    protected $_tags = [];
+    protected tags $_tags = Map {};
 
     /**
      * Request object.
      *
      * @type \Titon\Http\Request
      */
-    protected $_request;
+    protected ?Request $_request;
 
     /**
      * View object.
      *
      * @type \Titon\View\View
      */
-    protected $_view;
+    protected ?View $_view;
 
     /**
      * Parses an array of attributes to the HTML equivalent.
      *
-     * @param array $attributes
-     * @param array $remove
+     * @param attributes $attributes
+     * @param Vector<string> $remove
      * @return string
      */
-    public function attributes(array $attributes, array $remove = []) {
+    public function attributes(attributes $attributes, Vector<string> $remove = Vector {}): string {
         $parsed = '';
         $escape = true;
 
@@ -81,8 +81,8 @@ abstract class AbstractHelper extends Base implements Helper {
                     continue;
                 }
 
-                if ((is_array($escape) && !in_array($key, $escape)) || ($escape === true)) {
-                    $value = $this->escape($value, true);
+                if ((is_traversable($escape) && !in_array($key, $escape)) || ($escape === true)) {
+                    $value = $this->escape((string) $value, true);
                 }
 
                 $parsed .= ' ' . strtolower($key) . '="' . $value . '"';
@@ -99,7 +99,7 @@ abstract class AbstractHelper extends Base implements Helper {
      * @param bool|null $escape
      * @return string
      */
-    public function escape($value, $escape = null) {
+    public function escape(string $value, ?bool $escape = null): string {
         if ($escape === null) {
             $escape = $this->getConfig('escape');
         }
@@ -114,45 +114,45 @@ abstract class AbstractHelper extends Base implements Helper {
     /**
      * {@inheritdoc}
      */
-    public function getRequest() {
+    public function getRequest(): ?Request {
         return $this->_request;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getView() {
+    public function getView(): ?View {
         return $this->_view;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function preRender(Event $event, View $view, &$template) {
+    public function preRender(Event $event, View $view, mixed &$template): void {
         $this->setView($view);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function postRender(Event $event, View $view, &$response) {
+    public function postRender(Event $event, View $view, string &$response): void {
         $this->setView($view);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function registerEvents() {
-        return [
+    public function registerEvents(): Map<string, mixed> {
+        return Map {
             'view.preRender' => 'preRender',
             'view.postRender' => 'postRender',
-        ];
+        };
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setRequest(Request $request) {
+    public function setRequest(Request $request): this {
         $this->_request = $request;
 
         return $this;
@@ -161,7 +161,7 @@ abstract class AbstractHelper extends Base implements Helper {
     /**
      * {@inheritdoc}
      */
-    public function setView(View $view) {
+    public function setView(View $view): this {
         $this->_view = $view;
 
         return $this;
@@ -171,11 +171,11 @@ abstract class AbstractHelper extends Base implements Helper {
      * Generates an HTML tag if it exists.
      *
      * @param string $tag
-     * @param array $params
+     * @param attributes $params
      * @return string
      */
-    public function tag($tag, array $params = []) {
-        return String::insert($this->_tags[$tag], $params, ['escape' => false]) . PHP_EOL;
+    public function tag(string $tag, attributes $params = Map {}) {
+        return Str::insert($this->_tags[$tag], $params, Map {'escape' => false}) . PHP_EOL;
     }
 
 }

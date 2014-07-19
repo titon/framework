@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\View\Helper\Html;
 
 use Titon\Utility\Registry;
@@ -19,22 +19,22 @@ class BreadcrumbHelperTest extends TestCase {
     public function testOneCrumb() {
         $this->object->add('Title', '/');
 
-        $this->assertEquals([
+        $this->assertEquals(Vector {
             '<a href="/">Title</a>' . PHP_EOL
-        ], $this->object->generate());
+        }, $this->object->generate());
     }
 
     public function testMultipleCrumbs() {
         $this->object
             ->add('Title', '/')
-            ->add('Title 2', '/static/url', ['class' => 'tier2'])
-            ->add('Title 3', '/main/index/view/123', ['class' => 'tier3']);
+            ->add('Title 2', '/static/url', Map {'class' => 'tier2'})
+            ->add('Title 3', '/main/index/view/123', Map {'class' => 'tier3'});
 
-        $this->assertEquals([
+        $this->assertEquals(Vector {
             '<a href="/">Title</a>' . PHP_EOL,
             '<a class="tier2" href="/static/url">Title 2</a>' . PHP_EOL,
             '<a class="tier3" href="/main/index/view/123">Title 3</a>' . PHP_EOL
-        ], $this->object->generate());
+        }, $this->object->generate());
     }
 
     public function testFirstList() {
@@ -43,51 +43,51 @@ class BreadcrumbHelperTest extends TestCase {
 
         $this->object
             ->add('Title', '/')
-            ->add('Title 2', '/static/url', ['class' => 'tier2'])
-            ->add('Title 3', ['action' => 'view', 123], ['class' => 'tier3']);
+            ->add('Title 2', '/static/url', Map {'class' => 'tier2'})
+            ->add('Title 3', ['action' => 'view', 123], Map {'class' => 'tier3'});
 
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'title' => 'Title',
             'url' => '/',
-            'attributes' => []
-        ], $this->object->first());
+            'attributes' => Map {}
+        }, $this->object->first());
 
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'title' => 'Title 3',
             'url' => ['action' => 'view', 123],
-            'attributes' =>['class' => 'tier3']
-        ], $this->object->last());
+            'attributes' => Map {'class' => 'tier3'}
+        }, $this->object->last());
     }
 
     public function testAppendPrepend() {
         $this->object->add('Base', '/');
 
-        $this->assertEquals([
-            [
+        $this->assertEquals(Vector {
+            Map {
                 'title' => 'Base',
                 'url' => '/',
-                'attributes' => []
-            ]
-        ], $this->object->all());
+                'attributes' => Map {}
+            }
+        }, $this->object->all());
 
         $this->object->prepend('Before', '/');
         $this->object->append('After', '/');
 
-        $this->assertEquals([
-            [
+        $this->assertEquals(Vector {
+            Map {
                 'title' => 'Before',
                 'url' => '/',
-                'attributes' => []
-            ], [
+                'attributes' => Map {}
+            }, Map {
                 'title' => 'Base',
                 'url' => '/',
-                'attributes' => []
-            ], [
+                'attributes' => Map {}
+            }, Map {
                 'title' => 'After',
                 'url' => '/',
-                'attributes' => []
-            ]
-        ], $this->object->all());
+                'attributes' => Map {}
+            }
+        }, $this->object->all());
     }
 
     public function testTitle() {
@@ -103,15 +103,15 @@ class BreadcrumbHelperTest extends TestCase {
 
         $this->assertEquals('A - E - F - G', $this->object->title());
         $this->assertEquals('Base - A - E - F - G', $this->object->title('Base'));
-        $this->assertEquals('Base - A - C - D - E - F - G', $this->object->title('Base', ['depth' => 5]));
-        $this->assertEquals('Base - A - G', $this->object->title('Base', ['depth' => 1]));
-        $this->assertEquals('Base - G - F - E - A', $this->object->title('Base', ['reverse' => true]));
-        $this->assertEquals('G > F > E > A', $this->object->title(null, ['reverse' => true, 'separator' => ' > ']));
-        $this->assertEquals('Base - A - B - C - D - E - F - G', $this->object->title('Base', ['depth' => 15]));
+        $this->assertEquals('Base - A - C - D - E - F - G', $this->object->title('Base', Map {'depth' => 5}));
+        $this->assertEquals('Base - A - G', $this->object->title('Base', Map {'depth' => 1}));
+        $this->assertEquals('Base - G - F - E - A', $this->object->title('Base', Map {'reverse' => true}));
+        $this->assertEquals('G > F > E > A', $this->object->title('', Map {'reverse' => true, 'separator' => ' > '}));
+        $this->assertEquals('Base - A - B - C - D - E - F - G', $this->object->title('Base', Map {'depth' => 15}));
     }
 
     public function testTitleFallback() {
-        $view = new TemplateView();
+        $view = new TemplateView(Vector {'/'});
         $view->setVariable('pageTitle', 'Page Title');
 
         $html = Registry::factory('Titon\View\Helper\Html\HtmlHelper');

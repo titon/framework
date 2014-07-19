@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\View\Helper;
 
 use Titon\Test\TestCase;
@@ -45,7 +45,7 @@ class BlockHelperTest extends TestCase {
     }
 
     public function testCapture() {
-        $this->assertEquals(null, $this->object->get('block'));
+        $this->assertEquals('', $this->object->get('block'));
 
         $this->object->start('block');
         echo 'foobar';

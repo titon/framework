@@ -20,24 +20,24 @@ class BlockHelper extends AbstractHelper {
     /**
      * List of unclosed blocks.
      *
-     * @type array
+     * @type Vector<string>
      */
-    protected $_active = [];
+    protected Vector<string> $_active = Vector {};
 
     /**
      * List of captured output.
      *
-     * @type array
+     * @type Map<string, string>
      */
-    protected $_blocks = [];
+    protected Map<string, string> $_blocks = Map {};
 
     /**
      * Return the last opened block in the active list.
      *
      * @return string
      */
-    public function active() {
-        return end($this->_active);
+    public function active(): string {
+        return $this->_active[count($this->_active) - 1];
     }
 
     /**
@@ -48,12 +48,12 @@ class BlockHelper extends AbstractHelper {
      * @param string $value
      * @return $this
      */
-    public function append($key, $value) {
+    public function append(string $key, string $value): this {
         if (!$this->has($key)) {
             $this->set($key, '');
         }
 
-        $this->_blocks[$key] .= (string) $value;
+        $this->_blocks[$key] .= $value;
 
         return $this;
     }
@@ -66,7 +66,7 @@ class BlockHelper extends AbstractHelper {
      * @param string $default
      * @return string
      */
-    public function get($key, $default = null) {
+    public function get(string $key, string $default = ''): string {
         if ($this->has($key)) {
             return $this->_blocks[$key];
         }
@@ -80,7 +80,7 @@ class BlockHelper extends AbstractHelper {
      * @param string $key
      * @return bool
      */
-    public function has($key) {
+    public function has(string $key): bool {
         return isset($this->_blocks[$key]);
     }
 
@@ -90,7 +90,7 @@ class BlockHelper extends AbstractHelper {
      *
      * @return string
      */
-    public function parent() {
+    public function parent(): string {
         return $this->get($this->active());
     }
 
@@ -102,12 +102,12 @@ class BlockHelper extends AbstractHelper {
      * @param string $value
      * @return $this
      */
-    public function prepend($key, $value) {
+    public function prepend(string $key, string $value): this {
         if (!$this->has($key)) {
             $this->set($key, '');
         }
 
-        $this->set($key, (string) $value . $this->_blocks[$key]);
+        $this->set($key, $value . $this->_blocks[$key]);
 
         return $this;
     }
@@ -117,10 +117,10 @@ class BlockHelper extends AbstractHelper {
      * This will overwrite any previous contents.
      *
      * @param string $key
-     * @param mixed $value
+     * @param string $value
      * @return $this
      */
-    public function set($key, $value) {
+    public function set(string $key, string $value): this {
         $this->_blocks[$key] = $value;
 
         return $this;
@@ -131,7 +131,7 @@ class BlockHelper extends AbstractHelper {
      *
      * @return string
      */
-    public function show() {
+    public function show(): string {
         $active = $this->active();
 
         $this->stop();
@@ -147,7 +147,7 @@ class BlockHelper extends AbstractHelper {
      * @return $this
      * @throws \Titon\View\Exception\ActiveBlockException
      */
-    public function start($key) {
+    public function start(string $key): this {
         if (in_array($key, $this->_active)) {
             throw new ActiveBlockException(sprintf('A %s block is already active, please stop one before continuing', $key));
         }
@@ -163,13 +163,13 @@ class BlockHelper extends AbstractHelper {
      *
      * @return $this
      */
-    public function stop() {
+    public function stop(): this {
         if (empty($this->_active)) {
             return $this;
         }
 
         $this->set($this->active(), ob_get_clean());
-        array_pop($this->_active);
+        $this->_active->pop();
 
         return $this;
     }

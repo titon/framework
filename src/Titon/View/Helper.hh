@@ -12,6 +12,9 @@ use Titon\Event\Listener;
 use Titon\Http\Request;
 use Titon\View\View;
 
+type attributes = Map<string, mixed>;
+type tags = Map<string, mixed>;
+
 /**
  * Interface for the helpers library.
  *
@@ -24,14 +27,14 @@ interface Helper extends Listener {
      *
      * @return \Titon\Http\Request
      */
-    public function getRequest();
+    public function getRequest(): ?Request;
 
     /**
      * Return the view manager.
      *
      * @return \Titon\View\View
      */
-    public function getView();
+    public function getView(): ?View;
 
     /**
      * Triggered before all templates are rendered at once.
@@ -40,7 +43,7 @@ interface Helper extends Listener {
      * @param \Titon\View\View $view
      * @param string|array $template
      */
-    public function preRender(Event $event, View $view, &$template);
+    public function preRender(Event $event, View $view, mixed &$template): void;
 
     /**
      * Triggered after all templates are rendered at once.
@@ -49,7 +52,7 @@ interface Helper extends Listener {
      * @param \Titon\View\View $view
      * @param string $response
      */
-    public function postRender(Event $event, View $view, &$response);
+    public function postRender(Event $event, View $view, string &$response): void;
 
     /**
      * Set the HTTP request.
@@ -57,7 +60,7 @@ interface Helper extends Listener {
      * @param \Titon\Http\Request $request
      * @return $this
      */
-    public function setRequest(Request $request);
+    public function setRequest(Request $request): this;
 
     /**
      * Set the view manager.
@@ -65,6 +68,6 @@ interface Helper extends Listener {
      * @param \Titon\View\View $view
      * @return $this
      */
-    public function setView(View $view);
+    public function setView(View $view): this;
 
 }

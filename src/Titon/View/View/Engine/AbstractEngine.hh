@@ -7,7 +7,6 @@
 
 namespace Titon\View\View\Engine;
 
-use Titon\Common\Base;
 use Titon\View\View;
 use Titon\View\View\Engine;
 
@@ -17,92 +16,93 @@ use Titon\View\View\Engine;
  *
  * @package Titon\View\View\Engine
  */
-abstract class AbstractEngine extends Base implements Engine {
-
-    /**
-     * Configuration.
-     *
-     * @type array {
-     *      @type string $layout    Name of the layout template to wrap content with
-     *      @type array $wrapper    List of wrappers to wrap templates with
-     * }
-     */
-    protected $_config = [
-        'layout' => 'default',
-        'wrapper' => []
-    ];
+abstract class AbstractEngine implements Engine {
 
     /**
      * Current parsed template content.
      *
      * @type string
      */
-    protected $_content;
+    protected string $_content = '';
+
+    /**
+     * Name of the layout template to wrap content with.
+     *
+     * @type string
+     */
+    protected string $_layout = 'default';
 
     /**
      * Variables currently bound to the engine.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    protected $_variables = [];
+    protected Map<string, mixed> $_variables = Map {};
 
     /**
      * View instance.
      *
      * @type \Titon\View\View
      */
-    protected $_view;
+    protected View $_view;
+
+    /**
+     * List of wrappers to wrap templates with
+     *
+     * @type Vector<string>
+     */
+    protected Vector<string> $_wrapper = Vector {};
 
     /**
      * {@inheritdoc}
      */
-    public function data($key, $default = null) {
+    public function data(string $key, ?mixed $default = null): ?mixed {
         return isset($this->_variables[$key]) ? $this->_variables[$key] : $default;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getContent() {
+    public function getContent(): string {
         return $this->_content;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getLayout() {
-        return $this->getConfig('layout');
+    public function getLayout(): string {
+        return $this->_layout;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getWrapper() {
-        return $this->getConfig('wrapper');
+    public function getWrapper(): Vector<string> {
+        return $this->_wrapper;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getView() {
+    public function getView(): View {
         return $this->_view;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function open($partial, array $variables = []) {
+    public function open(string $partial, Map<string, mixed> $variables = Map {}): string {
         return $this->render(
             $this->getView()->locateTemplate($partial, View::PARTIAL),
-            $variables + $this->getView()->getVariables()
+            $this->getView()->getVariables()->toMap()->setAll($variables)
         );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setContent($content) {
-        $this->_content = (string) $content;
+    public function setContent(string $content): this {
+        $this->_content = $content;
 
         return $this;
     }
@@ -110,7 +110,7 @@ abstract class AbstractEngine extends Base implements Engine {
     /**
      * {@inheritdoc}
      */
-    public function setView(View $view) {
+    public function setView(View $view): this {
         $this->_view = $view;
 
         return $this;
@@ -119,8 +119,8 @@ abstract class AbstractEngine extends Base implements Engine {
     /**
      * {@inheritdoc}
      */
-    public function useLayout($name) {
-        $this->setConfig('layout', (string) $name);
+    public function useLayout(string $name): this {
+        $this->_layout = $name;
 
         return $this;
     }
@@ -128,8 +128,8 @@ abstract class AbstractEngine extends Base implements Engine {
     /**
      * {@inheritdoc}
      */
-    public function wrapWith($name) {
-        $this->setConfig('wrapper', $name ? (array) $name : []);
+    public function wrapWith(...$names): this {
+        $this->_wrapper = new Vector($names);
 
         return $this;
     }

@@ -17,11 +17,11 @@ class TemplateEngine extends AbstractEngine {
     /**
      * {@inheritdoc}
      */
-    public function render($path, array $variables = []) {
+    public function render(string $path, Map<string, mixed> $variables = Map {}): string {
         $this->_variables = $variables;
 
         if ($variables) {
-            extract($variables, EXTR_OVERWRITE);
+            extract($variables->toArray(), EXTR_OVERWRITE);
         }
 
         ob_start();

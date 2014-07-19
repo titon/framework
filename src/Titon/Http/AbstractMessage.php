@@ -37,7 +37,7 @@ abstract class AbstractMessage extends Base implements Message {
      * @param array $config
      */
     public function __construct(array $config = []) {
-        parent::__construct($config);
+        //parent::__construct($config);
 
         $this->headers = new HeaderBag();
     }

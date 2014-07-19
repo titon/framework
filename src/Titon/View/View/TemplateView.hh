@@ -26,14 +26,14 @@ class TemplateView extends AbstractView {
      *
      * @type \Titon\View\View\Engine
      */
-    protected $_engine;
+    protected Engine $_engine;
 
     /**
      * Return the rendering engine. Use the default if none was set.
      *
-     * @return \Titon\View\View\Engine
+     * @return $this\Engine
      */
-    public function getEngine() {
+    public function getEngine(): Engine {
         if (!$this->_engine) {
             $this->setEngine(new TemplateEngine());
         }
@@ -44,7 +44,7 @@ class TemplateView extends AbstractView {
     /**
      * {@inheritdoc}
      */
-    public function render($template, $private = false) {
+    public function render(mixed $template, bool $private = false): string {
         return $this->cache([__METHOD__, $template, $private], function() use ($template, $private) {
             $this->emit('view.preRender', [$this, &$template]);
 
@@ -82,9 +82,9 @@ class TemplateView extends AbstractView {
      *
      * @param string|array $template
      * @param int $type
-     * @return \Titon\View\View
+     * @return $this
      */
-    public function renderLoop($template, $type) {
+    public function renderLoop(mixed $template, int $type): this {
         $engine = $this->getEngine();
 
         if ($type === self::LAYOUT) {
@@ -110,7 +110,7 @@ class TemplateView extends AbstractView {
     /**
      * {@inheritdoc}
      */
-    public function renderTemplate($path, array $variables = []) {
+    public function renderTemplate(string $path, Map<string, mixed> $variables = Map {}): string {
         $expires = isset($variables['cache']) ? $variables['cache'] : null;
         $storage = $this->getStorage();
         $key = md5($path);
@@ -136,7 +136,7 @@ class TemplateView extends AbstractView {
      * @param \Titon\View\View\Engine $engine
      * @return $this
      */
-    public function setEngine(Engine $engine) {
+    public function setEngine(Engine $engine): this {
         $engine->setView($this);
 
         $this->_engine = $engine;

@@ -16,7 +16,8 @@ use Titon\Event\Emittable;
 use Titon\Event\Event;
 use Titon\Event\Listener;
 use Titon\Utility\Config;
-use Titon\Utility\Hash;
+use Titon\Utility\Converter;
+use Titon\Utility\Traverse;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 use Titon\Utility\Registry;
@@ -30,59 +31,61 @@ use Titon\View\View;
  *
  * @package Titon\View\View
  */
-abstract class AbstractView extends Base implements View, Listener {
+abstract class AbstractView implements View, Listener {
     use Attachable, Cacheable, Emittable, FactoryAware;
-
-    /**
-     * Configuration.
-     *
-     * @type array {
-     *      @type string $extension     The extension used in templates
-     * }
-     */
-    protected $_config = [
-        'extension' => 'tpl'
-    ];
 
     /**
      * Variable data for templates.
      *
-     * @type array
+     * @type Map<string, ?mixed>
      */
-    protected $_data = [];
+    protected Map<string, ?mixed> $_data = Map {};
+
+    /**
+     * The extension used in templates.
+     *
+     * @type string
+     */
+    protected string $_extension = 'tpl';
 
     /**
      * List of helpers.
      *
-     * @type \Titon\View\Helper[]
+     * @type Map<string, Helper>
      */
-    protected $_helpers = [];
+    protected Map<string, Helper> $_helpers = Map {};
 
     /**
      * List of template lookup paths.
      *
-     * @type array
+     * @type Vector<string>
      */
-    protected $_paths = [];
+    protected Vector<string> $_paths = Vector {};
 
     /**
      * Storage engine.
      *
      * @type \Titon\Cache\Storage
      */
-    protected $_storage;
+    protected ?Storage $_storage;
 
     /**
      * Add paths through the constructor.
      *
      * @param array|string $paths
-     * @param array $config
+     * @param string $ext
      */
-    public function __construct($paths = [], array $config = []) {
-        parent::__construct($config);
-
+    public function __construct(mixed $paths, string $ext = 'tpl') {
         if ($paths) {
-            $this->addPaths((array) $paths);
+            $this->addPaths(Converter::toVector($paths));
+        }
+
+        if ($configPaths = Config::get('titon.path.views')) {
+            $this->addPaths(Converter::toVector($configPaths));
+        }
+
+        if ($ext) {
+            $this->setExtension($ext);
         }
 
         $this->on('view', $this);
@@ -91,7 +94,7 @@ abstract class AbstractView extends Base implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function addHelper($key, Helper $helper) {
+    public function addHelper(string $key, Helper $helper): this {
         $helper->setView($this);
 
         $this->_helpers[$key] = $helper;
@@ -112,7 +115,7 @@ abstract class AbstractView extends Base implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function addPath($path) {
+    public function addPath(string $path): this {
         $this->_paths[] = Path::ds($path, true);
 
         return $this;
@@ -121,7 +124,7 @@ abstract class AbstractView extends Base implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function addPaths(array $paths) {
+    public function addPaths(Vector<string> $paths): this {
         foreach ($paths as $path) {
             $this->addPath($path);
         }
@@ -132,13 +135,17 @@ abstract class AbstractView extends Base implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function formatPath($template) {
-        if (is_array($template)) {
+    public function formatPath(mixed $template): string {
+        if (is_traversable($template)) {
+            $template = new Map($template);
+        }
+
+        if ($template instanceof Collection) {
             $ext = isset($template['ext']) ? $template['ext'] : null;
 
             unset($template['ext'], $template['locale']);
 
-            $template = implode('/', Hash::filter($template, false, function($value) {
+            $template = implode('/', Traverse::filter($template, false, function($value) {
                 return ((is_string($value) || is_numeric($value)) && $value);
             }));
 
@@ -149,13 +156,20 @@ abstract class AbstractView extends Base implements View, Listener {
 
         // Replace \ with / in case we are running on unix
         // Also remove the template extension, but not the type extension
-        return str_replace(['\\', '.' . $this->getConfig('extension')], ['/', ''], $template);
+        return str_replace(['\\', '.' . $this->getExtension()], ['/', ''], $template);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getHelper($key) {
+    public function getExtension(): string {
+        return $this->_extension;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHelper(string $key): Helper {
         if (isset($this->_helpers[$key])) {
             return $this->_helpers[$key];
         }
@@ -166,54 +180,46 @@ abstract class AbstractView extends Base implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function getHelpers() {
+    public function getHelpers(): Map<string, Helper> {
         return $this->_helpers;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getPaths() {
+    public function getPaths(): Vector<string> {
         return $this->_paths;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getStorage() {
+    public function getStorage(): ?Storage {
         return $this->_storage;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getVariable($key) {
+    public function getVariable(string $key): ?mixed {
         return isset($this->_data[$key]) ? $this->_data[$key] : null;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getVariables() {
+    public function getVariables(): Map<string, ?mixed> {
         return $this->_data;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function locateTemplate($template, $type = self::TEMPLATE) {
+    public function locateTemplate(mixed $template, int $type = self::TEMPLATE): string {
         return $this->cache([__METHOD__, $template, $type], function() use ($template, $type) {
             $paths = $this->getPaths();
 
-            if ($configPaths = Config::get('titon.path.views')) {
-                $paths = array_merge($paths, $configPaths);
-            }
-
             $this->emit('view.preLocate', [&$template, $type, &$paths]);
-
-            if (!$paths) {
-                throw new MissingTemplateException('No template lookup paths have been defined');
-            }
 
             // Combine path parts
             $template = $this->formatPath($template);
@@ -243,9 +249,9 @@ abstract class AbstractView extends Base implements View, Listener {
             }
 
             // Fetch locales to loop through
-            $templates = [];
-            $locales = Config::get('titon.locale.cascade') ?: [];
-            $ext = $this->getConfig('extension');
+            $templates = Vector {};
+            $locales = Config::get('titon.locale.cascade') ?: Vector {};
+            $ext = $this->getExtension();
 
             if ($locales) {
                 foreach ($locales as $locale) {
@@ -277,7 +283,7 @@ abstract class AbstractView extends Base implements View, Listener {
      * @param \Titon\View\View $view
      * @param string|array $template
      */
-    public function preRender(Event $event, View $view, &$template) {
+    public function preRender(Event $event, View $view, mixed &$template): void {
         return;
     }
 
@@ -288,26 +294,35 @@ abstract class AbstractView extends Base implements View, Listener {
      * @param \Titon\View\View $view
      * @param string $response
      */
-    public function postRender(Event $event, View $view, &$response) {
+    public function postRender(Event $event, View $view, string &$response): void {
         return;
     }
 
     /**
      * Register the events to listen to.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function registerEvents() {
-        return [
-            'view.preRender' => ['method' => 'preRender', 'priority' => 1],
-            'view.postRender' => ['method' => 'postRender', 'priority' => 1]
-        ];
+    public function registerEvents(): Map<string, mixed> {
+        return Map {
+            'view.preRender' => Map {'method' => 'preRender', 'priority' => 1},
+            'view.postRender' => Map {'method' => 'postRender', 'priority' => 1}
+        };
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setStorage(Storage $storage) {
+    public function setExtension(string $ext): this {
+        $this->_extension = $ext;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setStorage(Storage $storage): this {
         $this->_storage = $storage;
 
         return $this;
@@ -316,7 +331,7 @@ abstract class AbstractView extends Base implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function setVariable($key, $value) {
+    public function setVariable(string $key, ?mixed $value): this {
         $this->_data[Inflector::variable($key)] = $value;
 
         return $this;
@@ -325,7 +340,7 @@ abstract class AbstractView extends Base implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function setVariables(array $data) {
+    public function setVariables(Map<string, ?mixed> $data): this {
         foreach ($data as $key => $value) {
             $this->setVariable($key, $value);
         }

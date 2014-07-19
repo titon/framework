@@ -66,9 +66,9 @@ class FileSystemStorage extends AbstractStorage {
      * @param string|array $path
      */
     public function __construct($path) {
-        if (!is_array($path)) {
-            $path = ['directory' => (string) $path];
-        }
+        //if (!is_array($path)) {
+        //    $path = ['directory' => (string) $path];
+        //}
 
         parent::__construct($path);
     }

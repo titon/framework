@@ -23,55 +23,55 @@ interface Engine {
      * @param mixed $default
      * @return mixed
      */
-    public function data($key, $default = null);
+    public function data(string $key, ?mixed $default = null): ?mixed;
 
     /**
      * Return the currently parsed template content.
      *
      * @return string
      */
-    public function getContent();
+    public function getContent(): string;
 
     /**
      * Return the current layout.
      *
      * @return string
      */
-    public function getLayout();
+    public function getLayout(): string;
 
     /**
      * Return the list of wrappers.
      *
-     * @return array
+     * @return Vector<string>
      */
-    public function getWrapper();
+    public function getWrapper(): Vector<string>;
 
     /**
      * Return the view instance.
      *
-     * @return \Titon\View\View
+     * @return $this
      */
-    public function getView();
+    public function getView(): View;
 
     /**
      * Render a partial template at the defined path.
      * Optionally can pass an array of custom variables.
      *
      * @param string $partial
-     * @param array $variables
+     * @param Map<string, mixed> $variables
      * @return string
      */
-    public function open($partial, array $variables = []);
+    public function open(string $partial, Map<string, mixed> $variables = Map {}): string;
 
     /**
      * Render a template at the defined path.
      * Optionally can pass an array of custom variables.
      *
      * @param string $path
-     * @param array $variables
+     * @param Map<string, mixed> $variables
      * @return string
      */
-    public function render($path, array $variables = []);
+    public function render(string $path, Map<string, mixed> $variables = Map {}): string;
 
     /**
      * Set the content.
@@ -79,7 +79,7 @@ interface Engine {
      * @param string $content
      * @return $this
      */
-    public function setContent($content);
+    public function setContent(string $content): this;
 
     /**
      * Set the parent view layer.
@@ -87,7 +87,7 @@ interface Engine {
      * @param \Titon\View\View $view
      * @return $this
      */
-    public function setView(View $view);
+    public function setView(View $view): this;
 
     /**
      * Set the layout to use.
@@ -95,14 +95,14 @@ interface Engine {
      * @param string $name
      * @return $this
      */
-    public function useLayout($name);
+    public function useLayout(string $name): this;
 
     /**
      * Set the wrappers to use.
      *
-     * @param string|array $name
+     * @param string $names
      * @return $this
      */
-    public function wrapWith($name);
+    public function wrapWith(...$names): this; // todo - type hint once variadic supports it
 
 }

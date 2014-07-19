@@ -458,7 +458,7 @@ class Debugger {
         } else if (is_string($value)) {
             $var = '"' . Sanitize::escape($value, Map {'flags' => ENT_NOQUOTES}) . '"';
 
-        } else if (is_array($value)) {
+        } else if (is_traversable($value)) {
             if ($depth >= 3) {
                 $var = '[...]';
 

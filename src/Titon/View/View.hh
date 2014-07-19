@@ -25,11 +25,11 @@ interface View {
     /**
      * Constants for all the possible types of templates.
      */
-    const TEMPLATE = 1;
-    const LAYOUT = 2;
-    const WRAPPER = 3;
-    const PARTIAL = 4;
-    const PRIVATE_TEMPLATE = 5;
+    const int TEMPLATE = 1;
+    const int LAYOUT = 2;
+    const int WRAPPER = 3;
+    const int PARTIAL = 4;
+    const int PRIVATE_TEMPLATE = 5;
 
     /**
      * Add a view helper.
@@ -38,7 +38,7 @@ interface View {
      * @param \Titon\View\Helper $helper
      * @return $this
      */
-    public function addHelper($key, Helper $helper);
+    public function addHelper(string $key, Helper $helper): this;
 
     /**
      * Add a template lookup path.
@@ -46,24 +46,31 @@ interface View {
      * @param string $path
      * @return $this
      */
-    public function addPath($path);
+    public function addPath(string $path): this;
 
     /**
      * Add multiple template lookup paths.
      *
-     * @param array $paths
+     * @param Vector<string> $paths
      * @return $this
      */
-    public function addPaths(array $paths);
+    public function addPaths(Vector<string> $paths): this;
 
     /**
      * Format the current array of template parts. Any non-string values should be filtered.
      * Extensions should be appended on the end of the path.
      *
-     * @param string $template
+     * @param mixed $template
      * @return string
      */
-    public function formatPath($template);
+    public function formatPath(mixed $template): string;
+
+    /**
+     * Return the template file extension.
+     *
+     * @return string
+     */
+    public function getExtension(): string;
 
     /**
      * Return a helper by key.
@@ -71,28 +78,28 @@ interface View {
      * @param string $key
      * @return \Titon\View\Helper
      */
-    public function getHelper($key);
+    public function getHelper(string $key): Helper;
 
     /**
      * Return all helpers.
      *
-     * @return \Titon\View\Helper[]
+     * @return Map<string, Helper>
      */
-    public function getHelpers();
+    public function getHelpers(): Map<string, Helper>;
 
     /**
      * Return all paths.
      *
-     * @return array
+     * @return Vector<string>
      */
-    public function getPaths();
+    public function getPaths(): Vector<string>;
 
     /**
      * Return the storage engine.
      *
      * @return \Titon\Cache\Storage
      */
-    public function getStorage();
+    public function getStorage(): ?Storage;
 
     /**
      * Return a variable by key.
@@ -100,14 +107,14 @@ interface View {
      * @param string $key
      * @return mixed
      */
-    public function getVariable($key);
+    public function getVariable(string $key): ?mixed;
 
     /**
      * Return all variables.
      *
-     * @return array
+     * @return Map<string, ?mixed>
      */
-    public function getVariables();
+    public function getVariables(): Map<string, ?mixed>;
 
     /**
      * Locate a template within the lookup paths.
@@ -116,7 +123,7 @@ interface View {
      * @param int $type
      * @return string
      */
-    public function locateTemplate($template, $type = self::TEMPLATE);
+    public function locateTemplate(mixed $template, int $type = self::TEMPLATE): string;
 
     /**
      * Determine the template path by parsing. the template argument.
@@ -129,16 +136,24 @@ interface View {
      * @param bool $private
      * @return string
      */
-    public function render($template, $private = false);
+    public function render(mixed $template, bool $private = false): string;
 
     /**
      * Render a single template and pass in optional variables.
      *
      * @param string $path
-     * @param array $variables
+     * @param Map<string, mixed> $variables
      * @return string
      */
-    public function renderTemplate($path, array $variables = []);
+    public function renderTemplate(string $path, Map<string, mixed> $variables = Map {}): string;
+
+    /**
+     * Set the template file extension.
+     *
+     * @param string $ext
+     * @return $this
+     */
+    public function setExtension(string $ext): this;
 
     /**
      * Set the storage engine to cache views.
@@ -146,7 +161,7 @@ interface View {
      * @param \Titon\Cache\Storage $storage
      * @return $this
      */
-    public function setStorage(Storage $storage);
+    public function setStorage(Storage $storage): this;
 
     /**
      * Set a view variable.
@@ -155,14 +170,14 @@ interface View {
      * @param mixed $value
      * @return $this
      */
-    public function setVariable($key, $value);
+    public function setVariable(string $key, ?mixed $value): this;
 
     /**
      * Set multiple view variables.
      *
-     * @param array $data
+     * @param Map<string, ?mixed> $data
      * @return $this
      */
-    public function setVariables(array $data);
+    public function setVariables(Map<string, ?mixed> $data): this;
 
 }

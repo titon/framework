@@ -1,4 +1,4 @@
-<?php if (is_array($value) || is_object($value)) {
+<?php if (is_traversable($value) || is_object($value)) {
 
     // Empty data set
     if (empty($value)) { ?>

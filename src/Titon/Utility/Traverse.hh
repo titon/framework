@@ -416,7 +416,7 @@ class Traverse {
                     }
                 }
 
-                if ($isVector && !isset($base[$key])) {
+                if ($isVector) {
                     $base[] = $value;
                 } else {
                     $base[$key] = $value;

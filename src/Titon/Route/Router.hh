@@ -312,7 +312,7 @@ class Router {
             }
 
             if ($fragment) {
-                if (is_array($fragment) || $fragment instanceof Traversable) {
+                if (is_traversable($fragment)) {
                     $path .= '#' . http_build_query($fragment, '', '&', PHP_QUERY_RFC1738);
                 } else {
                     $path .= '#' . urlencode($fragment);

@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\View;
 
 use Titon\Utility\Config;
@@ -60,6 +60,8 @@ class ViewTest extends TestCase {
             ]
         ]);
 
+        Config::set('titon.path.views', Vector {$this->vfs->path('/views/inherited/')});
+
         $this->object = new ViewStub([
             $this->vfs->path('/views'),
             $this->vfs->path('/views/fallback')
@@ -67,10 +69,11 @@ class ViewTest extends TestCase {
     }
 
     public function testPaths() {
-        $expected = [
+        $expected = Vector {
             $this->vfs->path('/views/'),
-            $this->vfs->path('/views/fallback/')
-        ];
+            $this->vfs->path('/views/fallback/'),
+            $this->vfs->path('/views/inherited/')
+        };
         $this->assertEquals($expected, $this->object->getPaths());
 
         $this->object->addPath(TEST_DIR);
@@ -78,30 +81,22 @@ class ViewTest extends TestCase {
         $this->assertEquals($expected, $this->object->getPaths());
     }
 
-    /**
-     * @expectedException \Titon\View\Exception\MissingTemplateException
-     */
-    public function testPathsNotDefined() {
-        $view = new ViewStub();
-        $view->locateTemplate('index/add');
-    }
-
     public function testHelpers() {
         $form = new FormHelper();
         $html = new HtmlHelper();
 
-        $this->assertEquals([], $this->object->getHelpers());
+        $this->assertEquals(Map {}, $this->object->getHelpers());
 
         $this->object->addHelper('html', $html);
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'html' => $html
-        ], $this->object->getHelpers());
+        }, $this->object->getHelpers());
 
         $this->object->addHelper('form', $form);
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'html' => $html,
             'form' => $form
-        ], $this->object->getHelpers());
+        }, $this->object->getHelpers());
 
         $this->assertInstanceOf('Titon\View\Helper', $this->object->getHelper('html'));
     }
@@ -114,17 +109,17 @@ class ViewTest extends TestCase {
     }
 
     public function testVariables() {
-        $expected = [];
+        $expected = Map {};
         $this->assertEquals($expected, $this->object->getVariables());
 
         $this->object->setVariable('foo', 'bar');
         $expected['foo'] = 'bar';
         $this->assertEquals($expected, $this->object->getVariables());
 
-        $this->object->setVariables([
+        $this->object->setVariables(Map {
             'numeric' => 1337,
             'boolean' => false
-        ]);
+        });
         $expected['numeric'] = 1337;
         $expected['boolean'] = false;
         $this->assertEquals($expected, $this->object->getVariables());
@@ -155,8 +150,8 @@ class ViewTest extends TestCase {
         $this->assertEquals($this->vfs->path('/views/fallback/private/emails/example.html.tpl'), $this->object->locateTemplate(['emails', 'example', 'ext' => 'html'], View::PRIVATE_TEMPLATE));
 
         // private (default)
-        $this->assertEquals($this->vfs->path('/views/private/errors/404.tpl'), $this->object->locateTemplate('errors/404', 'INVALID'));
-        $this->assertEquals($this->vfs->path('/views/fallback/private/emails/example.html.tpl'), $this->object->locateTemplate(['emails', 'example', 'ext' => 'html'], 'INVALID'));
+        $this->assertEquals($this->vfs->path('/views/private/errors/404.tpl'), $this->object->locateTemplate('errors/404', 666));
+        $this->assertEquals($this->vfs->path('/views/fallback/private/emails/example.html.tpl'), $this->object->locateTemplate(['emails', 'example', 'ext' => 'html'], 666));
     }
 
     /**
@@ -167,10 +162,9 @@ class ViewTest extends TestCase {
     }
 
     public function testLocateTemplateLocales() {
-        $testTemplates = [];
+        $testTemplates = Vector {};
 
-        Config::set('titon.path.views', [$this->vfs->path('/views/locales/')]);
-        Config::set('titon.locale.cascade', []);
+        Config::set('titon.locale.cascade', Vector {});
 
         $this->object->on('view.postLocate', function($event, $templates, $type, $paths) use (&$testTemplates) {
             $testTemplates = $templates;
@@ -178,38 +172,38 @@ class ViewTest extends TestCase {
 
         $this->object->locateTemplate('index/add');
 
-        $this->assertEquals([
+        $this->assertEquals(Vector {
             'public/index/add.tpl'
-        ], $testTemplates);
+        }, $testTemplates);
 
-        Config::set('titon.locale.cascade', ['en']);
+        Config::set('titon.locale.cascade', Vector {'en'});
 
         $this->object->flushCache();
         $this->object->locateTemplate('index/add');
 
-        $this->assertEquals([
+        $this->assertEquals(Vector {
             'public/index/add.en.tpl',
             'public/index/add.tpl'
-        ], $testTemplates);
+        }, $testTemplates);
 
-        Config::set('titon.locale.cascade', ['en-us', 'en', 'fr']);
+        Config::set('titon.locale.cascade', Vector {'en-us', 'en', 'fr'});
 
         $this->object->flushCache();
         $this->object->locateTemplate('index/add');
 
-        $this->assertEquals([
+        $this->assertEquals(Vector {
             'public/index/add.en-us.tpl',
             'public/index/add.en.tpl',
             'public/index/add.fr.tpl',
             'public/index/add.tpl'
-        ], $testTemplates);
+        }, $testTemplates);
     }
 
 }
 
 class ViewStub extends AbstractView {
 
-    public function render($template, $private = false) {}
-    public function renderTemplate($path, array $variables = array()) {}
+    public function render(mixed $template, bool $private = false): string {}
+    public function renderTemplate(string $path, Map<string, mixed> $variables = Map {}): string {}
 
 }

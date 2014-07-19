@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\View\View;
 
 use Titon\Test\TestCase;
@@ -23,13 +23,13 @@ class EngineTest extends TestCase {
     }
 
     public function testWrapper() {
-        $this->assertEquals([], $this->object->getWrapper());
+        $this->assertEquals(Vector {}, $this->object->getWrapper());
 
         $this->object->wrapWith('alternate');
-        $this->assertEquals(['alternate'], $this->object->getWrapper());
+        $this->assertEquals(Vector {'alternate'}, $this->object->getWrapper());
 
-        $this->object->wrapWith(['alternate', 'double']);
-        $this->assertEquals(['alternate', 'double'], $this->object->getWrapper());
+        $this->object->wrapWith('alternate', 'double');
+        $this->assertEquals(Vector {'alternate', 'double'}, $this->object->getWrapper());
     }
 
     public function testContent() {
@@ -43,8 +43,8 @@ class EngineTest extends TestCase {
 
 class EngineStub extends AbstractEngine {
 
-    public function open($partial, array $variables = array()) {}
-    public function render($path, array $variables = array()) {}
-    public function getExtension() {}
+    public function open(string $partial, Map<string, mixed> $variables = Map {}): string {}
+    public function render(string $path, Map<string, mixed> $variables = Map {}): string {}
+    public function getExtension(): string {}
 
 }

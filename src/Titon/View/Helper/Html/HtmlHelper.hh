@@ -10,6 +10,7 @@ namespace Titon\View\Helper\Html;
 use Titon\View\Helper\AbstractHelper;
 use Titon\Utility\Config;
 use Titon\Utility\Crypt;
+use Titon\Utility\Traverse;
 
 /**
  * The HtmlHelper is primarily used for dynamic HTML tag creation within templates.
@@ -21,32 +22,32 @@ class HtmlHelper extends AbstractHelper {
     /**
      * Mapping of HTML tags for this helper.
      *
-     * @type array
+     * @type tags
      */
-    protected $_tags = [
+    protected tags $_tags = Map {
         'anchor'    => '<a{attr}>{body}</a>',
         'link'      => '<link{attr}>',
         'meta'      => '<meta{attr}>',
         'script'    => '<script{attr}>{body}</script>',
         'style'     => '<style{attr}>{body}</style>',
         'image'     => '<img{attr}>'
-    ];
+    };
 
     /**
      * Create an HTML anchor link.
      *
      * @param string $title
      * @param string $url
-     * @param array $attributes
+     * @param attributes $attributes
      * @return string
      */
-    public function anchor($title, $url, array $attributes = []) {
-        $attributes['href'] = (string) $url;
+    public function anchor(string $title, string $url, attributes $attributes = Map {}): string {
+        $attributes['href'] = $url;
 
-        return $this->tag('anchor', [
+        return $this->tag('anchor', Map {
             'attr' => $this->attributes($attributes),
             'body' => $this->escape($title)
-        ]);
+        });
     }
 
     /**
@@ -54,7 +55,7 @@ class HtmlHelper extends AbstractHelper {
      *
      * @return string
      */
-    public function doctype() {
+    public function doctype(): string {
         return '<!DOCTYPE html>' . PHP_EOL;
     }
 
@@ -62,26 +63,26 @@ class HtmlHelper extends AbstractHelper {
      * Create an image element.
      *
      * @param string $path
-     * @param array $attributes
+     * @param attributes $attributes
      * @param mixed $url
      * @return string
      */
-    public function image($path, array $attributes = [], $url = null) {
+    public function image(string $path, attributes $attributes = Map {}, mixed $url = ''): string {
         if (!isset($attributes['alt'])) {
             $attributes['alt'] = '';
         }
 
         $attributes['src'] = $path;
 
-        $image = $this->tag('image', [
+        $image = $this->tag('image', Map {
             'attr' => $this->attributes($attributes)
-        ]);
+        });
 
         if ($url) {
-            return $this->tag('anchor', [
-                'attr' => $this->attributes(['href' => $url]),
+            return $this->tag('anchor', Map {
+                'attr' => $this->attributes(Map {'href' => $url}),
                 'body' => trim($image)
-            ]);
+            });
         }
 
         return $image;
@@ -91,31 +92,31 @@ class HtmlHelper extends AbstractHelper {
      * Create a link element.
      *
      * @param string $path
-     * @param array $attributes
+     * @param attributes $attributes
      * @return string
      */
-    public function link($path, array $attributes = []) {
-        $attributes = $attributes + [
+    public function link(string $path, attributes $attributes = Map {}) {
+        $attributes = Traverse::merge(Map {
             'rel'   => 'stylesheet',
             'type'  => 'text/css',
             'media' => 'screen'
-        ];
+        }, $attributes);
 
         $attributes['href'] = $path;
 
-        return $this->tag('link', [
+        return $this->tag('link', Map {
             'attr' => $this->attributes($attributes)
-        ]);
+        });
     }
 
     /**
      * Creates a mailto hyperlink. Emails will be obfuscated to hide against spambots and harvesters.
      *
      * @param string $email
-     * @param array $attributes
+     * @param attributes $attributes
      * @return string
      */
-    public function mailto($email, array $attributes = []) {
+    public function mailto(string $email, attributes $attributes = Map {}) {
         $email = Crypt::obfuscate($email);
 
         if (!isset($attributes['title'])) {
@@ -125,27 +126,27 @@ class HtmlHelper extends AbstractHelper {
         $attributes['escape'] = ['href'];
         $attributes['href'] = 'mailto:' . $email;
 
-        return $this->tag('anchor', [
+        return $this->tag('anchor', Map {
             'attr' => $this->attributes($attributes),
             'body' => $email
-        ]);
+        });
     }
 
     /**
      * Create a meta element. Has predefined values for common meta tags.
      *
-     * @param string $type
+     * @param string|Map $type
      * @param string $content
-     * @param array $attributes
+     * @param attributes $attributes
      * @return string
      */
-    public function meta($type, $content = null, array $attributes = []) {
-        if (is_array($type)) {
-            return $this->tag('meta', [
+    public function meta(mixed $type, string $content = '', attributes $attributes = Map {}) {
+        if ($type instanceof Map) {
+            return $this->tag('meta', Map {
                 'attr' => $this->attributes($type)
-            ]);
+            });
         } else {
-            $type = mb_strtolower($type);
+            $type = mb_strtolower((string) $type);
         }
 
         if (empty($content)) {
@@ -162,30 +163,30 @@ class HtmlHelper extends AbstractHelper {
             }
         }
 
-        $metaTypes = [
-            'content-type'          => ['http-equiv' => 'Content-Type', 'content' => $content],
-            'content-script-type'   => ['http-equiv' => 'Content-Script-Type', 'content' => $content],
-            'content-style-type'    => ['http-equiv' => 'Content-Style-Type', 'content' => $content],
-            'content-language'      => ['http-equiv' => 'Content-Language', 'content' => $content],
-            'keywords'              => ['name' => 'keywords', 'content' => $content],
-            'description'           => ['name' => 'description', 'content' => $content],
-            'author'                => ['name' => 'author', 'content' => $content],
-            'robots'                => ['name' => 'robots', 'content' => $content],
-            'rss'                   => ['type' => 'application/rss+xml', 'rel' => 'alternate', 'title' => '', 'link' => $content],
-            'atom'                  => ['type' => 'application/atom+xml', 'title' => '', 'link' => $content],
-            'icon'                  => ['type' => 'image/x-icon', 'rel' => 'icon', 'link' => $content],
-        ];
+        $metaTypes = Map {
+            'content-type'          => Map {'http-equiv' => 'Content-Type', 'content' => $content},
+            'content-script-type'   => Map {'http-equiv' => 'Content-Script-Type', 'content' => $content},
+            'content-style-type'    => Map {'http-equiv' => 'Content-Style-Type', 'content' => $content},
+            'content-language'      => Map {'http-equiv' => 'Content-Language', 'content' => $content},
+            'keywords'              => Map {'name' => 'keywords', 'content' => $content},
+            'description'           => Map {'name' => 'description', 'content' => $content},
+            'author'                => Map {'name' => 'author', 'content' => $content},
+            'robots'                => Map {'name' => 'robots', 'content' => $content},
+            'rss'                   => Map {'type' => 'application/rss+xml', 'rel' => 'alternate', 'title' => '', 'link' => $content},
+            'atom'                  => Map {'type' => 'application/atom+xml', 'title' => '', 'link' => $content},
+            'icon'                  => Map {'type' => 'image/x-icon', 'rel' => 'icon', 'link' => $content},
+        };
 
         if (isset($metaTypes[$type])) {
-            $attributes = $attributes + $metaTypes[$type];
+            $attributes = $metaTypes[$type]->setAll($attributes);
         } else {
             $attributes['name'] = $type;
             $attributes['content'] = $content;
         }
 
-        return $this->tag('meta', [
+        return $this->tag('meta', Map {
             'attr' => $this->attributes($attributes)
-        ]);
+        });
     }
 
     /**
@@ -195,8 +196,8 @@ class HtmlHelper extends AbstractHelper {
      * @param bool $isBlock
      * @return string
      */
-    public function script($source, $isBlock = false) {
-        $attributes = ['type' => 'text/javascript'];
+    public function script(string $source, bool $isBlock = false): string {
+        $attributes = Map {'type' => 'text/javascript'};
         $content = '';
 
         if ($isBlock) {
@@ -205,10 +206,10 @@ class HtmlHelper extends AbstractHelper {
             $attributes['src'] = $source;
         }
 
-        return $this->tag('script', [
+        return $this->tag('script', Map {
             'attr' => $this->attributes($attributes),
             'body' => $content
-        ]);
+        });
     }
 
     /**
@@ -217,23 +218,23 @@ class HtmlHelper extends AbstractHelper {
      * @param string $content
      * @return string
      */
-    public function style($content) {
-        return $this->tag('style', [
-            'attr' => $this->attributes(['type' => 'text/css']),
+    public function style(string $content): string {
+        return $this->tag('style', Map {
+            'attr' => $this->attributes(Map {'type' => 'text/css'}),
             'body' => $content
-        ]);
+        });
     }
 
     /**
      * Grab the page title if it has been set.
      *
-     * @param string|array $separator
+     * @param string $separator
      * @return string
      */
-    public function title($separator = ' - ') {
+    public function title(string $separator = ' - '): string {
         $pageTitle = $this->getView()->getVariable('pageTitle');
 
-        if (is_array($pageTitle)) {
+        if (is_traversable($pageTitle)) {
             return implode($separator, $pageTitle);
         }
 

@@ -73,12 +73,12 @@ trait Cacheable {
      * @return string
      */
     public function createCacheKey(mixed $keys): string {
-        if (is_array($keys)) {
+        if (is_traversable($keys)) {
             $key = array_shift($keys);
 
             if ($keys) {
                 foreach ($keys as $value) {
-                    if (is_array($value)) {
+                    if (is_traversable($value)) {
                         $key .= '-' . md5(json_encode($value));
                     } else if ($value) {
                         $key .= '-' . $value;

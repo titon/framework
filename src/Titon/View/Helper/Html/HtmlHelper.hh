@@ -22,9 +22,9 @@ class HtmlHelper extends AbstractHelper {
     /**
      * Mapping of HTML tags for this helper.
      *
-     * @type tags
+     * @type Map<string, mixed>
      */
-    protected tags $_tags = Map {
+    protected Map<string, mixed> $_tags = Map {
         'anchor'    => '<a{attr}>{body}</a>',
         'link'      => '<link{attr}>',
         'meta'      => '<meta{attr}>',
@@ -38,10 +38,10 @@ class HtmlHelper extends AbstractHelper {
      *
      * @param string $title
      * @param string $url
-     * @param attributes $attributes
+     * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function anchor(string $title, string $url, attributes $attributes = Map {}): string {
+    public function anchor(string $title, string $url, Map<string, mixed> $attributes = Map {}): string {
         $attributes['href'] = $url;
 
         return $this->tag('anchor', Map {
@@ -63,11 +63,11 @@ class HtmlHelper extends AbstractHelper {
      * Create an image element.
      *
      * @param string $path
-     * @param attributes $attributes
+     * @param Map<string, mixed> $attributes
      * @param mixed $url
      * @return string
      */
-    public function image(string $path, attributes $attributes = Map {}, mixed $url = ''): string {
+    public function image(string $path, Map<string, mixed> $attributes = Map {}, mixed $url = ''): string {
         if (!isset($attributes['alt'])) {
             $attributes['alt'] = '';
         }
@@ -92,10 +92,10 @@ class HtmlHelper extends AbstractHelper {
      * Create a link element.
      *
      * @param string $path
-     * @param attributes $attributes
+     * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function link(string $path, attributes $attributes = Map {}) {
+    public function link(string $path, Map<string, mixed> $attributes = Map {}) {
         $attributes = Traverse::merge(Map {
             'rel'   => 'stylesheet',
             'type'  => 'text/css',
@@ -113,10 +113,10 @@ class HtmlHelper extends AbstractHelper {
      * Creates a mailto hyperlink. Emails will be obfuscated to hide against spambots and harvesters.
      *
      * @param string $email
-     * @param attributes $attributes
+     * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function mailto(string $email, attributes $attributes = Map {}) {
+    public function mailto(string $email, Map<string, mixed> $attributes = Map {}) {
         $email = Crypt::obfuscate($email);
 
         if (!isset($attributes['title'])) {
@@ -137,10 +137,10 @@ class HtmlHelper extends AbstractHelper {
      *
      * @param string|Map $type
      * @param string $content
-     * @param attributes $attributes
+     * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function meta(mixed $type, string $content = '', attributes $attributes = Map {}) {
+    public function meta(mixed $type, string $content = '', Map<string, mixed> $attributes = Map {}) {
         if ($type instanceof Map) {
             return $this->tag('meta', Map {
                 'attr' => $this->attributes($type)

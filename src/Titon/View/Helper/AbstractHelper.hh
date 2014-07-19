@@ -39,9 +39,9 @@ abstract class AbstractHelper extends Base implements Helper {
     /**
      * Mapping of HTML tags.
      *
-     * @type tags
+     * @type Map<string, mixed>
      */
-    protected tags $_tags = Map {};
+    protected Map<string, mixed> $_tags = Map {};
 
     /**
      * Request object.
@@ -60,11 +60,11 @@ abstract class AbstractHelper extends Base implements Helper {
     /**
      * Parses an array of attributes to the HTML equivalent.
      *
-     * @param attributes $attributes
+     * @param Map<string, mixed> $attributes
      * @param Vector<string> $remove
      * @return string
      */
-    public function attributes(attributes $attributes, Vector<string> $remove = Vector {}): string {
+    public function attributes(Map<string, mixed> $attributes, Vector<string> $remove = Vector {}): string {
         $parsed = '';
         $escape = true;
 
@@ -171,10 +171,10 @@ abstract class AbstractHelper extends Base implements Helper {
      * Generates an HTML tag if it exists.
      *
      * @param string $tag
-     * @param attributes $params
+     * @param Map<string, mixed> $params
      * @return string
      */
-    public function tag(string $tag, attributes $params = Map {}) {
+    public function tag(string $tag, Map<string, mixed> $params = Map {}) {
         return Str::insert($this->_tags[$tag], $params, Map {'escape' => false}) . PHP_EOL;
     }
 

@@ -33,10 +33,10 @@ class BreadcrumbHelper extends AbstractHelper {
      *
      * @param string|array $titles
      * @param string|array $url
-     * @param attributes $attributes
+     * @param Map<string, mixed> $attributes
      * @return $this
      */
-    public function add(mixed $titles, mixed $url = '', attributes $attributes = Map {}): this {
+    public function add(mixed $titles, mixed $url = '', Map<string, mixed> $attributes = Map {}): this {
         if (is_traversable($titles)) {
             foreach ($titles as $title => $url) {
                 $this->append($title, $url, $attributes);
@@ -62,10 +62,10 @@ class BreadcrumbHelper extends AbstractHelper {
      *
      * @param string $title
      * @param string|array $url
-     * @param attributes $attributes
+     * @param Map<string, mixed> $attributes
      * @return $this
      */
-    public function append(string $title, mixed $url, attributes $attributes = Map {}): this {
+    public function append(string $title, mixed $url, Map<string, mixed> $attributes = Map {}): this {
         $this->_breadcrumbs[] = Map {
             'title' => $title,
             'url' => $url,
@@ -87,10 +87,10 @@ class BreadcrumbHelper extends AbstractHelper {
     /**
      * Return an array of breadcrumbs formatted as anchor links.
      *
-     * @param attributes $attributes
+     * @param Map<string, mixed> $attributes
      * @return Vector<string>
      */
-    public function generate(attributes $attributes = Map {}): this {
+    public function generate(Map<string, mixed> $attributes = Map {}): this {
         $trail = Vector {};
 
         if ($this->_breadcrumbs) {
@@ -125,10 +125,10 @@ class BreadcrumbHelper extends AbstractHelper {
      *
      * @param string $title
      * @param string|array $url
-     * @param attributes $attributes
+     * @param Map<string, mixed> $attributes
      * @return $this
      */
-    public function prepend(string $title, mixed $url, attributes $attributes = Map {}): this {
+    public function prepend(string $title, mixed $url, Map<string, mixed> $attributes = Map {}): this {
         array_unshift($this->_breadcrumbs, Map {
             'title' => $title,
             'url' => $url,
@@ -142,10 +142,10 @@ class BreadcrumbHelper extends AbstractHelper {
      * Generate a page title based off the current crumbs.
      *
      * @param string $base
-     * @param attributes $options
+     * @param Map<string, mixed> $options
      * @return string
      */
-    public function title(string $base = '', attributes $options = Map {}): string {
+    public function title(string $base = '', Map<string, mixed> $options = Map {}): string {
         $options = Traverse::merge(Map {
             'reverse' => false,
             'depth' => 3,

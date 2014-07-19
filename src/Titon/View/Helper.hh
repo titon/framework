@@ -12,9 +12,6 @@ use Titon\Event\Listener;
 use Titon\Http\Request;
 use Titon\View\View;
 
-type attributes = Map<string, mixed>;
-type tags = Map<string, mixed>;
-
 /**
  * Interface for the helpers library.
  *

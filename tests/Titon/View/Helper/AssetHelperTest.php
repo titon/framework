@@ -1,5 +1,5 @@
-<?php
-namespace Titon\View\Helper\Xhtml;
+<?hh
+namespace Titon\View\Helper;
 
 use Titon\Utility\Config;
 use Titon\Test\TestCase;
@@ -15,7 +15,7 @@ class AssetHelperTest extends TestCase {
             ->addScript('path/no-extension')
             ->addScript('/a/really/really/deep/path/include.js', AssetHelper::HEADER);
 
-        $this->assertEquals(null, $helper->scripts('fakeLocation'));
+        $this->assertEquals('', $helper->scripts('fakeLocation'));
 
         $this->assertEquals(
             '<script src="path/commons.js" type="text/javascript"></script>' . PHP_EOL .
@@ -61,35 +61,35 @@ class AssetHelperTest extends TestCase {
         $helper
             ->addStylesheet('style.css')
             ->addStylesheet('a/really/deep/path/with/no/extension/style.css')
-            ->addStylesheet('mobile.css', ['media' => 'mobile']);
+            ->addStylesheet('mobile.css', Map {'media' => 'mobile'});
 
         $this->assertEquals(
-            '<link href="style.css" media="screen" rel="stylesheet" type="text/css" />' . PHP_EOL .
-            '<link href="a/really/deep/path/with/no/extension/style.css" media="screen" rel="stylesheet" type="text/css" />' . PHP_EOL .
-            '<link href="mobile.css" media="mobile" rel="stylesheet" type="text/css" />' . PHP_EOL
+            '<link href="style.css" media="screen" rel="stylesheet" type="text/css">' . PHP_EOL .
+            '<link href="a/really/deep/path/with/no/extension/style.css" media="screen" rel="stylesheet" type="text/css">' . PHP_EOL .
+            '<link href="mobile.css" media="mobile" rel="stylesheet" type="text/css">' . PHP_EOL
         , $helper->stylesheets());
 
         // with ordering
         $helper = new AssetHelper();
         $helper
-            ->addStylesheet('style.css', ['media' => 'handheld'], 3)
-            ->addStylesheet('a/really/deep/path/with/no/extension/style.css', ['media' => 'screen'], 1)
-            ->addStylesheet('mobile.css', ['media' => 'mobile'], 2);
+            ->addStylesheet('style.css', Map {'media' => 'handheld'}, 3)
+            ->addStylesheet('a/really/deep/path/with/no/extension/style.css', Map {'media' => 'screen'}, 1)
+            ->addStylesheet('mobile.css', Map {'media' => 'mobile'}, 2);
 
         $this->assertEquals(
-            '<link href="a/really/deep/path/with/no/extension/style.css" media="screen" rel="stylesheet" type="text/css" />' . PHP_EOL .
-            '<link href="mobile.css" media="mobile" rel="stylesheet" type="text/css" />' . PHP_EOL .
-            '<link href="style.css" media="handheld" rel="stylesheet" type="text/css" />' . PHP_EOL
+            '<link href="a/really/deep/path/with/no/extension/style.css" media="screen" rel="stylesheet" type="text/css">' . PHP_EOL .
+            '<link href="mobile.css" media="mobile" rel="stylesheet" type="text/css">' . PHP_EOL .
+            '<link href="style.css" media="handheld" rel="stylesheet" type="text/css">' . PHP_EOL
         , $helper->stylesheets());
 
         // environment
         $helper = new AssetHelper();
         $helper
-            ->addStylesheet('style.css', ['media' => 'handheld'], 30, 'dev')
-            ->addStylesheet('a/really/deep/path/with/no/extension/style.css', ['media' => 'screen'], 30, 'staging')
-            ->addStylesheet('mobile.css', ['media' => 'mobile'], 30, 'prod');
+            ->addStylesheet('style.css', Map {'media' => 'handheld'}, 30, 'dev')
+            ->addStylesheet('a/really/deep/path/with/no/extension/style.css', Map {'media' => 'screen'}, 30, 'staging')
+            ->addStylesheet('mobile.css', Map {'media' => 'mobile'}, 30, 'prod');
 
-        $this->assertEquals('<link href="style.css" media="handheld" rel="stylesheet" type="text/css" />' . PHP_EOL, $helper->stylesheets('dev'));
+        $this->assertEquals('<link href="style.css" media="handheld" rel="stylesheet" type="text/css">' . PHP_EOL, $helper->stylesheets('dev'));
     }
 
     public function testPreparePath() {
@@ -112,17 +112,17 @@ class AssetHelperTest extends TestCase {
         $vfs->createDirectory('/css/');
         $vfs->createFile('/css/test.css');
 
-        $helper = new AssetHelper(['timestamp' => true, 'webroot' => $vfs->path('/')]);
+        $helper = new AssetHelper(Map {'timestamp' => true, 'webroot' => $vfs->path('/')});
         $helper->addStylesheet('/css/test.css');
 
-        $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css" \/>/', $helper->stylesheets());
+        $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css">/', $helper->stylesheets());
     }
 
     public function testTimestampingNoWebroot() {
-        $helper = new AssetHelper(['timestamp' => true]);
+        $helper = new AssetHelper(Map {'timestamp' => true});
         $helper->addStylesheet('/css/test.css');
 
-        $this->assertEquals('<link href="/css/test.css" media="screen" rel="stylesheet" type="text/css" />' . PHP_EOL, $helper->stylesheets());
+        $this->assertEquals('<link href="/css/test.css" media="screen" rel="stylesheet" type="text/css">' . PHP_EOL, $helper->stylesheets());
     }
 
     public function testTimestampingThroughConfig() {
@@ -132,10 +132,10 @@ class AssetHelperTest extends TestCase {
 
         Config::set('titon.webroot', $vfs->path('/'));
 
-        $helper = new AssetHelper(['timestamp' => true, 'webroot' => null]);
+        $helper = new AssetHelper(Map {'timestamp' => true, 'webroot' => null});
         $helper->addStylesheet('/css/test.css');
 
-        $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css" \/>/', $helper->stylesheets());
+        $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css">/', $helper->stylesheets());
     }
 
 }

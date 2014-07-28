@@ -1,12 +1,12 @@
 <?hh
-namespace Titon\View\Helper\Html;
+namespace Titon\View\Helper;
 
 use Titon\Test\TestCase;
 use Titon\Utility\Crypt;
 use Titon\View\View\TemplateView;
 
 /**
- * @property \Titon\View\Helper\Html\HtmlHelper $object
+ * @property \Titon\View\Helper\HtmlHelper $object
  */
 class HtmlHelperTest extends TestCase {
 

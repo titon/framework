@@ -1,12 +1,12 @@
 <?hh
-namespace Titon\View\Helper\Html;
+namespace Titon\View\Helper;
 
 use Titon\Utility\Registry;
 use Titon\Test\TestCase;
 use Titon\View\View\TemplateView;
 
 /**
- * @property \Titon\View\Helper\Html\BreadcrumbHelper $object
+ * @property \Titon\View\Helper\BreadcrumbHelper $object
  */
 class BreadcrumbHelperTest extends TestCase {
 
@@ -114,7 +114,7 @@ class BreadcrumbHelperTest extends TestCase {
         $view = new TemplateView(Vector {'/'});
         $view->setVariable('pageTitle', 'Page Title');
 
-        $html = Registry::factory('Titon\View\Helper\Html\HtmlHelper');
+        $html = Registry::factory('Titon\View\Helper\HtmlHelper');
         $html->setView($view);
 
         $this->assertEquals('Page Title', $this->object->title());

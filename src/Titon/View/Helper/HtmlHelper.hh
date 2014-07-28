@@ -5,9 +5,8 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\Helper\Html;
+namespace Titon\View\Helper;
 
-use Titon\View\Helper\AbstractHelper;
 use Titon\Utility\Config;
 use Titon\Utility\Crypt;
 use Titon\Utility\Traverse;
@@ -15,7 +14,7 @@ use Titon\Utility\Traverse;
 /**
  * The HtmlHelper is primarily used for dynamic HTML tag creation within templates.
  *
- * @package Titon\View\Helper\Html
+ * @package Titon\View\Helper
  */
 class HtmlHelper extends AbstractHelper {
 

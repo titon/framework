@@ -5,52 +5,51 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\Helper\Html;
+namespace Titon\View\Helper;
 
 use Titon\Utility\Config;
 use Titon\Utility\Registry;
-use Titon\View\Helper\AbstractHelper;
 
 /**
  * The AssetHelper aids in the process of including external stylesheets and scripts.
  *
- * @package Titon\View\Helper\Html
- * @property \Titon\View\Helper\Html\HtmlHelper $html
+ * @package Titon\View\Helper
+ * @property \Titon\View\Helper\HtmlHelper $html
  */
 class AssetHelper extends AbstractHelper {
 
     /**
      * Default locations.
      */
-    const HEADER = 'header';
-    const FOOTER = 'footer';
+    const string HEADER = 'header';
+    const string FOOTER = 'footer';
 
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type bool $timestamp   Add a file timestamp to every asset URL
      *      @type string $webroot   Path to the webroot to use for file checking
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'timestamp' => true,
         'webroot' => ''
-    ];
+    };
 
     /**
      * A list of JavaScript files to include in the current page.
      *
-     * @type array
+     * @type Map<string, Map<int, Map<string, mixed>>>
      */
-    protected $_scripts = [];
+    protected Map<string, Map<int, Map<string, mixed>>> $_scripts = Map {};
 
     /**
      * A list of CSS stylesheets to include in the current page.
      *
-     * @type array
+     * @type Map<int, Map<string, mixed>>
      */
-    protected $_stylesheets = [];
+    protected Map<int, Map<string, mixed>> $_stylesheets = Map {};
 
     /**
      * Add a JavaScript file to the current page request.
@@ -58,15 +57,15 @@ class AssetHelper extends AbstractHelper {
      * @param string $script
      * @param string $location
      * @param int $order
-     * @param int $env
+     * @param string $env
      * @return $this
      */
-    public function addScript($script, $location = self::FOOTER, $order = null, $env = null) {
+    public function addScript(string $script, string $location = self::FOOTER, int $order = 0, string $env = ''): this {
         if (!isset($this->_scripts[$location])) {
-            $this->_scripts[$location] = [];
+            $this->_scripts[$location] = Map {};
         }
 
-        if (!is_numeric($order)) {
+        if ($order === 0) {
             $order = count($this->_scripts[$location]);
         }
 
@@ -74,10 +73,10 @@ class AssetHelper extends AbstractHelper {
             $order++;
         }
 
-        $this->_scripts[$location][$order] = [
+        $this->_scripts[$location][$order] = Map {
             'path' => $this->preparePath($script, 'js'),
             'env' => $env
-        ];
+        };
 
         return $this;
     }
@@ -86,13 +85,13 @@ class AssetHelper extends AbstractHelper {
      * Add a CSS stylesheet to the current page request.
      *
      * @param string $sheet
-     * @param array $attributes
+     * @param Map<string, mixed> $attributes
      * @param int $order
      * @param int $env
      * @return $this
      */
-    public function addStylesheet($sheet, array $attributes = [], $order = null, $env = null) {
-        if (!is_numeric($order)) {
+    public function addStylesheet(string $sheet, Map<string, mixed> $attributes = Map {}, int $order = 0, string $env = ''): this {
+        if ($order === 0) {
             $order = count($this->_stylesheets);
         }
 
@@ -100,11 +99,11 @@ class AssetHelper extends AbstractHelper {
             $order++;
         }
 
-        $this->_stylesheets[$order] = [
+        $this->_stylesheets[$order] = Map {
             'path' => $this->preparePath($sheet, 'css'),
             'attributes' => $attributes,
             'env' => $env
-        ];
+        };
 
         return $this;
     }
@@ -117,7 +116,7 @@ class AssetHelper extends AbstractHelper {
      * @param string $ext
      * @return string
      */
-    public function preparePath($path, $ext) {
+    public function preparePath(string $path, string $ext): string {
 
         // Don't modify external assets
         if (substr($path, 0, 2) === '//' || preg_match('/^https?:/i', $path)) {
@@ -158,9 +157,9 @@ class AssetHelper extends AbstractHelper {
     /**
      * Attach the HtmlHelper.
      */
-    public function initialize() {
+    public function initialize(): void {
         $this->attachObject('html', function() {
-            return Registry::factory('Titon\View\Helper\Html\HtmlHelper');
+            return Registry::factory('Titon\View\Helper\HtmlHelper');
         });
     }
 
@@ -171,15 +170,15 @@ class AssetHelper extends AbstractHelper {
      * @param string $env
      * @return string
      */
-    public function scripts($location = self::FOOTER, $env = null) {
-        $output = null;
+    public function scripts(string $location = self::FOOTER, string $env = ''): string {
+        $output = '';
 
         if (!empty($this->_scripts[$location])) {
             $scripts = $this->_scripts[$location];
             ksort($scripts);
 
             foreach ($scripts as $script) {
-                if ($script['env'] === null || $script['env'] === $env) {
+                if ($script['env'] === '' || $script['env'] === $env) {
                     $output .= $this->html->script($script['path']);
                 }
             }
@@ -194,15 +193,15 @@ class AssetHelper extends AbstractHelper {
      * @param string $env
      * @return string
      */
-    public function stylesheets($env = null) {
-        $output = null;
+    public function stylesheets(string $env = ''): string {
+        $output = '';
 
         if ($this->_stylesheets) {
             $stylesheets = $this->_stylesheets;
             ksort($stylesheets);
 
             foreach ($stylesheets as $sheet) {
-                if ($sheet['env'] === null || $sheet['env'] === $env) {
+                if ($sheet['env'] === '' || $sheet['env'] === $env) {
                     $output .= $this->html->link($sheet['path'], $sheet['attributes']);
                 }
             }

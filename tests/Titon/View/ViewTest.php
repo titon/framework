@@ -3,8 +3,8 @@ namespace Titon\View;
 
 use Titon\Utility\Config;
 use Titon\View\View;
-use Titon\View\Helper\Html\HtmlHelper;
-use Titon\View\Helper\Html\FormHelper;
+use Titon\View\Helper\HtmlHelper;
+use Titon\View\Helper\FormHelper;
 use Titon\Test\TestCase;
 use Titon\View\View\AbstractView;
 use VirtualFileSystem\FileSystem;

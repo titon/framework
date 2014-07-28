@@ -5,19 +5,18 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\Helper\Html;
+namespace Titon\View\Helper;
 
 use Titon\Utility\Traverse;
 use Titon\Utility\Registry;
-use Titon\View\Helper\AbstractHelper;
 
 newtype breadcrumb = Map<string, mixed>;
 
 /**
  * The BreadcrumbHelper is primarily used for adding and generating breadcrumb lists.
  *
- * @package Titon\View\Helper\Html
- * @property \Titon\View\Helper\Html\HtmlHelper $html
+ * @package Titon\View\Helper
+ * @property \Titon\View\Helper\HtmlHelper $html
  */
 class BreadcrumbHelper extends AbstractHelper {
 
@@ -107,7 +106,7 @@ class BreadcrumbHelper extends AbstractHelper {
      */
     public function initialize(): void {
         $this->attachObject('html', function() {
-            return Registry::factory('Titon\View\Helper\Html\HtmlHelper');
+            return Registry::factory('Titon\View\Helper\HtmlHelper');
         });
     }
 

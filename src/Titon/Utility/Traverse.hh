@@ -19,21 +19,38 @@ class Traverse {
     use Macroable;
 
     /**
+     * Check if the collection is traversable. If not, throw an exception.
+     * This must be done until a traversable type hint is added, or arrays are removed.
+     *
+     * @param mixed $collection
+     * @return bool
+     */
+    public static function check(mixed $collection): bool {
+        if (is_traversable($collection)) {
+            return true;
+        }
+
+        throw new \InvalidArgumentException('Collection must either be an array or an object that extends Traversable.');
+    }
+
+    /**
      * Determines the total depth of a multi-dimensional array or object.
      * Has two methods of determining depth: based on recursive depth, or based on tab indentation (faster).
      *
-     * @param Collection $collection
+     * @param mixed $collection
      * @return int
      */
-    public static function depth(Collection $collection): int {
-        if ($collection->isEmpty()) {
+    public static function depth(mixed $collection): int {
+        static::check($collection);
+
+        if (empty($collection)) {
             return 0;
         }
 
         $depth = 1;
 
         foreach ($collection as $value) {
-            if ($value instanceof Collection) {
+            if (is_traversable($value)) {
                 $count = static::depth($value) + 1;
 
                 if ($count > $depth) {
@@ -49,14 +66,16 @@ class Traverse {
      * Calls a function for each key-value pair in the set.
      * If recursive is true, will apply the callback to nested arrays as well.
      *
-     * @param Collection $collection
+     * @param mixed $collection
      * @param \Closure $callback
      * @param bool $recursive
      * @return Collection
      */
-    public static function each(Collection $collection, Closure $callback, bool $recursive = true): Collection {
+    public static function each(mixed $collection, Closure $callback, bool $recursive = true): mixed {
+        static::check($collection);
+
         foreach ($collection as $key => $value) {
-            if ($value instanceof Collection && $recursive) {
+            if (is_traversable($value) && $recursive) {
                 $collection[$key] = static::each($value, $callback, $recursive);
             } else {
                 $collection[$key] = call_user_func_array($callback, [$value, $key]);
@@ -73,7 +92,9 @@ class Traverse {
      * @param \Closure $callback
      * @return bool
      */
-    public static function every(Collection $collection, Closure $callback): bool {
+    public static function every(mixed $collection, Closure $callback): bool {
+        static::check($collection);
+
         foreach ($collection as $key => $value) {
             if (!call_user_func_array($callback, [$value, $key])) {
                 return false;
@@ -88,9 +109,11 @@ class Traverse {
      *
      * @param Map $collection
      * @param Vector<string> $keys
-     * @return Map<string, mixed>
+     * @return mixed
      */
-    public static function exclude(Map $collection, Vector<string> $keys): Map<string, mixed> {
+    public static function exclude(mixed $collection, Vector<string> $keys): mixed {
+        static::check($collection);
+
         foreach ($keys as $key) {
             unset($collection[$key]);
         }
@@ -104,7 +127,9 @@ class Traverse {
      * @param Map $collection
      * @return Map<string, mixed>
      */
-    public static function expand(Map $collection): Map<string, mixed> {
+    public static function expand(mixed $collection): Map<string, mixed> {
+        static::check($collection);
+
         $data = Map {};
 
         foreach ($collection as $key => $value) {
@@ -117,52 +142,38 @@ class Traverse {
     /**
      * Extract the value of an array, depending on the paths given, represented by key.key.key notation.
      *
-     * @param Map $collection
+     * @param mixed $collection
      * @param string $path
      * @return mixed
      */
-    public static function extract(Map $collection, string $path): ?mixed {
+    public static function extract(mixed $collection, string $path): ?mixed {
+        static::check($collection);
 
-        // Exit early for faster processing
-        if (strpos($path, '.') === false) {
-            return $collection->get($path);
-        }
+        $data = $collection;
 
-        $search = $collection;
-        $paths = explode('.', $path);
-        $total = count($paths);
-
-        while ($total > 0) {
-            $key = $paths[0];
-            $value = $search->get($key);
-
-            // Within the last path
-            if ($total === 1) {
-                return $value;
-
-            // Break out of non-existent paths early
-            } else if (!isset($search[$key]) || !($value instanceof Collection)) {
-                break;
+        foreach (explode('.', $path) as $key) {
+            if (!is_traversable($data) || !isset($data[$key])) {
+                return null;
             }
 
-            $search = $value;
-            array_shift($paths);
-            $total--;
+            $data = $data[$key];
         }
 
-        return null;
+        return $data;
     }
 
     /**
      * Filter out all keys within an array that have an empty value, excluding 0 (string and numeric).
      * If $recursive is set to true, will remove all empty values within all sub-arrays.
      *
-     * @param Collection $collection
+     * @param mixed $collection
      * @param bool $recursive
      * @param \Closure $callback
-     * @return Collection
+     * @return mixed
      */
-    public static function filter(Collection $collection, bool $recursive = true, ?Closure $callback = null): Collection {
+    public static function filter(mixed $collection, bool $recursive = true, ?Closure $callback = null): mixed {
+        static::check($collection);
+
         if ($callback === null) {
             $callback = function($var) {
                 return ($var === 0 || $var === '0' || !empty($var));
@@ -171,35 +182,41 @@ class Traverse {
 
         if ($recursive) {
             foreach ($collection as $key => $value) {
-                if ($value instanceof Collection) {
+                if (is_traversable($value)) {
                     $collection[$key] = static::filter($value, $recursive, $callback);
                 }
             }
         }
 
-        return $collection->filter($callback);
+        if ($collection instanceof Collection) {
+            return $collection->filter($callback);
+        }
+
+        return array_filter($collection, $callback);
     }
 
     /**
      * Flatten a multi-dimensional array by returning the values with their keys representing their previous pathing.
      *
-     * @param Collection $collection
+     * @param mixed $collection
      * @param string $path
      * @return Map<string, mixed>
      */
-    public static function flatten(Collection $collection, string $path = ''): Map<string, mixed> {
+    public static function flatten(mixed $collection, string $path = ''): Map<string, mixed> {
+        static::check($collection);
+
         if ($path) {
-            $path = $path . '.';
+            $path .= '.';
         }
 
         $data = Map {};
 
         foreach ($collection as $key => $value) {
-            if ($value instanceof Collection) {
-                if ($value->isEmpty()) {
+            if (is_traversable($value)) {
+                if (empty($value)) {
                     $data[$path . $key] = null;
                 } else {
-                    $data->setAll(static::flatten($value, $path . $key));
+                    $data = static::merge($data, static::flatten($value, $path . $key));
                 }
             } else {
                 $data[$path . $key] = $value;
@@ -212,11 +229,12 @@ class Traverse {
     /**
      * Get a value from the set. If they path doesn't exist, return null, or if the path is empty, return the whole set.
      *
-     * @param Map $collection
+     * @param mixed $collection
      * @param string $path
      * @return mixed
      */
-    public static function get(Map $collection, ?string $path = ''): ?mixed {
+    public static function get(mixed $collection, ?string $path = ''): ?mixed {
+        static::check($collection);
 
         // Allow whole collection to be returned
         if (!$path) {
@@ -229,53 +247,37 @@ class Traverse {
     /**
      * Checks to see if a key/value pair exists within an array, determined by the given path.
      *
-     * @param Map $collection
+     * @param mixed $collection
      * @param string $path
      * @return bool
      */
-    public static function has(Map $collection, string $path): bool {
-        if ($collection->isEmpty() || !$path) {
-            return false;
-        }
+    public static function has(mixed $collection, string $path): bool {
+        static::check($collection);
 
-        // Exit early for faster processing
-        if (strpos($path, '.') === false) {
-            return isset($collection[$path]);
-        }
+        $data = $collection;
 
-        $search = $collection;
-        $paths = explode('.', $path);
-        $total = count($paths);
-
-        while ($total > 0) {
-            $key = $paths[0];
-
-            // Within the last path
-            if ($total === 1) {
-                return isset($search[$key]);
-
-            // Break out of non-existent paths early
-            } else if (!isset($search[$key]) || !($search[$key] instanceof Collection)) {
-                break;
+        foreach (explode('.', $path) as $key) {
+            if (!is_traversable($data) || !isset($data[$key])) {
+                return false;
             }
 
-            $search = $search[$key];
-            array_shift($paths);
-            $total--;
+            $data = $data[$key];
         }
 
-        return false;
+        return true;
     }
 
     /**
      * Includes the specified key-value pair in the set if the key doesn't already exist.
      *
-     * @param Map $collection
+     * @param mixed $collection
      * @param string $path
      * @param mixed $value
-     * @return Map<string, mixed>
+     * @return mixed
      */
-    public static function inject(Map $collection, string $path, mixed $value): Map<string, mixed> {
+    public static function inject(mixed $collection, string $path, mixed $value): mixed {
+        static::check($collection);
+
         if (static::has($collection, $path)) {
             return $collection;
         }
@@ -286,43 +288,46 @@ class Traverse {
     /**
      * Inserts a value into the array set based on the given path.
      *
-     * @param Map $collection
+     * @param mixed $collection
      * @param string $path
      * @param mixed $value
-     * @return Map<string, mixed>
+     * @return mixed
      */
-    public static function insert(Map $collection, string $path, mixed $value): Map<string, mixed> {
-        if (!$path) {
-            return $collection;
-        }
+    public static function insert(mixed $collection, string $path, mixed $value): mixed {
+        static::check($collection);
 
-        // Exit early for faster processing
-        if (strpos($path, '.') === false) {
-            $collection[$path] = $value;
-
-            return $collection;
-        }
-
-        $search = $collection;
         $paths = explode('.', $path);
-        $total = count($paths);
 
-        while ($total > 0) {
-            $key = $paths[0];
+        // We have to use references for arrays
+        if (is_array($collection)) {
+            $data =& $collection;
 
-            // Within the last path
-            if ($total === 1) {
-                $search[$key] = $value;
+            while (count($paths) > 1) {
+                $key = array_shift($paths);
 
-            // Break out of non-existent paths early
-            } else if (!isset($search[$key]) || !($search[$key] instanceof Collection)) {
-                $search[$key] = Map {};
+                if (!isset($data[$key]) || !is_traversable($data[$key])) {
+                    $data[$key] = [];
+                }
+
+                $data =& $data[$key];
             }
 
-            $search = $search[$key];
-            array_shift($paths);
-            $total--;
+        } else {
+            $data = $collection;
+
+            while (count($paths) > 1) {
+                $key = array_shift($paths);
+
+                if (!isset($data[$key]) || !is_traversable($data[$key])) {
+                    $data[$key] = Map {};
+                }
+
+                $data = $data[$key];
+            }
         }
+
+        // Set the last path value
+        $data[$paths[0]] = $value;
 
         return $collection;
     }
@@ -331,11 +336,13 @@ class Traverse {
      * Checks to see if all values in the array are strings, returns false if not.
      * If $strict is true, method will fail if there are values that are numerical strings, but are not cast as integers.
      *
-     * @param Collection $collection
+     * @param mixed $collection
      * @param bool $strict
      * @return bool
      */
-    public static function isAlpha(Collection $collection, bool $strict = true): bool {
+    public static function isAlpha(mixed $collection, bool $strict = true): bool {
+        static::check($collection);
+
         return static::every($collection, function($value) use ($strict) {
             if (!is_string($value)) {
                 return false;
@@ -354,10 +361,12 @@ class Traverse {
     /**
      * Checks to see if all values in the array are numeric, returns false if not.
      *
-     * @param Collection $collection
+     * @param mixed $collection
      * @return bool
      */
-    public static function isNumeric(Collection $collection): bool {
+    public static function isNumeric(mixed $collection): bool {
+        static::check($collection);
+
         return static::every($collection, function($value) {
             return is_numeric($value);
         });
@@ -366,11 +375,13 @@ class Traverse {
     /**
      * Returns the key of the specified value. Will recursively search if the first pass doesn't match.
      *
-     * @param Collection $collection
+     * @param mixed $collection
      * @param mixed $match
      * @return mixed
      */
-    public static function keyOf(Collection $collection, mixed $match): ?mixed {
+    public static function keyOf(mixed $collection, mixed $match): ?mixed {
+        static::check($collection);
+
         $return = null;
         $isArray = Vector {};
 
@@ -379,7 +390,7 @@ class Traverse {
                 $return = $key;
             }
 
-            if (is_array($value) || $value instanceof Collection) {
+            if (is_traversable($value)) {
                 $isArray[] = $key;
             }
         }
@@ -399,11 +410,13 @@ class Traverse {
      * Merge is a combination of array_merge() and array_merge_recursive(). However, when merging two keys with the same key,
      * the previous value will be overwritten instead of being added into an array. The later array takes precedence when merging.
      *
-     * @param Collection $base
-     * @param Collection $collections
-     * @return Map<string, mixed>|Vector<mixed>
+     * @param mixed $base
+     * @param mixed $collections
+     * @return mixed
      */
-    public static function merge(Collection $base, ...$collections) { // todo - Add type hinting when variadic supports it
+    public static function merge(mixed $base, ...$collections): mixed { // todo - Add type hinting when variadic supports it
+        static::check($base);
+
         $isVector = ($base instanceof Vector);
 
         foreach ($collections as $collection) {
@@ -411,7 +424,7 @@ class Traverse {
                 if (isset($base[$key])) {
                     $current = $base[$key];
 
-                    if ($value instanceof Collection && $current instanceof Collection) {
+                    if (is_traversable($value) && is_traversable($current)) {
                         $value = static::merge($current, $value);
                     }
                 }
@@ -430,11 +443,13 @@ class Traverse {
     /**
      * Pluck a value out of each child-array and return an array of the plucked values.
      *
-     * @param Collection $collection
+     * @param mixed $collection
      * @param string $path
      * @return Vector<mixed>
      */
-    public static function pluck(Collection $collection, string $path): Vector<mixed> {
+    public static function pluck(mixed $collection, string $path): Vector<mixed> {
+        static::check($collection);
+
         $data = Vector {};
 
         foreach ($collection as $coll) {
@@ -449,11 +464,13 @@ class Traverse {
     /**
      * Reduce an array by removing all keys that have not been defined for persistence.
      *
-     * @param Map $collection
+     * @param mixed $collection
      * @param Vector<string> $keys
      * @return Map<string, mixed>
      */
-    public static function reduce(Map $collection, Vector<string> $keys): Map<string, mixed> {
+    public static function reduce(mixed $collection, Vector<string> $keys): Map<string, mixed> {
+        static::check($collection);
+
         $map = Map {};
 
         foreach ($collection as $key => $value) {
@@ -468,43 +485,45 @@ class Traverse {
     /**
      * Remove an index from the array, determined by the given path.
      *
-     * @param Map $collection
+     * @param mixed $collection
      * @param string $path
-     * @return Map<string, mixed>
+     * @return mixed
      */
-    public static function remove(Map $collection, string $path): Map<string, mixed> {
-        if (!$path) {
-            return $collection;
-        }
+    public static function remove(mixed $collection, string $path): mixed {
+        static::check($collection);
 
-        // Exit early for faster processing
-        if (strpos($path, '.') === false) {
-            unset($collection[$path]);
-
-            return $collection;
-        }
-
-        $search = $collection;
         $paths = explode('.', $path);
-        $total = count($paths);
 
-        while ($total > 0) {
-            $key = $paths[0];
+        // We have to use references for arrays
+        if (is_array($collection)) {
+            $data =& $collection;
 
-            // Within the last path
-            if ($total === 1) {
-                unset($search[$key]);
-                break;
+            while (count($paths) > 1) {
+                $key = array_shift($paths);
 
-            // Break out of non-existent paths early
-            } else if (!isset($search[$key]) || !($search[$key] instanceof Collection)) {
-                break;
+                if (empty($data[$key]) || !is_traversable($data[$key])) {
+                    return $collection;
+                }
+
+                $data =& $data[$key];
             }
 
-            $search = $search[$key];
-            array_shift($paths);
-            $total--;
+        } else {
+            $data = $collection;
+
+            while (count($paths) > 1) {
+                $key = array_shift($paths);
+
+                if (empty($data[$key]) || !is_traversable($data[$key])) {
+                    return $collection;
+                }
+
+                $data = $data[$key];
+            }
         }
+
+        // Remove the last path value
+        unset($data[$paths[0]]);
 
         return $collection;
     }
@@ -512,13 +531,15 @@ class Traverse {
     /**
      * Set a value into the result set. If the paths is an array, loop over each one and insert the value.
      *
-     * @param Map $collection
+     * @param mixed $collection
      * @param Map|string $path
      * @param mixed $value
-     * @return Map<string, mixed>
+     * @return mixed
      */
-    public static function set(Collection $collection, mixed $path, ?mixed $value = null): Map<string, mixed> {
-        if ($path instanceof Map) {
+    public static function set(mixed $collection, mixed $path, ?mixed $value = null): mixed {
+        static::check($collection);
+
+        if (is_traversable($path)) {
             foreach ($path as $key => $value) {
                 $collection = static::insert($collection, $key, $value);
             }
@@ -532,11 +553,13 @@ class Traverse {
     /**
      * Returns true if at least one element in the array satisfies the provided testing function.
      *
-     * @param Collection $collection
+     * @param mixed $collection
      * @param \Closure $callback
      * @return bool
      */
-    public static function some(Collection $collection, Closure $callback): bool {
+    public static function some(mixed $collection, Closure $callback): bool {
+        static::check($collection);
+
         foreach ($collection as $key => $value) {
             if (call_user_func_array($callback, [$value, $key])) {
                 return true;

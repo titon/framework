@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Http\Bag;
 
 use Titon\Http\Http;
@@ -13,7 +13,7 @@ class CookieBagTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new CookieBag($_COOKIE, ['encrypt' => false]);
+        $this->object = new CookieBag($_COOKIE, Map {'encrypt' => false});
     }
 
     public function testEncryptDecrypt() {
@@ -29,34 +29,34 @@ class CookieBagTest extends TestCase {
         $time = strtotime('+1 day');
         $expires = gmdate(Http::DATE_FORMAT, $time);
 
-        $this->assertEquals('foo=WBQ%A3E%AA6%CD%E8%D9%CCC%E9%8D%01%8B; Expires=' . $expires . '; Path=/; HttpOnly', $this->object->prepare('foo', 'bar', [
+        $this->assertEquals('foo=WBQ%A3E%AA6%CD%E8%D9%CCC%E9%8D%01%8B; Expires=' . $expires . '; Path=/; HttpOnly', $this->object->prepare('foo', 'bar', Map {
             'expires' => $time
-        ]));
+        }));
 
-        $this->assertEquals('foo=WBQ%A3E%AA6%CD%E8%D9%CCC%E9%8D%01%8B; Expires=' . $expires, $this->object->prepare('foo', 'bar', [
+        $this->assertEquals('foo=WBQ%A3E%AA6%CD%E8%D9%CCC%E9%8D%01%8B; Expires=' . $expires, $this->object->prepare('foo', 'bar', Map {
             'expires' => $time,
             'path' => '',
             'httpOnly' => false
-        ]));
+        }));
 
-        $this->assertEquals('foo=WBQ%A3E%AA6%CD%E8%D9%CCC%E9%8D%01%8B; Expires=' . $expires . '; Domain=.example.com; HttpOnly', $this->object->prepare('foo', 'bar', [
+        $this->assertEquals('foo=WBQ%A3E%AA6%CD%E8%D9%CCC%E9%8D%01%8B; Expires=' . $expires . '; Domain=.example.com; HttpOnly', $this->object->prepare('foo', 'bar', Map {
             'expires' => $time,
             'path' => '',
             'domain' => '.example.com'
-        ]));
+        }));
 
-        $this->assertEquals('foo=WBQ%A3E%AA6%CD%E8%D9%CCC%E9%8D%01%8B; Expires=' . $expires . '; Path=/baz; Domain=.example.com; Secure; HttpOnly', $this->object->prepare('foo', 'bar', [
+        $this->assertEquals('foo=WBQ%A3E%AA6%CD%E8%D9%CCC%E9%8D%01%8B; Expires=' . $expires . '; Path=/baz; Domain=.example.com; Secure; HttpOnly', $this->object->prepare('foo', 'bar', Map {
             'expires' => $time,
             'path' => '/baz',
             'domain' => '.example.com',
             'secure' => true
-        ]));
+        }));
 
         $deleted = time();
 
-        $this->assertEquals('foo=deleted; Expires=' . gmdate(Http::DATE_FORMAT, $deleted) . '; Path=/; HttpOnly', $this->object->prepare('foo', 'bar', [
+        $this->assertEquals('foo=deleted; Expires=' . gmdate(Http::DATE_FORMAT, $deleted) . '; Path=/; HttpOnly', $this->object->prepare('foo', 'bar', Map {
             'expires' => $deleted
-        ]));
+        }));
     }
 
     public function testAllWithEncryption() {

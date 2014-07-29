@@ -21,20 +21,20 @@ class Mime {
     /**
      * Top level types.
      */
-    const APPLICATION = 'application';
-    const AUDIO = 'audio';
-    const IMAGE = 'image';
-    const MESSAGE = 'message';
-    const MULTIPART = 'multipart';
-    const TEXT = 'text';
-    const VIDEO = 'video';
+    const string APPLICATION = 'application';
+    const string AUDIO = 'audio';
+    const string IMAGE = 'image';
+    const string MESSAGE = 'message';
+    const string MULTIPART = 'multipart';
+    const string TEXT = 'text';
+    const string VIDEO = 'video';
 
     /**
      * List of all mime types.
      *
-     * @type string[]
+     * @type Map<string, string>
      */
-    protected static $_types = array(
+    protected static Map<string, string> $_types = Map {
         '3dml' => 'text/vnd.in3d.3dml',
         '3g2' => 'video/3gpp2',
         '3gp' => 'video/3gpp',
@@ -942,14 +942,14 @@ class Mime {
         'zir' => 'application/vnd.zul',
         'zirz' => 'application/vnd.zul',
         'zmm' => 'application/vnd.handheld-entertainment+xml'
-    );
+    };
 
     /**
      * Return all types.
      *
-     * @return string[]
+     * @return Map<string, string>
      */
-    public static function getAll() {
+    public static function getAll(): Map<string, string> {
         return static::$_types;
     }
 
@@ -957,11 +957,11 @@ class Mime {
      * Return all by top level type.
      *
      * @param string $type
-     * @return string[]
+     * @return Map<string, string>
      */
-    public static function getAllByType($type) {
+    public static function getAllByType(string $type): Map<string, string> {
         return static::cache([__METHOD__, $type], function() use ($type) {
-            $clean = [];
+            $clean = Map {};
 
             foreach (static::getAll() as $ext => $mimeType) {
                 if (strpos($mimeType, $type) === 0) {
@@ -977,11 +977,11 @@ class Mime {
      * Return all extensions for a mime type.
      *
      * @param string $type
-     * @return string[]
+     * @return Vector<string>
      */
-    public static function getExtByType($type) {
+    public static function getExtByType($type): Vector<string> {
         return static::cache([__METHOD__, $type], function() use ($type) {
-            $clean = [];
+            $clean = Vector {};
 
             foreach (static::getAll() as $ext => $mimeType) {
                 if ($mimeType === $type) {
@@ -997,10 +997,10 @@ class Mime {
      * Return a mime type based on extension.
      *
      * @param string $ext
-     * @return string|array
+     * @return string
      * @throws \Titon\Http\Exception\InvalidExtensionException
      */
-    public static function getTypeByExt($ext) {
+    public static function getTypeByExt(string $ext): string {
         if (isset(static::$_types[$ext])) {
             return static::$_types[$ext];
         }

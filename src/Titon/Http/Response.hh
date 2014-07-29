@@ -9,19 +9,12 @@ namespace Titon\Http;
 
 /**
  * Represents an HTTP response, either for sending a server response, or from a client request.
- * Based on the PHP-FIG HTTP spec. https://github.com/php-fig/fig-standards/blob/master/proposed/http-message.md
+ *
+ * Based on the PHP-FIG HTTP spec. https://github.com/php-fig/http-message/blob/master/src/ResponseInterface.php
  *
  * @package Titon\Http
  */
 interface Response extends Message {
-
-    /**
-     * Gets the response Status-Code, a 3-digit integer result code of the
-     * server's attempt to understand and satisfy the request.
-     *
-     * @return integer Status code.
-     */
-    public function getStatusCode();
 
     /**
      * Gets the response Reason-Phrase, a short textual description of the
@@ -34,7 +27,15 @@ interface Response extends Message {
      *
      * @return string
      */
-    public function getReasonPhrase();
+    public function getReasonPhrase(): string;
+
+    /**
+     * Gets the response Status-Code, a 3-digit integer result code of the
+     * server's attempt to understand and satisfy the request.
+     *
+     * @return integer Status code.
+     */
+    public function getStatusCode(): int;
 
     /**
      * Pass the current request to the response so that the response
@@ -43,7 +44,7 @@ interface Response extends Message {
      * @param \Titon\Http\Request $request
      * @return $this
      */
-    public function prepare(Request $request);
+    public function prepare(Request $request): this;
 
     /**
      * Output the response by looping through and setting all headers,
@@ -51,7 +52,18 @@ interface Response extends Message {
      *
      * @return string
      */
-    public function send();
+    public function send(): string;
+
+    /**
+     * Sets the Reason-Phrase of the response.
+     *
+     * If no Reason-Phrase is specified, implementations MAY choose to default
+     * to the RFC 2616 recommended reason phrase for the response's Status-Code.
+     *
+     * @param string $phrase The Reason-Phrase to set.
+     * @return $this
+     */
+    public function setReasonPhrase($phrase): this;
 
     /**
      * Set the status code to use in the response.
@@ -59,6 +71,6 @@ interface Response extends Message {
      * @param int $code
      * @return $this
      */
-    public function setStatusCode($code);
+    public function setStatusCode($code): this;
 
 }

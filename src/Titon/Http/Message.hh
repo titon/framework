@@ -9,7 +9,8 @@ namespace Titon\Http;
 
 /**
  * Represents common functionality between an HTTP request and response.
- * Based on the PHP-FIG HTTP spec. https://github.com/php-fig/fig-standards/blob/master/proposed/http-message.md
+ *
+ * Based on the PHP-FIG HTTP spec. https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php
  *
  * @package Titon\Http
  */
@@ -23,7 +24,7 @@ interface Message {
      * @param string $value  Value of the header
      * @return $this
      */
-    public function addHeader($key, $value);
+    public function addHeader($key, $value): this;
 
     /**
      * Merges in an associative array of headers.
@@ -37,7 +38,7 @@ interface Message {
      * @param array $headers Associative array of headers to add to the message
      * @return $this
      */
-    public function addHeaders(array $headers);
+    public function addHeaders(array $headers): this;
 
     /**
      * Checks if a header exists by the given case-insensitive name.
@@ -47,30 +48,35 @@ interface Message {
      *     name using a case-insensitive string comparison. Returns false if
      *     no matching header name is found in the message.
      */
-    public function hasHeader($key);
+    public function hasHeader($key): bool;
 
     /**
      * Gets the body of the message.
      *
-     * @return string
+     * @return Stream
      */
-    public function getBody();
+    public function getBody(): ?Stream;
 
     /**
-     * Retrieve a header by the given case-insensitive name.
+     * Retrieve a header by the given case-insensitive name as a string.
      *
-     * By default, this method returns all of the header values of the given
+     * This method returns all of the header values of the given
      * case-insensitive header name as a string concatenated together using
-     * a comma. Because some header should not be concatenated together using a
-     * comma, this method provides a Boolean argument that can be used to
-     * retrieve the associated header values as an array of strings.
+     * a comma.
      *
-     * @param string $key  Case-insensitive header name.
-     * @param bool   $asArray Set to true to retrieve the header value as an
-     *                        array of strings.
-     * @return array|string
+     * @param string $header Case-insensitive header name.
+     *
+     * @return string
      */
-    public function getHeader($key, $asArray = false);
+    public function getHeader($key): string;
+
+    /**
+     * Retrieves a header by the given case-insensitive name as an array of strings.
+     *
+     * @param string $header Case-insensitive header name.
+     * @return array<string>
+     */
+    public function getHeaderAsArray($key): array<string>;
 
     /**
      * Gets all message headers.
@@ -78,16 +84,16 @@ interface Message {
      * The keys represent the header name as it will be sent over the wire, and
      * each value is an array of strings associated with the header.
      *
-     * @return array
+     * @return array<string, string>
      */
-    public function getHeaders();
+    public function getHeaders(): array<string, string>;
 
     /**
      * Gets the HTTP protocol version.
      *
      * @return string
      */
-    public function getProtocolVersion();
+    public function getProtocolVersion(): string;
 
     /**
      * Sets the body of the message.
@@ -95,10 +101,10 @@ interface Message {
      * The body MUST be a StreamInterface object. Setting the body to null MUST
      * remove the existing body.
      *
-     * @param string $body Body.
+     * @param Stream|null $body Body.
      * @return $this
      */
-    public function setBody($body = null);
+    public function setBody(?Stream $body = null): this;
 
     /**
      * Sets a header, replacing any existing values of any headers with the
@@ -110,7 +116,7 @@ interface Message {
      * @param string|array $value  Header value(s)
      * @return $this
      */
-    public function setHeader($key, $value);
+    public function setHeader($key, $value): this;
 
     /**
      * Sets headers, replacing any headers that have already been set on the
@@ -122,7 +128,7 @@ interface Message {
      * @param array $headers Headers to set.
      * @return $this
      */
-    public function setHeaders(array $headers);
+    public function setHeaders(array $headers): this;
 
     /**
      * Remove a specific header by case-insensitive name.
@@ -130,7 +136,7 @@ interface Message {
      * @param string $key HTTP header to remove
      * @return $this
      */
-    public function removeHeader($key);
+    public function removeHeader($key): this;
 
     /**
      * Remove multiple keys by name.
@@ -138,6 +144,6 @@ interface Message {
      * @param array $keys
      * @return $this
      */
-    public function removeHeaders(array $keys);
+    public function removeHeaders(array $keys): this;
 
 }

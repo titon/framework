@@ -9,7 +9,7 @@ namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
 use Titon\Http\RequestAware;
-use Titon\Utility\Hash;
+use Titon\Utility\Traverse;
 
 /**
  * Bag for interacting with session parameters.
@@ -32,23 +32,23 @@ class FileBag extends AbstractBag {
      * Normalize a multi-dimensional array in case nested arrays have been used.
      *
      * @param array $files
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function normalize(array $files) {
-        if ($flatFiles = Hash::flatten($files)) {
-            $files = [];
+    public function normalize(array $files): Map<string, mixed> {
+        $map = Map {};
 
+        if ($flatFiles = Traverse::flatten($files)) {
             foreach ($flatFiles as $key => $value) {
                 if (preg_match('/\.(?:name|type|tmp_name|error|size)/', $key, $matches)) {
                     $key = str_replace($matches[0], '', $key);
                     $key .= $matches[0];
                 }
 
-                $files = Hash::set($files, $key, $value);
+                $map = Traverse::set($map, $key, $value);
             }
         }
 
-        return $files;
+        return $map;
     }
 
 }

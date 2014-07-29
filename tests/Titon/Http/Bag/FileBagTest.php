@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Http\Bag;
 
 use Titon\Test\TestCase;
@@ -15,15 +15,15 @@ class FileBagTest extends TestCase {
     }
 
     public function testNormalize() {
-        $this->assertEquals([
-            'file' => [
+        $this->assertEquals(Map {
+            'file' => Map {
                 'name' => 'file1.jpg',
                 'type' => 'image/jpeg',
                 'tmp_name' => '/tmp/phpUkYTB5',
                 'error' => 0,
                 'size' => 307808
-            ]
-        ], $this->object->normalize([
+            }
+        }, $this->object->normalize([
             'file' => [
                 'name' => 'file1.jpg',
                 'type' => 'image/jpeg',
@@ -34,17 +34,17 @@ class FileBagTest extends TestCase {
         ]));
 
         // 2 levels
-        $this->assertEquals([
-            'two' => [
-                'file' => [
+        $this->assertEquals(Map {
+            'two' => Map {
+                'file' => Map {
                     'name' => 'file2.png',
                     'type' => 'image/png',
                     'tmp_name' => '/tmp/phpo3HxIF',
                     'error' => 0,
                     'size' => 10554
-                ]
-            ]
-        ], $this->object->normalize([
+                }
+            }
+        }, $this->object->normalize([
             'two' => [
                 'name' => ['file' => 'file2.png'],
                 'type' => ['file' => 'image/png'],
@@ -55,19 +55,19 @@ class FileBagTest extends TestCase {
         ]));
 
         // 3 levels
-        $this->assertEquals([
-            'three' => [
-                'two' => [
-                    'file' => [
+        $this->assertEquals(Map {
+            'three' => Map {
+                'two' => Map {
+                    'file' => Map {
                         'name' => 'file3.png',
                         'type' => 'image/png',
                         'tmp_name' => '/tmp/phpgUtcPf',
                         'error' => 0,
                         'size' => 19571
-                    ]
-                ]
-            ]
-        ], $this->object->normalize([
+                    }
+                }
+            }
+        }, $this->object->normalize([
             'three' => [
                 'name' => [
                     'two' => ['file' => 'file3.png'],
@@ -88,21 +88,21 @@ class FileBagTest extends TestCase {
         ]));
 
         // 4 levels
-        $this->assertEquals([
-            'four' => [
-                'three' => [
-                    'two' => [
-                        'file' => [
+        $this->assertEquals(Map {
+            'four' => Map {
+                'three' => Map {
+                    'two' => Map {
+                        'file' => Map {
                             'name' => 'file4.jpg',
                             'type' => 'image/jpeg',
                             'tmp_name' => '/tmp/phpMTxSVP',
                             'error' => 0,
                             'size' => 307808
-                        ]
-                    ]
-                ]
-            ]
-        ], $this->object->normalize([
+                        }
+                    }
+                }
+            }
+        }, $this->object->normalize([
             'four' => [
                 'name' => [
                     'three' => [

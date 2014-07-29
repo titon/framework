@@ -8,18 +8,19 @@
 namespace Titon\Http\Exception;
 
 use Titon\Http\Http;
+use \Exception;
 
 /**
- * Represents an HTTP 500 error.
+ * Represents an HTTP 503 error.
  *
  * @package Titon\Http\Exception
  */
-class InternalErrorException extends HttpException {
+class ServiceUnavailableException extends HttpException {
 
     /**
      * {@inheritdoc}
      */
-    public function __construct($message = 'Internal Error', $code = Http::INTERNAL_SERVER_ERROR, $previous = null) {
+    public function __construct(string $message = 'Service Unavailable', int $code = Http::SERVICE_UNAVAILABLE, ?Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

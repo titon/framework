@@ -8,6 +8,7 @@
 namespace Titon\Http\Exception;
 
 use Titon\Http\Http;
+use \Exception;
 
 /**
  * Represents an HTTP 401 error.
@@ -19,7 +20,7 @@ class UnauthorizedException extends HttpException {
     /**
      * {@inheritdoc}
      */
-    public function __construct($message = 'Unauthorized', $code = Http::UNAUTHORIZED, $previous = null) {
+    public function __construct(string $message = 'Unauthorized', int $code = Http::UNAUTHORIZED, ?Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

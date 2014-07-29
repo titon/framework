@@ -8,6 +8,7 @@
 namespace Titon\Http\Exception;
 
 use Titon\Http\Http;
+use \Exception;
 
 /**
  * Represents an HTTP 400 error.
@@ -19,7 +20,7 @@ class BadRequestException extends HttpException {
     /**
      * {@inheritdoc}
      */
-    public function __construct($message = 'Bad Request', $code = Http::BAD_REQUEST, $previous = null) {
+    public function __construct(string $message = 'Bad Request', int $code = Http::BAD_REQUEST, ?Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

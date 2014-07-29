@@ -22,22 +22,22 @@ abstract class AbstractMessage extends Base implements Message {
      *
      * @type \Titon\Http\Bag\HeaderBag
      */
-    public $headers;
+    public HeaderBag $headers;
 
     /**
      * The request or response body.
      *
-     * @type string
+     * @type Stream
      */
-    protected $_body = null;
+    protected ?Stream $_body = null;
 
     /**
      * Instantiate a new header augment.
      *
-     * @param array $config
+     * @param Map<string, mixed> $config
      */
-    public function __construct(array $config = []) {
-        //parent::__construct($config);
+    public function __construct(Map<string, mixed> $config = Map {}) {
+        parent::__construct($config);
 
         $this->headers = new HeaderBag();
     }
@@ -45,7 +45,7 @@ abstract class AbstractMessage extends Base implements Message {
     /**
      * {@inheritdoc}
      */
-    public function addHeader($key, $value) {
+    public function addHeader($key, $value): this {
         if (is_array($value)) {
             $value = implode(', ', $value);
         }
@@ -61,7 +61,7 @@ abstract class AbstractMessage extends Base implements Message {
     /**
      * {@inheritdoc}
      */
-    public function addHeaders(array $headers) {
+    public function addHeaders(array $headers): this {
         foreach ($headers as $key => $value) {
             $this->addHeader($key, $value);
         }
@@ -72,43 +72,47 @@ abstract class AbstractMessage extends Base implements Message {
     /**
      * {@inheritdoc}
      */
-    public function hasHeader($key) {
+    public function hasHeader($key): bool {
         return $this->headers->has($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBody() {
+    public function getBody(): ?Stream {
         return $this->_body;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getHeader($key, $asArray = false) {
+    public function getHeader($key): string {
+        $value = $this->headers->get($key) ?: '';
+
+        return is_traversable($value) ? implode(', ', $value) : $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHeaderAsArray($key): array<string> {
         $value = $this->headers->get($key);
-        $isArray = is_array($value);
 
-        if ($asArray) {
-            return $isArray ? $value : [$value];
-        }
-
-        return $isArray ? implode(', ', $value) : $value;
+        return is_array($value) ? $value : [$value];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getHeaders() {
-        return $this->headers->all();
+    public function getHeaders(): array<string, string> {
+        return $this->headers->all()->toArray();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setBody($body = null) {
-        $this->_body = (string) $body;
+    public function setBody(?Stream $body = null): this {
+        $this->_body = $body;
 
         return $this;
     }
@@ -116,7 +120,7 @@ abstract class AbstractMessage extends Base implements Message {
     /**
      * {@inheritdoc}
      */
-    public function setHeader($key, $value) {
+    public function setHeader($key, $value): this {
         if (is_array($value)) {
             $value = implode(', ', $value);
         }
@@ -129,7 +133,7 @@ abstract class AbstractMessage extends Base implements Message {
     /**
      * {@inheritdoc}
      */
-    public function setHeaders(array $headers) {
+    public function setHeaders(array $headers): this {
         foreach ($headers as $key => $value) {
             $this->setHeader($key, $value);
         }
@@ -140,7 +144,7 @@ abstract class AbstractMessage extends Base implements Message {
     /**
      * {@inheritdoc}
      */
-    public function removeHeader($key) {
+    public function removeHeader($key): this {
         $this->headers->remove($key);
 
         return $this;
@@ -149,7 +153,7 @@ abstract class AbstractMessage extends Base implements Message {
     /**
      * {@inheritdoc}
      */
-    public function removeHeaders(array $keys) {
+    public function removeHeaders(array $keys): this {
         foreach ($keys as $key) {
             $this->removeHeader($key);
         }

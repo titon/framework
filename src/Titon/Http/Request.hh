@@ -9,7 +9,8 @@ namespace Titon\Http;
 
 /**
  * Represents an HTTP request, either about a server request, or for a client making a request.
- * Based on the PHP-FIG HTTP spec. https://github.com/php-fig/fig-standards/blob/master/proposed/http-message.md
+ *
+ * Based on the PHP-FIG HTTP spec. https://github.com/php-fig/http-message/blob/master/src/RequestInterface.php
  *
  * @package Titon\Http
  */
@@ -20,28 +21,28 @@ interface Request extends Message {
      *
      * @return string
      */
-    public function getHost();
+    public function getHost(): string;
 
     /**
      * Gets the HTTP method of the request.
      *
      * @return string
      */
-    public function getMethod();
+    public function getMethod(): string;
 
     /**
      * Gets the URL protocol scheme for the current request.
      *
      * @return string
      */
-    public function getScheme();
+    public function getScheme(): string;
 
     /**
      * Gets the request URL.
      *
      * @return string
      */
-    public function getUrl();
+    public function getUrl(): string;
 
     /**
      * Check if the current request is taking place in SSL,
@@ -49,7 +50,7 @@ interface Request extends Message {
      *
      * @return bool
      */
-    public function isSecure();
+    public function isSecure(): bool;
 
     /**
      * Sets the method to be performed on the resource identified by the
@@ -59,7 +60,7 @@ interface Request extends Message {
      * @param string $method
      * @return $this
      */
-    public function setMethod($method);
+    public function setMethod($method): this;
 
     /**
      * Sets the request URL.
@@ -67,6 +68,6 @@ interface Request extends Message {
      * @param string $url
      * @return $this
      */
-    public function setUrl($url);
+    public function setUrl($url): this;
 
 }

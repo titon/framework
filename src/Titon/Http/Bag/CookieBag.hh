@@ -13,6 +13,7 @@ use Titon\Http\RequestAware;
 use Titon\Utility\Config;
 use Titon\Utility\Crypt;
 use Titon\Utility\Time;
+use Titon\Utility\Traverse;
 
 /**
  * Bag for interacting with cookies.
@@ -25,7 +26,7 @@ class CookieBag extends AbstractBag {
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type string $domain    What domain the cookie should be usable on
      *      @type string $expires   How much time until the cookie expires
      *      @type string $path      Which path should the cookie only be accessible to
@@ -34,24 +35,24 @@ class CookieBag extends AbstractBag {
      *      @type string $encrypt   Supply the Crypt cipher that you would like to use for encryption and decryption
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'domain' => '',
         'expires' => '+1 week',
         'path' => '/',
         'secure' => false,
         'httpOnly' => true,
         'encrypt' => Crypt::RIJNDAEL
-    ];
+    };
 
     /**
      * Set the cookies and configuration.
      *
      * @param array $cookies
-     * @param array $config
+     * @param Map<string, mixed> $config
      */
-    public function __construct(array $cookies = [], array $config = []) {
-        $this->applyConfig($config + Config::get('cookie', []));
-        $this->_data = $cookies;
+    public function __construct(array $cookies = [], Map<string, mixed> $config = Map {}) {
+        $this->applyConfig(Traverse::merge(Config::get('cookie', Map {}), $config));
+        $this->_data = new Map($cookies);
     }
 
     /**
@@ -61,7 +62,7 @@ class CookieBag extends AbstractBag {
      * @param string $value
      * @return mixed
      */
-    public function decrypt($key, $value) {
+    public function decrypt(string $key, string $value): mixed {
         if ($cipher = $this->getConfig('encrypt')) {
             $value = Crypt::decrypt($value, $key, $cipher);
         }
@@ -76,7 +77,7 @@ class CookieBag extends AbstractBag {
      * @param mixed $value
      * @return string
      */
-    public function encrypt($key, $value) {
+    public function encrypt(string $key, mixed $value): string {
         $value = base64_encode(serialize($value));
 
         if ($cipher = $this->getConfig('encrypt')) {
@@ -93,7 +94,7 @@ class CookieBag extends AbstractBag {
      * @param mixed $default
      * @return mixed
      */
-    public function get($key, $default = null) {
+    public function get(string $key, ?mixed $default = null): ?mixed {
         if ($value = parent::get($key)) {
             return $this->decrypt($key, $value);
         }
@@ -109,7 +110,7 @@ class CookieBag extends AbstractBag {
      * @param mixed $value
      * @return $this
      */
-    public function set($key, $value = null) {
+    public function set(string $key, ?mixed $value = null): this {
         return parent::set($key, $this->encrypt($key, $value));
     }
 
@@ -118,11 +119,11 @@ class CookieBag extends AbstractBag {
      *
      * @param string $key
      * @param mixed $value
-     * @param array $config
+     * @param Map<string, mixed> $config
      * @return string
      */
-    public function prepare($key, $value, array $config = []) {
-        $config = $config + $this->allConfig();
+    public function prepare(string $key, mixed $value, Map<string, mixed> $config = Map {}): string {
+        $config = Traverse::merge($this->allConfig(), $config);
         $expires = Time::toUnix($config['expires']);
 
         // Determine the value

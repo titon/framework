@@ -8,18 +8,19 @@
 namespace Titon\Http\Exception;
 
 use Titon\Http\Http;
+use \Exception;
 
 /**
- * Represents an HTTP 405 error.
+ * Represents an HTTP 404 error.
  *
  * @package Titon\Http\Exception
  */
-class MethodNotAllowedException extends HttpException {
+class NotFoundException extends HttpException {
 
     /**
      * {@inheritdoc}
      */
-    public function __construct($message = 'Method Not Allowed', $code = Http::METHOD_NOT_ALLOWED, $previous = null) {
+    public function __construct(string $message = 'Not Found', int $code = Http::NOT_FOUND, ?Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

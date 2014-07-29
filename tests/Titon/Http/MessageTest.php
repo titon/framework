@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Http;
 
 use Titon\Test\TestCase;
@@ -18,7 +18,7 @@ class MessageTest extends TestCase {
         $this->object->addHeader('Accept-Charset', 'utf-8');
         $this->object->addHeader('Accept-Charset', 'utf-16');
 
-        $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeader('Accept-Charset', true));
+        $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeaderAsArray('Accept-Charset'));
     }
 
     public function testAddHeaders() {
@@ -29,8 +29,8 @@ class MessageTest extends TestCase {
             'Accept-Language' => ['fr', 'de']
         ]);
 
-        $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeader('Accept-Charset', true));
-        $this->assertEquals(['en', 'fr, de'], $this->object->getHeader('Accept-Language', true));
+        $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeaderAsArray('Accept-Charset'));
+        $this->assertEquals(['en', 'fr, de'], $this->object->getHeaderAsArray('Accept-Language'));
     }
 
     public function testHasHeader() {
@@ -51,7 +51,7 @@ class MessageTest extends TestCase {
         $this->object->addHeader('Accept-Charset', 'utf-16');
 
         $this->assertEquals('utf-8, utf-16', $this->object->getHeader('Accept-Charset'));
-        $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeader('Accept-Charset', true));
+        $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeaderAsArray('Accept-Charset'));
     }
 
     public function testGetHeaders() {

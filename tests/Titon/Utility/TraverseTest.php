@@ -550,7 +550,7 @@ class TraverseTest extends TestCase {
 
         $two[] = 'boo';
 
-        $this->assertEquals(Vector {'foo', 'bar', 'baz', 'baz', 'boo'}, Traverse::merge($one, $two));
+        $this->assertEquals(Vector {'foo', 'bar', 'baz', 'boo'}, Traverse::merge($one, $two));
     }
 
     public function testMergeNestedCollections() {

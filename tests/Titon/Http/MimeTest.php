@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Http;
 
 use Titon\Test\TestCase;
@@ -19,9 +19,9 @@ class MimeTest extends TestCase {
     }
 
     public function testGetExtByType() {
-        $this->assertEquals(['jpe', 'jpeg', 'jpg'], Mime::getExtByType('image/jpeg'));
-        $this->assertEquals(['m1v', 'm2v', 'mpe', 'mpeg', 'mpg'], Mime::getExtByType('video/mpeg'));
-        $this->assertEquals(['htc', 'htm', 'html'], Mime::getExtByType('text/html'));
+        $this->assertEquals(Vector {'jpe', 'jpeg', 'jpg'}, Mime::getExtByType('image/jpeg'));
+        $this->assertEquals(Vector {'m1v', 'm2v', 'mpe', 'mpeg', 'mpg'}, Mime::getExtByType('video/mpeg'));
+        $this->assertEquals(Vector {'htc', 'htm', 'html'}, Mime::getExtByType('text/html'));
     }
 
     public function testGetTypeByExt() {

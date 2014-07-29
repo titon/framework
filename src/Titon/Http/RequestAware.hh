@@ -19,14 +19,14 @@ trait RequestAware {
      *
      * @type \Titon\Http\Request
      */
-    protected $_request;
+    protected ?Request $_request;
 
     /**
      * Return the request object.
      *
      * @return \Titon\Http\Request
      */
-    public function getRequest() {
+    public function getRequest(): ?Request {
         return $this->_request;
     }
 
@@ -36,7 +36,7 @@ trait RequestAware {
      * @param \Titon\Http\Request $request
      * @return $this
      */
-    public function setRequest(Request $request) {
+    public function setRequest(Request $request): this {
         $this->_request = $request;
 
         return $this;

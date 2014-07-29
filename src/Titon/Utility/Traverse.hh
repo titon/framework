@@ -417,12 +417,24 @@ class Traverse {
     public static function merge(mixed $base, ...$collections): mixed { // todo - Add type hinting when variadic supports it
         static::check($base);
 
-        $isVector = ($base instanceof Vector);
+        $isVector = false;
+
+        // Clone the collection so we don't modify the base reference
+        if ($base instanceof Map) {
+            $data = $base->toMap();
+
+        } else if ($base instanceof Vector) {
+            $data = $base->toVector();
+            $isVector = true;
+
+        } else {
+            $data = $base;
+        }
 
         foreach ($collections as $collection) {
             foreach ($collection as $key => $value) {
-                if (isset($base[$key])) {
-                    $current = $base[$key];
+                if (isset($data[$key])) {
+                    $current = $data[$key];
 
                     if (is_traversable($value) && is_traversable($current)) {
                         $value = static::merge($current, $value);
@@ -430,14 +442,14 @@ class Traverse {
                 }
 
                 if ($isVector) {
-                    $base[] = $value;
+                    $data[] = $value;
                 } else {
-                    $base[$key] = $value;
+                    $data[$key] = $value;
                 }
             }
         }
 
-        return $base;
+        return $data;
     }
 
     /**

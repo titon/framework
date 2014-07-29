@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Http;
 
 use Titon\Test\TestCase;
@@ -6,7 +6,7 @@ use Titon\Test\TestCase;
 class HttpTest extends TestCase {
 
     public function testGetHeaderTypes() {
-        $this->assertEquals([
+        $this->assertEquals(Vector {
             'Accept',
             'Accept-Charset',
             'Accept-Encoding',
@@ -66,11 +66,11 @@ class HttpTest extends TestCase {
             'Via',
             'Warning',
             'WWW-Authenticate'
-        ], Http::getHeaderTypes());
+        }, Http::getHeaderTypes());
     }
 
     public function testGetMethodTypes() {
-        $this->assertEquals([
+        $this->assertEquals(Vector {
             'GET',
             'POST',
             'PUT',
@@ -79,11 +79,11 @@ class HttpTest extends TestCase {
             'TRACE',
             'OPTIONS',
             'CONNECT'
-        ], Http::getMethodTypes());
+        }, Http::getMethodTypes());
     }
 
     public function testGetStatusCodes() {
-        $this->assertEquals([
+        $this->assertEquals(Map {
             100 => 'Continue',
             101 => 'Switching Protocols',
             102 => 'Processing',
@@ -136,7 +136,7 @@ class HttpTest extends TestCase {
             508 => 'Loop Detected',
             510 => 'Not Extended',
             511 => 'Network Authentication Required',
-        ], Http::getStatusCodes());
+        }, Http::getStatusCodes());
     }
 
     public function testGetStatusCode() {

@@ -16,69 +16,69 @@ use Titon\Http\Exception\InvalidStatusException;
  */
 class Http {
 
-    const DATE_FORMAT = 'D, d M Y H:i:s T';
-    const HTTP_10 = 'HTTP/1.0';
-    const HTTP_11 = 'HTTP/1.1';
+    const string DATE_FORMAT = 'D, d M Y H:i:s T';
+    const string HTTP_10 = 'HTTP/1.0';
+    const string HTTP_11 = 'HTTP/1.1';
 
-    const CONTINUE_REQUEST = 100;
-    const SWITCHING_PROTOCOLS = 101;
-    const PROCESSING = 102;
-    const OK = 200;
-    const CREATED = 201;
-    const ACCEPTED = 202;
-    const NON_AUTHORITATIVE_INFORMATION = 203;
-    const NO_CONTENT = 204;
-    const RESET_CONTENT = 205;
-    const PARTIAL_CONTENT = 206;
-    const MULTI_STATUS = 207;
-    const MULTIPLE_CHOICES = 300;
-    const MOVED_PERMANENTLY = 301;
-    const FOUND = 302;
-    const SEE_OTHER = 303;
-    const NOT_MODIFIED = 304;
-    const USE_PROXY = 305;
-    const TEMPORARY_REDIRECT = 307;
-    const BAD_REQUEST = 400;
-    const UNAUTHORIZED = 401;
-    const PAYMENT_REQUIRED = 402;
-    const FORBIDDEN = 403;
-    const NOT_FOUND = 404;
-    const METHOD_NOT_ALLOWED = 405;
-    const NOT_ACCEPTABLE = 406;
-    const PROXY_AUTHENTICATION_REQUIRED = 407;
-    const REQUEST_TIMEOUT = 408;
-    const CONFLICT = 409;
-    const GONE = 410;
-    const LENGTH_REQUIRED = 411;
-    const PRECONDITION_FAILED = 412;
-    const REQUEST_ENTITY_TOO_LARGE = 413;
-    const REQUEST_URI_TOO_LONG = 414;
-    const UNSUPPORTED_MEDIA_TYPE = 415;
-    const REQUESTED_RANGE_NOT_SATISFIABLE = 416;
-    const EXPECTATION_FAILED = 417;
-    const UNPROCESSABLE_ENTITY = 422;
-    const LOCKED = 423;
-    const FAILED_DEPENDENCY = 424;
-    const PRECONDITION_REQUIRED = 428;
-    const TOO_MANY_REQUESTS = 429;
-    const REQUEST_HEADER_FIELDS_TOO_LARGE = 431;
-    const INTERNAL_SERVER_ERROR = 500;
-    const NOT_IMPLEMENTED = 501;
-    const BAD_GATEWAY = 502;
-    const SERVICE_UNAVAILABLE = 503;
-    const GATEWAY_TIMEOUT = 504;
-    const HTTP_VERSION_NOT_SUPPORTED = 505;
-    const INSUFFICIENT_STORAGE = 507;
-    const LOOP_DETECTED = 508;
-    const NOT_EXTENDED = 510;
-    const NETWORK_AUTHENTICATION_REQUIRED = 511;
+    const int CONTINUE_REQUEST = 100;
+    const int SWITCHING_PROTOCOLS = 101;
+    const int PROCESSING = 102;
+    const int OK = 200;
+    const int CREATED = 201;
+    const int ACCEPTED = 202;
+    const int NON_AUTHORITATIVE_INFORMATION = 203;
+    const int NO_CONTENT = 204;
+    const int RESET_CONTENT = 205;
+    const int PARTIAL_CONTENT = 206;
+    const int MULTI_STATUS = 207;
+    const int MULTIPLE_CHOICES = 300;
+    const int MOVED_PERMANENTLY = 301;
+    const int FOUND = 302;
+    const int SEE_OTHER = 303;
+    const int NOT_MODIFIED = 304;
+    const int USE_PROXY = 305;
+    const int TEMPORARY_REDIRECT = 307;
+    const int BAD_REQUEST = 400;
+    const int UNAUTHORIZED = 401;
+    const int PAYMENT_REQUIRED = 402;
+    const int FORBIDDEN = 403;
+    const int NOT_FOUND = 404;
+    const int METHOD_NOT_ALLOWED = 405;
+    const int NOT_ACCEPTABLE = 406;
+    const int PROXY_AUTHENTICATION_REQUIRED = 407;
+    const int REQUEST_TIMEOUT = 408;
+    const int CONFLICT = 409;
+    const int GONE = 410;
+    const int LENGTH_REQUIRED = 411;
+    const int PRECONDITION_FAILED = 412;
+    const int REQUEST_ENTITY_TOO_LARGE = 413;
+    const int REQUEST_URI_TOO_LONG = 414;
+    const int UNSUPPORTED_MEDIA_TYPE = 415;
+    const int REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+    const int EXPECTATION_FAILED = 417;
+    const int UNPROCESSABLE_ENTITY = 422;
+    const int LOCKED = 423;
+    const int FAILED_DEPENDENCY = 424;
+    const int PRECONDITION_REQUIRED = 428;
+    const int TOO_MANY_REQUESTS = 429;
+    const int REQUEST_HEADER_FIELDS_TOO_LARGE = 431;
+    const int INTERNAL_SERVER_ERROR = 500;
+    const int NOT_IMPLEMENTED = 501;
+    const int BAD_GATEWAY = 502;
+    const int SERVICE_UNAVAILABLE = 503;
+    const int GATEWAY_TIMEOUT = 504;
+    const int HTTP_VERSION_NOT_SUPPORTED = 505;
+    const int INSUFFICIENT_STORAGE = 507;
+    const int LOOP_DETECTED = 508;
+    const int NOT_EXTENDED = 510;
+    const int NETWORK_AUTHENTICATION_REQUIRED = 511;
 
     /**
      * List of acceptable header types.
      *
-     * @type string[]
+     * @type Vector<string>
      */
-    protected static $_headerTypes = [
+    protected static Vector<string> $_headerTypes = Vector {
         'Accept',
         'Accept-Charset',
         'Accept-Encoding',
@@ -138,14 +138,14 @@ class Http {
         'Via',
         'Warning',
         'WWW-Authenticate'
-    ];
+    };
 
     /**
      * List of possible method types.
      *
-     * @type string[]
+     * @type Vector<string>
      */
-    protected static $_methodTypes = [
+    protected static Vector<string> $_methodTypes = Vector {
         'GET',
         'POST',
         'PUT',
@@ -154,14 +154,14 @@ class Http {
         'TRACE',
         'OPTIONS',
         'CONNECT'
-    ];
+    };
 
     /**
      * List of all available response status codes.
      *
-     * @type string[]
+     * @type Map<int, string>
      */
-    protected static $_statusCodes = [
+    protected static Map<int, string> $_statusCodes = Map {
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing', // RFC2518
@@ -214,23 +214,23 @@ class Http {
         508 => 'Loop Detected', // RFC5842
         510 => 'Not Extended', // RFC2774
         511 => 'Network Authentication Required', // RFC6585
-    ];
+    };
 
     /**
      * Return all the standard types of HTTP headers.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public static function getHeaderTypes() {
+    public static function getHeaderTypes(): Vector<string> {
         return static::$_headerTypes;
     }
 
     /**
      * Return all the supported method types.
      *
-     * @return string[]
+     * @return Vector<string>
      */
-    public static function getMethodTypes() {
+    public static function getMethodTypes(): Vector<string> {
         return static::$_methodTypes;
     }
 
@@ -241,7 +241,7 @@ class Http {
      * @return string
      * @throws \Titon\Http\Exception\InvalidStatusException
      */
-    public static function getStatusCode($code) {
+    public static function getStatusCode(int $code): string {
         if (isset(static::$_statusCodes[$code])) {
             return static::$_statusCodes[$code];
         }
@@ -252,9 +252,9 @@ class Http {
     /**
      * Get all status codes.
      *
-     * @return string[]
+     * @return Map<int, string>
      */
-    public static function getStatusCodes() {
+    public static function getStatusCodes(): Map<int, string> {
         return static::$_statusCodes;
     }
 

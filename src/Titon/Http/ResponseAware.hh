@@ -19,14 +19,14 @@ trait ResponseAware {
      *
      * @type \Titon\Http\Response
      */
-    protected $_response;
+    protected ?Response $_response;
 
     /**
      * Return the response object.
      *
      * @return \Titon\Http\Response
      */
-    public function getResponse() {
+    public function getResponse(): ?Response {
         return $this->_response;
     }
 
@@ -36,7 +36,7 @@ trait ResponseAware {
      * @param \Titon\Http\Response $response
      * @return $this
      */
-    public function setResponse(Response $response) {
+    public function setResponse(Response $response): this {
         $this->_response = $response;
 
         return $this;

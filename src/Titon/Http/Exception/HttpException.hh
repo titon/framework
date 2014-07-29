@@ -8,6 +8,7 @@
 namespace Titon\Http\Exception;
 
 use Titon\Http\Http;
+use Titon\Http\Exception\InvalidStatusException;
 use \Exception;
 
 /**
@@ -22,13 +23,13 @@ class HttpException extends Exception {
      *
      * @param string $message
      * @param int $code
-     * @param mixed $previous
+     * @param Exception $previous
      */
-    public function __construct($message = null, $code = 0, $previous = null) {
+    public function __construct(string $message = '', int $code = 0, ?Exception $previous = null) {
         if (!$message) {
             try {
                 $message = Http::getStatusCode($code);
-            } catch (Exception $e) {
+            } catch (InvalidStatusException $e) {
                 $code = 0;
             }
         }

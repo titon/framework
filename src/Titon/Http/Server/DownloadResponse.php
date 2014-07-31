@@ -11,6 +11,7 @@ use Titon\Http\Exception\InvalidExtensionException;
 use Titon\Http\Exception\InvalidFileException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
+use Titon\Http\Stream;
 use Titon\Utility\Path;
 
 /**
@@ -23,34 +24,34 @@ class DownloadResponse extends Response {
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type bool $autoEtag            Automatically set an ETag header
      *      @type bool $autoModified        Automatically set a last modified header based on file modified time
      *      @type string $dispositionName   Custom file name to use when forcing a download
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'autoEtag' => false,
         'autoModified' => true,
         'dispositionName' => ''
-    ];
+    };
 
     /**
      * Path to the file.
      *
      * @type string
      */
-    protected $_path;
+    protected string $_path = '';
 
     /**
      * Set the path of a file to output in the response.
      *
-     * @param string $path
+     * @param Stream $path
      * @param int $status
-     * @param array $config
+     * @param Map<string, mixed> $config
      * @throws \Titon\Http\Exception\InvalidFileException
      */
-    public function __construct($path, $status = Http::OK, array $config = []) {
+    public function __construct(Stream $path, int $status = Http::OK, Map<string, mixed> $config = Map {}) {
         parent::__construct('', $status, $config);
 
         if (!file_exists($path)) {
@@ -69,7 +70,7 @@ class DownloadResponse extends Response {
      * @param string $path
      * @return $this
      */
-    public function setFileRange($path) {
+    public function setFileRange(string $path): this {
         $request = $this->getRequest();
 
         if ($request->hasHeader('If-Range') || $request->getHeader('If-Range') !== $request->getHeader('ETag')) {
@@ -101,7 +102,7 @@ class DownloadResponse extends Response {
      *
      * @return string
      */
-    public function send() {
+    public function send(): string {
         $path = $this->_path;
 
         try {

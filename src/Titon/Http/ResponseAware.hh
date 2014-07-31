@@ -7,6 +7,8 @@
 
 namespace Titon\Http;
 
+use Psr\Http\Message\ResponseInterface;
+
 /**
  * Permits a class to interact with a response object.
  *
@@ -17,26 +19,26 @@ trait ResponseAware {
     /**
      * Response object.
      *
-     * @type \Titon\Http\Response
+     * @type \Psr\Http\Message\ResponseInterface
      */
-    protected ?Response $_response;
+    protected ?ResponseInterface $_response;
 
     /**
      * Return the response object.
      *
-     * @return \Titon\Http\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getResponse(): ?Response {
+    public function getResponse(): ?ResponseInterface {
         return $this->_response;
     }
 
     /**
      * Set the response object.
      *
-     * @param \Titon\Http\Response $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      * @return $this
      */
-    public function setResponse(Response $response): this {
+    public function setResponse(ResponseInterface $response): this {
         $this->_response = $response;
 
         return $this;

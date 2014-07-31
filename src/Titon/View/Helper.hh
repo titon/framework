@@ -7,9 +7,9 @@
 
 namespace Titon\View;
 
+use Psr\Http\Message\RequestInterface;
 use Titon\Event\Event;
 use Titon\Event\Listener;
-use Titon\Http\Request;
 use Titon\View\View;
 
 /**
@@ -22,9 +22,9 @@ interface Helper extends Listener {
     /**
      * Return the HTTP request.
      *
-     * @return \Titon\Http\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    public function getRequest(): ?Request;
+    public function getRequest(): ?RequestInterface;
 
     /**
      * Return the view manager.
@@ -54,10 +54,10 @@ interface Helper extends Listener {
     /**
      * Set the HTTP request.
      *
-     * @param \Titon\Http\Request $request
+     * @param \Psr\Http\Message\RequestInterface $request
      * @return $this
      */
-    public function setRequest(Request $request): this;
+    public function setRequest(RequestInterface $request): this;
 
     /**
      * Set the view manager.

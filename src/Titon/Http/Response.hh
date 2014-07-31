@@ -7,6 +7,8 @@
 
 namespace Titon\Http;
 
+use Psr\Http\Message\ResponseInterface;
+
 /**
  * Represents an HTTP response, either for sending a server response, or from a client request.
  *
@@ -14,28 +16,7 @@ namespace Titon\Http;
  *
  * @package Titon\Http
  */
-interface Response extends Message {
-
-    /**
-     * Gets the response Reason-Phrase, a short textual description of the
-     * Status-Code.
-     *
-     * Because a Reason-Phrase is not a required element in response
-     * Status-Line, the Reason-Phrase value MAY be null. Implementations MAY
-     * choose to return the default RFC 2616 recommended reason phrase for the
-     * response's Status-Code.
-     *
-     * @return string
-     */
-    public function getReasonPhrase(): string;
-
-    /**
-     * Gets the response Status-Code, a 3-digit integer result code of the
-     * server's attempt to understand and satisfy the request.
-     *
-     * @return integer Status code.
-     */
-    public function getStatusCode(): int;
+interface Response extends ResponseInterface {
 
     /**
      * Pass the current request to the response so that the response
@@ -53,24 +34,5 @@ interface Response extends Message {
      * @return string
      */
     public function send(): string;
-
-    /**
-     * Sets the Reason-Phrase of the response.
-     *
-     * If no Reason-Phrase is specified, implementations MAY choose to default
-     * to the RFC 2616 recommended reason phrase for the response's Status-Code.
-     *
-     * @param string $phrase The Reason-Phrase to set.
-     * @return $this
-     */
-    public function setReasonPhrase($phrase): this;
-
-    /**
-     * Set the status code to use in the response.
-     *
-     * @param int $code
-     * @return $this
-     */
-    public function setStatusCode($code): this;
 
 }

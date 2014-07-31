@@ -7,6 +7,7 @@
 
 namespace Titon\Http\Server;
 
+use Psr\Http\Message\RequestInterface;
 use Titon\Common\FactoryAware;
 use Titon\Http\AbstractMessage;
 use Titon\Http\Bag\CookieBag;
@@ -15,7 +16,6 @@ use Titon\Http\Bag\ParameterBag;
 use Titon\Http\Exception\InvalidMethodException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
-use Titon\Http\Request as BaseRequest;
 use Titon\Utility\Hash;
 
 /**
@@ -24,7 +24,7 @@ use Titon\Utility\Hash;
  *
  * @package Titon\Http\Server
  */
-class Request extends AbstractMessage implements BaseRequest {
+class Request extends AbstractMessage implements RequestInterface {
     use FactoryAware;
 
     /**

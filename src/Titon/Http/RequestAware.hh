@@ -7,6 +7,8 @@
 
 namespace Titon\Http;
 
+use Psr\Http\Message\RequestInterface;
+
 /**
  * Permits a class to interact with a request object.
  *
@@ -17,26 +19,26 @@ trait RequestAware {
     /**
      * Request object.
      *
-     * @type \Titon\Http\Request
+     * @type \Psr\Http\Message\RequestInterface
      */
-    protected ?Request $_request;
+    protected ?RequestInterface $_request;
 
     /**
      * Return the request object.
      *
-     * @return \Titon\Http\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    public function getRequest(): ?Request {
+    public function getRequest(): ?RequestInterface {
         return $this->_request;
     }
 
     /**
      * Set the request object.
      *
-     * @param \Titon\Http\Request $request
+     * @param \Psr\Http\Message\RequestInterface $request
      * @return $this
      */
-    public function setRequest(Request $request): this {
+    public function setRequest(RequestInterface $request): this {
         $this->_request = $request;
 
         return $this;

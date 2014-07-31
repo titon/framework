@@ -7,10 +7,10 @@
 
 namespace Titon\View\Helper;
 
+use Psr\Http\Message\RequestInterface;
 use Titon\Common\Base;
 use Titon\Common\Attachable;
 use Titon\Event\Event;
-use Titon\Http\Request;
 use Titon\Utility\Sanitize;
 use Titon\Utility\Str;
 use Titon\View\Helper;
@@ -46,9 +46,9 @@ abstract class AbstractHelper extends Base implements Helper {
     /**
      * Request object.
      *
-     * @type \Titon\Http\Request
+     * @type \Psr\Http\Message\RequestInterface
      */
-    protected ?Request $_request;
+    protected ?RequestInterface $_request;
 
     /**
      * View object.
@@ -114,7 +114,7 @@ abstract class AbstractHelper extends Base implements Helper {
     /**
      * {@inheritdoc}
      */
-    public function getRequest(): ?Request {
+    public function getRequest(): ?RequestInterface {
         return $this->_request;
     }
 
@@ -152,7 +152,7 @@ abstract class AbstractHelper extends Base implements Helper {
     /**
      * {@inheritdoc}
      */
-    public function setRequest(Request $request): this {
+    public function setRequest(RequestInterface $request): this {
         $this->_request = $request;
 
         return $this;

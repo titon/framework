@@ -7,10 +7,10 @@
 
 namespace Titon\Controller;
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\RequestInterface;
 use Titon\Controller\Action;
 use Titon\Event\Event;
-use Titon\Http\Request;
-use Titon\Http\Response;
 use Titon\Mvc\Module;
 use Titon\View\View;
 
@@ -43,14 +43,14 @@ interface Controller {
     /**
      * Return the request object.
      *
-     * @return \Titon\Http\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
     public function getRequest();
 
     /**
      * Return the response object.
      *
-     * @return \Titon\Http\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function getResponse();
 
@@ -115,18 +115,18 @@ interface Controller {
     /**
      * Set the request object.
      *
-     * @param \Titon\Http\Request $request
+     * @param \Psr\Http\Message\RequestInterface $request
      * @return $this
      */
-    public function setRequest(Request $request);
+    public function setRequest(RequestInterface $request);
 
     /**
      * Set the response object.
      *
-     * @param \Titon\Http\Response $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      * @return $this
      */
-    public function setResponse(Response $response);
+    public function setResponse(ResponseInterface $response);
 
     /**
      * Set the view instance.

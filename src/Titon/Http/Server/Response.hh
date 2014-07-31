@@ -7,19 +7,19 @@
 
 namespace Titon\Http\Server;
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\RequestInterface;
 use Titon\Common\Attachable;
 use Titon\Common\FactoryAware;
 use Titon\Http\AbstractMessage;
 use Titon\Http\Bag\CookieBag;
 use Titon\Http\Http;
 use Titon\Http\Mime;
-use Titon\Http\Request as BaseRequest;
-use Titon\Http\Response as BaseResponse;
 use Titon\Http\RequestAware;
 use Titon\Utility\Config;
 use Titon\Utility\Format;
 use Titon\Utility\Number;
-use Titon\Utility\String;
+use Titon\Utility\Str;
 use Titon\Utility\Time;
 
 /**
@@ -28,7 +28,7 @@ use Titon\Utility\Time;
  *
  * @package Titon\Http\Server
  */
-class Response extends AbstractMessage implements BaseResponse {
+class Response extends AbstractMessage implements ResponseInterface {
     use FactoryAware, RequestAware;
 
     /**
@@ -36,38 +36,38 @@ class Response extends AbstractMessage implements BaseResponse {
      *
      * @type \Titon\Http\Bag\CookieBag
      */
-    public $cookies;
+    public CookieBag $cookies;
 
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type int $buffer   The range in which to break up the body into chunks.
      *      @type bool $md5     When enabled, will add a Content-MD5 header based on the body.
      *      @type bool $debug   When enabled, will return the response as a string instead of outputting.
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'buffer' => 8192,
         'md5' => false,
         'debug' => false
-    ];
+    };
 
     /**
      * HTTP status code to output.
      *
      * @type int
      */
-    protected $_status = Http::OK;
+    protected int $_status = Http::OK;
 
     /**
      * Set body and status during initialization.
      *
-     * @param string $body
+     * @param Stream $body
      * @param int $status
-     * @param array $config
+     * @param Map<string, mixed> $config
      */
-    public function __construct($body = '', $status = Http::OK, array $config = []) {
+    public function __construct(Stream $body = '', int $status = Http::OK, Map<string, mixed> $config = Map {}) {
         parent::__construct($config);
 
         $this
@@ -86,7 +86,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string $range
      * @return $this
      */
-    public function acceptRanges($range = 'bytes') {
+    public function acceptRanges(string $range = 'bytes'): this {
         return $this->setHeader('Accept-Ranges', $range);
     }
 
@@ -98,7 +98,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string|int $time
      * @return $this
      */
-    public function age($time) {
+    public function age(mixed $time): this {
         if (is_string($time)) {
             $time = Time::toUnix($time) - time();
         }
@@ -109,20 +109,20 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * Set the Allow header.
      *
-     * @param string|array $methods
+     * @param Vector<string> $methods
      * @return $this
      */
-    public function allow($methods) {
-        return $this->setHeader('Allow', array_intersect(array_map('strtoupper', (array) $methods), Http::getMethodTypes()));
+    public function allow(Vector<string> $methods): this {
+        return $this->setHeader('Allow', array_intersect(array_map('strtoupper', $methods), Http::getMethodTypes()));
     }
 
     /**
      * Alias for setBody().
      *
-     * @param string $body
+     * @param Stream $body
      * @return $this
      */
-    public function body($body = null) {
+    public function body(?Stream $body = null): this {
         return $this->setBody($body);
     }
 
@@ -132,11 +132,11 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string $directive
      * @param int|string $expires
      * @param bool $proxy
-     * @param array $options
+     * @param Map<string, mixed> $options
      * @return $this
      * @throws \InvalidArgumentException
      */
-    public function cache($directive, $expires = '+24 hours', $proxy = true, array $options = []) {
+    public function cache(string $directive, mixed $expires = '+24 hours', bool $proxy = true, Map<string, mixed> $options = Map {}): this {
         $expires = Time::toUnix($expires);
 
         if ($directive === 'none') {
@@ -171,13 +171,13 @@ class Response extends AbstractMessage implements BaseResponse {
      *
      * @uses Titon\Utility\Time
      *
-     * @param array $values
+     * @param Map<string, string> $values
      * @return $this
      */
-    public function cacheControl($values) {
+    public function cacheControl(Map<string, string> $values): this {
         $header = [];
 
-        foreach ((array) $values as $key => $value) {
+        foreach ($values as $key => $value) {
             if (is_numeric($key)) {
                 $header[] = $value;
             } else {
@@ -198,7 +198,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string|bool $status
      * @return $this
      */
-    public function connection($status) {
+    public function connection(mixed $status): this {
         if ($status === true) {
             $status = 'keep-alive';
 
@@ -217,7 +217,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @return $this
      * @throws \InvalidArgumentException
      */
-    public function contentDisposition($file, $type = 'attachment') {
+    public function contentDisposition(string $file, string $type = 'attachment'): this {
         if ($type !== 'attachment' && $type !== 'inline') {
             throw new \InvalidArgumentException('Disposition type must be either "attachment" or "inline"');
         }
@@ -231,18 +231,18 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string|array $encoding
      * @return $this
      */
-    public function contentEncoding($encoding) {
+    public function contentEncoding(string $encoding): this {
         return $this->setHeader('Content-Encoding', $encoding);
     }
 
     /**
      * Set the Content-Language header. Attempt to use the locales set in G11n.
      *
-     * @param string|array $locales
+     * @param Vector<string> $locales
      * @return $this
      */
-    public function contentLanguage($locales = []) {
-        return $this->setHeader('Content-Language', array_unique((array) $locales));
+    public function contentLanguage(Vector<string> $locales): this {
+        return $this->setHeader('Content-Language', $locales);
     }
 
     /**
@@ -251,7 +251,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string $location
      * @return $this
      */
-    public function contentLocation($location) {
+    public function contentLocation(string $location): this {
         return $this->setHeader('Content-Location', $location);
     }
 
@@ -263,7 +263,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string|int $length
      * @return $this
      */
-    public function contentLength($length) {
+    public function contentLength(mixed $length): this {
         if ($this->_status >= 300 && $this->_status <= 399) {
             return $this;
         }
@@ -281,7 +281,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param bool|string $content
      * @return $this
      */
-    public function contentMD5($content) {
+    public function contentMD5(mixed $content): this {
         if (is_bool($content)) {
             $this->setConfig('md5', $content);
         } else {
@@ -299,7 +299,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param int $size
      * @return $this
      */
-    public function contentRange($start, $end, $size) {
+    public function contentRange(int $start, int $end, int $size): this {
         return $this->setHeader('Content-Range', sprintf('bytes %s-%s/%s', $start, $end, $size));
     }
 
@@ -308,12 +308,12 @@ class Response extends AbstractMessage implements BaseResponse {
      *
      * @uses Titon\Utility\Config
      * @uses Titon\Http\Mime
-     * @uses Titon\Utility\String
+     * @uses Titon\Utility\Str
      *
      * @param string $type
      * @return $this
      */
-    public function contentType($type) {
+    public function contentType(string $type): this {
         if (in_array($this->_status, [Http::NOT_MODIFIED, Http::NO_CONTENT])) {
             return $this;
         }
@@ -324,7 +324,7 @@ class Response extends AbstractMessage implements BaseResponse {
 
         $charset = Config::encoding();
 
-        if ($charset && (String::startsWith($type, Mime::TEXT) ||
+        if ($charset && (Str::startsWith($type, Mime::TEXT) ||
             in_array($type, ['application/javascript', 'application/json', 'application/xml', 'application/rss+xml']))) {
             $type .= '; charset=' . $charset;
         }
@@ -340,7 +340,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string|int $time
      * @return $this
      */
-    public function date($time) {
+    public function date(mixed $time): this {
         return $this->setHeader('Date', Format::http($time));
     }
 
@@ -353,7 +353,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param bool $autoModified
      * @return \Titon\Http\Server\DownloadResponse
      */
-    public static function download($path, $name = null, $autoEtag = false, $autoModified = true) {
+    public static function download(string $path, string $name = '', bool $autoEtag = false, bool $autoModified = true): DownloadResponse {
         return new DownloadResponse($path, Http::OK, [
             'autoEtag' => $autoEtag,
             'autoModified' => $autoModified,
@@ -368,7 +368,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param bool $weak
      * @return $this
      */
-    public function etag($tag, $weak = false) {
+    public function etag(string $tag, bool $weak = false): this {
         return $this->setHeader('ETag', sprintf('%s"%s"', ($weak ? 'W/' : ''), $tag));
     }
 
@@ -380,14 +380,14 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string|int $expires
      * @return $this
      */
-    public function expires($expires = '+24 hours') {
+    public function expires(mixed $expires = '+24 hours'): this {
         return $this->setHeader('Expires', Format::http($expires));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getProtocolVersion() {
+    public function getProtocolVersion(): string {
         if ($request = $this->getRequest()) {
             return $request->getProtocolVersion();
         }
@@ -398,14 +398,14 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * {@inheritdoc}
      */
-    public function getReasonPhrase() {
+    public function getReasonPhrase(): string {
         return Http::getStatusCode($this->_status);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getStatusCode() {
+    public function getStatusCode(): int {
         return $this->_status;
     }
 
@@ -418,7 +418,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string $callback
      * @return \Titon\Http\Server\JsonResponse
      */
-    public static function json($data, $options = null, $callback = null) {
+    public static function json(mixed $data, int $options = 0, string $callback = ''): JsonResponse {
         return new JsonResponse($data, Http::OK, $options, $callback);
     }
 
@@ -430,7 +430,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string|int $time
      * @return $this
      */
-    public function lastModified($time = null) {
+    public function lastModified(mixed $time = null): this {
         return $this->setHeader('Last-Modified', Format::http($time));
     }
 
@@ -440,8 +440,8 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string $url
      * @return $this
      */
-    public function location($url) {
-        return $this->setHeader('Location', (string) $url);
+    public function location(string $url): this {
+        return $this->setHeader('Location', $url);
     }
 
     /**
@@ -449,7 +449,7 @@ class Response extends AbstractMessage implements BaseResponse {
      *
      * @return $this
      */
-    public function noCache() {
+    public function noCache(): this {
         return $this->cache('none', '-1 year')->lastModified();
     }
 
@@ -458,7 +458,7 @@ class Response extends AbstractMessage implements BaseResponse {
      *
      * @return $this
      */
-    public function notModified() {
+    public function notModified(): this {
         $this->statusCode(Http::NOT_MODIFIED)->setBody(null);
 
         foreach ([
@@ -480,7 +480,7 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * {@inheritdoc}
      */
-    public function prepare(BaseRequest $request) {
+    public function prepare(RequestInterface $request): this {
         $this->setRequest($request);
 
         return $this;
@@ -489,11 +489,11 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * Redirect to another URL by instantiating a new RedirectResponse.
      *
-     * @param array|string $url
+     * @param string $url
      * @param int $code
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function redirect($url, $code = Http::FOUND) {
+    public static function redirect(string $url, int $code = Http::FOUND): RedirectResponse {
         return new RedirectResponse($url, $code);
     }
 
@@ -501,11 +501,13 @@ class Response extends AbstractMessage implements BaseResponse {
      * Remove a cookie by setting a Set-Cookie header with a negative expires.
      *
      * @param string $key
-     * @param array $config
+     * @param Map<string, mixed> $config
      * @return $this
      */
-    public function removeCookie($key, array $config = []) {
-        return $this->setCookie($key, null, ['expires' => time()] + $config);
+    public function removeCookie(string $key, Map<string, mixed> $config = Map {}) {
+        $config['expires'] = time();
+
+        return $this->setCookie($key, '', $config);
     }
 
     /**
@@ -516,7 +518,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string|int $length
      * @return $this
      */
-    public function retryAfter($length) {
+    public function retryAfter(mixed $length): this {
         if (is_string($length)) {
             $length = Format::http($length);
         }
@@ -527,7 +529,7 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * {@inheritdoc}
      */
-    public function send() {
+    public function send(): string {
         $body = $this->getBody();
 
         // Create an MD5 digest?
@@ -558,7 +560,7 @@ class Response extends AbstractMessage implements BaseResponse {
      *
      * @return $this
      */
-    public function sendBody() {
+    public function sendBody(): this {
         if ($this->_body && ($buffer = $this->getConfig('buffer'))) {
             $body = str_split($this->_body, $buffer);
 
@@ -578,7 +580,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @return $this
      * @codeCoverageIgnore
      */
-    public function sendHeaders() {
+    public function sendHeaders(): this {
         if (headers_sent()) {
             return $this;
         }
@@ -599,8 +601,8 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * {@inheritdoc}
      */
-    public function setBody($body = null) {
-        $this->_body = (string) $body;
+    public function setBody(?Stream $body): this {
+        $this->_body = $body;
 
         return $this;
     }
@@ -610,17 +612,17 @@ class Response extends AbstractMessage implements BaseResponse {
      *
      * @param string $key,
      * @param mixed $value
-     * @param array $config
+     * @param Map<string, mixed> $config
      * @return $this
      */
-    public function setCookie($key, $value, array $config = []) {
+    public function setCookie(string $key, mixed $value, Map<string, mixed> $config = Map {}): this {
         return $this->addHeader('Set-Cookie', $this->cookies->prepare($key, $value, $config));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setStatusCode($code) {
+    public function setStatusCode(int $code): int {
         $this->_status = $code;
 
         return $this->setHeader('Status-Code', $code . ' ' . $this->getReasonPhrase());
@@ -632,17 +634,17 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param int $code
      * @return $this
      */
-    public function statusCode($code) {
+    public function statusCode(int $code): this {
         return $this->setStatusCode($code);
     }
 
     /**
      * Set the Vary header.
      *
-     * @param string|array $variances
+     * @param string $variances
      * @return $this
      */
-    public function vary($variances) {
+    public function vary(string $variances): this {
         return $this->setHeader('Vary', $variances);
     }
 
@@ -652,7 +654,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string $scheme
      * @return $this
      */
-    public function wwwAuthenticate($scheme) {
+    public function wwwAuthenticate(string $scheme): this {
         return $this->setHeader('WWW-Authenticate', $scheme);
     }
 
@@ -663,7 +665,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string $root
      * @return \Titon\Http\Server\XmlResponse
      */
-    public static function xml($data, $root = 'root') {
+    public static function xml(mixed $data, string $root = 'root'): XmlResponse {
         return new XmlResponse($data, Http::OK, $root);
     }
 

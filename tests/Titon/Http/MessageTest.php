@@ -1,6 +1,7 @@
 <?hh
 namespace Titon\Http;
 
+use Titon\Http\Stream\MemoryStream;
 use Titon\Test\TestCase;
 
 /**
@@ -40,9 +41,13 @@ class MessageTest extends TestCase {
     }
 
     public function testGetSetBody() {
-        $this->assertEquals('', $this->object->getBody());
-        $this->object->setBody('A body can go here!');
-        $this->assertEquals('A body can go here!', $this->object->getBody());
+        $this->assertEquals(null, $this->object->getBody());
+
+        $stream = new MemoryStream('A body can go here!');
+        $this->object->setBody($stream);
+
+        $this->assertEquals($stream, $this->object->getBody());
+        $this->assertEquals('A body can go here!', (string) $this->object->getBody());
     }
 
     public function testGetHeader() {

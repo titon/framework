@@ -50,11 +50,15 @@ class AbstractStream implements StreamInterface {
      * @return $this
      */
     public function buildCache(): this {
-        $cache = new Map(stream_get_meta_data($this->getStream()));
-        $cache['readable'] = true;
-        $cache['writable'] = true;
+        $cache = stream_get_meta_data($this->getStream());
+        $cache['local'] = stream_is_local($this->getStream());
 
-        $this->_cache = $cache;
+        $mode = str_replace('b', '', $cache['mode']);
+
+        $cache['readable'] = !in_array($mode, ['w', 'a', 'x', 'c']);
+        $cache['writable'] = ($mode !== 'r');
+
+        $this->_cache = new Map($cache);
 
         return $this;
     }
@@ -106,19 +110,40 @@ class AbstractStream implements StreamInterface {
             return '';
         }
 
+        // Save cursor position before reading
+        $tell = $this->tell();
+
         $buffer = stream_get_contents($this->getStream(), $maxLength, 0);
 
+        // Reset cursor position
+        $this->seek($tell);
+
         return ($buffer === false) ? null : $buffer;
+    }
+
+    /**
+     * Return the read/write mode used on the stream.
+     *
+     * @return string
+     */
+    public function getMode(): string {
+        return $this->_cache['mode'];
     }
 
     /**
      * {@inheritdoc}
      */
     public function getSize(): int {
-        $stat = fstat($this->getStream());
+        if ($this->isLocal()) {
+            clearstatcache(true, $this->_cache['uri']);
+        }
 
-        if (isset($stat['size'])) {
-            return $stat['size'];
+        if ($this->_cache['wrapper_type'] !== 'PHP') {
+            $stat = fstat($this->getStream());
+
+            if (isset($stat['size'])) {
+                return $stat['size'];
+            }
         }
 
         return mb_strlen($this->getContents());
@@ -134,10 +159,37 @@ class AbstractStream implements StreamInterface {
     }
 
     /**
+     * Alias for eof().
+     *
+     * @return bool
+     */
+    public function isConsumed(): bool {
+        return $this->eof();
+    }
+
+    /**
+     * Return true if the stream is a local file.
+     *
+     * @return bool
+     */
+    public function isLocal(): bool {
+        return $this->_cache['local'];
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function isReadable(): bool {
         return $this->_cache['readable'];
+    }
+
+    /**
+     * Return true if the stream can be re-read once the EOF has been reached.
+     *
+     * @return bool
+     */
+    public function isRepeatable(): bool {
+        return $this->isReadable() && $this->isSeekable();
     }
 
     /**
@@ -158,20 +210,29 @@ class AbstractStream implements StreamInterface {
      * {@inheritdoc}
      */
     public function read($length): ?string {
-        if (!$this->cache['readable']) {
+        if (!$this->isReadable()) {
             return null;
         }
 
-        $buffer = $length ? fgets($this->getStream(), $length) : fgets($this->getStream());
+        $buffer = fread($this->getStream(), $length);
 
         return ($buffer === false) ? null : $buffer;
+    }
+
+    /**
+     * Rewind the pointer to the beginning.
+     *
+     * @return bool
+     */
+    public function rewind() {
+        return $this->seek(0);
     }
 
     /**
      * {@inheritdoc}
      */
     public function seek($offset, $whence = SEEK_SET): bool {
-        return $this->cache['seekable'] ? (fseek($this->getStream(), $offset, $whence) === 0) : false;
+        return $this->isSeekable() ? (fseek($this->getStream(), $offset, $whence) === 0) : false;
     }
 
     /**
@@ -200,6 +261,10 @@ class AbstractStream implements StreamInterface {
      * {@inheritdoc}
      */
     public function write($string): ?int {
+        if (!$this->isWritable()) {
+            return null;
+        }
+
         $write = fwrite($this->getStream(), $string);
 
         return ($write === false) ? null : $write;

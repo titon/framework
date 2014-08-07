@@ -18,9 +18,14 @@ class FileStream extends AbstractStream {
      * Initialize the stream.
      *
      * @param string $path
+     * @param string $mode
      */
-    public function __construct(string $path) {
-        $this->setStream(fopen($path, 'r+b'));
+    public function __construct(string $path, string $mode = 'r+b') {
+        if (!file_exists($path)) {
+            throw new \InvalidArgumentException(sprintf('File does not exist at path %s', $path));
+        }
+
+        $this->setStream(fopen($path, $mode));
     }
 
 }

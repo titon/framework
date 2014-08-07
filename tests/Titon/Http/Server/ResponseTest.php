@@ -1,7 +1,8 @@
-<?php
+<?hh
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
+use Titon\Http\Stream\MemoryStream;
 use Titon\Test\TestCase;
 use Titon\Utility\Format;
 use VirtualFileSystem\FileSystem;
@@ -19,7 +20,7 @@ class ResponseTest extends TestCase {
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-us,en;q=0.5';
 
         $this->time = time();
-        $this->object = new Response('', 200, ['debug' => true]);
+        $this->object = new Response(null, 200, Map {'debug' => true});
         $this->object->prepare(Request::createFromGlobals());
     }
 
@@ -43,10 +44,10 @@ class ResponseTest extends TestCase {
     }
 
     public function testAllow() {
-        $this->object->allow('get');
+        $this->object->allow(Vector {'get'});
         $this->assertEquals('GET', $this->object->getHeader('Allow'));
 
-        $this->object->allow(['POST', 'put', 'CUSTOM']);
+        $this->object->allow(Vector {'POST', 'put', 'CUSTOM'});
         $this->assertEquals('POST, PUT', $this->object->getHeader('Allow'));
     }
 
@@ -81,7 +82,7 @@ class ResponseTest extends TestCase {
     }
 
     public function testCacheControl() {
-        $this->object->cacheControl('public');
+        $this->object->cacheControl(['public']);
         $this->assertEquals('public', $this->object->getHeader('Cache-Control'));
 
         $this->object->cacheControl(['private', 'must-revalidate']);
@@ -121,7 +122,7 @@ class ResponseTest extends TestCase {
         $this->object->contentEncoding('gzip');
         $this->assertEquals('gzip', $this->object->getHeader('Content-Encoding'));
 
-        $this->object->contentEncoding(['gzip', 'compress']);
+        $this->object->contentEncoding('gzip, compress');
         $this->assertEquals('gzip, compress', $this->object->getHeader('Content-Encoding'));
     }
 
@@ -132,7 +133,7 @@ class ResponseTest extends TestCase {
         $this->object->contentLanguage('en, en-us');
         $this->assertEquals('en, en-us', $this->object->getHeader('Content-Language'));
 
-        $this->object->contentLanguage(['en', 'en-us']);
+        $this->object->contentLanguage('en, en-us');
         $this->assertEquals('en, en-us', $this->object->getHeader('Content-Language'));
     }
 
@@ -162,7 +163,7 @@ class ResponseTest extends TestCase {
         $this->object->contentMD5('AHASHHERE');
         $this->assertEquals('AHASHHERE', $this->object->getHeader('Content-MD5'));
 
-        $this->object->body('body')->contentMD5(false)->send();
+        $this->object->body(new MemoryStream('body'))->contentMD5(false)->send();
 
         $this->object->contentMD5(true)->send();
         $this->assertEquals('hBotaJrYa9FhFEdFPCLG/A==', $this->object->getHeader('Content-MD5'));
@@ -298,7 +299,7 @@ class ResponseTest extends TestCase {
     }
 
     public function testBodyAndRespond() {
-        $this->object->body('<html><body>body</body></html>');
+        $this->object->body(new MemoryStream('<html><body>body</body></html>'));
         $this->assertEquals('<html><body>body</body></html>', $this->object->send());
     }
 
@@ -329,7 +330,7 @@ class ResponseTest extends TestCase {
 
     public function testSendBodyNoChunk() {
         $this->object->setConfig('buffer', false);
-        $this->object->setBody('body');
+        $this->object->setBody(new MemoryStream('body'));
 
         ob_start();
         $this->object->sendBody();
@@ -357,7 +358,7 @@ class ResponseTest extends TestCase {
         $this->object->vary('Accept');
         $this->assertEquals('Accept', $this->object->getHeader('Vary'));
 
-        $this->object->vary(['Accept', 'Cookie']);
+        $this->object->vary('Accept, Cookie');
         $this->assertEquals('Accept, Cookie', $this->object->getHeader('Vary'));
     }
 

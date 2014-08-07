@@ -11,7 +11,7 @@ use Titon\Http\Exception\InvalidExtensionException;
 use Titon\Http\Exception\InvalidFileException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
-use Titon\Http\Stream;
+use Titon\Http\Stream\FileStream;
 use Titon\Utility\Path;
 
 /**
@@ -46,13 +46,13 @@ class DownloadResponse extends Response {
     /**
      * Set the path of a file to output in the response.
      *
-     * @param Stream $path
+     * @param string $path
      * @param int $status
      * @param Map<string, mixed> $config
      * @throws \Titon\Http\Exception\InvalidFileException
      */
-    public function __construct(Stream $path, int $status = Http::OK, Map<string, mixed> $config = Map {}) {
-        parent::__construct('', $status, $config);
+    public function __construct(string $path, int $status = Http::OK, Map<string, mixed> $config = Map {}) {
+        parent::__construct(null, $status, $config);
 
         if (!file_exists($path)) {
             throw new InvalidFileException(sprintf('File %s does not exist', basename($path)));
@@ -116,7 +116,7 @@ class DownloadResponse extends Response {
             ->contentType($contentType)
             ->acceptRanges()
             ->setHeader('Content-Transfer-Encoding', 'binary')
-            ->setBody(file_get_contents($path));
+            ->setBody(new FileStream($path));
 
         if ($this->getConfig('autoModified')) {
             $this->lastModified(filemtime($path));

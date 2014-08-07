@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
@@ -36,7 +36,7 @@ class RedirectResponseTest extends TestCase {
      * @expectedException \Titon\Http\Exception\MalformedResponseException
      */
     public function testSendErrorsNoUrl() {
-        $response = new RedirectResponse(null);
+        $response = new RedirectResponse('');
         $response->send();
     }
 

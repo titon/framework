@@ -9,6 +9,7 @@ namespace Titon\Http\Server;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Titon\Common\Attachable;
 use Titon\Common\FactoryAware;
 use Titon\Http\AbstractMessage;
@@ -63,11 +64,11 @@ class Response extends AbstractMessage implements ResponseInterface {
     /**
      * Set body and status during initialization.
      *
-     * @param Stream $body
+     * @param StreamInterface $body
      * @param int $status
      * @param Map<string, mixed> $config
      */
-    public function __construct(Stream $body = '', int $status = Http::OK, Map<string, mixed> $config = Map {}) {
+    public function __construct(?StreamInterface $body = null, int $status = Http::OK, Map<string, mixed> $config = Map {}) {
         parent::__construct($config);
 
         $this
@@ -119,10 +120,10 @@ class Response extends AbstractMessage implements ResponseInterface {
     /**
      * Alias for setBody().
      *
-     * @param Stream $body
+     * @param StreamInterface $body
      * @return $this
      */
-    public function body(?Stream $body = null): this {
+    public function body(?StreamInterface $body = null): this {
         return $this->setBody($body);
     }
 
@@ -132,11 +133,11 @@ class Response extends AbstractMessage implements ResponseInterface {
      * @param string $directive
      * @param int|string $expires
      * @param bool $proxy
-     * @param Map<string, mixed> $options
+     * @param array $options
      * @return $this
      * @throws \InvalidArgumentException
      */
-    public function cache(string $directive, mixed $expires = '+24 hours', bool $proxy = true, Map<string, mixed> $options = Map {}): this {
+    public function cache(string $directive, mixed $expires = '+24 hours', bool $proxy = true, array $options = []): this {
         $expires = Time::toUnix($expires);
 
         if ($directive === 'none') {
@@ -171,10 +172,10 @@ class Response extends AbstractMessage implements ResponseInterface {
      *
      * @uses Titon\Utility\Time
      *
-     * @param Map<string, string> $values
+     * @param array $values
      * @return $this
      */
-    public function cacheControl(Map<string, string> $values): this {
+    public function cacheControl(array $values): this {
         $header = [];
 
         foreach ($values as $key => $value) {
@@ -228,7 +229,7 @@ class Response extends AbstractMessage implements ResponseInterface {
     /**
      * Set the Content-Encoding header.
      *
-     * @param string|array $encoding
+     * @param string $encoding
      * @return $this
      */
     public function contentEncoding(string $encoding): this {
@@ -238,10 +239,10 @@ class Response extends AbstractMessage implements ResponseInterface {
     /**
      * Set the Content-Language header. Attempt to use the locales set in G11n.
      *
-     * @param Vector<string> $locales
+     * @param string $locales
      * @return $this
      */
-    public function contentLanguage(Vector<string> $locales): this {
+    public function contentLanguage(string $locales): this {
         return $this->setHeader('Content-Language', $locales);
     }
 
@@ -354,11 +355,11 @@ class Response extends AbstractMessage implements ResponseInterface {
      * @return \Titon\Http\Server\DownloadResponse
      */
     public static function download(string $path, string $name = '', bool $autoEtag = false, bool $autoModified = true): DownloadResponse {
-        return new DownloadResponse($path, Http::OK, [
+        return new DownloadResponse($path, Http::OK, Map {
             'autoEtag' => $autoEtag,
             'autoModified' => $autoModified,
             'dispositionName' => $name
-        ]);
+        });
     }
 
     /**
@@ -399,7 +400,7 @@ class Response extends AbstractMessage implements ResponseInterface {
      * {@inheritdoc}
      */
     public function getReasonPhrase(): string {
-        return Http::getStatusCode($this->_status);
+        return $this->getHeader('Reason-Phrase') ?: Http::getStatusCode($this->_status);
     }
 
     /**
@@ -414,12 +415,14 @@ class Response extends AbstractMessage implements ResponseInterface {
      * Can optionally pass encoding options, and a JSONP callback.
      *
      * @param mixed $data
-     * @param int $options
+     * @param int $flags
      * @param string $callback
      * @return \Titon\Http\Server\JsonResponse
      */
-    public static function json(mixed $data, int $options = 0, string $callback = ''): JsonResponse {
-        return new JsonResponse($data, Http::OK, $options, $callback);
+    public static function json(?mixed $data, int $flags = 0, string $callback = ''): JsonResponse {
+        return new JsonResponse($data, Http::OK, $flags, Map {
+            'callback' => $callback
+        });
     }
 
     /**
@@ -533,13 +536,13 @@ class Response extends AbstractMessage implements ResponseInterface {
         $body = $this->getBody();
 
         // Create an MD5 digest?
-        if ($this->getConfig('md5')) {
-            $this->setHeader('Content-MD5', base64_encode(pack('H*', md5($body))));
+        if ($this->getConfig('md5') && $body) {
+            $this->setHeader('Content-MD5', base64_encode(pack('H*', md5($body->getContents()))));
         }
 
         // Return while in debug
         if ($this->getConfig('debug')) {
-            return $body;
+            return $body->getContents();
         }
 
         $this->sendHeaders();
@@ -551,7 +554,7 @@ class Response extends AbstractMessage implements ResponseInterface {
         }
         // @codeCoverageIgnoreEnd
 
-        return $body;
+        return $body->getContents();
     }
 
     /**
@@ -561,14 +564,18 @@ class Response extends AbstractMessage implements ResponseInterface {
      * @return $this
      */
     public function sendBody(): this {
-        if ($this->_body && ($buffer = $this->getConfig('buffer'))) {
-            $body = str_split($this->_body, $buffer);
+        $body = $this->getBody();
 
-            foreach ($body as $chunk) {
-                echo $chunk;
+        if ($body) {
+            if ($buffer = $this->getConfig('buffer')) {
+                $chunks = str_split($body->getContents(), $buffer);
+
+                foreach ($chunks as $chunk) {
+                    echo $chunk;
+                }
+            } else {
+                echo $body->getContents();
             }
-        } else {
-            echo $this->_body;
         }
 
         return $this;
@@ -601,7 +608,7 @@ class Response extends AbstractMessage implements ResponseInterface {
     /**
      * {@inheritdoc}
      */
-    public function setBody(?Stream $body): this {
+    public function setBody(?StreamInterface $body = null): this {
         $this->_body = $body;
 
         return $this;
@@ -622,7 +629,14 @@ class Response extends AbstractMessage implements ResponseInterface {
     /**
      * {@inheritdoc}
      */
-    public function setStatusCode(int $code): int {
+    public function setReasonPhrase($phrase): this { // @todo No type hint because of PSR
+        return $this->setHeader('Reason-Phrase', $phrase);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setStatusCode($code): this { // @todo No type hint because of PSR
         $this->_status = $code;
 
         return $this->setHeader('Status-Code', $code . ' ' . $this->getReasonPhrase());
@@ -665,7 +679,7 @@ class Response extends AbstractMessage implements ResponseInterface {
      * @param string $root
      * @return \Titon\Http\Server\XmlResponse
      */
-    public static function xml(mixed $data, string $root = 'root'): XmlResponse {
+    public static function xml(?mixed $data, string $root = 'root'): XmlResponse {
         return new XmlResponse($data, Http::OK, $root);
     }
 

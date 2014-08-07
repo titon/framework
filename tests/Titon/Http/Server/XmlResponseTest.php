@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;

@@ -7,8 +7,10 @@
 
 namespace Titon\Http\Server;
 
-use Titon\Http\Exception\MalformedResponseException;
+use Psr\Http\Message\StreamInterface;
 use Titon\Http\Http;
+use Titon\Http\Exception\MalformedResponseException;
+use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Converter;
 
 /**
@@ -20,40 +22,43 @@ use Titon\Utility\Converter;
 class JsonResponse extends Response {
 
     /**
-     * Configuration.
-     *
-     * @type array {
-     *      @type int $flags    JSON encoding options
-     * }
-     */
-    protected $_config = [
-        'flags' => 0
-    ];
-
-    /**
      * JSONP callback function.
      *
      * @type string
      */
-    protected $_callback;
+    protected string $_callback = '';
 
     /**
      * Set the body, status code, and optional JSON encoding options.
      * If no options are defined, fallback to escaping standard entities.
+     * Also convert the resource to JSON. If an error arises, throw an exception.
      *
-     * @param string $body
+     * @param mixed $body
      * @param int $status
      * @param int $flags
-     * @param string $callback
+     * @param Map<string, mixed> $config
+     * @throws \Titon\Http\Exception\MalformedResponseException
      */
-    public function __construct($body = '', $status = Http::OK, $flags = null, $callback = null) {
+    public function __construct(?mixed $body = null, int $status = Http::OK, ?int $flags = null, Map<string, mixed> $config = Map {}) {
         if ($flags === null) {
             $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
         }
 
-        parent::__construct($body, $status, ['flags' => $flags]);
+        if (!$body instanceof StreamInterface) {
+            $body = new MemoryStream(Converter::toJson($body, $flags));
 
-        $this->setCallback($callback);
+            // @codeCoverageIgnoreStart
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new MalformedResponseException($this->getErrorMessage());
+            }
+            // @codeCoverageIgnoreEnd
+        }
+
+        parent::__construct($body, $status, $config);
+
+        if (isset($config['callback'])) {
+            $this->setCallback($config['callback']);
+        }
     }
 
     /**
@@ -61,7 +66,7 @@ class JsonResponse extends Response {
      *
      * @return string
      */
-    public function getCallback() {
+    public function getCallback(): string {
         return $this->_callback;
     }
 
@@ -71,7 +76,7 @@ class JsonResponse extends Response {
      * @return string
      * @codeCoverageIgnore
      */
-    public function getErrorMessage() {
+    public function getErrorMessage(): string {
         if (function_exists('json_last_error_msg')) {
             return json_last_error_msg();
         }
@@ -94,32 +99,13 @@ class JsonResponse extends Response {
     }
 
     /**
-     * Convert the resource to JSON. If an error arises, throw an exception.
-     *
-     * @param string $body
-     * @return $this
-     * @throws \Titon\Http\Exception\MalformedResponseException
-     */
-    public function setBody($body = null) {
-        $this->_body = Converter::toJson($body, $this->getConfig('flags'));
-
-        // @codeCoverageIgnoreStart
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new MalformedResponseException($this->getErrorMessage());
-        }
-        // @codeCoverageIgnoreEnd
-
-        return $this;
-    }
-
-    /**
      * Set the JSONP callback function name.
      *
      * @param string $callback
      * @return $this
      */
-    public function setCallback($callback) {
-        $this->_callback = (string) $callback;
+    public function setCallback(string $callback): this {
+        $this->_callback = $callback;
 
         return $this;
     }
@@ -130,15 +116,15 @@ class JsonResponse extends Response {
      *
      * @return string
      */
-    public function send() {
+    public function send(): string {
         if ($callback = $this->getCallback()) {
-            $this->_body = sprintf('%s(%s);', $callback, $this->getBody());
-            $this->contentType('text/javascript'); // older browsers
+            $this->setBody(new MemoryStream(sprintf('%s(%s);', $callback, (string) $this->getBody())));
+            $this->contentType('text/javascript'); // Older browsers
         } else {
             $this->contentType('application/json');
         }
 
-        $this->contentLength(mb_strlen($this->getBody()));
+        $this->contentLength($this->getBody()->getSize());
 
         return parent::send();
     }

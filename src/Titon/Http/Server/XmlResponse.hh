@@ -7,7 +7,9 @@
 
 namespace Titon\Http\Server;
 
+use Psr\Http\Message\StreamInterface;
 use Titon\Http\Http;
+use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Converter;
 
 /**
@@ -18,37 +20,20 @@ use Titon\Utility\Converter;
 class XmlResponse extends Response {
 
     /**
-     * Configuration.
-     *
-     * @type array {
-     *      @type string $root  Name of the root node in the XML document
-     * }
-     */
-    protected $_config = [
-        'root' => 'root'
-    ];
-
-    /**
      * Set the body, status code, and optional XML root node.
+     * Convert the body to XML before passing along.
      *
-     * @param string $body
+     * @param mixed $body
      * @param int $status
      * @param string $root
+     * @param Map<string, mixed> $config
      */
-    public function __construct($body = '', $status = Http::OK, $root = 'root') {
-        parent::__construct($body, $status, ['root' => $root]);
-    }
+    public function __construct(?mixed $body = null, int $status = Http::OK, string $root = 'root', Map<string, mixed> $config = Map {}) {
+        if (!$body instanceof StreamInterface) {
+            $body = new MemoryStream(Converter::toXml($body, $root));
+        }
 
-    /**
-     * Convert the resource to XML.
-     *
-     * @param string $body
-     * @return $this
-     */
-    public function setBody($body = null) {
-        $this->_body = Converter::toXml($body, $this->getConfig('root'));
-
-        return $this;
+        parent::__construct($body, $status, $config);
     }
 
     /**
@@ -59,7 +44,7 @@ class XmlResponse extends Response {
     public function send() {
         $this
             ->contentType('xml')
-            ->contentLength(mb_strlen($this->getBody()));
+            ->contentLength($this->getBody()->getSize());
 
         return parent::send();
     }

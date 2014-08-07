@@ -7,7 +7,6 @@
 
 namespace Titon\Http\Bag;
 
-use Titon\Common\Bag\AbstractBag;
 use Titon\Http\RequestAware;
 use Titon\Utility\Traverse;
 
@@ -16,7 +15,7 @@ use Titon\Utility\Traverse;
  *
  * @package Titon\Http\Bag
  */
-class FileBag extends AbstractBag {
+class FileBag extends ParameterBag {
     use RequestAware;
 
     /**

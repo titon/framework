@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
@@ -86,11 +86,11 @@ class DownloadResponseTest extends TestCase {
 
     public function testSendConfig() {
         $time = time();
-        $response = new DownloadResponse($this->vfs->path('/http/download.txt'), 200, [
+        $response = new DownloadResponse($this->vfs->path('/http/download.txt'), 200, Map {
             'autoEtag' => true,
             'autoModified' => true,
             'dispositionName' => 'custom-filename.txt'
-        ]);
+        });
         $response->prepare(Request::registry());
 
         ob_start();

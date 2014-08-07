@@ -18,4 +18,14 @@ use Titon\Http\RequestAware;
  */
 class ParameterBag extends AbstractBag {
     use RequestAware;
+
+    /**
+     * Set the parameters using an array. This is because all super globals are arrays.
+     *
+     * @param array $data
+     */
+    public function __construct(array $data = []) {
+        $this->add(new Map($data));
+    }
+
 }

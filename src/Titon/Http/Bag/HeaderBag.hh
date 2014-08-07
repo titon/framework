@@ -7,7 +7,6 @@
 
 namespace Titon\Http\Bag;
 
-use Titon\Common\Bag\AbstractBag;
 use Titon\Http\RequestAware;
 use Titon\Utility\Inflector;
 
@@ -17,7 +16,7 @@ use Titon\Utility\Inflector;
  *
  * @package Titon\Http\Bag
  */
-class HeaderBag extends AbstractBag {
+class HeaderBag extends ParameterBag {
     use RequestAware;
 
     /**

@@ -7,7 +7,6 @@
 
 namespace Titon\Http\Bag;
 
-use Titon\Common\Bag\AbstractBag;
 use Titon\Http\Http;
 use Titon\Http\RequestAware;
 use Titon\Utility\Config;
@@ -20,7 +19,7 @@ use Titon\Utility\Traverse;
  *
  * @package Titon\Http\Bag
  */
-class CookieBag extends AbstractBag {
+class CookieBag extends ParameterBag {
     use RequestAware;
 
     /**

@@ -14,7 +14,7 @@ use Psr\Http\Message\StreamInterface;
  *
  * @package Titon\Http\Stream
  */
-class AbstractStream implements StreamInterface {
+abstract class AbstractStream implements StreamInterface {
 
     /**
      * Cached meta data.

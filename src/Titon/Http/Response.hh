@@ -12,8 +12,6 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Represents an HTTP response, either for sending a server response, or from a client request.
  *
- * Based on the PHP-FIG HTTP spec. https://github.com/php-fig/http-message/blob/master/src/ResponseInterface.php
- *
  * @package Titon\Http
  */
 interface Response extends ResponseInterface {

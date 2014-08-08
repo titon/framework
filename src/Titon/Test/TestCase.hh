@@ -7,9 +7,9 @@
 
 namespace Titon\Test;
 
-use Titon\Test\Fixture;
 use Titon\Utility\Config;
 use Titon\Utility\Registry;
+use VirtualFileSystem\FileSystem;
 
 /**
  * Extends the PHPUnit TestCase class with more functionality.
@@ -21,7 +21,14 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      *
      * @type Map<string, Fixture>
      */
-    protected Map<string, Fixture> $_fixtures = Map {};
+    protected Map<string, Fixture> $fixtures = Map {};
+
+    /**
+     * Virtual file system.
+     *
+     * @property \VirtualFileSystem\FileSystem $vfs
+     */
+    protected ?FileSystem $vfs;
 
     /**
      * Setup state.
@@ -50,12 +57,14 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Unload fixtures and clear registry.
+     * Unload fixtures, remove virtual streams, and clear registry.
      */
     protected function tearDown(): void {
         parent::tearDown();
 
         $this->unloadFixtures();
+
+        unset($this->vfs);
 
         Config::flush();
         Registry::flush();
@@ -89,8 +98,8 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @throws \Exception
      */
     public function getFixture(string $name): Fixture {
-        if ($this->_fixtures->contains($name)) {
-            return $this->_fixtures->get($name);
+        if ($this->fixtures->contains($name)) {
+            return $this->fixtures->get($name);
         }
 
         throw new \Exception(sprintf('Fixture %s does not exist', $name));
@@ -99,10 +108,10 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * Return all fixtures.
      *
-     * @return \Titon\Test\Fixture[]
+     * @return Map<string, Fixture>
      */
     public function getFixtures(): Map<string, Fixture> {
-        return $this->_fixtures;
+        return $this->fixtures;
     }
 
     /**
@@ -125,7 +134,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
             $object->createTable();
             $object->insertRecords();
 
-            $this->_fixtures->set($fixture, $object);
+            $this->fixtures[$fixture] = $object;
         }
 
         return $this;
@@ -137,9 +146,10 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @return $this
      */
     public function unloadFixtures(): this {
-        foreach ($this->_fixtures as $name => $fixture) {
+        foreach ($this->fixtures as $name => $fixture) {
             $fixture->dropTable();
-            $this->_fixtures->remove($name);
+
+            unset($this->fixtures[$name]);
         }
 
         return $this;

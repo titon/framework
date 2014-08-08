@@ -116,6 +116,8 @@ class AssetHelperTest extends TestCase {
         $helper->addStylesheet('/css/test.css');
 
         $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css">/', $helper->stylesheets());
+
+        unset($vfs);
     }
 
     public function testTimestampingNoWebroot() {
@@ -136,6 +138,8 @@ class AssetHelperTest extends TestCase {
         $helper->addStylesheet('/css/test.css');
 
         $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css">/', $helper->stylesheets());
+
+        unset($vfs);
     }
 
 }

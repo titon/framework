@@ -11,7 +11,6 @@ use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\View\View $object
- * @property \VirtualFileSystem\FileSystem $vfs
  */
 class ViewTest extends TestCase {
 

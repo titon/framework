@@ -13,7 +13,6 @@ use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\Controller\Controller $object
- * @property \VirtualFileSystem\FileSystem $vfs
  */
 class ControllerTest extends TestCase {
 
@@ -40,8 +39,6 @@ class ControllerTest extends TestCase {
                 ]
             ]
         ]);
-
-        var_dump($this->vfs->scheme());
 
         $this->object = new ControllerStub(Map {
             'module' => 'module',

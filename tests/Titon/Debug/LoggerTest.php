@@ -5,9 +5,6 @@ use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 use \DateTime;
 
-/**
- * @property \VirtualFileSystem\FileSystem $vfs
- */
 class LoggerTest extends TestCase {
 
     protected function setUp() {

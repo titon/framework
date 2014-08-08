@@ -5,9 +5,6 @@ use Titon\Io\Reader\PhpReader;
 use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 
-/**
- * @property \VirtualFileSystem\FileSystem $vfs
- */
 class ConfigTest extends TestCase {
 
     protected $app = Map {

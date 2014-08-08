@@ -8,7 +8,6 @@ use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\View\View\TemplateView $object
- * @property \VirtualFileSystem\FileSystem $vfs
  */
 class TemplateViewTest extends TestCase {
 

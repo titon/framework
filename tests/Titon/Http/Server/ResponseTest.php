@@ -203,6 +203,8 @@ class ResponseTest extends TestCase {
         $vfs->createFile('/download.txt');
 
         $this->assertInstanceOf('Titon\Http\Server\DownloadResponse', Response::download($vfs->path('/download.txt')));
+
+        unset($vfs);
     }
 
     public function testEtag() {

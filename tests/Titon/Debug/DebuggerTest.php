@@ -7,8 +7,6 @@ use VirtualFileSystem\FileSystem;
 use \ErrorException;
 
 /**
- * @property \VirtualFileSystem\FileSystem $vfs
- *
  * @runTestsInSeparateProcesses
  */
 class DebuggerTest extends TestCase {
@@ -18,8 +16,6 @@ class DebuggerTest extends TestCase {
 
         $this->vfs = new FileSystem();
         $this->vfs->createDirectory('/logs/');
-
-        var_dump($this->vfs->scheme());
 
         Debugger::initialize();
         Debugger::enable();

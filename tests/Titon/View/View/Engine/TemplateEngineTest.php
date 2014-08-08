@@ -9,7 +9,6 @@ use VirtualFileSystem\FileSystem;
 /**
  * @property \Titon\View\View\TemplateView $object
  * @property \Titon\View\View\Engine\TemplateEngine $engine
- * @property \VirtualFileSystem\FileSystem $vfs
  */
 class TemplateEngineTest extends TestCase {
 

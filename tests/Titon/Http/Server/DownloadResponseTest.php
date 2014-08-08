@@ -5,9 +5,6 @@ use Titon\Http\Http;
 use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 
-/**
- * @property \VirtualFileSystem\FileSystem $vfs
- */
 class DownloadResponseTest extends TestCase {
 
     protected function setUp() {

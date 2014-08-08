@@ -41,6 +41,8 @@ class ControllerTest extends TestCase {
             ]
         ]);
 
+        var_dump($this->vfs->scheme());
+
         $this->object = new ControllerStub(Map {
             'module' => 'module',
             'controller' => 'controller',
@@ -49,6 +51,19 @@ class ControllerTest extends TestCase {
         });
         $this->object->setRequest(Request::createFromGlobals());
         $this->object->setResponse(new Response());
+    }
+
+    protected function makeController() {
+        $view = new TemplateView($this->vfs->path('/views/'));
+        $view->setEngine(new TemplateEngine());
+
+        $controller = new ErrorController(Map {'module' => 'main', 'controller' => 'core', 'action' => 'index'});
+        $controller->setRequest(Request::createFromGlobals());
+        $controller->setResponse(new Response());
+        $controller->setView($view);
+        $controller->initialize();
+
+        return $controller;
     }
 
     public function testDispatchAction() {
@@ -90,15 +105,8 @@ class ControllerTest extends TestCase {
         $this->assertEquals('actionWithArgs', $this->object->getConfig('action'));
     }
 
-    public function testRendering() {
-        $view = new TemplateView($this->vfs->path('/views/'));
-        $view->setEngine(new TemplateEngine());
-
-        $controller = new ErrorController(Map {'module' => 'main', 'controller' => 'core', 'action' => 'index'});
-        $controller->setRequest(Request::createFromGlobals());
-        $controller->setResponse(new Response());
-        $controller->setView($view);
-        $controller->initialize();
+    public function testRenderView() {
+        $controller = $this->makeController();
 
         // Using config
         $this->assertEquals('core:index', $controller->renderView());
@@ -113,21 +121,25 @@ class ControllerTest extends TestCase {
 
         // Disable rendering
         $controller->setConfig('render', false);
-        $this->assertEquals(null, $controller->renderView());
+        $this->assertEquals('', $controller->renderView());
+    }
 
-        // Error rendering
+    public function testRenderError() {
+        $controller = $this->makeController();
+
         $this->assertEquals('Message', $controller->renderError(new \Exception('Message')));
         $this->assertEquals(500, $controller->getResponse()->getStatusCode());
 
-        // Turn off errors
         error_reporting(0);
 
         $this->assertEquals('404: Not Found', $controller->renderError(new NotFoundException('Not Found')));
         $this->assertEquals(404, $controller->getResponse()->getStatusCode());
+
+        error_reporting(E_ALL | E_STRICT);
     }
 
     public function testGetSetView() {
-        $view = new TemplateView();
+        $view = new TemplateView($this->vfs->path('/views/'));
         $this->assertEquals(null, $this->object->getView());
 
         $this->object->setView($view);

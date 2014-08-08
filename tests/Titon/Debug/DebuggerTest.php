@@ -19,6 +19,8 @@ class DebuggerTest extends TestCase {
         $this->vfs = new FileSystem();
         $this->vfs->createDirectory('/logs/');
 
+        var_dump($this->vfs->scheme());
+
         Debugger::initialize();
         Debugger::enable();
         Debugger::setLogger(new Logger($this->vfs->path('/logs/')));

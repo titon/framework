@@ -21,21 +21,21 @@ interface Action {
      *
      * @return string
      */
-    public function delete();
+    public function delete(): string;
 
     /**
      * Method that is executed for a GET request.
      *
      * @return string
      */
-    public function get();
+    public function get(): string;
 
     /**
      * Return the controller.
      *
      * @return \Titon\Controller\Controller
      */
-    public function getController();
+    public function getController(): Controller;
 
     /**
      * Set the parent controller.
@@ -43,20 +43,20 @@ interface Action {
      * @param \Titon\Controller\Controller $controller
      * @return $this
      */
-    public function setController(Controller $controller);
+    public function setController(Controller $controller): this;
 
     /**
      * Method that is executed for a POST request.
      *
      * @return string
      */
-    public function post();
+    public function post(): string;
 
     /**
      * Method that is executed for a PUT request.
      *
      * @return string
      */
-    public function put();
+    public function put(): string;
 
 }

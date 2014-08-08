@@ -20,7 +20,7 @@ use Titon\Http\Http;
 use Titon\Http\RequestAware;
 use Titon\Http\ResponseAware;
 use Titon\Mvc\Module;
-use Titon\Utility\Hash;
+use Titon\Utility\Traverse;
 use Titon\Utility\Inflector;
 use Titon\View\View;
 use \Exception;
@@ -48,7 +48,7 @@ abstract class AbstractController extends Base implements Controller, Listener {
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type string $module        Current application module
      *      @type string $controller    Current controller within the module
      *      @type string $action        Current action within the controller
@@ -58,7 +58,7 @@ abstract class AbstractController extends Base implements Controller, Listener {
      *      @type bool $render          To render the view or not
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'module' => '',
         'controller' => '',
         'action' => '',
@@ -69,21 +69,21 @@ abstract class AbstractController extends Base implements Controller, Listener {
 
          // Don't initialize immediately since we need to bootstrap it
         'initialize' => false
-    ];
+    };
 
     /**
      * View instance.
      *
      * @type \Titon\View\View
      */
-    protected $_view;
+    protected ?View $_view;
 
     /**
      * Initialize class and events.
      *
-     * @param array $config
+     * @param Map<string, mixed> $config
      */
-    public function __construct(array $config = []) {
+    public function __construct(Map<string, mixed> $config = Map {}) {
         parent::__construct($config);
 
         $this->on('controller', $this);
@@ -94,7 +94,7 @@ abstract class AbstractController extends Base implements Controller, Listener {
      *
      * @throws \Titon\Controller\Exception\InvalidActionException
      */
-    public function dispatchAction($action = null, array $args = [], $emit = true) {
+    public function dispatchAction(string $action = '', array $args = [], bool $emit = true): string {
         if (!$action) {
             $action = $this->getConfig('action');
         }
@@ -133,21 +133,21 @@ abstract class AbstractController extends Base implements Controller, Listener {
     /**
      * {@inheritdoc}
      */
-    public function forwardAction($action, array $args = []) {
+    public function forwardAction(string $action, array $args = []): string {
         return $this->setConfig('action', $action)->dispatchAction($action, $args, false);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getView() {
+    public function getView(): ?View {
         return $this->_view;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function missingAction() {
+    public function missingAction(): string {
         throw new InvalidActionException(sprintf('Your action %s does not exist, or is not public, or is found within the parent controller.
             Supply your own missingAction() method to customize this error.', $this->getConfig('action')));
     }
@@ -155,27 +155,27 @@ abstract class AbstractController extends Base implements Controller, Listener {
     /**
      * {@inheritdoc}
      */
-    public function preProcess(Event $event, Controller $controller, &$action, array &$args) {
+    public function preProcess(Event $event, Controller $controller, string &$action, array &$args): void {
         $this->notifyObjects('preProcess', [$controller, &$action, &$args]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function postProcess(Event $event, Controller $controller, $action, &$response) {
+    public function postProcess(Event $event, Controller $controller, string $action, string &$response): void {
         $this->notifyObjects('postProcess', [$controller, $action, &$response]);
     }
 
     /**
      * Register the events to listen to.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function registerEvents() {
-        return [
-            'controller.preProcess' => ['method' => 'preProcess', 'priority' => 1],
-            'controller.postProcess' => ['method' => 'postProcess', 'priority' => 1]
-        ];
+    public function registerEvents(): Map<string, mixed> {
+        return Map {
+            'controller.preProcess' => Map {'method' => 'preProcess', 'priority' => 1},
+            'controller.postProcess' => Map {'method' => 'postProcess', 'priority' => 1}
+        };
     }
 
     /**
@@ -183,7 +183,7 @@ abstract class AbstractController extends Base implements Controller, Listener {
      *
      * @uses Titon\Http\Http
      */
-    public function renderError(Exception $exception) {
+    public function renderError(Exception $exception): string {
         $template = 'error';
         $status = 500;
 
@@ -200,31 +200,31 @@ abstract class AbstractController extends Base implements Controller, Listener {
         $this->getResponse()->setStatusCode($status);
 
         return $this->getView()
-            ->setVariables([
+            ->setVariables(Map {
                 'pageTitle' => Http::getStatusCode($status),
                 'error' => $exception,
                 'code' => $status,
                 'message' => $exception->getMessage(),
                 'url' => $this->getRequest()->getUrl()
-            ])
+            })
             ->render(['errors', $template], true);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderView($template = null) {
+    public function renderView(mixed $template = ''): string {
         $config = $this->allConfig();
 
         if (!$config['render']) {
-            return null;
+            return '';
         }
 
         if (!$template) {
             if (!empty($config['template'])) {
                 $template = $config['template'];
             } else {
-                $template = Hash::reduce($config, ['controller', 'action', 'ext', 'locale']);
+                $template = Traverse::reduce($config, Vector {'controller', 'action', 'ext', 'locale'});
             }
         }
 
@@ -234,7 +234,7 @@ abstract class AbstractController extends Base implements Controller, Listener {
     /**
      * {@inheritdoc}
      */
-    public function runAction(Action $action) {
+    public function runAction(Action $action): string {
         $action->setController($this);
 
         return call_user_func_array([$action, $this->getRequest()->getMethod()], $this->getConfig('args'));
@@ -243,7 +243,7 @@ abstract class AbstractController extends Base implements Controller, Listener {
     /**
      * {@inheritdoc}
      */
-    public function setView(View $view) {
+    public function setView(View $view): this {
         $this->_view = $view;
 
         return $view;

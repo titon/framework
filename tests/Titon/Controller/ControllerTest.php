@@ -1,7 +1,6 @@
-<?php
+<?hh
 namespace Titon\Controller;
 
-use Titon\Controller\Action\AbstractAction;
 use Titon\Controller\Controller\AbstractController;
 use Titon\Controller\Controller\ErrorController;
 use Titon\Http\Exception\NotFoundException;
@@ -42,12 +41,12 @@ class ControllerTest extends TestCase {
             ]
         ]);
 
-        $this->object = new ControllerStub([
+        $this->object = new ControllerStub(Map {
             'module' => 'module',
             'controller' => 'controller',
             'action' => 'action',
             'args' => [100, 25]
-        ]);
+        });
         $this->object->setRequest(Request::createFromGlobals());
         $this->object->setResponse(new Response());
     }
@@ -60,13 +59,6 @@ class ControllerTest extends TestCase {
         $this->assertEquals(555, $this->object->dispatchAction('actionWithArgs', [505, 50]));
         $this->assertEquals(335, $this->object->dispatchAction('actionWithArgs', [335]));
         $this->assertEquals(0, $this->object->dispatchAction('actionWithArgs', ['foo', 'bar']));
-    }
-
-    /**
-     * @expectedException \Titon\Controller\Exception\InvalidActionException
-     */
-    public function testDispatchActionNullAction() {
-        $this->object->dispatchAction(null);
     }
 
     /**
@@ -102,7 +94,7 @@ class ControllerTest extends TestCase {
         $view = new TemplateView($this->vfs->path('/views/'));
         $view->setEngine(new TemplateEngine());
 
-        $controller = new ErrorController(['module' => 'main', 'controller' => 'core', 'action' => 'index']);
+        $controller = new ErrorController(Map {'module' => 'main', 'controller' => 'core', 'action' => 'index'});
         $controller->setRequest(Request::createFromGlobals());
         $controller->setResponse(new Response());
         $controller->setView($view);
@@ -146,26 +138,27 @@ class ControllerTest extends TestCase {
 
 class ControllerStub extends AbstractController {
 
-    public function actionWithArgs($arg1, $arg2 = 0) {
-        return $arg1 + $arg2;
+    public function actionWithArgs($arg1, $arg2 = 0): string {
+        return strval($arg1 + $arg2);
     }
 
-    public function actionNoArgs() {
+    public function actionNoArgs(): string {
         return 'actionNoArgs';
     }
 
-    public function _actionPseudoPrivate() {
+    public function _actionPseudoPrivate(): string {
         return 'wontBeCalled';
     }
 
-    protected function actionProtected() {
+    protected function actionProtected(): string {
         return 'wontBeCalled';
     }
 
-    private function actionPrivate() {
+    private function actionPrivate(): string {
         return 'wontBeCalled';
     }
 
-    public function renderView($template = null) { }
+    public function renderView(mixed $template = ''): string {
+    }
 
 }

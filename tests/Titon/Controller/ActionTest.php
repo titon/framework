@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Controller;
 
 use Titon\Controller\Action\AbstractAction;
@@ -9,11 +9,11 @@ use Titon\Test\TestCase;
 class ActionTest extends TestCase {
 
     public function testRun() {
-        $controller = new ErrorController(['foo' => 'bar']);
+        $controller = new ErrorController(Map {'foo' => 'bar'});
         $controller->setRequest(Request::createFromGlobals());
 
         $this->assertEquals('bar', $controller->getConfig('foo'));
-        $this->assertArrayNotHasKey('test', $controller->allConfig());
+        $this->assertFalse($controller->hasConfig('test'));
 
         $action = new ActionStub();
         $controller->runAction($action);
@@ -22,24 +22,32 @@ class ActionTest extends TestCase {
 
         $this->assertNotEquals('bar', $controller->getConfig('foo'));
         $this->assertEquals('baz', $controller->getConfig('foo'));
-        $this->assertArrayHasKey('test', $controller->allConfig());
+        $this->assertTrue($controller->hasConfig('test'));
     }
 
 }
 
 class ActionStub extends AbstractAction {
 
-    public function get() {
-        $this->getController()->addConfig([
+    public function get(): string {
+        $this->getController()->addConfig(Map {
             'foo' => 'baz',
             'test' => 'value'
-        ]);
+        });
+
+        return 'get';
     }
 
-    public function post() {}
+    public function post(): string {
+        return 'post';
+    }
 
-    public function delete() {}
+    public function delete(): string {
+        return 'delete';
+    }
 
-    public function put() {}
+    public function put(): string {
+        return 'put';
+    }
 
 }

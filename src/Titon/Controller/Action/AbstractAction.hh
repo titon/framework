@@ -25,19 +25,19 @@ abstract class AbstractAction extends Base implements Action {
      *
      * @type \Titon\Controller\Controller
      */
-    protected $_controller;
+    protected Controller $_controller;
 
     /**
      * {@inheritdoc}
      */
-    public function getController() {
+    public function getController(): Controller {
         return $this->_controller;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setController(Controller $controller) {
+    public function setController(Controller $controller): this {
         $this->_controller = $controller;
 
         return $this;

@@ -7,7 +7,6 @@
 
 namespace Titon\Http\Server;
 
-use Psr\Http\Message\RequestInterface;
 use Titon\Common\FactoryAware;
 use Titon\Http\AbstractMessage;
 use Titon\Http\Bag\CookieBag;
@@ -16,6 +15,7 @@ use Titon\Http\Bag\ParameterBag;
 use Titon\Http\Exception\InvalidMethodException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
+use Titon\Http\Request as BaseRequest;
 use Titon\Utility\Traverse;
 
 /**
@@ -24,7 +24,7 @@ use Titon\Utility\Traverse;
  *
  * @package Titon\Http\Server
  */
-class Request extends AbstractMessage implements RequestInterface {
+class Request extends AbstractMessage implements BaseRequest {
     use FactoryAware;
 
     /**
@@ -32,81 +32,74 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @type \Titon\Http\Bag\CookieBag
      */
-    public $cookies;
+    public CookieBag $cookies;
 
     /**
      * An combined array of GET, POST, and FILES data.
      *
-     * @type array
+     * @type Map<string, mixed>
      */
-    public $data = [];
+    public Map<string, mixed> $data = Map {};
 
     /**
      * FILES data for the request.
      *
      * @type \Titon\Http\Bag\FileBag
      */
-    public $files;
+    public FileBag $files;
 
     /**
      * GET data for the request.
      *
      * @type \Titon\Http\Bag\ParameterBag
      */
-    public $get;
+    public ParameterBag $get;
 
     /**
      * Data that has been generated internally via the framework during the request.
      *
      * @type \Titon\Http\Bag\ParameterBag
      */
-    public $internal;
+    public ParameterBag $internal;
 
     /**
      * POST data for the request.
      *
      * @type \Titon\Http\Bag\ParameterBag
      */
-    public $post;
+    public ParameterBag $post;
 
     /**
      * List of server and environment variables.
      *
      * @type \Titon\Http\Bag\ParameterBag
      */
-    public $server;
+    public ParameterBag $server;
 
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type bool $trustProxies    When enabled, will use applicable HTTP headers set by proxies
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'trustProxies' => true
-    ];
+    };
 
     /**
      * The current type of request method.
      *
      * @type string
      */
-    protected $_method;
-
-    /**
-     * Session instance.
-     *
-     * @type \Titon\Http\Server\Session
-     */
-    protected $_session;
+    protected string $_method = '';
 
     /**
      * The current URL for the request.
      *
      * @type string
      */
-    protected $_url;
+    protected string $_url = '';
 
     /**
      * Load post data, query data, files data, cookies, server and environment settings.
@@ -164,7 +157,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return $this
      */
-    public static function createFromGlobals() {
+    public static function createFromGlobals(): Request {
         if (isset($_POST['_method'])) {
             $_SERVER['REQUEST_METHOD'] = $_POST['_method'];
             unset($_POST['_method']);
@@ -179,9 +172,9 @@ class Request extends AbstractMessage implements RequestInterface {
      * @uses Titon\Http\Mime
      *
      * @param string $type
-     * @return array
+     * @return Map<string, string>
      */
-    public function accepts($type) {
+    public function accepts(mixed $type): ?Map<string, string> {
         if (is_array($type)) {
             $contentType = $type;
         } else if (strpos($type, '/') !== false) {
@@ -209,9 +202,9 @@ class Request extends AbstractMessage implements RequestInterface {
      * Checks to see if the client accepts a certain charset, based on the Accept-Charset header.
      *
      * @param string $charset
-     * @return array
+     * @return Map<string, string>
      */
-    public function acceptsCharset($charset) {
+    public function acceptsCharset(string $charset): ?Map<string, string> {
         foreach ($this->_accepts('Accept-Charset') as $accept) {
             if (strtolower($charset) === $accept['type'] || $accept['type'] === '*') {
                 return $accept;
@@ -225,9 +218,9 @@ class Request extends AbstractMessage implements RequestInterface {
      * Checks to see if the client accepts a certain encoding, based on the Accept-Encoding header.
      *
      * @param string $encoding
-     * @return array
+     * @return Map<string, string>
      */
-    public function acceptsEncoding($encoding) {
+    public function acceptsEncoding(string $encoding): ?Map<string, string> {
         foreach ($this->_accepts('Accept-Encoding') as $accept) {
             if (strtolower($encoding) === $accept['type'] || $accept['type'] === '*') {
                 return $accept;
@@ -241,9 +234,9 @@ class Request extends AbstractMessage implements RequestInterface {
      * Checks to see if the client accepts a certain charset, based on the Accept-Language header.
      *
      * @param string $language
-     * @return array
+     * @return Map<string, string>
      */
-    public function acceptsLanguage($language) {
+    public function acceptsLanguage(string $language): ?Map<string, string> {
         foreach ($this->_accepts('Accept-Language') as $accept) {
             if (strtolower($language) === $accept['type'] || $accept['type'] === '*') {
                 return $accept;
@@ -259,7 +252,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return string
      */
-    public function getClientIP() {
+    public function getClientIP(): string {
         $headers = ['REMOTE_ADDR', 'HTTP_CLIENT_IP'];
         $ip = null;
 
@@ -286,17 +279,17 @@ class Request extends AbstractMessage implements RequestInterface {
      * @param string $key
      * @return mixed
      */
-    public function getCookie($key) {
+    public function getCookie(string $key): ?mixed {
         return $this->cookies->get($key);
     }
 
     /**
      * Return all cookies and decrypt if encryption is enabled.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function getCookies() {
-        $cookies = [];
+    public function getCookies(): Map<string, mixed> {
+        $cookies = Map {};
 
         foreach ($this->cookies->keys() as $key) {
             $cookies[$key] = $this->cookies->get($key);
@@ -308,7 +301,7 @@ class Request extends AbstractMessage implements RequestInterface {
     /**
      * {@inheritdoc}
      */
-    public function getHost() {
+    public function getHost(): string {
         $headers = ['HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR'];
         $host = null;
 
@@ -328,7 +321,7 @@ class Request extends AbstractMessage implements RequestInterface {
     /**
      * {@inheritdoc}
      */
-    public function getMethod() {
+    public function getMethod(): string {
         if (!$this->_method) {
             $method = strtoupper($this->server->get('REQUEST_METHOD', 'GET'));
 
@@ -347,7 +340,7 @@ class Request extends AbstractMessage implements RequestInterface {
     /**
      * {@inheritdoc}
      */
-    public function getProtocolVersion() {
+    public function getProtocolVersion(): string {
         return str_replace('HTTP/', '', $this->server->get('SERVER_PROTOCOL', Http::HTTP_11));
     }
 
@@ -357,10 +350,10 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return int
      */
-    public function getPort() {
+    public function getPort(): int {
         if ($this->getConfig('trustProxies')) {
             if ($port = $this->server->get('HTTP_X_FORWARDED_PORT')) {
-                return $port;
+                return (int) $port;
             }
 
             if ($this->server->get('HTTP_X_FORWARDED_PROTO') === 'https') {
@@ -370,13 +363,13 @@ class Request extends AbstractMessage implements RequestInterface {
 
         if ($host = $this->server->get('HTTP_HOST')) {
             if (strpos($host, ':') !== false) {
-                return explode(':', $host)[1];
+                return (int) explode(':', $host)[1];
             }
 
             return ($this->getScheme() === 'https') ? 443 : 80;
         }
 
-        return $this->server->get('SERVER_PORT');
+        return (int) $this->server->get('SERVER_PORT');
     }
 
     /**
@@ -384,7 +377,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return string
      */
-    public function getReferrer() {
+    public function getReferrer(): string {
         $referrer = $this->server->get('HTTP_REFERER');
 
         if (!$referrer) {
@@ -403,7 +396,7 @@ class Request extends AbstractMessage implements RequestInterface {
     /**
      * {@inheritdoc}
      */
-    public function getScheme() {
+    public function getScheme(): string {
         return $this->isSecure() ? 'https' : 'http';
     }
 
@@ -412,23 +405,14 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return string
      */
-    public function getServerIP() {
+    public function getServerIP(): string {
         return $this->server->get('SERVER_ADDR');
-    }
-
-    /**
-     * Return the session manager.
-     *
-     * @return \Titon\Http\Server\Session
-     */
-    public function getSession() {
-        return $this->_session;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUrl() {
+    public function getUrl(): string {
         if (!$this->_url) {
             $server = $this->server;
             $script = str_replace($server->get('DOCUMENT_ROOT'), '', $server->get('SCRIPT_FILENAME'));
@@ -468,7 +452,7 @@ class Request extends AbstractMessage implements RequestInterface {
      * @param bool $explicit
      * @return array|string
      */
-    public function getUserAgent($explicit = false) {
+    public function getUserAgent(bool $explicit = false): mixed {
         $agent = $this->server->get('HTTP_USER_AGENT');
 
         // @codeCoverageIgnoreStart
@@ -493,7 +477,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return bool
      */
-    public function isAJAX() {
+    public function isAJAX(): bool {
         return (strtolower($this->server->get('HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest');
     }
 
@@ -503,7 +487,7 @@ class Request extends AbstractMessage implements RequestInterface {
      * @return bool
      * @codeCoverageIgnore
      */
-    public function isCGI() {
+    public function isCGI(): bool {
         return (substr(PHP_SAPI, 0, 3) === 'cgi');
     }
 
@@ -513,7 +497,7 @@ class Request extends AbstractMessage implements RequestInterface {
      * @return bool
      * @codeCoverageIgnore
      */
-    public function isCLI() {
+    public function isCLI(): bool {
         return (substr(PHP_SAPI, 0, 3) === 'cli');
     }
 
@@ -522,7 +506,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return bool
      */
-    public function isDelete() {
+    public function isDelete(): bool {
         return $this->isMethod('delete');
     }
 
@@ -531,7 +515,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return bool
      */
-    public function isFlash() {
+    public function isFlash(): bool {
         return (bool) preg_match('/^(shockwave|adobe) flash/i', $this->getUserAgent(false));
     }
 
@@ -540,7 +524,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return bool
      */
-    public function isGet() {
+    public function isGet(): bool {
         return $this->isMethod('get');
     }
 
@@ -550,7 +534,7 @@ class Request extends AbstractMessage implements RequestInterface {
      * @return bool
      * @codeCoverageIgnore
      */
-    public function isIIS() {
+    public function isIIS(): bool {
         return (substr(PHP_SAPI, 0, 5) === 'isapi');
     }
 
@@ -560,7 +544,7 @@ class Request extends AbstractMessage implements RequestInterface {
      * @param string $type
      * @return bool
      */
-    public function isMethod($type) {
+    public function isMethod($type): bool {
         return (strtoupper($type) === $this->getMethod());
     }
 
@@ -571,7 +555,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return bool
      */
-    public function isMobile() {
+    public function isMobile(): bool {
         $mobiles  = '(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|';
         $mobiles .= 'ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|';
         $mobiles .= 'phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|';
@@ -605,7 +589,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return bool
      */
-    public function isPost() {
+    public function isPost(): bool {
         return $this->isMethod('post');
     }
 
@@ -614,7 +598,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return bool
      */
-    public function isPut() {
+    public function isPut(): bool {
         return $this->isMethod('put');
     }
 
@@ -623,7 +607,7 @@ class Request extends AbstractMessage implements RequestInterface {
      *
      * @return bool
      */
-    public function isSecure() {
+    public function isSecure(): bool {
         if ($this->getConfig('trustProxies')) {
             if ($scheme = $this->server->get('HTTP_X_FORWARDED_PROTO')) {
                 return ($scheme === 'https');
@@ -636,7 +620,7 @@ class Request extends AbstractMessage implements RequestInterface {
     /**
      * {@inheritdoc}
      */
-    public function setMethod($method) {
+    public function setMethod($method): this { // @todo No type hint because of PSR
         $method = strtoupper($method);
 
         if (!in_array($method, Http::getMethodTypes())) {
@@ -650,21 +634,9 @@ class Request extends AbstractMessage implements RequestInterface {
     }
 
     /**
-     * Set the session manager.
-     *
-     * @param \Titon\Http\Server\Session $session
-     * @return $this
-     */
-    public function setSession(Session $session) {
-        $this->_session = $session;
-
-        return $this;
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function setUrl($url) {
+    public function setUrl($url): this { // @todo No type hint because of PSR
         $this->_url = $url;
 
         return $this;
@@ -674,10 +646,10 @@ class Request extends AbstractMessage implements RequestInterface {
      * Lazy loading functionality for extracting Accept header information and parsing it.
      *
      * @param string $header
-     * @return array
+     * @return Vector<Map<string, string>>
      */
-    protected function _accepts($header) {
-        $data = [];
+    protected function _accepts(string $header): Vector<Map<string, string>> {
+        $data = Vector {};
 
         if ($accept = $this->headers->get($header)) {
             foreach (explode(',', $accept) as $type) {
@@ -689,10 +661,10 @@ class Request extends AbstractMessage implements RequestInterface {
                     $quality = 1;
                 }
 
-                $data[] = [
+                $data[] = Map {
                     'type' => strtolower($type),
                     'quality' => str_replace('q=', '', $quality)
-                ];
+                };
             }
         }
 

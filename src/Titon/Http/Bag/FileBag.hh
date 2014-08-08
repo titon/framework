@@ -11,7 +11,7 @@ use Titon\Http\RequestAware;
 use Titon\Utility\Traverse;
 
 /**
- * Bag for interacting with session parameters.
+ * Bag for interacting with posted file data.
  *
  * @package Titon\Http\Bag
  */

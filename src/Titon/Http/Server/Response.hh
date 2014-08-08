@@ -7,8 +7,6 @@
 
 namespace Titon\Http\Server;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Titon\Common\Attachable;
 use Titon\Common\FactoryAware;
@@ -16,6 +14,8 @@ use Titon\Http\AbstractMessage;
 use Titon\Http\Bag\CookieBag;
 use Titon\Http\Http;
 use Titon\Http\Mime;
+use Titon\Http\Response as BaseResponse;
+use Titon\Http\Request as BaseRequest;
 use Titon\Http\RequestAware;
 use Titon\Utility\Config;
 use Titon\Utility\Format;
@@ -29,7 +29,7 @@ use Titon\Utility\Time;
  *
  * @package Titon\Http\Server
  */
-class Response extends AbstractMessage implements ResponseInterface {
+class Response extends AbstractMessage implements BaseResponse {
     use FactoryAware, RequestAware;
 
     /**
@@ -483,7 +483,7 @@ class Response extends AbstractMessage implements ResponseInterface {
     /**
      * {@inheritdoc}
      */
-    public function prepare(RequestInterface $request): this {
+    public function prepare(BaseRequest $request): this {
         $this->setRequest($request);
 
         return $this;

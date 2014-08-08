@@ -24,16 +24,16 @@ class Redirector {
      *
      * @type bool
      */
-    public static $exit = true;
+    public static bool $exit = true;
 
     /**
      * Redirect to the previous page using the REFERER HTTP header.
      *
      * @param int $status
      * @param \Closure $callback
-     * @return \Titon\Http\Server\Response
+     * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function back($status = Http::FOUND, Closure $callback = null) {
+    public static function back(int $status = Http::FOUND, ?Closure $callback = null): RedirectResponse {
         return static::to(Request::createFromGlobals()->getReferrer(), $status, $callback);
     }
 
@@ -42,9 +42,9 @@ class Redirector {
      *
      * @param int $status
      * @param \Closure $callback
-     * @return \Titon\Http\Server\Response
+     * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function home($status = Http::FOUND, Closure $callback = null) {
+    public static function home(int $status = Http::FOUND, ?Closure $callback = null): RedirectResponse {
         return static::to('/', $status, $callback);
     }
 
@@ -53,9 +53,9 @@ class Redirector {
      *
      * @param int $status
      * @param \Closure $callback
-     * @return \Titon\Http\Server\Response
+     * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function refresh($status = Http::FOUND, Closure $callback = null) {
+    public static function refresh(int $status = Http::FOUND, ?Closure $callback = null): RedirectResponse {
         return static::to(Request::createFromGlobals()->getUrl(), $status, $callback);
     }
 
@@ -66,9 +66,9 @@ class Redirector {
      * @param string $url
      * @param int $status
      * @param \Closure $callback
-     * @return \Titon\Http\Server\Response
+     * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function to($url, $status = Http::FOUND, Closure $callback = null) {
+    public static function to(string $url, int $status = Http::FOUND, ?Closure $callback = null): RedirectResponse {
         $response = new RedirectResponse($url, $status);
 
         if ($callback) {

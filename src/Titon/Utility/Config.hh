@@ -111,7 +111,7 @@ class Config {
      * @return string
      */
     public static function name(): string {
-        return static::get('app.name');
+        return static::get('app.name', '');
     }
 
     /**
@@ -129,7 +129,7 @@ class Config {
      * @return string
      */
     public static function salt(): string {
-        return static::get('app.salt');
+        return static::get('app.salt', '');
     }
 
     /**

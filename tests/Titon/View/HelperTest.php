@@ -62,8 +62,6 @@ class HelperTest extends TestCase {
     }
 
     public function testGetSetRequest() {
-        $this->markTestSkipped('Convert HTTP first');
-
         $request = Request::createFromGlobals();
         $this->assertEquals(null, $this->object->getRequest());
 

@@ -627,8 +627,6 @@ class FormHelperTest extends TestCase {
     }
 
     public function testGetRequestValueObject() {
-        $this->markTestSkipped('Fix HTTP');
-
         $_POST['foo'] = 'bar';
         $_GET['get'] = '123';
         $_POST['Test']['foo'] = 'baz';

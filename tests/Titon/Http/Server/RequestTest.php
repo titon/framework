@@ -1,8 +1,7 @@
-<?php
+<?hh
 namespace Titon\Http;
 
 use Titon\Http\Server\Request;
-use Titon\Http\Server\Session;
 use Titon\Test\TestCase;
 use Titon\Utility\Crypt;
 
@@ -98,62 +97,62 @@ class RequestTest extends TestCase {
     }
 
     public function testInitialize() {
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'key' => 'value',
             'Model' => [
                 'foo' => 'bar'
             ]
-        ], $this->object->get->all());
+        }, $this->object->get->all());
 
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'key' => 'value',
             'Model' => [
                 'foo' => 'bar'
             ]
-        ], $this->object->post->all());
+        }, $this->object->post->all());
 
-        $this->assertEquals([
-            'file' => [
+        $this->assertEquals(Map {
+            'file' => Map {
                 'name' => 'file1.jpg',
                 'type' => 'image/jpeg',
                 'tmp_name' => '/tmp/phpUkYTB5',
                 'error' => 0,
                 'size' => 307808
-            ],
-            'two' => [
-                'file' => [
+            },
+            'two' => Map {
+                'file' => Map {
                     'name' => 'file2.png',
                     'type' => 'image/png',
                     'tmp_name' => '/tmp/phpo3HxIF',
                     'error' => 0,
                     'size' => 10554
-                ],
-            ],
-            'three' => [
-                'two' => [
-                    'file' => [
+                },
+            },
+            'three' => Map {
+                'two' => Map {
+                    'file' => Map {
                         'name' => 'file3.png',
                         'type' => 'image/png',
                         'tmp_name' => '/tmp/phpgUtcPf',
                         'error' => 0,
                         'size' => 19571
-                    ],
-                ],
-            ],
-            'four' => [
-                'three' => [
-                    'two' => [
-                        'file' => [
+                    },
+                },
+            },
+            'four' => Map {
+                'three' => Map {
+                    'two' => Map {
+                        'file' => Map {
                             'name' => 'file4.jpg',
                             'type' => 'image/jpeg',
                             'tmp_name' => '/tmp/phpMTxSVP',
                             'error' => 0,
                             'size' => 307808
-                        ],
-                    ],
-                ],
-            ],
-        ], $this->object->files->all());
+                        },
+                    },
+                },
+            },
+        }, $this->object->files->all());
     }
 
     public function testClone() {
@@ -171,47 +170,47 @@ class RequestTest extends TestCase {
     public function testAccepts() {
         $this->object->headers->set('Accept', 'text/xml,application/xml;q=0.9,application/xhtml+xml,text/html,text/plain,image/png');
 
-        $this->assertEquals(['type' => 'text/html', 'quality' => 1], $this->object->accepts('html'));
-        $this->assertEquals(['type' => 'application/xhtml+xml', 'quality' => 1], $this->object->accepts('xhtml'));
-        $this->assertEquals(['type' => 'application/xml', 'quality' => 0.9], $this->object->accepts('xml'));
+        $this->assertEquals(Map {'type' =>'text/html', 'quality' => 1}, $this->object->accepts('html'));
+        $this->assertEquals(Map {'type' =>'application/xhtml+xml', 'quality' => 1}, $this->object->accepts('xhtml'));
+        $this->assertEquals(Map {'type' =>'application/xml', 'quality' => 0.9}, $this->object->accepts('xml'));
         $this->assertEquals(null, $this->object->accepts('json'));
 
         $this->object->headers->set('Accept', 'application/json,*/*');
 
-        $this->assertEquals(['type' => 'application/json', 'quality' => 1], $this->object->accepts('json'));
-        $this->assertEquals(['type' => '*/*', 'quality' => 1], $this->object->accepts('html')); // */*
+        $this->assertEquals(Map {'type' =>'application/json', 'quality' => 1}, $this->object->accepts('json'));
+        $this->assertEquals(Map {'type' =>'*/*', 'quality' => 1}, $this->object->accepts('html')); // */*
 
         $this->object->headers->set('Accept', 'text/*');
 
-        $this->assertEquals(['type' => 'text/*', 'quality' => 1], $this->object->accepts('text/html'));
-        $this->assertEquals(['type' => 'text/*', 'quality' => 1], $this->object->accepts(['text/xml', 'application/json']));
+        $this->assertEquals(Map {'type' =>'text/*', 'quality' => 1}, $this->object->accepts('text/html'));
+        $this->assertEquals(Map {'type' =>'text/*', 'quality' => 1}, $this->object->accepts(['text/xml', 'application/json']));
         $this->assertEquals(null, $this->object->accepts('application/json'));
     }
 
     public function testAcceptsCharset() {
         $this->object->headers->set('Accept-Charset', 'UTF-8');
 
-        $this->assertEquals(['type' => 'utf-8', 'quality' => 1], $this->object->acceptsCharset('utf-8'));
+        $this->assertEquals(Map {'type' =>'utf-8', 'quality' => 1}, $this->object->acceptsCharset('utf-8'));
         $this->assertEquals(null, $this->object->acceptsCharset('iso-8859-1'));
 
         $this->object->headers->set('Accept-Charset', 'ISO-8859-1');
 
-        $this->assertEquals(['type' => 'iso-8859-1', 'quality' => 1], $this->object->acceptsCharset('iso-8859-1'));
+        $this->assertEquals(Map {'type' =>'iso-8859-1', 'quality' => 1}, $this->object->acceptsCharset('iso-8859-1'));
     }
 
     public function testAcceptsEncoding() {
         $this->object->headers->set('Accept-Encoding', 'compress;q=0.5, gzip;q=1.0');
 
-        $this->assertEquals(['type' => 'gzip', 'quality' => 1], $this->object->acceptsEncoding('gzip'));
+        $this->assertEquals(Map {'type' =>'gzip', 'quality' => 1}, $this->object->acceptsEncoding('gzip'));
         $this->assertEquals(null, $this->object->acceptsEncoding('identity'));
     }
 
     public function testAcceptsLanguage() {
         $this->object->headers->set('Accept-Language', 'en-us,en;q=0.8,fr-fr;q=0.5,fr;q=0.3');
 
-        $this->assertEquals(['type' => 'en-us', 'quality' => 1], $this->object->acceptsLanguage('en-US'));
-        $this->assertEquals(['type' => 'en', 'quality' => 0.8], $this->object->acceptsLanguage('en'));
-        $this->assertEquals(['type' => 'fr', 'quality' => 0.3], $this->object->acceptsLanguage('fr'));
+        $this->assertEquals(Map {'type' =>'en-us', 'quality' => 1}, $this->object->acceptsLanguage('en-US'));
+        $this->assertEquals(Map {'type' =>'en', 'quality' => 0.8}, $this->object->acceptsLanguage('en'));
+        $this->assertEquals(Map {'type' =>'fr', 'quality' => 0.3}, $this->object->acceptsLanguage('fr'));
         $this->assertEquals(null, $this->object->acceptsLanguage('DE'));
     }
 
@@ -240,9 +239,9 @@ class RequestTest extends TestCase {
     }
 
     public function testGetCookies() {
-        $this->assertEquals([
+        $this->assertEquals(Map {
             'foo' => 'bar'
-        ], $this->object->getCookies());
+        }, $this->object->getCookies());
     }
 
     public function testGetHost() {
@@ -303,10 +302,10 @@ class RequestTest extends TestCase {
         $this->object->server->remove('HTTP_HOST');
         $this->assertEquals(88, $this->object->getPort());
 
-        $this->object->server->add([
+        $this->object->server->add(Map {
             'HTTP_X_FORWARDED_PORT' => 77,
             'HTTP_X_FORWARDED_PROTO' => 'https'
-        ]);
+        });
 
         $this->assertEquals(77, $this->object->getPort());
 
@@ -349,13 +348,13 @@ class RequestTest extends TestCase {
     }
 
     public function testGetUrl() {
-        $this->object->server->add([
+        $this->object->server->add(Map {
             'SCRIPT_FILENAME' => '/var/www/titon/app/web/index.php',
             'DOCUMENT_ROOT' => '/var/www/titon/app/web',
             'PATH_INFO' => '/en/some/path/',
             'REQUEST_URI' => '/en/some/path/?key=value', // invalid
             'PHP_SELF' => '/index.php/en/some/path/'
-        ]);
+        });
 
         $this->assertEquals('/en/some/path/', $this->object->getUrl()); // PATH_INFO
 
@@ -371,13 +370,13 @@ class RequestTest extends TestCase {
     }
 
     public function testGetUrlBaseFolder() {
-        $this->object->server->add([
+        $this->object->server->add(Map {
             'SCRIPT_FILENAME' => '/var/www/titon/app/web/root/index.php',
             'DOCUMENT_ROOT' => '/var/www/titon/app/web',
             'PATH_INFO' => '/en/some/path/',
             'REQUEST_URI' => '/en/some/path/',
             'PHP_SELF' => '/root/index.php/en/some/path/'
-        ]);
+        });
 
         $this->assertEquals('/root/en/some/path/', $this->object->getUrl()); // PATH_INFO
 
@@ -494,15 +493,6 @@ class RequestTest extends TestCase {
      */
     public function testSetMethodInvalidMethod() {
         $this->object->setMethod('FOO');
-    }
-
-    public function testSession() {
-        $this->assertEquals(null, $this->object->getSession());
-
-        $session = new Session();
-        $this->object->setSession($session);
-
-        $this->assertEquals($session, $this->object->getSession());
     }
 
 }

@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Cache;
 
 use Titon\Cache\Storage\MemoryStorage;
@@ -113,11 +113,11 @@ class CacheTest extends TestCase {
     }
 
     public function testStats() {
-        $this->assertTrue(is_array($this->object->stats()));
+        $this->assertInstanceOf('HH\Map', $this->object->stats());
     }
 
     public function testStorages() {
-        $this->object->addStorage('test', new MemoryStorage(['storage' => 'test']));
+        $this->object->addStorage('test', new MemoryStorage(Map {'storage' => 'test'}));
 
         $this->assertInstanceOf('Titon\Cache\Storage', $this->object->getStorage('test'));
         $this->assertEquals('test', $this->object->getStorage('test')->getConfig('storage'));

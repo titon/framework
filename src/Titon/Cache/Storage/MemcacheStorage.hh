@@ -35,32 +35,32 @@ class MemcacheStorage extends AbstractStorage {
     /**
      * Default Memcache server port.
      */
-    const PORT = 11211;
+    const int PORT = 11211;
 
     /**
      * Default Memcache server weight.
      */
-    const WEIGHT = 100;
+    const int WEIGHT = 100;
 
     /**
      * The third-party class instance.
      *
      * @type \Memcached
      */
-    public $connection;
+    public Memcached $connection;
 
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type string $id    Unique ID used for persistence
      *      @type bool $buffer  Buffer writes until data is retrieved
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'id' => '',
         'buffer' => false
-    ];
+    };
 
     /**
      * Initialize the Memcached instance and set all relevant options.
@@ -91,8 +91,9 @@ class MemcacheStorage extends AbstractStorage {
 
         // Only add servers if none exist
         if (empty($serverList)) {
-            $this->connection->setOption(Memcached::OPT_COMPRESSION, (bool) $config['compress']);
+            $this->connection->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
             $this->connection->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
+            $this->connection->setOption(Memcached::OPT_COMPRESSION, (bool) $config['compress']);
             $this->connection->setOption(Memcached::OPT_BUFFER_WRITES, (bool) $config['buffer']);
 
             if ($config['persistent']) {
@@ -117,24 +118,24 @@ class MemcacheStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function decrement($key, $step = 1) {
-        return ($this->connection->decrement($this->key($key), $step) !== false);
+    public function decrement(string $key, int $step = 1): ?int {
+        return $this->returnValue($this->connection->decrement($this->key($key), $step));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function flush() {
+    public function flush(): bool {
         return $this->connection->flush();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($key) {
+    public function get(string $key): ?mixed {
         $value = $this->connection->get($this->key($key));
 
-        if (!$value && $this->connection->getResultCode() === Memcached::RES_NOTFOUND) {
+        if ($value === false && $this->connection->getResultCode() === Memcached::RES_NOTFOUND) {
             return null;
         }
 
@@ -144,46 +145,46 @@ class MemcacheStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function has($key) {
-        return (bool) ($this->get($key) && $this->connection->getResultCode() === Memcached::RES_SUCCESS);
+    public function has(string $key): bool {
+        return ($this->get($key) && $this->connection->getResultCode() === Memcached::RES_SUCCESS);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function increment($key, $step = 1) {
-        return ($this->connection->increment($this->key($key), $step) !== false);
+    public function increment(string $key, int $step = 1): ?int {
+        return $this->returnValue($this->connection->increment($this->key($key), $step));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function remove($key) {
+    public function remove(string $key): bool {
         return $this->connection->delete($this->key($key));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set($key, $value, $expires = '+1 day') {
+    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
         return $this->connection->set($this->key($key), $value, $this->expires($expires));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function stats() {
+    public function stats(): Map<string, mixed> {
         $servers = $this->connection->getServerList();
         $stats = $this->connection->getStats();
         $stats = $stats[$servers[0]['host'] . ':' . $servers[0]['port']];
 
-        return [
+        return Map {
             self::HITS => $stats['get_hits'],
             self::MISSES => $stats['get_misses'],
             self::UPTIME => $stats['uptime'],
             self::MEMORY_USAGE => $stats['bytes'],
             self::MEMORY_AVAILABLE => $stats['limit_maxbytes']
-        ];
+        };
     }
 
 }

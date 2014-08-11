@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Cache\Storage;
 
 class ApcStorageTest extends AbstractStorageTest {

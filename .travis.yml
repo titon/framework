@@ -10,8 +10,8 @@ matrix:
     - php: hhvm-nightly
 
 services:
-  #- memcached
-  #- redis-server
+  - memcached
+  - redis-server
 
 script:
   #- mkdir -p build/logs

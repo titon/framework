@@ -35,25 +35,25 @@ class RedisStorage extends AbstractStorage {
     /**
      * Default Redis server port.
      */
-    const PORT = 6379;
+    const int PORT = 6379;
 
     /**
      * The third-party class instance.
      *
      * @type \Redis
      */
-    public $connection;
+    public Redis $connection;
 
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type string $password  Password to authenticate with
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'password' => ''
-    ];
+    };
 
     /**
      * Initialize the Redis instance and set all relevant options.
@@ -99,21 +99,21 @@ class RedisStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function decrement($key, $step = 1) {
+    public function decrement(string $key, int $step = 1): ?int {
         return $this->connection->decrBy($this->key($key), $step);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function flush() {
+    public function flush(): bool {
         return $this->connection->flushDB();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($key) {
+    public function get(string $key): ?mixed {
         $value = $this->connection->get($this->key($key));
 
         if ($value === false) {
@@ -126,21 +126,21 @@ class RedisStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function has($key) {
+    public function has(string $key): bool {
         return $this->connection->exists($this->key($key));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function increment($key, $step = 1) {
+    public function increment(string $key, int $step = 1): ?int {
         return $this->connection->incrBy($this->key($key), $step);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function remove($key) {
+    public function remove(string $key): bool {
         $this->connection->delete($this->key($key));
 
         return true;
@@ -149,7 +149,7 @@ class RedisStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function set($key, $value, $expires = '+1 day') {
+    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
         if ($expires === 0) {
             return $this->connection->set($this->key($key), $value);
         }
@@ -167,16 +167,16 @@ class RedisStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function stats() {
+    public function stats(): Map<string, mixed> {
         $stats = $this->connection->info();
 
-        return [
+        return Map {
             self::HITS => false,
             self::MISSES => false,
             self::UPTIME => $stats['uptime_in_seconds'],
             self::MEMORY_USAGE => $stats['used_memory'],
             self::MEMORY_AVAILABLE => false
-        ];
+        };
     }
 
 }

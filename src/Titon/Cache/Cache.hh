@@ -24,21 +24,21 @@ class Cache {
     /**
      * Storage engines.
      *
-     * @type \Titon\Cache\Storage[]
+     * @type Map<string, Storage>
      */
-    protected $_storage = [];
+    protected Map<string, Storage> $_storage = Map {};
 
     /**
      * Add a new storage engine to the cache system.
      *
      * @param string $key
      * @param \Titon\Cache\Storage $storage
-     * @return \Titon\Cache\Storage
+     * @return $this
      */
-    public function addStorage($key, Storage $storage) {
+    public function addStorage(string $key, Storage $storage): this {
         $this->_storage[$key] = $storage;
 
-        return $storage;
+        return $this;
     }
 
     /**
@@ -47,9 +47,9 @@ class Cache {
      * @param string $key
      * @param int $step
      * @param string $storage
-     * @return bool
+     * @return int
      */
-    public function decrement($key, $step = 1, $storage = 'default') {
+    public function decrement(string $key, int $step = 1, string $storage = 'default'): ?int {
         return $this->getStorage($storage)->decrement($key, $step);
     }
 
@@ -59,7 +59,7 @@ class Cache {
      * @param string $storage
      * @return bool
      */
-    public function flush($storage = null) {
+    public function flush(string $storage = ''): bool {
         if ($storage) {
             return $this->getStorage($storage)->flush();
         } else {
@@ -78,7 +78,7 @@ class Cache {
      * @param string $storage
      * @return mixed
      */
-    public function get($key, $storage = 'default') {
+    public function get(string $key, string $storage = 'default'): ?mixed {
         return $this->getStorage($storage)->get($key);
     }
 
@@ -89,7 +89,7 @@ class Cache {
      * @return \Titon\Cache\Storage
      * @throws \Titon\Cache\Exception\MissingStorageException
      */
-    public function getStorage($key) {
+    public function getStorage(string $key): Storage {
         if (isset($this->_storage[$key])) {
             return $this->_storage[$key];
         }
@@ -100,9 +100,9 @@ class Cache {
     /**
      * Return all storage engines.
      *
-     * @return \Titon\Cache\Storage[]
+     * @return Map<string, Storage>
      */
-    public function getStorages() {
+    public function getStorages(): Map<string, Storage> {
         return $this->_storage;
     }
 
@@ -113,7 +113,7 @@ class Cache {
      * @param string $storage
      * @return bool
      */
-    public function has($key, $storage = 'default') {
+    public function has(string $key, string $storage = 'default'): bool {
         return $this->getStorage($storage)->has($key);
     }
 
@@ -123,9 +123,9 @@ class Cache {
      * @param string $key
      * @param int $step
      * @param string $storage
-     * @return bool
+     * @return int
      */
-    public function increment($key, $step = 1, $storage = 'default') {
+    public function increment(string $key, int $step = 1, string $storage = 'default'): ?int {
         return $this->getStorage($storage)->increment($key, $step);
     }
 
@@ -136,7 +136,7 @@ class Cache {
      * @param string $storage
      * @return bool
      */
-    public function remove($key, $storage = 'default') {
+    public function remove(string $key, string $storage = 'default'): bool {
         return $this->getStorage($storage)->remove($key);
     }
 
@@ -149,7 +149,7 @@ class Cache {
      * @param string $storage
      * @return bool
      */
-    public function set($key, $value, $expires = '+1 day', $storage = 'default') {
+    public function set(string $key, ?mixed $value, mixed $expires = '+1 day', string $storage = 'default'): bool {
         return $this->getStorage($storage)->set($key, $value, $expires);
     }
 
@@ -157,9 +157,9 @@ class Cache {
      * Returns cached information from the storage engine.
      *
      * @param string $storage
-     * @return array
+     * @return Map<string, mixed>
      */
-    public function stats($storage = 'default') {
+    public function stats(string $storage = 'default'): Map<string, mixed> {
         return $this->getStorage($storage)->stats();
     }
 
@@ -172,7 +172,7 @@ class Cache {
      * @param string $storage
      * @return mixed
      */
-    public function store($key, Closure $callback, $expires = '+1 day', $storage = 'default') {
+    public function store(string $key, Closure $callback, mixed $expires = '+1 day', string $storage = 'default'): ?mixed {
         return $this->getStorage($storage)->store($key, $callback, $expires);
     }
 

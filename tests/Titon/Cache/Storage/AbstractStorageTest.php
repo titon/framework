@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Cache\Storage;
 
 use Titon\Test\TestCase;
@@ -31,7 +31,7 @@ abstract class AbstractStorageTest extends TestCase {
     }
 
     public function testDecrementMissingKey() {
-        $this->assertSame(false, $this->object->decrement('Fake::key'));
+        $this->assertSame(null, $this->object->decrement('Fake::key'));
     }
 
     public function testFlush() {
@@ -62,7 +62,7 @@ abstract class AbstractStorageTest extends TestCase {
     }
 
     public function testIncrementMissingKey() {
-        $this->assertSame(false, $this->object->increment('Fake::key'));
+        $this->assertSame(null, $this->object->increment('Fake::key'));
     }
 
     public function testRemove() {
@@ -82,7 +82,7 @@ abstract class AbstractStorageTest extends TestCase {
     }
 
     public function testStats() {
-        $this->assertTrue(is_array($this->object->stats()));
+        $this->assertInstanceOf('HH\Map', $this->object->stats());
     }
 
     public function testStore() {

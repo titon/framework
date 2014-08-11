@@ -1,6 +1,9 @@
-<?php
+<?hh
 namespace Titon\Cache\Storage;
 
+/**
+ * There seems to be many issues with the HHVM/Hack Memcached implementation.
+ */
 class MemcacheStorageTest extends AbstractStorageTest {
 
     protected function setUp() {
@@ -8,9 +11,9 @@ class MemcacheStorageTest extends AbstractStorageTest {
             $this->markTestSkipped('Memcache is not installed or configured properly');
         }
 
-        $this->object = new MemcacheStorage([
+        $this->object = new MemcacheStorage(Map {
             'server' => '127.0.0.1:11211'
-        ]);
+        });
 
         // Check that memcache connected
         $stats = $this->object->connection->getStats();
@@ -20,19 +23,6 @@ class MemcacheStorageTest extends AbstractStorageTest {
         }
 
         parent::setUp();
-    }
-
-    /**
-     * Memcache wont decrement below 0.
-     */
-    public function testDecrement() {
-        $this->assertEquals(1, $this->object->get('Comment::count'));
-
-        $this->object->decrement('Comment::count', 1);
-        $this->assertEquals(0, $this->object->get('Comment::count'));
-
-        $this->object->decrement('Comment::count', 5);
-        $this->assertEquals(0, $this->object->get('Comment::count')); // changed from -5
     }
 
 }

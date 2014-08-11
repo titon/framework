@@ -24,9 +24,9 @@ class DatabaseStorage extends AbstractStorage {
      * Set a repository object.
      *
      * @param \Titon\Db\Repository $repository
-     * @param array $config
+     * @param Map<string, mixed> $config
      */
-    public function __construct(Repository $repository, array $config = []) {
+    public function __construct(Repository $repository, Map<string, mixed> $config = Map {}) {
         parent::__construct($config);
 
         $this->setRepository($repository);
@@ -38,21 +38,21 @@ class DatabaseStorage extends AbstractStorage {
      * @param string $key
      * @return \Titon\Db\Query
      */
-    public function find($key) {
+    public function find(string $key): Query {
         return $this->getRepository()->select()->where('key', $this->key($key));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function flush() {
+    public function flush(): bool {
         return $this->getRepository()->truncate();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($key) {
+    public function get(string $key): ?mixed {
         if ($entity = $this->find($key)->first()) {
             if ($entity->expires_at < date('Y-m-d H:i:s')) {
                 $this->getRepository()->delete($entity->id);
@@ -68,21 +68,21 @@ class DatabaseStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function has($key) {
+    public function has($key): bool {
         return (bool) $this->find($key)->count();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function remove($key) {
+    public function remove($key): bool {
         return (bool) $this->getRepository()->query(Query::DELETE)->where('key', $this->key($key))->save();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set($key, $value, $expires = '+1 day') {
+    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
         $repo = $this->getRepository();
 
         if ($entity = $this->find($key)->first()) {

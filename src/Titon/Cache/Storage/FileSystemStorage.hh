@@ -31,44 +31,44 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type string $directory Temporary directory to store files
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'directory' => ''
-    ];
+    };
 
     /**
      * List of cache expiration times via File objects.
      *
-     * @type \Titon\Io\File[]
+     * @type Map<string, File>
      */
-    protected $_expires;
+    protected Map<string, File> $_expires = Map {};
 
     /**
      * List of cache File objects.
      *
-     * @type \Titon\Io\File[]
+     * @type Map<string, File>
      */
-    protected $_files;
+    protected Map<string, File> $_files = Map {};
 
     /**
      * Folder object for the cache folder.
      *
      * @type \Titon\Io\Folder
      */
-    protected $_folder;
+    protected Folder $_folder;
 
     /**
      * Allow path to be set through constructor.
      *
-     * @param string|array $path
+     * @param string|Map $path
      */
-    public function __construct($path) {
-        //if (!is_array($path)) {
-        //    $path = ['directory' => (string) $path];
-        //}
+    public function __construct(mixed $path) {
+        if (is_string($path)) {
+            $path = Map {'directory' => $path};
+        }
 
         parent::__construct($path);
     }
@@ -80,7 +80,7 @@ class FileSystemStorage extends AbstractStorage {
      *
      * @throws \Titon\Io\Exception\MissingFileException
      */
-    public function initialize() {
+    public function initialize(): void {
         parent::initialize();
 
         $path = $this->getConfig('directory');
@@ -95,14 +95,14 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function flush() {
+    public function flush(): bool {
         foreach ($this->_files as $key => $file) {
             $file->delete();
             $this->_expires[$key]->delete();
         }
 
-        $this->_files = [];
-        $this->_expires = [];
+        $this->_files->clear();
+        $this->_expires->clear();;
 
         clearstatcache();
 
@@ -112,7 +112,7 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function get($key) {
+    public function get(string $key): ?mixed {
         if ($this->has($key)) {
             return unserialize($this->loadCache($key)->read());
         }
@@ -123,7 +123,7 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function has($key) {
+    public function has(string $key): bool {
         if (file_exists($this->_getPath($key, 'expires'))) {
             $expires = $this->loadExpires($key)->read();
 
@@ -140,7 +140,7 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function loadCache($key = null) {
+    public function loadCache(string $key): File {
         if (isset($this->_files[$key])) {
             return $this->_files[$key];
         }
@@ -151,7 +151,7 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function loadExpires($key = null) {
+    public function loadExpires(string $key): File {
         if (isset($this->_expires[$key])) {
             return $this->_expires[$key];
         }
@@ -162,7 +162,7 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function remove($key) {
+    public function remove(string $key): bool {
         $this->loadCache($key)->delete();
         $this->loadExpires($key)->delete();
 
@@ -174,7 +174,7 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function set($key, $value, $expires = '+1 day') {
+    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
         return (
             $this->loadCache($key)->write(serialize($value)) &&
             $this->loadExpires($key)->write($this->expires($expires))
@@ -188,7 +188,7 @@ class FileSystemStorage extends AbstractStorage {
      * @param string $ext
      * @return string
      */
-    protected function _getPath($key, $ext = 'cache') {
+    protected function _getPath(string $key, string $ext = 'cache'): string {
         return $this->_folder->path() . $this->key($key) . '.' . $ext;
     }
 

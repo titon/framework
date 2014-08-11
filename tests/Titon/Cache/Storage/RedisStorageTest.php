@@ -1,4 +1,4 @@
-<?php
+<?hh
 namespace Titon\Cache\Storage;
 
 class RedisStorageTest extends AbstractStorageTest {
@@ -8,9 +8,9 @@ class RedisStorageTest extends AbstractStorageTest {
             $this->markTestSkipped('Redis is not installed or configured properly');
         }
 
-        $this->object = new RedisStorage([
+        $this->object = new RedisStorage(Map {
             'server' => '127.0.0.1:6379'
-        ]);
+        });
 
         // Check that memcache connected
         $this->assertEquals('+PONG', $this->object->connection->ping());

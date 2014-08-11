@@ -24,7 +24,7 @@ abstract class AbstractStorage extends Base implements Storage {
     /**
      * Configuration.
      *
-     * @type array {
+     * @type Map<string, mixed> {
      *      @type string $server    Server(s) to connect and store data in
      *      @type bool $compress    Toggle data compression
      *      @type bool $persistent  Toggle persistent server connections
@@ -32,22 +32,22 @@ abstract class AbstractStorage extends Base implements Storage {
      *      @type string $prefix    String to prefix before each cache key
      * }
      */
-    protected $_config = [
+    protected Map<string, mixed> $_config = Map {
         'server' => '127.0.0.1',
         'compress' => false,
         'persistent' => true,
         'expires' => '+1 day',
         'prefix' => ''
-    ];
+    };
 
     /**
      * {@inheritdoc}
      */
-    public function decrement($key, $step = 1) {
+    public function decrement(string $key, int $step = 1): ?int {
         $value = $this->get($key);
 
         if ($value === null) {
-            return false;
+            return null;
         }
 
         $value -= $step;
@@ -65,7 +65,7 @@ abstract class AbstractStorage extends Base implements Storage {
      * @param bool $ttl Convert to TTL seconds
      * @return int
      */
-    public function expires($timestamp, $ttl = false) {
+    public function expires(?mixed $timestamp, bool $ttl = false): int {
         if ($timestamp === 0) {
             return $timestamp;
 
@@ -86,7 +86,7 @@ abstract class AbstractStorage extends Base implements Storage {
     /**
      * {@inheritdoc}
      */
-    public function increment($key, $step = 1) {
+    public function increment(string $key, int $step = 1): ?int {
         $value = $this->get($key);
 
         if ($value !== null) {
@@ -97,7 +97,7 @@ abstract class AbstractStorage extends Base implements Storage {
             return $value;
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -106,11 +106,9 @@ abstract class AbstractStorage extends Base implements Storage {
      * @param string $key
      * @return string
      */
-    public function key($key) {
-        $prefix = $this->getConfig('prefix');
-
-        return $this->cache([__METHOD__, $key], function(AbstractStorage $self) use ($prefix, $key) {
-            return $prefix . trim(preg_replace('/[^a-z0-9\.]+/is', '', str_replace(['\\', '::', '/', '-', '_'], '.', $self->createCacheKey($key))), '.');
+    public function key(string $key): string {
+        return $this->cache([__METHOD__, $key], function(AbstractStorage $self) use ($key) {
+            return $self->getConfig('prefix') . trim(preg_replace('/[^a-z0-9\-]+/is', '-', $key), '-');
         });
     }
 
@@ -120,33 +118,44 @@ abstract class AbstractStorage extends Base implements Storage {
      * @param string|array $server
      * @param int $port
      * @param mixed $arg
-     * @return array
+     * @return Vector<mixed>
      */
-    public function parseServer($server, $port, $arg = null) {
-        if (is_array($server)) {
-            return $server;
+    public function parseServer(mixed $server, ?int $port = null, ?mixed $arg = null): Vector<mixed> {
+        if (is_traversable($server)) {
+            return new Vector($server);
         }
 
         $parts = explode(':', $server);
 
-        return [
+        return Vector {
             $parts[0],
             isset($parts[1]) ? $parts[1] : $port,
             isset($parts[2]) ? $parts[2] : $arg
-        ];
+        };
+    }
+
+    /**
+     * This method fixes discrepancies with PHP and Hack and its nullable types.
+     * Any API method that returns false as failure should return null instead so we can use type hinting.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    public function returnValue(?mixed $value): ?mixed {
+        return ($value === false) ? null : $value;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function stats() {
-        return [];
+    public function stats(): Map<string, mixed> {
+        return Map {};
     }
 
     /**
      * {@inheritdoc}
      */
-    public function store($key, Closure $callback, $expires = '+1 day') {
+    public function store(string $key, Closure $callback, mixed $expires = '+1 day'): ?mixed {
         if ($this->has($key)) {
             return $this->get($key);
         }

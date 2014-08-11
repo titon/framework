@@ -26,4 +26,4 @@ source ~/.bashrc
 #psql -U postgres -c "CREATE DATABASE titon_test;"
 
 # Install Redis & Memcache
-#sudo apt-get -y install redis-server memcached
+sudo apt-get -y install redis-server memcached

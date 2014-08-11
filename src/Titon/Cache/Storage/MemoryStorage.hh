@@ -17,14 +17,16 @@ class MemoryStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function flush() {
-        return $this->flushCache();
+    public function flush(): bool {
+        $this->flushCache();
+
+        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($key) {
+    public function get(string $key): ?mixed {
         if ($this->hasCache($key)) {
             return $this->getCache($key);
         }
@@ -35,21 +37,23 @@ class MemoryStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function has($key) {
+    public function has(string $key): bool {
         return $this->hasCache($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function remove($key) {
-        return $this->removeCache($key);
+    public function remove(string $key): bool {
+        $this->removeCache($key);
+
+        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set($key, $value, $expires = '+1 day') {
+    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
         if ($expires && $this->expires($expires) <= time()) {
             return true;
         }

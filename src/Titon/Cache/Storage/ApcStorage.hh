@@ -24,7 +24,7 @@ class ApcStorage extends AbstractStorage {
      *
      * @throws \Titon\Cache\Exception\MissingExtensionException
      */
-    public function initialize() {
+    public function initialize(): void {
         parent::initialize();
 
         if (!extension_loaded('apc')) {
@@ -35,49 +35,49 @@ class ApcStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function decrement($key, $step = 1) {
-        return apc_dec($this->key($key), $step);
+    public function decrement(string $key, int $step = 1): ?int {
+        return $this->returnValue(apc_dec($this->key($key), $step));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function flush() {
+    public function flush(): bool {
         return (apc_clear_cache() && apc_clear_cache('user'));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($key) {
-        return apc_fetch($this->key($key));
+    public function get(string $key): ?mixed {
+        return $this->returnValue(apc_fetch($this->key($key)));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function has($key) {
+    public function has(string $key): bool {
         return apc_exists($this->key($key));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function increment($key, $step = 1) {
-        return apc_inc($this->key($key), $step);
+    public function increment(string $key, int $step = 1): ?int {
+        return $this->returnValue(apc_inc($this->key($key), $step));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function remove($key) {
+    public function remove(string $key): bool {
         return apc_delete($this->key($key));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set($key, $value, $expires = '+1 day') {
+    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
         $expires = $this->expires($expires, true);
 
         // Immediately invalidate
@@ -91,22 +91,22 @@ class ApcStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function stats() {
+    public function stats(): Map<string, mixed> {
         $stats = apc_cache_info();
         $info = apc_sma_info();
 
         if ($stats === false) {
-            return [];
+            return Map {};
         }
 
         // HHVM needs index checks as it doesn't return all keys
-        return [
+        return Map {
             self::HITS => isset($stats['num_hits']) ? $stats['num_hits'] : 0,
             self::MISSES => isset($stats['num_misses']) ? $stats['num_misses'] : 0,
             self::UPTIME => isset($stats['start_time']) ? $stats['start_time'] : 0,
             self::MEMORY_USAGE => isset($stats['mem_size']) ? $stats['mem_size'] : 0,
             self::MEMORY_AVAILABLE => isset($info['avail_mem']) ? $info['avail_mem'] : 0
-        ];
+        };
     }
 
 }

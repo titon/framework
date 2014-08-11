@@ -7,73 +7,50 @@
 
 namespace Titon\Type;
 
-class ArrayList<T> implements Collection<T>, KeyedIterable<int, T> {
+use Titon\Type\Exception\MissingMethodException;
+use \Countable;
+use \Serializable;
+
+class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Countable, Serializable {
 
     /**
      * Raw vector.
      *
-     * @type Vector<T>
+     * @type Vector<Tv>
      */
-    protected Vector<T> $_value = Vector {};
+    protected Vector<Tv> $_value = Vector {};
 
     /**
      * Set the value.
      *
-     * @param Traversable<T> $value
+     * @param Traversable<Tv> $value
      */
-    public function __construct(Traversable<T> $value = Vector {}) {
+    public function __construct(Traversable<Tv> $value = Vector {}) {
         $this->write($value);
     }
 
     /**
-     * Add an item to the list.
+     * Allow methods on the base Vector class to be called programmatically.
      *
-     * @param T $item
+     * @param string $method
+     * @param array $args
      * @return $this
+     * @throws \Titon\Type\Exception\MissingMethodException
      */
-    public function add(T $item): this {
-        $this->value()->add($item);
+    public function __call(string $method, array $args): this {
+        $list = $this->value();
 
-        return $this;
+        if (method_exists($list, $method)) {
+            call_user_func_array(class_meth($list, $method), $args);
+
+            return $this;
+        }
+
+        throw new MissingMethodException(sprintf('Method "%s" does not exist for %s', $method, static::class));
     }
 
     /**
-     * Add multiple items to the list.
-     *
-     * @param Traversable<T> $iterable
-     * @return $this
-     */
-    public function addAll(?Traversable<T> $items): this {
-        $this->value->addAll($items);
-
-        return $this;
-    }
-
-    public function at(int $k): Tv {
-
-    }
-
-    /**
-     * Empty the list.
-     *
-     * @return $this
-     */
-    public function clear(): this {
-        $this->value()->clear();
-
-        return $this;
-    }
-
-    public function contains(mixed $value) {
-
-    }
-
-    public function containsKey(int $index): bool {
-
-    }
-
-    /**
-     * Return a count for the number of items in the list.
+     * Return the size of the list.
      *
      * @return int
      */
@@ -81,71 +58,94 @@ class ArrayList<T> implements Collection<T>, KeyedIterable<int, T> {
         return $this->value()->count();
     }
 
-    public function filter((function(T): bool) $fn): KeyedIterable<int, T> {
-        return $this->value()->filter($fn);
+    /**
+     * Alias for count().
+     *
+     * @return int
+     */
+    public function length(): int {
+        return $this->count();
     }
 
-    public function filterWithKey((function(int, T): bool) $fn):KeyedIterable<int, T> {
-        return $this->value()->filterWithKey($fn);
-    }
-
-    public function getIterator(): KeyedIterator<int, T> {
+    /**
+     * Return the iterator from the Vector directly to use for looping.
+     *
+     * @return KeyedIterator<int, Tv>
+     */
+    public function getIterator(): KeyedIterator<int, Tv> {
         return $this->value()->getIterator();
     }
 
     /**
-     * Return the items for iteration.
+     * Return the value at the defined index.
      *
-     * @return Iterable<T>
+     * @param int $index
+     * @param Tv $value
+     * @return $this
      */
-    public function items(): Iterable<T> {
-        return $this->value()->items();
+    public function offsetSet(int $index, Tv $value): this {
+        $this->_value[$index] = $value;
+
+        return $this;
     }
 
     /**
-     * Return true if the list contains no items.
+     * Return true if a value exists at the defined index.
      *
+     * @param int $index
      * @return bool
      */
-    public function isEmpty(): bool {
-        return $this->value()->isEmpty();
+    public function offsetExists(int $index): bool {
+        return isset($this->_value[$index]);
     }
 
-    public function keys(): Iterable<T> {
-        return $this->value()->keys();
+    /**
+     * Remove a value at the defined index.
+     *
+     * @param int $index
+     * @return $this
+     */
+    public function offsetUnset(int $index): this {
+        unset($this->_value[$index]);
+
+        return $this;
     }
 
-    public function map<Tu>((function(T): Tu) $fn): KeyedIterable<int, Tu> {
-        return $this->value()->map($fn);
+    /**
+     * Return a value at the defined index. If no index exists, return null.
+     *
+     * @param int $index
+     * @return Tv
+     */
+    public function offsetGet(int $index): ?Tv {
+        return $this->value()->get($index);
     }
 
-    public function mapWithKey<Tu>((function(int, T): Tu) $fn): KeyedIterable<int, Tu> {
-        return $this->value()->mapWithKey($fn);
+    /**
+     * Return the value serialized.
+     *
+     * @return string
+     */
+    public function serialize(): string {
+        return serialize($this->value());
+    }
+
+    /**
+     * Set the value after unserialization.
+     *
+     * @param string $value
+     */
+    public function unserialize($value): void {
+        $this->__construct(unserialize($value));
     }
 
     /**
      * Return the current value.
      *
-     * @return Vector<T>
+     * @return Vector<Tv>
      */
-    public function value(): Vector<T> {
+    public function value(): Vector<Tv> {
         return $this->_value;
-    }
-
-    public function values(): Iterable<T> {
-        return $this->value()->values();
-    }
-
-    /**
-     * Set or overwrite the value.
-     *
-     * @param Traversable<T> $value
-     * @return $this
-     */
-    public function write(Traversable<T> $value): this {
-        $this->_value = new Vector($value);
-
-        return $this;
     }
 
 }

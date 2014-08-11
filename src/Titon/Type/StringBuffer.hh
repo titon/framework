@@ -314,7 +314,7 @@ class StringBuffer implements Serializable {
     }
 
     /**
-     * Return the value instead of serializing it.
+     * Return the value serialized.
      *
      * @return string
      */

@@ -294,10 +294,7 @@ class Converter {
             return $resource->toXml($root);
         }
 
-        $xml = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><' . $root . '></' . $root . '>');
-        $response = static::buildXml($xml, static::toArray($resource, true));
-
-        return trim($response->asXML());
+        return static::arrayToXml(static::toArray($resource, true), $root);
     }
 
     /**
@@ -401,6 +398,20 @@ class Converter {
         }
 
         return $xml;
+    }
+
+    /**
+     * Convert an array to an XML string.
+     *
+     * @param array $array
+     * @param string $root
+     * @return string
+     */
+    public static function arrayToXml(array $array, string $root): string {
+        $xml = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><' . $root . '></' . $root . '>');
+        $response = static::buildXml($xml, $array);
+
+        return trim($response->asXML());
     }
 
     /**

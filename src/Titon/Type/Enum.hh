@@ -52,7 +52,7 @@ class Enum {
         $this->_type = $type;
 
         if (method_exists($this, 'initialize') && isset($this->_enums[$type])) {
-            call_user_func_array(class_meth($this, 'initialize'), $this->_enums[$type]);
+            call_user_func_array([$this, 'initialize'], $this->_enums[$type]);
         }
     }
 

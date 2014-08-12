@@ -67,11 +67,11 @@ class Traverse {
      * If recursive is true, will apply the callback to nested arrays as well.
      *
      * @param mixed $collection
-     * @param \Closure $callback
+     * @param callable $callback
      * @param bool $recursive
      * @return Collection
      */
-    public static function each(mixed $collection, Closure $callback, bool $recursive = true): mixed {
+    public static function each(mixed $collection, callable $callback, bool $recursive = true): mixed {
         static::check($collection);
 
         foreach ($collection as $key => $value) {
@@ -89,10 +89,10 @@ class Traverse {
      * Returns true if every element in the array satisfies the provided testing function.
      *
      * @param Collection $collection
-     * @param \Closure $callback
+     * @param callable $callback
      * @return bool
      */
-    public static function every(mixed $collection, Closure $callback): bool {
+    public static function every(mixed $collection, callable $callback): bool {
         static::check($collection);
 
         foreach ($collection as $key => $value) {
@@ -168,10 +168,10 @@ class Traverse {
      *
      * @param mixed $collection
      * @param bool $recursive
-     * @param \Closure $callback
+     * @param callable $callback
      * @return mixed
      */
-    public static function filter(mixed $collection, bool $recursive = true, ?Closure $callback = null): mixed {
+    public static function filter(mixed $collection, bool $recursive = true, ?callable $callback = null): mixed {
         static::check($collection);
 
         if ($callback === null) {

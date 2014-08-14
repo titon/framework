@@ -16,12 +16,11 @@
         "ext-mbstring": "*"
     },
     "require-dev": {
-        "satooshi/php-coveralls": "dev-master",
         "phpunit/phpunit": "*",
         "mockery/mockery": "*",
-        "php-vfs/php-vfs": "1.1.x-dev",
+        "php-vfs/php-vfs": "*",
         "psr/log": "*",
-        "psr/http-message": "dev-master",
+        "psr/http-message": "1.0.*@dev",
         "ext-mcrypt": "*",
         "ext-simplexml": "*",
         "ext-fileinfo": "*"

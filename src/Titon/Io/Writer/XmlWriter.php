@@ -1,0 +1,51 @@
+<?php
+/**
+ * @copyright   2010-2013, The Titon Project
+ * @license     http://opensource.org/licenses/bsd-license.php
+ * @link        http://titon.io
+ */
+
+namespace Titon\Io\Writer;
+
+use Titon\Io\Writer\AbstractWriter;
+use Titon\Utility\Hash;
+use Titon\Utility\Converter;
+
+/**
+ * A file writer that generates XML files.
+ *
+ * @package Titon\Io\Writer
+ */
+class XmlWriter extends AbstractWriter {
+
+    /**
+     * Allow for format overrides.
+     *
+     * @type int
+     */
+    public static $format = Converter::XML_MERGE;
+
+    /**
+     * {@inheritdoc}
+     *
+     * @uses Titon\Utility\Hash
+     * @uses Titon\Utility\Converter
+     */
+    public function append($data) {
+        if ($contents = $this->read()) {
+            $data = Hash::merge(Converter::xmlToArray(simplexml_load_string($contents), self::$format), $data);
+        }
+
+        return $this->write($data);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @uses Titon\Utility\Converter
+     */
+    public function write($data) {
+        return parent::write(Converter::toXml($data));
+    }
+
+}

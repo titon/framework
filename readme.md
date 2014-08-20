@@ -12,11 +12,42 @@ with enough room for extensibility and abstraction. The framework takes advantag
 generics, collections, and more. It also integrates the wonderful PSRs from PHP-FIG for increased interoperability
 with external PHP code bases.
 
+### Current State ###
+
+Many packages have already been ported over from their old PHP codebase to Hack.
+However, they have not been linted against Hack's strict mode yet.
+
+The following packages are still in the porting process.
+
+* IO
+* Type
+
+The following packages have yet to be ported over.
+
+* [db](https://github.com/titon/db)
+* [db-mysql](https://github.com/titon/db-mysql)
+* [db-postgresql](https://github.com/titon/db-postgresql)
+* [db-sqlite](https://github.com/titon/db-sqlite)
+* [db-mongodb](https://github.com/titon/db-mongodb)
+* [model](https://github.com/titon/model)
+* [mvc](https://github.com/titon/mvc)
+* [g11n](https://github.com/titon/g11n)
+
+### Upcoming Packages ###
+
+The following packages have not been written yet but are planned for future releases.
+
+* Auth
+* ACL
+* Dependency/Service Containers
+* Session
+* Kernel
+* ADR
+
 ## Requirements ##
 
 Titon is built on [Hack](http://hacklang.com/) and requires [HHVM 3.3.0+](http://hhvm.com/).
-
-The framework is built around Composer and requires dependencies to be installed for testing.
+It also requires Composer and requires dependencies to be installed for testing.
 
 ## Usage ##
 

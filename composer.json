@@ -12,17 +12,17 @@
         }
     ],
     "require": {
-        "ext-mbstring": "*"
+        "ext-mbstring": "*",
+        "ext-mcrypt": "*",
+        "ext-simplexml": "*",
+        "ext-fileinfo": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "*",
         "mockery/mockery": "*",
         "php-vfs/php-vfs": "*",
         "psr/log": "*",
-        "psr/http-message": "1.0.*@dev",
-        "ext-mcrypt": "*",
-        "ext-simplexml": "*",
-        "ext-fileinfo": "*"
+        "psr/http-message": "1.0.*@dev"
     },
     "autoload": {
         "psr-0": { "": "src/" },

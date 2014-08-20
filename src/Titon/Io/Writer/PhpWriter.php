@@ -1,4 +1,4 @@
-<?php
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -36,7 +36,7 @@ class PhpWriter extends AbstractWriter {
      * {@inheritdoc}
      */
     public function write($data) {
-        return parent::write(sprintf('<?php return %s;', var_export($data, true)));
+        return parent::write(sprintf('<?hh // strict return %s;', var_export($data, true)));
     }
 
 }

@@ -1,4 +1,4 @@
-<?php
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -36,11 +36,11 @@ class Folder extends Node {
      * Change the group of the file.
      * If $recursive is true, set the group on all children.
      *
-     * @param string $group
+     * @param int $group
      * @param bool $recursive
      * @return bool
      */
-    public function chgrp(string $group, bool $recursive = false): bool {
+    public function chgrp(int $group, bool $recursive = false): bool {
         if ($recursive) {
             if ($contents = $this->read()) {
                 foreach ($contents as $file) {
@@ -60,7 +60,7 @@ class Folder extends Node {
      * @param bool $recursive
      * @return bool
      */
-    public function chmod(string $mode, bool $recursive = false): bool {
+    public function chmod(int $mode, bool $recursive = false): bool {
         if ($recursive) {
             if ($contents = $this->read()) {
                 foreach ($contents as $file) {
@@ -76,11 +76,11 @@ class Folder extends Node {
      * Change the owner of the file.
      * If $recursive is true, set the owner on all children.
      *
-     * @param string $user
+     * @param int $user
      * @param bool $recursive
      * @return bool
      */
-    public function chown(string $user, bool $recursive = false): bool {
+    public function chown(int $user, bool $recursive = false): bool {
         if ($recursive) {
             if ($contents = $this->read()) {
                 foreach ($contents as $file) {

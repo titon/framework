@@ -1,4 +1,4 @@
-<?php
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -81,10 +81,10 @@ abstract class Node {
     /**
      * Change the group of the file.
      *
-     * @param string $group
+     * @param int $group
      * @return bool
      */
-    public function chgrp(string $group): bool {
+    public function chgrp(int $group): bool {
         if (!$this->exists()) {
             return false;
         }
@@ -119,10 +119,10 @@ abstract class Node {
     /**
      * Change the owner of the file.
      *
-     * @param string $user
+     * @param int $user
      * @return bool
      */
-    public function chown(string $user): bool {
+    public function chown(int $user): bool {
         if (!$this->exists()) {
             return false;
         }
@@ -364,14 +364,14 @@ abstract class Node {
     /**
      * Return the permissions for the file.
      *
-     * @return int
+     * @return string
      */
-    public function permissions(): int {
+    public function permissions(): string {
         if ($this->exists()) {
             return substr(sprintf('%o', fileperms($this->path())), -4);
         }
 
-        return 0;
+        return '';
     }
 
     /**

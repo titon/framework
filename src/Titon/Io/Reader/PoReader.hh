@@ -1,4 +1,4 @@
-<?php
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -7,7 +7,6 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Io\Reader\AbstractReader;
 use Titon\Io\Exception\ReadErrorException;
 
 /**
@@ -22,7 +21,7 @@ class PoReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read() {
+    public function read(): Map<string, mixed> {
         return $this->cache([__METHOD__, $this->path()], function() {
             if ($this->exists()) {
                 return $this->_parse();
@@ -35,11 +34,11 @@ class PoReader extends AbstractReader {
     /**
      * Parse out the po contents.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    protected function _parse() {
+    protected function _parse(): Map<string, mixed> {
         $lines = file($this->path(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $data = [];
+        $data = Map {};
         $key = '';
         $value = '';
         $plural = false;
@@ -98,7 +97,7 @@ class PoReader extends AbstractReader {
      * @param string $string
      * @return string
      */
-    public static function dequote($string) {
+    public static function dequote(string $string): string {
         return mb_substr(mb_substr($string, mb_strpos($string, '"')), 1, -1);
     }
 

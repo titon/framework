@@ -1,4 +1,4 @@
-<?php
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -7,7 +7,7 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Common\Traits\Cacheable;
+use Titon\Common\Cacheable;
 use Titon\Io\File;
 use Titon\Io\Reader;
 use Titon\Io\Exception\MissingFileException;
@@ -26,7 +26,7 @@ abstract class AbstractReader extends File implements Reader {
      * @param string $path
      * @throws \Titon\Io\Exception\MissingFileException
      */
-    public function __construct($path = null) {
+    public function __construct(string $path = '') {
         if ($path) {
             if (!file_exists($path)) {
                 throw new MissingFileException(sprintf('File %s does not exist', basename($path)));
@@ -39,7 +39,7 @@ abstract class AbstractReader extends File implements Reader {
     /**
      * {@inheritdoc}
      */
-    public function reset($path = '') {
+    public function reset(string $path = ''): this {
         $this->flushCache();
 
         return parent::reset($path);

@@ -1,4 +1,4 @@
-<?php
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -7,7 +7,6 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Io\Reader\AbstractReader;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Utility\Converter;
 
@@ -24,7 +23,7 @@ class XmlReader extends AbstractReader {
      *
      * @type int
      */
-    public static $format = Converter::XML_MERGE;
+    public static int $format = Converter::XML_MERGE;
 
     /**
      * {@inheritdoc}
@@ -33,10 +32,10 @@ class XmlReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read() {
+    public function read(): Map<string, mixed> {
         return $this->cache([__METHOD__, $this->path()], function() {
             if ($this->exists()) {
-                return Converter::xmlToArray(simplexml_load_string(parent::read()), self::$format);
+                return Converter::xmlToArray(simplexml_load_string(parent::read()), static::$format);
             }
 
             throw new ReadErrorException(sprintf('XmlReader failed to parse %s', $this->name()));

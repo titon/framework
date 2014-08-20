@@ -1,4 +1,4 @@
-<?php
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -7,7 +7,6 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Io\Reader\AbstractReader;
 use Titon\Io\Exception\ReadErrorException;
 
 /**
@@ -22,7 +21,7 @@ class MoReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read() {
+    public function read(): Map<string, mixed> {
         return $this->cache([__METHOD__, $this->path()], function() {
             if ($this->exists()) {
                 return $this->_unpack();
@@ -35,9 +34,9 @@ class MoReader extends AbstractReader {
     /**
      * Unpack the mo file contents and extract the hash tables.
      *
-     * @return array
+     * @return Map<string, mixed>
      */
-    protected function _unpack() {
+    protected function _unpack(): ?Map<string, mixed> {
         $file = fopen($this->path(), 'rb');
         $header = fread($file, 28);
 
@@ -123,7 +122,7 @@ class MoReader extends AbstractReader {
 
         // 3) Collect hash records
 
-        $hash = array();
+        $hash = Map {};
 
         for ($i = 0; $i < $header['Hcount']; $i++) {
 
@@ -168,7 +167,7 @@ class MoReader extends AbstractReader {
 
                 $key = is_null($context) ? $singularFrom : "$context\04$singularFrom";
 
-                $hash[$key] = empty($plurals) ? $singularTo : $plurals;
+                $hash[$key] = new Vector(empty($plurals) ? $singularTo : $plurals);
             }
         }
 

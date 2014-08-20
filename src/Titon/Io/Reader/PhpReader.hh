@@ -1,4 +1,4 @@
-<?php
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -7,7 +7,6 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Io\Reader\AbstractReader;
 use Titon\Io\Exception\ReadErrorException;
 
 /**
@@ -23,7 +22,7 @@ class PhpReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read() {
+    public function read(): Map<string, mixed> {
         return $this->cache([__METHOD__, $this->path()], function() {
             if ($this->exists()) {
                 return include $this->path();

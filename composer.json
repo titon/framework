@@ -12,7 +12,6 @@
         }
     ],
     "require": {
-        "hhvm": ">=3.0.0",
         "ext-mbstring": "*"
     },
     "require-dev": {

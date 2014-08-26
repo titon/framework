@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+from argparse import ArgumentParser
+import os
+
+parser = ArgumentParser(description='Run the Titon test suite.')
+parser.add_argument('-p', '--path', dest='path', default='', help='Path to a folder of file to run tests for.')
+parser.add_argument('-f', '--filter', dest='filter', help='Filter tests using a keyword.')
+parser.add_argument('-d', '--debug', dest='debug', help='Debug tests by stopping on failures.', action='store_true')
+
+args = parser.parse_args()
+command = 'hhvm /vagrant/vendor/phpunit/phpunit/phpunit --configuration /vagrant/phpunit.xml --test-suffix=Test.hh'
+
+if args.filter:
+  command += ' --filter=' + args.filter
+
+if args.debug:
+  command += ' --stop-on-failure --debug'
+
+command += ' /vagrant/tests/' + args.path
+
+print('Running command: ' + command + "\n")
+os.system(command)

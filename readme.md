@@ -47,7 +47,7 @@ The following packages have not been written yet but are planned for future rele
 ## Requirements ##
 
 Titon is built on [Hack](http://hacklang.com/) and requires [HHVM 3.3.0+](http://hhvm.com/).
-It also requires Composer and requires dependencies to be installed for testing.
+It also requires Composer and for dependencies to be installed for testing.
 
 ## Usage ##
 
@@ -62,18 +62,24 @@ lets discuss them!
 
 ## Testing ##
 
-Titon comes packaged with a Vagrant box and a handful of bash scripts to easy the testing process.
+Titon comes packaged with a Vagrant box and a handful of bash scripts to ease the testing process.
 Boot up the Vagrant instance with `vagrant up` and SSH into the box with `vagrant ssh`.
 Once in Vagrant, you can run the following command to run all tests.
 
 ```bash
-bash /vagrant/bin/run-tests.sh
+/vagrant/bin/run-tests
 ```
 
 Or run tests for a single file or folder.
 
 ```bash
-bash /vagrant/bin/run-single-test.sh Titon/Common
+/vagrant/bin/run-tests --path=Titon/Common
+```
+
+Or filter tests based on class or method name.
+
+```bash
+/vagrant/bin/run-tests --filter=methodName
 ```
 
 ### Hack Strict Linting ###
@@ -82,7 +88,7 @@ For the most part, Titon strives to be strict mode only. This can be very challe
 it couldn't be easier. Simply run the following command to check for strict issues.
 
 ```bash
-bash /vagrant/lint-hack.sh
+/vagrant/bin/lint-hack
 ```
 
 If any file changes are not reflected in lint results (it's a file system syncing issue),

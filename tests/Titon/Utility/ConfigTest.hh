@@ -123,10 +123,6 @@ class ConfigTest extends TestCase {
     }
 
     public function testLoad() {
-        if (!class_exists('Titon\Io\Reader\PhpReader')) {
-            $this->markTestSkipped('Test skipped; Please install titon/io via Composer');
-        }
-
         $data = <<<CFG
 <?php
 
@@ -134,11 +130,8 @@ return [
     'integer' => 1234567890,
     'number' => '1234567890',
     'string' => 'abcdefg',
-    'emptyArray' => [],
-    'array' => [
-        'one' => true,
-        'two' => false,
-    ],
+    'vector' => [],
+    'array' => [1, 2, 3],
     'false' => false,
     'true' => true,
     'null' => null,
@@ -152,10 +145,19 @@ CFG;
         $reader = new PhpReader($this->vfs->path('/config.php'));
 
         Config::load('Php', $reader);
-        $this->assertArrayHasKey('Php', Config::all());
+        $this->assertTrue(isset(Config::all()['Php']));
 
-        $data = Config::get('Php');
-        $this->assertEquals($data, $this->test);
+        $this->assertEquals(Map {
+            'integer' => 1234567890,
+            'number' => '1234567890',
+            'string' => 'abcdefg',
+            'vector' => Map {},
+            'array' => Map {0 => 1, 1 => 2, 2 => 3},
+            'false' => false,
+            'true' => true,
+            'null' => null,
+            'zero' => 0
+        }, Config::get('Php'));
     }
 
     public function testName() {

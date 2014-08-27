@@ -13,7 +13,6 @@ use Titon\Type\Contract\Jsonable;
 use Titon\Type\Contract\Xmlable;
 use \JsonSerializable;
 use \Serializable;
-use \Traversable;
 use \SimpleXmlElement;
 
 /**
@@ -243,11 +242,21 @@ class Converter {
      * @return Map<mixed, mixed>
      */
     public static function toMap(mixed $resource): Map<mixed, mixed> {
-        if ($resource instanceof Traversable || static::isArray($resource)) {
-            return new Map($resource);
+        if (!$resource instanceof Traversable) {
+            return new Map([$resource]);
         }
 
-        return new Map([$resource]);
+        $map = new Map();
+
+        foreach ($resource as $key => $value) {
+            if ($value instanceof Traversable) {
+                $map[$key] = static::toMap($value);
+            } else {
+                $map[$key] = $value;
+            }
+        }
+
+        return $map;
     }
 
     /**
@@ -275,11 +284,21 @@ class Converter {
      * @return Vector<mixed>
      */
     public static function toVector(mixed $resource): Vector<mixed> {
-        if ($resource instanceof Traversable || static::isArray($resource)) {
-            return new Vector($resource);
+        if (!$resource instanceof Traversable) {
+            return new Vector([$resource]);
         }
 
-        return new Vector([$resource]);
+        $vector = new Vector();
+
+        foreach ($resource as $value) {
+            if ($value instanceof Traversable) {
+                $vector[] = static::toVector($value);
+            } else {
+                $vector[] = $value;
+            }
+        }
+
+        return $vector;
     }
 
     /**

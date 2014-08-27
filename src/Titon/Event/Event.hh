@@ -94,7 +94,7 @@ class Event {
      * @param string $key
      * @return mixed
      */
-    public function getData(?string $key = null): mixed {
+    public function getData(string $key = ''): mixed {
         return Traverse::get($this->_data, $key);
     }
 

@@ -52,21 +52,6 @@ class TraverseTest extends TestCase {
         'one.two.three.depth' => 3
     };
 
-    public function testCheck() {
-        $this->assertTrue(Traverse::check([]));
-        $this->assertTrue(Traverse::check(Map {}));
-        $this->assertTrue(Traverse::check(Set {}));
-        $this->assertTrue(Traverse::check(Pair {1, 2}));
-        $this->assertTrue(Traverse::check(Vector {}));
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testCheckThrowsException() {
-        $this->assertTrue(Traverse::check(123));
-    }
-
     public function testDepth() {
         $map = Map {'one' => Map {'two' => Map {'three' => Map {'four' => Map {'five' => 5}}}}};
         $vector = Vector {Vector {Vector {3}}};

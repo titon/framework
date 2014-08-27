@@ -172,9 +172,9 @@ class Crypt {
      * @param string $key
      * @param string $cipher
      * @param string $mode
-     * @return Pair
+     * @return (string, string)
      */
-    public static function vector(string $key, string $cipher, string $mode): Pair {
+    public static function vector(string $key, string $cipher, string $mode): (string, string) {
         $keySize = mcrypt_get_key_size($cipher, $mode);
         $key = str_pad(static::hash('md5', $key), $keySize, mb_substr($cipher, -1), STR_PAD_BOTH);
 
@@ -189,7 +189,7 @@ class Crypt {
             $iv = mb_substr($iv, 0, $ivSize);
         }
 
-        return Pair {$key, $iv};
+        return tuple($key, $iv);
     }
 
 }

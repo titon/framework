@@ -91,7 +91,7 @@ abstract class AbstractMessage extends Base implements MessageInterface {
     public function getHeader($key): string {
         $value = $this->headers->get($key) ?: '';
 
-        return is_traversable($value) ? implode(', ', $value) : $value;
+        return ($value instanceof Traversable) ? implode(', ', $value) : $value;
     }
 
     /**

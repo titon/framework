@@ -121,7 +121,7 @@ abstract class AbstractStorage extends Base implements Storage {
      * @return Vector<mixed>
      */
     public function parseServer(mixed $server, ?int $port = null, ?mixed $arg = null): Vector<mixed> {
-        if (is_traversable($server)) {
+        if ($server instanceof Traversable) {
             return new Vector($server);
         }
 

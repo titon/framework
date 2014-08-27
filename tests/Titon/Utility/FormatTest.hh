@@ -26,13 +26,13 @@ class FormatTest extends TestCase {
     }
 
     public function testFormat() {
-        $this->assertEquals('(123) 456', Format::format(1234567890, '(###) ###'));
-        $this->assertEquals('(123) 456-7890', Format::format(1234567890, '(###) ###-####'));
-        $this->assertEquals('(123) 456-####', Format::format(123456, '(###) ###-####'));
+        $this->assertEquals('(123) 456', Format::format('1234567890', '(###) ###'));
+        $this->assertEquals('(123) 456-7890', Format::format('1234567890', '(###) ###-####'));
+        $this->assertEquals('(123) 456-####', Format::format('123456', '(###) ###-####'));
 
-        $this->assertEquals('123.456', Format::format(1234567890, '###.###'));
-        $this->assertEquals('123.456.7890', Format::format(1234567890, '###.###.####'));
-        $this->assertEquals('123.456.####', Format::format(123456, '###.###.####'));
+        $this->assertEquals('123.456', Format::format('1234567890', '###.###'));
+        $this->assertEquals('123.456.7890', Format::format('1234567890', '###.###.####'));
+        $this->assertEquals('123.456.####', Format::format('123456', '###.###.####'));
 
         // credit card
         $this->assertEquals('3772-3483-0461-4543', Format::format('3772348304614543', '####-####-####-####'));
@@ -57,7 +57,7 @@ class FormatTest extends TestCase {
             11 => '# (###) ###-####'
         ];
 
-        $this->assertEquals('666-1337', Format::phone(6661337, $formats));
+        $this->assertEquals('666-1337', Format::phone('6661337', $formats));
         $this->assertEquals('(888) 666-1337', Format::phone('8886661337', $formats));
         $this->assertEquals('1 (888) 666-1337', Format::phone('+1 8886661337', $formats));
     }

@@ -10,6 +10,7 @@ namespace Titon\Http\Bag;
 use Titon\Http\Http;
 use Titon\Http\RequestAware;
 use Titon\Utility\Config;
+use Titon\Utility\Converter;
 use Titon\Utility\Crypt;
 use Titon\Utility\Time;
 use Titon\Utility\Traverse;
@@ -51,7 +52,7 @@ class CookieBag extends ParameterBag {
      */
     public function __construct(array $cookies = [], Map<string, mixed> $config = Map {}) {
         $this->applyConfig(Traverse::merge(Config::get('cookie', Map {}), $config));
-        $this->_data = new Map($cookies);
+        $this->_data = Converter::toMap($cookies);
     }
 
     /**

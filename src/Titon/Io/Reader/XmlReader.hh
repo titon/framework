@@ -35,7 +35,7 @@ class XmlReader extends AbstractReader {
     public function read(): Map<string, mixed> {
         return $this->cache([__METHOD__, $this->path()], function() {
             if ($this->exists()) {
-                return Converter::xmlToArray(simplexml_load_string(parent::read()), static::$format);
+                return Converter::toMap(Converter::xmlToArray(simplexml_load_string(parent::read()), static::$format));
             }
 
             throw new ReadErrorException(sprintf('XmlReader failed to parse %s', $this->name()));

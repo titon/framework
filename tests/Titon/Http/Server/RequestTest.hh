@@ -1,7 +1,6 @@
 <?hh
-namespace Titon\Http;
+namespace Titon\Http\Server;
 
-use Titon\Http\Server\Request;
 use Titon\Test\TestCase;
 use Titon\Utility\Crypt;
 
@@ -24,7 +23,7 @@ class RequestTest extends TestCase {
             '_method' => 'PUT',
             'key' => 'value',
             'Model' => [
-                'foo' => 'bar'
+                'foo' => 'baz'
             ]
         ];
 
@@ -99,16 +98,16 @@ class RequestTest extends TestCase {
     public function testInitialize() {
         $this->assertEquals(Map {
             'key' => 'value',
-            'Model' => [
+            'Model' => Map {
                 'foo' => 'bar'
-            ]
+            }
         }, $this->object->get->all());
 
         $this->assertEquals(Map {
             'key' => 'value',
-            'Model' => [
-                'foo' => 'bar'
-            ]
+            'Model' => Map {
+                'foo' => 'baz'
+            }
         }, $this->object->post->all());
 
         $this->assertEquals(Map {

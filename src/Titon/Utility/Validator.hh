@@ -344,7 +344,7 @@ class Validator {
             $parts = explode(':', $shorthand, 3);
             $rule = $parts[0];
 
-            if (isset($parts[1])) {
+            if (isset($parts[1]) && $parts[1]) {
                 $opts = $parts[1];
 
                 if (strpos($opts, ',') !== false) {
@@ -354,7 +354,7 @@ class Validator {
                 }
             }
 
-            if (isset($parts[2])) {
+            if (isset($parts[2]) && $parts[2]) {
                 $message = $parts[2];
             }
 

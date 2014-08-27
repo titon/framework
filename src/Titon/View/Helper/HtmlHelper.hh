@@ -233,7 +233,7 @@ class HtmlHelper extends AbstractHelper {
     public function title(string $separator = ' - '): string {
         $pageTitle = $this->getView()->getVariable('pageTitle');
 
-        if (is_traversable($pageTitle)) {
+        if ($pageTitle instanceof Traversable) {
             return implode($separator, $pageTitle);
         }
 

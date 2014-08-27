@@ -8,7 +8,6 @@
 namespace Titon\View\View;
 
 use Titon\Cache\Storage;
-use Titon\Common\Base;
 use Titon\Common\Attachable;
 use Titon\Common\Cacheable;
 use Titon\Common\FactoryAware;
@@ -136,7 +135,7 @@ abstract class AbstractView implements View, Listener {
      * {@inheritdoc}
      */
     public function formatPath(mixed $template): string {
-        if (is_traversable($template)) {
+        if ($template instanceof Traversable) {
             $template = new Map($template);
         }
 

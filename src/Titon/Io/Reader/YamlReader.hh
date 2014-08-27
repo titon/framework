@@ -9,6 +9,7 @@ namespace Titon\Io\Reader;
 
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Io\Exception\MissingExtensionException;
+use Titon\Utility\Converter;
 
 /**
  * A reader that loads its configuration from an YAML file.
@@ -31,7 +32,7 @@ class YamlReader extends AbstractReader {
 
         return $this->cache([__METHOD__, $this->path()], function() {
             if ($this->exists()) {
-                return yaml_parse_file($this->path());
+                return Converter::toMap(yaml_parse_file($this->path()));
             }
 
             throw new ReadErrorException(sprintf('YamlReader failed to parse %s', $this->name()));

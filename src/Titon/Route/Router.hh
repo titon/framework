@@ -23,7 +23,6 @@ use Titon\Utility\Inflector;
 use Titon\Utility\Traverse;
 use Titon\Utility\Str;
 use \Closure;
-use \Traversable;
 
 /**
  * The Router determines the current routing request, based on the URL address and environment.
@@ -312,8 +311,8 @@ class Router {
             }
 
             if ($fragment) {
-                if (is_traversable($fragment)) {
-                    $path .= '#' . http_build_query($fragment, '', '&', PHP_QUERY_RFC1738);
+                if ($fragment instanceof Traversable) {
+                    $path .= '#' . http_build_query((array) $fragment, '', '&', PHP_QUERY_RFC1738);
                 } else {
                     $path .= '#' . urlencode($fragment);
                 }
@@ -710,7 +709,7 @@ class Router {
 
         $url .= $segments['path'];
 
-        if (isset($segments['query'])) {
+        if ($segments['query']) {
             $url .= '?' . http_build_query($segments['query'], '', '&', PHP_QUERY_RFC1738);
         }
 

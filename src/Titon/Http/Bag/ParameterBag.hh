@@ -9,6 +9,7 @@ namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
 use Titon\Http\RequestAware;
+use Titon\Utility\Converter;
 
 /**
  * Bag for interacting with request parameters.
@@ -25,7 +26,7 @@ class ParameterBag extends AbstractBag {
      * @param array $data
      */
     public function __construct(array $data = []) {
-        $this->add(new Map($data));
+        $this->add(Converter::toMap($data));
     }
 
 }

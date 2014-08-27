@@ -186,6 +186,20 @@ class ConverterTest extends TestCase {
         $this->assertEquals(Map {'foo' => 'bar'}, Converter::toMap(Map {'foo' => 'bar'}));
     }
 
+    public function testToMapRecursive() {
+        $this->assertEquals(Map {
+            'depth' => 1,
+            'two' => Map {
+                'depth' => 2
+            }
+        }, Converter::toMap([
+            'depth' => 1,
+            'two' => [
+                'depth' => 2
+            ]
+        ]));
+    }
+
     public function testToSerialize() {
         $this->assertEquals($this->serialized, Converter::toSerialize($this->array));
         $this->assertEquals($this->serialized, Converter::toSerialize($this->object));
@@ -357,6 +371,16 @@ class ConverterTest extends TestCase {
         $this->assertEquals(Vector {123}, Converter::toVector(123));
         $this->assertEquals(Vector {}, Converter::toVector(Map {}));
         $this->assertEquals(Vector {'bar'}, Converter::toVector(Map {'foo' => 'bar'}));
+    }
+
+    public function testToVectorRecursive() {
+        $this->assertEquals(Vector {
+            'one',
+            Vector {'two'}
+        }, Converter::toVector([
+            'one',
+            ['two']
+        ]));
     }
 
     public function testXmlTypeCasting() {

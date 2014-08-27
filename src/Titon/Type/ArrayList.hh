@@ -151,7 +151,7 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      */
     public function clean(): ArrayList<Tv> {
         return $this->filter(function(Tv $value) {
-            return (!empty($value) || $value === 0 || $value === '0');
+            return ($value || $value === 0 || $value === '0');
         });
     }
 

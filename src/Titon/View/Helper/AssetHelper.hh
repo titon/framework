@@ -173,7 +173,7 @@ class AssetHelper extends AbstractHelper {
     public function scripts(string $location = self::FOOTER, string $env = ''): string {
         $output = '';
 
-        if (!empty($this->_scripts[$location])) {
+        if (isset($this->_scripts[$location])) {
             $scripts = $this->_scripts[$location];
             ksort($scripts);
 

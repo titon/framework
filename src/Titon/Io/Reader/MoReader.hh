@@ -167,7 +167,7 @@ class MoReader extends AbstractReader {
 
                 $key = is_null($context) ? $singularFrom : "$context\04$singularFrom";
 
-                $hash[$key] = new Vector(empty($plurals) ? $singularTo : $plurals);
+                $hash[$key] = new Vector(!$plurals ? $singularTo : $plurals);
             }
         }
 

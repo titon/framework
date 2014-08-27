@@ -132,10 +132,10 @@ trait Attachable {
             'interface' => null
         }, $options);
 
-        if (empty($options['alias'])) {
+        if (!$options['alias']) {
             throw new InvalidObjectException('You must define an alias to reference the attached object');
 
-        } else if ($object === null && empty($options['class'])) {
+        } else if ($object === null && !$options['class']) {
             throw new InvalidObjectException(sprintf('You must supply an object, Closure or a class name for %s', $options['alias']));
 
         } else {

@@ -64,7 +64,7 @@ class Map extends Type implements Countable, IteratorAggregate, Arrayable, Jsona
         $data = $this->value();
 
         foreach ($data as $key => $value) {
-            if (empty($value) && $value !== 0) {
+            if (!$value && $value !== 0) {
                 unset($data[$key]);
             }
         }
@@ -525,7 +525,7 @@ class Map extends Type implements Countable, IteratorAggregate, Arrayable, Jsona
      * @return bool
      */
     public function isEmpty() {
-        return empty($this->_value);
+        return (count($this->_value) === 0);
     }
 
     /**
@@ -534,7 +534,7 @@ class Map extends Type implements Countable, IteratorAggregate, Arrayable, Jsona
      * @return bool
      */
     public function isNotEmpty() {
-        return !empty($this->_value);
+        return count($this->_value);
     }
 
     /**

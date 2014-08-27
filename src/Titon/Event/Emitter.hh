@@ -242,7 +242,7 @@ class Emitter {
      * @throws \Titon\Event\Exception\InvalidCallbackException
      */
     public function register(string $event, callable $callback, Map<string, mixed> $options = Map {}): this {
-        if (empty($this->_observers[$event])) {
+        if (!isset($this->_observers[$event])) {
             $this->_observers[$event] = Vector {};
         }
 

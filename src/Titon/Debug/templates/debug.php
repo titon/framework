@@ -1,5 +1,5 @@
 <div class="titon-debug">
-    <?php if (!empty($file)) { ?>
+    <?php if (isset($file)) { ?>
         <div class="debug-head">
             <abbr title="<?php echo $file; ?>" class="debug-file">
                 <?php echo path_alias($file) . ':'; ?><!--

@@ -237,7 +237,7 @@ class Router {
 
             // Reverse routing through the key
             if (isset($url['route'])) {
-                if (empty($routes[$url['route']])) {
+                if (!isset($routes[$url['route']])) {
                     throw new InvalidRouteException(sprintf('Route with key %s does not exist', $url['route']));
                 }
 
@@ -271,15 +271,15 @@ class Router {
             // Module, controller, action
             } else {
                 foreach ($this->getConfig('prefixes') as $prefix) {
-                    if (!empty($url[$prefix])) {
+                    if (isset($url[$prefix])) {
                         $path[] = $url[$prefix];
                     }
                 }
 
                 // Hide controller and action if they are both set to index
                 // But only if there are no arguments or extension
-                $hasArgs = !empty($args);
-                $hasExt = !empty($url['ext']);
+                $hasArgs = (bool) ($args);
+                $hasExt = (bool) ($url['ext']);
 
                 if ($url['controller'] !== 'index' || $url['action'] !== 'index' || $hasArgs || $hasExt) {
                     $path[] = $url['controller'];
@@ -289,7 +289,7 @@ class Router {
                     }
                 }
 
-                if (!empty($url['ext'])) {
+                if (isset($url['ext'])) {
                     $ext = $url['ext'];
                 }
             }
@@ -710,7 +710,7 @@ class Router {
 
         $url .= $segments['path'];
 
-        if (!empty($segments['query'])) {
+        if (isset($segments['query'])) {
             $url .= '?' . http_build_query($segments['query'], '', '&', PHP_QUERY_RFC1738);
         }
 

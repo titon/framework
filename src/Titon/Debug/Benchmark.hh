@@ -47,7 +47,7 @@ class Benchmark {
      * @throws \Titon\Debug\Exception\MissingBenchmarkException
      */
     public static function get(string $key): Map<string, ?float> {
-        if (empty(static::$_benchmarks[$key])) {
+        if (!isset(static::$_benchmarks[$key])) {
             throw new MissingBenchmarkException(sprintf('Benchmark %s does not exist', $key));
         }
 

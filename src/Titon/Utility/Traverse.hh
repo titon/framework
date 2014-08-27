@@ -148,7 +148,7 @@ class Traverse {
     public static function filter(Traversable $collection, bool $recursive = true, ?callable $callback = null): mixed {
         if ($callback === null) {
             $callback = function($var) {
-                return ($var === 0 || $var === '0' || !empty($var));
+                return ($var === 0 || $var === '0' || $var);
             };
         }
 
@@ -460,7 +460,7 @@ class Traverse {
             while (count($paths) > 1) {
                 $key = array_shift($paths);
 
-                if (empty($data[$key]) || !$data[$key] instanceof Traversable) {
+                if (!isset($data[$key]) || !$data[$key] instanceof Traversable) {
                     return $collection;
                 }
 
@@ -473,7 +473,7 @@ class Traverse {
             while (count($paths) > 1) {
                 $key = array_shift($paths);
 
-                if (empty($data[$key]) || !$data[$key] instanceof Traversable) {
+                if (!isset($data[$key]) || !$data[$key] instanceof Traversable) {
                     return $collection;
                 }
 

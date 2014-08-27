@@ -382,7 +382,7 @@ class Validate {
      * @return bool
      */
     public static function file(mixed $input): bool {
-        return (is_array($input) && !empty($input['tmp_name']) && $input['error'] == 0);
+        return (is_array($input) && isset($input['tmp_name']) && $input['error'] == 0);
     }
 
     /**
@@ -607,7 +607,7 @@ class Validate {
      * @return bool
      */
     public static function notEmpty(mixed $input): bool {
-        return (!empty($input) || $input === 0 || $input === '0');
+        return ($input || $input === 0 || $input === '0');
     }
 
     /**

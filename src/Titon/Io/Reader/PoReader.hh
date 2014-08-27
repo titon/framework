@@ -45,12 +45,12 @@ class PoReader extends AbstractReader {
 
         foreach ($lines as $line) {
             // Comment or empty line
-            if ($line[0] === '#' || empty($line)) {
+            if ($line[0] === '#' || !$line) {
                 continue;
 
             // Multiline value
             } else if ($line[0] === '"') {
-                $value .= "\n" . self::dequote($line);
+                $value .= "\n" . static::dequote($line);
 
             // Key
             } else if (mb_strpos($line, 'msgid') === 0) {
@@ -60,13 +60,13 @@ class PoReader extends AbstractReader {
                     $value = '';
                 }
 
-                $key = self::dequote($line);
+                $key = static::dequote($line);
 
             // Message
             } else if (mb_strpos($line, 'msgstr') === 0) {
                 // msgstr[n]
                 if ($line[6] === '[') {
-                    $val = self::dequote($line);
+                    $val = static::dequote($line);
 
                     if ($plural) {
                         $value[] = $val;
@@ -77,7 +77,7 @@ class PoReader extends AbstractReader {
 
                 // msgstr
                 } else {
-                    $value = self::dequote($line);
+                    $value = static::dequote($line);
                     $plural = false;
                 }
             }

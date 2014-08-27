@@ -90,7 +90,7 @@ class MemcacheStorage extends AbstractStorage {
         $serverList = $this->connection->getServerList();
 
         // Only add servers if none exist
-        if (empty($serverList)) {
+        if (!$serverList) {
             $this->connection->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
             $this->connection->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
             $this->connection->setOption(Memcached::OPT_COMPRESSION, (bool) $config['compress']);

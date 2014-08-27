@@ -149,7 +149,7 @@ class HtmlHelper extends AbstractHelper {
             $type = mb_strtolower((string) $type);
         }
 
-        if (empty($content)) {
+        if (!$content) {
             switch ($type) {
                 case 'content-script-type':
                     $content = 'text/javascript';

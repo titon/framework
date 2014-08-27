@@ -221,7 +221,7 @@ abstract class AbstractController extends Base implements Controller, Listener {
         }
 
         if (!$template) {
-            if (!empty($config['template'])) {
+            if ($config['template']) {
                 $template = $config['template'];
             } else {
                 $template = Traverse::reduce($config, Vector {'controller', 'action', 'ext', 'locale'});

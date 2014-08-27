@@ -126,7 +126,7 @@ class Converter {
      * @return bool
      */
     public static function isJson(mixed $data): bool {
-        if (!is_string($data) || empty($data)) {
+        if (!is_string($data) || !$data) {
             return false;
         }
 
@@ -152,7 +152,7 @@ class Converter {
      * @return bool
      */
     public static function isSerialized(mixed $data): bool {
-        if (!is_string($data) || empty($data)) {
+        if (!is_string($data) || !$data) {
             return false;
         }
 
@@ -364,7 +364,7 @@ class Converter {
                     $node = $xml->addChild($key, static::unbox($value['value']));
                 }
 
-                if (!empty($value['attributes'])) {
+                if (isset($value['attributes'])) {
                     foreach ($value['attributes'] as $aKey => $aValue) {
                         $node->addAttribute($aKey, static::unbox($aValue));
                     }
@@ -375,7 +375,7 @@ class Converter {
                 $node = $xml->addChild($key, $value['value']);
                 unset($value['value']);
 
-                if (!empty($value)) {
+                if (isset($value)) {
                     foreach ($value as $aKey => $aValue) {
                         $node->addAttribute($aKey, static::unbox($aValue));
                     }
@@ -385,7 +385,7 @@ class Converter {
             } else {
                 $node = $xml->addChild($key);
 
-                if (!empty($value)) {
+                if (isset($value)) {
                     foreach ($value as $aKey => $aValue) {
                         if (is_array($aValue)) {
                             static::buildXml($node, [$aKey => $aValue]);

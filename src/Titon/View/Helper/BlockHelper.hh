@@ -164,7 +164,7 @@ class BlockHelper extends AbstractHelper {
      * @return $this
      */
     public function stop(): this {
-        if (empty($this->_active)) {
+        if (!$this->_active) {
             return $this;
         }
 

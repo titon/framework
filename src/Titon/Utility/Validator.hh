@@ -227,7 +227,7 @@ class Validator {
         $messages = $this->getMessages();
 
         foreach ($this->_data as $field => $value) {
-            if (empty($this->_rules[$field])) {
+            if (!isset($this->_rules[$field])) {
                 continue;
             }
 
@@ -276,7 +276,7 @@ class Validator {
             }
         }
 
-        return empty($this->_errors);
+        return (count($this->_errors) === 0);
     }
 
     /**
@@ -344,7 +344,7 @@ class Validator {
             $parts = explode(':', $shorthand, 3);
             $rule = $parts[0];
 
-            if (!empty($parts[1])) {
+            if (isset($parts[1])) {
                 $opts = $parts[1];
 
                 if (strpos($opts, ',') !== false) {
@@ -354,7 +354,7 @@ class Validator {
                 }
             }
 
-            if (!empty($parts[2])) {
+            if (isset($parts[2])) {
                 $message = $parts[2];
             }
 

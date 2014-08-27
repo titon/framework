@@ -15,6 +15,7 @@ use Titon\Utility\Sanitize;
 use Titon\Utility\Str;
 use Titon\View\Helper;
 use Titon\View\View;
+use \Traversable;
 
 /**
  * The Helper class acts as the base for all children helpers to extend.
@@ -81,7 +82,7 @@ abstract class AbstractHelper extends Base implements Helper {
                     continue;
                 }
 
-                if ((is_traversable($escape) && !in_array($key, $escape)) || ($escape === true)) {
+                if (($escape instanceof Traversable && !in_array($key, $escape)) || ($escape === true)) {
                     $value = $this->escape((string) $value, true);
                 }
 

@@ -8,6 +8,7 @@
 namespace Titon\Common;
 
 use \Closure;
+use \Traversable;
 
 /**
  * The Cacheable trait provides functionality to cache any data from the class layer.
@@ -73,12 +74,12 @@ trait Cacheable {
      * @return string
      */
     public function createCacheKey(mixed $keys): string {
-        if (is_traversable($keys)) {
+        if ($keys instanceof Traversable) {
             $key = array_shift($keys);
 
             if ($keys) {
                 foreach ($keys as $value) {
-                    if (is_traversable($value)) {
+                    if ($value instanceof Traversable) {
                         $key .= '-' . md5(json_encode($value));
                     } else if ($value) {
                         $key .= '-' . $value;

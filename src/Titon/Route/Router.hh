@@ -312,8 +312,8 @@ class Router {
             }
 
             if ($fragment) {
-                if (is_traversable($fragment)) {
-                    $path .= '#' . http_build_query($fragment, '', '&', PHP_QUERY_RFC1738);
+                if ($fragment instanceof Traversable) {
+                    $path .= '#' . http_build_query((array) $fragment, '', '&', PHP_QUERY_RFC1738);
                 } else {
                     $path .= '#' . urlencode($fragment);
                 }

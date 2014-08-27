@@ -55,7 +55,7 @@ class Config {
      * @return string
      */
     public static function encoding(): string {
-        return static::get('app.encoding') ?: 'UTF-8';
+        return (string) static::get('app.encoding') ?: 'UTF-8';
     }
 
     /**
@@ -72,7 +72,7 @@ class Config {
      * @param mixed $default
      * @return mixed
      */
-    public static function get(string $key, ?mixed $default = null): ?mixed {
+    public static function get(string $key, mixed $default = null): mixed {
         $value = Traverse::get(static::$_config, $key);
 
         if ($value === null) {
@@ -101,8 +101,6 @@ class Config {
      */
     public static function load(string $key, Reader $reader): void {
         static::$_config[$key] = $reader->read();
-
-        unset($reader);
     }
 
     /**
@@ -111,7 +109,7 @@ class Config {
      * @return string
      */
     public static function name(): string {
-        return static::get('app.name', '');
+        return (string) static::get('app.name', '');
     }
 
     /**
@@ -129,7 +127,7 @@ class Config {
      * @return string
      */
     public static function salt(): string {
-        return static::get('app.salt', '');
+        return (string) static::get('app.salt', '');
     }
 
     /**
@@ -138,7 +136,7 @@ class Config {
      * @param string $key
      * @param mixed $value
      */
-    public static function set(string $key, ?mixed $value): void {
+    public static function set(string $key, mixed $value): void {
         Traverse::set(static::$_config, $key, $value);
     }
 

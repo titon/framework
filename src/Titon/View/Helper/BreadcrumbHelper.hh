@@ -9,6 +9,7 @@ namespace Titon\View\Helper;
 
 use Titon\Utility\Traverse;
 use Titon\Utility\Registry;
+use \Traversable;
 
 newtype breadcrumb = Map<string, mixed>;
 
@@ -36,7 +37,7 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return $this
      */
     public function add(mixed $titles, mixed $url = '', Map<string, mixed> $attributes = Map {}): this {
-        if (is_traversable($titles)) {
+        if ($titles instanceof Traversable) {
             foreach ($titles as $title => $url) {
                 $this->append($title, $url, $attributes);
             }

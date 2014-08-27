@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use Titon\Utility\Sanitize;
 use \Exception;
 use \ErrorException;
+use \Traversable;
 
 /**
  * Custom system to manage all errors and thrown/uncaught exceptions.
@@ -458,7 +459,7 @@ class Debugger {
         } else if (is_string($value)) {
             $var = '"' . Sanitize::escape($value, Map {'flags' => ENT_NOQUOTES}) . '"';
 
-        } else if (is_traversable($value)) {
+        } else if ($value instanceof Traversable) {
             if ($depth >= 3) {
                 $var = '[...]';
 

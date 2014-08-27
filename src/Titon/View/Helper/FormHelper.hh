@@ -12,7 +12,6 @@ use Titon\Utility\Config;
 use Titon\Utility\Inflector;
 use Titon\Utility\Traverse;
 use Titon\Utility\Path;
-use \Traversable;
 
 /**
  * The FormHelper is used for HTML form creation. Data is passed to the associated input fields
@@ -487,7 +486,7 @@ class FormHelper extends AbstractHelper {
             // Default checked
             is_bool($checked) && $checked ||
             // Multiple values
-            $checked instanceof Traversable && in_array($value, $checked) ||
+            is_traversable($checked) && in_array($value, $checked) ||
             // Current value equals the base value
             $checked == $value
         );
@@ -507,7 +506,7 @@ class FormHelper extends AbstractHelper {
 
         return (
             // Multiple values
-            $selected instanceof Traversable && in_array($value, $selected) ||
+            is_traversable($selected) && in_array($value, $selected) ||
             // Current value equals the base value
             $selected == $value
         );
@@ -848,7 +847,7 @@ class FormHelper extends AbstractHelper {
 
         // Generate the options
         foreach ($options as $value => $option) {
-            if ($option instanceof Traversable) {
+            if (is_traversable($option)) {
                 $output .= $this->optionGroup($value, $option, $selected);
             } else {
                 $output .= $this->option((string) $option, $value, $selected);

@@ -9,7 +9,6 @@ namespace Titon\Utility;
 
 use Titon\Common\Macroable;
 use \DateTime;
-use \Traversable;
 
 /**
  * Format provides utility methods for converting raw data to specific visual formats.
@@ -70,7 +69,8 @@ class Format {
      * @param string $format
      * @return string
      */
-    public static function format(string $value, string $format): string {
+    public static function format(mixed $value, string $format): string {
+        $value = (string) $value;
         $length = mb_strlen($format);
         $result = $format;
         $pos = 0;
@@ -78,7 +78,7 @@ class Format {
         for ($i = 0; $i < $length; $i++) {
             $char = $format[$i];
 
-            if (($char === '#' || $char === '*') && $value[$pos]) {
+            if (($char === '#' || $char === '*') && isset($value[$pos])) {
                 $replace = ($char === '*') ? '*' : $value[$pos];
                 $result = substr_replace($result, $replace, $i, 1);
                 $pos++;
@@ -104,27 +104,22 @@ class Format {
      * Format a phone number. A phone number can support multiple variations,
      * depending on how many numbers are present.
      *
-     * @param string $value
+     * @param int $value
      * @param string|array $format
      * @return string
      */
-    public static function phone(string $value, mixed $format): string {
+    public static function phone(mixed $value, mixed $format): string {
         $value = preg_replace('/[^0-9]+/', '', $value);
 
-        if ($format instanceof Traversable) {
+        if (is_traversable($format)) {
             $length = mb_strlen($value);
 
-            if ($length >= 11 && isset($format[11])) {
+            if ($length >= 11) {
                 $format = $format[11];
-
-            } else if ($length >= 10 && isset($format[10])) {
+            } else if ($length >= 10) {
                 $format = $format[10];
-
-            } else if (isset($format[7])) {
-                $format = $format[7];
-
             } else {
-                $format = str_repeat('#', $length);
+                $format = $format[7];
             }
         }
 
@@ -159,7 +154,7 @@ class Format {
         }, $options);
 
         $diff = Time::difference($options['time'], Time::toUnix($time));
-        $output = Map {};
+        $output = [];
 
         // Present tense
         if ($diff === 0) {
@@ -242,7 +237,7 @@ class Format {
      * @param string $format
      * @return string
      */
-    public static function ssn(string $value, string $format): string {
+    public static function ssn(mixed $value, string $format): string {
         return static::format($value, $format);
     }
 

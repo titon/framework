@@ -327,7 +327,7 @@ class Emitter {
      * @return Vector<Map<string, mixed>>
      */
     protected function _parseOptions(mixed $options): Vector<Map<string, mixed>> {
-        if (is_array($options) || $options instanceof Vector) {
+        if (is_array($options) || $options instanceof Vector) { // Do not use is_traversable()
             $options = new Vector($options);
         } else {
             $options = new Vector([$options]);

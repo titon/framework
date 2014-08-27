@@ -8,6 +8,7 @@
 namespace Titon\View\View;
 
 use Titon\Cache\Storage;
+use Titon\Common\Base;
 use Titon\Common\Attachable;
 use Titon\Common\Cacheable;
 use Titon\Common\FactoryAware;
@@ -24,7 +25,6 @@ use Titon\View\Exception\MissingHelperException;
 use Titon\View\Exception\MissingTemplateException;
 use Titon\View\Helper;
 use Titon\View\View;
-use \Traversable;
 
 /**
  * Defines shared functionality for view managers.
@@ -136,7 +136,7 @@ abstract class AbstractView implements View, Listener {
      * {@inheritdoc}
      */
     public function formatPath(mixed $template): string {
-        if ($template instanceof Traversable) {
+        if (is_traversable($template)) {
             $template = new Map($template);
         }
 

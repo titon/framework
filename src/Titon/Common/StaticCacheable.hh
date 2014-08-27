@@ -8,7 +8,6 @@
 namespace Titon\Common;
 
 use \Closure;
-use \Traversable;
 
 /**
  * The StaticCacheable trait provides functionality to cache any data from the static class layer.
@@ -63,12 +62,12 @@ trait StaticCacheable {
      * @return string
      */
     public static function createCacheKey(mixed $keys): string {
-        if ($keys instanceof Traversable) {
+        if (is_traversable($keys)) {
             $key = array_shift($keys);
 
             if ($keys) {
                 foreach ($keys as $value) {
-                    if ($value instanceof Traversable) {
+                    if (is_traversable($value)) {
                         $key .= '-' . md5(json_encode($value));
                     } else if ($value) {
                         $key .= '-' . $value;

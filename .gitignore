@@ -1,7 +1,5 @@
 .idea
 .vagrant
 .DS_Store
-.hhconfig
 vendor/
 composer.phar
-test.hh

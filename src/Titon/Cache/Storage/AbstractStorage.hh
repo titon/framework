@@ -12,7 +12,6 @@ use Titon\Common\Cacheable;
 use Titon\Cache\Storage;
 use Titon\Utility\Time;
 use \Closure;
-use \Traversable;
 
 /**
  * Primary class for all storage engines to extend. Provides functionality from the Base class and the Storage interface.
@@ -122,7 +121,7 @@ abstract class AbstractStorage extends Base implements Storage {
      * @return Vector<mixed>
      */
     public function parseServer(mixed $server, ?int $port = null, ?mixed $arg = null): Vector<mixed> {
-        if ($server instanceof Traversable) {
+        if (is_traversable($server)) {
             return new Vector($server);
         }
 

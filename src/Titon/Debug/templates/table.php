@@ -1,7 +1,7 @@
-<?php if ($value instanceof Traversable || is_object($value)) {
+<?php if (is_traversable($value) || is_object($value)) {
 
     // Empty data set
-    if (!$value) { ?>
+    if (empty($value)) { ?>
         <span class="debug-type unknown">(empty)</span>
         <?php return;
     } ?>

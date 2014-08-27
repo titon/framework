@@ -10,7 +10,6 @@ namespace Titon\View\Helper;
 use Titon\Utility\Config;
 use Titon\Utility\Crypt;
 use Titon\Utility\Traverse;
-use \Traversable;
 
 /**
  * The HtmlHelper is primarily used for dynamic HTML tag creation within templates.
@@ -234,7 +233,7 @@ class HtmlHelper extends AbstractHelper {
     public function title(string $separator = ' - '): string {
         $pageTitle = $this->getView()->getVariable('pageTitle');
 
-        if ($pageTitle instanceof Traversable) {
+        if (is_traversable($pageTitle)) {
             return implode($separator, $pageTitle);
         }
 

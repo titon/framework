@@ -9,6 +9,8 @@ parser.add_argument('-f', '--filter', dest='filter', help='Filter tests using a 
 parser.add_argument('-d', '--debug', dest='debug', help='Debug tests by stopping on failures.', action='store_true')
 
 args = parser.parse_args()
+
+# Build command to run
 command = 'hhvm /vagrant/vendor/phpunit/phpunit/phpunit --configuration /vagrant/phpunit.xml --test-suffix=Test.hh'
 
 if args.filter:
@@ -19,5 +21,7 @@ if args.debug:
 
 command += ' /vagrant/tests/' + args.path
 
+# Run command
 print('Running command: ' + command + "\n")
+
 os.system(command)

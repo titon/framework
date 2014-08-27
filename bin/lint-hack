@@ -1,4 +1,28 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-cd /vagrant/
-hh_client
+from argparse import ArgumentParser
+import os
+
+parser = ArgumentParser(description='Run the Hack strict mode linter.')
+parser.add_argument('-p', '--path', dest='path', default='', help='Path to a folder to lint.')
+
+args = parser.parse_args()
+
+# Go to the defined path
+path = '/vagrant/'
+
+if (args.path):
+    path += 'src/' + args.path;
+
+os.chdir(path)
+
+# Create .hhconfig file
+config = open('.hhconfig', 'w+')
+config.close()
+
+# Run the linter
+os.system('hh_client')
+os.system('hh_client restart')
+
+# Delete the .hhconfig file
+os.remove('.hhconfig')

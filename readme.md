@@ -91,5 +91,8 @@ it couldn't be easier. Simply run the following command to check for strict issu
 /vagrant/bin/lint-hack
 ```
 
-If any file changes are not reflected in lint results (it's a file system syncing issue),
-you will need to either restart Vagrant, or run `hh_client restart`.
+Or lint a specific folder.
+
+```bash
+/vagrant/bin/lint-hack --path=Titon/Utility
+```

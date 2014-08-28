@@ -158,7 +158,7 @@ class Validate {
      * @return bool
      * @throws \Titon\Utility\Exception\InvalidCreditCardException
      */
-    public static function creditCard(mixed $input, ?mixed $types = null): bool {
+    public static function creditCard(mixed $input, mixed $types = null): bool {
         $input = str_replace(['-', ' '], '', $input);
 
         if (mb_strlen($input) < 13) {

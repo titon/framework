@@ -54,7 +54,7 @@ class ReflectionBag extends AbstractBag {
      * @return mixed
      * @throws \Titon\Common\Exception\InvalidDescriptorException
      */
-    public function get(string $key, ?mixed $default = null): ?mixed {
+    public function get(string $key, mixed $default = null): mixed {
         if ($this->has($key)) {
             return parent::get($key);
         }

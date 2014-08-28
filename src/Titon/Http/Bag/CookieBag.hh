@@ -94,7 +94,7 @@ class CookieBag extends ParameterBag {
      * @param mixed $default
      * @return mixed
      */
-    public function get(string $key, ?mixed $default = null): ?mixed {
+    public function get(string $key, mixed $default = null): mixed {
         if ($value = parent::get($key)) {
             return $this->decrypt($key, $value);
         }
@@ -110,7 +110,7 @@ class CookieBag extends ParameterBag {
      * @param mixed $value
      * @return $this
      */
-    public function set(string $key, ?mixed $value = null): this {
+    public function set(string $key, mixed $value = null): this {
         return parent::set($key, $this->encrypt($key, $value));
     }
 

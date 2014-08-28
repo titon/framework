@@ -19,7 +19,7 @@ use Titon\Utility\Str;
  * @see Titon\Utility\Config::set()
  */
 if (!function_exists('config')) {
-    function config(string $key, ?mixed $value = null): ?mixed {
+    function config(string $key, mixed $value = null): mixed {
         if ($value !== null) {
             Config::set($key, $value);
             return true;
@@ -34,7 +34,7 @@ if (!function_exists('config')) {
  * @see Titon\Utility\Registry::set()
  */
 if (!function_exists('registry')) {
-    function registry(string $key, ?mixed $object = null): ?mixed {
+    function registry(string $key, mixed $object = null): mixed {
         if ($object !== null) {
             return Registry::set($object, $key);
         }
@@ -47,7 +47,7 @@ if (!function_exists('registry')) {
  * @see Titon\Utility\Registry::factory()
  */
 if (!function_exists('factory')) {
-    function factory(string $key): ?mixed {
+    function factory(string $key): mixed {
         return Registry::factory($key);
     }
 }
@@ -84,7 +84,7 @@ if (!function_exists('map_every')) {
  */
 if (!function_exists('map_exclude')) {
     function map_exclude(Map $collection, Vector<string> $keys): Map<string, mixed> {
-        return Traverse::exclude($set, $keys);
+        return Traverse::exclude($collection, $keys);
     }
 }
 
@@ -93,7 +93,7 @@ if (!function_exists('map_exclude')) {
  */
 if (!function_exists('map_expand')) {
     function map_expand(Map $collection): Map<string, mixed> {
-        return Traverse::expand($set);
+        return Traverse::expand($collection);
     }
 }
 
@@ -119,7 +119,7 @@ if (!function_exists('map_flatten')) {
  * @see Titon\Utility\Traverse::get()
  */
 if (!function_exists('map_get')) {
-    function map_get(Map $collection, string $path = ''): ?mixed {
+    function map_get(Map $collection, string $path = ''): mixed {
         return Traverse::get($collection, $path);
     }
 }
@@ -146,7 +146,7 @@ if (!function_exists('map_inject')) {
  * @see Titon\Utility\Traverse::keyOf()
  */
 if (!function_exists('map_key_of')) {
-    function map_key_of(Collection $collection, mixed $match): ?mixed {
+    function map_key_of(Collection $collection, mixed $match): mixed {
         return Traverse::keyOf($collection, $match);
     }
 }
@@ -173,7 +173,7 @@ if (!function_exists('map_remove')) {
  * @see Titon\Utility\Traverse::set()
  */
 if (!function_exists('map_set')) {
-    function map_set(Collection $collection, mixed $path, ?mixed $value = null): Map<string, mixed> {
+    function map_set(Collection $collection, mixed $path, mixed $value = null): Map<string, mixed> {
         return Traverse::set($collection, $path, $value);
     }
 }

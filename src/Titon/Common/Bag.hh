@@ -45,7 +45,7 @@ interface Bag {
      * @param mixed $default
      * @return mixed
      */
-    public function get(string $key, ?mixed $default = null): ?mixed;
+    public function get(string $key, mixed $default = null): mixed;
 
     /**
      * Set a value defined by key. Can pass in a dot notated path
@@ -55,7 +55,7 @@ interface Bag {
      * @param mixed $value
      * @return $this
      */
-    public function set(string $key, ?mixed $value): this;
+    public function set(string $key, mixed $value): this;
 
     /**
      * Check if a key exists within the bag.

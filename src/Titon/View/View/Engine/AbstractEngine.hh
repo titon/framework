@@ -56,7 +56,7 @@ abstract class AbstractEngine implements Engine {
     /**
      * {@inheritdoc}
      */
-    public function data(string $key, ?mixed $default = null): ?mixed {
+    public function data(string $key, mixed $default = null): mixed {
         return isset($this->_variables[$key]) ? $this->_variables[$key] : $default;
     }
 

@@ -171,7 +171,7 @@ class Event {
      * @param mixed $value
      * @return $this
      */
-    public function setData(string $key, ?mixed $value): this {
+    public function setData(string $key, mixed $value): this {
         Traverse::set($this->_data, $key, $value);
 
         return $this;
@@ -183,7 +183,7 @@ class Event {
      * @param mixed $state
      * @return $this
      */
-    public function setState(?mixed $state): this {
+    public function setState(mixed $state): this {
         $this->_state = $state;
 
         return $this;

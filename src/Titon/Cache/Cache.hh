@@ -78,7 +78,7 @@ class Cache {
      * @param string $storage
      * @return mixed
      */
-    public function get(string $key, string $storage = 'default'): ?mixed {
+    public function get(string $key, string $storage = 'default'): mixed {
         return $this->getStorage($storage)->get($key);
     }
 
@@ -149,7 +149,7 @@ class Cache {
      * @param string $storage
      * @return bool
      */
-    public function set(string $key, ?mixed $value, mixed $expires = '+1 day', string $storage = 'default'): bool {
+    public function set(string $key, mixed $value, mixed $expires = '+1 day', string $storage = 'default'): bool {
         return $this->getStorage($storage)->set($key, $value, $expires);
     }
 
@@ -172,7 +172,7 @@ class Cache {
      * @param string $storage
      * @return mixed
      */
-    public function store(string $key, Closure $callback, mixed $expires = '+1 day', string $storage = 'default'): ?mixed {
+    public function store(string $key, Closure $callback, mixed $expires = '+1 day', string $storage = 'default'): mixed {
         return $this->getStorage($storage)->store($key, $callback, $expires);
     }
 

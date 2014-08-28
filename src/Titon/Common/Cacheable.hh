@@ -48,7 +48,7 @@ trait Cacheable {
      * @param mixed|\Closure $value
      * @return mixed
      */
-    public function cache(mixed $key, ?mixed $value): ?mixed {
+    public function cache(mixed $key, mixed $value): mixed {
         $key = $this->createCacheKey($key);
 
         if ($cache = $this->getCache($key)) {
@@ -109,7 +109,7 @@ trait Cacheable {
      * @param string|array $key
      * @return mixed
      */
-    public function getCache(mixed $key): ?mixed {
+    public function getCache(mixed $key): mixed {
         if (!$this->__cacheEnabled) {
             return null;
         }
@@ -154,7 +154,7 @@ trait Cacheable {
      * @param mixed $value
      * @return mixed
      */
-    public function setCache(mixed $key, ?mixed $value): ?mixed {
+    public function setCache(mixed $key, mixed $value): mixed {
         $this->_cache->set($this->createCacheKey($key), $value);
 
         return $value;

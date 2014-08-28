@@ -29,7 +29,7 @@ if (!function_exists('backtrace')) {
  * @see Titon\Debug\Debugger::export()
  */
 if (!function_exists('export')) {
-    function export(?mixed $var, bool $short = true): void {
+    function export(mixed $var, bool $short = true): void {
         echo Debugger::export($var, $short);
     }
 }

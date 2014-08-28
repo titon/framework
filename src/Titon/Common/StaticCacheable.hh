@@ -41,7 +41,7 @@ trait StaticCacheable {
      * @param mixed|\Closure $value
      * @return mixed
      */
-    public static function cache(mixed $key, ?mixed $value): ?mixed {
+    public static function cache(mixed $key, mixed $value): mixed {
         $key = static::createCacheKey($key);
 
         if ($cache = static::getCache($key)) {
@@ -94,7 +94,7 @@ trait StaticCacheable {
      * @param string|array $key
      * @return mixed
      */
-    public static function getCache(mixed $key): ?mixed {
+    public static function getCache(mixed $key): mixed {
         $key = static::createCacheKey($key);
 
         if (static::hasCache($key)) {
@@ -132,7 +132,7 @@ trait StaticCacheable {
      * @param mixed $value
      * @return mixed
      */
-    public static function setCache(mixed $key, ?mixed $value): ?mixed {
+    public static function setCache(mixed $key, mixed $value): mixed {
         static::$_cache->set(static::createCacheKey($key), $value);
 
         return $value;

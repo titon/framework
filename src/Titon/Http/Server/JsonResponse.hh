@@ -39,7 +39,7 @@ class JsonResponse extends Response {
      * @param Map<string, mixed> $config
      * @throws \Titon\Http\Exception\MalformedResponseException
      */
-    public function __construct(?mixed $body = null, int $status = Http::OK, ?int $flags = null, Map<string, mixed> $config = Map {}) {
+    public function __construct(mixed $body = null, int $status = Http::OK, ?int $flags = null, Map<string, mixed> $config = Map {}) {
         if ($flags === null) {
             $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
         }

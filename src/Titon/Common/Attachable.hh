@@ -68,7 +68,7 @@ trait Attachable {
      * @param mixed $options
      * @param mixed $object
      */
-    public function __set(mixed $options, ?mixed $object): void {
+    public function __set(mixed $options, mixed $object): void {
         $this->attachObject($options, $object);
     }
 
@@ -119,7 +119,7 @@ trait Attachable {
      * @return $this
      * @throws \Titon\Common\Exception\InvalidObjectException
      */
-    public function attachObject(mixed $options, ?mixed $object = null): this {
+    public function attachObject(mixed $options, mixed $object = null): this {
         if (is_string($options)) {
             $options = Map {'alias' => $options};
         }

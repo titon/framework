@@ -130,7 +130,7 @@ class FormHelper extends AbstractHelper {
      * }
      * @return string
      */
-    public function checkbox(string $name, ?mixed $value = 1, Map<string, mixed> $attributes = Map {}): string {
+    public function checkbox(string $name, mixed $value = 1, Map<string, mixed> $attributes = Map {}): string {
         $checked = $this->getValue($name, $attributes);
 
         if ($this->isChecked($checked, $value)) {
@@ -184,7 +184,7 @@ class FormHelper extends AbstractHelper {
      * @param mixed $default
      * @return mixed
      */
-    public function config(string $key, Map<string, mixed> $attributes, ?mixed $default = null): ?mixed {
+    public function config(string $key, Map<string, mixed> $attributes, mixed $default = null): mixed {
         if (isset($attributes[$key])) {
             return $attributes[$key];
 
@@ -265,7 +265,7 @@ class FormHelper extends AbstractHelper {
      * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function email(string $name, ?mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
+    public function email(string $name, mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
         return $this->input($name, $value, 'email', $attributes);
     }
 
@@ -333,7 +333,7 @@ class FormHelper extends AbstractHelper {
      * @param Vector<string> $keys
      * @return mixed
      */
-    public function getDefaultValue(Map<string, mixed> $attributes, Vector<string> $keys = Vector {'default'}): ?mixed {
+    public function getDefaultValue(Map<string, mixed> $attributes, Vector<string> $keys = Vector {'default'}): mixed {
         foreach ($keys as $key) {
             if (isset($attributes[$key])) {
                 return $attributes[$key];
@@ -358,7 +358,7 @@ class FormHelper extends AbstractHelper {
      * @param string $key
      * @return mixed
      */
-    public function getRequestValue(string $key): ?mixed {
+    public function getRequestValue(string $key): mixed {
         $request = $this->getRequest();
 
         // Use the data bag on the request object
@@ -380,7 +380,7 @@ class FormHelper extends AbstractHelper {
      * @param Map<string, mixed> $attributes
      * @return mixed
      */
-    public function getValue(string $name, Map<string, mixed> $attributes = Map {}): ?mixed {
+    public function getValue(string $name, Map<string, mixed> $attributes = Map {}): mixed {
         $value = $this->getRequestValue($name);
         $model = $this->getModel();
 
@@ -405,7 +405,7 @@ class FormHelper extends AbstractHelper {
      * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function hidden(string $name, ?mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
+    public function hidden(string $name, mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
         return $this->input($name, $value, 'hidden', $attributes);
     }
 
@@ -449,7 +449,7 @@ class FormHelper extends AbstractHelper {
      * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function input(string $name, ?mixed $value = null, string $type = 'text', Map<string, mixed> $attributes = Map {}): string {
+    public function input(string $name, mixed $value = null, string $type = 'text', Map<string, mixed> $attributes = Map {}): string {
         $attributes = $this->prepareAttributes(Map {'name' => $name, 'value' => $value, 'type' => $type}, $attributes);
 
         // Grab current value from the request
@@ -477,7 +477,7 @@ class FormHelper extends AbstractHelper {
      * @param mixed $value      The value for the checkbox
      * @return bool
      */
-    public function isChecked(?mixed $checked, ?mixed $value): bool {
+    public function isChecked(mixed $checked, mixed $value): bool {
         if ($checked === null) {
             return false;
         }
@@ -499,7 +499,7 @@ class FormHelper extends AbstractHelper {
      * @param mixed $value      The value for hte option
      * @return bool
      */
-    public function isSelected(?mixed $selected, ?mixed $value): bool {
+    public function isSelected(mixed $selected, mixed $value): bool {
         if ($selected === null) {
             return false;
         }
@@ -652,7 +652,7 @@ class FormHelper extends AbstractHelper {
      * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function option(string $label, ?mixed $value, ?mixed $selected = null, Map<string, mixed> $attributes = Map {}): string {
+    public function option(string $label, mixed $value, mixed $selected = null, Map<string, mixed> $attributes = Map {}): string {
         $attributes['value'] = $value;
 
         if ($this->isSelected($selected, $value)) {
@@ -674,7 +674,7 @@ class FormHelper extends AbstractHelper {
      * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function optionGroup(string $label, Map<mixed, mixed> $options, ?mixed $selected = null, Map<string, mixed> $attributes = Map {}): string {
+    public function optionGroup(string $label, Map<mixed, mixed> $options, mixed $selected = null, Map<string, mixed> $attributes = Map {}): string {
         $attributes['label'] = $label;
         $output = PHP_EOL;
 
@@ -746,7 +746,7 @@ class FormHelper extends AbstractHelper {
      * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function radio(string $name, ?mixed $value, Map<string, mixed> $attributes = Map {}): string {
+    public function radio(string $name, mixed $value, Map<string, mixed> $attributes = Map {}): string {
         $checked = $this->getValue($name, $attributes);
 
         if ($this->isChecked($checked, $value)) {
@@ -899,7 +899,7 @@ class FormHelper extends AbstractHelper {
      * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function text(string $name, ?mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
+    public function text(string $name, mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
         return $this->input($name, $value, 'text', $attributes);
     }
 
@@ -911,7 +911,7 @@ class FormHelper extends AbstractHelper {
      * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function textarea(string $name, ?mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
+    public function textarea(string $name, mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
         $attributes = $this->prepareAttributes(Map {'name' => $name, 'cols' => 25, 'rows' => 5}, $attributes);
         $requestValue = $this->getRequestValue($name);
 
@@ -970,7 +970,7 @@ class FormHelper extends AbstractHelper {
      * @param Map<string, mixed> $attributes
      * @return string
      */
-    public function url(string $name, ?mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
+    public function url(string $name, mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
         return $this->input($name, $value, 'url', $attributes);
     }
 

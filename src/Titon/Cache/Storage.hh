@@ -45,7 +45,7 @@ interface Storage {
      * @param string $key
      * @return mixed Returns null if the key isn't found, else the value
      */
-    public function get(string $key): ?mixed;
+    public function get(string $key): mixed;
 
     /**
      * Check if the item exists within the cache.
@@ -81,7 +81,7 @@ interface Storage {
      * @param mixed $expires
      * @return bool
      */
-    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool;
+    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool;
 
     /**
      * Returns cached information from the storage engine.
@@ -99,6 +99,6 @@ interface Storage {
      * @param mixed $expires
      * @return mixed
      */
-    public function store(string $key, Closure $callback, mixed $expires = '+1 day'): ?mixed;
+    public function store(string $key, Closure $callback, mixed $expires = '+1 day'): mixed;
 
 }

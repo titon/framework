@@ -48,7 +48,7 @@ class Time {
      * @param string $timezone
      * @return \DateTime
      */
-    public static function factory(?mixed $time = null, ?mixed $timezone = null): DateTime {
+    public static function factory(mixed $time = null, mixed $timezone = null): DateTime {
         $timezone = static::timezone($timezone);
 
         if ($time instanceof DateTime) {
@@ -136,7 +136,7 @@ class Time {
      * @param \DateTimeZone|string $timezone
      * @return \DateTimeZone
      */
-    public static function timezone(?mixed $timezone = null): DateTimeZone {
+    public static function timezone(mixed $timezone = null): DateTimeZone {
         if ($timezone instanceof DateTimeZone) {
             return $timezone;
         }
@@ -154,7 +154,7 @@ class Time {
      * @param string|int $time
      * @return int
      */
-    public static function toUnix(?mixed $time): int {
+    public static function toUnix(mixed $time): int {
         if (!$time) {
             return time();
 

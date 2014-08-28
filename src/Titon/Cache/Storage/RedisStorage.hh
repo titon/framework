@@ -113,7 +113,7 @@ class RedisStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function get(string $key): ?mixed {
+    public function get(string $key): mixed {
         $value = $this->connection->get($this->key($key));
 
         if ($value === false) {
@@ -149,7 +149,7 @@ class RedisStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
+    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
         if ($expires === 0) {
             return $this->connection->set($this->key($key), $value);
         }

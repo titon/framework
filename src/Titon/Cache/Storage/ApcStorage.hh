@@ -49,7 +49,7 @@ class ApcStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function get(string $key): ?mixed {
+    public function get(string $key): mixed {
         return $this->returnValue(apc_fetch($this->key($key)));
     }
 
@@ -77,7 +77,7 @@ class ApcStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
+    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
         $expires = $this->expires($expires, true);
 
         // Immediately invalidate

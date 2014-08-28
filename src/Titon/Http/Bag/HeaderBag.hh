@@ -22,7 +22,7 @@ class HeaderBag extends ParameterBag {
     /**
      * {@inheritdoc}
      */
-    public function get(string $key, ?mixed $default = null): ?mixed {
+    public function get(string $key, mixed $default = null): mixed {
         return parent::get($this->key($key), $default);
     }
 
@@ -62,7 +62,7 @@ class HeaderBag extends ParameterBag {
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, ?mixed $value = null): this {
+    public function set(string $key, mixed $value = null): this {
         return parent::set($this->key($key), $value);
     }
 

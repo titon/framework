@@ -347,7 +347,7 @@ class Converter {
      * @param array $array
      * @return \SimpleXMLElement
      */
-    public static function buildXml(SimpleXMLElement &$xml, array $array): SimpleXmlElement {
+    public static function buildXml(SimpleXMLElement $xml, array $array): SimpleXmlElement {
         if (!is_array($array)) {
             return $xml;
         }

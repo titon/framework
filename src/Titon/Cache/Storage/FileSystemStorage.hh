@@ -112,7 +112,7 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function get(string $key): ?mixed {
+    public function get(string $key): mixed {
         if ($this->has($key)) {
             return unserialize($this->loadCache($key)->read());
         }
@@ -174,7 +174,7 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
+    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
         return (
             $this->loadCache($key)->write(serialize($value)) &&
             $this->loadExpires($key)->write($this->expires($expires))

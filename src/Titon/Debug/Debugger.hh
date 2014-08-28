@@ -214,7 +214,7 @@ class Debugger {
      * @param bool $short
      * @return string
      */
-    public static function export(?mixed $var, bool $short = true): string {
+    public static function export(mixed $var, bool $short = true): string {
         if (error_reporting() <= 0) {
             return '';
         }
@@ -426,7 +426,7 @@ class Debugger {
      * @param mixed $value
      * @return string
      */
-    public static function parseType(?mixed $value): string {
+    public static function parseType(mixed $value): string {
         if (is_callable($value)) {
             return 'callable';
         }
@@ -446,7 +446,7 @@ class Debugger {
      * @param int $depth
      * @return string
      */
-    public static function parseValue(?mixed $value, bool $wrap = false, int $depth = 0): string {
+    public static function parseValue(mixed $value, bool $wrap = false, int $depth = 0): string {
         $var = '';
 
         if (is_numeric($value)) {

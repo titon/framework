@@ -279,7 +279,7 @@ class Request extends AbstractMessage implements BaseRequest {
      * @param string $key
      * @return mixed
      */
-    public function getCookie(string $key): ?mixed {
+    public function getCookie(string $key): mixed {
         return $this->cookies->get($key);
     }
 

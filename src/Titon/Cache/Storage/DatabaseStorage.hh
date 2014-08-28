@@ -52,7 +52,7 @@ class DatabaseStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function get(string $key): ?mixed {
+    public function get(string $key): mixed {
         if ($entity = $this->find($key)->first()) {
             if ($entity->expires_at < date('Y-m-d H:i:s')) {
                 $this->getRepository()->delete($entity->id);
@@ -82,7 +82,7 @@ class DatabaseStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
+    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
         $repo = $this->getRepository();
 
         if ($entity = $this->find($key)->first()) {

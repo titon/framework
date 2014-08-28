@@ -107,14 +107,14 @@ interface View {
      * @param string $key
      * @return mixed
      */
-    public function getVariable(string $key): ?mixed;
+    public function getVariable(string $key): mixed;
 
     /**
      * Return all variables.
      *
-     * @return Map<string, ?mixed>
+     * @return Map<string, mixed>
      */
-    public function getVariables(): Map<string, ?mixed>;
+    public function getVariables(): Map<string, mixed>;
 
     /**
      * Locate a template within the lookup paths.
@@ -170,14 +170,14 @@ interface View {
      * @param mixed $value
      * @return $this
      */
-    public function setVariable(string $key, ?mixed $value): this;
+    public function setVariable(string $key, mixed $value): this;
 
     /**
      * Set multiple view variables.
      *
-     * @param Map<string, ?mixed> $data
+     * @param Map<string, mixed> $data
      * @return $this
      */
-    public function setVariables(Map<string, ?mixed> $data): this;
+    public function setVariables(Map<string, mixed> $data): this;
 
 }

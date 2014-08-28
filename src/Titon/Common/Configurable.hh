@@ -78,7 +78,7 @@ trait Configurable {
      * @param mixed $default
      * @return mixed
      */
-    public function getConfig(string $key, ?mixed $default = null): ?mixed {
+    public function getConfig(string $key, mixed $default = null): mixed {
         return $this->getConfigBag()->get($key, $default);
     }
 
@@ -120,7 +120,7 @@ trait Configurable {
      * @param mixed $value
      * @return $this
      */
-    public function setConfig(string $key, ?mixed $value): this {
+    public function setConfig(string $key, mixed $value): this {
         $this->getConfigBag()->set($key, $value);
 
         return $this;

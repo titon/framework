@@ -419,7 +419,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string $callback
      * @return \Titon\Http\Server\JsonResponse
      */
-    public static function json(?mixed $data, int $flags = 0, string $callback = ''): JsonResponse {
+    public static function json(mixed $data, int $flags = 0, string $callback = ''): JsonResponse {
         return new JsonResponse($data, Http::OK, $flags, Map {
             'callback' => $callback
         });
@@ -679,7 +679,7 @@ class Response extends AbstractMessage implements BaseResponse {
      * @param string $root
      * @return \Titon\Http\Server\XmlResponse
      */
-    public static function xml(?mixed $data, string $root = 'root'): XmlResponse {
+    public static function xml(mixed $data, string $root = 'root'): XmlResponse {
         return new XmlResponse($data, Http::OK, $root);
     }
 

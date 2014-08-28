@@ -36,9 +36,9 @@ abstract class AbstractView implements View, Listener {
     /**
      * Variable data for templates.
      *
-     * @type Map<string, ?mixed>
+     * @type Map<string, mixed>
      */
-    protected Map<string, ?mixed> $_data = Map {};
+    protected Map<string, mixed> $_data = Map {};
 
     /**
      * The extension used in templates.
@@ -200,14 +200,14 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function getVariable(string $key): ?mixed {
+    public function getVariable(string $key): mixed {
         return isset($this->_data[$key]) ? $this->_data[$key] : null;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getVariables(): Map<string, ?mixed> {
+    public function getVariables(): Map<string, mixed> {
         return $this->_data;
     }
 
@@ -330,7 +330,7 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function setVariable(string $key, ?mixed $value): this {
+    public function setVariable(string $key, mixed $value): this {
         $this->_data[Inflector::variable($key)] = $value;
 
         return $this;
@@ -339,7 +339,7 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function setVariables(Map<string, ?mixed> $data): this {
+    public function setVariables(Map<string, mixed> $data): this {
         foreach ($data as $key => $value) {
             $this->setVariable($key, $value);
         }

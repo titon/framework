@@ -42,7 +42,7 @@ trait Reflectable {
      * @param string $key
      * @return mixed
      */
-    public function reflect(string $key): ?mixed {
+    public function reflect(string $key): mixed {
         return $this->getReflectionBag()->get($key);
     }
 

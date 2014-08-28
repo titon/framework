@@ -65,7 +65,7 @@ abstract class AbstractStorage extends Base implements Storage {
      * @param bool $ttl Convert to TTL seconds
      * @return int
      */
-    public function expires(?mixed $timestamp, bool $ttl = false): int {
+    public function expires(mixed $timestamp, bool $ttl = false): int {
         if ($timestamp === 0) {
             return $timestamp;
 
@@ -120,7 +120,7 @@ abstract class AbstractStorage extends Base implements Storage {
      * @param mixed $arg
      * @return Vector<mixed>
      */
-    public function parseServer(mixed $server, ?int $port = null, ?mixed $arg = null): Vector<mixed> {
+    public function parseServer(mixed $server, ?int $port = null, mixed $arg = null): Vector<mixed> {
         if ($server instanceof Traversable) {
             return new Vector($server);
         }
@@ -141,7 +141,7 @@ abstract class AbstractStorage extends Base implements Storage {
      * @param mixed $value
      * @return mixed
      */
-    public function returnValue(?mixed $value): ?mixed {
+    public function returnValue(mixed $value): mixed {
         return ($value === false) ? null : $value;
     }
 
@@ -155,7 +155,7 @@ abstract class AbstractStorage extends Base implements Storage {
     /**
      * {@inheritdoc}
      */
-    public function store(string $key, Closure $callback, mixed $expires = '+1 day'): ?mixed {
+    public function store(string $key, Closure $callback, mixed $expires = '+1 day'): mixed {
         if ($this->has($key)) {
             return $this->get($key);
         }

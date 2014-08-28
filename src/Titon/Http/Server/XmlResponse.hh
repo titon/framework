@@ -28,7 +28,7 @@ class XmlResponse extends Response {
      * @param string $root
      * @param Map<string, mixed> $config
      */
-    public function __construct(?mixed $body = null, int $status = Http::OK, string $root = 'root', Map<string, mixed> $config = Map {}) {
+    public function __construct(mixed $body = null, int $status = Http::OK, string $root = 'root', Map<string, mixed> $config = Map {}) {
         if (!$body instanceof StreamInterface) {
             $body = new MemoryStream(Converter::toXml($body, $root));
         }

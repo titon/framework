@@ -33,7 +33,7 @@ trait Mutable {
      * @param string $key
      * @return mixed
      */
-    public function __get(string $key): ?mixed {
+    public function __get(string $key): mixed {
         return $this->get($key);
     }
 
@@ -43,7 +43,7 @@ trait Mutable {
      * @param string $key
      * @param mixed $value
      */
-    public function __set(string $key, ?mixed $value): void {
+    public function __set(string $key, mixed $value): void {
         $this->set($key, $value);
     }
 
@@ -109,7 +109,7 @@ trait Mutable {
      * @param mixed $default
      * @return mixed
      */
-    public function get(string $key, ?mixed $default = null): ?mixed {
+    public function get(string $key, mixed $default = null): mixed {
         $value = Traverse::get($this->_data, $key);
 
         if ($value === null) {
@@ -173,7 +173,7 @@ trait Mutable {
      * @param mixed $value
      * @return $this
      */
-    public function set(string $key, ?mixed $value = null): this {
+    public function set(string $key, mixed $value = null): this {
         Traverse::set($this->_data, $key, $value);
 
         return $this;

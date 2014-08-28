@@ -202,7 +202,7 @@ class Traverse {
      * @param string $path
      * @return mixed
      */
-    public static function get(Traversable $collection, string $path = ''): ?mixed {
+    public static function get(Traversable $collection, string $path = ''): mixed {
         if (!$path) {
             return $collection; // Allow whole collection to be returned
         }
@@ -494,7 +494,7 @@ class Traverse {
      * @param mixed $value
      * @return mixed
      */
-    public static function set(Traversable $collection, mixed $path, ?mixed $value = null): mixed {
+    public static function set(Traversable $collection, mixed $path, mixed $value = null): mixed {
         if ($path instanceof Traversable) {
             foreach ($path as $key => $value) {
                 $collection = static::insert($collection, $key, $value);

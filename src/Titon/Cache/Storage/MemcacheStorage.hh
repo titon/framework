@@ -132,7 +132,7 @@ class MemcacheStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function get(string $key): ?mixed {
+    public function get(string $key): mixed {
         $value = $this->connection->get($this->key($key));
 
         if ($value === false && $this->connection->getResultCode() === Memcached::RES_NOTFOUND) {
@@ -166,7 +166,7 @@ class MemcacheStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, ?mixed $value, mixed $expires = '+1 day'): bool {
+    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
         return $this->connection->set($this->key($key), $value, $this->expires($expires));
     }
 

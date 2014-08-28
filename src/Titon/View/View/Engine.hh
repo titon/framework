@@ -23,7 +23,7 @@ interface Engine {
      * @param mixed $default
      * @return mixed
      */
-    public function data(string $key, ?mixed $default = null): ?mixed;
+    public function data(string $key, mixed $default = null): mixed;
 
     /**
      * Return the currently parsed template content.

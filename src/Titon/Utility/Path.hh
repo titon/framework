@@ -40,7 +40,7 @@ class Path {
      * @param Map<string, string> $paths
      * @return string
      */
-    public static function alias(?string $file, ?Map<string, string> $paths = Map {}): string {
+    public static function alias(string $file, Map<string, string> $paths = Map {}): string {
         if (!$file) {
             return '[internal]';
         }

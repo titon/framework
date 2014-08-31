@@ -109,25 +109,26 @@ class Format {
      */
     public static function phone(string $value, mixed $format): string {
         $value = preg_replace('/[^0-9]+/', '', $value);
+        $pattern = '';
 
-        if ($format instanceof Traversable) {
+        if ($format instanceof KeyedTraversable) {
             $length = mb_strlen($value);
 
             if ($length >= 11 && isset($format[11])) {
-                $format = $format[11];
+                $pattern = $format[11];
 
             } else if ($length >= 10 && isset($format[10])) {
-                $format = $format[10];
+                $pattern = $format[10];
 
             } else if (isset($format[7])) {
-                $format = $format[7];
+                $pattern = $format[7];
 
             } else {
-                $format = str_repeat('#', $length);
+                $pattern = str_repeat('#', $length);
             }
         }
 
-        return static::format($value, $format);
+        return static::format($value, $pattern);
     }
 
     /**

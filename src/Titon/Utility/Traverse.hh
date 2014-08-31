@@ -8,7 +8,7 @@
 namespace Titon\Utility;
 
 use Titon\Common\Macroable;
-use \Closure;
+use \Indexish;
 
 /**
  * Mutates and traverses multiple types of data structures (collections).
@@ -22,10 +22,10 @@ class Traverse {
      * Determines the total depth of a multi-dimensional array or object.
      * Has two methods of determining depth: based on recursive depth, or based on tab indentation (faster).
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, Tv> $collection
      * @return int
      */
-    public static function depth(Traversable $collection): int {
+    public static function depth<Tk, Tv>(Indexish<Tk, Tv> $collection): int {
         if (count($collection) === 0) {
             return 0;
         }
@@ -33,7 +33,7 @@ class Traverse {
         $depth = 1;
 
         foreach ($collection as $value) {
-            if ($value instanceof Traversable) {
+            if ($value instanceof Indexish) {
                 $count = static::depth($value) + 1;
 
                 if ($count > $depth) {
@@ -49,17 +49,17 @@ class Traverse {
      * Calls a function for each key-value pair in the set.
      * If recursive is true, will apply the callback to nested arrays as well.
      *
-     * @param Traversable $collection
-     * @param callable $callback
+     * @param Indexish<Tk, mixed> $collection
+     * @param (function(Tk, mixed): mixed) $callback
      * @param bool $recursive
-     * @return Collection
+     * @return Indexish<Tk, mixed>
      */
-    public static function each(Traversable $collection, callable $callback, bool $recursive = true): mixed {
+    public static function each<Tk>(Indexish<Tk, mixed> $collection, (function(Tk, mixed): mixed) $callback, bool $recursive = true): Indexish<Tk, mixed> {
         foreach ($collection as $key => $value) {
-            if ($value instanceof Traversable && $recursive) {
+            if ($value instanceof Indexish && $recursive) {
                 $collection[$key] = static::each($value, $callback, $recursive);
             } else {
-                $collection[$key] = call_user_func_array($callback, [$value, $key]);
+                $collection[$key] = call_user_func_array($callback, [$key, $value]);
             }
         }
 
@@ -69,13 +69,13 @@ class Traverse {
     /**
      * Returns true if every element in the array satisfies the provided testing function.
      *
-     * @param Traversable $collection
-     * @param callable $callback
+     * @param Indexish<Tk, Tv> $collection
+     * @param (function(Tk, Tv): bool) $callback
      * @return bool
      */
-    public static function every(Traversable $collection, callable $callback): bool {
+    public static function every<Tk, Tv>(Indexish<Tk, Tv> $collection, (function(Tk, Tv): bool) $callback): bool {
         foreach ($collection as $key => $value) {
-            if (!call_user_func_array($callback, [$value, $key])) {
+            if (!call_user_func_array($callback, [$key, $value])) {
                 return false;
             }
         }
@@ -86,11 +86,11 @@ class Traverse {
     /**
      * Exclude specific keys from the array and return the new array.
      *
-     * @param Traversable $collection
-     * @param Vector<string> $keys
-     * @return mixed
+     * @param Indexish<Tk, Tv> $collection
+     * @param Vector<Tk> $keys
+     * @return Indexish<Tk, Tv>
      */
-    public static function exclude(Traversable $collection, Vector<string> $keys): mixed {
+    public static function exclude<Tk, Tv>(Indexish<Tk, Tv> $collection, Vector<Tk> $keys): Indexish<Tk, Tv> {
         foreach ($keys as $key) {
             unset($collection[$key]);
         }
@@ -101,14 +101,14 @@ class Traverse {
     /**
      * Expand an array to a fully workable multi-dimensional array, where the values key is a dot notated path.
      *
-     * @param Traversable $collection
-     * @return Map<string, mixed>
+     * @param Indexish<Tk, Tv> $collection
+     * @return Indexish<string, mixed>
      */
-    public static function expand(Traversable $collection): Map<string, mixed> {
+    public static function expand<Tk, Tv>(Indexish<Tk, Tv> $collection): Indexish<string, mixed> {
         $data = Map {};
 
         foreach ($collection as $key => $value) {
-            $data = static::insert($data, $key, $value);
+            $data = static::insert($data, (string) $key, $value);
         }
 
         return $data;
@@ -117,15 +117,15 @@ class Traverse {
     /**
      * Extract the value of an array, depending on the paths given, represented by key.key.key notation.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, Tv> $collection
      * @param string $path
      * @return mixed
      */
-    public static function extract(Traversable $collection, string $path): mixed {
+    public static function extract<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): mixed {
         $data = $collection;
 
         foreach (explode('.', $path) as $key) {
-            if (!$data instanceof Traversable || !isset($data[$key])) {
+            if (!$data instanceof Indexish || !isset($data[$key])) {
                 return null;
             }
 
@@ -139,41 +139,41 @@ class Traverse {
      * Filter out all keys within an array that have an empty value, excluding 0 (string and numeric).
      * If $recursive is set to true, will remove all empty values within all sub-arrays.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, mixed> $collection
      * @param bool $recursive
-     * @param callable $callback
-     * @return mixed
+     * @param ?(function(Tk, mixed): bool) $callback
+     * @return Indexish<Tk, mixed>
      */
-    public static function filter(Traversable $collection, bool $recursive = true, ?callable $callback = null): mixed {
+    public static function filter<Tk>(Indexish<Tk, mixed> $collection, bool $recursive = true, ?(function(Tk, mixed): bool) $callback = null): Indexish<Tk, mixed> {
         if ($callback === null) {
-            $callback = function($var) {
-                return ($var === 0 || $var === '0' || $var);
+            $callback = function($key, $value): bool {
+                return ($value === 0 || $value === '0' || $value);
             };
         }
 
         if ($recursive) {
             foreach ($collection as $key => $value) {
-                if ($value instanceof Traversable) {
+                if ($value instanceof Indexish) {
                     $collection[$key] = static::filter($value, $recursive, $callback);
                 }
             }
         }
 
-        if ($collection instanceof Collection) {
-            return $collection->filter($callback);
+        if ($collection instanceof MutableMap || $collection instanceof MutableVector) {
+            return $collection->filterWithKey($callback);
         }
 
-        return array_filter($collection, $callback);
+        return $collection;
     }
 
     /**
      * Flatten a multi-dimensional array by returning the values with their keys representing their previous pathing.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, Tv> $collection
      * @param string $path
-     * @return Map<string, mixed>
+     * @return Indexish<mixed, mixed>
      */
-    public static function flatten(Traversable $collection, string $path = ''): Map<string, mixed> {
+    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path = ''): Indexish<mixed, mixed> {
         if ($path) {
             $path .= '.';
         }
@@ -181,7 +181,9 @@ class Traverse {
         $data = Map {};
 
         foreach ($collection as $key => $value) {
-            if ($value instanceof Traversable) {
+            $key = (string) $key;
+
+            if ($value instanceof Indexish) {
                 if (!$value) {
                     $data[$path . $key] = null;
                 } else {
@@ -198,11 +200,11 @@ class Traverse {
     /**
      * Get a value from the set. If they path doesn't exist, return null, or if the path is empty, return the whole set.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, Tv> $collection
      * @param string $path
      * @return mixed
      */
-    public static function get(Traversable $collection, string $path = ''): mixed {
+    public static function get<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path = ''): mixed {
         if (!$path) {
             return $collection; // Allow whole collection to be returned
         }
@@ -213,15 +215,15 @@ class Traverse {
     /**
      * Checks to see if a key/value pair exists within an array, determined by the given path.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, Tv> $collection
      * @param string $path
      * @return bool
      */
-    public static function has(Traversable $collection, string $path): bool {
+    public static function has<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): bool {
         $data = $collection;
 
         foreach (explode('.', $path) as $key) {
-            if (!$data instanceof Traversable || !isset($data[$key])) {
+            if (!$data instanceof Indexish || !isset($data[$key])) {
                 return false;
             }
 
@@ -234,12 +236,12 @@ class Traverse {
     /**
      * Includes the specified key-value pair in the set if the key doesn't already exist.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, mixed> $collection
      * @param string $path
      * @param mixed $value
-     * @return mixed
+     * @return Indexish<Tk, mixed>
      */
-    public static function inject(Traversable $collection, string $path, mixed $value): mixed {
+    public static function inject<Tk>(Indexish<Tk, mixed> $collection, string $path, mixed $value): Indexish<Tk, mixed> {
         if (static::has($collection, $path)) {
             return $collection;
         }
@@ -250,40 +252,23 @@ class Traverse {
     /**
      * Inserts a value into the array set based on the given path.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, mixed> $collection
      * @param string $path
      * @param mixed $value
-     * @return mixed
+     * @return Indexish<Tk, mixed>
      */
-    public static function insert(Traversable $collection, string $path, mixed $value): mixed {
+    public static function insert<Tk>(Indexish<Tk, mixed> $collection, string $path, mixed $value): Indexish<Tk, mixed> {
         $paths = explode('.', $path);
+        $data = $collection;
 
-        // We have to use references for arrays
-        if (is_array($collection)) {
-            $data =& $collection;
+        while (count($paths) > 1) {
+            $key = array_shift($paths);
 
-            while (count($paths) > 1) {
-                $key = array_shift($paths);
-
-                if (!isset($data[$key]) || !$data[$key] instanceof Traversable) {
-                    $data[$key] = [];
-                }
-
-                $data =& $data[$key];
+            if ($data instanceof Indexish && (!isset($data[$key]) || !$data[$key] instanceof Indexish)) {
+                $data[$key] = Map {};
             }
 
-        } else {
-            $data = $collection;
-
-            while (count($paths) > 1) {
-                $key = array_shift($paths);
-
-                if (!isset($data[$key]) || !$data[$key] instanceof Traversable) {
-                    $data[$key] = Map {};
-                }
-
-                $data = $data[$key];
-            }
+            $data = $data[$key];
         }
 
         // Set the last path value
@@ -296,12 +281,12 @@ class Traverse {
      * Checks to see if all values in the array are strings, returns false if not.
      * If $strict is true, method will fail if there are values that are numerical strings, but are not cast as integers.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, Tv> $collection
      * @param bool $strict
      * @return bool
      */
-    public static function isAlpha(Traversable $collection, bool $strict = true): bool {
-        return static::every($collection, function($value) use ($strict) {
+    public static function isAlpha<Tk, Tv>(Indexish<Tk, Tv> $collection, bool $strict = true): bool {
+        return static::every($collection, function($key, $value): bool use ($strict) {
             if (!is_string($value)) {
                 return false;
             }
@@ -319,11 +304,11 @@ class Traverse {
     /**
      * Checks to see if all values in the array are numeric, returns false if not.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, Tv> $collection
      * @return bool
      */
-    public static function isNumeric(Traversable $collection): bool {
-        return static::every($collection, function($value) {
+    public static function isNumeric<Tk, Tv>(Indexish<Tk, Tv> $collection): bool {
+        return static::every($collection, function($key, $value): bool {
             return is_numeric($value);
         });
     }
@@ -331,28 +316,21 @@ class Traverse {
     /**
      * Returns the key of the specified value. Will recursively search if the first pass doesn't match.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, Tv> $collection
      * @param mixed $match
-     * @return mixed
+     * @return string
      */
-    public static function keyOf(Traversable $collection, mixed $match): mixed {
-        $return = null;
-        $isArray = Vector {};
+    public static function keyOf<Tk, Tv>(Indexish<Tk, Tv> $collection, mixed $match): string {
+        $return = '';
 
         foreach ($collection as $key => $value) {
             if ($value === $match) {
-                $return = $key;
+                $return .= (string) $key;
             }
 
-            if ($value instanceof Traversable) {
-                $isArray[] = $key;
-            }
-        }
-
-        if (!$return && $isArray) {
-            foreach ($isArray as $key) {
-                if ($value = static::keyOf($collection[$key], $match)) {
-                    $return = $key . '.' . $value;
+            if ($value instanceof Indexish) {
+                if ($nested = static::keyOf($value, $match)) {
+                    $return .= (string) $nested;
                 }
             }
         }
@@ -364,59 +342,45 @@ class Traverse {
      * Merge is a combination of array_merge() and array_merge_recursive(). However, when merging two keys with the same key,
      * the previous value will be overwritten instead of being added into an array. The later array takes precedence when merging.
      *
-     * @param Traversable $base
-     * @param Traversable $collections
-     * @return mixed
+     * @param Indexish<mixed, mixed> $base
+     * @param Indexish<mixed, mixed> $merge
+     * @return Indexish<mixed, mixed>
      */
-    public static function merge(Traversable $base, ...$collections): mixed { // todo - Add type hinting when variadic supports it
-        $isVector = false;
+    /*public static function merge(Indexish<mixed, mixed> $base, Indexish<mixed, mixed> $merge): Indexish<mixed, mixed> {
+        foreach ($merge as $key => $value) {
+            if (isset($base[$key])) {
+                $current = $base[$key];
 
-        // Clone the collection so we don't modify the base reference
-        if ($base instanceof Map) {
-            $data = $base->toMap();
-
-        } else if ($base instanceof Vector) {
-            $data = $base->toVector();
-            $isVector = true;
-
-        } else {
-            $data = $base;
-        }
-
-        foreach ($collections as $collection) {
-            foreach ($collection as $key => $value) {
-                if (isset($data[$key])) {
-                    $current = $data[$key];
-
-                    if ($value instanceof Traversable && $current instanceof Traversable) {
-                        $value = static::merge($current, $value);
-                    }
+                if ($value instanceof Indexish && $current instanceof Indexish) {
+                    $value = static::merge($current, $value);
                 }
+            }
 
-                if ($isVector) {
-                    $data[] = $value;
-                } else {
-                    $data[$key] = $value;
-                }
+            if ($base instanceof Vector) {
+                $base[] = $value;
+            } else {
+                $base[$key] = $value;
             }
         }
 
-        return $data;
-    }
+        return $base;
+    }*/
 
     /**
      * Pluck a value out of each child-array and return an array of the plucked values.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, Tv> $collection
      * @param string $path
      * @return Vector<mixed>
      */
-    public static function pluck(Traversable $collection, string $path): Vector<mixed> {
+    public static function pluck<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): Vector<mixed> {
         $data = Vector {};
 
         foreach ($collection as $coll) {
-            if ($value = static::extract($coll, $path)) {
-                $data[] = $value;
+            if ($coll instanceof Indexish) {
+                if ($value = static::extract($coll, $path)) {
+                    $data[] = $value;
+                }
             }
         }
 
@@ -426,62 +390,51 @@ class Traverse {
     /**
      * Reduce an array by removing all keys that have not been defined for persistence.
      *
-     * @param Traversable $collection
-     * @param Vector<string> $keys
-     * @return Map<string, mixed>
+     * @param Indexish<Tk, Tv> $collection
+     * @param Vector<Tk> $keys
+     * @return Indexish<Tk, Tv>
      */
-    public static function reduce(Traversable $collection, Vector<string> $keys): Map<string, mixed> {
-        $map = Map {};
+    public static function reduce<Tk, Tv>(Indexish<Tk, Tv> $collection, Vector<Tk> $keys): Indexish<Tk, Tv> {
+        $remove = Vector {};
 
         foreach ($collection as $key => $value) {
-            if (in_array($key, $keys)) {
-                $map[$key] = $value;
+            if (!in_array($key, $keys)) {
+                $remove[] = $key;
             }
         }
 
-        return $map;
+        foreach ($remove as $key) {
+            unset($collection[$key]);
+        }
+
+        return $collection;
     }
 
     /**
      * Remove an index from the array, determined by the given path.
      *
-     * @param Traversable $collection
+     * @param Indexish<Tk, Tv> $collection
      * @param string $path
-     * @return mixed
+     * @return Indexish<Tk, Tv>
      */
-    public static function remove(Traversable $collection, string $path): mixed {
+    public static function remove<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): Indexish<Tk, Tv> {
         $paths = explode('.', $path);
+        $data = $collection;
 
-        // We have to use references for arrays
-        if (is_array($collection)) {
-            $data =& $collection;
+        while (count($paths) > 1) {
+            $key = array_shift($paths);
 
-            while (count($paths) > 1) {
-                $key = array_shift($paths);
-
-                if (!isset($data[$key]) || !$data[$key] instanceof Traversable) {
-                    return $collection;
-                }
-
-                $data =& $data[$key];
+            if (!$data instanceof Indexish || !isset($data[$key]) || !$data[$key] instanceof Indexish) {
+                return $collection;
             }
 
-        } else {
-            $data = $collection;
-
-            while (count($paths) > 1) {
-                $key = array_shift($paths);
-
-                if (!isset($data[$key]) || !$data[$key] instanceof Traversable) {
-                    return $collection;
-                }
-
-                $data = $data[$key];
-            }
+            $data = $data[$key];
         }
 
         // Remove the last path value
-        unset($data[$paths[0]]);
+        if ($data instanceof Indexish) {
+            unset($data[$paths[0]]);
+        }
 
         return $collection;
     }
@@ -489,18 +442,18 @@ class Traverse {
     /**
      * Set a value into the result set. If the paths is an array, loop over each one and insert the value.
      *
-     * @param Traversable $collection
-     * @param Map|string $path
+     * @param Indexish<Tk, Tv> $collection
+     * @param KeyedTraversable|string $path
      * @param mixed $value
-     * @return mixed
+     * @return Indexish<Tk, Tv>
      */
-    public static function set(Traversable $collection, mixed $path, mixed $value = null): mixed {
-        if ($path instanceof Traversable) {
+    public static function set<Tk, Tv>(Indexish<Tk, Tv> $collection, mixed $path, mixed $value = null): Indexish<Tk, mixed> {
+        if ($path instanceof KeyedTraversable) {
             foreach ($path as $key => $value) {
                 $collection = static::insert($collection, $key, $value);
             }
         } else {
-            $collection = static::insert($collection, $path, $value);
+            $collection = static::insert($collection, (string) $path, $value);
         }
 
         return $collection;
@@ -509,13 +462,13 @@ class Traverse {
     /**
      * Returns true if at least one element in the array satisfies the provided testing function.
      *
-     * @param Traversable $collection
-     * @param \Closure $callback
+     * @param Indexish<Tk, Tv> $collection
+     * @param (function(Tv, Tk): bool) $callback
      * @return bool
      */
-    public static function some(Traversable $collection, Closure $callback): bool {
+    public static function some<Tk, Tv>(Indexish<Tk, Tv> $collection, (function(Tk, Tv): bool) $callback): bool {
         foreach ($collection as $key => $value) {
-            if (call_user_func_array($callback, [$value, $key])) {
+            if (call_user_func_array($callback, [$key, $value])) {
                 return true;
             }
         }

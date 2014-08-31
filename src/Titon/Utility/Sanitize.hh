@@ -177,6 +177,7 @@ class Sanitize {
 
         if ($options['limit']) {
             $pattern = '/%s{' . $options['limit'] . ',}/u';
+            $replace = null;
 
         } else {
             $pattern = '/%s+/u';
@@ -184,11 +185,11 @@ class Sanitize {
         }
 
         if ($options['tab']) {
-            $value = preg_replace(sprintf($pattern, '\t'), (isset($replace) ? $replace : "\t"), $value);
+            $value = preg_replace(sprintf($pattern, '\t'), $replace === null ? "\t" : $replace, $value);
         }
 
         if ($options['space']) {
-            $value = preg_replace(sprintf($pattern, ' '), (isset($replace) ? $replace : ' '), $value); // \s replaces other whitespace characters
+            $value = preg_replace(sprintf($pattern, ' '), $replace === null ? ' ' : $replace, $value); // \s replaces other whitespace characters
         }
 
         if ($options['strip']) {

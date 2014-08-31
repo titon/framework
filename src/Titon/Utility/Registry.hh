@@ -49,7 +49,7 @@ class Registry {
      * @param bool $store
      * @return object
      */
-    public static function &factory(string $key, array $params = [], bool $store = true): mixed {
+    public static function factory(string $key, array<mixed> $params = [], bool $store = true): mixed {
         if (static::has($key)) {
             return static::get($key);
         }
@@ -79,12 +79,12 @@ class Registry {
      * @return object
      * @throws \Titon\Common\Exception\MissingObjectException
      */
-    public static function &get(string $key): mixed {
+    public static function get(string $key): mixed {
         if (static::has($key)) {
             $object = static::$_registered[$key];
 
             if ($object instanceof Closure) {
-                $object = static::set(call_user_func($object), $key);
+                $object = static::set($object(), $key);
             }
 
             return $object;
@@ -128,7 +128,7 @@ class Registry {
      * @param string $key
      */
     public static function remove(string $key): void {
-        unset(static::$_registered[$key]);
+        static::$_registered->remove($key);
     }
 
     /**
@@ -139,7 +139,7 @@ class Registry {
      * @return object
      * @throws \Titon\Common\Exception\InvalidObjectException
      */
-    public static function set(mixed $object, ?string $key = null): mixed {
+    public static function set(mixed $object, string $key = ''): mixed {
         if (!is_object($object)) {
             throw new InvalidObjectException('The object to register must be instantiated');
         }

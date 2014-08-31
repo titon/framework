@@ -180,15 +180,15 @@ class Converter {
      * @param bool $recursive
      * @return array
      */
-    public static function toArray(mixed $resource, bool $recursive = false): array {
+    public static function toArray(mixed $resource, bool $recursive = false): array<mixed, mixed> {
         if ($resource instanceof Arrayable) {
             $resource = $resource->toArray();
 
         } else if (static::isArray($resource)) {
-            return $recursive ? static::buildArray($resource) : $resource;
+            return $recursive ? static::buildArray($resource) : (array) $resource;
 
         } else if (static::isObject($resource)) {
-            return method_exists($resource, 'toArray') ? $resource->toArray() : static::buildArray($resource);
+            return (is_object($resource) && method_exists($resource, 'toArray')) ? $resource->toArray() : static::buildArray($resource);
 
         } else if (static::isJson($resource)) {
             $resource = json_decode($resource, true);
@@ -218,7 +218,7 @@ class Converter {
             return $resource->toJson($options);
 
         } else if (static::isJson($resource)) {
-            return $resource;
+            return (string) $resource;
 
         } else if (static::isObject($resource)) {
             $resource = static::buildArray($resource);
@@ -242,11 +242,11 @@ class Converter {
      * @return Map<mixed, mixed>
      */
     public static function toMap(mixed $resource): Map<mixed, mixed> {
-        if (!$resource instanceof Traversable) {
+        if (!$resource instanceof KeyedTraversable) {
             return new Map([$resource]);
         }
 
-        $map = new Map();
+        $map = Map {};
 
         foreach ($resource as $key => $value) {
             if ($value instanceof Traversable) {
@@ -288,7 +288,7 @@ class Converter {
             return new Vector([$resource]);
         }
 
-        $vector = new Vector();
+        $vector = Vector {};
 
         foreach ($resource as $value) {
             if ($value instanceof Traversable) {
@@ -319,10 +319,10 @@ class Converter {
     /**
      * Turn an object into an array. Alternative to array_map magic.
      *
-     * @param object|array $object
-     * @return array
+     * @param KeyedTraversable $object
+     * @return array<mixed, mixed>
      */
-    public static function buildArray(mixed $object): array {
+    public static function buildArray(KeyedTraversable $object): array<mixed, mixed> {
         $array = [];
 
         foreach ($object as $key => $value) {
@@ -344,14 +344,10 @@ class Converter {
      * Turn an array into an XML document. Alternative to array_map magic.
      *
      * @param \SimpleXMLElement $xml
-     * @param array $array
+     * @param array<string, mixed> $array
      * @return \SimpleXMLElement
      */
-    public static function buildXml(SimpleXMLElement $xml, array $array): SimpleXmlElement {
-        if (!is_array($array)) {
-            return $xml;
-        }
-
+    public static function buildXml(SimpleXMLElement $xml, array<string, mixed> $array): SimpleXmlElement {
         foreach ($array as $key => $value) {
 
             // XML_NONE
@@ -361,7 +357,7 @@ class Converter {
             }
 
             // Multiple nodes of the same name
-            if (Traverse::isNumeric(new Vector(array_keys($value)))) {
+            if (Traverse::isNumeric(array_keys($value))) {
                 foreach ($value as $kValue) {
                     if (is_array($kValue)) {
                         static::buildXml($xml, [$key => $kValue]);
@@ -422,11 +418,11 @@ class Converter {
     /**
      * Convert an array to an XML string.
      *
-     * @param array $array
+     * @param array<string, mixed> $array
      * @param string $root
      * @return string
      */
-    public static function arrayToXml(array $array, string $root): string {
+    public static function arrayToXml(array<string, mixed> $array, string $root): string {
         $xml = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><' . $root . '></' . $root . '>');
         $response = static::buildXml($xml, $array);
 
@@ -438,13 +434,9 @@ class Converter {
      *
      * @param SimpleXMLElement $xml
      * @param int $format
-     * @return array
+     * @return array<string, mixed>
      */
-    public static function xmlToArray(SimpleXMLElement $xml, int $format = self::XML_GROUP): mixed {
-        if (count($xml->children()) <= 0) {
-            return static::autobox((string) $xml);
-        }
-
+    public static function xmlToArray(SimpleXMLElement $xml, int $format = self::XML_GROUP): array<string, mixed> {
         $array = [];
 
         /** @type SimpleXMLElement $node */
@@ -457,7 +449,11 @@ class Converter {
             }
 
             if (!$node->attributes() || $format === self::XML_NONE) {
-                $data = static::xmlToArray($node, $format);
+                if (count($children) > 0) {
+                    $data = static::xmlToArray($node, $format);
+                } else {
+                    $data = static::autobox((string) $node);
+                }
 
             } else {
                 switch ($format) {
@@ -482,7 +478,7 @@ class Converter {
                         } else {
                             $data['value'] = static::autobox((string) $node);
                         }
-                    /* fall-through */
+                    // FALLTHROUGH
 
                     case self::XML_ATTRIBS:
                         foreach ($node->attributes() as $attr => $value) {

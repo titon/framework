@@ -21,8 +21,8 @@ config = open('.hhconfig', 'w+')
 config.close()
 
 # Run the linter
-os.system('hh_client')
 os.system('hh_client restart')
+os.system('hh_client')
 
 # Delete the .hhconfig file
 os.remove('.hhconfig')

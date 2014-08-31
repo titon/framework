@@ -115,7 +115,7 @@ class Number {
      * @return string
      */
     public static function currency(mixed $number, Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'thousands' => ',',
             'decimals' => '.',
             'places' => 2,
@@ -260,7 +260,7 @@ class Number {
      * @return string
      */
     public static function percentage(mixed $number, Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'thousands' => ',',
             'decimals' => '.',
             'places' => 2

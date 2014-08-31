@@ -40,7 +40,7 @@ class Sanitize {
      * @return string
      */
     public static function escape(string $value, Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'encoding' => 'UTF-8',
             'flags' => ENT_QUOTES,
             'double' => false
@@ -70,7 +70,7 @@ class Sanitize {
      * @return string
      */
     public static function html(string $value, Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'strip' => true,
             'whitelist' => ''
         }, $options);
@@ -107,7 +107,7 @@ class Sanitize {
      * @return string
      */
     public static function newlines(string $value, Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'cr' => true,
             'lf' => true,
             'crlf' => true,
@@ -167,7 +167,7 @@ class Sanitize {
      * @return string
      */
     public static function whitespace(string $value, Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'space' => true,
             'tab' => true,
             'limit' => 2,
@@ -214,7 +214,7 @@ class Sanitize {
      * @return string
      */
     public static function xss(string $value, Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {'strip' => true}, $options);
+        $options = Col::merge(Map {'strip' => true}, $options);
         $value = str_replace("\0", '', $value);
 
         if (!$options['strip']) {

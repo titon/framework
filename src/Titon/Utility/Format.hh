@@ -141,7 +141,7 @@ class Format {
      * @return string
      */
     public static function relativeTime(mixed $time, Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'seconds' => Vector {'%ss', '%s second', '%s seconds'},
             'minutes' => Vector {'%sm', '%s minute', '%s minutes'},
             'hours' => Vector {'%sh', '%s hour', '%s hours'},

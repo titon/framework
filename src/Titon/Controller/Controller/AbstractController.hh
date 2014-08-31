@@ -20,7 +20,7 @@ use Titon\Http\Http;
 use Titon\Http\RequestAware;
 use Titon\Http\ResponseAware;
 use Titon\Mvc\Module;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 use Titon\Utility\Inflector;
 use Titon\View\View;
 use \Exception;
@@ -224,7 +224,7 @@ abstract class AbstractController extends Base implements Controller, Listener {
             if ($config['template']) {
                 $template = $config['template'];
             } else {
-                $template = Traverse::reduce($config, Vector {'controller', 'action', 'ext', 'locale'});
+                $template = Col::reduce($config, Vector {'controller', 'action', 'ext', 'locale'});
             }
         }
 

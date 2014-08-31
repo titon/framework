@@ -15,7 +15,7 @@ use \Indexish;
  *
  * @package Titon\Utility
  */
-class Traverse {
+class Col {
     use Macroable;
 
     /**

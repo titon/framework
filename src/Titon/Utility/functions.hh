@@ -12,7 +12,7 @@ use Titon\Utility\Path;
 use Titon\Utility\Sanitize;
 use Titon\Utility\Registry;
 use Titon\Utility\Str;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 
 /**
  * @see Titon\Utility\Config::get()
@@ -48,108 +48,108 @@ function factory(string $key): mixed {
 }
 
 /**
- * @see Titon\Utility\Traverse::depth()
+ * @see Titon\Utility\Col::depth()
  */
 function map_depth(Traversable $collection = MB_CASE_TITLE): int {
-    return Traverse::depth($collection);
+    return Col::depth($collection);
 }
 
 /**
- * @see Titon\Utility\Traverse::each()
+ * @see Titon\Utility\Col::each()
  */
 function map_each(Traversable $collection, (function(mixed, mixed): mixed) $callback, bool $recursive = true): Traversable {
-    return Traverse::each($collection, $callback, $recursive);
+    return Col::each($collection, $callback, $recursive);
 }
 
 /**
- * @see Titon\Utility\Traverse::every()
+ * @see Titon\Utility\Col::every()
  */
 function map_every(Traversable $collection, (function(mixed, mixed): bool) $callback): bool {
-    return Traverse::every($collection, $callback);
+    return Col::every($collection, $callback);
 }
 
 /**
- * @see Titon\Utility\Traverse::exclude()
+ * @see Titon\Utility\Col::exclude()
  */
 function map_exclude(Traversable $collection, Vector<string> $keys): Traversable {
-    return Traverse::exclude($collection, $keys);
+    return Col::exclude($collection, $keys);
 }
 
 /**
- * @see Titon\Utility\Traverse::expand()
+ * @see Titon\Utility\Col::expand()
  */
 function map_expand(Traversable $collection): Traversable {
-    return Traverse::expand($collection);
+    return Col::expand($collection);
 }
 
 /**
- * @see Titon\Utility\Traverse::filter()
+ * @see Titon\Utility\Col::filter()
  */
 function map_filter(Traversable $collection, bool $recursive = true, ?(function(mixed): int) $callback = null): Traversable {
-    return Traverse::filter($collection, $recursive, $callback);
+    return Col::filter($collection, $recursive, $callback);
 }
 
 /**
- * @see Titon\Utility\Traverse::flatten()
+ * @see Titon\Utility\Col::flatten()
  */
 function map_flatten(Traversable $collection, string $path = ''): Map<string, mixed> {
-    return Traverse::flatten($collection, $path);
+    return Col::flatten($collection, $path);
 }
 
 /**
- * @see Titon\Utility\Traverse::get()
+ * @see Titon\Utility\Col::get()
  */
 function map_get(Traversable $collection, string $path = ''): mixed {
-    return Traverse::get($collection, $path);
+    return Col::get($collection, $path);
 }
 
 /**
- * @see Titon\Utility\Traverse::has()
+ * @see Titon\Utility\Col::has()
  */
 function map_has(Traversable $collection, string $path): bool {
-    return Traverse::has($collection, $path);
+    return Col::has($collection, $path);
 }
 
 /**
- * @see Titon\Utility\Traverse::inject()
+ * @see Titon\Utility\Col::inject()
  */
 function map_inject(Traversable $collection, string $path, mixed $value): Traversable {
-    return Traverse::inject($collection, $path, $value);
+    return Col::inject($collection, $path, $value);
 }
 
 /**
- * @see Titon\Utility\Traverse::keyOf()
+ * @see Titon\Utility\Col::keyOf()
  */
 function map_key_of(Traversable $collection, mixed $match): mixed {
-    return Traverse::keyOf($collection, $match);
+    return Col::keyOf($collection, $match);
 }
 
 /**
- * @see Titon\Utility\Traverse::pluck()
+ * @see Titon\Utility\Col::pluck()
  */
 function map_pluck(Traversable $collection, string $path): Vector<mixed> {
-    return Traverse::pluck($collection, $path);
+    return Col::pluck($collection, $path);
 }
 
 /**
- * @see Titon\Utility\Traverse::remove()
+ * @see Titon\Utility\Col::remove()
  */
 function map_remove(Traversable $collection, string $path): Traversable {
-    return Traverse::remove($collection, $path);
+    return Col::remove($collection, $path);
 }
 
 /**
- * @see Titon\Utility\Traverse::set()
+ * @see Titon\Utility\Col::set()
  */
 function map_set(Traversable $collection, mixed $path, mixed $value = null): Traversable {
-    return Traverse::set($collection, $path, $value);
+    return Col::set($collection, $path, $value);
 }
 
 /**
- * @see Titon\Utility\Traverse::some()
+ * @see Titon\Utility\Col::some()
  */
 function map_some(Traversable $collection, Closure $callback): bool {
-    return Traverse::some($collection, $callback);
+    return Col::some($collection, $callback);
 }
 
 /**

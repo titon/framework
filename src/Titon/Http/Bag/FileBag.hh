@@ -8,7 +8,7 @@
 namespace Titon\Http\Bag;
 
 use Titon\Http\RequestAware;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 
 /**
  * Bag for interacting with posted file data.
@@ -36,14 +36,14 @@ class FileBag extends ParameterBag {
     public function normalize(array $files): Map<string, mixed> {
         $map = Map {};
 
-        if ($flatFiles = Traverse::flatten($files)) {
+        if ($flatFiles = Col::flatten($files)) {
             foreach ($flatFiles as $key => $value) {
                 if (preg_match('/\.(?:name|type|tmp_name|error|size)/', $key, $matches)) {
                     $key = str_replace($matches[0], '', $key);
                     $key .= $matches[0];
                 }
 
-                $map = Traverse::set($map, $key, $value);
+                $map = Col::set($map, $key, $value);
             }
         }
 

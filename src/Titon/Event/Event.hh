@@ -7,7 +7,7 @@
 
 namespace Titon\Event;
 
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 
 /**
  * An object representing the current event being dispatched.
@@ -95,7 +95,7 @@ class Event {
      * @return mixed
      */
     public function getData(string $key = ''): mixed {
-        return Traverse::get($this->_data, $key);
+        return Col::get($this->_data, $key);
     }
 
     /**
@@ -172,7 +172,7 @@ class Event {
      * @return $this
      */
     public function setData(string $key, mixed $value): this {
-        Traverse::set($this->_data, $key, $value);
+        Col::set($this->_data, $key, $value);
 
         return $this;
     }

@@ -8,7 +8,7 @@
 namespace Titon\Common;
 
 use Titon\Common\Bag\ConfigBag;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 
 /**
  * Provides a configuration layer within classes.
@@ -48,7 +48,7 @@ trait Configurable {
     /**
      * Merge the custom configuration with the defaults and inherit from parent classes.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param Map<string, mixed> $config
      * @return $this
@@ -62,7 +62,7 @@ trait Configurable {
             $props = get_class_vars($parent);
 
             if (isset($props['_config'])) {
-                $defaults = Traverse::merge($props['_config'], $defaults);
+                $defaults = Col::merge($props['_config'], $defaults);
             }
         }
 

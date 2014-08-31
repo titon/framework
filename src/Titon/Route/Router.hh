@@ -20,7 +20,7 @@ use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
 use Titon\Utility\Config;
 use Titon\Utility\Inflector;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 use Titon\Utility\Str;
 use \Closure;
 
@@ -125,7 +125,7 @@ class Router {
         }
 
         // Store the current URL and query as router segments
-        $this->_segments = Traverse::merge(new Map(parse_url($_SERVER['REQUEST_URI'])), Map {
+        $this->_segments = Col::merge(new Map(parse_url($_SERVER['REQUEST_URI'])), Map {
             'scheme' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http',
             'query' => new Map($_GET),
             'host' => $_SERVER['HTTP_HOST'],
@@ -194,7 +194,7 @@ class Router {
 
             // Convert @ routes first as the logic should be different than route keys
             if (isset($url['route']) && strpos($url['route'], '@') !== false) {
-                $url = Traverse::merge($this->parse($url['route']), $url);
+                $url = Col::merge($this->parse($url['route']), $url);
                 unset($url['route']);
             }
 
@@ -342,7 +342,7 @@ class Router {
      * @return Map<string, mixed>
      */
     public static function defaults(Map<string, mixed> $data = Map {}, Map<string, mixed> $defaults = Map {}): Map<string, mixed> {
-        $data = Traverse::merge(Map {
+        $data = Col::merge(Map {
             'module' => 'main',
             'controller' => 'index',
             'action' => 'index',
@@ -497,7 +497,7 @@ class Router {
      * @return $this
      */
     public function group(Map<string, mixed> $options, Closure $callback) {
-        $this->_groups[] = Traverse::merge(Map {
+        $this->_groups[] = Col::merge(Map {
             'prefix' => null,
             'suffix' => null,
             'secure' => null,
@@ -644,7 +644,7 @@ class Router {
      * @return $this
      */
     public function resource(string $key, Route $route, Map<string, string> $map = Map {}) {
-        $map = Traverse::merge($this->getConfig('resourceMap'), $map);
+        $map = Col::merge($this->getConfig('resourceMap'), $map);
         $class = get_class($route);
         $path = $route->getPath();
         $params = $route->getParams();

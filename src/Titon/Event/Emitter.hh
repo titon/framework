@@ -7,7 +7,7 @@
 
 namespace Titon\Event;
 
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 use \Closure;
 
 /**
@@ -246,7 +246,7 @@ class Emitter {
             $this->_observers[$event] = Vector {};
         }
 
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'priority' => null,
             'once' => false
         }, $options);

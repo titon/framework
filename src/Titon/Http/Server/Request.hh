@@ -16,7 +16,7 @@ use Titon\Http\Exception\InvalidMethodException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
 use Titon\Http\Request as BaseRequest;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 
 /**
  * The Request object is the primary source of data and state management for the environment.
@@ -119,7 +119,7 @@ class Request extends AbstractMessage implements BaseRequest {
         $this->files = (new FileBag($files))->setRequest($this);
         $this->cookies = (new CookieBag($cookies))->setRequest($this);
         $this->server = (new ParameterBag($server))->setRequest($this);
-        $this->data = Traverse::merge($this->get->all(), $this->post->all(), $this->files->all());
+        $this->data = Col::merge($this->get->all(), $this->post->all(), $this->files->all());
 
         // Extract headers from server
         $headers = [];

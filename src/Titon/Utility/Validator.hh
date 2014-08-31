@@ -135,7 +135,7 @@ class Validator {
             $this->_messages[$rule] = $message;
         }
 
-        Traverse::set($this->_rules, $field . '.' . $rule, Map {
+        Col::set($this->_rules, $field . '.' . $rule, Map {
             'message' => $message,
             'options' => $options
         });
@@ -257,7 +257,7 @@ class Validator {
                 }
 
                 if ($message) {
-                    $params = Traverse::merge(Map {
+                    $params = Col::merge(Map {
                         'field' => $field,
                         'title' => $fields[$field]
                     }, $options->toMap())->map(function($value) {

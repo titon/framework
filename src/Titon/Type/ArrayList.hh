@@ -12,7 +12,7 @@ use Titon\Type\Contract\Jsonable;
 use Titon\Type\Contract\Xmlable;
 use Titon\Type\Exception\MissingMethodException;
 use Titon\Utility\Converter;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 use \ArrayAccess;
 use \Countable;
 use \IteratorAggregate;
@@ -158,13 +158,13 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
     /**
      * Merges the current list with the defined list and returns a new ArrayList.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param Traversable<Tv> $value
      * @return ArrayList<Tv>
      */
     public function concat(Traversable<Tv> $value): ArrayList<Tv> {
-        return new static(Traverse::merge($this->value(), $value));
+        return new static(Col::merge($this->value(), $value));
     }
 
     /**
@@ -189,25 +189,25 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
     /**
      * Calculates the nested depth of the list.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @return int
      */
     public function depth(): int {
-        return Traverse::depth($this->value());
+        return Col::depth($this->value());
     }
 
     /**
      * Apply a user function to every member of the list.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param callable $callback
      * @param bool $recursive
      * @return ArrayList<Tv>
      */
     public function each(callable $callback, bool $recursive = true): ArrayList<Tv> {
-        return new static(Traverse::each($this->value(), $callback, $recursive));
+        return new static(Col::each($this->value(), $callback, $recursive));
     }
 
     /**
@@ -241,25 +241,25 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
     /**
      * Returns true if every item in the list satisfies the provided callback function.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param callable $callback
      * @return bool
      */
     public function every(callable $callback): bool {
-        return Traverse::every($this->value(), $callback);
+        return Col::every($this->value(), $callback);
     }
 
     /**
      * Filters items in the list recursively using a callback function.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param callable $callback
      * @return ArrayList<Tv>
      */
     public function filterRecursive(callable $callback): ArrayList<Tv> {
-        return new static(Traverse::filter($this->value(), true, $callback));
+        return new static(Col::filter($this->value(), true, $callback));
     }
 
     /**

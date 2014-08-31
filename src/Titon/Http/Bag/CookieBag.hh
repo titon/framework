@@ -13,7 +13,7 @@ use Titon\Utility\Config;
 use Titon\Utility\Converter;
 use Titon\Utility\Crypt;
 use Titon\Utility\Time;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 
 /**
  * Bag for interacting with cookies.
@@ -51,7 +51,7 @@ class CookieBag extends ParameterBag {
      * @param Map<string, mixed> $config
      */
     public function __construct(array $cookies = [], Map<string, mixed> $config = Map {}) {
-        $this->applyConfig(Traverse::merge(Config::get('cookie', Map {}), $config));
+        $this->applyConfig(Col::merge(Config::get('cookie', Map {}), $config));
         $this->_data = Converter::toMap($cookies);
     }
 
@@ -123,7 +123,7 @@ class CookieBag extends ParameterBag {
      * @return string
      */
     public function prepare(string $key, mixed $value, Map<string, mixed> $config = Map {}): string {
-        $config = Traverse::merge($this->allConfig(), $config);
+        $config = Col::merge($this->allConfig(), $config);
         $expires = Time::toUnix($config['expires']);
 
         // Determine the value

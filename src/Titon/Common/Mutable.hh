@@ -8,7 +8,7 @@
 namespace Titon\Common;
 
 use Titon\Utility\Converter;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 use \ArrayIterator;
 
 /**
@@ -103,14 +103,14 @@ trait Mutable {
     /**
      * Return a parameter by key.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param string $key
      * @param mixed $default
      * @return mixed
      */
     public function get(string $key, mixed $default = null): mixed {
-        $value = Traverse::get($this->_data, $key);
+        $value = Col::get($this->_data, $key);
 
         if ($value === null) {
             return $default;
@@ -132,13 +132,13 @@ trait Mutable {
     /**
      * Check if a parameter exists.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param string $key
      * @return bool
      */
     public function has(string $key): bool {
-        return Traverse::has($this->_data, $key);
+        return Col::has($this->_data, $key);
     }
 
     /**
@@ -153,13 +153,13 @@ trait Mutable {
     /**
      * Remove a parameter by key.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param string $key
      * @return $this
      */
     public function remove(string $key): this {
-        Traverse::remove($this->_data, $key);
+        Col::remove($this->_data, $key);
 
         return $this;
     }
@@ -167,14 +167,14 @@ trait Mutable {
     /**
      * Set a parameter value by key.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param string $key
      * @param mixed $value
      * @return $this
      */
     public function set(string $key, mixed $value = null): this {
-        Traverse::set($this->_data, $key, $value);
+        Col::set($this->_data, $key, $value);
 
         return $this;
     }

@@ -7,7 +7,7 @@
 
 namespace Titon\View\Helper;
 
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 use Titon\Utility\Registry;
 
 newtype breadcrumb = Map<string, mixed>;
@@ -145,13 +145,13 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return string
      */
     public function title(string $base = '', Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'reverse' => false,
             'depth' => 3,
             'separator' => ' - '
         }, $options);
 
-        $crumbs = Traverse::pluck($this->_breadcrumbs, 'title')->toArray();
+        $crumbs = Col::pluck($this->_breadcrumbs, 'title')->toArray();
         $count = count($crumbs);
         $title = [];
 

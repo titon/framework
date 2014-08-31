@@ -10,7 +10,7 @@ namespace Titon\View\Helper;
 use Titon\Model\Model;
 use Titon\Utility\Config;
 use Titon\Utility\Inflector;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 use Titon\Utility\Path;
 
 /**
@@ -370,7 +370,7 @@ class FormHelper extends AbstractHelper {
             $data = array_merge($_GET, $_POST);
         }
 
-        return Traverse::extract($data, $key);
+        return Col::extract($data, $key);
     }
 
     /**
@@ -386,7 +386,7 @@ class FormHelper extends AbstractHelper {
 
         // Fetch from model attributes directly
         if ($value === null && $model) {
-            $value = Traverse::extract($model->toArray(), $name);
+            $value = Col::extract($model->toArray(), $name);
         }
 
         // Fallback to default value
@@ -628,7 +628,7 @@ class FormHelper extends AbstractHelper {
             unset($attributes['type']);
         }
 
-        $attributes = Traverse::merge(Map {
+        $attributes = Col::merge(Map {
             'accept-charset' => Config::encoding(),
             'enctype' => 'application/x-www-form-urlencoded',
             'method' => 'post',
@@ -707,7 +707,7 @@ class FormHelper extends AbstractHelper {
      * @return array
      */
     public function prepareAttributes(Map<string, mixed> $defaults = Map {}, Map<string, mixed> $attributes = Map {}) {
-        $attributes = Traverse::merge($defaults, $attributes);
+        $attributes = Col::merge($defaults, $attributes);
         $namePath = $attributes['name'];
 
         if (!isset($attributes['id'])) {
@@ -788,7 +788,7 @@ class FormHelper extends AbstractHelper {
      * @return string
      */
     public function reset(string $title, Map<string, mixed> $attributes = Map {}): string {
-        $attributes = Traverse::merge(Map {
+        $attributes = Col::merge(Map {
             'id' => $this->formatID('form.' . $this->_forms . '.reset'),
             'type' => 'reset'
         }, $attributes);
@@ -880,7 +880,7 @@ class FormHelper extends AbstractHelper {
      * @return string
      */
     public function submit(string $title, Map<string, mixed> $attributes = Map {}): string {
-        $attributes = Traverse::merge(Map {
+        $attributes = Col::merge(Map {
             'id' => $this->formatID('form.' . $this->_forms . '.submit'),
             'type' => 'submit'
         }, $attributes);

@@ -12,7 +12,7 @@ use Titon\Common\Exception\MissingObjectException;
 use Titon\Common\Exception\UnsupportedInterfaceException;
 use Titon\Utility\Inflector;
 use Titon\Utility\Registry;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 use \Closure;
 
 /**
@@ -124,7 +124,7 @@ trait Attachable {
             $options = Map {'alias' => $options};
         }
 
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'alias' => null,
             'class' => null,
             'register' => true,

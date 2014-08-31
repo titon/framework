@@ -7,7 +7,7 @@
 
 namespace Titon\Common\Bag;
 
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 
 /**
  * Bag for interacting with configuration settings.
@@ -26,13 +26,13 @@ class ConfigBag extends AbstractBag {
     /**
      * Apply defaults and merge the custom configuration in.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param Map<string, mixed> $config
      * @param Map<string, mixed> $defaults
      */
     public function __construct(Map<string, mixed> $config = Map {}, Map<string, mixed> $defaults = Map {}) {
-        parent::__construct(Traverse::merge($defaults, $config));
+        parent::__construct(Col::merge($defaults, $config));
 
         $this->_defaults = $defaults;
     }

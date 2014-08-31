@@ -73,7 +73,7 @@ class Config {
      * @return mixed
      */
     public static function get(string $key, mixed $default = null): mixed {
-        $value = Traverse::get(static::$_config, $key);
+        $value = Col::get(static::$_config, $key);
 
         if ($value === null) {
             return $default;
@@ -89,7 +89,7 @@ class Config {
      * @return bool
      */
     public static function has(string $key): bool {
-        return Traverse::has(static::$_config, $key);
+        return Col::has(static::$_config, $key);
     }
 
     /**
@@ -118,7 +118,7 @@ class Config {
      * @param string $key
      */
     public static function remove(string $key): void {
-        Traverse::remove(static::$_config, $key);
+        Col::remove(static::$_config, $key);
     }
 
     /**
@@ -137,7 +137,7 @@ class Config {
      * @param mixed $value
      */
     public static function set(string $key, mixed $value): void {
-        Traverse::set(static::$_config, $key, $value);
+        Col::set(static::$_config, $key, $value);
     }
 
 }

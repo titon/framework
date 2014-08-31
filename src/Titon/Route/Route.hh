@@ -8,7 +8,7 @@
 namespace Titon\Route;
 
 use Titon\Route\Exception\MissingPatternException;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 
 /**
  * Represents the skeleton for an individual route. A route matches an internal URL that gets analyzed into multiple parts:
@@ -294,13 +294,13 @@ class Route {
     /**
      * Return a param from the route.
      *
-     * @uses Titon\Utility\Traverse
+     * @uses Titon\Utility\Col
      *
      * @param string $key
      * @return mixed
      */
     public function getParam(string $key): mixed {
-        return Traverse::get($this->_route, $key);
+        return Col::get($this->_route, $key);
     }
 
     /**

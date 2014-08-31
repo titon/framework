@@ -16,7 +16,7 @@ use Titon\Event\Event;
 use Titon\Event\Listener;
 use Titon\Utility\Config;
 use Titon\Utility\Converter;
-use Titon\Utility\Traverse;
+use Titon\Utility\Col;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 use Titon\Utility\Registry;
@@ -144,7 +144,7 @@ abstract class AbstractView implements View, Listener {
 
             unset($template['ext'], $template['locale']);
 
-            $template = implode('/', Traverse::filter($template, false, function($value) {
+            $template = implode('/', Col::filter($template, false, function($value) {
                 return ((is_string($value) || is_numeric($value)) && $value);
             }));
 

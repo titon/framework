@@ -357,7 +357,7 @@ class Converter {
             }
 
             // Multiple nodes of the same name
-            if (Traverse::isNumeric(array_keys($value))) {
+            if (Col::isNumeric(array_keys($value))) {
                 foreach ($value as $kValue) {
                     if (is_array($kValue)) {
                         static::buildXml($xml, [$key => $kValue]);

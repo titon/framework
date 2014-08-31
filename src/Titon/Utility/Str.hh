@@ -160,7 +160,7 @@ class Str {
      * @return string
      */
     public static function insert(string $string, Map<string, mixed> $data, Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'before' => '{',
             'after' => '}',
             'escape' => true
@@ -287,7 +287,7 @@ class Str {
      * @return string
      */
     public static function truncate(string $string, int $limit = 25, Map<string, mixed> $options = Map {}): string {
-        $options = Traverse::merge(Map {
+        $options = Col::merge(Map {
             'html' => true,
             'word' => true,
             'suffix' => '&hellip;',

@@ -11,7 +11,7 @@ use Titon\Common\Macroable;
 use \Indexish;
 
 /**
- * Mutates and traverses multiple types of data structures (collections).
+ * Provides accessor, mutator, helper, and traversal capabilities for collections.
  *
  * @package Titon\Utility
  */
@@ -19,8 +19,7 @@ class Col {
     use Macroable;
 
     /**
-     * Determines the total depth of a multi-dimensional array or object.
-     * Has two methods of determining depth: based on recursive depth, or based on tab indentation (faster).
+     * Determines the total depth of a collection.
      *
      * @param Indexish<Tk, Tv> $collection
      * @return int
@@ -46,8 +45,8 @@ class Col {
     }
 
     /**
-     * Calls a function for each key-value pair in the set.
-     * If recursive is true, will apply the callback to nested arrays as well.
+     * Execute a function for each key-value pair in the set.
+     * If recursive is true, will apply the callback to nested collections as well.
      *
      * @param Indexish<Tk, mixed> $collection
      * @param (function(Tk, mixed): mixed) $callback
@@ -67,7 +66,7 @@ class Col {
     }
 
     /**
-     * Returns true if every element in the array satisfies the provided testing function.
+     * Returns true if every element in the collection satisfies the provided testing function.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param (function(Tk, Tv): bool) $callback
@@ -84,7 +83,7 @@ class Col {
     }
 
     /**
-     * Exclude specific keys from the array and return the new array.
+     * Exclude specific keys from the collection.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param Vector<Tk> $keys
@@ -92,19 +91,23 @@ class Col {
      */
     public static function exclude<Tk, Tv>(Indexish<Tk, Tv> $collection, Vector<Tk> $keys): Indexish<Tk, Tv> {
         foreach ($keys as $key) {
-            unset($collection[$key]);
+            if ($collection instanceof Vector) {
+                $collection->removeKey((int) $key);
+            } else {
+                unset($collection[$key]);
+            }
         }
 
         return $collection;
     }
 
     /**
-     * Expand an array to a fully workable multi-dimensional array, where the values key is a dot notated path.
+     * Expand an collection to a multi-dimensional collection, where the values key is a dot notated path.
      *
      * @param Indexish<Tk, Tv> $collection
      * @return Indexish<string, mixed>
      */
-    public static function expand<Tk, Tv>(Indexish<Tk, Tv> $collection): Indexish<string, mixed> {
+    public static function expand<Tk, Tv>(Map<Tk, Tv> $collection): Indexish<string, mixed> {
         $data = Map {};
 
         foreach ($collection as $key => $value) {
@@ -115,7 +118,7 @@ class Col {
     }
 
     /**
-     * Extract the value of an array, depending on the paths given, represented by key.key.key notation.
+     * Extract the value from the collection, depending on the paths given, represented by dot notation.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param string $path
@@ -125,7 +128,19 @@ class Col {
         $data = $collection;
 
         foreach (explode('.', $path) as $key) {
-            if (!$data instanceof Indexish || !isset($data[$key])) {
+
+            // Can't drill down any deeper
+            if (!$data instanceof Indexish) {
+                return null;
+            }
+
+            // Vectors require int keys so we must cast it
+            if ($data instanceof Vector) {
+                $key = (int) $key;
+            }
+
+            // Index does not exist
+            if (!isset($data[$key])) {
                 return null;
             }
 
@@ -136,8 +151,8 @@ class Col {
     }
 
     /**
-     * Filter out all keys within an array that have an empty value, excluding 0 (string and numeric).
-     * If $recursive is set to true, will remove all empty values within all sub-arrays.
+     * Filter out all keys within a collection that have an empty value, excluding 0 (string and numeric).
+     * If $recursive is set to true, will remove all empty values within all nested collection.
      *
      * @param Indexish<Tk, mixed> $collection
      * @param bool $recursive
@@ -167,13 +182,13 @@ class Col {
     }
 
     /**
-     * Flatten a multi-dimensional array by returning the values with their keys representing their previous pathing.
+     * Flatten a multi-dimensional collection by returning the values with their keys representing their previous pathing.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param string $path
-     * @return Indexish<mixed, mixed>
+     * @return Map<string, mixed>
      */
-    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path = ''): Indexish<mixed, mixed> {
+    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path = ''): Map<string, mixed> {
         if ($path) {
             $path .= '.';
         }
@@ -198,14 +213,14 @@ class Col {
     }
 
     /**
-     * Get a value from the set. If they path doesn't exist, return null, or if the path is empty, return the whole set.
+     * Get a value from the collection. If they path doesn't exist, return null, or if the path is empty, return the whole set.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param string $path
      * @return mixed
      */
-    public static function get<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path = ''): mixed {
-        if (!$path) {
+    public static function get<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): mixed {
+        if ($path === '') {
             return $collection; // Allow whole collection to be returned
         }
 
@@ -213,7 +228,7 @@ class Col {
     }
 
     /**
-     * Checks to see if a key/value pair exists within an array, determined by the given path.
+     * Checks to see if a key/value pair exists within a collection, determined by the given path.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param string $path
@@ -223,7 +238,19 @@ class Col {
         $data = $collection;
 
         foreach (explode('.', $path) as $key) {
-            if (!$data instanceof Indexish || !isset($data[$key])) {
+
+            // Can't drill down any deeper
+            if (!$data instanceof Indexish) {
+                return false;
+            }
+
+            // Vectors require int keys so we must cast it
+            if ($data instanceof Vector) {
+                $key = (int) $key;
+            }
+
+            // Index does not exist
+            if (!isset($data[$key])) {
                 return false;
             }
 
@@ -234,7 +261,7 @@ class Col {
     }
 
     /**
-     * Includes the specified key-value pair in the set if the key doesn't already exist.
+     * Includes the specified key-value pair in the collection if the key doesn't already exist.
      *
      * @param Indexish<Tk, mixed> $collection
      * @param string $path
@@ -250,7 +277,7 @@ class Col {
     }
 
     /**
-     * Inserts a value into the array set based on the given path.
+     * Inserts a value into the collection based on the given path.
      *
      * @param Indexish<Tk, mixed> $collection
      * @param string $path
@@ -259,26 +286,32 @@ class Col {
      */
     public static function insert<Tk>(Indexish<Tk, mixed> $collection, string $path, mixed $value): Indexish<Tk, mixed> {
         $paths = explode('.', $path);
+        $total = count($paths) - 1;
         $data = $collection;
 
-        while (count($paths) > 1) {
-            $key = array_shift($paths);
+        foreach ($paths as $i => $key) {
 
-            if ($data instanceof Indexish && (!isset($data[$key]) || !$data[$key] instanceof Indexish)) {
+            // Last path so set the value
+            if ($i === $total) {
+                $data[$key] = $value;
+                break;
+            }
+
+            invariant($data instanceof Indexish, 'Collection must implement Indexish');
+
+            // Index does not exist or is not Indexish
+            if (!isset($data[$key]) || !$data[$key] instanceof Indexish) {
                 $data[$key] = Map {};
             }
 
             $data = $data[$key];
         }
 
-        // Set the last path value
-        $data[$paths[0]] = $value;
-
         return $collection;
     }
 
     /**
-     * Checks to see if all values in the array are strings, returns false if not.
+     * Checks to see if all values in the collection are strings, returns false if not.
      * If $strict is true, method will fail if there are values that are numerical strings, but are not cast as integers.
      *
      * @param Indexish<Tk, Tv> $collection
@@ -302,7 +335,7 @@ class Col {
     }
 
     /**
-     * Checks to see if all values in the array are numeric, returns false if not.
+     * Checks to see if all values in the collection are numeric, returns false if not.
      *
      * @param Indexish<Tk, Tv> $collection
      * @return bool
@@ -325,17 +358,16 @@ class Col {
 
         foreach ($collection as $key => $value) {
             if ($value === $match) {
-                $return .= (string) $key;
-            }
+               return (string) $key;
 
-            if ($value instanceof Indexish) {
+            } else if ($value instanceof Indexish) {
                 if ($nested = static::keyOf($value, $match)) {
-                    $return .= (string) $nested;
+                    $return .=  (string) $key . '.' . (string) $nested;
                 }
             }
         }
 
-        return $return;
+        return trim($return, '.');
     }
 
     /**
@@ -367,7 +399,7 @@ class Col {
     }*/
 
     /**
-     * Pluck a value out of each child-array and return an array of the plucked values.
+     * Pluck a value out of each collection and return an vector of the plucked values.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param string $path
@@ -376,9 +408,9 @@ class Col {
     public static function pluck<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): Vector<mixed> {
         $data = Vector {};
 
-        foreach ($collection as $coll) {
-            if ($coll instanceof Indexish) {
-                if ($value = static::extract($coll, $path)) {
+        foreach ($collection as $col) {
+            if ($col instanceof Indexish) {
+                if ($value = static::extract($col, $path)) {
                     $data[] = $value;
                 }
             }
@@ -388,7 +420,7 @@ class Col {
     }
 
     /**
-     * Reduce an array by removing all keys that have not been defined for persistence.
+     * Reduce a collection by removing all keys that have not been defined for persistence.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param Vector<Tk> $keys
@@ -404,14 +436,18 @@ class Col {
         }
 
         foreach ($remove as $key) {
-            unset($collection[$key]);
+            if ($collection instanceof Vector) {
+                $collection->removeKey($key);
+            } else {
+                unset($collection[$key]);
+            }
         }
 
         return $collection;
     }
 
     /**
-     * Remove an index from the array, determined by the given path.
+     * Remove an index from the collection, determined by the given path.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param string $path
@@ -419,28 +455,41 @@ class Col {
      */
     public static function remove<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): Indexish<Tk, Tv> {
         $paths = explode('.', $path);
+        $total = count($paths) - 1;
         $data = $collection;
 
-        while (count($paths) > 1) {
-            $key = array_shift($paths);
+        foreach ($paths as $i => $key) {
+            $isVector = ($data instanceof Vector);
 
-            if (!$data instanceof Indexish || !isset($data[$key]) || !$data[$key] instanceof Indexish) {
+            // Vectors require int keys so we must cast it
+            if ($isVector) {
+                $key = (int) $key;
+            }
+
+            // Last path so remove the value
+            if ($i === $total) {
+                if ($isVector) {
+                    $data->removeKey($key);
+                } else {
+                    unset($data[$key]);
+                }
+
+                break;
+            }
+
+            // Index does not exist or is not Indexish
+            if (!isset($data[$key]) || !$data[$key] instanceof Indexish) {
                 return $collection;
             }
 
             $data = $data[$key];
         }
 
-        // Remove the last path value
-        if ($data instanceof Indexish) {
-            unset($data[$paths[0]]);
-        }
-
         return $collection;
     }
 
     /**
-     * Set a value into the result set. If the paths is an array, loop over each one and insert the value.
+     * Set a value into the result set. If $paths is a collection, loop over each one and insert the value.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param KeyedTraversable|string $path
@@ -460,7 +509,7 @@ class Col {
     }
 
     /**
-     * Returns true if at least one element in the array satisfies the provided testing function.
+     * Returns true if at least one element in the collection satisfies the provided testing function.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param (function(Tv, Tk): bool) $callback

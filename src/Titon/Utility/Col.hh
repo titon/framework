@@ -21,19 +21,19 @@ class Col {
     /**
      * Determines the total depth of a collection.
      *
-     * @param Indexish<Tk, Tv> $collection
+     * @param Traversable<Tv> $collection
      * @return int
      */
-    public static function depth<Tk, Tv>(Indexish<Tk, Tv> $collection): int {
+    public static function depth<Tv>(Traversable<Tv> $collection): int {
         if (count($collection) === 0) {
             return 0;
         }
 
         $depth = 1;
 
-        foreach ($collection as $value) {
-            if ($value instanceof Indexish) {
-                $count = static::depth($value) + 1;
+        foreach ($collection as $item) {
+            if ($item instanceof Traversable) {
+                $count = static::depth($item) + 1;
 
                 if ($count > $depth) {
                     $depth = $count;
@@ -45,7 +45,7 @@ class Col {
     }
 
     /**
-     * Execute a function for each key-value pair in the set.
+     * Execute a function for each key-value pair in the collection.
      * If recursive is true, will apply the callback to nested collections as well.
      *
      * @param Indexish<Tk, mixed> $collection
@@ -83,34 +83,30 @@ class Col {
     }
 
     /**
-     * Exclude specific keys from the collection.
+     * Exclude specific keys from the map.
      *
-     * @param Indexish<Tk, Tv> $collection
+     * @param Map<Tk, Tv> $map
      * @param Vector<Tk> $keys
-     * @return Indexish<Tk, Tv>
+     * @return Map<Tk, Tv>
      */
-    public static function exclude<Tk, Tv>(Indexish<Tk, Tv> $collection, Vector<Tk> $keys): Indexish<Tk, Tv> {
+    public static function exclude<Tk, Tv>(Map<Tk, Tv> $map, Vector<Tk> $keys): Map<Tk, Tv> {
         foreach ($keys as $key) {
-            if ($collection instanceof Vector) {
-                $collection->removeKey((int) $key);
-            } else {
-                unset($collection[$key]);
-            }
+            unset($map[$key]);
         }
 
-        return $collection;
+        return $map;
     }
 
     /**
-     * Expand an collection to a multi-dimensional collection, where the values key is a dot notated path.
+     * Expand a singe-dimension map to a multi-dimensional map, where the values key is a dot notated path.
      *
-     * @param Indexish<Tk, Tv> $collection
-     * @return Indexish<string, mixed>
+     * @param Map<Tk, Tv> $map
+     * @return Map<string, mixed>
      */
-    public static function expand<Tk, Tv>(Map<Tk, Tv> $collection): Indexish<string, mixed> {
+    public static function expand<Tk, Tv>(Map<Tk, Tv> $map): Map<string, mixed> {
         $data = Map {};
 
-        foreach ($collection as $key => $value) {
+        foreach ($map as $key => $value) {
             $data = static::insert($data, (string) $key, $value);
         }
 
@@ -118,87 +114,49 @@ class Col {
     }
 
     /**
-     * Extract the value from the collection, depending on the paths given, represented by dot notation.
+     * Extract the value from a map, depending on the paths given, represented by dot notation.
      *
-     * @param Indexish<Tk, Tv> $collection
+     * @param Map<Tk, mixed> $map
      * @param string $path
      * @return mixed
      */
-    public static function extract<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): mixed {
-        $data = $collection;
+    public static function extract<Tk>(Map<Tk, mixed> $map, string $path): mixed {
+        $paths = explode('.', $path);
+        $key = array_shift($paths);
 
-        foreach (explode('.', $path) as $key) {
-
-            // Can't drill down any deeper
-            if (!$data instanceof Indexish) {
-                return null;
-            }
-
-            // Vectors require int keys so we must cast it
-            if ($data instanceof Vector) {
-                $key = (int) $key;
-            }
-
-            // Index does not exist
-            if (!isset($data[$key])) {
-                return null;
-            }
-
-            $data = $data[$key];
+        // Index does not exist
+        if (!isset($map[$key])) {
+            return null;
         }
 
-        return $data;
+        // Drill into the nested collection
+        $value = $map[$key];
+
+        if ($value instanceof Map && $paths) {
+            return static::extract($value, implode('.', $paths));
+        }
+
+        return $value;
     }
 
     /**
-     * Filter out all keys within a collection that have an empty value, excluding 0 (string and numeric).
-     * If $recursive is set to true, will remove all empty values within all nested collection.
+     * Flatten a multi-dimensional map by returning the values with their keys representing their previous pathing.
      *
-     * @param Indexish<Tk, mixed> $collection
-     * @param bool $recursive
-     * @param ?(function(Tk, mixed): bool) $callback
-     * @return Indexish<Tk, mixed>
-     */
-    public static function filter<Tk>(Indexish<Tk, mixed> $collection, bool $recursive = true, ?(function(Tk, mixed): bool) $callback = null): Indexish<Tk, mixed> {
-        if ($callback === null) {
-            $callback = function($key, $value): bool {
-                return ($value === 0 || $value === '0' || $value);
-            };
-        }
-
-        if ($recursive) {
-            foreach ($collection as $key => $value) {
-                if ($value instanceof Indexish) {
-                    $collection[$key] = static::filter($value, $recursive, $callback);
-                }
-            }
-        }
-
-        if ($collection instanceof MutableMap || $collection instanceof MutableVector) {
-            return $collection->filterWithKey($callback);
-        }
-
-        return $collection;
-    }
-
-    /**
-     * Flatten a multi-dimensional collection by returning the values with their keys representing their previous pathing.
-     *
-     * @param Indexish<Tk, Tv> $collection
+     * @param Map<Tk, Tv> $map
      * @param string $path
      * @return Map<string, mixed>
      */
-    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path = ''): Map<string, mixed> {
+    public static function flatten<Tk, Tv>(Map<Tk, Tv> $map, string $path = ''): Map<string, mixed> {
         if ($path) {
             $path .= '.';
         }
 
         $data = Map {};
 
-        foreach ($collection as $key => $value) {
+        foreach ($map as $key => $value) {
             $key = (string) $key;
 
-            if ($value instanceof Indexish) {
+            if ($value instanceof Map) {
                 if (!$value) {
                     $data[$path . $key] = null;
                 } else {
@@ -213,101 +171,94 @@ class Col {
     }
 
     /**
-     * Get a value from the collection. If they path doesn't exist, return null, or if the path is empty, return the whole set.
+     * Get a value from a map. If they path doesn't exist, return null, or if the path is empty, return the whole map.
      *
-     * @param Indexish<Tk, Tv> $collection
+     * @param Map<Tk, mixed> $map
      * @param string $path
      * @return mixed
      */
-    public static function get<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): mixed {
+    public static function get<Tk>(Map<Tk, mixed> $map, string $path): mixed {
         if ($path === '') {
-            return $collection; // Allow whole collection to be returned
+            return $map; // Allow whole collection to be returned
         }
 
-        return static::extract($collection, $path);
+        return static::extract($map, $path);
     }
 
     /**
-     * Checks to see if a key/value pair exists within a collection, determined by the given path.
+     * Checks to see if a key/value pair exists within a map, determined by the given path.
      *
-     * @param Indexish<Tk, Tv> $collection
+     * @param Map<Tk, mixed> $map
      * @param string $path
      * @return bool
      */
-    public static function has<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): bool {
-        $data = $collection;
+    public static function has<Tk>(Map<Tk, mixed> $map, string $path): bool {
+        $paths = explode('.', $path);
+        $key = array_shift($paths);
 
-        foreach (explode('.', $path) as $key) {
+        // Index does not exist
+        if (!isset($map[$key])) {
+            return false;
+        }
 
-            // Can't drill down any deeper
-            if (!$data instanceof Indexish) {
-                return false;
-            }
+        // Drill into the nested collection
+        $value = $map[$key];
 
-            // Vectors require int keys so we must cast it
-            if ($data instanceof Vector) {
-                $key = (int) $key;
-            }
-
-            // Index does not exist
-            if (!isset($data[$key])) {
-                return false;
-            }
-
-            $data = $data[$key];
+        if ($value instanceof Map && $paths) {
+            return static::has($value, implode('.', $paths));
         }
 
         return true;
     }
 
     /**
-     * Includes the specified key-value pair in the collection if the key doesn't already exist.
+     * Includes the specified key-value pair in the map if the key doesn't already exist.
      *
-     * @param Indexish<Tk, mixed> $collection
+     * @param Map<Tk, mixed> $map
      * @param string $path
      * @param mixed $value
-     * @return Indexish<Tk, mixed>
+     * @return Map<Tk, mixed>
      */
-    public static function inject<Tk>(Indexish<Tk, mixed> $collection, string $path, mixed $value): Indexish<Tk, mixed> {
-        if (static::has($collection, $path)) {
-            return $collection;
+    public static function inject<Tk>(Map<Tk, mixed> $map, string $path, mixed $value): Map<Tk, mixed> {
+        if (static::has($map, $path)) {
+            return $map;
         }
 
-        return static::insert($collection, $path, $value);
+        return static::insert($map, $path, $value);
     }
 
     /**
-     * Inserts a value into the collection based on the given path.
+     * Inserts a value into a map based on the given path.
      *
-     * @param Indexish<Tk, mixed> $collection
+     * @param Map<Tk, mixed> $map
      * @param string $path
      * @param mixed $value
-     * @return Indexish<Tk, mixed>
+     * @return Map<Tk, mixed>
      */
-    public static function insert<Tk>(Indexish<Tk, mixed> $collection, string $path, mixed $value): Indexish<Tk, mixed> {
+    public static function insert<Tk>(Map<Tk, mixed> $map, string $path, mixed $value): Map<Tk, mixed> {
         $paths = explode('.', $path);
-        $total = count($paths) - 1;
-        $data = $collection;
+        $key = array_shift($paths);
 
-        foreach ($paths as $i => $key) {
+        // In the last path so set the value
+        if (!$paths) {
+            $map[$key] = $value;
 
-            // Last path so set the value
-            if ($i === $total) {
-                $data[$key] = $value;
-                break;
-            }
-
-            invariant($data instanceof Indexish, 'Collection must implement Indexish');
-
-            // Index does not exist or is not Indexish
-            if (!isset($data[$key]) || !$data[$key] instanceof Indexish) {
-                $data[$key] = Map {};
-            }
-
-            $data = $data[$key];
+            return $map;
         }
 
-        return $collection;
+        // Index does not exist
+        if (!isset($map[$key]) || !$map[$key] instanceof Map) {
+            $map[$key] = Map {};
+        }
+
+        // Drill into the nested collection
+        $item = $map[$key];
+
+        invariant($item instanceof Map, 'Item is a Map');
+
+        static::insert($item, implode('.', $paths), $value);
+
+        return $map;
     }
 
     /**
@@ -371,46 +322,51 @@ class Col {
     }
 
     /**
-     * Merge is a combination of array_merge() and array_merge_recursive(). However, when merging two keys with the same key,
-     * the previous value will be overwritten instead of being added into an array. The later array takes precedence when merging.
+     * Merge one map into another. Values from the secondary maps will overwrite the primary map.
+     * If two values are maps, they will be merged recursively. If two values are vectors, they will be combined.
      *
-     * @param Indexish<mixed, mixed> $base
-     * @param Indexish<mixed, mixed> $merge
-     * @return Indexish<mixed, mixed>
+     * @param Map<Tk, mixed> $base
+     * @param Map<Tk, mixed> $merge
+     * @return Map<Tk, mixed>
      */
-    /*public static function merge(Indexish<mixed, mixed> $base, Indexish<mixed, mixed> $merge): Indexish<mixed, mixed> {
-        foreach ($merge as $key => $value) {
-            if (isset($base[$key])) {
-                $current = $base[$key];
-
-                if ($value instanceof Indexish && $current instanceof Indexish) {
-                    $value = static::merge($current, $value);
-                }
+    public static function merge<Tk>(Map<Tk, mixed> $base, ... $merges): Map<Tk, mixed> { // @todo - Variadic doesn't support type hints
+        foreach ($merges as $merge) {
+            if (!$merge instanceof Indexish) {
+                continue;
             }
 
-            if ($base instanceof Vector) {
-                $base[] = $value;
-            } else {
+            foreach ($merge as $key => $value) {
+                if (isset($base[$key])) {
+                    $current = $base[$key];
+
+                    if ($value instanceof Map && $current instanceof Map) {
+                        $value = static::merge($current, $value);
+
+                    } else if ($value instanceof Vector && $current instanceof Vector) {
+                        $value = $current->addAll($value);
+                    }
+                }
+
                 $base[$key] = $value;
             }
         }
 
         return $base;
-    }*/
+    }
 
     /**
-     * Pluck a value out of each collection and return an vector of the plucked values.
+     * Pluck a value out of a map and return an vector of the plucked values.
      *
-     * @param Indexish<Tk, Tv> $collection
+     * @param Map<Tk, Tv> $map
      * @param string $path
      * @return Vector<mixed>
      */
-    public static function pluck<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): Vector<mixed> {
+    public static function pluck<Tk, Tv>(Map<Tk, Tv> $map, string $path): Vector<mixed> {
         $data = Vector {};
 
-        foreach ($collection as $col) {
-            if ($col instanceof Indexish) {
-                if ($value = static::extract($col, $path)) {
+        foreach ($map as $item) {
+            if ($item instanceof Map) {
+                if ($value = static::extract($item, $path)) {
                     $data[] = $value;
                 }
             }
@@ -420,92 +376,77 @@ class Col {
     }
 
     /**
-     * Reduce a collection by removing all keys that have not been defined for persistence.
+     * Reduce a map by removing all keys that have not been defined for persistence.
      *
-     * @param Indexish<Tk, Tv> $collection
+     * @param Map<Tk, Tv> $map
      * @param Vector<Tk> $keys
-     * @return Indexish<Tk, Tv>
+     * @return Map<Tk, Tv>
      */
-    public static function reduce<Tk, Tv>(Indexish<Tk, Tv> $collection, Vector<Tk> $keys): Indexish<Tk, Tv> {
+    public static function reduce<Tk, Tv>(Map<Tk, Tv> $map, Vector<Tk> $keys): Map<Tk, Tv> {
         $remove = Vector {};
 
-        foreach ($collection as $key => $value) {
+        foreach ($map as $key => $value) {
             if (!in_array($key, $keys)) {
                 $remove[] = $key;
             }
         }
 
         foreach ($remove as $key) {
-            if ($collection instanceof Vector) {
-                $collection->removeKey($key);
-            } else {
-                unset($collection[$key]);
-            }
+            unset($map[$key]);
         }
 
-        return $collection;
+        return $map;
     }
 
     /**
-     * Remove an index from the collection, determined by the given path.
+     * Remove an key from a map, determined by the given path.
      *
-     * @param Indexish<Tk, Tv> $collection
+     * @param Map<Tk, mixed> $map
      * @param string $path
-     * @return Indexish<Tk, Tv>
+     * @return Map<Tk, mixed>
      */
-    public static function remove<Tk, Tv>(Indexish<Tk, Tv> $collection, string $path): Indexish<Tk, Tv> {
+    public static function remove<Tk>(Map<Tk, mixed> $map, string $path): Map<Tk, mixed> {
         $paths = explode('.', $path);
-        $total = count($paths) - 1;
-        $data = $collection;
+        $key = array_shift($paths);
 
-        foreach ($paths as $i => $key) {
-            $isVector = ($data instanceof Vector);
-
-            // Vectors require int keys so we must cast it
-            if ($isVector) {
-                $key = (int) $key;
-            }
-
-            // Last path so remove the value
-            if ($i === $total) {
-                if ($isVector) {
-                    $data->removeKey($key);
-                } else {
-                    unset($data[$key]);
-                }
-
-                break;
-            }
-
-            // Index does not exist or is not Indexish
-            if (!isset($data[$key]) || !$data[$key] instanceof Indexish) {
-                return $collection;
-            }
-
-            $data = $data[$key];
+        // In the last path so remove the value
+        if (!$paths) {
+            unset($map[$key]);
         }
 
-        return $collection;
+        // Index does not exist
+        if (!isset($map[$key]) || !$map[$key] instanceof Map) {
+            return $map;
+        }
+
+        // Drill into the nested collection
+        $item = $map[$key];
+
+        invariant($item instanceof Map, 'Item is a Map');
+
+        static::remove($item, implode('.', $paths));
+
+        return $map;
     }
 
     /**
-     * Set a value into the result set. If $paths is a collection, loop over each one and insert the value.
+     * Set a value into a map. If $paths is a map, loop over each item and insert the value.
      *
-     * @param Indexish<Tk, Tv> $collection
-     * @param KeyedTraversable|string $path
+     * @param Map<Tk, mixed> $map
+     * @param Map|string $path
      * @param mixed $value
-     * @return Indexish<Tk, Tv>
+     * @return Map<Tk, mixed>
      */
-    public static function set<Tk, Tv>(Indexish<Tk, Tv> $collection, mixed $path, mixed $value = null): Indexish<Tk, mixed> {
-        if ($path instanceof KeyedTraversable) {
+    public static function set<Tk>(Map<Tk, mixed> $map, mixed $path, mixed $value = null): Map<Tk, mixed> {
+        if ($path instanceof Map) {
             foreach ($path as $key => $value) {
-                $collection = static::insert($collection, $key, $value);
+                $map = static::insert($map, $key, $value);
             }
         } else {
-            $collection = static::insert($collection, (string) $path, $value);
+            $map = static::insert($map, (string) $path, $value);
         }
 
-        return $collection;
+        return $map;
     }
 
     /**

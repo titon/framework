@@ -8,17 +8,17 @@
 namespace Titon\Type\Contract;
 
 /**
- * Interface for enabling to array support.
+ * Interface for enabling to map support.
  *
  * @package Titon\Type\Contract
  */
-interface Arrayable<Tk, Tv> {
+interface Mapable<Tk, Tv> {
 
     /**
-     * Return the object as an array.
+     * Return the object as a map.
      *
-     * @return array<Tk, Tv>
+     * @return Map<Tk, Tv>
      */
-    public function toArray(): array<Tk, Tv>;
+    public function toMap(): Map<Tk, Tv>;
 
 }

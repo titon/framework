@@ -8,17 +8,17 @@
 namespace Titon\Type\Contract;
 
 /**
- * Interface for enabling to array support.
+ * Interface for enabling to vector support.
  *
  * @package Titon\Type\Contract
  */
-interface Arrayable<Tk, Tv> {
+interface Vectorable<Tv> {
 
     /**
-     * Return the object as an array.
+     * Return the object as a vector.
      *
-     * @return array<Tk, Tv>
+     * @return Vector<Tv>
      */
-    public function toArray(): array<Tk, Tv>;
+    public function toVector(): Vector<Tv>;
 
 }

@@ -8,16 +8,16 @@
 namespace Titon\Utility;
 
 use Titon\Common\Macroable;
-use Titon\Type\Contract\Arrayable;
 use Titon\Type\Contract\Jsonable;
+use Titon\Type\Contract\Mapable;
+use Titon\Type\Contract\Vectorable;
 use Titon\Type\Contract\Xmlable;
 use \JsonSerializable;
-use \Serializable;
 use \SimpleXmlElement;
 
 /**
  * A class that handles the detection and conversion of certain resource formats / content types into other formats.
- * The current formats are supported: XML, JSON, Array, Object, Serialized
+ * The current formats are supported: XML, JSON, Map, Vector, Object, Serialized
  *
  * @package Titon\Utility
  */
@@ -81,10 +81,22 @@ class Converter {
      * @return string
      */
     public static function is(mixed $data): string {
-        if (static::isArray($data)) {
+        if (is_array($data)) {
             return 'array';
 
-        } else if (static::isObject($data)) {
+        } else if ($data instanceof Map) {
+            return 'map';
+
+        } else if ($data instanceof Vector) {
+            return 'vector';
+
+        } else if ($data instanceof Set) {
+            return 'set';
+
+        } else if ($data instanceof Pair) {
+            return 'pair';
+
+        } else if (is_object($data)) {
             return 'object';
 
         } else if (static::isJson($data)) {
@@ -109,16 +121,6 @@ class Converter {
     }
 
     /**
-     * Check to see if data passed is an array.
-     *
-     * @param mixed $data
-     * @return bool
-     */
-    public static function isArray(mixed $data): bool {
-        return is_array($data);
-    }
-
-    /**
      * Check to see if data passed is a JSON object.
      *
      * @param mixed $data
@@ -132,16 +134,6 @@ class Converter {
         $json = @json_decode($data, true);
 
         return (json_last_error() === JSON_ERROR_NONE && $json !== null);
-    }
-
-    /**
-     * Check to see if data passed is an object.
-     *
-     * @param mixed $data
-     * @return bool
-     */
-    public static function isObject(mixed $data): bool {
-        return is_object($data);
     }
 
     /**
@@ -174,36 +166,6 @@ class Converter {
     }
 
     /**
-     * Transforms a resource into an array.
-     *
-     * @param mixed $resource
-     * @param bool $recursive
-     * @return array
-     */
-    public static function toArray(mixed $resource, bool $recursive = false): array<mixed, mixed> {
-        if ($resource instanceof Arrayable) {
-            $resource = $resource->toArray();
-
-        } else if (static::isArray($resource)) {
-            return $recursive ? static::buildArray($resource) : (array) $resource;
-
-        } else if (static::isObject($resource)) {
-            return (is_object($resource) && method_exists($resource, 'toArray')) ? $resource->toArray() : static::buildArray($resource);
-
-        } else if (static::isJson($resource)) {
-            $resource = json_decode($resource, true);
-
-        } else if (static::isSerialized($resource)) {
-            $resource = unserialize($resource);
-
-        } else if (static::isXml($resource)) {
-            $resource = static::xmlToArray(simplexml_load_string($resource));
-        }
-
-        return (array) $resource;
-    }
-
-    /**
      * Transforms a resource into a JSON object.
      *
      * @param mixed $resource
@@ -219,38 +181,36 @@ class Converter {
 
         } else if (static::isJson($resource)) {
             return (string) $resource;
-
-        } else if (static::isObject($resource)) {
-            $resource = static::buildArray($resource);
-
-        } else if (static::isXml($resource)) {
-            $resource = static::xmlToArray(simplexml_load_string($resource));
-
-        } else if (static::isSerialized($resource)) {
-            $resource = unserialize($resource);
         }
 
         return json_encode($resource, $options);
     }
 
     /**
-     * Transform a resource into a map.
-     * If the value is an array or traversable object, pass it to the map.
-     * If it is any other value, wrap in array first.
+     * Transform a resource into a map recursively.
      *
      * @param mixed $resouce
      * @return Map<mixed, mixed>
      */
     public static function toMap(mixed $resource): Map<mixed, mixed> {
-        if (!$resource instanceof KeyedTraversable) {
+        if ($resource instanceof Mapable) {
+            return $resource->toMap();
+
+        } else if (!$resource instanceof KeyedTraversable) {
             return new Map([$resource]);
         }
 
         $map = Map {};
 
+        invariant($resource instanceof KeyedTraversable, 'Resource is traversable');
+
         foreach ($resource as $key => $value) {
-            if ($value instanceof Traversable) {
+            if ($value instanceof Vector) {
+                $map[$key] = static::toVector($value);
+
+            } else if ($value instanceof KeyedTraversable) {
                 $map[$key] = static::toMap($value);
+
             } else {
                 $map[$key] = $value;
             }
@@ -268,31 +228,37 @@ class Converter {
     public static function toSerialize(mixed $resource): string {
         if ($resource instanceof Serializable) {
             // pass-through
-        } else {
-            $resource = static::toArray($resource);
+
+        } else if (static::isSerialized($resource)) {
+            return (string) $resource;
         }
 
         return serialize($resource);
     }
 
     /**
-     * Transform a resource into a vector.
-     * If the value is an array or traversable object, pass it to the vector.
-     * If it is any other value, wrap in array first.
+     * Transform a resource into a vector recursively.
      *
      * @param mixed $resouce
      * @return Vector<mixed>
      */
     public static function toVector(mixed $resource): Vector<mixed> {
-        if (!$resource instanceof Traversable) {
+        if ($resource instanceof Vectorable) {
+            return $resource->toVector();
+
+        } else if (!$resource instanceof KeyedTraversable) {
             return new Vector([$resource]);
         }
 
         $vector = Vector {};
 
         foreach ($resource as $value) {
-            if ($value instanceof Traversable) {
+            if ($value instanceof Map || (is_array($value) && !Col::isNumeric(array_keys($value)))) {
+                $vector[] = static::toMap($value);
+
+            } else if ($value instanceof KeyedTraversable) {
                 $vector[] = static::toVector($value);
+
             } else {
                 $vector[] = $value;
             }
@@ -311,104 +277,86 @@ class Converter {
     public static function toXml(mixed $resource, string $root = 'root'): string {
         if ($resource instanceof Xmlable) {
             return $resource->toXml($root);
+
+        } else if (static::isXml($resource)) {
+            return (string) $resource;
         }
 
-        return static::arrayToXml(static::toArray($resource, true), $root);
+        return static::mapToXml(static::toMap($resource), $root);
     }
 
     /**
-     * Turn an object into an array. Alternative to array_map magic.
-     *
-     * @param KeyedTraversable $object
-     * @return array<mixed, mixed>
-     */
-    public static function buildArray(KeyedTraversable $object): array<mixed, mixed> {
-        $array = [];
-
-        foreach ($object as $key => $value) {
-            if (is_object($value) || is_array($value)) {
-                $array[$key] = static::buildArray($value);
-
-            } else if ($value instanceof Collection) {
-                $array[$key] = $value->toArray();
-
-            } else {
-                $array[$key] = static::autobox($value);
-            }
-        }
-
-        return $array;
-    }
-
-    /**
-     * Turn an array into an XML document. Alternative to array_map magic.
+     * Merge a map into an existing XML object.
      *
      * @param \SimpleXMLElement $xml
-     * @param array<string, mixed> $array
+     * @param Map<mixed, mixed> $map
      * @return \SimpleXMLElement
      */
-    public static function buildXml(SimpleXMLElement $xml, array<string, mixed> $array): SimpleXmlElement {
-        foreach ($array as $key => $value) {
+    public static function buildXml(SimpleXMLElement $xml, Map<mixed, mixed> $map): SimpleXmlElement {
+        foreach ($map as $key => $value) {
 
             // XML_NONE
-            if (!is_array($value)) {
+            if (!$value instanceof Collection) {
                 $xml->addChild($key, static::unbox($value));
-                continue;
-            }
 
             // Multiple nodes of the same name
-            if (Col::isNumeric(array_keys($value))) {
+            } else if ($value instanceof Vector) {
                 foreach ($value as $kValue) {
-                    if (is_array($kValue)) {
-                        static::buildXml($xml, [$key => $kValue]);
+                    if ($kValue instanceof Collection) {
+                        static::buildXml($xml, Map {$key => $kValue});
                     } else {
                         $xml->addChild($key, static::unbox($kValue));
                     }
                 }
 
-            // XML_GROUP
-            } else if (isset($value['attributes'])) {
-                if (!isset($value['value'])) {
-                    $value['value'] = null;
-                }
+            // Single node with value and or attributes
+            } else if ($value instanceof Map) {
 
-                if (is_array($value['value'])) {
-                    $node = $xml->addChild($key);
-                    static::buildXml($node, $value['value']);
-                } else {
-                    $node = $xml->addChild($key, static::unbox($value['value']));
-                }
-
+                // XML_GROUP
                 if (isset($value['attributes'])) {
-                    foreach ($value['attributes'] as $aKey => $aValue) {
-                        $node->addAttribute($aKey, static::unbox($aValue));
+                    if (!isset($value['value'])) {
+                        $value['value'] = null;
                     }
-                }
 
-            // XML_MERGE
-            } else if (isset($value['value'])) {
-                $node = $xml->addChild($key, $value['value']);
-                unset($value['value']);
+                    $attributes = $value['attributes'];
+                    $raw = $value['value'];
 
-                if (isset($value)) {
+                    if ($raw instanceof Map) {
+                        $node = $xml->addChild($key);
+                        static::buildXml($node, $raw);
+
+                    } else {
+                        $node = $xml->addChild($key, static::unbox($raw));
+                    }
+
+                    if ($attributes instanceof KeyedTraversable) {
+                        foreach ($attributes as $aKey => $aValue) {
+                            $node->addAttribute($aKey, static::unbox($aValue));
+                        }
+                    }
+
+                // XML_MERGE
+                } else if (isset($value['value'])) {
+                    $node = $xml->addChild($key, $value['value']);
+                    unset($value['value']);
+
                     foreach ($value as $aKey => $aValue) {
                         $node->addAttribute($aKey, static::unbox($aValue));
                     }
-                }
 
-            // XML_ATTRIBS
-            } else {
-                $node = $xml->addChild($key);
+                // XML_ATTRIBS
+                } else {
+                    $node = $xml->addChild($key);
 
-                if (isset($value)) {
                     foreach ($value as $aKey => $aValue) {
-                        if (is_array($aValue)) {
-                            static::buildXml($node, [$aKey => $aValue]);
+                        if ($aValue instanceof Collection) {
+                            static::buildXml($node, Map {$aKey => $aValue});
                         } else {
                             $node->addChild($aKey, static::unbox($aValue));
                         }
                     }
                 }
+
             }
         }
 
@@ -416,41 +364,37 @@ class Converter {
     }
 
     /**
-     * Convert an array to an XML string.
+     * Convert a map to an XML string.
      *
-     * @param array<string, mixed> $array
+     * @param Map<mixed, mixed> $map
      * @param string $root
      * @return string
      */
-    public static function arrayToXml(array<string, mixed> $array, string $root): string {
+    public static function mapToXml(Map<mixed, mixed> $map, string $root): string {
         $xml = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><' . $root . '></' . $root . '>');
-        $response = static::buildXml($xml, $array);
+        $response = static::buildXml($xml, $map);
 
         return trim($response->asXML());
     }
 
     /**
-     * Convert a SimpleXML object into an array.
+     * Convert a SimpleXML object into a map.
      *
      * @param SimpleXMLElement $xml
      * @param int $format
-     * @return array<string, mixed>
+     * @return Map<string, mixed>
      */
-    public static function xmlToArray(SimpleXMLElement $xml, int $format = self::XML_GROUP): array<string, mixed> {
-        $array = [];
+    public static function xmlToMap(SimpleXMLElement $xml, int $format = self::XML_GROUP): Map<string, mixed> {
+        $map = Map {};
 
         /** @type SimpleXMLElement $node */
         foreach ($xml->children() as $element => $node) {
-            $data = [];
+            $data = Map {};
             $children = $node->children();
-
-            if (!isset($array[$element])) {
-                $array[$element] = '';
-            }
 
             if (!$node->attributes() || $format === self::XML_NONE) {
                 if (count($children) > 0) {
-                    $data = static::xmlToArray($node, $format);
+                    $data = static::xmlToMap($node, $format);
                 } else {
                     $data = static::autobox((string) $node);
                 }
@@ -458,23 +402,24 @@ class Converter {
             } else {
                 switch ($format) {
                     case self::XML_GROUP:
-                        $data = [
-                            'value' => static::autobox((string) $node),
-                            'attributes' => []
-                        ];
+                        $data['value'] = static::autobox((string) $node);
 
                         if (count($children) > 0) {
-                            $data['value'] = static::xmlToArray($node, $format);
+                            $data['value'] = static::xmlToMap($node, $format);
                         }
 
+                        $attributes = Map {};
+
                         foreach ($node->attributes() as $attr => $value) {
-                            $data['attributes'][$attr] = static::autobox((string) $value);
+                            $attributes[$attr] = static::autobox((string) $value);
                         }
+
+                        $data['attributes'] = $attributes;
                     break;
 
                     case self::XML_MERGE:
                         if (count($children) > 0) {
-                            $data = $data + static::xmlToArray($node, $format);
+                            $data = Col::merge(static::xmlToMap($node, $format), $data);
                         } else {
                             $data['value'] = static::autobox((string) $node);
                         }
@@ -489,13 +434,18 @@ class Converter {
             }
 
             if (count($xml->{$element}) > 1) {
-                $array[$element][] = $data;
+                if (!isset($map[$element])) {
+                    $map[$element] = Vector {};
+                }
+
+                $map[$element][] = $data;
+
             } else {
-                $array[$element] = $data;
+                $map[$element] = $data;
             }
         }
 
-        return $array;
+        return $map;
     }
 
 }

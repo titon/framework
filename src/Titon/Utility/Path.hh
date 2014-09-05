@@ -51,14 +51,14 @@ class Path {
         foreach (Vector {'vendor', 'app', 'modules', 'resources', 'temp', 'views', 'web'} as $type) {
             $constant = strtoupper($type) . '_DIR';
 
-            if (!isset($paths[$type]) && defined($constant)) {
+            if (!$paths->contains($type) && defined($constant)) {
                 $paths[$type] = constant($constant);
             }
         }
 
         // Define source locations
         foreach (Vector {'src', 'lib'} as $source) {
-            if (!isset($paths[$source]) && strpos($file, $source) !== false) {
+            if (!$paths->contains($source) && strpos($file, $source) !== false) {
                 $parts = explode($source, $file);
                 $paths[$source] = $parts[0] . $source;
             }
@@ -204,7 +204,7 @@ class Path {
         $parts->reverse();
 
         if ($join) {
-            return implode($parts, '/');
+            return implode('/', $parts);
         }
 
         return $parts;

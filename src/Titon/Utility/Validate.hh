@@ -508,7 +508,7 @@ class Validate {
             return false;
         }
 
-        return ($size >= Number::bytesFrom($min));
+        return ($size >= Number::bytesFrom((string) $min));
     }
 
     /**
@@ -564,7 +564,7 @@ class Validate {
             return false;
         }
 
-        return ($size <= Number::bytesFrom($max));
+        return ($size <= Number::bytesFrom((string) $max));
     }
 
     /**

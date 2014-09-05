@@ -6,7 +6,7 @@ use Titon\Test\TestCase;
 class PathTest extends TestCase {
 
     public function testAlias() {
-        $this->assertEquals('[internal]', Path::alias(null));
+        $this->assertEquals('[internal]', Path::alias(''));
         $this->assertEquals('[vendor]Titon/Debug/Debugger.php', Path::alias(VENDOR_DIR . '/Titon/Debug/Debugger.php'));
         $this->assertEquals('[src]Titon/Debug/Debugger.php', Path::alias(dirname(TEST_DIR) . '/src/Titon/Debug/Debugger.php'));
         $this->assertEquals('[app]some/file.txt', Path::alias('/app/some/file.txt', Map {'app' => '/app'}));

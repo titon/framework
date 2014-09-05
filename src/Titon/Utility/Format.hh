@@ -9,6 +9,7 @@ namespace Titon\Utility;
 
 use Titon\Common\Macroable;
 use \DateTime;
+use \Indexish;
 
 /**
  * Format provides utility methods for converting raw data to specific visual formats.
@@ -71,16 +72,23 @@ class Format {
      */
     public static function format(string $value, string $format): string {
         $length = mb_strlen($format);
-        $result = $format;
+        $result = '';
         $pos = 0;
 
         for ($i = 0; $i < $length; $i++) {
             $char = $format[$i];
 
-            if (($char === '#' || $char === '*') && isset($value[$pos])) {
-                $replace = ($char === '*') ? '*' : $value[$pos];
-                $result = substr_replace($result, $replace, $i, 1);
+            if ($char === '#') {
+                $raw = mb_substr($value, $pos, 1);
+                $result .= ($raw === false || $raw === '') ? '#' : $raw;
                 $pos++;
+
+            } else if ($char === '*') {
+                $result .= $char;
+                $pos++;
+
+            } else {
+                $result .= $char;
             }
         }
 
@@ -104,23 +112,23 @@ class Format {
      * depending on how many numbers are present.
      *
      * @param string $value
-     * @param string|array $format
+     * @param string|Map $format
      * @return string
      */
     public static function phone(string $value, mixed $format): string {
         $value = preg_replace('/[^0-9]+/', '', $value);
-        $pattern = '';
+        $pattern = $format;
 
-        if ($format instanceof KeyedTraversable) {
+        if ($format instanceof Map) {
             $length = mb_strlen($value);
 
-            if ($length >= 11 && isset($format[11])) {
+            if ($length >= 11 && $format->contains(11)) {
                 $pattern = $format[11];
 
-            } else if ($length >= 10 && isset($format[10])) {
+            } else if ($length >= 10 && $format->contains(10)) {
                 $pattern = $format[10];
 
-            } else if (isset($format[7])) {
+            } else if ($format->contains(7)) {
                 $pattern = $format[7];
 
             } else {
@@ -128,7 +136,7 @@ class Format {
             }
         }
 
-        return static::format($value, $pattern);
+        return static::format($value, (string) $pattern);
     }
 
     /**
@@ -140,15 +148,8 @@ class Format {
      * @param Map<string, mixed> $options
      * @return string
      */
-    public static function relativeTime(mixed $time, Map<string, mixed> $options = Map {}): string {
+    public static function relativeTime(mixed $time, Map<string, mixed> $options = Map {}, Map<string, Vector<string>> $messages = Map {}): string {
         $options = Col::merge(Map {
-            'seconds' => Vector {'%ss', '%s second', '%s seconds'},
-            'minutes' => Vector {'%sm', '%s minute', '%s minutes'},
-            'hours' => Vector {'%sh', '%s hour', '%s hours'},
-            'days' => Vector {'%sd', '%s day', '%s days'},
-            'weeks' => Vector {'%sw', '%s week', '%s weeks'},
-            'months' => Vector {'%sm', '%s month', '%s months'},
-            'years' => Vector {'%sy', '%s year', '%s years'},
             'now' => 'just now',
             'in' => 'in %s',
             'ago' => '%s ago',
@@ -158,17 +159,27 @@ class Format {
             'time' => time()
         }, $options);
 
+        $messages = Col::merge(Map {
+            'seconds' => Vector {'%ds', '%d second', '%d seconds'},
+            'minutes' => Vector {'%dm', '%d minute', '%d minutes'},
+            'hours' => Vector {'%dh', '%d hour', '%d hours'},
+            'days' => Vector {'%dd', '%d day', '%d days'},
+            'weeks' => Vector {'%dw', '%d week', '%d weeks'},
+            'months' => Vector {'%dm', '%d month', '%d months'},
+            'years' => Vector {'%dy', '%d year', '%d years'}
+        }, $messages);
+
         $diff = Time::difference($options['time'], Time::toUnix($time));
-        $output = Map {};
 
         // Present tense
         if ($diff === 0) {
-            return $options['now'];
+            return (string) $options['now'];
         }
 
         // Past or future tense
         $seconds = abs($diff);
-        $depth = $options['depth'];
+        $depth = (int) $options['depth'];
+        $output = Vector {};
 
         while ($seconds > 0 && $depth > 0) {
             if ($seconds >= Time::YEAR) {
@@ -200,27 +211,27 @@ class Format {
                 $div = Time::SECOND;
             }
 
-            $count = round($seconds / $div);
+            $count = (int) round($seconds / $div);
             $seconds -= ($count * $div);
 
             if ($options['verbose']) {
-                $index = ($count == 1) ? 1 : 2;
+                $index = ($count === 1) ? 1 : 2;
             } else {
                 $index = 0;
             }
 
-            $output[$key] = sprintf($options[$key][$index], $count);
+            $output[] = sprintf($messages[$key][$index], $count);
             $depth--;
         }
 
-        $output = implode($options['separator'], $output);
+        $return = implode($options['separator'], $output);
 
         // Past
         if ($diff > 0) {
-            return sprintf($options['ago'], $output);
+            return sprintf($options['ago'], $return);
         }
 
-        return sprintf($options['in'], $output);
+        return sprintf($options['in'], $return);
     }
 
     /**

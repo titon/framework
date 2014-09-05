@@ -76,7 +76,7 @@ class Sanitize {
         }, $options);
 
         if ($options['strip']) {
-            $value = strip_tags($value, $options['whitelist']);
+            $value = strip_tags($value, (string) $options['whitelist']);
         }
 
         return static::escape($value, $options);
@@ -116,7 +116,8 @@ class Sanitize {
         }, $options);
 
         if ($options['limit']) {
-            $pattern = '/(?:%s){' . $options['limit'] . ',}/u';
+            $pattern = '/(?:%s){' . (string) $options['limit'] . ',}/u';
+            $replace = null;
 
         } else {
             $pattern = '/(?:%s)+/u';
@@ -124,15 +125,15 @@ class Sanitize {
         }
 
         if ($options['crlf']) {
-            $value = preg_replace(sprintf($pattern, '\r\n'), (isset($replace) ? $replace : "\r\n"), $value);
+            $value = preg_replace(sprintf($pattern, '\r\n'), is_null($replace) ? "\r\n" : $replace, $value);
         }
 
         if ($options['cr']) {
-            $value = preg_replace(sprintf($pattern, '\r'), (isset($replace) ? $replace : "\r"), $value);
+            $value = preg_replace(sprintf($pattern, '\r'), is_null($replace) ? "\r" : $replace, $value);
         }
 
         if ($options['lf']) {
-            $value = preg_replace(sprintf($pattern, '\n'), (isset($replace) ? $replace : "\n"), $value);
+            $value = preg_replace(sprintf($pattern, '\n'), is_null($replace) ? "\n" : $replace, $value);
         }
 
         if ($options['trim']) {
@@ -185,11 +186,11 @@ class Sanitize {
         }
 
         if ($options['tab']) {
-            $value = preg_replace(sprintf($pattern, '\t'), $replace === null ? "\t" : $replace, $value);
+            $value = preg_replace(sprintf($pattern, '\t'), is_null($replace) ? "\t" : $replace, $value);
         }
 
         if ($options['space']) {
-            $value = preg_replace(sprintf($pattern, ' '), $replace === null ? ' ' : $replace, $value); // \s replaces other whitespace characters
+            $value = preg_replace(sprintf($pattern, ' '), is_null($replace) ? ' ' : $replace, $value); // \s replaces other whitespace characters
         }
 
         if ($options['strip']) {

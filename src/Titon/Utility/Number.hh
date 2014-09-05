@@ -30,10 +30,10 @@ class Number {
      * Convert a readable string notated form of bytes (1KB) to the numerical equivalent (1024).
      * Supports all the different format variations: k, kb, ki, kib, etc.
      *
-     * @param string|int|float $number
+     * @param string $number
      * @return int
      */
-    public static function bytesFrom(mixed $number): int {
+    public static function bytesFrom(string $number): int {
         if (!$number) {
             return 0;
 
@@ -65,12 +65,13 @@ class Number {
 
     /**
      * Convert a numerical value to the readable string notated equivalent.
+     * The size must be a string to support large integers and floats.
      *
-     * @param string|int|float $size
+     * @param string $size
      * @param int $precision
      * @return string
      */
-    public static function bytesTo(mixed $size, int $precision = 0): string {
+    public static function bytesTo(string $size, int $precision = 0): string {
         $sizes = ['YB', 'ZB', 'EB', 'PB', 'TB', 'GB', 'MB', 'KB', 'B'];
         $total = count($sizes);
 
@@ -101,7 +102,7 @@ class Number {
      * Convert a number to it's currency equivalent, respecting locale.
      * Allow for overrides through an options array.
      *
-     * @param string|int|float $number
+     * @param float $number
      * @param Map<string, mixed> $options {
      *      @type string $thousands Character used for thousands place
      *      @type string $decimals  Character used for decimal
@@ -114,7 +115,7 @@ class Number {
      * }
      * @return string
      */
-    public static function currency(mixed $number, Map<string, mixed> $options = Map {}): string {
+    public static function currency(float $number, Map<string, mixed> $options = Map {}): string {
         $options = Col::merge(Map {
             'thousands' => ',',
             'decimals' => '.',

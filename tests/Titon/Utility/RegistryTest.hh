@@ -23,10 +23,10 @@ class RegistryTest extends TestCase {
     }
 
     public function testFactory() {
-        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('Titon\Common\Base', [], false));
-        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('Titon/Common/Base', [], false));
-        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('Titon\Common\Base', [], false));
-        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('/Titon/Common/Base', [], false));
+        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('Titon\Common\Base', Vector {}, false));
+        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('Titon/Common/Base', Vector {}, false));
+        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('Titon\Common\Base', Vector {}, false));
+        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('/Titon/Common/Base', Vector {}, false));
     }
 
     public function testFlushAndKeys() {

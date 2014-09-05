@@ -91,7 +91,7 @@ class Col {
      */
     public static function exclude<Tk, Tv>(Map<Tk, Tv> $map, Vector<Tk> $keys): Map<Tk, Tv> {
         foreach ($keys as $key) {
-            unset($map[$key]);
+            $map->remove($key);
         }
 
         return $map;
@@ -125,7 +125,7 @@ class Col {
         $key = array_shift($paths);
 
         // Index does not exist
-        if (!isset($map[$key])) {
+        if (!$map->contains($key)) {
             return null;
         }
 
@@ -134,6 +134,10 @@ class Col {
 
         if ($value instanceof Map && $paths) {
             return static::extract($value, implode('.', $paths));
+
+        // Path goes deeper but the current value isn't a map
+        } else if ($paths) {
+            return null;
         }
 
         return $value;
@@ -197,7 +201,7 @@ class Col {
         $key = array_shift($paths);
 
         // Index does not exist
-        if (!isset($map[$key])) {
+        if (!$map->contains($key)) {
             return false;
         }
 
@@ -247,7 +251,7 @@ class Col {
         }
 
         // Index does not exist
-        if (!isset($map[$key]) || !$map[$key] instanceof Map) {
+        if (!$map->contains($key) || !$map[$key] instanceof Map) {
             $map[$key] = Map {};
         }
 
@@ -331,12 +335,12 @@ class Col {
      */
     public static function merge<Tk>(Map<Tk, mixed> $base, ... $merges): Map<Tk, mixed> { // @todo - Variadic doesn't support type hints
         foreach ($merges as $merge) {
-            if (!$merge instanceof Indexish) {
+            if (!$merge instanceof Map) {
                 continue;
             }
 
             foreach ($merge as $key => $value) {
-                if (isset($base[$key])) {
+                if ($base->contains($key)) {
                     $current = $base[$key];
 
                     if ($value instanceof Map && $current instanceof Map) {
@@ -392,7 +396,7 @@ class Col {
         }
 
         foreach ($remove as $key) {
-            unset($map[$key]);
+            $map->remove($key);
         }
 
         return $map;
@@ -411,11 +415,11 @@ class Col {
 
         // In the last path so remove the value
         if (!$paths) {
-            unset($map[$key]);
+            $map->remove($key);
         }
 
         // Index does not exist
-        if (!isset($map[$key]) || !$map[$key] instanceof Map) {
+        if (!$map->contains($key) || !$map[$key] instanceof Map) {
             return $map;
         }
 

@@ -51,11 +51,11 @@ class FormatTest extends TestCase {
     }
 
     public function testPhone() {
-        $formats = [
+        $formats = Map {
             7 => '###-####',
             10 => '(###) ###-####',
             11 => '# (###) ###-####'
-        ];
+        };
 
         $this->assertEquals('666-1337', Format::phone('6661337', $formats));
         $this->assertEquals('(888) 666-1337', Format::phone('8886661337', $formats));

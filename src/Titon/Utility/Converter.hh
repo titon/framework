@@ -390,10 +390,10 @@ class Converter {
         /** @type SimpleXMLElement $node */
         foreach ($xml->children() as $element => $node) {
             $data = Map {};
-            $children = $node->children();
+            $hasChildren = $node->children()->count();
 
             if (!$node->attributes() || $format === self::XML_NONE) {
-                if (count($children) > 0) {
+                if ($hasChildren) {
                     $data = static::xmlToMap($node, $format);
                 } else {
                     $data = static::autobox((string) $node);
@@ -402,10 +402,10 @@ class Converter {
             } else {
                 switch ($format) {
                     case self::XML_GROUP:
-                        $data['value'] = static::autobox((string) $node);
-
-                        if (count($children) > 0) {
+                        if ($hasChildren) {
                             $data['value'] = static::xmlToMap($node, $format);
+                        } else {
+                            $data['value'] = static::autobox((string) $node);
                         }
 
                         $attributes = Map {};
@@ -418,8 +418,8 @@ class Converter {
                     break;
 
                     case self::XML_MERGE:
-                        if (count($children) > 0) {
-                            $data = Col::merge(static::xmlToMap($node, $format), $data);
+                        if ($hasChildren) {
+                            $data = static::xmlToMap($node, $format);
                         } else {
                             $data['value'] = static::autobox((string) $node);
                         }
@@ -432,7 +432,6 @@ class Converter {
                     break;
                 }
             }
-
             if (count($xml->{$element}) > 1) {
                 if (!isset($map[$element])) {
                     $map[$element] = Vector {};

@@ -67,7 +67,7 @@ class NumberTest extends TestCase {
 
     public function testCurrency() {
         $this->assertEquals('$12,345.34', Number::currency(12345.34));
-        $this->assertEquals('$734.00', Number::currency(734));
+        $this->assertEquals('$734.00', Number::currency(734.00));
         $this->assertEquals('$84,283.38', Number::currency(84283.384));
         $this->assertEquals('($3,483.23)', Number::currency(-3483.23));
 

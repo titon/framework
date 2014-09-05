@@ -49,14 +49,14 @@ class Registry {
      * @param bool $store
      * @return object
      */
-    public static function factory(string $key, array<mixed> $params = [], bool $store = true): mixed {
+    public static function factory(string $key, Vector<mixed> $params = Vector {}, bool $store = true): mixed {
         if (static::has($key)) {
             return static::get($key);
         }
 
         $namespace = Path::toNamespace($key);
         $reflection = new ReflectionClass($namespace);
-        $object = $reflection->newInstanceArgs($params);
+        $object = $reflection->newInstanceArgs($params->toArray());
 
         if ($store) {
             $object = static::set($object, $key);
@@ -100,7 +100,7 @@ class Registry {
      * @return bool
      */
     public static function has(string $key): bool {
-        return isset(static::$_registered[$key]);
+        return static::$_registered->contains($key);
     }
 
     /**

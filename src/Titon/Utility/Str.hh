@@ -38,7 +38,7 @@ class Str {
      * @return string
      */
     public static function charAt(string $string, int $index): ?string {
-        return isset($string[$index]) ? $string[$index] : null;
+        return $string[$index] ?: null;
     }
 
     /**
@@ -50,9 +50,6 @@ class Str {
      * @return int
      */
     public static function compare(string $string, string $value, int $length = 0): int {
-        $string = (string) $string;
-        $value = (string) $value;
-
         if ($length > 0) {
             return strncasecmp($string, $value, $length);
         }
@@ -167,7 +164,7 @@ class Str {
         }, $options);
 
         foreach ($data as $key => $value) {
-            $string = str_replace($options['before'] . $key . $options['after'], $value, $string);
+            $string = str_replace((string) $options['before'] . $key . (string) $options['after'], $value, $string);
         }
 
         if ($options['escape']) {
@@ -296,8 +293,11 @@ class Str {
             'close' => '>'
         }, $options);
 
+        $open = (string) $options['open'];
+        $close = (string) $options['close'];
+
         // If we should preserve HTML
-        if ($options['open'] !== '<' || $options['close'] !== '>') {
+        if ($open !== '<' || $close !== '>') {
             $options['html'] = false;
         }
 
@@ -313,8 +313,6 @@ class Str {
         }
 
         // Generate tokens
-        $open = $options['open'];
-        $close = $options['close'];
         $tokens = [];
         $token = '';
         $i = 0;
@@ -390,7 +388,7 @@ class Str {
             }
         }
 
-        return $options['prefix'] . trim($output) . $options['suffix'];
+        return (string) $options['prefix'] . trim($output) . (string) $options['suffix'];
     }
 
     /**

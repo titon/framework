@@ -56,7 +56,7 @@ class Time {
         }
 
         if (is_numeric($time)) {
-            $time = '@' . $time;
+            $time = '@' . (string) $time;
         }
 
         $dt = new DateTime($time);

@@ -50,105 +50,98 @@ function factory(string $key): mixed {
 /**
  * @see Titon\Utility\Col::depth()
  */
-function map_depth(Traversable $collection = MB_CASE_TITLE): int {
+function col_depth<Tv>(Traversable<Tv> $collection): int {
     return Col::depth($collection);
 }
 
 /**
  * @see Titon\Utility\Col::each()
  */
-function map_each(Traversable $collection, (function(mixed, mixed): mixed) $callback, bool $recursive = true): Traversable {
+function col_each<Tk>(Indexish<Tk, mixed> $collection, (function(Tk, mixed): mixed) $callback, bool $recursive = true): Indexish<Tk, mixed> {
     return Col::each($collection, $callback, $recursive);
 }
 
 /**
  * @see Titon\Utility\Col::every()
  */
-function map_every(Traversable $collection, (function(mixed, mixed): bool) $callback): bool {
+function col_every<Tk, Tv>(Indexish<Tk, Tv> $collection, (function(Tk, Tv): bool) $callback): bool {
     return Col::every($collection, $callback);
 }
 
 /**
  * @see Titon\Utility\Col::exclude()
  */
-function map_exclude(Traversable $collection, Vector<string> $keys): Traversable {
-    return Col::exclude($collection, $keys);
+function col_exclude<Tk, Tv>(Map<Tk, Tv> $map, Vector<Tk> $keys): Map<Tk, Tv> {
+    return Col::exclude($map, $keys);
 }
 
 /**
  * @see Titon\Utility\Col::expand()
  */
-function map_expand(Traversable $collection): Traversable {
-    return Col::expand($collection);
-}
-
-/**
- * @see Titon\Utility\Col::filter()
- */
-function map_filter(Traversable $collection, bool $recursive = true, ?(function(mixed): int) $callback = null): Traversable {
-    return Col::filter($collection, $recursive, $callback);
+function col_expand<Tk, Tv>(Map<Tk, Tv> $map): Map<string, mixed> {
+    return Col::expand($map);
 }
 
 /**
  * @see Titon\Utility\Col::flatten()
  */
-function map_flatten(Traversable $collection, string $path = ''): Map<string, mixed> {
-    return Col::flatten($collection, $path);
+function col_flatten<Tk, Tv>(Map<Tk, Tv> $map, string $path = ''): Map<string, mixed> {
+    return Col::flatten($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::get()
  */
-function map_get(Traversable $collection, string $path = ''): mixed {
-    return Col::get($collection, $path);
+function col_get<Tk>(Map<Tk, mixed> $map, string $path): mixed {
+    return Col::get($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::has()
  */
-function map_has(Traversable $collection, string $path): bool {
-    return Col::has($collection, $path);
+function col_has<Tk>(Map<Tk, mixed> $map, string $path): bool {
+    return Col::has($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::inject()
  */
-function map_inject(Traversable $collection, string $path, mixed $value): Traversable {
-    return Col::inject($collection, $path, $value);
+function col_inject<Tk>(Map<Tk, mixed> $map, string $path, mixed $value): Map<Tk, mixed> {
+    return Col::inject($map, $path, $value);
 }
 
 /**
  * @see Titon\Utility\Col::keyOf()
  */
-function map_key_of(Traversable $collection, mixed $match): mixed {
+function col_key_of<Tk, Tv>(Indexish<Tk, Tv> $collection, mixed $match): string {
     return Col::keyOf($collection, $match);
 }
 
 /**
  * @see Titon\Utility\Col::pluck()
  */
-function map_pluck(Traversable $collection, string $path): Vector<mixed> {
-    return Col::pluck($collection, $path);
+function col_pluck<Tk, Tv>(Map<Tk, Tv> $map, string $path): Vector<mixed> {
+    return Col::pluck($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::remove()
  */
-function map_remove(Traversable $collection, string $path): Traversable {
-    return Col::remove($collection, $path);
+function col_remove<Tk>(Map<Tk, mixed> $map, string $path): Map<Tk, mixed> {
+    return Col::remove($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::set()
  */
-function map_set(Traversable $collection, mixed $path, mixed $value = null): Traversable {
-    return Col::set($collection, $path, $value);
+function col_set<Tk>(Map<Tk, mixed> $map, mixed $path, mixed $value = null): Map<Tk, mixed> {
+    return Col::set($map, $path, $value);
 }
 
 /**
  * @see Titon\Utility\Col::some()
  */
-function map_some(Traversable $collection, Closure $callback): bool {
+function col_some<Tk, Tv>(Indexish<Tk, Tv> $collection, (function(Tk, Tv): bool) $callback): bool {
     return Col::some($collection, $callback);
 }
 

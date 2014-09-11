@@ -84,7 +84,7 @@ class Registry {
             $object = static::$_registered[$key];
 
             if ($object instanceof Closure) {
-                $object = static::set($object(), $key);
+                $object = static::set(call_user_func($object), $key);
             }
 
             return $object;

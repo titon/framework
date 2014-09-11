@@ -313,8 +313,8 @@ class Converter {
             } else if ($value instanceof Map) {
 
                 // XML_GROUP
-                if (isset($value['attributes'])) {
-                    if (!isset($value['value'])) {
+                if ($value->contains('attributes')) {
+                    if (!$value->contains('value')) {
                         $value['value'] = null;
                     }
 
@@ -336,9 +336,9 @@ class Converter {
                     }
 
                 // XML_MERGE
-                } else if (isset($value['value'])) {
+                } else if ($value->contains('value')) {
                     $node = $xml->addChild($key, $value['value']);
-                    unset($value['value']);
+                    $value->remove('value');
 
                     foreach ($value as $aKey => $aValue) {
                         $node->addAttribute($aKey, static::unbox($aValue));
@@ -432,13 +432,17 @@ class Converter {
                     break;
                 }
             }
-            if (count($xml->{$element}) > 1) {
-                if (!isset($map[$element])) {
+
+            // Append the node or set a value
+            $element = (string) $element;
+            $childNode = $xml->{$element};
+
+            if ($childNode && count($childNode) > 1) {
+                if (!$map->contains($element)) {
                     $map[$element] = Vector {};
                 }
 
                 $map[$element][] = $data;
-
             } else {
                 $map[$element] = $data;
             }

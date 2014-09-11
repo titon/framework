@@ -112,33 +112,27 @@ class Validate {
      */
     public static function comparison(mixed $input, mixed $check, string $mode): bool {
         switch (strtolower($mode)) {
-            case 'greater':
             case 'gt':
             case '>':
                 return ($input > $check);
             break;
-            case 'greaterorequal':
             case 'gte':
             case '>=':
                 return ($input >= $check);
             break;
-            case 'less':
             case 'lt':
             case '<':
                 return ($input < $check);
             break;
-            case 'lessorequal':
             case 'lte':
             case '<=':
                 return ($input <= $check);
             break;
-            case 'equal':
             case 'eq':
             case '==':
             case '=':
                 return ($input == $check);
             break;
-            case 'notequal':
             case 'neq':
             case 'ne':
             case '!=':
@@ -154,17 +148,18 @@ class Validate {
      * Validate input is a credit card number. If $types is defined, will only validate against those cards, else will validate against all.
      *
      * @param string $input
-     * @param mixed $types
+     * @param string|Vector<string> $types
      * @return bool
      * @throws \Titon\Utility\Exception\InvalidCreditCardException
      */
-    public static function creditCard(mixed $input, mixed $types = null): bool {
+    public static function creditCard(mixed $input, mixed $types = ''): bool {
         $input = str_replace(['-', ' '], '', $input);
 
         if (mb_strlen($input) < 13) {
             return false;
         }
 
+        $validate = Map {};
         $cards = Map{
             self::AMERICAN_EXPRESS  => '/^3[4|7]\\d{13}$/',
             self::BANKCARD          => '/^56(10\\d\\d|022[1-5])\\d{10}$/',
@@ -183,11 +178,11 @@ class Validate {
 
         if ($types) {
             if (is_string($types)) {
-                $types = new Vector([$types]);
+                $types = new Vector(explode('|', $types));
             }
 
             foreach ($types as $card) {
-                if (isset($cards[$card])) {
+                if ($cards->contains($card)) {
                     $validate[$card] = $cards[$card];
                 } else {
                     throw new InvalidCreditCardException(sprintf('Credit card type %s does not exist', $card));

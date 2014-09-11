@@ -55,6 +55,8 @@ class Number {
         ];
 
         foreach ($sizes as $format => $pow) {
+            $matches = Vector {}; // Type checker needs it defined
+
             if (preg_match('/^([0-9\.]+)(' . $format . ')$/i', $number, $matches)) {
                 return (int) (((float) $matches[1]) * pow(2, $pow));
             }

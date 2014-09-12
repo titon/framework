@@ -200,8 +200,8 @@ class ValidateTest extends TestCase {
         $this->assertTrue(Validate::decimal('+0123.45e6', 0));
         $this->assertTrue(Validate::decimal('-0123.45e6', 0));
         $this->assertTrue(Validate::decimal('0123.45e6', 0));
-        $this->assertTrue(Validate::decimal(1234.56));
-        $this->assertTrue(Validate::decimal(1234.01));
+        $this->assertTrue(Validate::decimal('1234.56'));
+        $this->assertTrue(Validate::decimal('1234.01'));
 
         $this->assertFalse(Validate::decimal('2923'));
         $this->assertFalse(Validate::decimal('1454.0'));
@@ -292,11 +292,11 @@ class ValidateTest extends TestCase {
     }
 
     public function testInList() {
-        $this->assertTrue(Validate::inList(1, [1, '1', 'c']));
-        $this->assertTrue(Validate::inList('foo', ['foo', 'BAR', 'wtf']));
+        $this->assertTrue(Validate::inList(1, Vector {1, '1', 'c'}));
+        $this->assertTrue(Validate::inList('foo', Vector {'foo', 'BAR', 'wtf'}));
 
-        $this->assertFalse(Validate::inList('b', [1, '1', 'c']));
-        $this->assertFalse(Validate::inList('test', ['foo', 'BAR', 'wtf']));
+        $this->assertFalse(Validate::inList('b', Vector {1, '1', 'c'}));
+        $this->assertFalse(Validate::inList('test', Vector {'foo', 'BAR', 'wtf'}));
     }
 
     public function testInRange() {
@@ -383,7 +383,7 @@ class ValidateTest extends TestCase {
         $this->assertTrue(Validate::luhn('4175003346287100')); // Visa Electron
         $this->assertTrue(Validate::luhn('869940697287073')); // Voyager
 
-        $this->assertFalse(Validate::luhn('0000000000000000'));
+        $this->assertFalse(Validate::luhn('466752418696342'));
         $this->assertFalse(Validate::luhn('869940697287173'));
     }
 

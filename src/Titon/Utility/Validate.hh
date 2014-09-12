@@ -10,7 +10,7 @@ namespace Titon\Utility;
 use Titon\Common\Macroable;
 use Titon\Utility\Exception\InvalidArgumentException;
 use Titon\Utility\Exception\InvalidCreditCardException;
-use \Closure;
+use \Indexish;
 
 /**
  * Validate provides methods for validating data against specific conditions. This should not be used to validate formatting (excluding a few),
@@ -51,7 +51,7 @@ class Validate {
      * @param string $exceptions
      * @return bool
      */
-    public static function alpha(mixed $input, string $exceptions = ''): bool {
+    public static function alpha(string $input, string $exceptions = ''): bool {
         return static::custom($input, '/^[\p{L}\s' . static::escape($exceptions) . ']+$/imU');
     }
 
@@ -62,7 +62,7 @@ class Validate {
      * @param string $exceptions
      * @return bool
      */
-    public static function alphaNumeric(mixed $input, string $exceptions = ''): bool {
+    public static function alphaNumeric(string $input, string $exceptions = ''): bool {
         return static::custom($input, '/^[\p{L}\p{N}\p{Nd}\s' . static::escape($exceptions) . ']+$/imU');
     }
 
@@ -74,7 +74,7 @@ class Validate {
      * @param int $max
      * @return bool
      */
-    public static function between(mixed $input, int $min, int $max): bool {
+    public static function between(string $input, int $min, int $max): bool {
         $length = mb_strlen($input);
 
         return ($length <= $max && $length >= $min);
@@ -94,11 +94,11 @@ class Validate {
      * Validate input with a custom callback function.
      *
      * @param string $input
-     * @param \Closure $callback
+     * @param (function(string): bool) $callback
      * @return bool
      */
-    public static function callback(mixed $input, Closure $callback): bool {
-        return (bool) $callback($input);
+    public static function callback(string $input, (function(string): bool) $callback): bool {
+        return $callback($input);
     }
 
     /**
@@ -110,7 +110,7 @@ class Validate {
      * @return bool
      * @throws \Titon\Utility\Exception\InvalidArgumentException
      */
-    public static function comparison(mixed $input, mixed $check, string $mode): bool {
+    public static function comparison(int $input, int $check, string $mode): bool {
         switch (strtolower($mode)) {
             case 'gt':
             case '>':
@@ -152,7 +152,7 @@ class Validate {
      * @return bool
      * @throws \Titon\Utility\Exception\InvalidCreditCardException
      */
-    public static function creditCard(mixed $input, mixed $types = ''): bool {
+    public static function creditCard(string $input, mixed $types = ''): bool {
         $input = str_replace(['-', ' '], '', $input);
 
         if (mb_strlen($input) < 13) {
@@ -177,8 +177,8 @@ class Validate {
         };
 
         if ($types) {
-            if (is_string($types)) {
-                $types = new Vector(explode('|', $types));
+            if (!$types instanceof Vector) {
+                $types = new Vector(explode('|', (string) $types));
             }
 
             foreach ($types as $card) {
@@ -208,7 +208,7 @@ class Validate {
      * @param string $format
      * @return bool
      */
-    public static function currency(mixed $input, string $format = '/^\$[0-9,]+(?:\.[0-9]{2})?$/'): bool {
+    public static function currency(string $input, string $format = '/^\$[0-9,]+(?:\.[0-9]{2})?$/'): bool {
         return static::custom($input, $format);
     }
 
@@ -219,7 +219,7 @@ class Validate {
      * @param string $expression
      * @return bool
      */
-    public static function custom(mixed $input, string $expression): bool {
+    public static function custom(string $input, string $expression): bool {
         return (bool) preg_match($expression, $input);
     }
 
@@ -250,7 +250,7 @@ class Validate {
      * @param int $places
      * @return bool
      */
-    public static function decimal(mixed $input, int $places = 2): bool {
+    public static function decimal(string $input, int $places = 2): bool {
         if (!$places) {
             $regex = '/^[-+]?[0-9]*\.{1}[0-9]+(?:[eE][-+]?[0-9]+)?$/';
         } else {
@@ -269,7 +269,7 @@ class Validate {
      * @return bool
      */
     public static function dimensions(mixed $input, string $type, int $size): bool {
-        if (static::file($input)) {
+        if ($input instanceof Indexish && static::file($input)) {
             $input = $input['tmp_name'];
         }
 
@@ -301,7 +301,7 @@ class Validate {
      * @param bool $dns
      * @return bool
      */
-    public static function email(mixed $input, bool $dns = true): bool {
+    public static function email(string $input, bool $dns = true): bool {
         $result = (bool) filter_var($input, FILTER_VALIDATE_EMAIL);
 
         if (!$result) {
@@ -363,11 +363,11 @@ class Validate {
      * @return bool
      */
     public static function ext(mixed $input, Vector<string> $extensions = Vector {'gif', 'jpeg', 'png', 'jpg'}): bool {
-        if (is_array($input) && isset($input['name'])) {
+        if (is_array($input) && array_key_exists('name', $input)) {
             $input = $input['name'];
         }
 
-        return in_array(Path::ext($input), $extensions, true);
+        return in_array(Path::ext((string) $input), $extensions, true);
     }
 
     /**
@@ -377,7 +377,7 @@ class Validate {
      * @return bool
      */
     public static function file(mixed $input): bool {
-        return (is_array($input) && isset($input['tmp_name']) && $input['error'] == 0);
+        return (is_array($input) && array_key_exists('tmp_name', $input) && $input['error'] == 0);
     }
 
     /**
@@ -408,7 +408,7 @@ class Validate {
      * @param array $list
      * @return bool
      */
-    public static function inList(mixed $input, array $list): bool {
+    public static function inList(mixed $input, Vector<mixed> $list): bool {
         return in_array($input, $list, true);
     }
 
@@ -420,7 +420,7 @@ class Validate {
      * @param int $max
      * @return bool
      */
-    public static function inRange(mixed $input, int $min, int $max): bool {
+    public static function inRange(int $input, int $min, int $max): bool {
         return ($input <= $max && $input >= $min);
     }
 
@@ -431,7 +431,7 @@ class Validate {
      * @param int $flags
      * @return bool
      */
-    public static function ip(mixed $input, int $flags = 0): bool {
+    public static function ip(string $input, int $flags = 0): bool {
         return (bool) filter_var($input, FILTER_VALIDATE_IP, $flags);
     }
 
@@ -442,8 +442,8 @@ class Validate {
      * @return bool
      * @link http://en.wikipedia.org/wiki/Luhn_algorithm
      */
-    public static function luhn(mixed $input): bool {
-        if ($input == 0) {
+    public static function luhn(string $input): bool {
+        if (!$input) {
             return false;
         }
 
@@ -451,11 +451,11 @@ class Validate {
         $length = mb_strlen($input);
 
         for ($position = 1 - ($length % 2); $position < $length; $position += 2) {
-            $sum += $input[$position];
+            $sum += (int) $input[$position];
         }
 
         for ($position = ($length % 2); $position < $length; $position += 2) {
-            $number = $input[$position] * 2;
+            $number = (int) $input[$position] * 2;
             $sum += ($number < 10) ? $number : $number - 9;
         }
 
@@ -470,7 +470,7 @@ class Validate {
      * @return bool
      */
     public static function mimeType(mixed $input, Vector<string> $mimes): bool {
-        if (static::file($input)) {
+        if ($input instanceof Indexish && static::file($input)) {
             $input = $input['tmp_name'];
         }
 
@@ -493,7 +493,7 @@ class Validate {
      * @return bool
      */
     public static function minFilesize(mixed $input, int $min): bool {
-        if (static::file($input)) {
+        if ($input instanceof Indexish && static::file($input)) {
             $size = $input['size'];
 
         } else if (file_exists($input)) {
@@ -549,7 +549,7 @@ class Validate {
      * @return bool
      */
     public static function maxFilesize(mixed $input, int $max): bool {
-        if (static::file($input)) {
+        if ($input instanceof Indexish && static::file($input)) {
             $size = $input['size'];
 
         } else if (file_exists($input)) {
@@ -580,7 +580,7 @@ class Validate {
      * @param int $max
      * @return bool
      */
-    public static function maxLength(mixed $input, int $max): bool {
+    public static function maxLength(string $input, int $max): bool {
         return (mb_strlen($input) <= $max);
     }
 
@@ -622,7 +622,7 @@ class Validate {
      * @param string $format
      * @return bool
      */
-    public static function phone(mixed $input, string $format = '/^(?:\+?1)?\s?(?:\([0-9]{3}\))?\s?[0-9]{3}-[0-9]{4}$/'): bool {
+    public static function phone(string $input, string $format = '/^(?:\+?1)?\s?(?:\([0-9]{3}\))?\s?[0-9]{3}-[0-9]{4}$/'): bool {
         return static::custom($input, $format);
     }
 
@@ -633,7 +633,7 @@ class Validate {
      * @param string $format
      * @return bool
      */
-    public static function postalCode(mixed $input, string $format = '/^[0-9]{5}(?:-[0-9]{4})?$/'): bool {
+    public static function postalCode(string $input, string $format = '/^[0-9]{5}(?:-[0-9]{4})?$/'): bool {
         return static::custom($input, $format);
     }
 
@@ -644,7 +644,7 @@ class Validate {
      * @param string $format
      * @return bool
      */
-    public static function ssn(mixed $input, string $format = '/^[0-9]{3}-[0-9]{2}-[0-9]{4}$/'): bool {
+    public static function ssn(string $input, string $format = '/^[0-9]{3}-[0-9]{2}-[0-9]{4}$/'): bool {
         return static::custom($input, $format);
     }
 
@@ -654,7 +654,7 @@ class Validate {
      * @param string $input
      * @return bool
      */
-    public static function uuid(mixed $input): bool {
+    public static function uuid(string $input): bool {
         return static::custom($input, '/^[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12}$/i');
     }
 
@@ -664,7 +664,7 @@ class Validate {
      * @param string $input
      * @return bool
      */
-    public static function url(mixed $input): bool {
+    public static function url(string $input): bool {
         return (bool) filter_var($input, FILTER_VALIDATE_URL);
     }
 

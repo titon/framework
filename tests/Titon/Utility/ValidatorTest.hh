@@ -42,14 +42,16 @@ class ValidatorTest extends TestCase {
 
         $this->assertEquals(Map {
             'basicRule' => Map {
-                'alphaNumeric' => Map {
+                'alphaNumeric' => shape(
+                    'rule' => 'alphaNumeric',
                     'message' => 'Custom alpha-numeric message',
                     'options' => Vector {}
-                },
-                'between' => Map {
+                ),
+                'between' => shape(
+                    'rule' => 'between',
                     'message' => 'May only be between 0 and 100 characters',
                     'options' => Vector {0, 100}
-                }
+                )
             }
         }, $this->object->getRules());
 
@@ -62,40 +64,46 @@ class ValidatorTest extends TestCase {
         });
 
         $this->object->addField('advRule', 'Advanced Rule', Map {
-            'phone' => true,
-            'email' => true,
+            'phone' => Vector {},
+            'email' => Vector {},
             'ext' => Vector {Vector {'txt', 'pdf'}},
             'ip' => Vector {Validate::IPV4}
         });
 
         $this->assertEquals(Map {
             'basicRule' => Map {
-                'alphaNumeric' => Map {
+                'alphaNumeric' => shape(
+                    'rule' => 'alphaNumeric',
                     'message' => 'Custom alpha-numeric message',
                     'options' => Vector {}
-                },
-                'between' => Map {
+                ),
+                'between' => shape(
+                    'rule' => 'between',
                     'message' => 'May only be between 0 and 100 characters',
                     'options' => Vector {0, 100}
-                }
+                )
             },
             'advRule' => Map {
-                'phone' => Map {
+                'phone' => shape(
+                    'rule' => 'phone',
                     'message' => 'Invalid phone number',
                     'options' => Vector {}
-                },
-                'email' => Map {
+                ),
+                'email' => shape(
+                    'rule' => 'email',
                     'message' => 'Please provide an email',
                     'options' => Vector {}
-                },
-                'ext' => Map {
+                ),
+                'ext' => shape(
+                    'rule' => 'ext',
                     'message' => 'Valid extensions are {0}',
                     'options' => Vector {Vector {'txt', 'pdf'}}
-                },
-                'ip' => Map {
+                ),
+                'ip' => shape(
+                    'rule' => 'ip',
                     'message' => 'Please provide an IPv4',
                     'options' => Vector {Validate::IPV4}
-                }
+                )
             }
         }, $this->object->getRules());
     }
@@ -130,9 +138,9 @@ class ValidatorTest extends TestCase {
     public function testMessageDetection() {
         $this->object
             ->addField('username', 'Username')
-                ->addRule('username', 'notEmpty', null)
+                ->addRule('username', 'notEmpty', '')
                 ->addRule('username', 'between', '{field} may only be between {0} and {1} characters', Vector {10, 20})
-                ->addRule('username', 'alpha', null)
+                ->addRule('username', 'alpha', '')
             ->addMessages(Map {
                 'notEmpty' => '{field} cannot be empty'
             });
@@ -163,7 +171,7 @@ class ValidatorTest extends TestCase {
     public function testMessagesErrorOnMissing() {
         $this->object
             ->addField('username', 'Username')
-                ->addRule('username', 'notEmpty', null);
+                ->addRule('username', 'notEmpty', '');
 
         $this->object->validate();
     }
@@ -181,39 +189,39 @@ class ValidatorTest extends TestCase {
 
     public function testSplitShorthand() {
         // only a rule
-        $this->assertEquals(Map {
+        $this->assertEquals(shape(
             'rule' => 'boolean',
             'message' => '',
             'options' => Vector {}
-        }, $this->object->splitShorthand('boolean'));
+        ), $this->object->splitShorthand('boolean'));
 
         // rule with 1 param
-        $this->assertEquals(Map {
+        $this->assertEquals(shape(
             'rule' => 'decimal',
             'message' => '',
             'options' => Vector {1}
-        }, $this->object->splitShorthand('decimal:1'));
+        ), $this->object->splitShorthand('decimal:1'));
 
         // rule with 2 params
-        $this->assertEquals(Map {
+        $this->assertEquals(shape(
             'rule' => 'between',
             'message' => '',
             'options' => Vector {1, 10}
-        }, $this->object->splitShorthand('between:1,10'));
+        ), $this->object->splitShorthand('between:1,10'));
 
         // only a rule and message
-        $this->assertEquals(Map {
+        $this->assertEquals(shape(
             'rule' => 'boolean',
             'message' => 'Must be a boolean!',
             'options' => Vector {}
-        }, $this->object->splitShorthand('boolean::Must be a boolean!'));
+        ), $this->object->splitShorthand('boolean::Must be a boolean!'));
 
         // rule with 2 params and message
-        $this->assertEquals(Map {
+        $this->assertEquals(shape(
             'rule' => 'between',
             'message' => 'Must be between 1:10!',
             'options' => Vector {1, 10}
-        }, $this->object->splitShorthand('between:1,10:Must be between 1:10!'));
+        ), $this->object->splitShorthand('between:1,10:Must be between 1:10!'));
     }
 
     public function testValidate() {
@@ -255,10 +263,11 @@ class ValidatorTest extends TestCase {
 
         $this->assertEquals(Map {
             'field' => Map {
-                'alphaNumeric' => Map {
+                'alphaNumeric' => shape(
+                    'rule' => 'alphaNumeric',
                     'message' => '',
                     'options' => Vector {}
-                }
+                )
             }
         }, $obj->getRules());
 
@@ -269,14 +278,16 @@ class ValidatorTest extends TestCase {
 
         $this->assertEquals(Map {
             'field' => Map {
-                'alphaNumeric' => Map {
+                'alphaNumeric' => shape(
+                    'rule' => 'alphaNumeric',
                     'message' => '',
                     'options' => Vector {}
-                },
-                'boolean' => Map {
+                ),
+                'boolean' => shape(
+                    'rule' => 'boolean',
                     'message' => '',
                     'options' => Vector {}
-                }
+                )
             }
         }, $obj->getRules());
 
@@ -287,14 +298,16 @@ class ValidatorTest extends TestCase {
 
         $this->assertEquals(Map {
             'field' => Map {
-                'between' => Map {
+                'between' => shape(
+                    'rule' => 'between',
                     'message' => '',
                     'options' => Vector {5, 10}
-                },
-                'equal' => Map {
+                ),
+                'equal' => shape(
+                    'rule' => 'equal',
                     'message' => '',
                     'options' => Vector {7}
-                }
+                )
             }
         }, $obj->getRules());
 
@@ -305,14 +318,16 @@ class ValidatorTest extends TestCase {
 
         $this->assertEquals(Map {
             'field' => Map {
-                'between' => Map {
+                'between' => shape(
+                    'rule' => 'between',
                     'message' => '',
                     'options' => Vector {5, 10}
-                },
-                'equal' => Map {
+                ),
+                'equal' => shape(
+                    'rule' => 'equal',
                     'message' => '',
                     'options' => Vector {7}
-                }
+                )
             }
         }, $obj->getRules());
 
@@ -326,14 +341,16 @@ class ValidatorTest extends TestCase {
 
         $this->assertEquals(Map {
             'field' => Map {
-                'between' => Map {
+                'between' => shape(
+                    'rule' => 'between',
                     'message' => '',
                     'options' => Vector {5, 10}
-                },
-                'equal' => Map {
+                ),
+                'equal' => shape(
+                    'rule' => 'equal',
                     'message' => '',
                     'options' => Vector {7}
-                }
+                )
             }
         }, $obj->getRules());
 
@@ -347,14 +364,16 @@ class ValidatorTest extends TestCase {
 
         $this->assertEquals(Map {
             'field' => Map {
-                'between' => Map {
+                'between' => shape(
+                    'rule' => 'between',
                     'message' => '',
                     'options' => Vector {5, 10}
-                },
-                'equal' => Map {
+                ),
+                'equal' => shape(
+                    'rule' => 'equal',
                     'message' => '',
                     'options' => Vector {7}
-                }
+                )
             }
         }, $obj->getRules());
 
@@ -372,22 +391,26 @@ class ValidatorTest extends TestCase {
 
         $this->assertEquals(Map {
             'field' => Map {
-                'phone' => Map {
+                'phone' => shape(
+                    'rule' => 'phone',
                     'message' => 'Invalid phone number',
                     'options' => Vector {}
-                },
-                'email' => Map {
+                ),
+                'email' => shape(
+                    'rule' => 'email',
                     'message' => 'Please provide an email',
                     'options' => Vector {}
-                },
-                'ext' => Map {
+                ),
+                'ext' => shape(
+                    'rule' => 'ext',
                     'message' => 'Valid extensions are txt, pdf',
                     'options' => Vector {'txt'}
-                },
-                'ip' => Map {
+                ),
+                'ip' => shape(
+                    'rule' => 'ip',
                     'message' => 'Please provide an IPv4',
                     'options' => Vector {Validate::IPV4}
-                }
+                )
             }
         }, $obj->getRules());
     }

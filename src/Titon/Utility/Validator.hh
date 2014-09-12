@@ -9,6 +9,13 @@ namespace Titon\Utility;
 
 use Titon\Utility\Exception\InvalidArgumentException;
 use Titon\Utility\Exception\InvalidValidationRuleException;
+use \ReflectionClass;
+
+newtype FieldRule = shape(
+    'rule' => string,
+    'message' => string,
+    'options' => Vector<mixed>
+);
 
 /**
  * The Validator allows for quick validation against a defined set of rules and fields.
@@ -48,9 +55,9 @@ class Validator {
     /**
      * Mapping of fields and validation rules.
      *
-     * @type Map<string, mixed>
+     * @type Map<string, Map<string, FieldRule>>
      */
-    protected Map<string, mixed> $_rules = Map {};
+    protected Map<string, Map<string, FieldRule>> $_rules = Map {};
 
     /**
      * Store the data to validate.
@@ -82,7 +89,7 @@ class Validator {
      * @param Map<string, mixed> $rules
      * @return $this
      */
-    public function addField(string $field, string $title, Map<string, mixed> $rules = Map {}): this {
+    public function addField(string $field, string $title, Map<string, Vector<mixed>> $rules = Map {}): this {
         $this->_fields[$field] = $title;
 
         /**
@@ -91,11 +98,7 @@ class Validator {
          */
         if (!$rules->isEmpty()) {
             foreach ($rules as $rule => $options) {
-                if ($options === true) {
-                    $options = Vector {};
-                }
-
-                $this->addRule($field, $rule, null, $options);
+                $this->addRule($field, $rule, '', $options);
             }
         }
 
@@ -124,21 +127,26 @@ class Validator {
      * @return $this
      * @throws \Titon\Utility\Exception\InvalidArgumentException
      */
-    public function addRule(string $field, string $rule, ?string $message, Vector<mixed> $options = Vector{}): this {
-        if (!isset($this->_fields[$field])) {
+    public function addRule(string $field, string $rule, string $message, Vector<mixed> $options = Vector{}): this {
+        if (!$this->_fields->contains($field)) {
             throw new InvalidArgumentException(sprintf('Field %s does not exist', $field));
         }
 
-        if (isset($this->_messages[$rule])) {
+        if ($this->_messages->contains($rule)) {
             $message = $message ?: $this->_messages[$rule];
         } else {
             $this->_messages[$rule] = $message;
         }
 
-        Col::set($this->_rules, $field . '.' . $rule, Map {
+        if (!$this->_rules->contains($field)) {
+            $this->_rules[$field] = Map {};
+        }
+
+        $this->_rules[$field][$rule] = shape(
+            'rule' => $rule,
             'message' => $message,
             'options' => $options
-        });
+        );
 
         return $this;
     }
@@ -182,9 +190,9 @@ class Validator {
     /**
      * Return the rules.
      *
-     * @return Map<string, mixed>
+     * @return Map<string, Map<string, FieldRule>>
      */
-    public function getRules(): Map<string, mixed> {
+    public function getRules(): Map<string, Map<string, FieldRule>> {
         return $this->_rules;
     }
 
@@ -227,11 +235,14 @@ class Validator {
         $messages = $this->getMessages();
 
         foreach ($this->_data as $field => $value) {
-            if (!isset($this->_rules[$field])) {
+            if (!$this->_rules->contains($field)) {
                 continue;
             }
 
-            foreach ($this->_rules[$field] as $rule => $params) {
+            $rules = $this->_rules[$field];
+
+
+            foreach ($rules as $rule => $params) {
                 $options = $params['options'];
                 $arguments = $options->toVector(); // Clone another vector or else message params are out of order
                 array_unshift($arguments, $value);
@@ -245,14 +256,14 @@ class Validator {
                 }
                 // @codeCoverageIgnoreEnd
 
-                if (!call_user_func([$class, 'hasRule'], $rule)) {
+                if (!call_user_func(class_meth($class, 'hasRule'), $rule)) {
                     throw new InvalidValidationRuleException(sprintf('Validation rule %s does not exist', $rule));
                 }
 
                 // Prepare messages
                 $message = $params['message'];
 
-                if (!$message && isset($messages[$rule])) {
+                if (!$message && $messages->contains($rule)) {
                     $message = $messages[$rule];
                 }
 
@@ -269,7 +280,7 @@ class Validator {
                     throw new InvalidValidationRuleException(sprintf('Error message for rule %s does not exist', $rule));
                 }
 
-                if (!call_user_func_array([$class, $rule], $arguments)) {
+                if (!call_user_func_array(class_meth($class, $rule), $arguments)) {
                     $this->addError($field, $message);
                     break;
                 }
@@ -287,8 +298,10 @@ class Validator {
      * @return $this
      */
     public static function makeFromShorthand(Map<string, mixed> $data = Map {}, Map<string, mixed> $fields = Map {}): Validator {
+        $class = new ReflectionClass(static::class);
+
         /** @type \Titon\Utility\Validator $obj */
-        $obj = new static($data);
+        $obj = $class->newInstanceArgs([$data]);
 
         foreach ($fields as $field => $options) {
             $title = $field;
@@ -297,30 +310,32 @@ class Validator {
             if (is_string($options)) {
                 $options = Map {'rules' => $options};
 
-            // Ignore anything else not a string, map, or vector
-            } else if (!$options instanceof Collection) {
-                continue;
-
             // List of rules
             } else if ($options instanceof Vector) {
                 $options = Map {'rules' => $options};
+
+            // Ignore anything else not a map
+            } else if (!$options instanceof Map) {
+                continue;
             }
 
             // Prepare for parsing
-            if (isset($options['title'])) {
+            if ($options->contains('title')) {
                 $title = $options['title'];
             }
 
             if (is_string($options['rules'])) {
-                $options['rules'] = explode('|', $options['rules']);
+                $options['rules'] = new Vector(explode('|', $options['rules']));
             }
 
-            $obj->addField($field, $title);
+            $obj->addField($field, (string) $title);
 
-            foreach ($options['rules'] as $ruleOpts) {
-                $shorthand = static::splitShorthand($ruleOpts);
+            if ($options['rules'] instanceof Vector) {
+                foreach ($options['rules'] as $ruleOpts) {
+                    $shorthand = static::splitShorthand($ruleOpts);
 
-                $obj->addRule($field, $shorthand['rule'], $shorthand['message'], $shorthand['options']);
+                    $obj->addRule($field, $shorthand['rule'], $shorthand['message'], $shorthand['options']);
+                }
             }
         }
 
@@ -331,31 +346,30 @@ class Validator {
      * Split a shorthand rule into multiple parts.
      *
      * @param string $shorthand
-     * @return Map<string, mixed>
+     * @return FieldRule
      */
-    public static function splitShorthand(string $shorthand): Map<string, mixed> {
-        $rule = null;
+    public static function splitShorthand(string $shorthand): FieldRule {
+        $rule = '';
         $message = '';
         $opts = Vector {};
 
         // rule:o1,o2,o3
         // rule:o1,o2:The message here!
         if (strpos($shorthand, ':') !== false) {
-            $parts = explode(':', $shorthand, 3);
-            $rule = $parts[0];
+            foreach (explode(':', $shorthand, 3) as $index => $part) {
+                if ($index == 0) {
+                    $rule = $part;
 
-            if (isset($parts[1]) && $parts[1]) {
-                $opts = $parts[1];
+                } else if ($index == 1) {
+                    if (strpos($part, ',') !== false) {
+                        $opts = new Vector(explode(',', $part));
+                    } else if ($part) {
+                        $opts = new Vector([$part]);
+                    }
 
-                if (strpos($opts, ',') !== false) {
-                    $opts = new Vector(explode(',', $opts));
-                } else {
-                    $opts = new Vector([$opts]);
+                } else if ($index == 2) {
+                    $message = $part;
                 }
-            }
-
-            if (isset($parts[2]) && $parts[2]) {
-                $message = $parts[2];
             }
 
         // rule
@@ -363,11 +377,11 @@ class Validator {
             $rule = $shorthand;
         }
 
-        return Map {
+        return shape(
             'rule' => $rule,
             'message' => $message,
             'options' => $opts
-        };
+        );
     }
 
 }

@@ -12,6 +12,8 @@ with enough room for extensibility and abstraction. The framework takes advantag
 generics, collections, and more. It also integrates the wonderful PSRs from PHP-FIG for increased interoperability
 with external PHP code bases.
 
+Looking for more information? Find us in [#titon](http://webchat.freenode.net/?channels=titon) on FreeNode.
+
 ### Current State ###
 
 Many packages have already been ported over from their old PHP codebase to Hack.
@@ -44,6 +46,14 @@ The following packages have not been written yet but are planned for future rele
 * Kernel
 * ADR
 
+### Linted Packages ###
+
+The following packages have been linted against Hack's type checker.
+They will still fail the checker with unbound errors, or mixed type warnings,
+but there's nothing we can do until HHVM and Hack get updated.
+
+* Utility
+
 ## Requirements ##
 
 Titon is built on [Hack](http://hacklang.com/) and requires [HHVM 3.3.0+](http://hhvm.com/).
@@ -56,9 +66,8 @@ Feel free to mess around with the code or stay tuned for any updates.
 
 ## Contributing ##
 
-Titon is an open source project that accepts any input from you, the community. If you have suggestions for improvement,
-create a ticket. If you have code changes to improve effectiveness, submit a pull request. Or any ideas in general,
-lets discuss them!
+Titon is looking for any knowledgable PHP developers that are looking to get their feet wet in Hack.
+Chat with us over in [#titon](http://webchat.freenode.net/?channels=titon) for more information.
 
 ## Testing ##
 

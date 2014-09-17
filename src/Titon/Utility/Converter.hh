@@ -13,7 +13,7 @@ use Titon\Type\Contract\Mapable;
 use Titon\Type\Contract\Vectorable;
 use Titon\Type\Contract\Xmlable;
 use \JsonSerializable;
-use \SimpleXmlElement;
+use \SimpleXMLElement;
 
 /**
  * A class that handles the detection and conversion of certain resource formats / content types into other formats.
@@ -292,7 +292,7 @@ class Converter {
      * @param Map<mixed, mixed> $map
      * @return \SimpleXMLElement
      */
-    public static function buildXml(SimpleXMLElement $xml, Map<mixed, mixed> $map): SimpleXmlElement {
+    public static function buildXml(SimpleXMLElement $xml, Map<mixed, mixed> $map): SimpleXMLElement {
         foreach ($map as $key => $value) {
 
             // XML_NONE

@@ -116,24 +116,24 @@ class Sanitize {
         }, $options);
 
         if ($options['limit']) {
-            $pattern = '/(?:%s){' . (string) $options['limit'] . ',}/u';
+            $pattern = '/(?:{pattern}){' . (string) $options['limit'] . ',}/u';
             $replace = null;
 
         } else {
-            $pattern = '/(?:%s)+/u';
+            $pattern = '/(?:{pattern})+/u';
             $replace = '';
         }
 
         if ($options['crlf']) {
-            $value = preg_replace(sprintf($pattern, '\r\n'), is_null($replace) ? "\r\n" : $replace, $value);
+            $value = preg_replace(Str::insert($pattern, Map {'pattern' => '\r\n'}), is_null($replace) ? "\r\n" : $replace, $value);
         }
 
         if ($options['cr']) {
-            $value = preg_replace(sprintf($pattern, '\r'), is_null($replace) ? "\r" : $replace, $value);
+            $value = preg_replace(Str::insert($pattern, Map {'pattern' => '\r'}), is_null($replace) ? "\r" : $replace, $value);
         }
 
         if ($options['lf']) {
-            $value = preg_replace(sprintf($pattern, '\n'), is_null($replace) ? "\n" : $replace, $value);
+            $value = preg_replace(Str::insert($pattern, Map {'pattern' => '\n'}), is_null($replace) ? "\n" : $replace, $value);
         }
 
         if ($options['trim']) {
@@ -177,20 +177,20 @@ class Sanitize {
         }, $options);
 
         if ($options['limit']) {
-            $pattern = '/%s{' . $options['limit'] . ',}/u';
+            $pattern = '/{pattern}{' . (string) $options['limit'] . ',}/u';
             $replace = null;
 
         } else {
-            $pattern = '/%s+/u';
+            $pattern = '/{pattern}+/u';
             $replace = '';
         }
 
         if ($options['tab']) {
-            $value = preg_replace(sprintf($pattern, '\t'), is_null($replace) ? "\t" : $replace, $value);
+            $value = preg_replace(Str::insert($pattern, Map {'pattern' => '\t'}), is_null($replace) ? "\t" : $replace, $value);
         }
 
         if ($options['space']) {
-            $value = preg_replace(sprintf($pattern, ' '), is_null($replace) ? ' ' : $replace, $value); // \s replaces other whitespace characters
+            $value = preg_replace(Str::insert($pattern, Map {'pattern' => ' '}), is_null($replace) ? ' ' : $replace, $value); // \s replaces other whitespace characters
         }
 
         if ($options['strip']) {

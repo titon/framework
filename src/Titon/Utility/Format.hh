@@ -145,14 +145,14 @@ class Format {
      * @uses Titon\Utility\Time
      *
      * @param string|int $time
-     * @param Map<string, mixed> $options
+     * @param Map<string, Vector<string>> $options
      * @return string
      */
     public static function relativeTime(mixed $time, Map<string, mixed> $options = Map {}, Map<string, Vector<string>> $messages = Map {}): string {
         $options = Col::merge(Map {
             'now' => 'just now',
-            'in' => 'in %s',
-            'ago' => '%s ago',
+            'in' => 'in {time}',
+            'ago' => '{time} ago',
             'separator' => ', ',
             'verbose' => true,
             'depth' => 2,
@@ -160,13 +160,13 @@ class Format {
         }, $options);
 
         $messages = Col::merge(Map {
-            'seconds' => Vector {'%ds', '%d second', '%d seconds'},
-            'minutes' => Vector {'%dm', '%d minute', '%d minutes'},
-            'hours' => Vector {'%dh', '%d hour', '%d hours'},
-            'days' => Vector {'%dd', '%d day', '%d days'},
-            'weeks' => Vector {'%dw', '%d week', '%d weeks'},
-            'months' => Vector {'%dm', '%d month', '%d months'},
-            'years' => Vector {'%dy', '%d year', '%d years'}
+            'seconds' => Vector {'{count}s', '{count} second', '{count} seconds'},
+            'minutes' => Vector {'{count}m', '{count} minute', '{count} minutes'},
+            'hours' => Vector {'{count}h', '{count} hour', '{count} hours'},
+            'days' => Vector {'{count}d', '{count} day', '{count} days'},
+            'weeks' => Vector {'{count}w', '{count} week', '{count} weeks'},
+            'months' => Vector {'{count}m', '{count} month', '{count} months'},
+            'years' => Vector {'{count}y', '{count} year', '{count} years'}
         }, $messages);
 
         $diff = Time::difference($options['time'], Time::toUnix($time));
@@ -220,18 +220,11 @@ class Format {
                 $index = 0;
             }
 
-            $output[] = sprintf($messages[$key][$index], $count);
+            $output[] = Str::insert((string) $messages[$key][$index], Map {'count' => $count});
             $depth--;
         }
 
-        $return = implode($options['separator'], $output);
-
-        // Past
-        if ($diff > 0) {
-            return sprintf($options['ago'], $return);
-        }
-
-        return sprintf($options['in'], $return);
+        return Str::insert((string) $options[($diff > 0) ? 'ago' : 'in'], Map {'time' => implode($options['separator'], $output)});
     }
 
     /**

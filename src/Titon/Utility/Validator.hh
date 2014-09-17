@@ -256,6 +256,7 @@ class Validator {
                 }
                 // @codeCoverageIgnoreEnd
 
+                // UNSAFE
                 if (!call_user_func(class_meth($class, 'hasRule'), $rule)) {
                     throw new InvalidValidationRuleException(sprintf('Validation rule %s does not exist', $rule));
                 }
@@ -280,6 +281,7 @@ class Validator {
                     throw new InvalidValidationRuleException(sprintf('Error message for rule %s does not exist', $rule));
                 }
 
+                // UNSAFE
                 if (!call_user_func_array(class_meth($class, $rule), $arguments)) {
                     $this->addError($field, $message);
                     break;

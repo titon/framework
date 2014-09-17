@@ -14,7 +14,7 @@ path = '/vagrant/'
 if (args.path):
     path += 'src/' + args.path;
 
-os.chdir(path)
+os.chdir(os.path.abspath(path))
 
 # Create .hhconfig file
 config = open('.hhconfig', 'w+')

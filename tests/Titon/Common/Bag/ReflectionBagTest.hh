@@ -53,8 +53,8 @@ class ReflectionBagTest extends TestCase {
             'publicMethod', 'protectedMethod', 'privateMethod', 'staticPublicMethod', 'staticProtectedMethod', 'staticPrivateMethod',
             'serialize', 'unserialize', 'jsonSerialize', 'initialize', 'noop', 'toString', '__toString', '__construct', 'allCache',
             'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
-            'addConfig', 'allConfig', 'applyConfig', 'setConfig', 'getConfig', 'getConfigBag', 'removeConfig', 'hasConfig',
-            'reflect', 'getReflectionBag'
+            'addConfig', 'allConfig', 'setConfig', 'getConfig', 'getConfigBag', 'removeConfig', 'hasConfig',
+            'reflect', 'getReflectionBag', '__initBase', '__initConfigurable'
         };
 
         $this->assertVectorsEqual($methods, $this->object->methods);
@@ -66,7 +66,7 @@ class ReflectionBagTest extends TestCase {
             'publicMethod', 'staticPublicMethod',
             'serialize', 'unserialize', 'jsonSerialize', 'initialize', 'noop', 'toString', '__toString', '__construct', 'allCache',
             'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
-            'addConfig', 'allConfig', 'applyConfig', 'setConfig', 'getConfig', 'getConfigBag', 'removeConfig', 'hasConfig',
+            'addConfig', 'allConfig', 'setConfig', 'getConfig', 'getConfigBag', 'removeConfig', 'hasConfig',
             'reflect', 'getReflectionBag'
         };
 
@@ -82,7 +82,7 @@ class ReflectionBagTest extends TestCase {
     }
 
     public function testPrivateMethods() {
-        $methods = Vector {'privateMethod', 'staticPrivateMethod'};
+        $methods = Vector {'__initBase', '__initConfigurable', 'privateMethod', 'staticPrivateMethod'};
 
         $this->assertVectorsEqual($methods, $this->object->privateMethods);
         $this->assertVectorsEqual($methods, $this->object->privateMethods());
@@ -98,7 +98,7 @@ class ReflectionBagTest extends TestCase {
     public function testProperties() {
         $props = Vector {
             'publicProp', 'protectedProp', 'privateProp', 'staticPublicProp', 'staticProtectedProp', 'staticPrivateProp',
-            '_config', '_cache', '__cacheEnabled'
+            '_config', '_configBag', '_cache', '__cacheEnabled', '_reflectionBag'
         };
 
         $this->assertVectorsEqual($props, $this->object->properties);
@@ -113,7 +113,7 @@ class ReflectionBagTest extends TestCase {
     }
 
     public function testProtectedProperties() {
-        $props = Vector {'protectedProp', 'staticProtectedProp', '_config', '_cache'};
+        $props = Vector {'protectedProp', 'staticProtectedProp', '_config', '_cache', '_configBag', '_reflectionBag'};
 
         $this->assertVectorsEqual($props, $this->object->protectedProperties);
         $this->assertVectorsEqual($props, $this->object->protectedProperties());

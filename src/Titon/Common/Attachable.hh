@@ -13,7 +13,8 @@ use Titon\Common\Exception\UnsupportedInterfaceException;
 use Titon\Utility\Inflector;
 use Titon\Utility\Registry;
 use Titon\Utility\Col;
-use \Closure;
+
+newtype ClassCallback = (function(): mixed);
 
 /**
  * Attachable is an inheritable trait for all classes that need dependency or functionality from other classes.
@@ -34,7 +35,7 @@ trait Attachable {
     /**
      * Classes that have been instantiated when called with getObject().
      *
-     * @type object[]
+     * @type Map<string, mixed>
      */
     protected Map<string, mixed> $_attached = Map {};
 
@@ -48,9 +49,9 @@ trait Attachable {
     /**
      * Object map that relates a Closure object to a defined class, to allow for easy lazy-loading.
      *
-     * @type Map<string, Closure>
+     * @type Map<string, ClassCallback>
      */
-    private Map<string, Closure> $__objectMap = Map {};
+    private Map<string, ClassCallback> $__objectMap = Map {};
 
     /**
      * Magic method for getObject().
@@ -99,7 +100,7 @@ trait Attachable {
      */
     public function allowObjects(Vector<string> $classes): this {
         foreach ($classes as $class) {
-            unset($this->_restricted[$class]);
+            $this->_restricted->remove($class);
         }
 
         return $this;
@@ -120,9 +121,11 @@ trait Attachable {
      * @throws \Titon\Common\Exception\InvalidObjectException
      */
     public function attachObject(mixed $options, mixed $object = null): this {
-        if (is_string($options)) {
+        if (!$options instanceof Map) {
             $options = Map {'alias' => $options};
         }
+
+        invariant($options instanceof Map, 'Options is a Map');
 
         $options = Col::merge(Map {
             'alias' => null,
@@ -143,7 +146,7 @@ trait Attachable {
         }
 
         // If closure
-        if ($object instanceof Closure) {
+        if (is_callable($object)) {
             $this->__objectMap[$options['alias']] = $object;
 
         // If object
@@ -165,8 +168,10 @@ trait Attachable {
      * @return $this
      */
     public function detachObject(string $class): this {
-        if (isset($this->_classes[$class])) {
-            unset($this->_classes[$class], $this->_attached[$class], $this->__objectMap[$class]);
+        if ($this->_classes->contains($class)) {
+            $this->_classes->remove($class);
+            $this->_attached->remove($class);
+            $this->__objectMap->remove($class);
         }
 
         return $this;
@@ -184,10 +189,10 @@ trait Attachable {
      * @throws \Titon\Common\Exception\UnsupportedInterfaceException
      */
     public function getObject(string $class): mixed {
-        if (isset($this->_attached[$class])) {
+        if ($this->_attached->contains($class)) {
             return $this->_attached[$class];
 
-        } else if (!isset($this->_classes[$class])) {
+        } else if (!$this->_classes->contains($class)) {
             throw new MissingObjectException(sprintf('No object attachment could be found for %s', $class));
         }
 
@@ -195,18 +200,14 @@ trait Attachable {
         $options = $this->_classes[$class];
 
         // Lazy-load the object
-        if (isset($this->__objectMap[$class])) {
-            $object = $this->__objectMap[$class]();
+        if ($this->__objectMap->contains($class)) {
+            $object = call_user_func($this->__objectMap[$class]);
 
             $this->_classes[$class]['class'] = get_class($object);
 
         // Create manually
         } else {
-            if ($options['register']) {
-                $object = Registry::factory($options['class']);
-            } else {
-                $object = new $options['class']();
-            }
+            $object = Registry::factory($options['class'], Vector {}, (bool) $options['register']);
         }
 
         if ($options['interface'] && !($object instanceof $options['interface'])) {
@@ -223,27 +224,28 @@ trait Attachable {
      * @return bool
      */
     public function hasObject(string $class): bool {
-        return (isset($this->_attached[$class]) || isset($this->_classes[$class]));
+        return ($this->_attached->contains($class) || $this->_classes->contains($class));
     }
 
     /**
      * Cycle through all loaded objects and trigger the defined hook method.
      *
      * @param string $method
-     * @param array $args
+     * @param array<mixed> $args
      * @return $this
      */
-    public function notifyObjects(string $method, array $args = []): this {
+    public function notifyObjects(string $method, array<mixed> $args = []): this {
         if ($this->_classes) {
             foreach ($this->_classes as $options) {
                 if (!$options['callback'] || in_array($options['alias'], $this->_restricted)) {
                     continue;
                 }
 
-                $object = $this->getObject($options['alias']);
+                $object = $this->getObject((string) $options['alias']);
 
-                if ($object && method_exists($object, $method)) {
-                    call_user_func_array([$object, $method], $args);
+                if (is_object($object) && method_exists($object, $method)) {
+                    // UNSAFE
+                    call_user_func_array(inst_meth($object, $method), $args);
                 }
             }
         }

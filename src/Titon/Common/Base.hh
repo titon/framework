@@ -35,11 +35,8 @@ class Base implements Serializable, JsonSerializable {
      * @param Map<string, mixed> $config
      */
     public function __construct(Map<string, mixed> $config = Map {}) {
-        $this->applyConfig($config);
-
-        if ($this->getConfig('initialize')) {
-            $this->initialize();
-        }
+        $this->__initConfigurable($config);
+        $this->__initBase();
     }
 
     /**
@@ -69,7 +66,8 @@ class Base implements Serializable, JsonSerializable {
      * @param string $serialized
      */
     public function unserialize($serialized): void {
-        $this->__construct(new Map(unserialize($serialized)));
+        $this->__initConfigurable(new Map(unserialize($serialized)));
+        $this->__initBase();
     }
 
     /**
@@ -102,6 +100,15 @@ class Base implements Serializable, JsonSerializable {
      */
     public function toString(): string {
         return static::class;
+    }
+
+    /**
+     * Private initializer method.
+     */
+    private function __initBase(): void {
+        if ($this->getConfig('initialize')) {
+            $this->initialize();
+        }
     }
 
 }

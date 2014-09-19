@@ -8,9 +8,8 @@
 namespace Titon\Common;
 
 use \Titon\Utility\Exception\UnsupportedMethodException;
-use \Closure;
 
-type CallbackFunction = (function(): mixed);
+newtype MacroCallback = (function(): mixed);
 
 /**
  * Provides a mechanism at runtime for defining static methods that can be triggered during __callStatic().
@@ -22,9 +21,9 @@ trait Macroable {
     /**
      * Custom methods to magically call through the static context.
      *
-     * @type Map<string, Map<string, CallbackFunction>>
+     * @type Map<string, Map<string, MacroCallback>>
      */
-    protected static Map<string, Map<string, CallbackFunction>> $_macros = Map {};
+    protected static Map<string, Map<string, MacroCallback>> $_macros = Map {};
 
     /**
      * Execute a macro if it has been called statically.
@@ -34,7 +33,7 @@ trait Macroable {
      * @return mixed
      * @throws \Titon\Utility\Exception\UnsupportedMethodException
      */
-    public static function __callStatic(string $key, array $args): mixed {
+    public static function __callStatic(string $key, array<mixed> $args): mixed {
         if (static::hasMacro($key)) {
             return call_user_func_array(static::getMacros()->get($key), $args);
         }
@@ -45,17 +44,17 @@ trait Macroable {
     /**
      * Return all defined macros for a class.
      *
-     * @return Map<string, CallbackFunction>
+     * @return Map<string, MacroCallback>
      */
-    public static function getMacros(): Map<string, CallbackFunction> {
+    public static function getMacros(): Map<string, MacroCallback> {
         $macros = static::$_macros;
         $class = static::class;
 
         if (!$macros->contains($class)) {
-            $macros->set($class, Map {});
+            $macros[$class] = Map {};
         }
 
-        return $macros->get($class);
+        return $macros[$class];
     }
 
     /**
@@ -74,7 +73,7 @@ trait Macroable {
      * @param string $key
      * @param \Closure $callback
      */
-    public static function macro(string $key, Closure $callback): void {
+    public static function macro(string $key, MacroCallback $callback): void {
         static::getMacros()->set($key, $callback);
     }
 

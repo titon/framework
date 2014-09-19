@@ -18,11 +18,11 @@ use Titon\Utility\Col;
 trait Configurable {
 
     /**
-     * The configuration object.
+     * The configuration bag that inherits the settings.
      *
      * @type \Titon\Common\Bag\ConfigBag
      */
-    private ConfigBag $__config;
+    protected ?ConfigBag<string, mixed> $_configBag;
 
     /**
      * Add multiple configurations.
@@ -46,32 +46,6 @@ trait Configurable {
     }
 
     /**
-     * Merge the custom configuration with the defaults and inherit from parent classes.
-     *
-     * @uses Titon\Utility\Col
-     *
-     * @param Map<string, mixed> $config
-     * @return $this
-     */
-    public function applyConfig(Map<string, mixed> $config = Map {}): this {
-        $parent = $this;
-        $defaults = isset($this->_config) ? $this->_config : Map {};
-
-        // Inherit config from parents
-        while ($parent = get_parent_class($parent)) {
-            $props = get_class_vars($parent);
-
-            if (isset($props['_config'])) {
-                $defaults = Col::merge($props['_config'], $defaults);
-            }
-        }
-
-        $this->__config = new ConfigBag($config, $defaults);
-
-        return $this;
-    }
-
-    /**
      * Get a configuration by key.
      *
      * @param string $key
@@ -87,8 +61,12 @@ trait Configurable {
      *
      * @return \Titon\Common\Bag\ConfigBag
      */
-    public function getConfigBag(): ConfigBag {
-        return $this->__config;
+    public function getConfigBag(): ConfigBag<string, mixed> {
+        if (!$this->_configBag) {
+            $this->_configBag = $this->__initConfigurable();
+        }
+
+        return $this->_configBag;
     }
 
     /**
@@ -124,6 +102,30 @@ trait Configurable {
         $this->getConfigBag()->set($key, $value);
 
         return $this;
+    }
+
+    /**
+     * Merge the custom configuration with the defaults and inherit from parent classes.
+     *
+     * @uses Titon\Utility\Col
+     *
+     * @param Map<string, mixed> $config
+     * @return ConfigBag<string, mixed>
+     */
+    private function __initConfigurable(Map<string, mixed> $config = Map {}): ConfigBag<string, mixed> {
+        $parent = $this;
+        $defaults = property_exists($this, '_config') ? $this->_config : Map {};
+
+        // Inherit config from parents
+        while ($parent = get_parent_class($parent)) {
+            $props = get_class_vars($parent);
+
+            if (array_key_exists('_config', $props)) {
+                $defaults = Col::merge($props['_config'], $defaults);
+            }
+        }
+
+        return $this->_configBag = new ConfigBag($config, $defaults);
     }
 
 }

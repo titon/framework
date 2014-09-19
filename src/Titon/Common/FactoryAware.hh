@@ -32,7 +32,7 @@ trait FactoryAware {
      * @return $this
      */
     public static function registry(): this {
-        return Registry::factory(static::class, func_get_args());
+        return Registry::factory(static::class, new Vector(func_get_args()));
     }
 
 }

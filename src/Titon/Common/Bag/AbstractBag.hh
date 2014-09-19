@@ -8,7 +8,6 @@
 namespace Titon\Common\Bag;
 
 use Titon\Common\Bag;
-use Titon\Common\Base;
 use Titon\Common\Mutable;
 use \IteratorAggregate;
 use \Countable;
@@ -18,15 +17,15 @@ use \Countable;
  *
  * @package Titon\Common\Bag
  */
-abstract class AbstractBag extends Base implements Bag, IteratorAggregate, Countable {
+abstract class AbstractBag<Tk, Tv> implements Bag<Tk, Tv>, IteratorAggregate<Tv>, Countable {
     use Mutable;
 
     /**
      * Set the parameters.
      *
-     * @param Map<string, mixed> $data
+     * @param Map<Tk, Tv> $data
      */
-    public function __construct(Map<string, mixed> $data = Map {}) {
+    public function __construct(Map<Tk, Tv> $data = Map {}) {
         $this->add($data);
     }
 

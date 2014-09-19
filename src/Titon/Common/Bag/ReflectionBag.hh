@@ -20,7 +20,7 @@ use \ReflectionProperty;
  *
  * @package Titon\Common\Bag
  */
-class ReflectionBag extends AbstractBag {
+class ReflectionBag<Tk, Tv> extends AbstractBag<Tk, Tv> {
 
     /**
      * Class to introspect.
@@ -42,6 +42,8 @@ class ReflectionBag extends AbstractBag {
      * @param object $class
      */
     public function __construct(mixed $class) {
+        parent::__construct();
+
         $this->_class = $class;
         $this->_reflection = new ReflectionClass($class);
     }
@@ -54,13 +56,14 @@ class ReflectionBag extends AbstractBag {
      * @return mixed
      * @throws \Titon\Common\Exception\InvalidDescriptorException
      */
-    public function get(string $key, mixed $default = null): mixed {
+    public function get(Tk $key, ?Tv $default = null): ?Tv {
         if ($this->has($key)) {
             return parent::get($key);
         }
 
         if (method_exists($this, $key)) {
-            $value = call_user_func([$this, $key]);
+            // UNSAFE
+            $value = call_user_func(inst_meth($this, $key));
 
             $this->set($key, $value);
 
@@ -120,14 +123,13 @@ class ReflectionBag extends AbstractBag {
      *
      * @return Vector<string>
      */
-    public function methods() {
+    public function methods(): Vector<string> {
         $methods = Vector {};
         $methods->addAll($this->publicMethods());
         $methods->addAll($this->protectedMethods());
         $methods->addAll($this->privateMethods());
         $methods->addAll($this->staticMethods());
 
-        // todo - Another way to do this?
         return new Vector(array_unique($methods->toValuesArray()));
     }
 
@@ -136,7 +138,7 @@ class ReflectionBag extends AbstractBag {
      *
      * @return Vector<string>
      */
-    public function publicMethods() {
+    public function publicMethods(): Vector<string> {
         return $this->_methods(ReflectionMethod::IS_PUBLIC);
     }
 
@@ -145,7 +147,7 @@ class ReflectionBag extends AbstractBag {
      *
      * @return Vector<string>
      */
-    public function protectedMethods() {
+    public function protectedMethods(): Vector<string> {
         return $this->_methods(ReflectionMethod::IS_PROTECTED);
     }
 
@@ -154,7 +156,7 @@ class ReflectionBag extends AbstractBag {
      *
      * @return Vector<string>
      */
-    public function privateMethods() {
+    public function privateMethods(): Vector<string> {
         return $this->_methods(ReflectionMethod::IS_PRIVATE);
     }
 
@@ -163,7 +165,7 @@ class ReflectionBag extends AbstractBag {
      *
      * @return Vector<string>
      */
-    public function staticMethods() {
+    public function staticMethods(): Vector<string> {
         return $this->_methods(ReflectionMethod::IS_STATIC);
     }
 
@@ -172,14 +174,13 @@ class ReflectionBag extends AbstractBag {
      *
      * @return Vector<string>
      */
-    public function properties() {
+    public function properties(): Vector<string> {
         $properties = Vector {};
         $properties->addAll($this->publicProperties());
         $properties->addAll($this->protectedProperties());
         $properties->addAll($this->privateProperties());
         $properties->addAll($this->staticProperties());
 
-        // todo - Another way to do this?
         return new Vector(array_unique($properties->toValuesArray()));
     }
 

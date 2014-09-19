@@ -46,7 +46,7 @@ trait Instanceable {
      * @param array $params
      * @return $this
      */
-    public static function getInstance(string $key = 'default', array $params = []): mixed {
+    public static function getInstance(string $key = 'default', array<mixed> $params = []): mixed {
         $instances = static::getInstances();
 
         if ($instances->contains($key)) {
@@ -66,15 +66,15 @@ trait Instanceable {
      *
      * @return Map<string, mixed>
      */
-    public function getInstances(): Map<string, mixed> {
+    public static function getInstances(): Map<string, mixed> {
         $instances = static::$_instances;
         $class = static::class;
 
         if (!$instances->contains($class)) {
-            $instances->set($class, Map {});
+            $instances[$class] = Map {};
         }
 
-        return $instances->get($class);
+        return $instances[$class];
     }
 
     /**

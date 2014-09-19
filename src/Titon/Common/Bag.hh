@@ -12,22 +12,22 @@ namespace Titon\Common;
  *
  * @package Titon\Common
  */
-interface Bag {
+interface Bag<Tk, Tv> {
 
     /**
      * Add multiple parameters that will overwrite any previously defined parameters.
      *
-     * @param Map<string, mixed> $data
+     * @param Map<Tk, Tv> $data
      * @return $this
      */
-    public function add(Map<string, mixed> $data): this;
+    public function add(Map<Tk, Tv> $data): this;
 
     /**
      * Return all parameters and their values within the bag.
      *
-     * @return Map<string, mixed>
+     * @return Map<Tk, Tv>
      */
-    public function all(): this;
+    public function all(): Map<Tk, Tv>;
 
     /**
      * Remove all values within the bag.
@@ -41,37 +41,37 @@ interface Bag {
      * If no key is found, return null, or if there is no value,
      * return the default value.
      *
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
+     * @param Tk $key
+     * @param Tv $default
+     * @return Tv
      */
-    public function get(string $key, mixed $default = null): mixed;
+    public function get(Tk $key, ?Tv $default = null): ?Tv;
 
     /**
      * Set a value defined by key. Can pass in a dot notated path
      * to insert into a nested structure.
      *
-     * @param string $key
-     * @param mixed $value
+     * @param Tk $key
+     * @param Tv $value
      * @return $this
      */
-    public function set(string $key, mixed $value): this;
+    public function set(Tk $key, Tv $value): this;
 
     /**
      * Check if a key exists within the bag.
      * Can use a dot notated path as the key.
      *
-     * @param string $key
+     * @param Tk $key
      * @return bool
      */
-    public function has(string $key): bool;
+    public function has(Tk $key): bool;
 
     /**
      * Remove a value defined by key, or dot notated path.
      *
-     * @param string $key
+     * @param Tk $key
      * @return $this
      */
-    public function remove(string $key): this;
+    public function remove(Tk $key): this;
 
 }

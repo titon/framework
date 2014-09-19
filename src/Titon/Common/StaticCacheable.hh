@@ -7,8 +7,6 @@
 
 namespace Titon\Common;
 
-use \Closure;
-
 /**
  * The StaticCacheable trait provides functionality to cache any data from the static class layer.
  * All data is unique and represented by a generated cache key.
@@ -48,7 +46,7 @@ trait StaticCacheable {
             return $cache;
         }
 
-        if ($value instanceof Closure) {
+        if (is_callable($value)) {
             $value = call_user_func($value);
         }
 

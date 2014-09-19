@@ -7,8 +7,6 @@
 
 namespace Titon\Common;
 
-use \Closure;
-
 /**
  * The Cacheable trait provides functionality to cache any data from the class layer.
  * All data is unique and represented by a generated cache key.
@@ -55,7 +53,7 @@ trait Cacheable {
             return $cache;
         }
 
-        if ($value instanceof Closure) {
+        if (is_callable($value)) {
             $value = call_user_func($value, $this);
         }
 
@@ -97,7 +95,7 @@ trait Cacheable {
      *
      * @return $this
      */
-    public function flushCache(): void {
+    public function flushCache(): this {
         $this->_cache->clear();
 
         return $this;

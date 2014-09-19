@@ -21,19 +21,19 @@ trait Reflectable {
      *
      * @type \Titon\Common\Bag\ReflectionBag
      */
-    private ReflectionBag $__reflection;
+    protected ?ReflectionBag<string, mixed> $_reflectionBag;
 
     /**
      * Return the reflection bag.
      *
      * @return \Titon\Common\Bag\ReflectionBag
      */
-    public function getReflectionBag(): ReflectionBag {
-        if (!$this->__reflection) {
-            $this->__reflection = new ReflectionBag($this);
+    public function getReflectionBag(): ReflectionBag<string, mixed> {
+        if (!$this->_reflectionBag) {
+            $this->_reflectionBag = new ReflectionBag($this);
         }
 
-        return $this->__reflection;
+        return $this->_reflectionBag;
     }
 
     /**

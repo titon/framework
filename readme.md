@@ -52,6 +52,7 @@ The following packages have been linted against Hack's type checker.
 They will still fail the checker with unbound errors, or mixed type warnings,
 but there's nothing we can do until HHVM and Hack get updated.
 
+* Common
 * Utility
 
 ## Requirements ##

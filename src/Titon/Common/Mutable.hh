@@ -7,9 +7,7 @@
 
 namespace Titon\Common;
 
-use Titon\Utility\Converter;
 use Titon\Utility\Col;
-use \ArrayIterator;
 
 /**
  * The Mutable trait allows for a set of data to be read and written to.
@@ -18,61 +16,61 @@ use \ArrayIterator;
  *
  * @package Titon\Common
  */
-trait Mutable {
+trait Mutable<Tk, Tv> {
 
     /**
      * Mapped data.
      *
-     * @type Map<string, mixed>
+     * @type Map<Tk, Tv>
      */
-    protected Map<string, mixed> $_data = Map {};
+    protected Map<Tk, Tv> $_data = Map {};
 
     /**
      * Magic method for get().
      *
-     * @param string $key
-     * @return mixed
+     * @param Tk $key
+     * @return Tv
      */
-    public function __get(string $key): mixed {
+    public function __get(Tk $key): ?Tv {
         return $this->get($key);
     }
 
     /**
      * Magic method for set().
      *
-     * @param string $key
-     * @param mixed $value
+     * @param Tk $key
+     * @param Tv $value
      */
-    public function __set(string $key, mixed $value): void {
+    public function __set(Tk $key, Tv $value): void {
         $this->set($key, $value);
     }
 
     /**
      * Magic method for has().
      *
-     * @param string $key
+     * @param Tk $key
      * @return bool
      */
-    public function __isset(string $key): bool {
+    public function __isset(Tk $key): bool {
         return $this->has($key);
     }
 
     /**
      * Magic method for remove().
      *
-     * @param string $key
+     * @param Tk $key
      */
-    public function __unset(string $key): void {
+    public function __unset(Tk $key): void {
         $this->remove($key);
     }
 
     /**
      * Add multiple parameters.
      *
-     * @param Map<string, mixed> $params
+     * @param Map<Tk, Tv> $params
      * @return $this
      */
-    public function add(Map<string, mixed> $params): this {
+    public function add(Map<Tk, Tv> $params): this {
         foreach ($params as $key => $value) {
             $this->set($key, $value);
         }
@@ -83,9 +81,9 @@ trait Mutable {
     /**
      * Return all parameters.
      *
-     * @return Map<string, mixed>
+     * @return Map<Tk, Tv>
      */
-    public function all(): Map<string, mixed> {
+    public function all(): Map<Tk, Tv> {
         return $this->_data;
     }
 
@@ -105,12 +103,12 @@ trait Mutable {
      *
      * @uses Titon\Utility\Col
      *
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
+     * @param Tk $key
+     * @param Tv $default
+     * @return Tv
      */
-    public function get(string $key, mixed $default = null): mixed {
-        $value = Col::get($this->_data, $key);
+    public function get(Tk $key, ?Tv $default = null): ?Tv {
+        $value = Col::get($this->_data, (string) $key);
 
         if ($value === null) {
             return $default;
@@ -122,11 +120,10 @@ trait Mutable {
     /**
      * Return an iterator.
      *
-     * @return \ArrayIterator
+     * @return Iterator<Tv>
      */
-    public function getIterator(): ArrayIterator {
-        // todo - use collections iterator?
-        return new ArrayIterator($this->_data->toArray());
+    public function getIterator(): Iterator<Tv> {
+        return $this->_data->getIterator();
     }
 
     /**
@@ -134,19 +131,19 @@ trait Mutable {
      *
      * @uses Titon\Utility\Col
      *
-     * @param string $key
+     * @param Tk $key
      * @return bool
      */
-    public function has(string $key): bool {
-        return Col::has($this->_data, $key);
+    public function has(Tk $key): bool {
+        return Col::has($this->_data, (string) $key);
     }
 
     /**
      * Return all the parameter keys.
      *
-     * @return Vector<string>
+     * @return Vector<Tk>
      */
-    public function keys(): Vector<string> {
+    public function keys(): Vector<Tk> {
         return $this->_data->keys();
     }
 
@@ -155,11 +152,11 @@ trait Mutable {
      *
      * @uses Titon\Utility\Col
      *
-     * @param string $key
+     * @param Tk $key
      * @return $this
      */
-    public function remove(string $key): this {
-        Col::remove($this->_data, $key);
+    public function remove(Tk $key): this {
+        Col::remove($this->_data, (string) $key);
 
         return $this;
     }
@@ -169,12 +166,12 @@ trait Mutable {
      *
      * @uses Titon\Utility\Col
      *
-     * @param string $key
-     * @param mixed $value
+     * @param Tk $key
+     * @param Tv $value
      * @return $this
      */
-    public function set(string $key, mixed $value = null): this {
-        Col::set($this->_data, $key, $value);
+    public function set(Tk $key, Tv $value): this {
+        Col::set($this->_data, (string) $key, $value);
 
         return $this;
     }
@@ -182,23 +179,23 @@ trait Mutable {
     /**
      * Return all the parameter values.
      *
-     * @return Vector<mixed>
+     * @return Vector<Tv>
      */
-    public function values(): Vector<mixed> {
+    public function values(): Vector<Tv> {
         return $this->_data->values();
     }
 
     /**
      * Return the data as an array.
      *
-     * @return array
+     * @return array<Tk, Tv>
      */
-    public function toArray(): array {
-        return Converter::toArray($this->all());
+    public function toArray(): array<Tk, Tv> {
+        return $this->_data->toArray();
     }
 
     /**
-     * Return the count of the array.
+     * Return the count of the collection.
      *
      * @return int
      */

@@ -14,24 +14,24 @@ use Titon\Utility\Col;
  *
  * @package Titon\Common\Bag
  */
-class ConfigBag extends AbstractBag {
+class ConfigBag<Tk, Tv> extends AbstractBag<Tk, Tv> {
 
     /**
      * Default configuration.
      *
-     * @type Map<string, mixed>
+     * @type Map<Tk, Tv>
      */
-    protected Map<string, mixed> $_defaults = Map {};
+    protected Map<Tk, Tv> $_defaults = Map {};
 
     /**
      * Apply defaults and merge the custom configuration in.
      *
      * @uses Titon\Utility\Col
      *
-     * @param Map<string, mixed> $config
-     * @param Map<string, mixed> $defaults
+     * @param Map<Tk, Tv> $config
+     * @param Map<Tk, Tv> $defaults
      */
-    public function __construct(Map<string, mixed> $config = Map {}, Map<string, mixed> $defaults = Map {}) {
+    public function __construct(Map<Tk, Tv> $config = Map {}, Map<Tk, Tv> $defaults = Map {}) {
         parent::__construct(Col::merge($defaults, $config));
 
         $this->_defaults = $defaults;
@@ -40,9 +40,9 @@ class ConfigBag extends AbstractBag {
     /**
      * Return the default configuration.
      *
-     * @return Map<string, mixed>
+     * @return Map<Tk, Tv>
      */
-    public function getDefaults(): Map<string, mixed> {
+    public function getDefaults(): Map<Tk, Tv> {
         return $this->_defaults;
     }
 

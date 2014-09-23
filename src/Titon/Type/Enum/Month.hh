@@ -34,7 +34,7 @@ class Month extends Enum {
      *
      * @type Map<int, Vector<mixed>>
      */
-    protected Map<int, Vector<mixed>> $_enums = [
+    protected Map<int, Vector<mixed>> $_enums = Map {
         self::JANUARY   => Vector {'january', 31},
         self::FEBRUARY  => Vector {'february', 28},
         self::MARCH     => Vector {'march', 31},
@@ -47,42 +47,42 @@ class Month extends Enum {
         self::OCTOBER   => Vector {'october', 31},
         self::NOVEMBER  => Vector {'november', 30},
         self::DECEMBER  => Vector {'december', 31}
-    ];
+    };
 
     /**
      * Month of the year.
      *
      * @type int
      */
-    public int $order;
+    public int $order = 0;
 
     /**
      * Localized name.
      *
      * @type string
      */
-    public string $name;
+    public string $name = '';
 
     /**
      * Localized shorthand name.
      *
      * @type string
      */
-    public string $shortName;
+    public string $shortName = '';
 
     /**
      * Month as a slug.
      *
      * @type string
      */
-    public string $slug;
+    public string $slug = '';
 
     /**
      * How many days in the month.
      *
      * @type int
      */
-    public int $daysInMonth;
+    public int $daysInMonth = 0;
 
     /**
      * Set variables.
@@ -90,7 +90,7 @@ class Month extends Enum {
      * @param string $slug
      * @param int $daysInMonth
      */
-    public function initialize(string $slug, int $daysInMonth = 0) {
+    public function initialize(string $slug, int $daysInMonth = 0): void {
         $month = $this->value() + 1;
         $time = mktime(0, 0, 0, $month, 1);
 

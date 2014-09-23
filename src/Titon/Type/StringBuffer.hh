@@ -32,7 +32,7 @@ class StringBuffer implements Serializable {
      *
      * @param string $value
      */
-    public function __construct(string $value = '') {
+    final public function __construct(string $value = '') {
         $this->write($value);
     }
 
@@ -239,6 +239,7 @@ class StringBuffer implements Serializable {
      * @return int|array
      */
     public function matches(string $pattern, bool $return = false, int $flags = 0): mixed {
+        $matches = [];
         $regex = preg_match($pattern, $this->value(), $matches, $flags);
 
         return $return ? $matches : $regex;
@@ -477,7 +478,7 @@ class StringBuffer implements Serializable {
      * @param string $value
      */
     public function unserialize($value): void {
-        $this->__construct(unserialize($value));
+        $this->write(unserialize($value));
     }
 
     /**

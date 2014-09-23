@@ -29,7 +29,7 @@ class Day extends Enum {
      *
      * @type Map<int, Vector<mixed>>
      */
-    protected Map<int, Vector<mixed>> $_enums = [
+    protected Map<int, Vector<mixed>> $_enums = Map {
         self::SUNDAY    => Vector {'sunday'},
         self::MONDAY    => Vector {'monday'},
         self::TUESDAY   => Vector {'tuesday'},
@@ -37,42 +37,42 @@ class Day extends Enum {
         self::THURSDAY  => Vector {'thursday'},
         self::FRIDAY    => Vector {'friday'},
         self::SATURDAY  => Vector {'saturday'}
-    ];
+    };
 
     /**
      * Day of the week; Sunday is first.
      *
      * @type int
      */
-    public int $order;
+    public int $order = 0;
 
     /**
      * Localized name.
      *
      * @type string
      */
-    public string $name;
+    public string $name = '';
 
     /**
      * Localized shorthand name.
      *
      * @type string
      */
-    public string $shortName;
+    public string $shortName = '';
 
     /**
      * Day as a slug.
      *
      * @type string
      */
-    public string $slug;
+    public string $slug = '';
 
     /**
      * Current day of the year.
      *
      * @type int
      */
-    public int $dayOfYear;
+    public int $dayOfYear = 0;
 
     /**
      * Set variables.

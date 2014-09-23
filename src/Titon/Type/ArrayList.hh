@@ -9,6 +9,8 @@ namespace Titon\Type;
 
 use Titon\Type\Contract\Arrayable;
 use Titon\Type\Contract\Jsonable;
+use Titon\Type\Contract\Mapable;
+use Titon\Type\Contract\Vectorable;
 use Titon\Type\Contract\Xmlable;
 use Titon\Type\Exception\MissingMethodException;
 use Titon\Utility\Converter;

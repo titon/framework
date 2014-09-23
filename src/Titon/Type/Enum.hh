@@ -24,9 +24,9 @@ class Enum {
     /**
      * Mapping of enum constructor arguments.
      *
-     * @type Vector<mixed>
+     * @type Map<int, Vector<mixed>>
      */
-    protected Vector<mixed> $_enums = Vector {};
+    protected Map<int, Vector<mixed>> $_enums = Map {};
 
     /**
      * The current enum type.
@@ -45,14 +45,14 @@ class Enum {
     final public function __construct(int $type) {
         $keys = static::keys();
 
-        if (!isset($keys[$type])) {
+        if (!$keys->containsKey($type)) {
             throw new InvalidEnumerableException(sprintf('Invalid enum type detected for %s', static::class));
         }
 
         $this->_type = $type;
 
-        if (method_exists($this, 'initialize') && isset($this->_enums[$type])) {
-            call_user_func_array([$this, 'initialize'], $this->_enums[$type]);
+        if (method_exists($this, 'initialize') && $this->_enums->contains($type)) {
+            call_user_func_array(inst_meth($this, 'initialize'), $this->_enums[$type]->toArray());
         }
     }
 
@@ -61,11 +61,11 @@ class Enum {
      * For example, Color::BLACK() is equivalent to new Color(Color::BLACK).
      *
      * @param string $method
-     * @param array $args
+     * @param array<mixed> $args
      * @return \Titon\Type\Enum
      * @throws \Titon\Type\Exception\InvalidEnumerableException
      */
-    final public static function __callStatic(string $method, array $args): Enum {
+    final public static function __callStatic(string $method, array<mixed> $args): Enum {
         if (defined("static::$method")) {
             return new static(constant("static::$method"));
         }

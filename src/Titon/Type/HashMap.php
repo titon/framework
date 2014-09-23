@@ -24,7 +24,7 @@ use \Countable;
  *
  * @package Titon\Type
  */
-class Map extends Type implements Countable, IteratorAggregate, Arrayable, Jsonable, Xmlable {
+class HashMap extends Type implements Countable, IteratorAggregate, Arrayable, Jsonable, Xmlable {
 
     /**
      * Add a value to the end of the array. This does not support literal keys.

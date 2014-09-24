@@ -178,12 +178,23 @@ class ArrayList<Tv> implements
 
     /**
      * Merges the current ArrayList with the another ArrayList and returns a new ArrayList.
+     * Can either prepend or append the defined list.
      *
      * @param ArrayList<Tv> $value
+     * @param bool $append
      * @return ArrayList<Tv>
      */
-    public function concat(ArrayList<Tv> $value): ArrayList<Tv> {
-        return new static($this->value()->toVector()->addAll($value->value()));
+    public function concat(ArrayList<Tv> $value, bool $append = true): ArrayList<Tv> {
+        $oldList = $this->toVector();
+        $newList = $value->toVector();
+
+        if ($append) {
+            $list = $oldList->addAll($newList);
+        } else {
+            $list = $newList->addAll($oldList);
+        }
+
+        return new static($list);
     }
 
     /**
@@ -365,13 +376,13 @@ class ArrayList<Tv> implements
     }
 
     /**
-     * Alias for concat().
+     * Merge two ArrayLists together with values from the second list overwriting the first list.
      *
      * @param ArrayList<Tv> $value
      * @return ArrayList<Tv>
      */
     public function merge(ArrayList<Tv> $value): ArrayList<Tv> {
-        return $this->concat($value);
+        return new static($this->toVector()->setAll($value->toVector()));
     }
 
     /**

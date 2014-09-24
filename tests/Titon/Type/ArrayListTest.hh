@@ -108,7 +108,15 @@ class ArrayListTest extends TestCase {
     }
 
     public function testConcat() {
-        $this->assertEquals(new ArrayList(Vector {'foo', 'bar', 'baz', 1, 2, 3}), $this->object->concat(new ArrayList(Vector {1, 2, 3})));
+        $list1 = $this->object->concat(new ArrayList(Vector {1, 2, 3}));
+
+        $this->assertEquals(new ArrayList(Vector {'foo', 'bar', 'baz', 1, 2, 3}), $list1);
+
+        $list2 = $this->object->concat(new ArrayList(Vector {1, 2, 3}), false);
+
+        $this->assertEquals(new ArrayList(Vector {1, 2, 3, 'foo', 'bar', 'baz'}), $list2);
+
+        $this->assertNotSame($list1, $this->object);
     }
 
     public function testContains() {
@@ -212,7 +220,7 @@ class ArrayListTest extends TestCase {
     }
 
     public function testMerge() {
-        $this->assertEquals(new ArrayList(Vector {'foo', 'bar', 'baz', 1, 2, 3}), $this->object->merge(new ArrayList(Vector {1, 2, 3})));
+        $this->assertEquals(new ArrayList(Vector {1, 2, 'baz'}), $this->object->merge(new ArrayList(Vector {1, 2})));
     }
 
     public function testRemove() {

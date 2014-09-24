@@ -199,15 +199,6 @@ class StringBuffer implements Serializable {
     }
 
     /**
-     * Checks to see if the value is not empty.
-     *
-     * @return bool
-     */
-    public function isNotEmpty(): bool {
-        return !$this->isEmpty();
-    }
-
-    /**
      * Grab the index of the last matched character.
      *
      * @uses Titon\Utility\Str

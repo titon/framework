@@ -29,18 +29,11 @@ use \Indexish;
  * @package Titon\Type
  * @method $this add(Tv $value)
  * @method $this addAll(Traversable<Tv> $values)
- * @method Tv at(int $index)
  * @method $this clear()
  * @method ArrayList filter((function(Tv): bool) $callback)
  * @method ArrayList filterWithKey((function(int, Tv): bool) $callback)
- * @method ArrayList fromItems(?Traversable<Tv> $items)
- * @method ?Tv get(int $index)
- * @method bool isEmpty()
- * @method Iterable<Tv> items()
- * @method Vector<int> keys()
  * @method ArrayList map((function(Tv): bool) $callback)
  * @method ArrayList mapWithKey((function(int, Tv): bool) $callback)
- * @method Tv pop()
  * @method $this reserve(int $size)
  * @method $this resize(int $size, Tv $value)
  * @method ArrayList reverse()
@@ -48,15 +41,8 @@ use \Indexish;
  * @method $this setAll(KeyedTraversable<int, Tv> $values)
  * @method ArrayList shuffle()
  * @method ArrayList splice(int $offset, int $length)
- * @method array toKeysArray()
- * @method Map<int, Tv> toMap()
- * @method Set<Tv> toSet()
- * @method array toValuesArray()
- * @method Vector<Tv> toVector()
- * @method Vector<Tv> values()
  */
 class ArrayList<Tv> implements
-    ArrayAccess<int, Tv>,
     IteratorAggregate<Tv>,
     Countable,
     Serializable,
@@ -73,7 +59,7 @@ class ArrayList<Tv> implements
      * @type Vector<string>
      */
     protected Vector<string> $_chainable = Vector {
-        'add', 'addAll', 'clear', 'pop', 'removeKey',
+        'add', 'addAll', 'clear', 'removeKey',
         'reserve', 'resize', 'set', 'setAll'
     };
 
@@ -83,7 +69,7 @@ class ArrayList<Tv> implements
      * @type Vector<string>
      */
     protected Vector<string> $_immutable = Vector {
-        'filter', 'filterWithKey', 'fromItems', 'map', 'mapWithKey',
+        'filter', 'filterWithKey', 'map', 'mapWithKey',
         'reverse', 'shuffle', 'splice'
     };
 
@@ -97,9 +83,9 @@ class ArrayList<Tv> implements
     /**
      * Set the value.
      *
-     * @param Indexish<Tv> $value
+     * @param Indexish<int, Tv> $value
      */
-    final public function __construct(Indexish<Tv> $value = Vector {}) {
+    final public function __construct(Indexish<int, Tv> $value = Vector {}) {
         $this->write($value);
     }
 
@@ -108,30 +94,41 @@ class ArrayList<Tv> implements
      *
      * @param string $method
      * @param array<mixed> $args
-     * @return mixed
+     * @return ArrayList<Tv>
      * @throws \Titon\Type\Exception\MissingMethodException
      */
-    public function __call(string $method, array<mixed> $args): mixed {
+    public function __call(string $method, array<mixed> $args): ArrayList<Tv> {
         $vector = $this->value();
 
         if (method_exists($vector, $method)) {
-            // UNSAFE
-            $result = call_user_func_array(inst_meth($vector, $method), $args);
 
             // Chain the method call
             if (in_array($method, $this->_chainable)) {
+
+                // UNSAFE
+                call_user_func_array(inst_meth($vector, $method), $args);
+
                 return $this;
 
             // Return a new instance for immutability
             } else if (in_array($method, $this->_immutable)) {
-                return new static($result->toVector());
-            }
 
-            // Return the result
-            return $result;
+                // Clone the vector so we don't interfere with references
+                $clonedList = $vector->toVector();
+
+                // UNSAFE
+                $mutatedList = call_user_func_array(inst_meth($clonedList, $method), $args);
+
+                // Some methods return void/null (reverse, etc) so use the cloned list
+                if ($mutatedList === null) {
+                    $mutatedList = $clonedList;
+                }
+
+                return new static($mutatedList);
+            }
         }
 
-        throw new MissingMethodException(sprintf('Method "%s" does not exist for %s', $method, static::class));
+        throw new MissingMethodException(sprintf('Method "%s" does not exist or is not callable for %s', $method, static::class));
     }
 
     /**
@@ -139,6 +136,16 @@ class ArrayList<Tv> implements
      */
     public function __clone(): void {
         $this->_value = $this->_value->toVector();
+    }
+
+    /**
+     * Alias for Vector::at(). Will return the value at the specified index or throw an exception.
+     *
+     * @param int $index
+     * @return Tv
+     */
+    public function at(int $index): Tv {
+        return $this->value()->at($index);
     }
 
     /**
@@ -262,7 +269,7 @@ class ArrayList<Tv> implements
     }
 
     /**
-     * Empty the list.
+     * Alias for Vector::clear(). Empty the list.
      *
      * @return $this
      */
@@ -270,6 +277,16 @@ class ArrayList<Tv> implements
         $this->clear();
 
         return $this;
+    }
+
+    /**
+     * Alias for Vector::get().  Will return the value at the specified index or return null.
+     *
+     * @param int $index
+     * @return ?Tv
+     */
+    public function get(int $index): ?Tv {
+        return $this->value()->get($index);
     }
 
     /**
@@ -289,6 +306,15 @@ class ArrayList<Tv> implements
      */
     public function has(int $index): bool {
         return $this->value()->containsKey($index);
+    }
+
+    /**
+     * Alias for Vector::isEmpty(). Will return true if the list is empty.
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool {
+        return $this->value()->isEmpty();
     }
 
     /**
@@ -312,6 +338,15 @@ class ArrayList<Tv> implements
     }
 
     /**
+     * Alias for Vector::keys(). Return a vector containing the list of keys.
+     *
+     * @return Vector<int>
+     */
+    public function keys(): Vector<int> {
+        return $this->value()->keys();
+    }
+
+    /**
      * Return the last item in the list.
      *
      * @return ?Tv
@@ -321,7 +356,7 @@ class ArrayList<Tv> implements
     }
 
     /**
-     * Alias for count().
+     * Alias for Vector::count(). Return the length of the list.
      *
      * @return int
      */
@@ -337,53 +372,6 @@ class ArrayList<Tv> implements
      */
     public function merge(ArrayList<Tv> $value): ArrayList<Tv> {
         return $this->concat($value);
-    }
-
-    /**
-     * Return the value at the defined index.
-     *
-     * @param int $index
-     * @param Tv $value
-     * @return $this
-     */
-    public function offsetSet($index, $value): this {
-        if ($index === null) {
-            $this->add($value);
-        } else {
-            $this->set($index, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Return true if a value exists at the defined index.
-     *
-     * @param int $index
-     * @return bool
-     */
-    public function offsetExists($index): bool {
-        return $this->has($index);
-    }
-
-    /**
-     * Remove a value at the defined index.
-     *
-     * @param int $index
-     * @return $this
-     */
-    public function offsetUnset($index): this {
-        return $this->remove($index);
-    }
-
-    /**
-     * Return a value at the defined index. If no index exists, return null.
-     *
-     * @param int $index
-     * @return ?Tv
-     */
-    public function offsetGet($index): ?Tv {
-        return $this->get($index);
     }
 
     /**
@@ -415,7 +403,7 @@ class ArrayList<Tv> implements
      * @param (function(int, Tv): bool) $callback
      * @return bool
      */
-    public function some((function(int, Tv): bool) $callback) {
+    public function some((function(int, Tv): bool) $callback): bool {
         return Col::some($this->value(), $callback);
     }
 
@@ -476,15 +464,6 @@ class ArrayList<Tv> implements
     }
 
     /**
-     * Return the current value.
-     *
-     * @return Vector<Tv>
-     */
-    public function value(): Vector<Tv> {
-        return $this->_value;
-    }
-
-    /**
      * Removes duplicate values from the list.
      *
      * @param int $flags
@@ -495,12 +474,30 @@ class ArrayList<Tv> implements
     }
 
     /**
+     * Return the raw value.
+     *
+     * @return Vector<Tv>
+     */
+    public function value(): Vector<Tv> {
+        return $this->_value;
+    }
+
+    /**
+     * Alias for Vector::values(). Return a vector containing the list of values.
+     *
+     * @return Vector<Tv>
+     */
+    public function values(): Vector<Tv> {
+        return $this->value()->values();
+    }
+
+    /**
      * Set and overwrite with a new Vector.
      *
-     * @param Indexish<Tv> $value
+     * @param Indexish<int, Tv> $value
      * @return $this
      */
-    public function write(Indexish<Tv> $value): this {
+    public function write(Indexish<int, Tv> $value): this {
         $this->_value = new Vector($value);
 
         return $this;

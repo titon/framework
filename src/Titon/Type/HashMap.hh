@@ -150,7 +150,7 @@ class HashMap<Tk, Tv> implements
      * @return ArrayList<HashMap<Tk, Tv>>
      */
     public function chunk(int $size): ArrayList<HashMap<Tk, Tv>> {
-        $chunks = array_chunk($this->toArray(), $size);
+        $chunks = array_chunk($this->toArray(), $size, true);
         $list = Vector {};
 
         foreach ($chunks as $chunk) {
@@ -412,12 +412,33 @@ class HashMap<Tk, Tv> implements
     }
 
     /**
+     * Reverse the items in the map.
+     *
+     * @return HashMap<Tk, Tv>
+     */
+    public function reverse(): HashMap<Tk, Tv> {
+        return new static(array_reverse($this->toArray(), true));
+    }
+
+    /**
      * Return the value serialized.
      *
      * @return string
      */
     public function serialize(): string {
         return serialize($this->value());
+    }
+
+    /**
+     * Shuffle the items in the map into a random order.
+     *
+     * @return HashMap<Tk, Tv>
+     */
+    public function shuffle(): HashMap<Tk, Tv> {
+        $map = $this->toArray();
+        shuffle($map);
+
+        return new static($map);
     }
 
     /**
@@ -495,7 +516,7 @@ class HashMap<Tk, Tv> implements
      * @return HashMap<Tk, Tv>
      */
     public function unique(int $flags = SORT_REGULAR): HashMap<Tk, Tv> {
-        return new static(new Map(array_unique($this->toArray(), $flags)));
+        return new static(array_unique($this->toArray(), $flags));
     }
 
     /**

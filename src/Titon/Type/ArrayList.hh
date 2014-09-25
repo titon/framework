@@ -481,7 +481,7 @@ class ArrayList<Tv> implements
      * @return ArrayList<Tv>
      */
     public function unique(int $flags = SORT_REGULAR): ArrayList<Tv> {
-        return new static(new Vector(array_unique($this->toArray(), $flags)));
+        return new static(array_unique($this->toArray(), $flags));
     }
 
     /**

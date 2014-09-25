@@ -228,24 +228,6 @@ class HashMap extends Type implements Countable, IteratorAggregate, Arrayable, J
         return new static($this->filter($callback, false)->values());
     }
 
-    /**
-     * Group all values into sub-groups based on the value of a specific key.
-     *
-     * @param string $key
-     * @return array
-     */
-    public function groupBy($key) {
-        $grouped = [];
-        $class = get_class($this);
-
-        foreach ($this->value() as $value) {
-            $grouped[$value[$key]][] = $value;
-        }
-
-        return array_map(function($value) use ($class) {
-            return new $class($value);
-        }, $grouped);
-    }
 
     /**
      * Pluck the value of a specific field from each entity.

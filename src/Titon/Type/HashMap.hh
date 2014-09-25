@@ -311,6 +311,30 @@ class HashMap<Tk, Tv> implements
     }
 
     /**
+     * Group all items into sub-maps based on the value of a specific key.
+     *
+     * @param Tu $field
+     * @return HashMap<string, HashMap<Tk, Tv>>
+     */
+    public function groupBy<Tu>(Tu $field): HashMap<string, HashMap<Tk, Tv>> {
+        $grouped = Map {};
+
+        foreach ($this->value() as $key => $value) {
+            if ($value instanceof Indexish) {
+                $index = (string) $value[$field];
+
+                if (!$grouped->contains($index)) {
+                    $grouped[$index] = new static();
+                }
+
+                $grouped[$index]->set($key, $value);
+            }
+        }
+
+        return new static($grouped);
+    }
+
+    /**
      * Return true if the index exists.
      *
      * @param Tk $key

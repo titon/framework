@@ -321,6 +321,27 @@ class HashMap<Tk, Tv> implements
     }
 
     /**
+     * Returns the index in which the passed key exists.
+     * Returns -1 if the key does not exist.
+     *
+     * @param Tk $key
+     * @return int
+     */
+    public function indexOf(Tk $key): int {
+        $count = 0;
+
+        foreach ($this->value() as $index => $value) {
+            if ($index === $key) {
+                return $count;
+            }
+
+            ++$count;
+        }
+
+        return -1;
+    }
+
+    /**
      * Alias for Map::isEmpty(). Will return true if the map is empty.
      *
      * @return bool
@@ -451,6 +472,42 @@ class HashMap<Tk, Tv> implements
      */
     public function some((function(Tk, Tv): bool) $callback): bool {
         return Col::some($this->value(), $callback);
+    }
+
+    /**
+     * Sort the items in the map using a custom callback or the default sorting mechanism.
+     *
+     * @param (function(Tv, Tv): int) $callback
+     * @param int $flags
+     * @return HashMap<Tk, Tv>
+     */
+    public function sort(?(function(Tv, Tv): int) $callback = null, int $flags = SORT_REGULAR): HashMap<Tk, Tv> {
+        $map = $this->toMap();
+
+        if ($callback) {
+            uasort($map, $callback);
+        } else {
+            asort($map, $flags);
+        }
+
+        return new static($map);
+    }
+
+    /**
+     * Sort a multi-dimensional map by comparing a field within each item.
+     *
+     * @param string $key
+     * @param int $flags
+     * @return HashMap<Tk, Tv>
+     */
+    public function sortBy(string $key, int $flags = SORT_REGULAR): HashMap<Tk, Tv> {
+        return $this->sort(($a, $b) ==> {
+            if ($a instanceof Indexish && $b instanceof Indexish) {
+                return strcmp($a[$key], $b[$key]);
+            }
+
+            return strcmp((string) $a, (string) $b);
+        }, $flags);
     }
 
     /**

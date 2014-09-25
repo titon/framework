@@ -419,6 +419,61 @@ class ArrayList<Tv> implements
     }
 
     /**
+     * Sort the items in the list using a custom callback or the default sorting mechanism.
+     *
+     * @param (function(Tv, Tv): int) $callback
+     * @param int $flags
+     * @return ArrayList<Tv>
+     */
+    public function sort(?(function(Tv, Tv): int) $callback = null, int $flags = SORT_REGULAR): ArrayList<Tv> {
+        $list = $this->toVector();
+
+        if ($callback) {
+            usort($list, $callback);
+        } else {
+            sort($list, $flags);
+        }
+
+        return new static($list);
+    }
+
+    /**
+     * Sort a multi-dimensional list by comparing a field within each item.
+     *
+     * @param string $key
+     * @param int $flags
+     * @return ArrayList<Tv>
+     */
+    public function sortBy(string $key, int $flags = SORT_REGULAR): ArrayList<Tv> {
+        return $this->sort(($a, $b) ==> {
+            if ($a instanceof Indexish && $b instanceof Indexish) {
+                return strcmp($a[$key], $b[$key]);
+            }
+
+            return strcmp((string) $a, (string) $b);
+        }, $flags);
+    }
+
+    /**
+     * Sort the array using a natural algorithm. This function implements a sort algorithm that orders
+     * alphanumeric strings in the way a human being would.
+     *
+     * @param bool $sensitive
+     * @return ArrayList<Tv>
+     */
+    public function sortNatural(bool $sensitive = false): ArrayList<Tv> {
+        $list = $this->toArray();
+
+        if ($sensitive) {
+            natsort($list);
+        } else {
+            natcasesort($list);
+        }
+
+        return new static(array_values($list));
+    }
+
+    /**
      * Return the list as an array.
      *
      * @return array<int, Tv>

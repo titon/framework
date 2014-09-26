@@ -92,20 +92,6 @@ class StringTest extends TestCase {
         $this->assertFalse($string->isEmpty());
     }
 
-    public function testIsNotEmpty() {
-        $string = new StringBuffer('foobar');
-
-        $this->assertTrue($string->isNotEmpty());
-
-        $string->write('   ');
-
-        $this->assertTrue($string->isNotEmpty());
-
-        $string = $string->trim();
-
-        $this->assertFalse($string->isNotEmpty());
-    }
-
     public function testLastIndexOf() {
         $this->assertEquals(2, $this->object->lastIndexOf('t'));
         $this->assertEquals(4, $this->object->lastIndexOf('n'));

@@ -34,7 +34,7 @@ class Color extends Enum {
      *
      * @type Map<int, Vector<mixed>>
      */
-    protected Map<int, Vector<mixed>> $_enums = [
+    protected Map<int, Vector<mixed>> $_enums = Map {
         self::BLACK     => Vector {'000000', 0, 0, 0},
         self::WHITE     => Vector {'FFFFFF', 255, 255, 255},
         self::YELLOW    => Vector {'FFFF00', 255, 255, 0},
@@ -47,35 +47,35 @@ class Color extends Enum {
         self::GRAY      => Vector {'808080', 128, 128, 128},
         self::BROWN     => Vector {'D2B48C', 210, 180, 140},
         self::TEAL      => Vector {'008080', 0, 128, 128}
-    ];
+    };
 
     /**
      * Hex code.
      *
      * @type string
      */
-    public string $hex;
+    public string $hex = '';
 
     /**
      * Red value.
      *
      * @type int
      */
-    public int $r;
+    public int $r = 0;
 
     /**
      * Green value.
      *
      * @type int
      */
-    public int $g;
+    public int $g = 0;
 
     /**
      * Blue value.
      *
      * @type int
      */
-    public int $b;
+    public int $b = 0;
 
     /**
      * Set variables.

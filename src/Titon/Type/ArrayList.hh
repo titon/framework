@@ -9,6 +9,8 @@ namespace Titon\Type;
 
 use Titon\Type\Contract\Arrayable;
 use Titon\Type\Contract\Jsonable;
+use Titon\Type\Contract\Mapable;
+use Titon\Type\Contract\Vectorable;
 use Titon\Type\Contract\Xmlable;
 use Titon\Type\Exception\MissingMethodException;
 use Titon\Utility\Converter;
@@ -18,25 +20,20 @@ use \Countable;
 use \IteratorAggregate;
 use \JsonSerializable;
 use \Serializable;
+use \Indexish;
 
 /**
- * @todo
+ * The ArrayList is an immutable wrapper for integer based lists. It provides new functionality for lists through advanced methods,
+ * integration with built-in Vector methods through PHP magic methods, and a easily fluent chainable API.
  *
  * @package Titon\Type
  * @method $this add(Tv $value)
  * @method $this addAll(Traversable<Tv> $values)
- * @method Tv at(int $index)
  * @method $this clear()
  * @method ArrayList filter((function(Tv): bool) $callback)
  * @method ArrayList filterWithKey((function(int, Tv): bool) $callback)
- * @method ArrayList fromItems(?Traversable<Tv> $items)
- * @method ?Tv get(int $index)
- * @method bool isEmpty()
- * @method Iterable<Tv> items()
- * @method Vector<int> keys()
  * @method ArrayList map((function(Tv): bool) $callback)
  * @method ArrayList mapWithKey((function(int, Tv): bool) $callback)
- * @method Tv pop()
  * @method $this reserve(int $size)
  * @method $this resize(int $size, Tv $value)
  * @method ArrayList reverse()
@@ -44,14 +41,17 @@ use \Serializable;
  * @method $this setAll(KeyedTraversable<int, Tv> $values)
  * @method ArrayList shuffle()
  * @method ArrayList splice(int $offset, int $length)
- * @method array toKeysArray()
- * @method Map<int, Tv> toMap()
- * @method Set<Tv> toSet()
- * @method array toValuesArray()
- * @method Vector<Tv> toVector()
- * @method Vector<Tv> values()
  */
-class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Countable, Serializable, JsonSerializable, Arrayable, Jsonable, Xmlable {
+class ArrayList<Tv> implements
+    IteratorAggregate<Tv>,
+    Countable,
+    Serializable,
+    JsonSerializable,
+    Arrayable<int, Tv>,
+    Jsonable,
+    Xmlable,
+    Mapable<int, Tv>,
+    Vectorable<Tv> {
 
     /**
      * Methods on the Vector collection that should be chainable through ArrayList.
@@ -59,7 +59,7 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      * @type Vector<string>
      */
     protected Vector<string> $_chainable = Vector {
-        'add', 'addAll', 'clear', 'pop', 'removeKey',
+        'add', 'addAll', 'clear', 'removeKey',
         'reserve', 'resize', 'set', 'setAll'
     };
 
@@ -69,7 +69,7 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      * @type Vector<string>
      */
     protected Vector<string> $_immutable = Vector {
-        'filter', 'filterWithKey', 'fromItems', 'map', 'mapWithKey',
+        'filter', 'filterWithKey', 'map', 'mapWithKey',
         'reverse', 'shuffle', 'splice'
     };
 
@@ -83,9 +83,9 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
     /**
      * Set the value.
      *
-     * @param Traversable<Tv> $value
+     * @param Indexish<int, Tv> $value
      */
-    public function __construct(Traversable<Tv> $value = Vector {}) {
+    final public function __construct(Indexish<int, Tv> $value = Vector {}) {
         $this->write($value);
     }
 
@@ -93,30 +93,42 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      * Allow methods on the base Vector class to be called programmatically.
      *
      * @param string $method
-     * @param array $args
-     * @return mixed
+     * @param array<mixed> $args
+     * @return ArrayList<Tv>
      * @throws \Titon\Type\Exception\MissingMethodException
      */
-    public function __call(string $method, array $args): mixed {
-        $list = $this->value();
+    public function __call(string $method, array<mixed> $args): ArrayList<Tv> {
+        $vector = $this->value();
 
-        if (method_exists($list, $method)) {
-            $result = call_user_func_array(class_meth($list, $method), $args);
+        if (method_exists($vector, $method)) {
 
             // Chain the method call
             if (in_array($method, $this->_chainable)) {
+
+                // UNSAFE
+                call_user_func_array(inst_meth($vector, $method), $args);
+
                 return $this;
 
             // Return a new instance for immutability
             } else if (in_array($method, $this->_immutable)) {
-                return new static($result->toVector());
-            }
 
-            // Return the result
-            return $result;
+                // Clone the vector so we don't interfere with references
+                $clonedList = $vector->toVector();
+
+                // UNSAFE
+                $mutatedList = call_user_func_array(inst_meth($clonedList, $method), $args);
+
+                // Some methods return void/null (reverse, etc) so use the cloned list
+                if ($mutatedList === null) {
+                    $mutatedList = $clonedList;
+                }
+
+                return new static($mutatedList);
+            }
         }
 
-        throw new MissingMethodException(sprintf('Method "%s" does not exist for %s', $method, static::class));
+        throw new MissingMethodException(sprintf('Method "%s" does not exist or is not callable for %s', $method, static::class));
     }
 
     /**
@@ -127,14 +139,23 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
     }
 
     /**
+     * Alias for Vector::at(). Will return the value at the specified index or throw an exception.
+     *
+     * @param int $index
+     * @return Tv
+     */
+    public function at(int $index): Tv {
+        return $this->value()->at($index);
+    }
+
+    /**
      * Split a list into multiple chunked lists.
      *
      * @param int $size
-     * @param bool $preserve
      * @return ArrayList<ArrayList<Tv>>
      */
-    public function chunk(int $size, bool $preserve = true): ArrayList<ArrayList<Tv>> {
-        $chunks = array_chunk($this->toArray(), $size, $preserve);
+    public function chunk(int $size): ArrayList<ArrayList<Tv>> {
+        $chunks = array_chunk($this->toArray(), $size);
         $list = Vector {};
 
         foreach ($chunks as $chunk) {
@@ -156,15 +177,24 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
     }
 
     /**
-     * Merges the current list with the defined list and returns a new ArrayList.
+     * Merges the current ArrayList with the another ArrayList and returns a new ArrayList.
+     * Can either prepend or append the defined list.
      *
-     * @uses Titon\Utility\Col
-     *
-     * @param Traversable<Tv> $value
+     * @param ArrayList<Tv> $value
+     * @param bool $append
      * @return ArrayList<Tv>
      */
-    public function concat(Traversable<Tv> $value): ArrayList<Tv> {
-        return new static(Col::merge($this->value(), $value));
+    public function concat(ArrayList<Tv> $value, bool $append = true): ArrayList<Tv> {
+        $oldList = $this->toVector();
+        $newList = $value->toVector();
+
+        if ($append) {
+            $list = $oldList->addAll($newList);
+        } else {
+            $list = $newList->addAll($oldList);
+        }
+
+        return new static($list);
     }
 
     /**
@@ -202,22 +232,12 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      *
      * @uses Titon\Utility\Col
      *
-     * @param callable $callback
+     * @param (function(int, Tv): mixed) $callback
      * @param bool $recursive
      * @return ArrayList<Tv>
      */
-    public function each(callable $callback, bool $recursive = true): ArrayList<Tv> {
+    public function each((function(int, Tv): mixed) $callback, bool $recursive = true): ArrayList<Tv> {
         return new static(Col::each($this->value(), $callback, $recursive));
-    }
-
-    /**
-     * Checks to see if the passed argument is an explicit exact match.
-     *
-     * @param Traversable<Tv> $value
-     * @return bool
-     */
-    public function equals(Traversable<Tv> $value): bool {
-        return ($this->value() === $value);
     }
 
     /**
@@ -231,7 +251,7 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
 
         foreach ($this->value() as $key => $value) {
             if ($value !== $erase) {
-                $list[$key] = $value;
+                $list[] = $value;
             }
         }
 
@@ -243,23 +263,11 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      *
      * @uses Titon\Utility\Col
      *
-     * @param callable $callback
+     * @param (function(int, Tv): bool) $callback
      * @return bool
      */
-    public function every(callable $callback): bool {
+    public function every((function(int, Tv): bool) $callback): bool {
         return Col::every($this->value(), $callback);
-    }
-
-    /**
-     * Filters items in the list recursively using a callback function.
-     *
-     * @uses Titon\Utility\Col
-     *
-     * @param callable $callback
-     * @return ArrayList<Tv>
-     */
-    public function filterRecursive(callable $callback): ArrayList<Tv> {
-        return new static(Col::filter($this->value(), true, $callback));
     }
 
     /**
@@ -268,11 +276,11 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      * @return ?Tv
      */
     public function first(): ?Tv {
-        return $this->isNotEmpty() ? reset($this->_value) : null;
+        return $this->get(0);
     }
 
     /**
-     * Empty the list.
+     * Alias for Vector::clear(). Empty the list.
      *
      * @return $this
      */
@@ -280,6 +288,16 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
         $this->clear();
 
         return $this;
+    }
+
+    /**
+     * Alias for Vector::get().  Will return the value at the specified index or return null.
+     *
+     * @param int $index
+     * @return ?Tv
+     */
+    public function get(int $index): ?Tv {
+        return $this->value()->get($index);
     }
 
     /**
@@ -302,20 +320,20 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
     }
 
     /**
-     * Checks to see if the list is not empty.
+     * Alias for Vector::isEmpty(). Will return true if the list is empty.
      *
      * @return bool
      */
-    public function isNotEmpty(): bool {
-        return !$this->isEmpty();
+    public function isEmpty(): bool {
+        return $this->value()->isEmpty();
     }
 
     /**
      * Return an array for JSON encoding.
      *
-     * @return array
+     * @return array<int, Tv>
      */
-    public function jsonSerialize(): array {
+    public function jsonSerialize(): array<int, Tv> {
         return $this->toArray();
     }
 
@@ -331,16 +349,25 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
     }
 
     /**
+     * Alias for Vector::keys(). Return a vector containing the list of keys.
+     *
+     * @return Vector<int>
+     */
+    public function keys(): Vector<int> {
+        return $this->value()->keys();
+    }
+
+    /**
      * Return the last item in the list.
      *
      * @return ?Tv
      */
     public function last(): ?Tv {
-        return $this->isNotEmpty() ? end($this->_value) : null;
+        return $this->get($this->count() - 1);
     }
 
     /**
-     * Alias for count().
+     * Alias for Vector::count(). Return the length of the list.
      *
      * @return int
      */
@@ -349,54 +376,13 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
     }
 
     /**
-     * Alias for concat().
+     * Merge two ArrayLists together with values from the second list overwriting the first list.
      *
-     * @param Traversable<Tv> $value
+     * @param ArrayList<Tv> $value
      * @return ArrayList<Tv>
      */
-    public function merge(Traversable<Tv> $value): ArrayList<Tv> {
-        return $this->concat($value);
-    }
-
-    /**
-     * Return the value at the defined index.
-     *
-     * @param int $index
-     * @param Tv $value
-     * @return $this
-     */
-    public function offsetSet($index, $value): this {
-        return $this->set($index, $value);
-    }
-
-    /**
-     * Return true if a value exists at the defined index.
-     *
-     * @param int $index
-     * @return bool
-     */
-    public function offsetExists($index): bool {
-        return $this->has($index);
-    }
-
-    /**
-     * Remove a value at the defined index.
-     *
-     * @param int $index
-     * @return $this
-     */
-    public function offsetUnset($index): this {
-        return $this->remove($index);
-    }
-
-    /**
-     * Return a value at the defined index. If no index exists, return null.
-     *
-     * @param int $index
-     * @return ?Tv
-     */
-    public function offsetGet($index): ?Tv {
-        return $this->get($index);
+    public function merge(ArrayList<Tv> $value): ArrayList<Tv> {
+        return new static($this->toVector()->setAll($value->toVector()));
     }
 
     /**
@@ -406,7 +392,7 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      * @return $this
      */
     public function remove(int $index): this {
-        unset($this->_value[$index]);
+        $this->_value->removeKey($index);
 
         return $this;
     }
@@ -423,21 +409,76 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
     /**
      * Returns true if at least one item in the list satisfies the provided testing function.
      *
-     * @uses Titon\Utility\Hash
+     * @uses Titon\Utility\Col
      *
-     * @param \Closure $callback
+     * @param (function(int, Tv): bool) $callback
      * @return bool
      */
-    public function some(Closure $callback) {
-        return Hash::some($this->value(), $callback);
+    public function some((function(int, Tv): bool) $callback): bool {
+        return Col::some($this->value(), $callback);
+    }
+
+    /**
+     * Sort the items in the list using a custom callback or the default sorting mechanism.
+     *
+     * @param (function(Tv, Tv): int) $callback
+     * @param int $flags
+     * @return ArrayList<Tv>
+     */
+    public function sort(?(function(Tv, Tv): int) $callback = null, int $flags = SORT_REGULAR): ArrayList<Tv> {
+        $list = $this->toVector();
+
+        if ($callback) {
+            usort($list, $callback);
+        } else {
+            sort($list, $flags);
+        }
+
+        return new static($list);
+    }
+
+    /**
+     * Sort a multi-dimensional list by comparing a field within each item.
+     *
+     * @param string $key
+     * @param int $flags
+     * @return ArrayList<Tv>
+     */
+    public function sortBy(string $key, int $flags = SORT_REGULAR): ArrayList<Tv> {
+        return $this->sort(($a, $b) ==> {
+            if ($a instanceof Indexish && $b instanceof Indexish) {
+                return strcmp($a[$key], $b[$key]);
+            }
+
+            return strcmp((string) $a, (string) $b);
+        }, $flags);
+    }
+
+    /**
+     * Sort the array using a natural algorithm. This function implements a sort algorithm that orders
+     * alphanumeric strings in the way a human being would.
+     *
+     * @param bool $sensitive
+     * @return ArrayList<Tv>
+     */
+    public function sortNatural(bool $sensitive = false): ArrayList<Tv> {
+        $list = $this->toArray();
+
+        if ($sensitive) {
+            natsort($list);
+        } else {
+            natcasesort($list);
+        }
+
+        return new static(array_values($list));
     }
 
     /**
      * Return the list as an array.
      *
-     * @return array
+     * @return array<int, Tv>
      */
-    public function toArray(): array {
+    public function toArray(): array<int, Tv> {
         return $this->value()->toArray();
     }
 
@@ -449,6 +490,24 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      */
     public function toJson(int $options = 0): string {
         return json_encode($this, $options);
+    }
+
+    /**
+     * Return the list as a map.
+     *
+     * @return Map<int, Tv>
+     */
+    public function toMap(): Map<int, Tv> {
+        return $this->value()->toMap();
+    }
+
+    /**
+     * Return the list as a vector.
+     *
+     * @return Vector<Tv>
+     */
+    public function toVector(): Vector<Tv> {
+        return $this->value()->toVector();
     }
 
     /**
@@ -467,16 +526,7 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      * @param string $value
      */
     public function unserialize($value): void {
-        $this->__construct(unserialize($value));
-    }
-
-    /**
-     * Return the current value.
-     *
-     * @return Vector<Tv>
-     */
-    public function value(): Vector<Tv> {
-        return $this->_value;
+        $this->write(unserialize($value));
     }
 
     /**
@@ -486,16 +536,34 @@ class ArrayList<Tv> implements ArrayAccess<int, Tv>, IteratorAggregate<Tv>, Coun
      * @return ArrayList<Tv>
      */
     public function unique(int $flags = SORT_REGULAR): ArrayList<Tv> {
-        return new static(new Vector(array_unique($this->toArray(), $flags)));
+        return new static(array_unique($this->toArray(), $flags));
+    }
+
+    /**
+     * Return the raw value.
+     *
+     * @return Vector<Tv>
+     */
+    public function value(): Vector<Tv> {
+        return $this->_value;
+    }
+
+    /**
+     * Alias for Vector::values(). Return a vector containing the list of values.
+     *
+     * @return Vector<Tv>
+     */
+    public function values(): Vector<Tv> {
+        return $this->value()->values();
     }
 
     /**
      * Set and overwrite with a new Vector.
      *
-     * @param Traversable<Tv> $value
+     * @param Indexish<int, Tv> $value
      * @return $this
      */
-    public function write(Traversable<Tv> $value): this {
+    public function write(Indexish<int, Tv> $value): this {
         $this->_value = new Vector($value);
 
         return $this;

@@ -97,22 +97,22 @@ class EnumTest extends TestCase {
 
 class EnumStub extends Enum {
 
-    const WARRIOR = 0;
-    const RANGER = 1;
-    const MAGE = 2;
+    const int WARRIOR = 0;
+    const int RANGER = 1;
+    const int MAGE = 2;
 
-    public $name;
-    public $melee;
-    public $health;
-    public $energy;
+    public string $name = '';
+    public bool $melee = false;
+    public int $health = 0;
+    public int $energy = 0;
 
-    protected $_enums = [
-        self::WARRIOR => ['Warrior', true, 1000],
-        self::RANGER => ['Ranger', false, 500, 250],
-        self::MAGE => ['Mage', false, 300, 600]
-    ];
+    protected Map<int, Vector<mixed>> $_enums = Map {
+        self::WARRIOR => Vector {'Warrior', true, 1000},
+        self::RANGER => Vector {'Ranger', false, 500, 250},
+        self::MAGE => Vector {'Mage', false, 300, 600}
+    };
 
-    public function initialize($name, $melee, $health, $energy = 0) {
+    public function initialize(string $name, bool $melee, int $health, int $energy = 0): void {
         $this->name = $name;
         $this->melee = $melee;
         $this->health = $health;

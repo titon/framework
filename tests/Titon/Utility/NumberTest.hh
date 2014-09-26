@@ -38,29 +38,29 @@ class NumberTest extends TestCase {
     }
 
     public function testBytesTo() {
-        $this->assertEquals('1B', Number::bytesTo('1'));
-        $this->assertEquals('225B', Number::bytesTo('225', 1));
-        $this->assertEquals('100B', Number::bytesTo('100', 2));
+        $this->assertEquals('1B', Number::bytesTo(1));
+        $this->assertEquals('225B', Number::bytesTo(225, 1));
+        $this->assertEquals('100B', Number::bytesTo(100, 2));
 
         // kb
-        $this->assertEquals('1KB', Number::bytesTo('1024'));
-        $this->assertEquals('225KB', Number::bytesTo('230400', 1));
-        $this->assertEquals('100KB', Number::bytesTo('102400', 2));
+        $this->assertEquals('1KB', Number::bytesTo(1024));
+        $this->assertEquals('225KB', Number::bytesTo(230400, 1));
+        $this->assertEquals('100KB', Number::bytesTo(102400, 2));
 
         // mb
-        $this->assertEquals('1MB', Number::bytesTo('1048576'));
-        $this->assertEquals('225MB', Number::bytesTo('235929600', 1));
-        $this->assertEquals('100MB', Number::bytesTo('104857600', 2));
+        $this->assertEquals('1MB', Number::bytesTo(1048576));
+        $this->assertEquals('225MB', Number::bytesTo(235929600));
+        $this->assertEquals('100MB', Number::bytesTo(104857600));
 
         // gb
-        $this->assertEquals('1GB', Number::bytesTo('1073741824'));
-        $this->assertEquals('225GB', Number::bytesTo('241591910400', 1));
-        $this->assertEquals('100GB', Number::bytesTo('107374182400', 2));
+        $this->assertEquals('1GB', Number::bytesTo(1073741824));
+        $this->assertEquals('225GB', Number::bytesTo(241591910400));
+        $this->assertEquals('100GB', Number::bytesTo(107374182400));
 
         // tb
-        $this->assertEquals('1TB', Number::bytesTo('1099511627776'));
-        $this->assertEquals('225TB', Number::bytesTo('2.473901162496E+14', 1));
-        $this->assertEquals('100TB', Number::bytesTo('109951162777600', 2));
+        $this->assertEquals('1TB', Number::bytesTo(1099511627776));
+        $this->assertEquals('225TB', Number::bytesTo(2.473901162496E+14));
+        $this->assertEquals('100TB', Number::bytesTo(109951162777600));
 
         // PHPUnit blows up on higher numbers
     }
@@ -101,10 +101,8 @@ class NumberTest extends TestCase {
     public function testIsEven() {
         $this->assertTrue(Number::isEven(2));
         $this->assertTrue(Number::isEven(88));
-        $this->assertTrue(Number::isEven(62.3));
         $this->assertFalse(Number::isEven(9));
         $this->assertFalse(Number::isEven(17));
-        $this->assertFalse(Number::isEven(47.9));
     }
 
     public function testIsNegative() {
@@ -117,10 +115,8 @@ class NumberTest extends TestCase {
     public function testIsOdd() {
         $this->assertFalse(Number::isOdd(2));
         $this->assertFalse(Number::isOdd(88));
-        $this->assertFalse(Number::isOdd(62.3));
         $this->assertTrue(Number::isOdd(9));
         $this->assertTrue(Number::isOdd(17));
-        $this->assertTrue(Number::isOdd(47.9));
     }
 
     public function testIsPositive() {
@@ -160,7 +156,7 @@ class NumberTest extends TestCase {
         $this->assertEquals('123%', Number::percentage(123, Map {'places' => 0}));
         $this->assertEquals('4,546%', Number::percentage(4546, Map {'places' => 0}));
         $this->assertEquals('92,378,453%', Number::percentage(92378453, Map {'places' => 0}));
-        $this->assertEquals('287,349,238,432%', Number::percentage('287349238432', Map {'places' => 0}));
+        $this->assertEquals('287,349,238,432%', Number::percentage(287349238432, Map {'places' => 0}));
         $this->assertEquals('3,843.45%', Number::percentage(3843.4450));
         $this->assertEquals('93,789.34%', Number::percentage(93789.34));
 
@@ -189,7 +185,6 @@ class NumberTest extends TestCase {
         $this->assertEquals(-1, Number::signum(-342343));
 
         $this->assertEquals(0, Number::signum(0));
-        $this->assertEquals(0, Number::signum('0'));
 
         $this->assertEquals(1, Number::signum(1));
         $this->assertEquals(1, Number::signum(1234));

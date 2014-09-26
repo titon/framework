@@ -457,6 +457,22 @@ class HashMap<Tk, Tv> implements
     }
 
     /**
+     * Reorder the keys using a defined callback function and return a new HashMap.
+     *
+     * @param (function(Tv, Tk): Tu) $callback
+     * @return HashMap<Tu, Tv>
+     */
+    public function reorder<Tu>((function(Tv, Tk): Tu) $callback): HashMap<Tu, Tv> {
+        $map = new static();
+
+        foreach ($this->value() as $key => $item) {
+            $map->set(call_user_func_array($callback, [$item, $key]), $item);
+        }
+
+        return $map;
+    }
+
+    /**
      * Reverse the items in the map.
      *
      * @return HashMap<Tk, Tv>

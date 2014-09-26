@@ -345,6 +345,28 @@ class HashMapTest extends TestCase {
         $this->assertEquals(new HashMap(Map {'b' => 'bar', 'c' => 'baz'}), $this->object->remove('a'));
     }
 
+    public function testReorder() {
+        $this->assertEquals(new HashMap([
+            'YQ==' => 'foo',
+            'Yg==' => 'bar',
+            'Yw==' => 'baz'
+        ]), $this->object->reorder(($item, $key) ==> base64_encode($key)));
+    }
+
+    public function testReorderComplex() {
+        $map = new HashMap([
+            'a' => Map {'id' => 5, 'name' => 'foo'},
+            'b' => Map {'id' => 10, 'name' => 'bar'},
+            'c' => Map {'id' => 15, 'name' => 'baz'}
+        ]);
+
+        $this->assertEquals(new HashMap([
+            5 => Map {'id' => 5, 'name' => 'foo'},
+            10 => Map {'id' => 10, 'name' => 'bar'},
+            15 => Map {'id' => 15, 'name' => 'baz'}
+        ]), $map->reorder(($item, $key) ==> $item['id']));
+    }
+
     public function testReverse() {
         $this->assertEquals(new HashMap(Map {'a' => 'foo', 'b' => 'bar', 'c' => 'baz'}), $this->object);
         $this->assertEquals(new HashMap(Map {'c' => 'baz', 'b' => 'bar', 'a' => 'foo'}), $this->object->reverse());

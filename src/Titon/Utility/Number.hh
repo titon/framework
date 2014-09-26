@@ -69,11 +69,10 @@ class Number {
      * Convert a numerical value to the readable string notated equivalent.
      * The size must be a string to support large integers and floats.
      *
-     * @param string $size
-     * @param int $precision
+     * @param int|float $size
      * @return string
      */
-    public static function bytesTo(string $size, int $precision = 0): string {
+    public static function bytesTo(num $size): string {
         $sizes = ['YB', 'ZB', 'EB', 'PB', 'TB', 'GB', 'MB', 'KB', 'B'];
         $total = count($sizes);
 
@@ -81,7 +80,7 @@ class Number {
             $size /= 1024;
         }
 
-        return static::precision($size, $precision) . $sizes[$total];
+        return $size . $sizes[$total];
     }
 
     /**
@@ -104,7 +103,7 @@ class Number {
      * Convert a number to it's currency equivalent, respecting locale.
      * Allow for overrides through an options array.
      *
-     * @param float $number
+     * @param int|float $number
      * @param Map<string, mixed> $options {
      *      @type string $thousands Character used for thousands place
      *      @type string $decimals  Character used for decimal
@@ -117,8 +116,8 @@ class Number {
      * }
      * @return string
      */
-    public static function currency(float $number, Map<string, mixed> $options = Map {}): string {
-        $options = Col::merge(Map {
+    public static function currency(num $number, Map<string, mixed> $options = Map {}): string {
+        $options = (Map {
             'thousands' => ',',
             'decimals' => '.',
             'places' => 2,
@@ -127,9 +126,9 @@ class Number {
             'cents' => '#&cent;',
             'use' => 'dollar',
             'negative' => '(#)'
-        }, $options);
+        })->setAll($options);
 
-        $amount = number_format(static::precision(abs($number), $options['places']), $options['places'], $options['decimals'], $options['thousands']);
+        $amount = number_format(static::precision(abs($number), (int) $options['places']), $options['places'], $options['decimals'], $options['thousands']);
 
         // Cents
         if (($number < 1 && $number > -1) && $options['cents']) {
@@ -155,99 +154,99 @@ class Number {
     /**
      * Return true if the number is within the min and max.
      *
-     * @param string|int|float $number
-     * @param int $min
-     * @param int $max
+     * @param int|float $number
+     * @param int|float $min
+     * @param int|float $max
      * @return bool
      */
-    public static function in(mixed $number, int $min, int $max): bool {
+    public static function in(num $number, num $min, num $max): bool {
         return ($number >= $min && $number <= $max);
     }
 
     /**
      * Is the current value even?
      *
-     * @param string|int|float $number
+     * @param int $number
      * @return bool
      */
-    public static function isEven(mixed $number): bool {
+    public static function isEven(int $number): bool {
         return ($number % 2 === 0);
     }
 
     /**
      * Is the current value negative; less than zero.
      *
-     * @param string|int|float $number
+     * @param int|float $number
      * @return bool
      */
-    public static function isNegative(mixed $number): bool {
+    public static function isNegative(num $number): bool {
         return ($number < 0);
     }
 
     /**
      * Is the current value odd?
      *
-     * @param string|int|float $number
+     * @param int $number
      * @return bool
      */
-    public static function isOdd(mixed $number): bool {
+    public static function isOdd(int $number): bool {
         return !static::isEven($number);
     }
 
     /**
      * Is the current value positive; greater than or equal to zero.
      *
-     * @param string|int|float $number
+     * @param int|float $number
      * @param bool $zero
      * @return bool
      */
-    public static function isPositive(mixed $number, bool $zero = true): bool {
+    public static function isPositive(num $number, bool $zero = true): bool {
         return ($zero ? ($number >= 0) : ($number > 0));
     }
 
     /**
      * Limits the number between two bounds.
      *
-     * @param string|int|float $number
-     * @param int $min
-     * @param int $max
-     * @return int
+     * @param int|float $number
+     * @param int|float $min
+     * @param int|float $max
+     * @return int|float
      */
-    public static function limit(mixed $number, int $min, int $max): int {
+    public static function limit(num $number, num $min, num $max): num {
         return static::max(static::min($number, $min), $max);
     }
 
     /**
      * Increase the number to the minimum if below threshold.
      *
-     * @param string|int|float $number
-     * @param int $min
-     * @return int
+     * @param int|float $number
+     * @param int|float $min
+     * @return int|float
      */
-    public static function min(mixed $number, int $min): int {
+    public static function min(num $number, num $min): num {
         return ($number < $min) ? $min : $number;
     }
 
     /**
      * Decrease the number to the maximum if above threshold.
      *
-     * @param string|int|float $number
-     * @param int $max
-     * @return int
+     * @param int|float $number
+     * @param int|float $max
+     * @return int|float
      */
-    public static function max(mixed $number, int $max): int {
+    public static function max(num $number, num $max): num {
         return ($number > $max) ? $max : $number;
     }
 
     /**
      * Return true if the number is outside the min and max.
      *
-     * @param string|int|float $number
-     * @param int $min
-     * @param int $max
+     * @param int|float $number
+     * @param int|float $min
+     * @param int|float $max
      * @return bool
      */
-    public static function out(mixed $number, int $min, int $max): bool {
+    public static function out(num $number, num $min, num $max): bool {
         return ($number < $min || $number > $max);
     }
 
@@ -262,34 +261,46 @@ class Number {
      * }
      * @return string
      */
-    public static function percentage(mixed $number, Map<string, mixed> $options = Map {}): string {
-        $options = Col::merge(Map {
+    public static function percentage(num $number, Map<string, mixed> $options = Map {}): string {
+        $options = (Map {
             'thousands' => ',',
             'decimals' => '.',
             'places' => 2
-        }, $options);
+        })->setAll($options);
 
-        return number_format(static::precision($number, $options['places']), $options['places'], $options['decimals'], $options['thousands']) . '%';
+        return number_format(static::precision($number, (int) $options['places']), $options['places'], $options['decimals'], $options['thousands']) . '%';
     }
 
     /**
      * Formats a number with a level of precision (even if it had none).
      *
-     * @param string|int|float $number
+     * @param int|float $number
      * @param int $precision
      * @return float
      */
-    public static function precision(mixed $number, int $precision = 2): float {
-        return (float) sprintf('%01.' . $precision . 'F', $number);
+    public static function precision(num $number, int $precision = 2): float {
+
+        // Hack's type checker doesn't allow variable sprintf() arguments, only literal strings.
+        // So we have to use this approach. Let's hope no one needs an outlandish precision.
+        switch ($precision) {
+            case 1: $float = sprintf("%01.1f", $number); break;
+            default:
+            case 2: $float = sprintf("%01.2f", $number); break;
+            case 3: $float = sprintf("%01.3f", $number); break;
+            case 4: $float = sprintf("%01.4f", $number); break;
+            case 5: $float = sprintf("%01.5f", $number); break;
+        }
+
+        return (float) $float;
     }
 
     /**
      * Returns -1 if the value is negative, 0 if the value equals 0, or 1 if the value is positive.
      *
-     * @param string|int|float $number
+     * @param int|float $number
      * @return int
      */
-    public static function signum(mixed $number): int {
+    public static function signum(num $number): int {
         if ($number < 0) {
             return -1;
 

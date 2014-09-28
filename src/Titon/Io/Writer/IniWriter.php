@@ -7,8 +7,7 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Io\Writer\AbstractWriter;
-use Titon\Utility\Hash;
+use Titon\Utility\Col;
 
 /**
  * A file writer that generates INI files.
@@ -24,7 +23,7 @@ class IniWriter extends AbstractWriter {
      */
     public function append($data) {
         if ($contents = $this->read()) {
-            $data = Hash::merge(parse_ini_string($contents, true), $data);
+            $data = Col::merge(parse_ini_string($contents, true), $data);
         }
 
         return $this->write($data);

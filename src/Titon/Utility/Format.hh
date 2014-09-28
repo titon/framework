@@ -145,11 +145,12 @@ class Format {
      * @uses Titon\Utility\Time
      *
      * @param string|int $time
-     * @param Map<string, Vector<string>> $options
+     * @param Map<string, mixed> $options
+     * @param Map<string, Map<int, string>> $messages
      * @return string
      */
-    public static function relativeTime(mixed $time, Map<string, mixed> $options = Map {}, Map<string, Vector<string>> $messages = Map {}): string {
-        $options = Col::merge(Map {
+    public static function relativeTime(mixed $time, Map<string, mixed> $options = Map {}, Map<string, Map<int, string>> $messages = Map {}): string {
+        $options = (Map {
             'now' => 'just now',
             'in' => 'in {time}',
             'ago' => '{time} ago',
@@ -157,16 +158,16 @@ class Format {
             'verbose' => true,
             'depth' => 2,
             'time' => time()
-        }, $options);
+        })->setAll($options);
 
         $messages = Col::merge(Map {
-            'seconds' => Vector {'{count}s', '{count} second', '{count} seconds'},
-            'minutes' => Vector {'{count}m', '{count} minute', '{count} minutes'},
-            'hours' => Vector {'{count}h', '{count} hour', '{count} hours'},
-            'days' => Vector {'{count}d', '{count} day', '{count} days'},
-            'weeks' => Vector {'{count}w', '{count} week', '{count} weeks'},
-            'months' => Vector {'{count}m', '{count} month', '{count} months'},
-            'years' => Vector {'{count}y', '{count} year', '{count} years'}
+            'seconds'   => Map {0 => '{count}s', 1 => '{count} second', 2 => '{count} seconds'},
+            'minutes'   => Map {0 => '{count}m', 1 => '{count} minute', 2 => '{count} minutes'},
+            'hours'     => Map {0 => '{count}h', 1 => '{count} hour', 2 => '{count} hours'},
+            'days'      => Map {0 => '{count}d', 1 => '{count} day', 2 => '{count} days'},
+            'weeks'     => Map {0 => '{count}w', 1 => '{count} week', 2 => '{count} weeks'},
+            'months'    => Map {0 => '{count}m', 1 => '{count} month', 2 => '{count} months'},
+            'years'     => Map {0 => '{count}y', 1 => '{count} year', 2 => '{count} years'}
         }, $messages);
 
         $diff = Time::difference($options['time'], Time::toUnix($time));

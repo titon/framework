@@ -18,7 +18,7 @@ use \Countable;
  * @package Titon\Common\Bag
  */
 abstract class AbstractBag<Tk, Tv> implements Bag<Tk, Tv>, IteratorAggregate<Tv>, Countable {
-    use Mutable;
+    use Mutable<Tk, Tv>;
 
     /**
      * Set the parameters.

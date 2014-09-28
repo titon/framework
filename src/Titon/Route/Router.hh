@@ -498,9 +498,9 @@ class Router {
      */
     public function group(Map<string, mixed> $options, Closure $callback) {
         $this->_groups[] = Col::merge(Map {
-            'prefix' => null,
-            'suffix' => null,
-            'secure' => null,
+            'prefix' => '',
+            'suffix' => '',
+            'secure' => '',
             'patterns' => Map {},
             'pass' => Vector {},
             'filters' => Vector {}

@@ -12,7 +12,6 @@ use Titon\Common\Exception\MissingObjectException;
 use Titon\Common\Exception\UnsupportedInterfaceException;
 use Titon\Utility\Inflector;
 use Titon\Utility\Registry;
-use Titon\Utility\Col;
 
 newtype ClassCallback = (function(): mixed);
 
@@ -125,15 +124,15 @@ trait Attachable {
             $options = Map {'alias' => $options};
         }
 
-        invariant($options instanceof Map, 'Options is a Map');
+        invariant($options instanceof Map, 'Options need to be a map');
 
-        $options = Col::merge(Map {
-            'alias' => null,
-            'class' => null,
+        $options = (Map {
+            'alias' => '',
+            'class' => '',
             'register' => true,
             'callback' => true,
-            'interface' => null
-        }, $options);
+            'interface' => ''
+        })->setAll($options);
 
         if (!$options['alias']) {
             throw new InvalidObjectException('You must define an alias to reference the attached object');
@@ -147,16 +146,16 @@ trait Attachable {
 
         // If closure
         if (is_callable($object)) {
-            $this->__objectMap[$options['alias']] = $object;
+            $this->__objectMap[(string) $options['alias']] = $object;
 
         // If object
         } else if (is_object($object)) {
             $options['class'] = get_class($object);
 
-            $this->_attached[$options['alias']] = $object;
+            $this->_attached[(string) $options['alias']] = $object;
         }
 
-        $this->_classes[$options['alias']] = $options;
+        $this->_classes[(string) $options['alias']] = $options;
 
         return $this;
     }

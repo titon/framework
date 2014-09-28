@@ -7,8 +7,7 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Io\Writer\AbstractWriter;
-use Titon\Utility\Hash;
+use Titon\Utility\Col;
 
 /**
  * A file writer that generates JSON files.
@@ -24,7 +23,7 @@ class JsonWriter extends AbstractWriter {
      */
     public function append($data) {
         if ($contents = $this->read()) {
-            $data = Hash::merge(json_decode($contents, true), $data);
+            $data = Col::merge(json_decode($contents, true), $data);
         }
 
         return $this->write($data);

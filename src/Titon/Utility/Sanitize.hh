@@ -40,11 +40,11 @@ class Sanitize {
      * @return string
      */
     public static function escape(string $value, Map<string, mixed> $options = Map {}): string {
-        $options = Col::merge(Map {
+        $options = (Map {
             'encoding' => 'UTF-8',
             'flags' => ENT_QUOTES,
             'double' => false
-        }, $options);
+        })->setAll($options);
 
         return htmlentities($value, $options['flags'], $options['encoding'], $options['double']);
     }
@@ -70,10 +70,10 @@ class Sanitize {
      * @return string
      */
     public static function html(string $value, Map<string, mixed> $options = Map {}): string {
-        $options = Col::merge(Map {
+        $options = (Map {
             'strip' => true,
             'whitelist' => ''
-        }, $options);
+        })->setAll($options);
 
         if ($options['strip']) {
             $value = strip_tags($value, (string) $options['whitelist']);
@@ -107,13 +107,13 @@ class Sanitize {
      * @return string
      */
     public static function newlines(string $value, Map<string, mixed> $options = Map {}): string {
-        $options = Col::merge(Map {
+        $options = (Map {
             'cr' => true,
             'lf' => true,
             'crlf' => true,
             'limit' => 2,
             'trim' => true
-        }, $options);
+        })->setAll($options);
 
         if ($options['limit']) {
             $pattern = '/(?:{pattern}){' . (string) $options['limit'] . ',}/u';
@@ -168,13 +168,13 @@ class Sanitize {
      * @return string
      */
     public static function whitespace(string $value, Map<string, mixed> $options = Map {}): string {
-        $options = Col::merge(Map {
+        $options = (Map {
             'space' => true,
             'tab' => true,
             'limit' => 2,
             'strip' => true,
             'trim' => true
-        }, $options);
+        })->setAll($options);
 
         if ($options['limit']) {
             $pattern = '/{pattern}{' . (string) $options['limit'] . ',}/u';
@@ -215,7 +215,7 @@ class Sanitize {
      * @return string
      */
     public static function xss(string $value, Map<string, mixed> $options = Map {}): string {
-        $options = Col::merge(Map {'strip' => true}, $options);
+        $options = (Map {'strip' => true})->setAll($options);
         $value = str_replace("\0", '', $value);
 
         if (!$options['strip']) {

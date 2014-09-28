@@ -246,10 +246,10 @@ class Emitter {
             $this->_observers[$event] = Vector {};
         }
 
-        $options = Col::merge(Map {
-            'priority' => null,
+        $options = (Map {
+            'priority' => 0,
             'once' => false
-        }, $options);
+        })->setAll($options);
 
         if (!$options['priority']) {
             $options['priority'] = count($this->_observers[$event]) + self::DEFAULT_PRIORITY;

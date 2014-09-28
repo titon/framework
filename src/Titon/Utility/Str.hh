@@ -157,11 +157,11 @@ class Str {
      * @return string
      */
     public static function insert(string $string, Map<string, mixed> $data, Map<string, mixed> $options = Map {}): string {
-        $options = Col::merge(Map {
+        $options = (Map {
             'before' => '{',
             'after' => '}',
             'escape' => true
-        }, $options);
+        })->setAll($options);
 
         foreach ($data as $key => $value) {
             $string = str_replace((string) $options['before'] . $key . (string) $options['after'], $value, $string);
@@ -284,14 +284,14 @@ class Str {
      * @return string
      */
     public static function truncate(string $string, int $limit = 25, Map<string, mixed> $options = Map {}): string {
-        $options = Col::merge(Map {
+        $options = (Map {
             'html' => true,
             'word' => true,
             'suffix' => '&hellip;',
             'prefix' => '',
             'open' => '<',
             'close' => '>'
-        }, $options);
+        })->setAll($options);
 
         $open = (string) $options['open'];
         $close = (string) $options['close'];

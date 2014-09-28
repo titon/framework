@@ -7,8 +7,7 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Io\Writer\AbstractWriter;
-use Titon\Utility\Hash;
+use Titon\Utility\Col;
 
 /**
  * A file writer that generates PHP files.
@@ -25,7 +24,7 @@ class PhpWriter extends AbstractWriter {
     public function append($data) {
         if ($this->exists()) {
             if ($contents = include $this->path()) {
-                $data = Hash::merge($contents, $data);
+                $data = Col::merge($contents, $data);
             }
         }
 

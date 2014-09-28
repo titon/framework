@@ -279,6 +279,7 @@ class Number {
      * @return float
      */
     public static function precision(num $number, int $precision = 2): float {
+        $float = $number;
 
         // Hack's type checker doesn't allow variable sprintf() arguments, only literal strings.
         // So we have to use this approach. Let's hope no one needs an outlandish precision.

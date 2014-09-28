@@ -628,13 +628,13 @@ class FormHelper extends AbstractHelper {
             unset($attributes['type']);
         }
 
-        $attributes = Col::merge(Map {
+        $attributes = (Map {
             'accept-charset' => Config::encoding(),
             'enctype' => 'application/x-www-form-urlencoded',
             'method' => 'post',
             'action' => $action,
             'id' => $this->formatID('form.' . $this->_forms)
-        }, $attributes);
+        })->setAll($options);
 
         $attributes['method'] = strtoupper($attributes['method']);
 
@@ -707,7 +707,7 @@ class FormHelper extends AbstractHelper {
      * @return array
      */
     public function prepareAttributes(Map<string, mixed> $defaults = Map {}, Map<string, mixed> $attributes = Map {}) {
-        $attributes = Col::merge($defaults, $attributes);
+        $attributes = $defaults->setAll($attributes);
         $namePath = $attributes['name'];
 
         if (!isset($attributes['id'])) {
@@ -788,10 +788,10 @@ class FormHelper extends AbstractHelper {
      * @return string
      */
     public function reset(string $title, Map<string, mixed> $attributes = Map {}): string {
-        $attributes = Col::merge(Map {
+        $attributes = (Map {
             'id' => $this->formatID('form.' . $this->_forms . '.reset'),
             'type' => 'reset'
-        }, $attributes);
+        })->setAll($options);
 
         return $this->tag('button', Map {
             'attr' => $this->attributes($attributes),
@@ -880,10 +880,10 @@ class FormHelper extends AbstractHelper {
      * @return string
      */
     public function submit(string $title, Map<string, mixed> $attributes = Map {}): string {
-        $attributes = Col::merge(Map {
+        $attributes = (Map {
             'id' => $this->formatID('form.' . $this->_forms . '.submit'),
             'type' => 'submit'
-        }, $attributes);
+        })->setAll($options);
 
         return $this->tag('button', Map {
             'attr' => $this->attributes($attributes),

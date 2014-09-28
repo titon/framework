@@ -7,9 +7,8 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Io\Writer\AbstractWriter;
 use Titon\Io\Exception\MissingExtensionException;
-use Titon\Utility\Hash;
+use Titon\Utility\Col;
 
 /**
  * A file writer that generates YAML files.
@@ -31,7 +30,7 @@ class YamlWriter extends AbstractWriter {
         }
 
         if ($contents = $this->read()) {
-            $data = Hash::merge(yaml_parse($contents), $data);
+            $data = Col::merge(yaml_parse($contents), $data);
         }
 
         return $this->write($data);

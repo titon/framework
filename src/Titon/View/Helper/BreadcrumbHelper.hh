@@ -145,11 +145,11 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return string
      */
     public function title(string $base = '', Map<string, mixed> $options = Map {}): string {
-        $options = Col::merge(Map {
+        $options = (Map {
             'reverse' => false,
             'depth' => 3,
             'separator' => ' - '
-        }, $options);
+        })->setAll($options);
 
         $crumbs = Col::pluck($this->_breadcrumbs, 'title')->toArray();
         $count = count($crumbs);

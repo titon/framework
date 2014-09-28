@@ -9,7 +9,6 @@ namespace Titon\View\Helper;
 
 use Titon\Utility\Config;
 use Titon\Utility\Crypt;
-use Titon\Utility\Col;
 
 /**
  * The HtmlHelper is primarily used for dynamic HTML tag creation within templates.
@@ -95,11 +94,11 @@ class HtmlHelper extends AbstractHelper {
      * @return string
      */
     public function link(string $path, Map<string, mixed> $attributes = Map {}) {
-        $attributes = Col::merge(Map {
+        $attributes = (Map {
             'rel'   => 'stylesheet',
             'type'  => 'text/css',
             'media' => 'screen'
-        }, $attributes);
+        })->setAll($options);
 
         $attributes['href'] = $path;
 

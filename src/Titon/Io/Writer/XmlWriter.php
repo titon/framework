@@ -7,8 +7,7 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Io\Writer\AbstractWriter;
-use Titon\Utility\Hash;
+use Titon\Utility\Col;
 use Titon\Utility\Converter;
 
 /**
@@ -33,7 +32,7 @@ class XmlWriter extends AbstractWriter {
      */
     public function append($data) {
         if ($contents = $this->read()) {
-            $data = Hash::merge(Converter::xmlToArray(simplexml_load_string($contents), self::$format), $data);
+            $data = Col::merge(Converter::xmlToArray(simplexml_load_string($contents), self::$format), $data);
         }
 
         return $this->write($data);

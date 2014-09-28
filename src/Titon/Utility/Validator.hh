@@ -9,6 +9,7 @@ namespace Titon\Utility;
 
 use Titon\Utility\Exception\InvalidArgumentException;
 use Titon\Utility\Exception\InvalidValidationRuleException;
+use \Indexish;
 use \ReflectionClass;
 
 newtype FieldRule = shape(
@@ -269,12 +270,12 @@ class Validator {
                 }
 
                 if ($message) {
-                    $params = Col::merge(Map {
+                    $params = Map {
                         'field' => $field,
                         'title' => $fields[$field]
-                    }, $options->toMap())->map(function($value) {
-                        return ($value instanceof Vector) ? implode(', ', $value) : $value;
-                    });
+                    };
+
+                    $params->setAll($options->toMap()->map($value ==> ($value instanceof Indexish) ? implode(', ', $value) : $value));
 
                     $message = Str::insert($message, $params);
                 } else {

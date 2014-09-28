@@ -95,6 +95,11 @@ class FormatTest extends TestCase {
         // Non-verbose
         $this->assertEquals('2y, 2m, 1w, 2d ago', Format::relativeTime(strtotime('-799 days', $time), Map {'time' => $time, 'depth' => 5, 'verbose' => false}));
         $this->assertEquals('in 2y, 2m, 1w, 2d', Format::relativeTime(strtotime('+799 days', $time), Map {'time' => $time, 'depth' => 5, 'verbose' => false}));
+
+        // Custom messages
+        $this->assertEquals('in 45 MINS', Format::relativeTime(strtotime('+45 minutes', $time), Map {'time' => $time}, Map {
+            'minutes' => Map {2 => '{count} MINS'}
+        }));
     }
 
     public function testRss() {

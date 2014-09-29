@@ -29,6 +29,7 @@
         "files": [
             "src/Titon/Common/functions.hh",
             "src/Titon/Debug/functions.hh",
+            "src/Titon/Route/bootstrap.hh",
             "src/Titon/Utility/bootstrap.hh"
         ]
     }

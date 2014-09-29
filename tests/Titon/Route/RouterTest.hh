@@ -584,7 +584,7 @@ class RouterTest extends TestCase {
     public function testFilter() {
         $stub = new FilterStub();
 
-        $this->object->filter('test', function() {});
+        $this->object->filterCallback('test', function() {});
         $this->object->filter('test2', $stub);
 
         $this->assertEquals(inst_meth($stub, 'filter'), $this->object->getFilter('test2'));
@@ -605,13 +605,6 @@ class RouterTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Route\Exception\InvalidFilterException
-     */
-    public function testFilterNonCallable() {
-        $this->object->filter('foo', 'bar');
-    }
-
-    /**
      * @expectedException \Titon\Route\Exception\MissingFilterException
      */
     public function testFilterMissingKey() {
@@ -622,7 +615,7 @@ class RouterTest extends TestCase {
         $router = new Router();
         $count = 0;
 
-        $router->filter('test', function() use (&$count) {
+        $router->filterCallback('test', function() use (&$count) {
             $count++;
         });
 
@@ -646,7 +639,7 @@ class RouterTest extends TestCase {
      * @expectedException \Exception
      */
     public function testFilterThrowsException() {
-        $this->object->filter('test', function() use (&$count) {
+        $this->object->filterCallback('test', function() use (&$count) {
             throw new \Exception('Filter error!');
         });
 
@@ -659,7 +652,7 @@ class RouterTest extends TestCase {
 
 class FilterStub implements Filter {
 
-    public function filter(Router $router, Route $route) {
+    public function filter(Router $router, Route $route): void {
         return;
     }
 

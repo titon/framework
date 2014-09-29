@@ -10,8 +10,6 @@ use Titon\Route\Router;
 /**
  * @see Titon\Route\Router::build()
  */
-if (!function_exists('url')) {
-    function url($url) {
-        return Router::registry()->build($url);
-    }
+function url(mixed $url): string {
+    return Router::registry()->build($url);
 }

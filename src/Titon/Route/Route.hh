@@ -110,7 +110,7 @@ class Route {
      *
      * @type string
      */
-    protected string $_url;
+    protected string $_url = '';
 
     /**
      * Store the routing configuration.
@@ -191,6 +191,7 @@ class Route {
 
         if (!$this->isStatic()) {
             $tokens = [];
+            $matches = [];
 
             // Match regex pattern tokens first
             preg_match_all('/(\<)([^\<\>]+)(\>)/i', $path, $matches, PREG_SET_ORDER);
@@ -203,9 +204,9 @@ class Route {
             if ($tokens) {
                 foreach ($tokens as $match) {
                     $chunk = $match[0];
-                    $open = isset($match[1]) ? $match[1] : ''; // opening brace
-                    $token = isset($match[2]) ? $match[2] : ''; // token
-                    $close = isset($match[3]) ? $match[3] : ''; // closing brace
+                    $open = array_key_exists(1, $match) ? $match[1] : ''; // opening brace
+                    $token = array_key_exists(2, $match) ? $match[2] : ''; // token
+                    $close = array_key_exists(3, $match) ? $match[3] : ''; // closing brace
                     $optional = false;
 
                     // Is the token optional
@@ -231,7 +232,7 @@ class Route {
                     } else if ($open === '(' && $close === ')') {
                         $pattern = self::WILDCARD;
 
-                    } else if ($open === '<' && $close === '>' && isset($patterns[$token])) {
+                    } else if ($open === '<' && $close === '>' && $patterns->contains($token)) {
                         $pattern = '(' . trim($patterns[$token], '()') . ')';
 
                     } else {
@@ -373,6 +374,8 @@ class Route {
      * @return bool
      */
     public function isMatch(string $url): bool {
+        $matches = [];
+
         if (!$this->isMethod()) {
             return false;
 
@@ -412,8 +415,8 @@ class Route {
      */
     public function isSecure(): bool {
         $isSecure = (
-            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ||
-            isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443
+            array_key_exists('HTTPS', $_SERVER) && $_SERVER['HTTPS'] === 'on' ||
+            array_key_exists('SERVER_PORT', $_SERVER) && $_SERVER['SERVER_PORT'] == 443
         );
 
         // Only validate if the secure flag is true
@@ -444,15 +447,18 @@ class Route {
         $this->_matches = $matches;
         $this->_url = array_shift($matches);
 
-        if ($matches && $this->_tokens) {
+        $tokens = $this->getTokens();
+
+        if ($matches && $tokens) {
             $pass = $this->getPassed();
 
-            foreach ($this->_tokens as $token) {
+            foreach ($tokens as $token) {
                 $arg = array_shift($matches);
 
-                $this->_route[$token['token']] = $arg;
+                $this->_route[(string) $token['token']] = $arg;
 
                 if (in_array($token['token'], $pass)) {
+                    // UNSAFE
                     $this->_route['args'][]  = $arg;
                 }
             }

@@ -40,7 +40,7 @@ class DebuggerTest extends TestCase {
         $this->assertRegExp('/^<div class="titon-debug titon-backtrace">/', $actual);
 
         Debugger::disable();
-        $this->assertEquals(null, Debugger::backtrace());
+        $this->assertEquals('', Debugger::backtrace());
     }
 
     public function testDebug() {
@@ -53,7 +53,7 @@ class DebuggerTest extends TestCase {
         $this->assertRegExp('/^<div class="titon-debug">/', $actual);
 
         Debugger::disable();
-        $this->assertEquals(null, Debugger::debug(1));
+        $this->assertEquals('', Debugger::debug(1));
     }
 
     public function testDump() {
@@ -66,7 +66,7 @@ class DebuggerTest extends TestCase {
         $this->assertRegExp('/^<div class="titon-debug">/', $actual);
 
         Debugger::disable();
-        $this->assertEquals(null, Debugger::dump(1));
+        $this->assertEquals('', Debugger::dump(1));
     }
 
     public function testPrintException() {
@@ -81,21 +81,7 @@ class DebuggerTest extends TestCase {
         $this->assertRegExp('/^<div class="titon-debug titon-error">/', $actual);
 
         Debugger::disable();
-        $this->assertEquals(null, Debugger::printException($e));
-    }
-
-    public function testEnable() {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM doesn\'t allow setting of ini');
-        }
-
-        Debugger::enable(true);
-        $this->assertEquals(1, ini_get('display_errors'));
-        $this->assertEquals(32767, ini_get('error_reporting'));
-
-        Debugger::disable();
-        $this->assertEquals('', ini_get('display_errors'));
-        $this->assertEquals(0, ini_get('error_reporting'));
+        $this->assertEquals('', Debugger::printException($e));
     }
 
     public function testExport() {
@@ -110,7 +96,7 @@ class DebuggerTest extends TestCase {
         $this->assertEquals("[\n\t0 => 123,\n]", $actual);
 
         Debugger::disable();
-        $this->assertEquals(null, Debugger::export(123));
+        $this->assertEquals('', Debugger::export(123));
     }
 
     public function testGetError() {
@@ -131,9 +117,7 @@ class DebuggerTest extends TestCase {
      * @expectedException \ErrorException
      */
     public function testHandleErrorThrowsErrors() {
-        ob_start();
         Debugger::handleError(E_ERROR, 'Message');
-        ob_get_clean();
     }
 
     public function testHandleErrorDoesntThrowsNotice() {

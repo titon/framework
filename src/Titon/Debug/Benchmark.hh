@@ -20,16 +20,16 @@ class Benchmark {
     /**
      * User and system initiated benchmarking tests.
      *
-     * @type Map<string, Map<string, ?float>>
+     * @type Map<string, Map<string, num>>
      */
-    protected static Map<string, Map<string, ?float>> $_benchmarks = Map {};
+    protected static Map<string, Map<string, num>> $_benchmarks = Map {};
 
     /**
      * Return all benchmarks and calculate averages.
      *
-     * @return Map<string, Map<string, ?float>>
+     * @return Map<string, Map<string, num>>
      */
-    public static function all(): Map<string, Map<string, ?float>> {
+    public static function all(): Map<string, Map<string, num>> {
         $benchmarks = Map {};
 
         foreach (static::$_benchmarks as $key => $bm) {
@@ -43,17 +43,17 @@ class Benchmark {
      * Return a single benchmark by key and calculate averages and memory usage.
      *
      * @param string $key
-     * @return Map<string, ?float>
+     * @return Map<string, num>
      * @throws \Titon\Debug\Exception\MissingBenchmarkException
      */
-    public static function get(string $key): Map<string, ?float> {
-        if (!isset(static::$_benchmarks[$key])) {
+    public static function get(string $key): Map<string, num> {
+        if (!static::$_benchmarks->contains($key)) {
             throw new MissingBenchmarkException(sprintf('Benchmark %s does not exist', $key));
         }
 
         $bm = static::$_benchmarks[$key];
-        $bm['avgTime'] = isset($bm['endTime']) ? ($bm['endTime'] - $bm['startTime']) : null;
-        $bm['avgMemory'] = isset($bm['endMemory']) ? ($bm['endMemory'] - $bm['startMemory']) : null;
+        $bm['avgTime'] = $bm->contains('endTime') ? ($bm['endTime'] - $bm['startTime']) : 0;
+        $bm['avgMemory'] = $bm->contains('endMemory') ? ($bm['endMemory'] - $bm['startMemory']) : 0;
         $bm['peakMemory'] = (float) memory_get_peak_usage();
 
         return $bm;

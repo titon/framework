@@ -28,7 +28,7 @@
         "psr-0": { "": "src/" },
         "files": [
             "src/Titon/Common/functions.hh",
-            "src/Titon/Debug/functions.hh",
+            "src/Titon/Debug/bootstrap.hh",
             "src/Titon/Utility/bootstrap.hh"
         ]
     }

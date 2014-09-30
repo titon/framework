@@ -8,10 +8,8 @@
 namespace Titon\Route;
 
 use Titon\Common\Cacheable;
-use Titon\Common\Configurable;
 use Titon\Common\FactoryAware;
 use Titon\Event\Emittable;
-use Titon\Route\Exception\InvalidFilterException;
 use Titon\Route\Exception\InvalidRouteException;
 use Titon\Route\Exception\MissingFilterException;
 use Titon\Route\Exception\MissingSegmentException;
@@ -24,8 +22,12 @@ use Titon\Utility\Col;
 use Titon\Utility\Str;
 use \Closure;
 
-newtype FilterCallback = (function(Router, Route): void);
-newtype RouteGroup = (function(Router): void);
+type FilterCallback = (function(Router, Route): void);
+type FilterMap = Map<string, FilterCallback>;
+type ResourceMap = Map<string, string>;
+type GroupCallback = (function(Router): void);
+type RouteMap = Map<string, Route>;
+type SegmentMap = Map<string, mixed>;
 
 /**
  * The Router determines the current routing request, based on the URL address and environment.
@@ -39,7 +41,7 @@ newtype RouteGroup = (function(Router): void);
  *      route.postMatch(Router $router, Route $route)
  */
 class Router {
-    use Cacheable, Configurable, Emittable, FactoryAware;
+    use Cacheable, Emittable, FactoryAware;
 
     /**
      * Base folder structure if the application was placed within a directory.
@@ -56,32 +58,11 @@ class Router {
     protected ?Route $_current;
 
     /**
-     * Default configuration.
-     *
-     * @type Map<string, mixed>
-     */
-    protected Map<string, mixed> $_config = Map {
-        'defaults' => Map {
-            'module' => 'main',
-            'controller' => 'index',
-            'action' => 'index'
-        },
-        'prefixes' => Vector {'locale', 'module'},
-        'resourceMap' => Map {
-            'list' => 'index',
-            'create' => 'create',
-            'read' => 'read',
-            'update' => 'update',
-            'delete' => 'delete'
-        }
-    };
-
-    /**
      * List of filters to trigger for specific routes during a match.
      *
-     * @type Map<string, FilterCallback>
+     * @type FilterMap
      */
-    protected Map<string, FilterCallback> $_filters = Map {};
+    protected FilterMap $_filters = Map {};
 
     /**
      * List of currently open groups (and their options) in the stack.
@@ -98,29 +79,61 @@ class Router {
     protected Matcher $_matcher;
 
     /**
+     * Tokens to prefix to URL building.
+     *
+     * @type Vector<string>
+     */
+    protected Vector<string> $_prefixes = Vector {'locale'};
+
+    /**
+     * Mapping of CRUD actions to URL path parts.
+     * These mappings will be used when creating resource() routes.
+     *
+     * @type ResourceMap
+     */
+    protected ResourceMap $_resourceMap = Map {
+        'list' => 'index',
+        'create' => 'create',
+        'read' => 'read',
+        'update' => 'update',
+        'delete' => 'delete'
+    };
+
+    /**
      * Manually defined aesthetic routes that re-route internally.
      *
-     * @type Map<string, Route>
+     * @type RouteMap
      */
-    protected Map<string, Route> $_routes = Map {};
+    protected RouteMap $_routes = Map {};
 
     /**
      * The current URL broken up into multiple segments: protocol, host, route, query, base
      *
-     * @type Map<string, mixed>
+     * @type SegmentMap
      */
-    protected Map<string, mixed> $_segments = Map {};
+    protected SegmentMap $_segments = Map {};
 
     /**
      * Parses the current URL into multiple segments.
-     *
-     * @param Map<string, mixed> $config
      */
-    public function __construct(Map<string, mixed> $config = Map {}) {
+    public function __construct() {
         $this->setMatcher(new LoopMatcher());
 
-        $this->__initConfigurable($config);
-        $this->__initRouter();
+        // Determine if app is within a base folder
+        $base = dirname(str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
+
+        // Store the base to prepend to built routes
+        if ($base && $base !== '.') {
+            static::$_base = rtrim(str_replace('\\', '/', $base), '/') ?: '/';
+        }
+
+        // Store the current URL and query as router segments
+        $this->_segments = (new Map(parse_url($_SERVER['REQUEST_URI'])))->setAll(Map {
+            'scheme' => (array_key_exists('HTTPS', $_SERVER) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http',
+            'query' => new Map($_GET),
+            'host' => $_SERVER['HTTP_HOST'],
+            'port' => $_SERVER['SERVER_PORT']
+        });
     }
 
     /**
@@ -131,11 +144,23 @@ class Router {
     }
 
     /**
+     * Add a token name to the prefix list.
+     *
+     * @param string $prefix
+     * @return $this
+     */
+    public function addPrefix(string $prefix): this {
+        $this->_prefixes[] = $prefix;
+
+        return $this;
+    }
+
+    /**
      * Return all routes.
      *
-     * @return Map<string, Route>
+     * @return RouteMap
      */
-    public function all(): Map<string, Route> {
+    public function all(): RouteMap {
         return $this->getRoutes();
     }
 
@@ -419,9 +444,9 @@ class Router {
     /**
      * Return all filters.
      *
-     * @return Map<string, FilterCallback>
+     * @return FilterMap
      */
-    public function getFilters(): Map<string, FilterCallback> {
+    public function getFilters(): FilterMap {
         return $this->_filters;
     }
 
@@ -432,6 +457,24 @@ class Router {
      */
     public function getMatcher(): Matcher {
         return $this->_matcher;
+    }
+
+    /**
+     * Return the list of prefix token names.
+     *
+     * @return Vector<string>
+     */
+    public function getPrefixes(): Vector<string> {
+        return $this->_prefixes;
+    }
+
+    /**
+     * Return the CRUD action resource map.
+     *
+     * @return ResourceMap
+     */
+    public function getResourceMap(): ResourceMap {
+        return $this->_resourceMap;
     }
 
     /**
@@ -452,9 +495,9 @@ class Router {
     /**
      * Return all routes.
      *
-     * @return Map<string, Route>
+     * @return RouteMap
      */
-    public function getRoutes(): Map<string, Route> {
+    public function getRoutes(): RouteMap {
         return $this->_routes;
     }
 
@@ -476,9 +519,9 @@ class Router {
     /**
      * Return all segments.
      *
-     * @return Map<string, mixed>
+     * @return SegmentMap
      */
-    public function getSegments(): Map<string, mixed> {
+    public function getSegments(): SegmentMap {
         return $this->_segments;
     }
 
@@ -487,22 +530,22 @@ class Router {
      * Can apply path prefixes, suffixes, route config, before filters, and after filters.
      *
      * @param Map<string, mixed> $options
-     * @param RouteGroup $callback
+     * @param GroupCallback $callback
      * @return $this
      */
-    public function group(Map<string, mixed> $options, RouteGroup $callback) {
-        $this->_groups[] = Col::merge(Map {
+    public function group(Map<string, mixed> $options, GroupCallback $callback) {
+        $this->_groups[] = (Map {
             'prefix' => '',
             'suffix' => '',
             'secure' => false,
             'patterns' => Map {},
             'pass' => Vector {},
             'filters' => Vector {}
-        }, $options);
+        })->setAll($options);
 
         call_user_func($callback, $this);
 
-        array_pop($this->_groups);
+        $this->_groups->pop();
 
         return $this;
     }
@@ -637,8 +680,8 @@ class Router {
      * @param Map<string, string> $map
      * @return $this
      */
-    public function resource(string $key, Route $route, Map<string, string> $map = Map {}) {
-        $map = Col::merge($this->getConfig('resourceMap'), $map);
+    public function resource(string $key, Route $route, ResourceMap $map = Map {}) {
+        $map = $this->getResourceMap()->setAll($map);
         $class = get_class($route);
         $path = $route->getPath();
         $params = $route->getParams();
@@ -687,6 +730,30 @@ class Router {
     }
 
     /**
+     * Set a list of prefixes and overwrite any previously defined prefixes.
+     *
+     * @param Vector<string> $prefixes
+     * @return $this
+     */
+    public function setPrefixes(Vector<string> $prefixes): this {
+        $this->_prefixes = $prefixes;
+
+        return $this;
+    }
+
+    /**
+     * Update the resource mapping.
+     *
+     * @param ResourceMap $map
+     * @return $this
+     */
+    public function setResourceMap(ResourceMap $map): this {
+        $this->_resourceMap->setAll($map);
+
+        return $this;
+    }
+
+    /**
      * Return the current URL.
      *
      * @return string
@@ -708,27 +775,6 @@ class Router {
         }
 
         return $url;
-    }
-
-    /**
-     * Private initializer method.
-     */
-    private function __initRouter(): void {
-        // Determine if app is within a base folder
-        $base = dirname(str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
-
-        // Store the base to prepend to built routes
-        if ($base && $base !== '.') {
-            static::$_base = rtrim(str_replace('\\', '/', $base), '/') ?: '/';
-        }
-
-        // Store the current URL and query as router segments
-        $this->_segments = Col::merge(new Map(parse_url($_SERVER['REQUEST_URI'])), Map {
-            'scheme' => (array_key_exists('HTTPS', $_SERVER) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http',
-            'query' => new Map($_GET),
-            'host' => $_SERVER['HTTP_HOST'],
-            'port' => $_SERVER['SERVER_PORT']
-        });
     }
 
 }

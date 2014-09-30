@@ -10,6 +10,8 @@ namespace Titon\Route;
 use Titon\Route\Exception\MissingPatternException;
 use Titon\Utility\Col;
 
+newtype Token = shape('token' => string, 'optional' => bool);
+
 /**
  * Represents the skeleton for an individual route. A route matches an internal URL that gets analyzed into multiple parts:
  * module, controller, action, extension, arguments and query parameters. A route can be used to mask a certain URL to
@@ -101,9 +103,9 @@ class Route {
     /**
      * Custom defined tokens.
      *
-     * @type Vector<Map<string, mixed>>
+     * @type Vector<Token>
      */
-    protected Vector<Map<string, mixed>> $_tokens = Vector {};
+    protected Vector<Token> $_tokens = Vector {};
 
     /**
      * The corresponding URL when a match is found.
@@ -247,7 +249,7 @@ class Route {
 
                     $compiled = str_replace($chunk, $pattern, $compiled);
 
-                    $this->_tokens[] = Map {'token' => $token, 'optional' => $optional};
+                    $this->_tokens[] = shape('token' => $token, 'optional' => $optional);
                 }
             } else {
                 $this->setStatic(true);
@@ -260,9 +262,7 @@ class Route {
         }
 
         // Save the compiled regex
-        $this->_compiled = $compiled;
-
-        return $this->_compiled;
+        return $this->_compiled = $compiled;
     }
 
     /**
@@ -352,9 +352,9 @@ class Route {
     /**
      * Return the compiled tokens.
      *
-     * @return Vector<Map<string, mixed>>
+     * @return Vector<Token>
      */
-    public function getTokens(): Vector<Map<string, mixed>> {
+    public function getTokens(): Vector<Token> {
         return $this->_tokens;
     }
 
@@ -455,7 +455,7 @@ class Route {
             foreach ($tokens as $token) {
                 $arg = array_shift($matches);
 
-                $this->_route[(string) $token['token']] = $arg;
+                $this->_route[$token['token']] = $arg;
 
                 if (in_array($token['token'], $pass)) {
                     // UNSAFE

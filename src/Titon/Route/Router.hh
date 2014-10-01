@@ -19,13 +19,15 @@ use Titon\Route\Matcher\LoopMatcher;
 use Titon\Utility\Config;
 use Titon\Utility\Inflector;
 use Titon\Utility\Col;
+use Titon\Utility\Registry;
 use Titon\Utility\Str;
-use \Closure;
 
 type FilterCallback = (function(Router, Route): void);
 type FilterMap = Map<string, FilterCallback>;
-type ResourceMap = Map<string, string>;
 type GroupCallback = (function(Router): void);
+type GroupList = Vector<Map<string, mixed>>;
+type PrefixList = Vector<string>;
+type ResourceMap = Map<string, string>;
 type RouteMap = Map<string, Route>;
 type SegmentMap = Map<string, mixed>;
 
@@ -67,9 +69,9 @@ class Router {
     /**
      * List of currently open groups (and their options) in the stack.
      *
-     * @type Vector<Map<string, mixed>>
+     * @type GroupList
      */
-    protected Vector<Map<string, mixed>> $_groups = Vector {};
+    protected GroupList $_groups = Vector {};
 
     /**
      * The class to use for route matching.
@@ -81,9 +83,9 @@ class Router {
     /**
      * Tokens to prefix to URL building.
      *
-     * @type Vector<string>
+     * @type PrefixList
      */
-    protected Vector<string> $_prefixes = Vector {'locale'};
+    protected PrefixList $_prefixes = Vector {'locale'};
 
     /**
      * Mapping of CRUD actions to URL path parts.
@@ -462,9 +464,9 @@ class Router {
     /**
      * Return the list of prefix token names.
      *
-     * @return Vector<string>
+     * @return PrefixList
      */
-    public function getPrefixes(): Vector<string> {
+    public function getPrefixes(): PrefixList {
         return $this->_prefixes;
     }
 
@@ -539,7 +541,6 @@ class Router {
             'suffix' => '',
             'secure' => false,
             'patterns' => Map {},
-            'pass' => Vector {},
             'filters' => Vector {}
         })->setAll($options);
 
@@ -557,7 +558,7 @@ class Router {
      * @param \Titon\Route\Route $route
      * @return $this
      */
-    public function map($key, Route $route): this {
+    public function map(string $key, Route $route): this {
         $this->_routes[$key] = $route;
 
         // Apply group options
@@ -574,11 +575,6 @@ class Router {
 
             if ($group['patterns']) {
                 $route->setPatterns($route->getPatterns()->setAll($group['patterns']));
-            }
-
-            if ($group['pass']) {
-                // todo - Find a better way to apply uniqueness to a vector
-                $route->pass(new Vector(array_unique($route->getPassed()->addAll($group['pass'])->toArray())));
             }
 
             if ($group['filters']) {
@@ -696,20 +692,18 @@ class Router {
         foreach ($map as $type => $action) {
             $newPath = $path;
             $params['action'] = $action;
-            $pass = $route->getPassed()->toVector();
 
             if (in_array($type, Vector {'read', 'update', 'delete'})) {
                 $newPath .= '/(id)';
-                $pass[] = 'id';
             }
 
-            $newRoute = new $class($newPath, $params);
+            /** @type \Titon\Route\Route $newRoute */
+            $newRoute = Registry::factory($class, Vector {$newPath, $params}, false);
             $newRoute->setStatic($route->getStatic());
             $newRoute->setSecure($route->getSecure());
             $newRoute->setFilters($route->getFilters());
             $newRoute->setPatterns($route->getPatterns());
             $newRoute->setMethods($methods[$type]);
-            $newRoute->pass($pass);
 
             $this->map($key . '.' . $type, $newRoute);
         }
@@ -732,10 +726,10 @@ class Router {
     /**
      * Set a list of prefixes and overwrite any previously defined prefixes.
      *
-     * @param Vector<string> $prefixes
+     * @param PrefixList $prefixes
      * @return $this
      */
-    public function setPrefixes(Vector<string> $prefixes): this {
+    public function setPrefixes(PrefixList $prefixes): this {
         $this->_prefixes = $prefixes;
 
         return $this;

@@ -8,9 +8,13 @@
 namespace Titon\Route;
 
 use Titon\Route\Exception\MissingPatternException;
-use Titon\Utility\Col;
 
-newtype Token = shape('token' => string, 'optional' => bool);
+type FilterList = Vector<string>;
+type MethodList = Vector<string>;
+type ParamMap = Map<string, mixed>;
+type PatternMap = Map<string, string>;
+type Token = shape('token' => string, 'optional' => bool);
+type TokenList = Vector<Token>;
 
 /**
  * Represents the skeleton for an individual route. A route matches an internal URL that gets analyzed into multiple parts:
@@ -31,6 +35,13 @@ class Route {
     const string LOCALE = '([a-z]{2}(?:-[a-z]{2})?)';
 
     /**
+     * The action to execute if this route is matched.
+     *
+     * @type string
+     */
+    protected string $_action;
+
+    /**
      * The compiled regex pattern.
      *
      * @type string
@@ -40,23 +51,23 @@ class Route {
     /**
      * Filters to trigger once the route has been matched.
      *
-     * @type Vector<string>
+     * @type FilterList
      */
-    protected Vector<string> $_filters = Vector {};
-
-    /**
-     * Patterns matched during the isMatch() process.
-     *
-     * @type Vector<string>
-     */
-    protected Vector<string> $_matches = Vector {};
+    protected FilterList $_filters = Vector {};
 
     /**
      * The types of acceptable HTTP methods (defaults to all).
      *
-     * @type Vector<string>
+     * @type MethodList
      */
-    protected Vector<string> $_methods = Vector {};
+    protected MethodList $_methods = Vector {};
+
+    /**
+     * Collection of route parameters.
+     *
+     * @type ParamMap
+     */
+    protected ParamMap $_params = Map {};
 
     /**
      * The path to match.
@@ -66,25 +77,11 @@ class Route {
     protected string $_path = '';
 
     /**
-     * Name of tokens to pass as action arguments.
-     *
-     * @type Vector<string>
-     */
-    protected Vector<string> $_pass = Vector {};
-
-    /**
      * Custom defined regex patterns.
      *
-     * @type Map<string, string>
+     * @type PatternMap
      */
-    protected Map<string, string> $_patterns = Map {};
-
-    /**
-     * Collection of route parameters.
-     *
-     * @type Map<string, mixed>
-     */
-    protected Map<string, mixed> $_route = Map {};
+    protected PatternMap $_patterns = Map {};
 
     /**
      * When true, will only match if under HTTPS.
@@ -103,9 +100,9 @@ class Route {
     /**
      * Custom defined tokens.
      *
-     * @type Vector<Token>
+     * @type TokenList
      */
-    protected Vector<Token> $_tokens = Vector {};
+    protected TokenList $_tokens = Vector {};
 
     /**
      * The corresponding URL when a match is found.
@@ -120,11 +117,11 @@ class Route {
      * @uses Titon\Route\Router
      *
      * @param string $path
-     * @param string|array $route
+     * @param string $route
      */
-    public function __construct(string $path, mixed $route = []) {
+    public function __construct(string $path, string $action) {
         $this->append($path);
-        $this->_route = Router::parse($route);
+        $this->_action = $action;
     }
 
     /**
@@ -147,19 +144,6 @@ class Route {
      */
     public function addMethod(string $key): this {
         $this->_methods[] = $key;
-
-        return $this;
-    }
-
-    /**
-     * Add a regex pattern by token key.
-     *
-     * @param string $key
-     * @param string $value
-     * @return $this
-     */
-    public function addPattern(string $key, string $value): this {
-        $this->_patterns[$key] = $value;
 
         return $this;
     }
@@ -266,20 +250,29 @@ class Route {
     }
 
     /**
+     * Return the action to dispatch to.
+     *
+     * @return string
+     */
+    public function getAction(): string {
+        return $this->_action;
+    }
+
+    /**
      * Return all filters.
      *
-     * @return Vector<string>
+     * @return FilterList
      */
-    public function getFilters(): Vector<string> {
+    public function getFilters(): FilterList {
         return $this->_filters;
     }
 
     /**
      * Return the HTTP method.
      *
-     * @return Vector<string>
+     * @return MethodList
      */
-    public function getMethods(): Vector<string> {
+    public function getMethods(): MethodList {
         return $this->_methods;
     }
 
@@ -295,39 +288,28 @@ class Route {
     /**
      * Return a param from the route.
      *
-     * @uses Titon\Utility\Col
-     *
      * @param string $key
      * @return mixed
      */
     public function getParam(string $key): mixed {
-        return Col::get($this->_route, $key);
+        return $this->_params->get($key);
     }
 
     /**
      * Return all params.
      *
-     * @return Map<string, mixed>
+     * @return ParamMap
      */
-    public function getParams(): Map<string, mixed> {
-        return $this->_route;
-    }
-
-    /**
-     * Return all tokens to be passed as arguments.
-     *
-     * @return Vector<string>
-     */
-    public function getPassed(): Vector<string> {
-        return $this->_pass;
+    public function getParams(): ParamMap {
+        return $this->_params;
     }
 
     /**
      * Return all the patterns used for compiling.
      *
-     * @return Map<string, string>
+     * @return PatternMap
      */
-    public function getPatterns(): Map<string, string> {
+    public function getPatterns(): PatternMap {
         return $this->_patterns;
     }
 
@@ -352,9 +334,9 @@ class Route {
     /**
      * Return the compiled tokens.
      *
-     * @return Vector<Token>
+     * @return TokenList
      */
-    public function getTokens(): Vector<Token> {
+    public function getTokens(): TokenList {
         return $this->_tokens;
     }
 
@@ -387,6 +369,7 @@ class Route {
 
         } else if (preg_match('/^' . $this->compile() . '$/i', $url, $matches)) {
             $this->match(new Vector($matches));
+
             return true;
         }
 
@@ -444,37 +427,16 @@ class Route {
      * @return $this
      */
     public function match(Vector<string> $matches): this {
-        $this->_matches = $matches;
-        $this->_url = array_shift($matches);
-
+        $matches = $matches->toArray();
         $tokens = $this->getTokens();
 
+        $this->_url = array_shift($matches);
+
         if ($matches && $tokens) {
-            $pass = $this->getPassed();
-
             foreach ($tokens as $token) {
-                $arg = array_shift($matches);
-
-                $this->_route[$token['token']] = $arg;
-
-                if (in_array($token['token'], $pass)) {
-                    // UNSAFE
-                    $this->_route['args'][]  = $arg;
-                }
+                $this->_params[$token['token']] = array_shift($matches);
             }
         }
-
-        return $this;
-    }
-
-    /**
-     * Define multiple tokens to pass as arguments to a dispatched action.
-     *
-     * @param Vector<string> $tokens
-     * @return $this
-     */
-    public function pass(Vector<string> $tokens): this {
-        $this->_pass = $tokens;
 
         return $this;
     }
@@ -494,10 +456,10 @@ class Route {
     /**
      * Set the list of filters to process.
      *
-     * @param Vector<string> $filters
+     * @param FilterList $filters
      * @return $this
      */
-    public function setFilters(Vector<string> $filters): this {
+    public function setFilters(FilterList $filters): this {
         $this->_filters = $filters;
 
         return $this;
@@ -506,11 +468,24 @@ class Route {
     /**
      * Set the list of HTTP methods to match against.
      *
-     * @param Vector<string> $methods
+     * @param MethodList $methods
      * @return $this
      */
-    public function setMethods(Vector<string> $methods): this {
+    public function setMethods(MethodList $methods): this {
         $this->_methods = $methods;
+
+        return $this;
+    }
+
+    /**
+     * Set a regex pattern by token key.
+     *
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    public function setPattern(string $key, string $value): this {
+        $this->_patterns[$key] = $value;
 
         return $this;
     }
@@ -518,10 +493,10 @@ class Route {
     /**
      * Set a mapping of regex patterns to parse URLs with.
      *
-     * @param Map<string, string> $patterns
+     * @param PatternMap $patterns
      * @return $this
      */
-    public function setPatterns(Map<string, string> $patterns): this {
+    public function setPatterns(PatternMap $patterns): this {
         $this->_patterns = $patterns;
 
         return $this;

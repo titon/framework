@@ -37,9 +37,9 @@ class Route {
     /**
      * The action to execute if this route is matched.
      *
-     * @type string
+     * @type Action
      */
-    protected string $_action;
+    protected Action $_action;
 
     /**
      * The compiled regex pattern.
@@ -117,22 +117,36 @@ class Route {
      * @uses Titon\Route\Router
      *
      * @param string $path
-     * @param string $route
+     * @param string $action
      */
     public function __construct(string $path, string $action) {
-        $this->_action = $action;
+        $this->_action = Router::parseAction($action);
         $this->append($path);
     }
 
     /**
      * Add a filter by name.
      *
-     * @param string $key
+     * @param string $filter
      * @return $this
      */
-    public function addFilter(string $key): this {
-        if (!in_array($key, $this->_filters)) {
-            $this->_filters[] = $key;
+    public function addFilter(string $filter): this {
+        if (!in_array($filter, $this->_filters)) {
+            $this->_filters[] = $filter;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add multiple filters by name.
+     *
+     * @param FilterList $filters
+     * @return $this
+     */
+    public function addFilters(FilterList $filters): this {
+        foreach ($filters as $filter) {
+            $this->addFilter($filter);
         }
 
         return $this;
@@ -141,12 +155,53 @@ class Route {
     /**
      * Add an HTTP method to match against.
      *
-     * @param string $key
+     * @param string $method
      * @return $this
      */
-    public function addMethod(string $key): this {
-        if (!in_array($key, $this->_methods)) {
-            $this->_methods[] = $key;
+    public function addMethod(string $method): this {
+        if (!in_array($method, $this->_methods)) {
+            $this->_methods[] = $method;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add multiple HTTP methods to match against.
+     *
+     * @param MethodList $methods
+     * @return $this
+     */
+    public function addMethods(MethodList $methods): this {
+        foreach ($methods as $method) {
+            $this->addMethod($method);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a regex pattern by token name.
+     *
+     * @param string $pattern
+     * @param string $regex
+     * @return $this
+     */
+    public function addPattern(string $pattern, string $regex): this {
+        $this->_patterns[$pattern] = $regex;
+
+        return $this;
+    }
+
+    /**
+     * Add multiple regex patterns.
+     *
+     * @param PatternMap $patterns
+     * @return $this
+     */
+    public function addPatterns(PatternMap $patterns): this {
+        foreach ($patterns as $pattern => $regex) {
+            $this->addPattern($pattern, $regex);
         }
 
         return $this;
@@ -210,7 +265,7 @@ class Route {
                         list($token, $pattern) = explode(':', $token, 2);
 
                         $patterns[$token] = $pattern;
-                        $this->setPattern($token, $pattern);
+                        $this->addPattern($token, $pattern);
                     }
 
                     if ($open === '{' && $close === '}') {
@@ -256,9 +311,9 @@ class Route {
     /**
      * Return the action to dispatch to.
      *
-     * @return string
+     * @return Action
      */
-    public function getAction(): string {
+    public function getAction(): Action {
         return $this->_action;
     }
 
@@ -477,19 +532,6 @@ class Route {
      */
     public function setMethods(MethodList $methods): this {
         $this->_methods = $methods;
-
-        return $this;
-    }
-
-    /**
-     * Set a regex pattern by token key.
-     *
-     * @param string $key
-     * @param string $value
-     * @return $this
-     */
-    public function setPattern(string $key, string $value): this {
-        $this->_patterns[$key] = $value;
 
         return $this;
     }

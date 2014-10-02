@@ -88,8 +88,7 @@ class RouteTest extends TestCase {
         $this->assertEquals(Vector {}, $route->getFilters());
 
         $route->addFilter('foo');
-        $route->addFilter('bar');
-        $route->addFilter('foo');
+        $route->addFilters(Vector {'bar', 'foo'});
 
         $this->assertEquals(Vector {'foo', 'bar'}, $route->getFilters());
 
@@ -101,7 +100,7 @@ class RouteTest extends TestCase {
     public function testGetAction() {
         $route = new Route('/', 'Controller@action');
 
-        $this->assertEquals('Controller@action', $route->getAction());
+        $this->assertEquals(shape('class' => 'Controller', 'action' => 'action'), $route->getAction());
     }
 
     public function testGetPath() {
@@ -178,7 +177,7 @@ class RouteTest extends TestCase {
     }
 
     public function testIsMatchAlnumPattern() {
-        $route = (new Route('/<alnum>', 'Controller@action'))->setPattern('alnum', Route::ALNUM);
+        $route = (new Route('/<alnum>', 'Controller@action'))->addPattern('alnum', Route::ALNUM);
 
         $this->assertTrue($route->isMatch('/FOO'));
         $this->assertTrue($route->isMatch('/foo'));
@@ -214,7 +213,7 @@ class RouteTest extends TestCase {
     }
 
     public function testIsMatchLocalePattern() {
-        $route = (new Route('/<locale>', 'Controller@action'))->setPattern('locale', Route::LOCALE);
+        $route = (new Route('/<locale>', 'Controller@action'))->addPattern('locale', Route::LOCALE);
 
         $this->assertTrue($route->isMatch('/en'));
         $this->assertTrue($route->isMatch('/en-us'));
@@ -274,8 +273,7 @@ class RouteTest extends TestCase {
         $this->assertEquals(Vector {}, $route->getMethods());
 
         $route->addMethod('get');
-        $route->addMethod('post');
-        $route->addMethod('get');
+        $route->addMethods(Vector {'post', 'get'});
 
         $this->assertEquals(Vector {'get', 'post'}, $route->getMethods());
 
@@ -306,9 +304,8 @@ class RouteTest extends TestCase {
 
         $this->assertEquals(Map {}, $route->getPatterns());
 
-        $route->setPattern('id', '[0-9]+');
-        $route->setPattern('key', '[a-z]+');
-        $route->setPattern('id', '[1-8]+');
+        $route->addPattern('id', '[0-9]+');
+        $route->addPatterns(Map {'key' => '[a-z]+', 'id' => '[1-8]+'});
 
         $this->assertEquals(Map {'id' => '[1-8]+', 'key' => '[a-z]+'}, $route->getPatterns());
 
@@ -336,10 +333,10 @@ class RouteTest extends TestCase {
         $route = new Route('/(wildcard?)', 'Controller@action');
         $this->assertEquals('(?:\/(.*))?\/?', $route->compile());
 
-        $route = (new Route('/<regex>', 'Controller@action'))->setPattern('regex', '[foo|bar]');
+        $route = (new Route('/<regex>', 'Controller@action'))->addPattern('regex', '[foo|bar]');
         $this->assertEquals('\/([foo|bar])\/?', $route->compile());
 
-        $route = (new Route('/<regex?>', 'Controller@action'))->setPattern('regex', '[foo|bar]');
+        $route = (new Route('/<regex?>', 'Controller@action'))->addPattern('regex', '[foo|bar]');
         $this->assertEquals('(?:\/([foo|bar]))?\/?', $route->compile());
 
         $route = new Route('/<regex:[foo|bar]>', 'Controller@action');

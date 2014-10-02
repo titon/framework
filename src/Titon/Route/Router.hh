@@ -16,17 +16,14 @@ use Titon\Route\Exception\MissingSegmentException;
 use Titon\Route\Exception\MissingRouteException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
-use Titon\Utility\Config;
-use Titon\Utility\Inflector;
-use Titon\Utility\Col;
 use Titon\Utility\Registry;
-use Titon\Utility\Str;
 
+type Action = shape('class' => string, 'action' => string);
 type FilterCallback = (function(Router, Route): void);
 type FilterMap = Map<string, FilterCallback>;
 type GroupCallback = (function(Router): void);
 type GroupList = Vector<Map<string, mixed>>;
-type PrefixList = Vector<string>;
+type QueryMap = Map<string, mixed>;
 type ResourceMap = Map<string, string>;
 type RouteMap = Map<string, Route>;
 type SegmentMap = Map<string, mixed>;
@@ -50,7 +47,7 @@ class Router {
      *
      * @type string
      */
-    protected static string $_base = '/';
+    protected string $_base = '/';
 
     /**
      * The matched route object.
@@ -79,13 +76,6 @@ class Router {
      * @type \Titon\Route\Matcher
      */
     protected Matcher $_matcher;
-
-    /**
-     * Tokens to prefix to URL building.
-     *
-     * @type PrefixList
-     */
-    protected PrefixList $_prefixes = Vector {'locale'};
 
     /**
      * Mapping of CRUD actions to URL path parts.
@@ -119,14 +109,13 @@ class Router {
      * Parses the current URL into multiple segments.
      */
     public function __construct() {
-        $this->setMatcher(new LoopMatcher());
+        $this->_matcher = new LoopMatcher();
 
         // Determine if app is within a base folder
         $base = dirname(str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
 
-        // Store the base to prepend to built routes
         if ($base && $base !== '.') {
-            static::$_base = rtrim(str_replace('\\', '/', $base), '/') ?: '/';
+            $this->_base = rtrim(str_replace('\\', '/', $base), '/') ?: '/';
         }
 
         // Store the current URL and query as router segments
@@ -139,22 +128,10 @@ class Router {
     }
 
     /**
-     * Maps the default routing objects and attempts to match.
+     * Attempts to match a route based on the current path segment.
      */
     public function initialize(): void {
-        $this->_current = $this->match((string) $this->getSegment('path'));
-    }
-
-    /**
-     * Add a token name to the prefix list.
-     *
-     * @param string $prefix
-     * @return $this
-     */
-    public function addPrefix(string $prefix): this {
-        $this->_prefixes[] = $prefix;
-
-        return $this;
+        $this->match((string) $this->getSegment('path'));
     }
 
     /**
@@ -171,173 +148,74 @@ class Router {
      *
      * @return string
      */
-    public static function base(): string {
-        return static::$_base;
+    public function base(): string {
+        return $this->_base;
     }
 
     /**
-     * Takes a route in array format and processes it down into a single string that represents an internal URL path.
+     * Builds a URL for a route by replacing all tokens with custom defined parameters.
+     * An optional query string and fragment can be also be defined.
      *
-     * @param string|array|Map $url
+     * @param string $key
+     * @param ParamMap $params
+     * @param QueryMap $query
      * @return string
      * @throws \Titon\Route\Exception\InvalidRouteException
      */
-    public function build(mixed $url = []): string {
+    public function build(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
         $self = $this;
 
-        return $this->cache([__METHOD__, $url], function() use ($url, $self) {
-            $routes = $self->all();
+        return $this->cache([__METHOD__, $key], function() use ($self, $key, $params, $query) {
+            $route = $this->getRoute($key);
+            $base = $this->base();
+            $url = str_replace([']', ')', '>'], '}', str_replace(['[', '(', '<'], '{', $route->getPath()));
 
-            // Convert strings to array structure
-            if (is_string($url)) {
-                // Route by key syntax
-                if ($routes->contains($url)) {
-                    $url = ['route' => $url];
+            // Set the locale if it is missing
+            if (!$params->contains('locale')) {
+                $params['locale'] = Config::get('titon.locale.current');
+            }
 
-                // Convert @ route to array
-                } else if (strpos($url, '@') !== false) {
-                    $url = $self->parse($url);
+            // Replace tokens in the path with values from the parameters
+            foreach ($route->getTokens() as $token) {
+                $tokenKey = $token['token'];
 
-                // Literal URL, return immediately
+                if ($params->contains($tokenKey) || $token['optional']) {
+                    $url = str_replace(sprintf('{%s}', $tokenKey . ($token['optional'] ? '?' : '')), $params->get($tokenKey) ?: '', $url);
+
                 } else {
-                    return $url;
+                    throw new InvalidRouteException(sprintf('Missing %s parameter for the %s route', $tokenKey, $key));
                 }
             }
 
-            // Convert to map
-            if ($url instanceof Traversable) {
-                $url = new Map($url);
+            // Prepend base
+            if ($base !== '/') {
+                $url = $base . $url;
             }
 
-            invariant($url instanceof Map, 'URL must be a map');
-
-            // Convert @ routes first as the logic should be different than route keys
-            if ($url->contains('route') && strpos($url['route'], '@') !== false) {
-                $url = Col::merge($self->parse($url['route']), $url);
-                $url->remove('rout');
-            }
-
-            // Build it!
-            $defaults = $self->getConfig('defaults');
-            $url = $self->defaults($url, $defaults);
-            $base = $self->base();
-
-            if ($url == $self->defaults(Map {}, $defaults)) {
-                return $base;
-            }
-
-            $path = Vector {};
-            $args = Vector {};
-            $query = Map {};
-            $ext = '';
-            $fragment = '';
-
-            // Extract all the values from the URL array
-            foreach ($url as $key => $value) {
-                if ($key === 'args') {
-                    $args->addAll(new Vector($value));
-
-                } else if ($key === 'query') {
-                    $query->setAll(new Map($value));
-
-                } else if ($key === '#') {
-                    $fragment = $value;
-
-                } else if (is_numeric($key)) {
-                    $args[] = $value;
-                }
-            }
-
-            if ($base !== '/' && $base !== '') {
-                $path[] = trim($base, '/');
-            }
-
-            // Reverse routing through the key
-            if ($url->contains('route')) {
-                if (!$routes->contains($url['route'])) {
-                    throw new InvalidRouteException(sprintf('Route with key %s does not exist', $url['route']));
-                }
-
-                $route = $routes[$url['route']];
-                $routePath = str_replace([']', ')', '>'], '}', str_replace(['[', '(', '<'], '{', ltrim($route->getPath(), '/')));
-
-                foreach ($route->getTokens() as $token) {
-                    $tokenKey = $token['token'];
-
-                    // Build the key found in the compiled path: {token} or {token?}
-                    $tokenGroup = $tokenKey;
-
-                    if ($token['optional']) {
-                        $tokenGroup .= '?';
-                    }
-
-                    // Replace the token with a value
-                    if ($url->contains($tokenKey)) {
-                        $routePath = Str::insert($routePath, Map {$tokenGroup => $url[$tokenKey]}, Map {'escape' => false});
-
-                    } else if ($token['optional']) {
-                        $routePath = str_replace(sprintf('/{%s}', $tokenGroup), '', $routePath);
-
-                    } else {
-                        throw new InvalidRouteException(sprintf('Missing %s token for %s route', $tokenKey, $url['route']));
-                    }
-                }
-
-                $path[] = $routePath;
-
-            // Module, controller, action
-            } else {
-                foreach ($self->getConfig('prefixes') as $prefix) {
-                    if ($url->contains($prefix)) {
-                        $path[] = $url[$prefix];
-                    }
-                }
-
-                // Hide controller and action if they are both set to index
-                // But only if there are no arguments or extension
-                $hasArgs = (bool) ($args);
-                $hasExt = (bool) ($url['ext']);
-
-                if ($url['controller'] !== 'index' || $url['action'] !== 'index' || $hasArgs || $hasExt) {
-                    $path[] = $url['controller'];
-
-                    if ($url['action'] !== 'index' || $hasArgs || $hasExt) {
-                        $path[] = $url['action'];
-                    }
-                }
-
-                if ($url->contains('ext')) {
-                    $ext = $url['ext'];
-                }
-            }
-
-            // Action arguments
-            if ($args) {
-                foreach ($args as $arg) {
-                    $path[] = urlencode($arg);
-                }
-            }
-
-            $path = '/' . implode('/', $path);
-
-            if ($ext) {
-                $path .= '.' . $ext;
-            }
+            // Append query string and fragment
+            $fragment = $query->get('#');
+            $query->remove('#');
 
             if ($query) {
-                $path .= '?' . http_build_query($query, '', '&', PHP_QUERY_RFC1738);
+                $url .= '?' . http_build_query($query);
             }
 
             if ($fragment) {
-                if ($fragment instanceof Traversable) {
-                    $path .= '#' . http_build_query((array) $fragment, '', '&', PHP_QUERY_RFC1738);
-                } else {
-                    $path .= '#' . urlencode($fragment);
-                }
+                $url .= '#' . (($fragment instanceof Traversable) ? http_build_query($fragment) : urlencode($fragment));
             }
 
-            return $path;
+            return $url;
         });
+    }
+
+    /**
+     * Return an action shape into its combined @ formatted representation.
+     *
+     * @param Action $action
+     * @return string
+     */
+    public static function buildAction(Action $action): string {
+        return sprintf('%s@%s', $action['class'], $action['action']);
     }
 
     /**
@@ -350,37 +228,6 @@ class Router {
     }
 
     /**
-     * Maps the default routes and determines the controller and module.
-     * Can be merged with a dynamic route to map missing segments.
-     *
-     * @uses Titon\Utility\Inflector
-     *
-     * @param Map<string, mixed> $data
-     * @param Map<string, mixed> $defaults
-     * @return Map<string, mixed>
-     */
-    public static function defaults(Map<string, mixed> $data = Map {}, Map<string, mixed> $defaults = Map {}): Map<string, mixed> {
-        $data = Col::merge(Map {
-            'module' => 'main',
-            'controller' => 'index',
-            'action' => 'index',
-            'ext' => '',
-            'query' => Map {},
-            'args' => Vector {}
-        }, $defaults, $data);
-
-        $data['module'] = Inflector::route($data['module']);
-        $data['controller'] = Inflector::route($data['controller']);
-        $data['action'] = Inflector::route($data['action']);
-
-        if ($locale = Config::get('titon.locale.current')) {
-            $data['locale'] = Inflector::route($locale);
-        }
-
-        return $data;
-    }
-
-    /**
      * Map a route that only responds to a DELETE request.
      *
      * @param string $key
@@ -388,7 +235,7 @@ class Router {
      * @return $this
      */
     public function delete(string $key, Route $route): this {
-        return $this->map($key, $route->addMethod('delete'));
+        return $this->map($key, $route->setMethods(Vector {'delete'}));
     }
 
     /**
@@ -462,15 +309,6 @@ class Router {
     }
 
     /**
-     * Return the list of prefix token names.
-     *
-     * @return PrefixList
-     */
-    public function getPrefixes(): PrefixList {
-        return $this->_prefixes;
-    }
-
-    /**
      * Return the CRUD action resource map.
      *
      * @return ResourceMap
@@ -535,13 +373,14 @@ class Router {
      * @param GroupCallback $callback
      * @return $this
      */
-    public function group(Map<string, mixed> $options, GroupCallback $callback) {
+    public function group(Map<string, mixed> $options, GroupCallback $callback): this {
         $this->_groups[] = (Map {
             'prefix' => '',
             'suffix' => '',
             'secure' => false,
             'patterns' => Map {},
-            'filters' => Vector {}
+            'filters' => Vector {},
+            'methods' => Vector {}
         })->setAll($options);
 
         call_user_func($callback, $this);
@@ -563,22 +402,32 @@ class Router {
 
         // Apply group options
         foreach ($this->_groups as $group) {
+            $route->setSecure((bool) $group['secure']);
+
             if ($group['prefix'] !== '') {
-                $route->prepend($group['prefix']);
+                $route->prepend((string) $group['prefix']);
             }
 
             if ($group['suffix'] !== '') {
-                $route->append($group['suffix']);
+                $route->append((string) $group['suffix']);
             }
 
-            $route->setSecure($group['secure']);
+            if ($patterns = $group['patterns']) {
+                invariant($patterns instanceof Map, 'Group patterns must be a map');
 
-            if ($group['patterns']) {
-                $route->setPatterns($route->getPatterns()->setAll($group['patterns']));
+                $route->addPatterns($patterns);
             }
 
-            if ($group['filters']) {
-                $route->setFilters($route->getFilters()->addAll($group['filters']));
+            if ($filters = $group['filters']) {
+                invariant($filters instanceof Vector, 'Group filters must be a vector');
+
+                $route->addFilters($filters);
+            }
+
+            if ($methods = $group['methods']) {
+                invariant($methods instanceof Vector, 'Group methods must be a vector');
+
+                $route->addMethods($methods);
             }
         }
 
@@ -604,6 +453,8 @@ class Router {
             throw new NoMatchException(sprintf('No route has been matched for %s', $url));
         }
 
+        $this->_current = $match;
+
         // Trigger filters
         foreach ($match->getFilters() as $filter) {
             call_user_func_array($this->getFilter($filter), [$this, $match]);
@@ -617,33 +468,21 @@ class Router {
     /**
      * Parse a URL and apply default routes. Attempt to deconstruct @ URLs.
      *
-     * @param string|array $url
-     * @return Map<string, mixed>
+     * @param string $action
+     * @return Action
      * @throws \Titon\Route\Exception\InvalidRouteException
      */
-    public static function parse(mixed $url): Map<string, mixed> {
-        if (is_string($url)) {
-            $matches = [];
+    public static function parseAction(string $action): Action {
+        $matches = [];
 
-            if (preg_match('/^(?:(\w+)\\\)?(\w+)(?:\@(\w+)(?:\.(\w+))?)?$/i', $url, $matches)) {
-                $url = array_filter(array_map(function($value) {
-                    return Inflector::underscore($value);
-                }, [
-                    'module' => array_key_exists(1, $matches) ? $matches[1] : '',
-                    'controller' => $matches[2],
-                    'action' => array_key_exists(3, $matches) ? $matches[3] : '',
-                    'ext' => array_key_exists(4, $matches) ? $matches[4] : ''
-                ]));
-            } else {
-                throw new InvalidRouteException(sprintf('Invalid @ routing format for %s', $url));
-            }
+        if (preg_match('/^([\w\\\]+)\@(\w+)?$/i', $action, $matches)) {
+            return shape(
+                'class' => $matches[1],
+                'action' => $matches[2]
+            );
         }
 
-        if (is_array($url)) {
-            $url = new Map($url);
-        }
-
-        return static::defaults($url);
+        throw new InvalidRouteException(sprintf('Invalid @ action routing format for %s', $action));
     }
 
     /**
@@ -654,7 +493,7 @@ class Router {
      * @return $this
      */
     public function post(string $key, Route $route): this {
-        return $this->map($key, $route->addMethod('post'));
+        return $this->map($key, $route->setMethods(Vector {'post'}));
     }
 
     /**
@@ -665,7 +504,7 @@ class Router {
      * @return $this
      */
     public function put(string $key, Route $route): this {
-        return $this->map($key, $route->addMethod('put'));
+        return $this->map($key, $route->setMethods(Vector {'put'}));
     }
 
     /**
@@ -673,15 +512,14 @@ class Router {
      *
      * @param string $key
      * @param \Titon\Route\Route $route
-     * @param Map<string, string> $map
      * @return $this
      */
-    public function resource(string $key, Route $route, ResourceMap $map = Map {}) {
-        $map = $this->getResourceMap()->setAll($map);
-        $class = get_class($route);
+    public function resource(string $key, Route $route): this {
+        $action = $route->getAction();
+        $actionMap = $this->getResourceMap();
         $path = $route->getPath();
-        $params = $route->getParams();
-        $methods = Map {
+        $class = get_class($route);
+        $resources = Map {
             'list' => Vector {'get'},
             'create' => Vector {'post'},
             'read' => Vector {'get'},
@@ -689,23 +527,28 @@ class Router {
             'delete' => Vector {'delete', 'post'}
         };
 
-        foreach ($map as $type => $action) {
-            $newPath = $path;
-            $params['action'] = $action;
+        foreach ($resources as $resource => $methods) {
 
-            if (in_array($type, Vector {'read', 'update', 'delete'})) {
+            // Set the action to trigger
+            $newAction = $action;
+            $newAction['action'] = $actionMap[$resource];
+
+            // Build the new URL path
+            $newPath = $path;
+
+            if (in_array($resource, Vector {'read', 'update', 'delete'})) {
                 $newPath .= '/(id)';
             }
 
             /** @type \Titon\Route\Route $newRoute */
-            $newRoute = Registry::factory($class, Vector {$newPath, $params}, false);
+            $newRoute = Registry::factory($class, Vector {$newPath, static::buildAction($newAction)}, false);
             $newRoute->setStatic($route->getStatic());
             $newRoute->setSecure($route->getSecure());
             $newRoute->setFilters($route->getFilters());
             $newRoute->setPatterns($route->getPatterns());
-            $newRoute->setMethods($methods[$type]);
+            $newRoute->setMethods($methods);
 
-            $this->map($key . '.' . $type, $newRoute);
+            $this->map($key . '.' . $resource, $newRoute);
         }
 
         return $this;
@@ -719,18 +562,6 @@ class Router {
      */
     public function setMatcher(Matcher $matcher): this {
         $this->_matcher = $matcher;
-
-        return $this;
-    }
-
-    /**
-     * Set a list of prefixes and overwrite any previously defined prefixes.
-     *
-     * @param PrefixList $prefixes
-     * @return $this
-     */
-    public function setPrefixes(PrefixList $prefixes): this {
-        $this->_prefixes = $prefixes;
 
         return $this;
     }
@@ -756,16 +587,16 @@ class Router {
         $segments = $this->getSegments();
         $base = $this->base();
 
-        $url = $segments['scheme'] . '://' . $segments['host'];
+        $url = (string) $segments['scheme'] . '://' . (string) $segments['host'];
 
         if ($base !== '/') {
             $url .= $base;
         }
 
-        $url .= $segments['path'];
+        $url .= (string) $segments['path'];
 
         if ($segments['query']) {
-            $url .= '?' . http_build_query($segments['query'], '', '&', PHP_QUERY_RFC1738);
+            $url .= '?' . http_build_query($segments['query']);
         }
 
         return $url;

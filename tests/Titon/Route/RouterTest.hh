@@ -13,15 +13,15 @@ class RouterTest extends TestCase {
         parent::setUp();
 
         $this->object = new Router();
-        $this->object->map('action.ext', new Route('/{module}/{controller}/{action}.{ext}'));
-        $this->object->map('action', new Route('/{module}/{controller}/{action}'));
-        $this->object->map('controller', new Route('/{module}/{controller}'));
-        $this->object->map('module', new Route('/{module}'));
-        $this->object->map('root', new Route('/'));
+        $this->object->map('action.ext', new Route('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
+        $this->object->map('action', new Route('/{module}/{controller}/{action}', 'Module\Controller@action'));
+        $this->object->map('controller', new Route('/{module}/{controller}', 'Module\Controller@action'));
+        $this->object->map('module', new Route('/{module}', 'Module\Controller@action'));
+        $this->object->map('root', new Route('/', 'Module\Controller@action'));
         $this->object->initialize();
     }
 
-    public function testBuild() {
+    /*public function testBuild() {
         $this->assertEquals('/', $this->object->build());
         $this->assertEquals('/module', $this->object->build(['module' => 'module']));
         $this->assertEquals('/module/index/action', $this->object->build(['module' => 'module', 'action' => 'action']));
@@ -103,18 +103,12 @@ class RouterTest extends TestCase {
         $this->assertEquals('/module/controller?sort=key&order=asc', $this->object->build(['route' => 'Module\Controller@index', 'query' => ['sort' => 'key', 'order' => 'asc']]));
     }
 
-    /**
-     * @expectedException \Titon\Route\Exception\InvalidRouteException
-     */
     public function testBuildMissingToken() {
         $this->object->map('profile', new Route('/profile/{username}', ['module' => 'profiles']));
 
         $this->object->build(['route' => 'profile']);
     }
 
-    /**
-     * @expectedException \Titon\Route\Exception\InvalidRouteException
-     */
     public function testBuildMissingRoute() {
         $this->object->build(['route' => 'foobar']);
     }
@@ -127,9 +121,6 @@ class RouterTest extends TestCase {
         $this->assertEquals('/blog/2012/2', $this->object->build(['route' => 'blog.archives', 'year' => 2012, 'month' => 02]));
     }
 
-    /**
-     * @expectedException \Titon\Route\Exception\InvalidRouteException
-     */
     public function testBuildOptionalMissingToken() {
         $this->object->map('blog.archives', new Route('/blog/[year]/[month]/[day?]', 'Blog\Api@archives'));
 
@@ -144,133 +135,338 @@ class RouterTest extends TestCase {
 
         $this->assertEquals('/base', $router->base());
         $this->assertEquals('/base/module', $this->object->build(['module' => 'module']));
+    }*/
+
+    public function testBuildAction() {
+        $this->assertEquals('Controller@action', Router::buildAction(shape('class' => 'Controller', 'action' => 'action')));
     }
 
-    public function testDefaults() {
-        $this->assertEquals(Map {
-            'module' => 'main',
-            'controller' => 'index',
-            'action' => 'index',
-            'ext' => '',
-            'query' => Map {},
-            'args' => Vector {}
-        }, Router::defaults());
+    public function testFilters() {
+        $stub = new FilterStub();
 
-        $this->assertEquals(Map {
-            'module' => 'main',
-            'controller' => 'controller',
-            'action' => 'some-action',
-            'ext' => '',
-            'query' => Map {},
-            'args' => Vector {}
-        }, Router::defaults(Map {'controller' => 'controller', 'action' => 'some_action'}));
+        $this->object->filter('test', $stub);
+        $this->object->filterCallback('test2', function() {});
 
-        $this->assertEquals(Map {
-            'module' => 'main',
-            'controller' => 'dashed-controller',
-            'action' => 'someaction',
-            'ext' => 'html',
-            'query' => Map {},
-            'args' => Vector {}
-        }, Router::defaults(Map {'controller' => 'dashed-controller', 'action' => 'someAction', 'ext' => 'html'}));
+        $this->assertEquals(inst_meth($stub, 'filter'), $this->object->getFilter('test'));
+        $this->assertEquals(Vector {'test', 'test2'}, $this->object->getFilters()->keys());
 
-        $this->assertEquals(Map {
-            'module' => 'underscore-module',
-            'controller' => 'index',
-            'action' => 'some-action',
-            'ext' => '',
-            'query' => Map {},
-            'args' => Vector {},
-            '#' => 'fragment'
-        }, Router::defaults(Map {'module' => 'underscore_module', 'action' => 'some_action', '#' => 'fragment'}));
+        // Filtering is passed to routes
+        $this->object->map('f1', (new Route('/f1', 'Controller@action'))->addFilter('test2'));
+        $this->object->group(Map {'filters' => Vector {'test'}}, function(Router $router) {
+            $router->map('f2', new Route('/f2', 'Controller@action'));
+        });
+        $this->object->map('f3', new Route('/f3', 'Controller@action'));
 
-        $this->assertEquals(Map {
-            'module' => 'random-module-chars',
-            'controller' => 'index',
-            'action' => 'index',
-            'ext' => 'json',
-            'query' => Map {},
-            'args' => Vector {},
-            '#' => ['fragment' => 'array']
-        }, Router::defaults(Map {'module' => 'ran%$dom-mo(*$#dule_c%(#hars', 'ext' => 'json', '#' => ['fragment' => 'array']}));
+        $routes = $this->object->all();
 
-        $this->assertEquals(Map {
-            'module' => 'main',
-            'controller' => 'index',
-            'action' => 'index',
-            'ext' => '',
-            'query' => Map {},
-            'args' => Vector {},
-            'foo' => 'bar',
-            'int' => 123,
-        }, Router::defaults(Map {'foo' => 'bar', 'int' => 123}));
-
-        $this->assertEquals(Map {
-            'module' => 'main',
-            'controller' => 'index',
-            'action' => 'index',
-            'ext' => '',
-            'query' => Map {'foo' => 'bar', 'int' => 123},
-            'args' => Vector {123, 'abc'}
-        }, Router::defaults(Map {'query' => Map {'foo' => 'bar', 'int' => 123}, 'args' => Vector {123, 'abc'}}));
+        $this->assertEquals(Vector {'test2'}, $routes['f1']->getFilters());
+        $this->assertEquals(Vector {'test'}, $routes['f2']->getFilters());
+        $this->assertEquals(Vector {}, $routes['f3']->getFilters());
     }
 
-    public function testParse() {
-        $this->assertEquals(Map {
-            'module' => 'module',
-            'controller' => 'controller',
-            'action' => 'index',
-            'ext' => '',
-            'query' => Map {},
-            'args' => Vector {}
-        }, Router::parse('Module\Controller'));
+    /**
+     * @expectedException \Titon\Route\Exception\MissingFilterException
+     */
+    public function testFilterMissingKey() {
+        $this->object->getFilter('fakeKey');
+    }
 
-        $this->assertEquals(Map {
-            'module' => 'module',
-            'controller' => 'controller',
-            'action' => 'action',
-            'ext' => '',
-            'query' => Map {},
-            'args' => Vector {}
-        }, Router::parse('Module\Controller@action'));
+    public function testFilterIsTriggered() {
+        $router = new Router();
+        $count = 0;
 
-        $this->assertEquals(Map {
-            'module' => 'module',
-            'controller' => 'controller',
-            'action' => 'action',
-            'ext' => 'ext',
-            'query' => Map {},
-            'args' => Vector {}
-        }, Router::parse('Module\Controller@action.ext'));
+        $router->filterCallback('test', function() use (&$count) {
+            $count++;
+        });
 
-        $this->assertEquals(Map {
-            'module' => 'two-words',
-            'controller' => 'controller',
-            'action' => 'multi-word-action',
-            'ext' => '',
-            'query' => Map {},
-            'args' => Vector {}
-        }, Router::parse('TwoWords\Controller@multiWordAction'));
+        $router->map('f1', (new Route('/f1', 'Controller@action'))->addFilter('test'));
+        $router->group(Map {'filters' => Vector {'test'}}, function(Router $router) {
+            $router->map('f2', new Route('/f2', 'Controller@action'));
+        });
+        $router->map('f3', new Route('/f3', 'Controller@action'));
 
-        // Without module
-        $this->assertEquals(Map {
-            'module' => 'main',
-            'controller' => 'moduleless-controller',
-            'action' => 'multi-word-action',
-            'ext' => '',
-            'query' => Map {},
-            'args' => Vector {}
-        }, Router::parse('ModulelessController@multiWordAction'));
+        $router->match('/f1');
+        $this->assertEquals(1, $count);
+
+        $router->match('/f2');
+        $this->assertEquals(2, $count);
+
+        $router->match('/f3');
+        $this->assertEquals(2, $count);
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testFilterCanThrowException() {
+        $this->object->filterCallback('test', function() use (&$count) {
+            throw new \Exception('Filter error!');
+        });
+
+        $this->object->map('root', (new Route('/', 'Controller@action'))->addFilter('test'));
+
+        $this->object->match('/');
+    }
+
+    public function testGroupPrefixing() {
+        $this->object->group(Map {'prefix' => '/pre/'}, function(Router $router) {
+            $router->map('group1', new Route('/group-1', 'Controller@action'));
+            $router->map('group2', new Route('/group-2', 'Controller@action'));
+        });
+
+        $this->object->map('solo', new Route('/solo', 'Controller@action'));
+
+        $routes = $this->object->all();
+
+        $this->assertEquals('/', $routes['root']->getPath());
+        $this->assertEquals('/pre/group-1', $routes['group1']->getPath());
+        $this->assertEquals('/pre/group-2', $routes['group2']->getPath());
+        $this->assertEquals('/solo', $routes['solo']->getPath());
+    }
+
+    public function testGroupSuffixing() {
+        $this->object->group(Map {'suffix' => '/post/'}, function(Router $router) {
+            $router->map('group1', new Route('/group-1', 'Controller@action'));
+            $router->map('group2', new Route('/group-2', 'Controller@action'));
+        });
+
+        $this->object->map('solo', new Route('/solo', 'Controller@action'));
+
+        $routes = $this->object->all();
+
+        $this->assertEquals('/', $routes['root']->getPath());
+        $this->assertEquals('/group-1/post', $routes['group1']->getPath());
+        $this->assertEquals('/group-2/post', $routes['group2']->getPath());
+        $this->assertEquals('/solo', $routes['solo']->getPath());
+    }
+
+    public function testGroupSecure() {
+        $this->object->group(Map {'secure' => true}, function(Router $router) {
+            $router->map('group1', new Route('/group-1', 'Controller@action'));
+            $router->map('group2', new Route('/group-2', 'Controller@action'));
+        });
+
+        $this->object->map('solo', new Route('/solo', 'Controller@action'));
+
+        $routes = $this->object->all();
+
+        $this->assertEquals(false, $routes['root']->getSecure());
+        $this->assertEquals(true, $routes['group1']->getSecure());
+        $this->assertEquals(true, $routes['group2']->getSecure());
+        $this->assertEquals(false, $routes['solo']->getSecure());
+    }
+
+    public function testGroupPatterns() {
+        $this->object->group(Map {'prefix' => '<token>', 'patterns' => Map {'token' => '([abcd]+)'}}, function(Router $router) {
+            $router->map('group1', new Route('/group-1', 'Controller@action'));
+            $router->map('group2', (new Route('/group-2', 'Controller@action'))->addPattern('foo', '(bar|baz)'));
+        });
+
+        $this->object->map('solo', new Route('/solo', 'Controller@action'));
+
+        $routes = $this->object->all();
+
+        $this->assertEquals('/', $routes['root']->getPath());
+        $this->assertEquals('/<token>/group-1', $routes['group1']->getPath());
+        $this->assertEquals('/<token>/group-2', $routes['group2']->getPath());
+        $this->assertEquals('/solo', $routes['solo']->getPath());
+
+        $this->assertEquals(Map {}, $routes['root']->getPatterns());
+        $this->assertEquals(Map {'token' => '([abcd]+)'}, $routes['group1']->getPatterns());
+        $this->assertEquals(Map {'foo' => '(bar|baz)', 'token' => '([abcd]+)'}, $routes['group2']->getPatterns());
+        $this->assertEquals(Map {}, $routes['solo']->getPatterns());
+    }
+
+    public function testGroupNesting() {
+        $this->object->group(Map {'prefix' => '/pre/'}, function(Router $router) {
+            $router->map('group1', new Route('/group-1', 'Controller@action'));
+
+            $router->group(Map {'suffix' => '/post'}, function(Router $router) {
+                $router->map('group2', new Route('/group-2', 'Controller@action'));
+            });
+        });
+
+        $this->object->map('solo', new Route('/solo', 'Controller@action'));
+
+        $routes = $this->object->all();
+
+        $this->assertEquals('/', $routes['root']->getPath());
+        $this->assertEquals('/pre/group-1', $routes['group1']->getPath());
+        $this->assertEquals('/pre/group-2/post', $routes['group2']->getPath());
+        $this->assertEquals('/solo', $routes['solo']->getPath());
+    }
+
+    public function testGroupNestingInherits() {
+        $this->markTestIncomplete();
+    }
+
+    public function testHttpMapping() {
+        $this->object->map('url1', new Route('/url', 'Controller@action'));
+        $this->object->get('url2', new Route('/url', 'Controller@action'));
+        $this->object->post('url3', new Route('/url', 'Controller@action'));
+        $this->object->put('url4', new Route('/url', 'Controller@action'));
+        $this->object->delete('url5', new Route('/url', 'Controller@action'));
+
+        $routes = $this->object->all();
+
+        $this->assertEquals(Vector {}, $routes['url1']->getMethods());
+        $this->assertEquals(Vector {'get', 'head'}, $routes['url2']->getMethods());
+        $this->assertEquals(Vector {'post'}, $routes['url3']->getMethods());
+        $this->assertEquals(Vector {'put'}, $routes['url4']->getMethods());
+        $this->assertEquals(Vector {'delete'}, $routes['url5']->getMethods());
+    }
+
+    public function testLoopMatch() {
+        $route = $this->object->match('/');
+        $this->assertEquals('/', $route->getPath());
+        $this->assertEquals($route, $this->object->current());
+
+        $route = $this->object->match('/users');
+        $this->assertEquals('/{module}', $route->getPath());
+
+        $route = $this->object->match('/users/profile');
+        $this->assertEquals('/{module}/{controller}', $route->getPath());
+
+        $route = $this->object->match('/users/profile/view');
+        $this->assertEquals('/{module}/{controller}/{action}', $route->getPath());
+
+        $route = $this->object->match('/users/profile/view.json');
+        $this->assertEquals('/{module}/{controller}/{action}.{ext}', $route->getPath());
+    }
+
+    /**
+     * @expectedException \Titon\Route\Exception\NoMatchException
+     */
+    public function testLoopMatchNoMatch() {
+        $this->object->match('/path~tilde');
+    }
+
+    public function testParseAction() {
+        $this->assertEquals(shape(
+            'class' => 'Controller',
+            'action' => 'action'
+        ), Router::parseAction('Controller@action'));
+
+        $this->assertEquals(shape(
+            'class' => 'Controller',
+            'action' => 'foo'
+        ), Router::parseAction('Controller@foo'));
+
+        $this->assertEquals(shape(
+            'class' => 'Module\Controller',
+            'action' => 'index'
+        ), Router::parseAction('Module\Controller@index'));
+
+        $this->assertEquals(shape(
+            'class' => 'Module\Controller_With_Underscores',
+            'action' => 'index'
+        ), Router::parseAction('Module\Controller_With_Underscores@index'));
+
+        $this->assertEquals(shape(
+            'class' => 'Module\Controller_With_Numbers123',
+            'action' => 'index'
+        ), Router::parseAction('Module\Controller_With_Numbers123@index'));
+
+        $this->assertEquals(shape(
+            'class' => 'Module\Controller',
+            'action' => 'action'
+        ), Router::parseAction('Module\Controller@action'));
+
+        $this->assertEquals(shape(
+            'class' => 'Module\Controller',
+            'action' => 'multiWordAction'
+        ), Router::parseAction('Module\Controller@multiWordAction'));
+
+        $this->assertEquals(shape(
+            'class' => 'Module\Controller',
+            'action' => 'action_with_underscores'
+        ), Router::parseAction('Module\Controller@action_with_underscores'));
     }
 
     /**
      * @expectedException \Titon\Route\Exception\InvalidRouteException
      */
-    public function testParseInvalidRoute() {
-        Router::parse('Broken+Route');
+    public function testParseActionInvalidRoute() {
+        Router::parseAction('Broken+Route');
     }
 
-    public function testInitializeAndSegmentsAndBase() {
+    public function testResourceMap() {
+        $this->assertEquals(Map {
+            'list' => 'index',
+            'create' => 'create',
+            'read' => 'read',
+            'update' => 'update',
+            'delete' => 'delete'
+        }, $this->object->getResourceMap());
+
+        $this->object->setResourceMap(Map {
+            'create' => 'add',
+            'read' => 'view',
+            'update' => 'edit',
+            'delete' => 'remove'
+        });
+
+        $this->assertEquals(Map {
+            'list' => 'index',
+            'create' => 'add',
+            'read' => 'view',
+            'update' => 'edit',
+            'delete' => 'remove'
+        }, $this->object->getResourceMap());
+    }
+
+    public function testResourceMapping() {
+        $this->object->resource('rest', new Route('/rest', 'Api\Rest@action'));
+
+        $routes = $this->object->all();
+
+        // Keys
+        $this->assertFalse(isset($routes['rest']));
+        $this->assertTrue(isset($routes['rest.list']));
+        $this->assertTrue(isset($routes['rest.create']));
+        $this->assertTrue(isset($routes['rest.read']));
+        $this->assertTrue(isset($routes['rest.update']));
+        $this->assertTrue(isset($routes['rest.delete']));
+
+        // Paths
+        $this->assertEquals('/rest', $routes['rest.list']->getPath());
+        $this->assertEquals('/rest', $routes['rest.create']->getPath());
+        $this->assertEquals('/rest/(id)', $routes['rest.read']->getPath());
+        $this->assertEquals('/rest/(id)', $routes['rest.update']->getPath());
+        $this->assertEquals('/rest/(id)', $routes['rest.delete']->getPath());
+
+        // Action
+        $this->assertEquals(shape('class' => 'Api\Rest', 'action' => 'index'), $routes['rest.list']->getAction());
+        $this->assertEquals(shape('class' => 'Api\Rest', 'action' => 'create'), $routes['rest.create']->getAction());
+        $this->assertEquals(shape('class' => 'Api\Rest', 'action' => 'read'), $routes['rest.read']->getAction());
+        $this->assertEquals(shape('class' => 'Api\Rest', 'action' => 'update'), $routes['rest.update']->getAction());
+        $this->assertEquals(shape('class' => 'Api\Rest', 'action' => 'delete'), $routes['rest.delete']->getAction());
+
+        // Method
+        $this->assertEquals(Vector {'get'}, $routes['rest.list']->getMethods());
+        $this->assertEquals(Vector {'post'}, $routes['rest.create']->getMethods());
+        $this->assertEquals(Vector {'get'}, $routes['rest.read']->getMethods());
+        $this->assertEquals(Vector {'put', 'post'}, $routes['rest.update']->getMethods());
+        $this->assertEquals(Vector {'delete', 'post'}, $routes['rest.delete']->getMethods());
+    }
+
+    public function testRoutes() {
+        $route = new Route('/', 'Controller@action');
+        $router = new Router();
+        $router->map('key', $route);
+
+        $this->assertEquals($route, $router->getRoute('key'));
+        $this->assertEquals(Map {'key' => $route}, $router->getRoutes());
+    }
+
+    /**
+     * @expectedException \Titon\Route\Exception\MissingRouteException
+     */
+    public function testRoutesMissingKey() {
+        $this->object->getRoute('fakeKey');
+    }
+
+    public function testSegments() {
         $_SERVER['DOCUMENT_ROOT'] = '';
         $_SERVER['HTTP_HOST'] = 'localhost';
         $_SERVER['SCRIPT_FILENAME'] = '/index.php';
@@ -369,283 +565,21 @@ class RouterTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\MissingSegmentException
      */
-    public function testGetSegmentMissingKey() {
+    public function testSegmentsMissingKey() {
         $this->object->getSegment('fakeKey');
     }
 
-    public function testLoopMatch() {
-        $route = $this->object->match('/');
-        $this->assertEquals('/', $route->getPath());
-        $this->assertEquals($route, $this->object->current());
+    public function testUrl() {
+        $_SERVER['DOCUMENT_ROOT'] = '/root';
+        $_SERVER['HTTP_HOST'] = 'sub.domain.com';
+        $_SERVER['SCRIPT_FILENAME'] = '/root/base/app/index.php';
+        $_SERVER['REQUEST_URI'] = '/module/controller/action.html/123?foo=bar';
+        $_SERVER['HTTPS'] = 'on';
+        $_GET = ['foo' => 'bar'];
 
-        $route = $this->object->match('/users');
-        $this->assertEquals('/{module}', $route->getPath());
-
-        $route = $this->object->match('/users/profile');
-        $this->assertEquals('/{module}/{controller}', $route->getPath());
-
-        $route = $this->object->match('/users/profile/view');
-        $this->assertEquals('/{module}/{controller}/{action}', $route->getPath());
-
-        $route = $this->object->match('/users/profile/view.json');
-        $this->assertEquals('/{module}/{controller}/{action}.{ext}', $route->getPath());
-    }
-
-    /**
-     * @expectedException \Titon\Route\Exception\NoMatchException
-     */
-    public function testLoopMatchNoMatch() {
-        $this->object->match('/path~tilde');
-    }
-
-    public function testHttpMapping() {
-        $this->object->map('url1', new Route('/url'));
-        $this->object->get('url2', new Route('/url'));
-        $this->object->post('url3', new Route('/url'));
-        $this->object->put('url4', new Route('/url'));
-        $this->object->delete('url5', new Route('/url'));
-
-        $routes = $this->object->all();
-
-        $this->assertEquals(Vector {}, $routes['url1']->getMethods());
-        $this->assertEquals(Vector {'get', 'head'}, $routes['url2']->getMethods());
-        $this->assertEquals(Vector {'post'}, $routes['url3']->getMethods());
-        $this->assertEquals(Vector {'put'}, $routes['url4']->getMethods());
-        $this->assertEquals(Vector {'delete'}, $routes['url5']->getMethods());
-    }
-
-    public function testGetRoute() {
-        $route = new Route('/');
         $router = new Router();
-        $router->map('key', $route);
 
-        $this->assertEquals($route, $router->getRoute('key'));
-        $this->assertEquals(Map {'key' => $route}, $router->getRoutes());
-    }
-
-    /**
-     * @expectedException \Titon\Route\Exception\MissingRouteException
-     */
-    public function testGetRouteMissingKey() {
-        $this->object->getRoute('fakeKey');
-    }
-
-    public function testResourceMapping() {
-        $this->object->resource('rest', new Route('/rest', 'Api\Rest'));
-
-        $routes = $this->object->all();
-
-        // Keys
-        $this->assertFalse(isset($routes['rest']));
-        $this->assertTrue(isset($routes['rest.list']));
-        $this->assertTrue(isset($routes['rest.create']));
-        $this->assertTrue(isset($routes['rest.read']));
-        $this->assertTrue(isset($routes['rest.update']));
-        $this->assertTrue(isset($routes['rest.delete']));
-
-        // Paths
-        $this->assertEquals('/rest', $routes['rest.list']->getPath());
-        $this->assertEquals('/rest', $routes['rest.create']->getPath());
-        $this->assertEquals('/rest/(id)', $routes['rest.read']->getPath());
-        $this->assertEquals('/rest/(id)', $routes['rest.update']->getPath());
-        $this->assertEquals('/rest/(id)', $routes['rest.delete']->getPath());
-
-        // Route
-        $this->assertEquals(Map {'module' => 'api', 'controller' => 'rest', 'action' => 'index', 'ext' => '', 'query' => Map {}, 'args' => Vector {}}, $routes['rest.list']->getParams());
-        $this->assertEquals(Map {'module' => 'api', 'controller' => 'rest', 'action' => 'create', 'ext' => '', 'query' => Map {}, 'args' => Vector {}}, $routes['rest.create']->getParams());
-        $this->assertEquals(Map {'module' => 'api', 'controller' => 'rest', 'action' => 'read', 'ext' => '', 'query' => Map {}, 'args' => Vector {}}, $routes['rest.read']->getParams());
-        $this->assertEquals(Map {'module' => 'api', 'controller' => 'rest', 'action' => 'update', 'ext' => '', 'query' => Map {}, 'args' => Vector {}}, $routes['rest.update']->getParams());
-        $this->assertEquals(Map {'module' => 'api', 'controller' => 'rest', 'action' => 'delete', 'ext' => '', 'query' => Map {}, 'args' => Vector {}}, $routes['rest.delete']->getParams());
-
-        // Method
-        $this->assertEquals(Vector {'get'}, $routes['rest.list']->getMethods());
-        $this->assertEquals(Vector {'post'}, $routes['rest.create']->getMethods());
-        $this->assertEquals(Vector {'get'}, $routes['rest.read']->getMethods());
-        $this->assertEquals(Vector {'put', 'post'}, $routes['rest.update']->getMethods());
-        $this->assertEquals(Vector {'delete', 'post'}, $routes['rest.delete']->getMethods());
-
-        // Pass
-        $this->assertEquals(Vector {}, $routes['rest.list']->getPassed());
-        $this->assertEquals(Vector {}, $routes['rest.create']->getPassed());
-        $this->assertEquals(Vector {'id'}, $routes['rest.read']->getPassed());
-        $this->assertEquals(Vector {'id'}, $routes['rest.update']->getPassed());
-        $this->assertEquals(Vector {'id'}, $routes['rest.delete']->getPassed());
-    }
-
-    public function testGroupPrefixing() {
-        $this->object->group(Map {'prefix' => '/pre/'}, function(Router $router) {
-            $router->map('group1', new Route('/group-1'));
-            $router->map('group2', new Route('/group-2'));
-        });
-
-        $this->object->map('solo', new Route('/solo'));
-
-        $routes = $this->object->all();
-
-        $this->assertEquals('/', $routes['root']->getPath());
-        $this->assertEquals('/pre/group-1', $routes['group1']->getPath());
-        $this->assertEquals('/pre/group-2', $routes['group2']->getPath());
-        $this->assertEquals('/solo', $routes['solo']->getPath());
-    }
-
-    public function testGroupSuffixing() {
-        $this->object->group(Map {'suffix' => '/post/'}, function(Router $router) {
-            $router->map('group1', new Route('/group-1'));
-            $router->map('group2', new Route('/group-2'));
-        });
-
-        $this->object->map('solo', new Route('/solo'));
-
-        $routes = $this->object->all();
-
-        $this->assertEquals('/', $routes['root']->getPath());
-        $this->assertEquals('/group-1/post', $routes['group1']->getPath());
-        $this->assertEquals('/group-2/post', $routes['group2']->getPath());
-        $this->assertEquals('/solo', $routes['solo']->getPath());
-    }
-
-    public function testGroupSecure() {
-        $this->object->group(Map {'secure' => true}, function(Router $router) {
-            $router->map('group1', new Route('/group-1'));
-            $router->map('group2', new Route('/group-2'));
-        });
-
-        $this->object->map('solo', new Route('/solo'));
-
-        $routes = $this->object->all();
-
-        $this->assertEquals(false, $routes['root']->getSecure());
-        $this->assertEquals(true, $routes['group1']->getSecure());
-        $this->assertEquals(true, $routes['group2']->getSecure());
-        $this->assertEquals(false, $routes['solo']->getSecure());
-    }
-
-    public function testGroupPatterns() {
-        $this->object->group(Map {'prefix' => '<token>', 'patterns' => Map {'token' => '([abcd]+)'}}, function(Router $router) {
-            $router->map('group1', new Route('/group-1'));
-            $router->map('group2', (new Route('/group-2'))->addPattern('foo', '(bar|baz)'));
-        });
-
-        $this->object->map('solo', new Route('/solo'));
-
-        $routes = $this->object->all();
-
-        $this->assertEquals('/', $routes['root']->getPath());
-        $this->assertEquals('/<token>/group-1', $routes['group1']->getPath());
-        $this->assertEquals('/<token>/group-2', $routes['group2']->getPath());
-        $this->assertEquals('/solo', $routes['solo']->getPath());
-
-        $this->assertEquals(Map {}, $routes['root']->getPatterns());
-        $this->assertEquals(Map {'token' => '([abcd]+)'}, $routes['group1']->getPatterns());
-        $this->assertEquals(Map {'foo' => '(bar|baz)', 'token' => '([abcd]+)'}, $routes['group2']->getPatterns());
-        $this->assertEquals(Map {}, $routes['solo']->getPatterns());
-    }
-
-    public function testGroupPass() {
-        $this->object->group(Map {'suffix' => '[id]', 'pass' => Vector {'foo'}}, function(Router $router) {
-            $router->map('group1', (new Route('/group-1'))->pass(Vector {'id', 'foo'}));
-            $router->map('group2', new Route('/group-2'));
-        });
-
-        $this->object->map('solo', new Route('/solo'));
-
-        $routes = $this->object->all();
-
-        $this->assertEquals('/', $routes['root']->getPath());
-        $this->assertEquals('/group-1/[id]', $routes['group1']->getPath());
-        $this->assertEquals('/group-2/[id]', $routes['group2']->getPath());
-        $this->assertEquals('/solo', $routes['solo']->getPath());
-
-        $this->assertEquals(Vector {}, $routes['root']->getPassed());
-        $this->assertEquals(Vector {'id', 'foo'}, $routes['group1']->getPassed());
-        $this->assertEquals(Vector {'foo'}, $routes['group2']->getPassed());
-        $this->assertEquals(Vector {}, $routes['solo']->getPassed());
-    }
-
-    public function testNestedGroups() {
-        $this->object->group(Map {'prefix' => '/pre/'}, function(Router $router) {
-            $router->map('group1', new Route('/group-1'));
-
-            $router->group(Map {'suffix' => '/post'}, function(Router $router) {
-                $router->map('group2', new Route('/group-2'));
-            });
-        });
-
-        $this->object->map('solo', new Route('/solo'));
-
-        $routes = $this->object->all();
-
-        $this->assertEquals('/', $routes['root']->getPath());
-        $this->assertEquals('/pre/group-1', $routes['group1']->getPath());
-        $this->assertEquals('/pre/group-2/post', $routes['group2']->getPath());
-        $this->assertEquals('/solo', $routes['solo']->getPath());
-    }
-
-    public function testFilter() {
-        $stub = new FilterStub();
-
-        $this->object->filterCallback('test', function() {});
-        $this->object->filter('test2', $stub);
-
-        $this->assertEquals(inst_meth($stub, 'filter'), $this->object->getFilter('test2'));
-        $this->assertEquals(Vector {'test', 'test2'}, $this->object->getFilters()->keys());
-
-        // Filtering is passed to routes
-        $this->object->map('f1', (new Route('/f1'))->addFilter('test'));
-        $this->object->group(Map {'filters' => Vector {'test'}}, function(Router $router) {
-            $router->map('f2', new Route('/f2'));
-        });
-        $this->object->map('f3', new Route('/f3'));
-
-        $routes = $this->object->all();
-
-        $this->assertEquals(Vector {'test'}, $routes['f1']->getFilters());
-        $this->assertEquals(Vector {'test'}, $routes['f2']->getFilters());
-        $this->assertEquals(Vector {}, $routes['f3']->getFilters());
-    }
-
-    /**
-     * @expectedException \Titon\Route\Exception\MissingFilterException
-     */
-    public function testFilterMissingKey() {
-        $this->object->getFilter('fakeKey');
-    }
-
-    public function testFilterIsTriggered() {
-        $router = new Router();
-        $count = 0;
-
-        $router->filterCallback('test', function() use (&$count) {
-            $count++;
-        });
-
-        $router->map('f1', (new Route('/f1'))->addFilter('test'));
-        $router->group(Map {'filters' => Vector {'test'}}, function(Router $router) {
-            $router->map('f2', new Route('/f2'));
-        });
-        $router->map('f3', new Route('/f3'));
-
-        $router->match('/f1');
-        $this->assertEquals(1, $count);
-
-        $router->match('/f2');
-        $this->assertEquals(2, $count);
-
-        $router->match('/f3');
-        $this->assertEquals(2, $count);
-    }
-
-    /**
-     * @expectedException \Exception
-     */
-    public function testFilterThrowsException() {
-        $this->object->filterCallback('test', function() use (&$count) {
-            throw new \Exception('Filter error!');
-        });
-
-        $this->object->map('root', (new Route('/'))->addFilter('test'));
-
-        $this->object->match('/');
+        $this->assertEquals('https://sub.domain.com/base/app/module/controller/action.html/123?foo=bar', $router->url());
     }
 
 }

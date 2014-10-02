@@ -6,7 +6,7 @@ use Titon\Test\TestCase;
 class RouteTest extends TestCase {
 
     public function testAppendPrepend() {
-        $route = new Route('', 'Controller@action');
+        $route = new Route('/', 'Controller@action');
 
         $this->assertEquals('/', $route->getPath());
 
@@ -83,14 +83,36 @@ class RouteTest extends TestCase {
     }
 
     public function testFilters() {
-        $this->markTestIncomplete('@todo');
+        $route = new Route('/', 'Controller@action');
+
+        $this->assertEquals(Vector {}, $route->getFilters());
+
+        $route->addFilter('foo');
+        $route->addFilter('bar');
+        $route->addFilter('foo');
+
+        $this->assertEquals(Vector {'foo', 'bar'}, $route->getFilters());
+
+        $route->setFilters(Vector {'baz'});
+
+        $this->assertEquals(Vector {'baz'}, $route->getFilters());
+    }
+
+    public function testGetAction() {
+        $route = new Route('/', 'Controller@action');
+
+        $this->assertEquals('Controller@action', $route->getAction());
+    }
+
+    public function testGetPath() {
+        $route = new Route('/users/profile/[id]', 'Controller@action');
+
+        $this->assertEquals('/users/profile/[id]', $route->getPath());
     }
 
     public function testIsMethod() {
         $noMethod = new Route('/', 'Controller@action');
-
         $singleMethod = (new Route('/', 'Controller@action'))->addMethod('POST');
-
         $multiMethod = (new Route('/', 'Controller@action'))->setMethods(Vector {'post', 'put'});
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -136,19 +158,106 @@ class RouteTest extends TestCase {
     }
 
     public function testIsMatch() {
-        $this->markTestIncomplete('@todo');
+        $route = new Route('/{module}/{controller}/{action}.{ext}', 'Controller@action');
+
+        $this->assertFalse($route->isMatch('/users'));
+        $this->assertFalse($route->isMatch('/users/profile'));
+        $this->assertFalse($route->isMatch('/users/profile/activity'));
+        $this->assertTrue($route->isMatch('/users/profile/activity.json'));
     }
 
-    public function testIsMatchSecure() {
-        $this->markTestIncomplete('@todo');
+    public function testIsMatchAlphaPattern() {
+        $route = new Route('/{alpha}', 'Controller@action');
+
+        $this->assertTrue($route->isMatch('/FOO'));
+        $this->assertTrue($route->isMatch('/foo'));
+        $this->assertTrue($route->isMatch('/foo-bar'));
+        $this->assertTrue($route->isMatch('/foo_bar'));
+        $this->assertTrue($route->isMatch('/foo+bar'));
+        $this->assertFalse($route->isMatch('/foo123'));
     }
 
-    public function testIsMatchDirectEqualPath() {
-        $this->markTestIncomplete('@todo');
+    public function testIsMatchAlnumPattern() {
+        $route = (new Route('/<alnum>', 'Controller@action'))->setPattern('alnum', Route::ALNUM);
+
+        $this->assertTrue($route->isMatch('/FOO'));
+        $this->assertTrue($route->isMatch('/foo'));
+        $this->assertTrue($route->isMatch('/foo-bar'));
+        $this->assertTrue($route->isMatch('/foo_bar'));
+        $this->assertTrue($route->isMatch('/foo+bar'));
+        $this->assertTrue($route->isMatch('/foo123'));
+        $this->assertTrue($route->isMatch('/foo-123'));
+        $this->assertFalse($route->isMatch('/foo.123'));
+    }
+
+    public function testIsMatchNumericPattern() {
+        $route = new Route('/[numeric]', 'Controller@action');
+
+        $this->assertTrue($route->isMatch('/123'));
+        $this->assertTrue($route->isMatch('/12.3'));
+        $this->assertFalse($route->isMatch('/12-3'));
+        $this->assertFalse($route->isMatch('/123foo'));
+        $this->assertFalse($route->isMatch('/foo'));
+    }
+
+    public function testIsMatchWildcardPattern() {
+        $route = new Route('/(wild)', 'Controller@action');
+
+        $this->assertTrue($route->isMatch('/FOO'));
+        $this->assertTrue($route->isMatch('/foo'));
+        $this->assertTrue($route->isMatch('/foo-bar'));
+        $this->assertTrue($route->isMatch('/foo_bar'));
+        $this->assertTrue($route->isMatch('/foo+bar'));
+        $this->assertTrue($route->isMatch('/foo123'));
+        $this->assertTrue($route->isMatch('/foo-123'));
+        $this->assertTrue($route->isMatch('/foo.123'));
+    }
+
+    public function testIsMatchLocalePattern() {
+        $route = (new Route('/<locale>', 'Controller@action'))->setPattern('locale', Route::LOCALE);
+
+        $this->assertTrue($route->isMatch('/en'));
+        $this->assertTrue($route->isMatch('/en-us'));
+        $this->assertFalse($route->isMatch('/en_us'));
+        $this->assertFalse($route->isMatch('/eng'));
     }
 
     public function testIsMatchMethod() {
-        $this->markTestIncomplete('@todo');
+        $route = new Route('/{module}', 'Controller@action');
+
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $this->assertTrue($route->isMatch('/foo'));
+
+        $route->addMethod('get');
+
+        $this->assertTrue($route->isMatch('/foo'));
+
+        $route->setMethods(Vector {'post'});
+
+        $this->assertFalse($route->isMatch('/foo'));
+    }
+
+    public function testIsMatchSecure() {
+        $route = new Route('/{module}', 'Controller@action');
+
+        $_SERVER['HTTPS'] = 'off';
+
+        $this->assertTrue($route->isMatch('/foo'));
+
+        $route->setSecure(true);
+
+        $this->assertFalse($route->isMatch('/foo'));
+
+        $_SERVER['HTTPS'] = 'on';
+
+        $this->assertTrue($route->isMatch('/foo'));
+    }
+
+    public function testIsMatchDirectEqualPath() {
+        $route = new Route('/foo', 'Controller@action');
+
+        $this->assertTrue($route->isMatch('/foo'));
     }
 
     public function testIsMatchTrailingSlash() {
@@ -160,15 +269,52 @@ class RouteTest extends TestCase {
     }
 
     public function testMethods() {
-        $this->markTestIncomplete('@todo');
+        $route = new Route('/', 'Controller@action');
+
+        $this->assertEquals(Vector {}, $route->getMethods());
+
+        $route->addMethod('get');
+        $route->addMethod('post');
+        $route->addMethod('get');
+
+        $this->assertEquals(Vector {'get', 'post'}, $route->getMethods());
+
+        $route->setMethods(Vector {'put'});
+
+        $this->assertEquals(Vector {'put'}, $route->getMethods());
     }
 
     public function testParams() {
-        $this->markTestIncomplete('@todo');
+        $route = new Route('/{module}/{controller}/{action}.{ext}', 'Controller@action');
+        $route->isMatch('/users/profile/activity.json');
+
+        $this->assertEquals('/users/profile/activity.json', $route->url());
+
+        $this->assertEquals(Map {
+            'module' => 'users',
+            'controller' => 'profile',
+            'action' => 'activity',
+            'ext' => 'json'
+        }, $route->getParams());
+
+        $this->assertEquals('users', $route->getParam('module'));
+        $this->assertEquals(null, $route->getParam('hash'));
     }
 
     public function testPatterns() {
-        $this->markTestIncomplete('@todo');
+        $route = new Route('/', 'Controller@action');
+
+        $this->assertEquals(Map {}, $route->getPatterns());
+
+        $route->setPattern('id', '[0-9]+');
+        $route->setPattern('key', '[a-z]+');
+        $route->setPattern('id', '[1-8]+');
+
+        $this->assertEquals(Map {'id' => '[1-8]+', 'key' => '[a-z]+'}, $route->getPatterns());
+
+        $route->setPatterns(Map {'key' => '[A-Z]+'});
+
+        $this->assertEquals(Map {'key' => '[A-Z]+'}, $route->getPatterns());
     }
 
     public function testTokens() {
@@ -200,7 +346,7 @@ class RouteTest extends TestCase {
         $this->assertEquals('\/([foo|bar])\/?', $route->compile());
 
         $route = new Route('/<regex:[foo|bar]?>', 'Controller@action');
-        $this->assertEquals('(?:\/([foo|bar]))?\/?', 'Controller@action', $route->compile());
+        $this->assertEquals('(?:\/([foo|bar]))?\/?', $route->compile());
 
         $route = new Route('/<regex:([a-z0-9\w\s\d\-]+)?>', 'Controller@action');
         $this->assertEquals('(?:\/([a-z0-9\w\s\d\-]+))?\/?', $route->compile());
@@ -214,10 +360,6 @@ class RouteTest extends TestCase {
 
         $route = new Route('/(wild)/{string}/<regex:([a-z]\-[A-Z])>/[int?]', 'Controller@action');
         $this->assertEquals('\/(.*)\/([a-z\_\-\+]+)\/([a-z]\-[A-Z])(?:\/([0-9\.]+))?\/?', $route->compile());
-    }
-
-    public function testUrl() {
-        $this->markTestIncomplete('@todo');
     }
 
 }

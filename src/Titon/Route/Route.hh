@@ -120,8 +120,8 @@ class Route {
      * @param string $route
      */
     public function __construct(string $path, string $action) {
-        $this->append($path);
         $this->_action = $action;
+        $this->append($path);
     }
 
     /**
@@ -131,7 +131,9 @@ class Route {
      * @return $this
      */
     public function addFilter(string $key): this {
-        $this->_filters[] = $key;
+        if (!in_array($key, $this->_filters)) {
+            $this->_filters[] = $key;
+        }
 
         return $this;
     }
@@ -143,7 +145,9 @@ class Route {
      * @return $this
      */
     public function addMethod(string $key): this {
-        $this->_methods[] = $key;
+        if (!in_array($key, $this->_methods)) {
+            $this->_methods[] = $key;
+        }
 
         return $this;
     }
@@ -206,7 +210,7 @@ class Route {
                         list($token, $pattern) = explode(':', $token, 2);
 
                         $patterns[$token] = $pattern;
-                        $this->addPattern($token, $pattern);
+                        $this->setPattern($token, $pattern);
                     }
 
                     if ($open === '{' && $close === '}') {
@@ -382,7 +386,7 @@ class Route {
      * @return bool
      */
     public function isMethod(): bool {
-        $method = array_map('strtolower', $this->getMethods());
+        $method = $this->getMethods()->map(fun('strtolower'));
 
         if ($method && !in_array(strtolower($_SERVER['REQUEST_METHOD']), $method, true)) {
             return false;
@@ -420,7 +424,7 @@ class Route {
     }
 
     /**
-     * Receive an array of matched values and apply it to the current route.
+     * Receive a list of matched values and apply it to the current route.
      * These matches will equate to tokens, arguments, and other required values.
      *
      * @param Vector<string> $matches

@@ -12,119 +12,36 @@ class RouterTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new Router();
+        $this->object = Router::registry();
         $this->object->map('action.ext', new Route('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
         $this->object->map('action', new Route('/{module}/{controller}/{action}', 'Module\Controller@action'));
         $this->object->map('controller', new Route('/{module}/{controller}', 'Module\Controller@action'));
         $this->object->map('module', new Route('/{module}', 'Module\Controller@action'));
         $this->object->map('root', new Route('/', 'Module\Controller@action'));
-        $this->object->initialize();
     }
 
-    /*public function testBuild() {
-        $this->assertEquals('/', $this->object->build());
-        $this->assertEquals('/module', $this->object->build(['module' => 'module']));
-        $this->assertEquals('/module/index/action', $this->object->build(['module' => 'module', 'action' => 'action']));
-        $this->assertEquals('/module/controller/action', $this->object->build(['module' => 'module', 'controller' => 'controller', 'action' => 'action']));
-        $this->assertEquals('/main/controller/action', $this->object->build(['controller' => 'controller', 'action' => 'action']));
-        $this->assertEquals('/dash-ed/camelcase/under-score', $this->object->build(['module' => 'dash-ed', 'controller' => 'camelCase', 'action' => 'under_score']));
-        $this->assertEquals('/s-p-a-c-e-s/1-2-3-numbers/punctuation', $this->object->build(['module' => 's p a c e s', 'controller' => '1 2 3 numbers', 'action' => 'punc"@*#$*&)tuation']));
-        $this->assertEquals('/main/controller/action#fragment', $this->object->build(['controller' => 'controller', 'action' => 'action', '#' => 'fragment']));
+    public function testBuild() {
+        $this->assertEquals('/', $this->object->build('root'));
+        $this->assertEquals('/users', $this->object->build('module', Map {'module' => 'users'}));
+        $this->assertEquals('/users/profile/feed.json', $this->object->build('action.ext', Map {'module' => 'users', 'controller' => 'profile', 'action' => 'feed', 'ext' => 'json'}));
     }
 
-    public function testBuildWithExt() {
-        $this->assertEquals('/main/index/index.html', $this->object->build(['ext' => 'html']));
-        $this->assertEquals('/main/foo/bar.json', $this->object->build(['controller' => 'foo', 'action' => 'bar', 'ext' => 'json']));
-        $this->assertEquals('/api/index/index.xml', $this->object->build(['module' => 'api', 'ext' => 'xml']));
+    public function testBuildQueryString() {
+        $this->assertEquals('/users?foo=bar', $this->object->build('module', Map {'module' => 'users'}, Map {'foo' => 'bar'}));
+        $this->assertEquals('/users?foo=bar&baz%5B0%5D=1&baz%5B1%5D=2&baz%5B2%5D=3', $this->object->build('module', Map {'module' => 'users'}, Map {'foo' => 'bar', 'baz' => Vector{1, 2, 3}}));
     }
 
-    public function testBuildWithArgs() {
-        $this->assertEquals('/main/index/index/1/foo/838293', $this->object->build([1, 'foo', 838293]));
-        $this->assertEquals('/main/index/index/1/foo/838293', $this->object->build(['args' => [1, 'foo', 838293]]));
-        $this->assertEquals('/users/index/action/a/b/3', $this->object->build(['module' => 'users', 'action' => 'action', 'args' => ['a', 'b', 3]]));
-        $this->assertEquals('/main/controller/index/a/1337', $this->object->build(['controller' => 'controller', 'args' => ['a', 1337]]));
-        $this->assertEquals('/args/with/spaces/a+b+c/special+%3A1%23%24%28%3B+chars', $this->object->build(['module' => 'args', 'controller' => 'with', 'action' => 'spaces', 'args' => ['a b c', 'special :1#$(; chars']]));
-        $this->assertEquals('/args/with/ext/123/456.html', $this->object->build(['module' => 'args', 'controller' => 'with', 'action' => 'ext', 'ext' => 'html', 'args' => [123, 456]]));
-        $this->assertEquals('/args/with/fragment/some+Arg+UMent.json#fragment', $this->object->build(['module' => 'args', 'controller' => 'with', 'action' => 'fragment', 'ext' => 'json', 'args' => ['some Arg UMent'], '#' => 'fragment']));
-    }
-
-    public function testBuildWithQuery() {
-        $this->assertEquals('/main?foo=bar&number=1', $this->object->build(['query' => ['foo' => 'bar', 'number' => 1]]));
-        $this->assertEquals('/users/index/action/3?a=b', $this->object->build(['module' => 'users', 'action' => 'action', 'query' => ['a' => 'b'], 'args' => [3]]));
-        $this->assertEquals('/main/controller/index/1337?0=a', $this->object->build(['controller' => 'controller', 'query' => ['a'], 'args' => [1337]]));
-        $this->assertEquals('/query/with/spaces?a=1&special=%3A1%23%24%28%3B+chars', $this->object->build(['module' => 'query', 'controller' => 'with', 'action' => 'spaces', 'query' => ['a' => 1, 'special' => ':1#$(; chars']]));
-        $this->assertEquals('/query/with/ext.html?int=456&foo=bar', $this->object->build(['module' => 'query', 'controller' => 'with', 'action' => 'ext', 'ext' => 'html', 'query' => ['int' => 456, 'foo' => 'bar']]));
-        $this->assertEquals('/query/with/fragment.json?0=some+Arg+UMent#fragment', $this->object->build(['module' => 'query', 'controller' => 'with', 'action' => 'fragment', 'ext' => 'json', 'query' => ['some Arg UMent'], '#' => 'fragment']));
-    }
-
-    public function testBuildWithFragment() {
-        $this->assertEquals('/main#frag+ment', $this->object->build(['#' => 'frag ment']));
-        $this->assertEquals('/main#foo=bar&number=1', $this->object->build(['#' => ['foo' => 'bar', 'number' => 1]]));
-        $this->assertEquals('/main/index/action#frag+ment', $this->object->build(['#' => 'frag ment', 'action' => 'action']));
-        $this->assertEquals('/main/index/action.html#foo=bar&number=1', $this->object->build(['#' => ['foo' => 'bar', 'number' => 1], 'action' => 'action', 'ext' => 'html']));
-        $this->assertEquals('/main/index/action/123/abc#fragment', $this->object->build(['#' => 'fragment', 'action' => 'action', 'args' => [123, 'abc']]));
-        $this->assertEquals('/main/index/action/123/abc.html#foo=bar&number=1', $this->object->build(['#' => ['foo' => 'bar', 'number' => 1], 'action' => 'action', 'ext' => 'html', 'args' => [123, 'abc']]));
-        $this->assertEquals('/main/index/action/123/abc?foo=bar&int=123#fragment', $this->object->build(['#' => 'fragment', 'action' => 'action', 'args' => [123, 'abc'], 'query' => ['foo' => 'bar', 'int' => 123]]));
-        $this->assertEquals('/main/index/action/123/abc.html?foo=bar&int=123#foo=bar&number=1', $this->object->build(['#' => ['foo' => 'bar', 'number' => 1], 'action' => 'action', 'ext' => 'html', 'args' => [123, 'abc'], 'query' => ['foo' => 'bar', 'int' => 123]]));
-    }
-
-    public function testBuildWithLocale() {
-        Config::set('titon.locale.current', 'en_US');
-
-        $this->assertEquals('/en-us/forum', $this->object->build(['module' => 'forum']));
-
-        Config::remove('titon.locale.current');
-    }
-
-    public function testBuildFormats() {
-        $this->object->map('users.login', new Route('/login', ['module' => 'users', 'controller' => 'log', 'action' => 'in']));
-        $this->object->map('profile', new Route('/profile/{username}', ['module' => 'profiles']));
-        $this->object->map('blog.archives', new Route('/blog/[year]/[month]/[day]', 'Blog\Api@archives'));
-
-        $this->assertEquals('http://google.com', $this->object->build('http://google.com'));
-
-        // by array
-        $this->assertEquals('/module', $this->object->build(['module' => 'module']));
-        $this->assertEquals('/main/f-o-o-/b-a-r/b/a/z', $this->object->build(['controller' => 'f o o ', 'action' => 'b a r', 'b', 'a', 'z']));
-
-        // by key
-        $this->assertEquals('/login', $this->object->build('users.login'));
-        $this->assertEquals('/profile/miles', $this->object->build(['route' => 'profile', 'username' => 'miles']));
-        $this->assertEquals('/profile/foo', $this->object->build(['username' => 'foo', 'route' => 'profile']));
-        $this->assertEquals('/profile/bar/567#fragment', $this->object->build(['username' => 'bar', 'route' => 'profile', 567, '#' => 'fragment']));
-        $this->assertEquals('/blog/1988/2/26?key=value', $this->object->build(['route' => 'blog.archives', 'day' => 26, 'year' => 1988, 'month' => 2, 'query' => ['key' => 'value']]));
-
-        // by @ format
-        $this->assertEquals('/module/controller', $this->object->build('Module\Controller@index'));
-        $this->assertEquals('/module/controller/action', $this->object->build('Module\Controller@action'));
-        $this->assertEquals('/some-module/some-controller/and-action', $this->object->build('SomeModule\SomeController@andAction'));
-
-        // by @ format with args
-        $this->assertEquals('/module/controller?sort=key&order=asc', $this->object->build(['route' => 'Module\Controller@index', 'query' => ['sort' => 'key', 'order' => 'asc']]));
-    }
-
-    public function testBuildMissingToken() {
-        $this->object->map('profile', new Route('/profile/{username}', ['module' => 'profiles']));
-
-        $this->object->build(['route' => 'profile']);
-    }
-
-    public function testBuildMissingRoute() {
-        $this->object->build(['route' => 'foobar']);
+    public function testBuildHashFragment() {
+        $this->assertEquals('/users#foobar', $this->object->build('module', Map {'module' => 'users'}, Map {'#' => 'foobar'}));
+        $this->assertEquals('/users#foo=bar', $this->object->build('module', Map {'module' => 'users'}, Map {'#' => Map {'foo' => 'bar'}}));
+        $this->assertEquals('/users?key=value#foobar', $this->object->build('module', Map {'module' => 'users'}, Map {'#' => 'foobar', 'key' => 'value'}));
     }
 
     public function testBuildOptionalToken() {
-        $this->object->map('blog.archives', new Route('/blog/[year]/[month]/[day?]', 'Blog\Api@archives'));
+        $this->object->map('blog.archives', new Route('/blog/[year]/[month]/[day?]', 'Module\Controller@action'));
 
-        $this->assertEquals('/blog/2012/2', $this->object->build(['route' => 'blog.archives', 'year' => 2012, 'month' => 02]));
-        $this->assertEquals('/blog/2012/2/26', $this->object->build(['route' => 'blog.archives', 'year' => 2012, 'month' => 02, 'day' => 26]));
-        $this->assertEquals('/blog/2012/2', $this->object->build(['route' => 'blog.archives', 'year' => 2012, 'month' => 02]));
-    }
-
-    public function testBuildOptionalMissingToken() {
-        $this->object->map('blog.archives', new Route('/blog/[year]/[month]/[day?]', 'Blog\Api@archives'));
-
-        $this->object->build(['route' => 'blog.archives', 'year' => 2012]);
+        $this->assertEquals('/blog/2012/2', $this->object->build('blog.archives', Map {'year' => 2012, 'month' => 02}));
+        $this->assertEquals('/blog/2012/2/26', $this->object->build('blog.archives', Map {'year' => 2012, 'month' => 02, 'day' => 26}));
     }
 
     public function testBuildInBaseFolder() {
@@ -132,10 +49,47 @@ class RouterTest extends TestCase {
         $_SERVER['SCRIPT_FILENAME'] = '/root/base/index.php';
 
         $router = new Router();
+        $router->map('module', new Route('/{module}', 'Module\Controller@action'));
 
         $this->assertEquals('/base', $router->base());
-        $this->assertEquals('/base/module', $this->object->build(['module' => 'module']));
-    }*/
+        $this->assertEquals('/base/users', $router->build('module', Map {'module' => 'users'}));
+    }
+
+    public function testBuildWithLocale() {
+        $this->object->map('locale', (new Route('/<locale>/{module}', 'Module\Controller@action'))->addPattern('locale', Route::LOCALE));
+
+        $this->assertEquals('/fr-fr/forum', $this->object->build('locale', Map {'module' => 'forum', 'locale' => 'fr-fr'}));
+
+        Config::set('titon.locale.current', 'en_US');
+
+        $this->assertEquals('/en-us/forum', $this->object->build('locale', Map {'module' => 'forum'}));
+
+        Config::remove('titon.locale.current');
+    }
+
+    public function testBuildTokenInflection() {
+        $this->assertEquals('/download-center', $this->object->build('module', Map {'module' => 'download_center'}));
+        $this->assertEquals('/customer-support', $this->object->build('module', Map {'module' => 'cusToMer-SuPPorT@#&(#'}));
+        $this->assertEquals('/users/profile/feed.json', $this->object->build('action.ext', Map {'module' => 'Users', 'controller' => 'ProfILE', 'action' => 'feeD', 'ext' => 'JSON'}));
+    }
+
+    public function testBuildUrlFunction() {
+        $this->assertEquals('/users/profile/feed.json', url('action.ext', Map {'module' => 'users', 'controller' => 'profile', 'action' => 'feed', 'ext' => 'json'}));
+    }
+
+    /**
+     * @expectedException \Titon\Route\Exception\MissingRouteException
+     */
+    public function testBuildInvalidKey() {
+        $this->object->build('foobar');
+    }
+
+    /**
+     * @expectedException \Titon\Route\Exception\MissingTokenException
+     */
+    public function testBuildMissingToken() {
+        $this->object->build('module');
+    }
 
     public function testBuildAction() {
         $this->assertEquals('Controller@action', Router::buildAction(shape('class' => 'Controller', 'action' => 'action')));

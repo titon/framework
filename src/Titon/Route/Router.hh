@@ -7,15 +7,17 @@
 
 namespace Titon\Route;
 
-use Titon\Common\Cacheable;
 use Titon\Common\FactoryAware;
 use Titon\Event\Emittable;
 use Titon\Route\Exception\InvalidRouteException;
 use Titon\Route\Exception\MissingFilterException;
 use Titon\Route\Exception\MissingSegmentException;
 use Titon\Route\Exception\MissingRouteException;
+use Titon\Route\Exception\MissingTokenException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
+use Titon\Utility\Config;
+use Titon\Utility\Inflector;
 use Titon\Utility\Registry;
 
 type Action = shape('class' => string, 'action' => string);
@@ -40,7 +42,7 @@ type SegmentMap = Map<string, mixed>;
  *      route.postMatch(Router $router, Route $route)
  */
 class Router {
-    use Cacheable, Emittable, FactoryAware;
+    use Emittable, FactoryAware;
 
     /**
      * Base folder structure if the application was placed within a directory.
@@ -160,52 +162,54 @@ class Router {
      * @param ParamMap $params
      * @param QueryMap $query
      * @return string
-     * @throws \Titon\Route\Exception\InvalidRouteException
+     * @throws \Titon\Route\Exception\MissingTokenException
      */
     public function build(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        $self = $this;
+        $route = $this->getRoute($key);
+        $base = $this->base();
+        $url = str_replace([']', ')', '>'], '}', str_replace(['[', '(', '<'], '{', $route->getPath()));
 
-        return $this->cache([__METHOD__, $key], function() use ($self, $key, $params, $query) {
-            $route = $this->getRoute($key);
-            $base = $this->base();
-            $url = str_replace([']', ')', '>'], '}', str_replace(['[', '(', '<'], '{', $route->getPath()));
+        // Set the locale if it is missing
+        if (!$params->contains('locale')) {
+            $params['locale'] = Config::get('titon.locale.current');
+        }
 
-            // Set the locale if it is missing
-            if (!$params->contains('locale')) {
-                $params['locale'] = Config::get('titon.locale.current');
+        // Replace tokens in the path with values from the parameters
+        foreach ($route->getTokens() as $token) {
+            $tokenKey = $token['token'];
+
+            if ($params->contains($tokenKey) || $token['optional']) {
+                $url = str_replace(sprintf('{%s}', $tokenKey . ($token['optional'] ? '?' : '')), Inflector::route((string) $params->get($tokenKey) ?: ''), $url);
+
+            } else {
+                throw new MissingTokenException(sprintf('Missing %s parameter for the %s route', $tokenKey, $key));
             }
+        }
 
-            // Replace tokens in the path with values from the parameters
-            foreach ($route->getTokens() as $token) {
-                $tokenKey = $token['token'];
+        // Prepend base folder
+        if ($base !== '/') {
+            $url = $base . $url;
+        }
 
-                if ($params->contains($tokenKey) || $token['optional']) {
-                    $url = str_replace(sprintf('{%s}', $tokenKey . ($token['optional'] ? '?' : '')), $params->get($tokenKey) ?: '', $url);
+        // Trim trailing slash
+        if ($url !== '/') {
+            $url = rtrim($url, '/');
+        }
 
-                } else {
-                    throw new InvalidRouteException(sprintf('Missing %s parameter for the %s route', $tokenKey, $key));
-                }
-            }
+        // Append query string and fragment
+        $fragment = $query->get('#');
 
-            // Prepend base
-            if ($base !== '/') {
-                $url = $base . $url;
-            }
+        $query->remove('#');
 
-            // Append query string and fragment
-            $fragment = $query->get('#');
-            $query->remove('#');
+        if ($query) {
+            $url .= '?' . http_build_query($query);
+        }
 
-            if ($query) {
-                $url .= '?' . http_build_query($query);
-            }
+        if ($fragment) {
+            $url .= '#' . (($fragment instanceof Traversable) ? http_build_query($fragment) : urlencode($fragment));
+        }
 
-            if ($fragment) {
-                $url .= '#' . (($fragment instanceof Traversable) ? http_build_query($fragment) : urlencode($fragment));
-            }
-
-            return $url;
-        });
+        return $url;
     }
 
     /**

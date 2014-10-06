@@ -5,11 +5,13 @@
  * @link        http://titon.io
  */
 
+use Titon\Route\ParamMap;
+use Titon\Route\QueryMap;
 use Titon\Route\Router;
 
 /**
  * @see Titon\Route\Router::build()
  */
-function url(mixed $url): string {
-    return Router::registry()->build($url);
+function url(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
+    return Router::registry()->build($key, $params, $query);
 }

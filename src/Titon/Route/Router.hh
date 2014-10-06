@@ -39,8 +39,8 @@ type SegmentMap = Map<string, mixed>;
  *
  * @package Titon\Route
  * @events
- *      route.preMatch(Router $router, $url)
- *      route.postMatch(Router $router, Route $route)
+ *      route.matching(Router $router, $url)
+ *      route.matched(Router $router, Route $route)
  */
 class Router {
     use Emittable, FactoryAware;
@@ -142,39 +142,17 @@ class Router {
             'host' => $_SERVER['HTTP_HOST'],
             'port' => $_SERVER['SERVER_PORT']
         });
+
+        // Set caching events
+        $this->on('route.matching', inst_meth($this, 'loadRoutes'), Map {'priority' => 1});
+        $this->on('route.matched', inst_meth($this, 'cacheRoutes'), Map {'priority' => 1});
     }
 
     /**
-     * Will load and cache any routes that have been mapped at the time of initialization.
-     * Also attempts to match a route based on the current path segment.
+     * Attempts to match a route based on the current path segment.
      */
     public function initialize(): void {
-        $storage = $this->getStorage();
-
-        // Load routes from the cache
-        if ($storage) {
-            if ($routes = unserialize($storage->get('routes'))) {
-                $this->_routes = $routes;
-                $this->_cached = true;
-            }
-        }
-
-        // Match a route to the current URL
         $this->match((string) $this->getSegment('path'));
-
-        // Write to the cache if routes are present
-        if ($storage && !$this->isCached()) {
-            if ($routes = $this->getRoutes()) {
-
-                // Before caching, make sure all routes are compiled
-                foreach ($routes as $route) {
-                    $route->compile();
-                }
-
-                // Compiling before hand should speed up the next request
-                $storage->set('routes', serialize($routes), '+1 year');
-            }
-        }
     }
 
     /**
@@ -252,6 +230,30 @@ class Router {
      */
     public static function buildAction(Action $action): string {
         return sprintf('%s@%s', $action['class'], $action['action']);
+    }
+
+    /**
+     * Cache the currently mapped routes.
+     * This method is automatically called during the `matched` event.
+     *
+     * @return $this
+     */
+    public function cacheRoutes(): this {
+        if ($this->isCached()) {
+            return $this;
+        }
+
+        if (($storage = $this->getStorage()) && ($routes = $this->getRoutes())) {
+            // Before caching, make sure all routes are compiled
+            foreach ($routes as $route) {
+                $route->compile();
+            }
+
+            // Compiling before hand should speed up the next request
+            $storage->set('routes', serialize($routes), '+1 year');
+        }
+
+        return $this;
     }
 
     /**
@@ -445,6 +447,23 @@ class Router {
     }
 
     /**
+     * Load routes from the cache if they exist.
+     * This method is automatically called during the `matching` event.
+     *
+     * @return $this
+     */
+    public function loadRoutes(): this {
+        if ($storage = $this->getStorage()) {
+            if ($routes = unserialize($storage->get('routes'))) {
+                $this->_routes = $routes;
+                $this->_cached = true;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a custom defined route object that matches to an internal destination.
      *
      * @param string $key
@@ -496,7 +515,7 @@ class Router {
      * @throws \Titon\Route\Exception\NoMatchException
      */
     public function match(string $url): Route {
-        $this->emit('route.preMatch', [$this, $url]);
+        $this->emit('route.matching', [$this, $url]);
 
         $match = $this->getMatcher()->match($url, $this->getRoutes());
 
@@ -511,7 +530,7 @@ class Router {
             call_user_func_array($this->getFilter($filter), [$this, $match]);
         }
 
-        $this->emit('route.postMatch', [$this, $match]);
+        $this->emit('route.matched', [$this, $match]);
 
         return $match;
     }

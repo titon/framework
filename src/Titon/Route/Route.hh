@@ -37,7 +37,7 @@ class Route {
     /**
      * The action to execute if this route is matched.
      *
-     * @type Action
+     * @type \Titon\Route\Action
      */
     protected Action $_action;
 
@@ -51,21 +51,21 @@ class Route {
     /**
      * Filters to trigger once the route has been matched.
      *
-     * @type FilterList
+     * @type \Titon\Route\FilterList
      */
     protected FilterList $_filters = Vector {};
 
     /**
      * The types of acceptable HTTP methods (defaults to all).
      *
-     * @type MethodList
+     * @type \Titon\Route\MethodList
      */
     protected MethodList $_methods = Vector {};
 
     /**
      * Collection of route parameters.
      *
-     * @type ParamMap
+     * @type \Titon\Route\ParamMap
      */
     protected ParamMap $_params = Map {};
 
@@ -79,7 +79,7 @@ class Route {
     /**
      * Custom defined regex patterns.
      *
-     * @type PatternMap
+     * @type \Titon\Route\PatternMap
      */
     protected PatternMap $_patterns = Map {};
 
@@ -100,7 +100,7 @@ class Route {
     /**
      * Custom defined tokens.
      *
-     * @type TokenList
+     * @type \Titon\Route\TokenList
      */
     protected TokenList $_tokens = Vector {};
 
@@ -141,7 +141,7 @@ class Route {
     /**
      * Add multiple filters by name.
      *
-     * @param FilterList $filters
+     * @param \Titon\Route\FilterList $filters
      * @return $this
      */
     public function addFilters(FilterList $filters): this {
@@ -169,7 +169,7 @@ class Route {
     /**
      * Add multiple HTTP methods to match against.
      *
-     * @param MethodList $methods
+     * @param \Titon\Route\MethodList $methods
      * @return $this
      */
     public function addMethods(MethodList $methods): this {
@@ -196,7 +196,7 @@ class Route {
     /**
      * Add multiple regex patterns.
      *
-     * @param PatternMap $patterns
+     * @param \Titon\Route\PatternMap $patterns
      * @return $this
      */
     public function addPatterns(PatternMap $patterns): this {
@@ -311,7 +311,7 @@ class Route {
     /**
      * Return the action to dispatch to.
      *
-     * @return Action
+     * @return \Titon\Route\Action
      */
     public function getAction(): Action {
         return $this->_action;
@@ -320,7 +320,7 @@ class Route {
     /**
      * Return all filters.
      *
-     * @return FilterList
+     * @return \Titon\Route\FilterList
      */
     public function getFilters(): FilterList {
         return $this->_filters;
@@ -329,7 +329,7 @@ class Route {
     /**
      * Return the HTTP method.
      *
-     * @return MethodList
+     * @return \Titon\Route\MethodList
      */
     public function getMethods(): MethodList {
         return $this->_methods;
@@ -357,7 +357,7 @@ class Route {
     /**
      * Return all params.
      *
-     * @return ParamMap
+     * @return \Titon\Route\ParamMap
      */
     public function getParams(): ParamMap {
         return $this->_params;
@@ -366,7 +366,7 @@ class Route {
     /**
      * Return all the patterns used for compiling.
      *
-     * @return PatternMap
+     * @return \Titon\Route\PatternMap
      */
     public function getPatterns(): PatternMap {
         return $this->_patterns;
@@ -393,7 +393,7 @@ class Route {
     /**
      * Return the compiled tokens.
      *
-     * @return TokenList
+     * @return \Titon\Route\TokenList
      */
     public function getTokens(): TokenList {
         return $this->_tokens;
@@ -515,7 +515,7 @@ class Route {
     /**
      * Set the list of filters to process.
      *
-     * @param FilterList $filters
+     * @param \Titon\Route\FilterList $filters
      * @return $this
      */
     public function setFilters(FilterList $filters): this {
@@ -527,7 +527,7 @@ class Route {
     /**
      * Set the list of HTTP methods to match against.
      *
-     * @param MethodList $methods
+     * @param \Titon\Route\MethodList $methods
      * @return $this
      */
     public function setMethods(MethodList $methods): this {
@@ -539,7 +539,7 @@ class Route {
     /**
      * Set a mapping of regex patterns to parse URLs with.
      *
-     * @param PatternMap $patterns
+     * @param \Titon\Route\PatternMap $patterns
      * @return $this
      */
     public function setPatterns(PatternMap $patterns): this {

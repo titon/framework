@@ -251,7 +251,27 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupNestingInherits() {
-        $this->markTestIncomplete();
+        $this->object->group(Map {'filters' => Vector {'foo'}, 'methods' => Vector {'get'}}, function(Router $router) {
+            $router->map('group1', new Route('/group-1', 'Controller@action'));
+
+            $router->group(Map {'filters' => Vector {'bar'}}, function(Router $router) {
+                $router->map('group2', new Route('/group-2', 'Controller@action'));
+
+                $router->group(Map {'methods' => Vector {'post'}}, function(Router $router) {
+                    $router->map('group3', new Route('/group-3', 'Controller@action'));
+                });
+            });
+        });
+
+        $routes = $this->object->all();
+
+        $this->assertEquals(Vector {'foo'}, $routes['group1']->getFilters());
+        $this->assertEquals(Vector {'foo', 'bar'}, $routes['group2']->getFilters());
+        $this->assertEquals(Vector {'foo', 'bar'}, $routes['group3']->getFilters());
+
+        $this->assertEquals(Vector {'get'}, $routes['group1']->getMethods());
+        $this->assertEquals(Vector {'get'}, $routes['group2']->getMethods());
+        $this->assertEquals(Vector {'get', 'post'}, $routes['group3']->getMethods());
     }
 
     public function testHttpMapping() {

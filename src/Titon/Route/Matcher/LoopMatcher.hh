@@ -7,8 +7,9 @@
 
 namespace Titon\Route\Matcher;
 
-use Titon\Route\Route;
 use Titon\Route\Matcher;
+use Titon\Route\Route;
+use Titon\Route\RouteMap;
 
 /**
  * Loops through each route until a match is found.
@@ -20,7 +21,7 @@ class LoopMatcher implements Matcher {
     /**
      * {@inheritdoc}
      */
-    public function match(string $url, Map<string, Route> $routes): ?Route {
+    public function match(string $url, RouteMap $routes): ?Route {
         foreach ($routes as $route) {
             if ($route->isMatch($url)) {
                 return $route;

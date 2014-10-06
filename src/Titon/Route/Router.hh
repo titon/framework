@@ -61,14 +61,14 @@ class Router {
     /**
      * List of filters to trigger for specific routes during a match.
      *
-     * @type FilterMap
+     * @type \Titon\Route\FilterMap
      */
     protected FilterMap $_filters = Map {};
 
     /**
      * List of currently open groups (and their options) in the stack.
      *
-     * @type GroupList
+     * @type \Titon\Route\GroupList
      */
     protected GroupList $_groups = Vector {};
 
@@ -83,7 +83,7 @@ class Router {
      * Mapping of CRUD actions to URL path parts.
      * These mappings will be used when creating resource() routes.
      *
-     * @type ResourceMap
+     * @type \Titon\Route\ResourceMap
      */
     protected ResourceMap $_resourceMap = Map {
         'list' => 'index',
@@ -96,14 +96,14 @@ class Router {
     /**
      * Manually defined aesthetic routes that re-route internally.
      *
-     * @type RouteMap
+     * @type \Titon\Route\RouteMap
      */
     protected RouteMap $_routes = Map {};
 
     /**
      * The current URL broken up into multiple segments: protocol, host, route, query, base
      *
-     * @type SegmentMap
+     * @type \Titon\Route\SegmentMap
      */
     protected SegmentMap $_segments = Map {};
 
@@ -139,7 +139,7 @@ class Router {
     /**
      * Return all routes.
      *
-     * @return RouteMap
+     * @return \Titon\Route\RouteMap
      */
     public function all(): RouteMap {
         return $this->getRoutes();
@@ -159,8 +159,8 @@ class Router {
      * An optional query string and fragment can be also be defined.
      *
      * @param string $key
-     * @param ParamMap $params
-     * @param QueryMap $query
+     * @param \Titon\Route\ParamMap $params
+     * @param \Titon\Route\QueryMap $query
      * @return string
      * @throws \Titon\Route\Exception\MissingTokenException
      */
@@ -215,7 +215,7 @@ class Router {
     /**
      * Return an action shape into its combined @ formatted representation.
      *
-     * @param Action $action
+     * @param \Titon\Route\Action $action
      * @return string
      */
     public static function buildAction(Action $action): string {
@@ -259,7 +259,7 @@ class Router {
      * Map a filter callback to be triggered when a route is matched.
      *
      * @param string $key
-     * @param FilterCallback $callback
+     * @param \Titon\Route\FilterCallback $callback
      * @return $this
      */
     public function filterCallback(string $key, FilterCallback $callback): this {
@@ -283,7 +283,7 @@ class Router {
      * Return a filter by key.
      *
      * @param string $key
-     * @return FilterCallback
+     * @return \Titon\Route\FilterCallback
      * @throws \Titon\Route\Exception\MissingFilterException
      */
     public function getFilter(string $key): FilterCallback {
@@ -297,7 +297,7 @@ class Router {
     /**
      * Return all filters.
      *
-     * @return FilterMap
+     * @return \Titon\Route\FilterMap
      */
     public function getFilters(): FilterMap {
         return $this->_filters;
@@ -315,7 +315,7 @@ class Router {
     /**
      * Return the CRUD action resource map.
      *
-     * @return ResourceMap
+     * @return \Titon\Route\ResourceMap
      */
     public function getResourceMap(): ResourceMap {
         return $this->_resourceMap;
@@ -339,7 +339,7 @@ class Router {
     /**
      * Return all routes.
      *
-     * @return RouteMap
+     * @return \Titon\Route\RouteMap
      */
     public function getRoutes(): RouteMap {
         return $this->_routes;
@@ -363,7 +363,7 @@ class Router {
     /**
      * Return all segments.
      *
-     * @return SegmentMap
+     * @return \Titon\Route\SegmentMap
      */
     public function getSegments(): SegmentMap {
         return $this->_segments;
@@ -374,7 +374,7 @@ class Router {
      * Can apply path prefixes, suffixes, route config, before filters, and after filters.
      *
      * @param Map<string, mixed> $options
-     * @param GroupCallback $callback
+     * @param \Titon\Route\GroupCallback $callback
      * @return $this
      */
     public function group(Map<string, mixed> $options, GroupCallback $callback): this {
@@ -473,7 +473,7 @@ class Router {
      * Parse a URL and apply default routes. Attempt to deconstruct @ URLs.
      *
      * @param string $action
-     * @return Action
+     * @return \Titon\Route\Action
      * @throws \Titon\Route\Exception\InvalidRouteException
      */
     public static function parseAction(string $action): Action {
@@ -573,7 +573,7 @@ class Router {
     /**
      * Update the resource mapping.
      *
-     * @param ResourceMap $map
+     * @param \Titon\Route\ResourceMap $map
      * @return $this
      */
     public function setResourceMap(ResourceMap $map): this {

@@ -8,6 +8,7 @@
 namespace Titon\Route;
 
 use Titon\Route\Exception\MissingPatternException;
+use \Serializable;
 
 type FilterList = Vector<string>;
 type MethodList = Vector<string>;
@@ -23,7 +24,7 @@ type TokenList = Vector<Token>;
  *
  * @package Titon\Route
  */
-class Route {
+class Route implements Serializable {
 
     /**
      * Pre-defined regex patterns.
@@ -417,6 +418,10 @@ class Route {
     public function isMatch(string $url): bool {
         $matches = [];
 
+        // Compile the regex pattern
+        $this->compile();
+
+        // Match the route based on a set of conditions
         if (!$this->isMethod()) {
             return false;
 
@@ -513,6 +518,23 @@ class Route {
     }
 
     /**
+     * Serialize the compiled route for increasing performance when caching mapped routes.
+     */
+    public function serialize(): string {
+        return serialize(Map {
+            'action' => $this->_action,
+            'compiled' => $this->_compiled,
+            'filters' => $this->_filters,
+            'methods' => $this->_methods,
+            'patterns' => $this->_patterns,
+            'path' => $this->_path,
+            'secure' => $this->_secure,
+            'static' => $this->_static,
+            'tokens' => $this->_tokens
+        });
+    }
+
+    /**
      * Set the list of filters to process.
      *
      * @param \Titon\Route\FilterList $filters
@@ -570,6 +592,26 @@ class Route {
         $this->_static = $static;
 
         return $this;
+    }
+
+    /**
+     * Unserialize the route and set the internal values.
+     *
+     * @param mixed $data
+     */
+    public function unserialize($data): void { // TODO - type hint
+        $data = unserialize($data);
+
+        $this->_path = $data['path'];
+        $this->_action = $data['action'];
+        $this->_tokens = $data['tokens'];
+        $this->_compiled = $data['compiled'];
+
+        $this->setFilters($data['filters']);
+        $this->setMethods($data['methods']);
+        $this->setPatterns($data['patterns']);
+        $this->setSecure($data['secure']);
+        $this->setStatic($data['static']);
     }
 
     /**

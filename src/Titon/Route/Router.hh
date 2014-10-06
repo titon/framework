@@ -7,6 +7,7 @@
 
 namespace Titon\Route;
 
+use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
 use Titon\Event\Emittable;
 use Titon\Route\Exception\InvalidRouteException;
@@ -50,6 +51,13 @@ class Router {
      * @type string
      */
     protected string $_base = '/';
+
+    /**
+     * Have routes been loaded in from the cache?
+     *
+     * @type bool
+     */
+    protected bool $_cached = false;
 
     /**
      * The matched route object.
@@ -108,6 +116,13 @@ class Router {
     protected SegmentMap $_segments = Map {};
 
     /**
+     * Storage engine instance.
+     *
+     * @type \Titon\Cache\Storage
+     */
+    protected ?Storage $_storage;
+
+    /**
      * Parses the current URL into multiple segments.
      */
     public function __construct() {
@@ -130,19 +145,36 @@ class Router {
     }
 
     /**
-     * Attempts to match a route based on the current path segment.
+     * Will load and cache any routes that have been mapped at the time of initialization.
+     * Also attempts to match a route based on the current path segment.
      */
     public function initialize(): void {
-        $this->match((string) $this->getSegment('path'));
-    }
+        $storage = $this->getStorage();
 
-    /**
-     * Return all routes.
-     *
-     * @return \Titon\Route\RouteMap
-     */
-    public function all(): RouteMap {
-        return $this->getRoutes();
+        // Load routes from the cache
+        if ($storage) {
+            if ($routes = unserialize($storage->get('routes'))) {
+                $this->_routes = $routes;
+                $this->_cached = true;
+            }
+        }
+
+        // Match a route to the current URL
+        $this->match((string) $this->getSegment('path'));
+
+        // Write to the cache if routes are present
+        if ($storage && !$this->isCached()) {
+            if ($routes = $this->getRoutes()) {
+
+                // Before caching, make sure all routes are compiled
+                foreach ($routes as $route) {
+                    $route->compile();
+                }
+
+                // Compiling before hand should speed up the next request
+                $storage->set('routes', serialize($routes), '+1 year');
+            }
+        }
     }
 
     /**
@@ -370,6 +402,15 @@ class Router {
     }
 
     /**
+     * Get the storage engine.
+     *
+     * @return \Titon\Cache\Storage
+     */
+    public function getStorage(): ?Storage {
+        return $this->_storage;
+    }
+
+    /**
      * Group multiple route mappings into a single collection and apply options to all of them.
      * Can apply path prefixes, suffixes, route config, before filters, and after filters.
      *
@@ -392,6 +433,15 @@ class Router {
         $this->_groups->pop();
 
         return $this;
+    }
+
+    /**
+     * Return true if routes have been loaded from a cache.
+     *
+     * @return bool
+     */
+    public function isCached(): bool {
+        return $this->_cached;
     }
 
     /**
@@ -435,9 +485,6 @@ class Router {
             }
         }
 
-        // Compile the regex pattern
-        $route->compile();
-
         return $this;
     }
 
@@ -451,7 +498,7 @@ class Router {
     public function match(string $url): Route {
         $this->emit('route.preMatch', [$this, $url]);
 
-        $match = $this->getMatcher()->match($url, $this->all());
+        $match = $this->getMatcher()->match($url, $this->getRoutes());
 
         if (!$match) {
             throw new NoMatchException(sprintf('No route has been matched for %s', $url));
@@ -578,6 +625,18 @@ class Router {
      */
     public function setResourceMap(ResourceMap $map): this {
         $this->_resourceMap->setAll($map);
+
+        return $this;
+    }
+
+    /**
+     * Set the storage engine.
+     *
+     * @param \Titon\Cache\Storage $storage
+     * @return $this
+     */
+    public function setStorage(Storage $storage): this {
+        $this->_storage = $storage;
 
         return $this;
     }

@@ -1,6 +1,7 @@
 <?hh
 namespace Titon\Route;
 
+use Titon\Cache\Storage\MemoryStorage;
 use Titon\Utility\Config;
 use Titon\Test\TestCase;
 
@@ -13,11 +14,11 @@ class RouterTest extends TestCase {
         parent::setUp();
 
         $this->object = Router::registry();
-        $this->object->map('action.ext', new Route('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
-        $this->object->map('action', new Route('/{module}/{controller}/{action}', 'Module\Controller@action'));
-        $this->object->map('controller', new Route('/{module}/{controller}', 'Module\Controller@action'));
-        $this->object->map('module', new Route('/{module}', 'Module\Controller@action'));
-        $this->object->map('root', new Route('/', 'Module\Controller@action'));
+        $this->object->map('action.ext', new TestRoute('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
+        $this->object->map('action', new TestRoute('/{module}/{controller}/{action}', 'Module\Controller@action'));
+        $this->object->map('controller', new TestRoute('/{module}/{controller}', 'Module\Controller@action'));
+        $this->object->map('module', new TestRoute('/{module}', 'Module\Controller@action'));
+        $this->object->map('root', new TestRoute('/', 'Module\Controller@action'));
     }
 
     public function testBuild() {
@@ -38,7 +39,7 @@ class RouterTest extends TestCase {
     }
 
     public function testBuildOptionalToken() {
-        $this->object->map('blog.archives', new Route('/blog/[year]/[month]/[day?]', 'Module\Controller@action'));
+        $this->object->map('blog.archives', new TestRoute('/blog/[year]/[month]/[day?]', 'Module\Controller@action'));
 
         $this->assertEquals('/blog/2012/2', $this->object->build('blog.archives', Map {'year' => 2012, 'month' => 02}));
         $this->assertEquals('/blog/2012/2/26', $this->object->build('blog.archives', Map {'year' => 2012, 'month' => 02, 'day' => 26}));
@@ -49,14 +50,17 @@ class RouterTest extends TestCase {
         $_SERVER['SCRIPT_FILENAME'] = '/root/base/index.php';
 
         $router = new Router();
-        $router->map('module', new Route('/{module}', 'Module\Controller@action'));
+        $router->map('module', new TestRoute('/{module}', 'Module\Controller@action'));
 
         $this->assertEquals('/base', $router->base());
         $this->assertEquals('/base/users', $router->build('module', Map {'module' => 'users'}));
     }
 
     public function testBuildWithLocale() {
-        $this->object->map('locale', (new Route('/<locale>/{module}', 'Module\Controller@action'))->addPattern('locale', Route::LOCALE));
+        $route = new Route('/<locale>/{module}', 'Module\Controller@action');
+        $route->addPattern('locale', Route::LOCALE)->compile();
+
+        $this->object->map('locale', $route);
 
         $this->assertEquals('/fr-fr/forum', $this->object->build('locale', Map {'module' => 'forum', 'locale' => 'fr-fr'}));
 
@@ -95,6 +99,39 @@ class RouterTest extends TestCase {
         $this->assertEquals('Controller@action', Router::buildAction(shape('class' => 'Controller', 'action' => 'action')));
     }
 
+    public function testCaching() {
+        $storage = new MemoryStorage();
+        $route1 = new Route('/{module}', 'Module\Controller@action');
+        $route2 = new Route('/', 'Module\Controller@action');
+
+        $router1 = new Router();
+        $router1->setStorage($storage);
+        $router1->map('module', $route1);
+        $router1->map('root', $route2);
+
+        $this->assertFalse($storage->has('routes'));
+
+        $router1->initialize();
+
+        $this->assertTrue($storage->has('routes'));
+
+        // Now load another instance
+
+        $router2 = new Router();
+        $router2->setStorage($storage);
+
+        $this->assertEquals(Map {}, $router2->getRoutes());
+
+        $router2->map('root', new Route('/foobar', 'Module\Controller@action'));
+        $router2->initialize();
+
+        $this->assertEquals(Map {'module' => $route1, 'root' => $route2}, $router2->getRoutes());
+
+        // The previous routes should be overwritten
+
+        $this->assertEquals('/', $router2->getRoute('root')->getPath());
+    }
+
     public function testFilters() {
         $stub = new FilterStub();
 
@@ -111,7 +148,7 @@ class RouterTest extends TestCase {
         });
         $this->object->map('f3', new Route('/f3', 'Controller@action'));
 
-        $routes = $this->object->all();
+        $routes = $this->object->getRoutes();
 
         $this->assertEquals(Vector {'test2'}, $routes['f1']->getFilters());
         $this->assertEquals(Vector {'test'}, $routes['f2']->getFilters());
@@ -170,7 +207,7 @@ class RouterTest extends TestCase {
 
         $this->object->map('solo', new Route('/solo', 'Controller@action'));
 
-        $routes = $this->object->all();
+        $routes = $this->object->getRoutes();
 
         $this->assertEquals('/', $routes['root']->getPath());
         $this->assertEquals('/pre/group-1', $routes['group1']->getPath());
@@ -186,7 +223,7 @@ class RouterTest extends TestCase {
 
         $this->object->map('solo', new Route('/solo', 'Controller@action'));
 
-        $routes = $this->object->all();
+        $routes = $this->object->getRoutes();
 
         $this->assertEquals('/', $routes['root']->getPath());
         $this->assertEquals('/group-1/post', $routes['group1']->getPath());
@@ -202,7 +239,7 @@ class RouterTest extends TestCase {
 
         $this->object->map('solo', new Route('/solo', 'Controller@action'));
 
-        $routes = $this->object->all();
+        $routes = $this->object->getRoutes();
 
         $this->assertEquals(false, $routes['root']->getSecure());
         $this->assertEquals(true, $routes['group1']->getSecure());
@@ -218,7 +255,7 @@ class RouterTest extends TestCase {
 
         $this->object->map('solo', new Route('/solo', 'Controller@action'));
 
-        $routes = $this->object->all();
+        $routes = $this->object->getRoutes();
 
         $this->assertEquals('/', $routes['root']->getPath());
         $this->assertEquals('/<token>/group-1', $routes['group1']->getPath());
@@ -242,7 +279,7 @@ class RouterTest extends TestCase {
 
         $this->object->map('solo', new Route('/solo', 'Controller@action'));
 
-        $routes = $this->object->all();
+        $routes = $this->object->getRoutes();
 
         $this->assertEquals('/', $routes['root']->getPath());
         $this->assertEquals('/pre/group-1', $routes['group1']->getPath());
@@ -263,7 +300,7 @@ class RouterTest extends TestCase {
             });
         });
 
-        $routes = $this->object->all();
+        $routes = $this->object->getRoutes();
 
         $this->assertEquals(Vector {'foo'}, $routes['group1']->getFilters());
         $this->assertEquals(Vector {'foo', 'bar'}, $routes['group2']->getFilters());
@@ -281,7 +318,7 @@ class RouterTest extends TestCase {
         $this->object->put('url4', new Route('/url', 'Controller@action'));
         $this->object->delete('url5', new Route('/url', 'Controller@action'));
 
-        $routes = $this->object->all();
+        $routes = $this->object->getRoutes();
 
         $this->assertEquals(Vector {}, $routes['url1']->getMethods());
         $this->assertEquals(Vector {'get', 'head'}, $routes['url2']->getMethods());
@@ -392,7 +429,7 @@ class RouterTest extends TestCase {
     public function testResourceMapping() {
         $this->object->resource('rest', new Route('/rest', 'Api\Rest@action'));
 
-        $routes = $this->object->all();
+        $routes = $this->object->getRoutes();
 
         // Keys
         $this->assertFalse(isset($routes['rest']));
@@ -559,9 +596,15 @@ class RouterTest extends TestCase {
 }
 
 class FilterStub implements Filter {
-
     public function filter(Router $router, Route $route): void {
         return;
     }
+}
 
+class TestRoute extends Route {
+    public function __construct(string $path, string $action) {
+        parent::__construct($path, $action);
+
+        $this->compile();
+    }
 }

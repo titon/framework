@@ -359,4 +359,18 @@ class RouteTest extends TestCase {
         $this->assertEquals('\/(.*)\/([a-z\_\-\+]+)\/([a-z]\-[A-Z])(?:\/([0-9\.]+))?\/?', $route->compile());
     }
 
+    public function testSerialize() {
+        $route = new Route('/{module}/{controller}/{action}.{ext}', 'Controller@action');
+        $route->addFilter('foo');
+        $route->addMethod('post');
+        $route->addPattern('locale', Route::LOCALE);
+        $route->setSecure(true);
+        $route->compile();
+
+        $serialized = serialize($route);
+
+        $this->assertEquals('C:17:"Titon\Route\Route":673:{K:6:"HH\Map":9:{s:6:"action";a:2:{s:5:"class";s:10:"Controller";s:6:"action";s:6:"action";}s:8:"compiled";s:67:"\/([a-z\_\-\+]+)\/([a-z\_\-\+]+)\/([a-z\_\-\+]+)\.([a-z\_\-\+]+)\/?";s:7:"filters";V:9:"HH\Vector":1:{s:3:"foo";}s:7:"methods";V:9:"HH\Vector":1:{s:4:"post";}s:8:"patterns";K:6:"HH\Map":1:{s:6:"locale";s:24:"([a-z]{2}(?:-[a-z]{2})?)";}s:4:"path";s:37:"/{module}/{controller}/{action}.{ext}";s:6:"secure";b:1;s:6:"static";b:0;s:6:"tokens";V:9:"HH\Vector":4:{a:2:{s:5:"token";s:6:"module";s:8:"optional";b:0;}a:2:{s:5:"token";s:10:"controller";s:8:"optional";b:0;}a:2:{s:5:"token";s:6:"action";s:8:"optional";b:0;}a:2:{s:5:"token";s:3:"ext";s:8:"optional";b:0;}}}}', $serialized);
+        $this->assertEquals($route, unserialize($serialized));
+    }
+
 }

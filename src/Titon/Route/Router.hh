@@ -273,7 +273,7 @@ class Router {
      * @return $this
      */
     public function delete(string $key, Route $route): this {
-        return $this->map($key, $route->setMethods(Vector {'delete'}));
+        return $this->http($key, Vector {'delete'}, $route);
     }
 
     /**
@@ -310,7 +310,7 @@ class Router {
      * @return $this
      */
     public function get(string $key, Route $route): this {
-        return $this->map($key, $route->setMethods(Vector {'get', 'head'}));
+        return $this->http($key, Vector {'get'}, $route);
     }
 
     /**
@@ -438,6 +438,29 @@ class Router {
     }
 
     /**
+     * Map a route that only responds to a HEAD request.
+     *
+     * @param string $key
+     * @param \Titon\Route\Route $route
+     * @return $this
+     */
+    public function head(string $key, Route $route): this {
+        return $this->http($key, Vector {'head'}, $route);
+    }
+
+    /**
+     * Map a route that only responds to a defined list of HTTP methods.
+     *
+     * @param string $key
+     * @param Vector<string> $methods
+     * @param \Titon\Route\Route $route
+     * @return $this
+     */
+    public function http(string $key, Vector<string> $methods, Route $route): this {
+        return $this->map($key, $route->setMethods($methods));
+    }
+
+    /**
      * Return true if routes have been loaded from a cache.
      *
      * @return bool
@@ -536,6 +559,17 @@ class Router {
     }
 
     /**
+     * Map a route that only responds to an OPTIONS request.
+     *
+     * @param string $key
+     * @param \Titon\Route\Route $route
+     * @return $this
+     */
+    public function options(string $key, Route $route): this {
+        return $this->http($key, Vector {'options'}, $route);
+    }
+
+    /**
      * Parse a URL and apply default routes. Attempt to deconstruct @ URLs.
      *
      * @param string $action
@@ -563,7 +597,7 @@ class Router {
      * @return $this
      */
     public function post(string $key, Route $route): this {
-        return $this->map($key, $route->setMethods(Vector {'post'}));
+        return $this->http($key, Vector {'post'}, $route);
     }
 
     /**
@@ -574,7 +608,7 @@ class Router {
      * @return $this
      */
     public function put(string $key, Route $route): this {
-        return $this->map($key, $route->setMethods(Vector {'put'}));
+        return $this->http($key, Vector {'put'}, $route);
     }
 
     /**

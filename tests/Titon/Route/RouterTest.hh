@@ -317,14 +317,20 @@ class RouterTest extends TestCase {
         $this->object->post('url3', new Route('/url', 'Controller@action'));
         $this->object->put('url4', new Route('/url', 'Controller@action'));
         $this->object->delete('url5', new Route('/url', 'Controller@action'));
+        $this->object->head('url6', new Route('/url', 'Controller@action'));
+        $this->object->options('url7', new Route('/url', 'Controller@action'));
+        $this->object->http('url8', Vector {'get', 'post'}, new Route('/url', 'Controller@action'));
 
         $routes = $this->object->getRoutes();
 
         $this->assertEquals(Vector {}, $routes['url1']->getMethods());
-        $this->assertEquals(Vector {'get', 'head'}, $routes['url2']->getMethods());
+        $this->assertEquals(Vector {'get'}, $routes['url2']->getMethods());
         $this->assertEquals(Vector {'post'}, $routes['url3']->getMethods());
         $this->assertEquals(Vector {'put'}, $routes['url4']->getMethods());
         $this->assertEquals(Vector {'delete'}, $routes['url5']->getMethods());
+        $this->assertEquals(Vector {'head'}, $routes['url6']->getMethods());
+        $this->assertEquals(Vector {'options'}, $routes['url7']->getMethods());
+        $this->assertEquals(Vector {'get', 'post'}, $routes['url8']->getMethods());
     }
 
     public function testLoopMatch() {

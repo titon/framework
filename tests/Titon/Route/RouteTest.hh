@@ -54,9 +54,9 @@ class RouteTest extends TestCase {
             'locale' => '([a-z]{2}(?:-[a-z]{2})?)'
         });
 
-        $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([0-9\.]+)\/(.*)\/?', $multi->compile());
+        $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([0-9\.]+)\/([^\/]+)\/?', $multi->compile());
         $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([a-z]{2}(?:-[a-z]{2})?)\/?', $patterns->compile());
-        $this->assertEquals('\/([a-z]{2}(?:-[a-z]{2})?)\/([a-z0-9\_\-\+]+)\/(.*)\/([0-9\.]+)\/([a-z0-9\_\-\+]+)\/?', $allTypes->compile());
+        $this->assertEquals('\/([a-z]{2}(?:-[a-z]{2})?)\/([a-z0-9\_\-\+]+)\/([^\/]+)\/([0-9\.]+)\/([a-z0-9\_\-\+]+)\/?', $allTypes->compile());
     }
 
     /**
@@ -380,10 +380,10 @@ class RouteTest extends TestCase {
         $this->assertEquals('(?:\/([0-9\.]+))?\/?', $route->compile());
 
         $route = new Route('/(wildcard)', 'Controller@action');
-        $this->assertEquals('\/(.*)\/?', $route->compile());
+        $this->assertEquals('\/([^\/]+)\/?', $route->compile());
 
         $route = new Route('/(wildcard?)', 'Controller@action');
-        $this->assertEquals('(?:\/(.*))?\/?', $route->compile());
+        $this->assertEquals('(?:\/([^\/]+))?\/?', $route->compile());
 
         $route = (new Route('/<regex>', 'Controller@action'))->addPattern('regex', '[foo|bar]');
         $this->assertEquals('\/([foo|bar])\/?', $route->compile());
@@ -405,10 +405,10 @@ class RouteTest extends TestCase {
         $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([0-9\.]+)\/?', $route->compile());
 
         $route = new Route('/(wild)/{string}/[int?]', 'Controller@action');
-        $this->assertEquals('\/(.*)\/([a-z0-9\_\-\+]+)(?:\/([0-9\.]+))?\/?', $route->compile());
+        $this->assertEquals('\/([^\/]+)\/([a-z0-9\_\-\+]+)(?:\/([0-9\.]+))?\/?', $route->compile());
 
         $route = new Route('/(wild)/{string}/<regex:([a-z]\-[A-Z])>/[int?]', 'Controller@action');
-        $this->assertEquals('\/(.*)\/([a-z0-9\_\-\+]+)\/([a-z]\-[A-Z])(?:\/([0-9\.]+))?\/?', $route->compile());
+        $this->assertEquals('\/([^\/]+)\/([a-z0-9\_\-\+]+)\/([a-z]\-[A-Z])(?:\/([0-9\.]+))?\/?', $route->compile());
     }
 
     public function testSerialize() {

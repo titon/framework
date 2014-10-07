@@ -103,6 +103,14 @@ class RouteTest extends TestCase {
         $this->assertEquals('foo123bar_456', $route->dispatch());
     }
 
+    /**
+     * @expectedException \Titon\Route\Exception\NoMatchException
+     */
+    public function testDispatchNoMatch() {
+        $route = new Route('/{a}/{b}', 'Titon\Route\TestDispatch@noOptional');
+        $route->dispatch();
+    }
+
     public function testFilters() {
         $route = new Route('/', 'Controller@action');
 

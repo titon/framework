@@ -10,6 +10,7 @@ namespace Titon\Route;
 use Titon\Route\Exception\MissingPatternException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Utility\Registry;
+use \ReflectionFunctionAbstract;
 use \ReflectionMethod;
 use \Serializable;
 
@@ -116,7 +117,7 @@ class Route implements Serializable {
     protected string $_url = '';
 
     /**
-     * Store the routing configuration.
+     * Store the tokenized URL to match and the action to route to.
      *
      * @uses Titon\Route\Router
      *
@@ -318,32 +319,18 @@ class Route implements Serializable {
      * Arguments will take into account default values defined on the method.
      *
      * @return mixed - The response of the action call
+     * @exception \Titon\Route\Exception\NoMatchException
      */
     public function dispatch(): mixed {
         if (!$this->isMatched()) {
-            throw new NoMatchException('Route cannot be dispatched unless it has been matched.');
+            throw new NoMatchException('Route cannot be dispatched unless it has been matched');
         }
 
         $action = $this->getAction();
         $object = Registry::factory($action['class']);
         $method = new ReflectionMethod($object, $action['action']);
-        $tokens = $this->getTokens();
-        $args = $this->getParams()->values();
 
-        foreach ($method->getParameters() as $i => $param) {
-            if ($tokens[$i]['optional'] && (!array_key_exists($i, $args) || $args[$i] === '' || $args[$i] === null)) {
-                $args[$i] = $param->getDefaultValue();
-            }
-
-            // Type cast the values to match the argument type hint
-            switch ($param->getTypehintText()) {
-                case 'HH\string': $args[$i] = (string) $args[$i]; break;
-                case 'HH\bool': $args[$i] = (bool) $args[$i]; break;
-                case 'HH\int': $args[$i] = (int) $args[$i]; break;
-            }
-        }
-
-        return $method->invokeArgs($object, $args);
+        return $method->invokeArgs($object, $this->_getArguments($method));
     }
 
     /**
@@ -581,6 +568,18 @@ class Route implements Serializable {
     }
 
     /**
+     * Set the action to dispatch to.
+     *
+     * @param \Titon\Route\Action $action
+     * @return $this
+     */
+    public function setAction(Action $action): this {
+        $this->_action = $action;
+
+        return $this;
+    }
+
+    /**
      * Set the list of filters to process.
      *
      * @param \Titon\Route\FilterList $filters
@@ -667,6 +666,37 @@ class Route implements Serializable {
      */
     public function url(): string {
         return $this->_url;
+    }
+
+    /**
+     * Gather a list of arguments to pass to the dispatcher based on the tokens and params from the route.
+     * Loop through and set any default values using reflection.
+     *
+     * @param \ReflectionFunctionAbstract $method
+     * @return Vector<mixed>
+     */
+    protected function _getArguments(ReflectionFunctionAbstract $method): Vector<mixed> {
+        $tokens = $this->getTokens();
+        $args = $this->getParams()->values();
+
+        foreach ($method->getParameters() as $i => $param) {
+            if (!$tokens->containsKey($i)) {
+                continue;
+            }
+
+            if ($tokens[$i]['optional'] && (!array_key_exists($i, $args) || $args[$i] === '' || $args[$i] === null)) {
+                $args[$i] = $param->getDefaultValue();
+            }
+
+            // Type cast the values to match the argument type hint
+            switch ($param->getTypehintText()) {
+                case 'HH\string': $args[$i] = (string) $args[$i]; break;
+                case 'HH\bool': $args[$i] = (bool) $args[$i]; break;
+                case 'HH\int': $args[$i] = (int) $args[$i]; break;
+            }
+        }
+
+        return $args;
     }
 
 }

@@ -296,6 +296,14 @@ class RouteTest extends TestCase {
         $this->assertFalse($route->isMatch('/users//'));
     }
 
+    public function testIsMatchMultipleOptionals() {
+        $route = new Route('/{year}/{month?}/{day?}', 'Controller@action');
+
+        $this->assertTrue($route->isMatch('/2014/01/01'));
+        $this->assertTrue($route->isMatch('/2014/01'));
+        $this->assertTrue($route->isMatch('/2014'));
+    }
+
     public function testMethods() {
         $route = new Route('/', 'Controller@action');
 

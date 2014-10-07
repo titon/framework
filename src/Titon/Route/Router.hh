@@ -91,7 +91,13 @@ class Router {
      * Mapping of CRUD actions to URL path parts.
      * These mappings will be used when creating resource() routes.
      *
-     * @type \Titon\Route\ResourceMap
+     * @type \Titon\Route\ResourceMap {
+     *      @type string $list      - GET /resource - List resources
+     *      @type string $create    - POST /resource - Create resource
+     *      @type string $read      - GET /resource/{id} - Read resource
+     *      @type string $update    - PUT /resource/{id} - Update resource
+     *      @type string $delete    - DELETE /resource/{id} - Delete resource
+     * }
      */
     protected ResourceMap $_resourceMap = Map {
         'list' => 'index',
@@ -641,7 +647,7 @@ class Router {
             $newPath = $path;
 
             if (in_array($resource, Vector {'read', 'update', 'delete'})) {
-                $newPath .= '/(id)';
+                $newPath .= '/{id}';
             }
 
             /** @type \Titon\Route\Route $newRoute */

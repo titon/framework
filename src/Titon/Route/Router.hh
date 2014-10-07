@@ -270,9 +270,9 @@ class Router {
      *
      * @param string $key
      * @param \Titon\Route\Route $route
-     * @return $this
+     * @return \Titon\Route\Route
      */
-    public function delete(string $key, Route $route): this {
+    public function delete(string $key, Route $route): Route {
         return $this->http($key, Vector {'delete'}, $route);
     }
 
@@ -307,9 +307,9 @@ class Router {
      *
      * @param string $key
      * @param \Titon\Route\Route $route
-     * @return $this
+     * @return \Titon\Route\Route
      */
-    public function get(string $key, Route $route): this {
+    public function get(string $key, Route $route): Route {
         return $this->http($key, Vector {'get'}, $route);
     }
 
@@ -442,9 +442,9 @@ class Router {
      *
      * @param string $key
      * @param \Titon\Route\Route $route
-     * @return $this
+     * @return \Titon\Route\Route
      */
-    public function head(string $key, Route $route): this {
+    public function head(string $key, Route $route): Route {
         return $this->http($key, Vector {'head'}, $route);
     }
 
@@ -454,9 +454,9 @@ class Router {
      * @param string $key
      * @param Vector<string> $methods
      * @param \Titon\Route\Route $route
-     * @return $this
+     * @return \Titon\Route\Route
      */
-    public function http(string $key, Vector<string> $methods, Route $route): this {
+    public function http(string $key, Vector<string> $methods, Route $route): Route {
         return $this->map($key, $route->setMethods($methods));
     }
 
@@ -491,9 +491,9 @@ class Router {
      *
      * @param string $key
      * @param \Titon\Route\Route $route
-     * @return $this
+     * @return \Titon\Route\Route
      */
-    public function map(string $key, Route $route): this {
+    public function map(string $key, Route $route): Route {
         $this->_routes[$key] = $route;
 
         // Apply group options
@@ -527,7 +527,7 @@ class Router {
             }
         }
 
-        return $this;
+        return $route;
     }
 
     /**
@@ -563,9 +563,9 @@ class Router {
      *
      * @param string $key
      * @param \Titon\Route\Route $route
-     * @return $this
+     * @return \Titon\Route\Route
      */
-    public function options(string $key, Route $route): this {
+    public function options(string $key, Route $route): Route {
         return $this->http($key, Vector {'options'}, $route);
     }
 
@@ -594,9 +594,9 @@ class Router {
      *
      * @param string $key
      * @param \Titon\Route\Route $route
-     * @return $this
+     * @return \Titon\Route\Route
      */
-    public function post(string $key, Route $route): this {
+    public function post(string $key, Route $route): Route {
         return $this->http($key, Vector {'post'}, $route);
     }
 
@@ -605,9 +605,9 @@ class Router {
      *
      * @param string $key
      * @param \Titon\Route\Route $route
-     * @return $this
+     * @return \Titon\Route\Route
      */
-    public function put(string $key, Route $route): this {
+    public function put(string $key, Route $route): Route {
         return $this->http($key, Vector {'put'}, $route);
     }
 

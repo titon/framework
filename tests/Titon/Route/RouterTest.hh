@@ -2,7 +2,6 @@
 namespace Titon\Route;
 
 use Titon\Cache\Storage\MemoryStorage;
-use Titon\Utility\Config;
 use Titon\Test\TestCase;
 
 /**
@@ -19,80 +18,6 @@ class RouterTest extends TestCase {
         $this->object->map('controller', new TestRoute('/{module}/{controller}', 'Module\Controller@action'));
         $this->object->map('module', new TestRoute('/{module}', 'Module\Controller@action'));
         $this->object->map('root', new TestRoute('/', 'Module\Controller@action'));
-    }
-
-    public function testBuild() {
-        $this->assertEquals('/', $this->object->build('root'));
-        $this->assertEquals('/users', $this->object->build('module', Map {'module' => 'users'}));
-        $this->assertEquals('/users/profile/feed.json', $this->object->build('action.ext', Map {'module' => 'users', 'controller' => 'profile', 'action' => 'feed', 'ext' => 'json'}));
-    }
-
-    public function testBuildQueryString() {
-        $this->assertEquals('/users?foo=bar', $this->object->build('module', Map {'module' => 'users'}, Map {'foo' => 'bar'}));
-        $this->assertEquals('/users?foo=bar&baz%5B0%5D=1&baz%5B1%5D=2&baz%5B2%5D=3', $this->object->build('module', Map {'module' => 'users'}, Map {'foo' => 'bar', 'baz' => Vector{1, 2, 3}}));
-    }
-
-    public function testBuildHashFragment() {
-        $this->assertEquals('/users#foobar', $this->object->build('module', Map {'module' => 'users'}, Map {'#' => 'foobar'}));
-        $this->assertEquals('/users#foo=bar', $this->object->build('module', Map {'module' => 'users'}, Map {'#' => Map {'foo' => 'bar'}}));
-        $this->assertEquals('/users?key=value#foobar', $this->object->build('module', Map {'module' => 'users'}, Map {'#' => 'foobar', 'key' => 'value'}));
-    }
-
-    public function testBuildOptionalToken() {
-        $this->object->map('blog.archives', new TestRoute('/blog/[year]/[month]/[day?]', 'Module\Controller@action'));
-
-        $this->assertEquals('/blog/2012/2', $this->object->build('blog.archives', Map {'year' => 2012, 'month' => 02}));
-        $this->assertEquals('/blog/2012/2/26', $this->object->build('blog.archives', Map {'year' => 2012, 'month' => 02, 'day' => 26}));
-    }
-
-    public function testBuildInBaseFolder() {
-        $_SERVER['DOCUMENT_ROOT'] = '/root';
-        $_SERVER['SCRIPT_FILENAME'] = '/root/base/index.php';
-
-        $router = new Router();
-        $router->map('module', new TestRoute('/{module}', 'Module\Controller@action'));
-
-        $this->assertEquals('/base', $router->base());
-        $this->assertEquals('/base/users', $router->build('module', Map {'module' => 'users'}));
-    }
-
-    public function testBuildWithLocale() {
-        $route = new Route('/<locale>/{module}', 'Module\Controller@action');
-        $route->addPattern('locale', Route::LOCALE)->compile();
-
-        $this->object->map('locale', $route);
-
-        $this->assertEquals('/fr-fr/forum', $this->object->build('locale', Map {'module' => 'forum', 'locale' => 'fr-fr'}));
-
-        Config::set('titon.locale.current', 'en_US');
-
-        $this->assertEquals('/en-us/forum', $this->object->build('locale', Map {'module' => 'forum'}));
-
-        Config::remove('titon.locale.current');
-    }
-
-    public function testBuildTokenInflection() {
-        $this->assertEquals('/download-center', $this->object->build('module', Map {'module' => 'download_center'}));
-        $this->assertEquals('/customer-support', $this->object->build('module', Map {'module' => 'cusToMer-SuPPorT@#&(#'}));
-        $this->assertEquals('/users/profile/feed.json', $this->object->build('action.ext', Map {'module' => 'Users', 'controller' => 'ProfILE', 'action' => 'feeD', 'ext' => 'JSON'}));
-    }
-
-    public function testBuildUrlFunction() {
-        $this->assertEquals('/users/profile/feed.json', url('action.ext', Map {'module' => 'users', 'controller' => 'profile', 'action' => 'feed', 'ext' => 'json'}));
-    }
-
-    /**
-     * @expectedException \Titon\Route\Exception\MissingRouteException
-     */
-    public function testBuildInvalidKey() {
-        $this->object->build('foobar');
-    }
-
-    /**
-     * @expectedException \Titon\Route\Exception\MissingTokenException
-     */
-    public function testBuildMissingToken() {
-        $this->object->build('module');
     }
 
     public function testBuildAction() {
@@ -448,9 +373,9 @@ class RouterTest extends TestCase {
         // Paths
         $this->assertEquals('/rest', $routes['rest.list']->getPath());
         $this->assertEquals('/rest', $routes['rest.create']->getPath());
-        $this->assertEquals('/rest/(id)', $routes['rest.read']->getPath());
-        $this->assertEquals('/rest/(id)', $routes['rest.update']->getPath());
-        $this->assertEquals('/rest/(id)', $routes['rest.delete']->getPath());
+        $this->assertEquals('/rest/{id}', $routes['rest.read']->getPath());
+        $this->assertEquals('/rest/{id}', $routes['rest.update']->getPath());
+        $this->assertEquals('/rest/{id}', $routes['rest.delete']->getPath());
 
         // Action
         $this->assertEquals(shape('class' => 'Api\Rest', 'action' => 'index'), $routes['rest.list']->getAction());
@@ -491,7 +416,7 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/', $router->base());
-        $this->assertEquals('http://localhost/', $router->url());
+        $this->assertEquals('http://localhost/', UrlBuilder::factory($router)->url());
         $this->assertEquals('/', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -509,7 +434,7 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/', $router->base());
-        $this->assertEquals('http://domain.com/module/index', $router->url());
+        $this->assertEquals('http://domain.com/module/index', UrlBuilder::factory($router)->url());
         $this->assertEquals('/module/index', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -527,7 +452,7 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/root/dir', $router->base());
-        $this->assertEquals('http://sub.domain.com/root/dir/module/controller/action.html', $router->url());
+        $this->assertEquals('http://sub.domain.com/root/dir/module/controller/action.html', UrlBuilder::factory($router)->url());
         $this->assertEquals('/module/controller/action.html', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -547,7 +472,7 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/rooter/root/dir', $router->base());
-        $this->assertEquals('https://subber.sub.domain.com/rooter/root/dir/module/controller/action.html?foo=bar&int=123', $router->url());
+        $this->assertEquals('https://subber.sub.domain.com/rooter/root/dir/module/controller/action.html?foo=bar&int=123', UrlBuilder::factory($router)->url());
         $this->assertEquals('/module/controller/action.html', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -567,7 +492,7 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/base/rooter/root/dir', $router->base());
-        $this->assertEquals('https://subbest.subber.sub.domain.com/base/rooter/root/dir/module/controller/action.html/123/abc?foo=bar&int=123', $router->url());
+        $this->assertEquals('https://subbest.subber.sub.domain.com/base/rooter/root/dir/module/controller/action.html/123/abc?foo=bar&int=123', UrlBuilder::factory($router)->url());
         $this->assertEquals('/module/controller/action.html/123/abc', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -584,19 +509,6 @@ class RouterTest extends TestCase {
      */
     public function testSegmentsMissingKey() {
         $this->object->getSegment('fakeKey');
-    }
-
-    public function testUrl() {
-        $_SERVER['DOCUMENT_ROOT'] = '/root';
-        $_SERVER['HTTP_HOST'] = 'sub.domain.com';
-        $_SERVER['SCRIPT_FILENAME'] = '/root/base/app/index.php';
-        $_SERVER['REQUEST_URI'] = '/module/controller/action.html/123?foo=bar';
-        $_SERVER['HTTPS'] = 'on';
-        $_GET = ['foo' => 'bar'];
-
-        $router = new Router();
-
-        $this->assertEquals('https://sub.domain.com/base/app/module/controller/action.html/123?foo=bar', $router->url());
     }
 
 }

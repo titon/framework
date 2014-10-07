@@ -14,11 +14,8 @@ use Titon\Route\Exception\InvalidRouteException;
 use Titon\Route\Exception\MissingFilterException;
 use Titon\Route\Exception\MissingSegmentException;
 use Titon\Route\Exception\MissingRouteException;
-use Titon\Route\Exception\MissingTokenException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
-use Titon\Utility\Config;
-use Titon\Utility\Inflector;
 use Titon\Utility\Registry;
 
 type Action = shape('class' => string, 'action' => string);
@@ -168,64 +165,6 @@ class Router {
      */
     public function base(): string {
         return $this->_base;
-    }
-
-    /**
-     * Builds a URL for a route by replacing all tokens with custom defined parameters.
-     * An optional query string and fragment can be also be defined.
-     *
-     * @param string $key
-     * @param \Titon\Route\ParamMap $params
-     * @param \Titon\Route\QueryMap $query
-     * @return string
-     * @throws \Titon\Route\Exception\MissingTokenException
-     */
-    public function build(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        $route = $this->getRoute($key);
-        $base = $this->base();
-        $url = str_replace([']', ')', '>'], '}', str_replace(['[', '(', '<'], '{', $route->getPath()));
-
-        // Set the locale if it is missing
-        if (!$params->contains('locale')) {
-            $params['locale'] = Config::get('titon.locale.current');
-        }
-
-        // Replace tokens in the path with values from the parameters
-        foreach ($route->getTokens() as $token) {
-            $tokenKey = $token['token'];
-
-            if ($params->contains($tokenKey) || $token['optional']) {
-                $url = str_replace(sprintf('{%s}', $tokenKey . ($token['optional'] ? '?' : '')), Inflector::route((string) $params->get($tokenKey) ?: ''), $url);
-
-            } else {
-                throw new MissingTokenException(sprintf('Missing %s parameter for the %s route', $tokenKey, $key));
-            }
-        }
-
-        // Prepend base folder
-        if ($base !== '/') {
-            $url = $base . $url;
-        }
-
-        // Trim trailing slash
-        if ($url !== '/') {
-            $url = rtrim($url, '/');
-        }
-
-        // Append query string and fragment
-        $fragment = $query->get('#');
-
-        $query->remove('#');
-
-        if ($query) {
-            $url .= '?' . http_build_query($query);
-        }
-
-        if ($fragment) {
-            $url .= '#' . (($fragment instanceof Traversable) ? http_build_query($fragment) : urlencode($fragment));
-        }
-
-        return $url;
     }
 
     /**
@@ -698,30 +637,6 @@ class Router {
         $this->_storage = $storage;
 
         return $this;
-    }
-
-    /**
-     * Return the current URL.
-     *
-     * @return string
-     */
-    public function url(): string {
-        $segments = $this->getSegments();
-        $base = $this->base();
-
-        $url = (string) $segments['scheme'] . '://' . (string) $segments['host'];
-
-        if ($base !== '/') {
-            $url .= $base;
-        }
-
-        $url .= (string) $segments['path'];
-
-        if ($segments['query']) {
-            $url .= '?' . http_build_query($segments['query']);
-        }
-
-        return $url;
     }
 
 }

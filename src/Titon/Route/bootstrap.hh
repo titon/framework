@@ -8,10 +8,18 @@
 use Titon\Route\ParamMap;
 use Titon\Route\QueryMap;
 use Titon\Route\Router;
+use Titon\Route\UrlBuilder;
 
 /**
- * @see Titon\Route\Router::build()
+ * @see Titon\Route\UrlBuilder::build()
  */
-function url(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-    return Router::registry()->build($key, $params, $query);
+function link_to(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
+    return UrlBuilder::registry(Router::registry())->build($key, $params, $query);
+}
+
+/**
+ * @see Titon\Route\UrlBuilder::url()
+ */
+function url(): string {
+    return UrlBuilder::registry(Router::registry())->url();
 }

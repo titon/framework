@@ -82,6 +82,27 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/users'));
     }
 
+    public function testDispatch() {
+        $route = new Route('/{a}/{b}', 'Titon\Route\TestDispatch@noOptional');
+        $route->isMatch('/foo/bar');
+
+        $this->assertEquals('foobar', $route->dispatch());
+    }
+
+    public function testDispatchOptional() {
+        $route = new Route('/{a}/{b?}', 'Titon\Route\TestDispatch@withOptional');
+        $route->isMatch('/foo');
+
+        $this->assertEquals('foobaz', $route->dispatch());
+    }
+
+    public function testDispatchTypeHints() {
+        $route = new Route('/{a}/[b]/(c)', 'Titon\Route\TestDispatch@typeHints');
+        $route->isMatch('/foo/123/bar_456');
+
+        $this->assertEquals('foo123bar_456', $route->dispatch());
+    }
+
     public function testFilters() {
         $route = new Route('/', 'Controller@action');
 
@@ -299,6 +320,29 @@ class RouteTest extends TestCase {
         $this->assertEquals(null, $route->getParam('hash'));
     }
 
+    public function testParamsOptional() {
+        $route = new TestRoute('/blog/[year]/[month]/[day?]', 'Module\Controller@action');
+        $route->isMatch('/blog/2014/02');
+
+        $this->assertEquals('/blog/2014/02', $route->url());
+
+        $this->assertEquals(Map {
+            'year' => '2014',
+            'month' => '02',
+            'day' => ''
+        }, $route->getParams());
+
+        $route->isMatch('/blog/2014/02/05');
+
+        $this->assertEquals('/blog/2014/02/05', $route->url());
+
+        $this->assertEquals(Map {
+            'year' => '2014',
+            'month' => '02',
+            'day' => '05'
+        }, $route->getParams());
+    }
+
     public function testPatterns() {
         $route = new Route('/', 'Controller@action');
 
@@ -373,4 +417,18 @@ class RouteTest extends TestCase {
         $this->assertEquals($route, unserialize($serialized));
     }
 
+}
+
+class TestDispatch {
+    public function noOptional(string $a, string $b): string {
+        return $a . $b;
+    }
+
+    public function withOptional(string $a, string $b = 'baz'): string {
+        return $a . $b;
+    }
+
+    public function typeHints(string $a, int $b, string $c): string {
+        return $a . $b . $c;
+    }
 }

@@ -8,6 +8,9 @@
 namespace Titon\Route;
 
 use Titon\Route\Exception\MissingPatternException;
+use Titon\Route\Exception\NoMatchException;
+use Titon\Utility\Registry;
+use \ReflectionMethod;
 use \Serializable;
 
 type FilterList = Vector<string>;
@@ -270,7 +273,7 @@ class Route implements Serializable {
                     }
 
                     if ($open === '{' && $close === '}') {
-                        $pattern = self::ALPHA;
+                        $pattern = self::ALNUM;
 
                     } else if ($open === '[' && $close === ']') {
                         $pattern = self::NUMERIC;
@@ -307,6 +310,40 @@ class Route implements Serializable {
 
         // Save the compiled regex
         return $this->_compiled = $compiled;
+    }
+
+    /**
+     * Dispatch the current route to the defined action only if the route has been matched.
+     * The dispatcher will use the params gathered from the token list to pass as arguments to the action.
+     * Arguments will take into account default values defined on the method.
+     *
+     * @return mixed - The response of the action call
+     */
+    public function dispatch(): mixed {
+        if (!$this->isMatched()) {
+            throw new NoMatchException('Route cannot be dispatched unless it has been matched.');
+        }
+
+        $action = $this->getAction();
+        $object = Registry::factory($action['class']);
+        $method = new ReflectionMethod($object, $action['action']);
+        $tokens = $this->getTokens();
+        $args = $this->getParams()->values();
+
+        foreach ($method->getParameters() as $i => $param) {
+            if ($tokens[$i]['optional'] && (!array_key_exists($i, $args) || $args[$i] === '' || $args[$i] === null)) {
+                $args[$i] = $param->getDefaultValue();
+            }
+
+            // Type cast the values to match the argument type hint
+            switch ($param->getTypehintText()) {
+                case 'HH\string': $args[$i] = (string) $args[$i]; break;
+                case 'HH\bool': $args[$i] = (bool) $args[$i]; break;
+                case 'HH\int': $args[$i] = (int) $args[$i]; break;
+            }
+        }
+
+        return $method->invokeArgs($object, $args);
     }
 
     /**
@@ -438,6 +475,15 @@ class Route implements Serializable {
         }
 
         return false;
+    }
+
+    /**
+     * Return true if the route has been matched.
+     *
+     * @return bool
+     */
+    public function isMatched(): bool {
+        return (bool) $this->url();
     }
 
     /**

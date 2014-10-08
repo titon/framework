@@ -14,6 +14,8 @@ use \ReflectionFunctionAbstract;
 use \ReflectionMethod;
 use \Serializable;
 
+type ConditionCallback = (function(Route): bool);
+type ConditionList = Vector<ConditionCallback>;
 type FilterList = Vector<string>;
 type MethodList = Vector<string>;
 type ParamMap = Map<string, mixed>;
@@ -22,9 +24,8 @@ type Token = shape('token' => string, 'optional' => bool);
 type TokenList = Vector<Token>;
 
 /**
- * Represents the skeleton for an individual route. A route matches an internal URL that gets analyzed into multiple parts:
- * module, controller, action, extension, arguments and query parameters. A route can be used to mask a certain URL to
- * another internal destination.
+ * Represents the skeleton for an individual route. A route is paired with a tokenized path that is matched and converted to a
+ * routeable URL. Routes support filters, patterns, conditional matching, and more.
  *
  * @package Titon\Route
  */
@@ -52,6 +53,13 @@ class Route implements Serializable {
      * @type string
      */
     protected string $_compiled = '';
+
+    /**
+     * List of conditions to validate against.
+     *
+     * @type \Titon\Route\ConditionList
+     */
+    protected ConditionList $_conditions = Vector {};
 
     /**
      * Filters to trigger once the route has been matched.
@@ -130,6 +138,32 @@ class Route implements Serializable {
     }
 
     /**
+     * Add a condition callback.
+     *
+     * @param \Titon\Route\ConditionCallback $condition
+     * @return $this
+     */
+    public function addCondition(ConditionCallback $condition): this {
+        $this->_conditions[] = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Add multiple conditions.
+     *
+     * @param \Titon\Route\ConditionList $conditions
+     * @return $this
+     */
+    public function addConditions(ConditionList $conditions): this {
+        foreach ($conditions as $condition) {
+            $this->addCondition($condition);
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a filter by name.
      *
      * @param string $filter
@@ -165,7 +199,7 @@ class Route implements Serializable {
      */
     public function addMethod(string $method): this {
         if (!in_array($method, $this->_methods)) {
-            $this->_methods[] = $method;
+            $this->_methods[] = strtolower($method);
         }
 
         return $this;
@@ -343,6 +377,15 @@ class Route implements Serializable {
     }
 
     /**
+     * Return the list of conditions.
+     *
+     * @return \Titon\Route\ConditionList
+     */
+    public function getConditions(): ConditionList {
+        return $this->_conditions;
+    }
+
+    /**
      * Return all filters.
      *
      * @return \Titon\Route\FilterList
@@ -452,10 +495,13 @@ class Route implements Serializable {
         } else if (!$this->isSecure()) {
             return false;
 
+        } else if (!$this->isValid()) {
+            return false;
+
         } else if ($this->getPath() === $url) {
             return true;
 
-        } else if (preg_match('/^' . $this->compile() . '$/i', $url, $matches)) {
+        } else if (preg_match('~^' . $this->compile() . '$~i', $url, $matches)) {
             $this->match(new Vector($matches));
 
             return true;
@@ -479,9 +525,9 @@ class Route implements Serializable {
      * @return bool
      */
     public function isMethod(): bool {
-        $method = $this->getMethods()->map(fun('strtolower'));
+        $methods = $this->getMethods();
 
-        if ($method && !in_array(strtolower($_SERVER['REQUEST_METHOD']), $method, true)) {
+        if ($methods && !in_array(strtolower($_SERVER['REQUEST_METHOD']), $methods, true)) {
             return false;
         }
 
@@ -514,6 +560,21 @@ class Route implements Serializable {
      */
     public function isStatic(): bool {
         return (bool) $this->getStatic();
+    }
+
+    /**
+     * Validate the route is matchable by running through all defined conditions.
+     *
+     * @return bool
+     */
+    public function isValid(): bool {
+        foreach ($this->getConditions() as $condition) {
+            if (!call_user_func($condition, $this)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -580,6 +641,18 @@ class Route implements Serializable {
     }
 
     /**
+     * Set the list of conditions to validate.
+     *
+     * @param \Titon\Route\ConditionList $conditions
+     * @return $this
+     */
+    public function setConditions(ConditionList $conditions): this {
+        $this->_conditions = $conditions;
+
+        return $this;
+    }
+
+    /**
      * Set the list of filters to process.
      *
      * @param \Titon\Route\FilterList $filters
@@ -598,7 +671,7 @@ class Route implements Serializable {
      * @return $this
      */
     public function setMethods(MethodList $methods): this {
-        $this->_methods = $methods;
+        $this->_methods = $methods->map(fun('strtolower'));
 
         return $this;
     }

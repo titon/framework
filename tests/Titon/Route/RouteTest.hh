@@ -29,6 +29,25 @@ class RouteTest extends TestCase {
         $this->assertEquals('/{prefix}/before/prepend/append/after/{suffix}', $route->getPath());
     }
 
+    public function testConditions() {
+        $route = new Route('/', 'Controller@action');
+
+        $this->assertEquals(Vector {}, $route->getConditions());
+
+        $cond1 = function() {};
+        $cond2 = function() {};
+        $cond3 = function() {};
+
+        $route->addCondition($cond1);
+        $route->addConditions(Vector {$cond3, $cond2});
+
+        $this->assertEquals(Vector {$cond1, $cond3, $cond2}, $route->getConditions());
+
+        $route->setConditions(Vector {$cond2});
+
+        $this->assertEquals(Vector {$cond2}, $route->getConditions());
+    }
+
     public function testCompile() {
         $moduleControllerActionExt = new Route('/{module}/{controller}/{action}.{ext}', 'Controller@action');
         $moduleControllerAction = new Route('/{module}/{controller}/{action}', 'Controller@action');
@@ -302,6 +321,21 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/2014/01/01'));
         $this->assertTrue($route->isMatch('/2014/01'));
         $this->assertTrue($route->isMatch('/2014'));
+    }
+
+    public function testIsMatchConditions() {
+        $route = new Route('/{module}', 'Controller@action');
+        $route->addCondition(function(): bool {
+            return (strpos($_SERVER['HTTP_ACCEPT'], 'json') !== false);
+        });
+
+        $_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+
+        $this->assertFalse($route->isMatch('/users'));
+
+        $_SERVER['HTTP_ACCEPT'] = 'application/json;q=0.9';
+
+        $this->assertTrue($route->isMatch('/users'));
     }
 
     public function testMethods() {

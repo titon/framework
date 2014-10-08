@@ -359,7 +359,7 @@ class Router {
 
     /**
      * Group multiple route mappings into a single collection and apply options to all of them.
-     * Can apply path prefixes, suffixes, route config, before filters, and after filters.
+     * Can apply path prefixes, suffixes, patterns, filters, methods, conditions, and more.
      *
      * @param Map<string, mixed> $options
      * @param \Titon\Route\GroupCallback $callback
@@ -372,7 +372,8 @@ class Router {
             'secure' => false,
             'patterns' => Map {},
             'filters' => Vector {},
-            'methods' => Vector {}
+            'methods' => Vector {},
+            'conditions' => Vector {}
         })->setAll($options);
 
         call_user_func($callback, $this);
@@ -469,6 +470,12 @@ class Router {
                 invariant($methods instanceof Vector, 'Group methods must be a vector');
 
                 $route->addMethods($methods);
+            }
+
+            if ($conditions = $group['conditions']) {
+                invariant($conditions instanceof Vector, 'Group conditions must be a vector');
+
+                $route->addConditions($conditions);
             }
         }
 

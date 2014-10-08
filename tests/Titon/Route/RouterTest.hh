@@ -193,6 +193,27 @@ class RouterTest extends TestCase {
         $this->assertEquals(Map {}, $routes['solo']->getPatterns());
     }
 
+    public function testGroupConditions() {
+        $cond1 = function() {};
+        $cond2 = function() {};
+
+        $this->object->group(Map {
+            'conditions' => Vector {$cond1, $cond2}
+        }, function(Router $router) {
+            $router->map('group1', new Route('/group-1', 'Controller@action'));
+            $router->map('group2', new Route('/group-2', 'Controller@action'));
+        });
+
+        $this->object->map('solo', new Route('/solo', 'Controller@action'));
+
+        $routes = $this->object->getRoutes();
+
+        $this->assertEquals(Vector {}, $routes['root']->getConditions());
+        $this->assertEquals(Vector {$cond1, $cond2}, $routes['group1']->getConditions());
+        $this->assertEquals(Vector {$cond1, $cond2}, $routes['group2']->getConditions());
+        $this->assertEquals(Vector {}, $routes['solo']->getConditions());
+    }
+
     public function testGroupNesting() {
         $this->object->group(Map {'prefix' => '/pre/'}, function(Router $router) {
             $router->map('group1', new Route('/group-1', 'Controller@action'));

@@ -84,6 +84,17 @@ class UrlBuilderTest extends TestCase {
         $this->assertEquals('/users/profile/feed.json', link_to('action.ext', Map {'module' => 'users', 'controller' => 'profile', 'action' => 'feed', 'ext' => 'json'}));
     }
 
+    public function testBuildCaching() {
+        $this->assertFalse($this->object->hasCache('Titon\Route\UrlBuilder::build-module-7b6c94ff4c5b880a8784c52ea80606ab'));
+
+        $this->assertEquals('/users', $this->object->build('module', Map {'module' => 'users'}));
+
+        $this->assertTrue($this->object->hasCache('Titon\Route\UrlBuilder::build-module-7b6c94ff4c5b880a8784c52ea80606ab'));
+
+        $this->assertEquals('/users?foo=bar', $this->object->build('module', Map {'module' => 'users'}, Map {'foo' => 'bar'}));
+        $this->assertEquals('/users?foo=baz', $this->object->build('module', Map {'module' => 'users'}, Map {'foo' => 'baz'}));
+    }
+
     /**
      * @expectedException \Titon\Route\Exception\MissingRouteException
      */

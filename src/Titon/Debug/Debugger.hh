@@ -8,9 +8,13 @@
 namespace Titon\Debug;
 
 use Psr\Log\LoggerInterface;
+use Titon\Debug\Exception\FatalErrorException;
+use Titon\Debug\Exception\InternalErrorException;
 use Titon\Utility\Sanitize;
 use \Exception;
 use \ErrorException;
+
+newtype ExceptionHandler = (function(Exception): void);
 
 /**
  * Custom system to manage all errors and thrown/uncaught exceptions.
@@ -46,16 +50,16 @@ class Debugger {
     /**
      * Callback to handle exceptions.
      *
-     * @type callable
+     * @type ExceptionHandler
      */
-    protected static callable $_handler;
+    protected static ?ExceptionHandler $_handler;
 
     /**
      * Logger instance.
      *
      * @type \Psr\Log\LoggerInterface
      */
-    protected static LoggerInterface $_logger;
+    protected static ?LoggerInterface $_logger;
 
     /**
      * Initialize the error, exception, and debug handling.
@@ -67,7 +71,7 @@ class Debugger {
         set_error_handler([__CLASS__, 'handleError']);
         register_shutdown_function([__CLASS__, 'handleFatalError']);
 
-        static::setHandler([__CLASS__, 'handleException']);
+        static::setHandler(class_meth(__CLASS__, 'handleException'));
         static::enable(false);
     }
 
@@ -91,7 +95,7 @@ class Debugger {
         $backtrace = [];
 
         foreach ($stack as $trace) {
-            if (in_array($trace['function'], get_class_methods(__CLASS__)) || (isset($trace['file']) && strpos($trace['file'], 'Debugger'))) {
+            if (in_array($trace['function'], get_class_methods(__CLASS__)) || (array_key_exists('file', $trace) && strpos($trace['file'], 'Debugger'))) {
                 continue;
             }
 
@@ -102,12 +106,12 @@ class Debugger {
                 'args' => null
             ];
 
-            $current['file'] = isset($trace['file']) ? $trace['file'] : '[Internal]';
-            $current['line'] = isset($trace['line']) ? $trace['line'] : 0;
+            $current['file'] = array_key_exists('file', $trace) ? $trace['file'] : '[Internal]';
+            $current['line'] = array_key_exists('line', $trace) ? $trace['line'] : 0;
 
             $method = $trace['function'];
 
-            if (isset($trace['class'])) {
+            if (array_key_exists('class', $trace)) {
                 $method = $trace['class'] . $trace['type'] . $method;
             }
 
@@ -140,7 +144,7 @@ class Debugger {
         $file = $line = null;
 
         foreach (debug_backtrace() as $trace) {
-            if (isset($trace['function']) && $trace['function'] === 'debug' && isset($trace['file'])) {
+            if (array_key_exists('function', $trace) && $trace['function'] === 'debug' && array_key_exists('file', $trace)) {
                 $file = $trace['file'];
                 $line = $trace['line'];
                 break;
@@ -175,7 +179,7 @@ class Debugger {
         $file = $line = null;
 
         foreach (debug_backtrace() as $trace) {
-            if (isset($trace['function']) && $trace['function'] === 'dump' && isset($trace['file'])) {
+            if (array_key_exists('function', $trace) && $trace['function'] === 'dump' && array_key_exists('file', $trace)) {
                 $file = $trace['file'];
                 $line = $trace['line'];
                 break;
@@ -247,7 +251,7 @@ class Debugger {
      * @return string
      */
     public static function getError(int $code = 0): string {
-        if (isset(static::$errorTypes[$code])) {
+        if (static::$errorTypes->contains($code)) {
             return static::$errorTypes[$code];
         }
 
@@ -257,9 +261,9 @@ class Debugger {
     /**
      * Return the current exception handler.
      *
-     * @return callable
+     * @return ExceptionHandler
      */
-    public static function getHandler(): callable {
+    public static function getHandler(): ?ExceptionHandler {
         return static::$_handler;
     }
 
@@ -268,7 +272,7 @@ class Debugger {
      *
      * @return \Psr\Log\LoggerInterface
      */
-    public static function getLogger(): LoggerInterface {
+    public static function getLogger(): ?LoggerInterface {
         return static::$_logger;
     }
 
@@ -327,18 +331,19 @@ class Debugger {
      */
     public static function handleFatalError(): void {
         $error = error_get_last();
+        $handler = static::getHandler();
 
-        if ($error['type'] != E_ERROR) {
+        if ($error['type'] != E_ERROR || !$handler) {
             return;
         }
 
         if (error_reporting() > 0) {
-            $exception = 'Titon\Debug\Exception\FatalErrorException';
+            $exception = new FatalErrorException($error['message'], E_ERROR, 1, $error['file'], $error['line']);
         } else {
-            $exception = 'Titon\Debug\Exception\InternalErrorException';
+            $exception = new InternalErrorException($error['message'], E_ERROR, 1, $error['file'], $error['line']);
         }
 
-        call_user_func(static::getHandler(), new $exception($error['message'], E_ERROR, 1, $error['file'], $error['line']));
+        call_user_func($handler, $exception);
     }
 
     /**
@@ -509,9 +514,9 @@ class Debugger {
     /**
      * Set the exception handler.
      *
-     * @param callable $callback
+     * @param ExceptionHandler $callback
      */
-    public static function setHandler(callable $callback): void {
+    public static function setHandler(ExceptionHandler $callback): void {
         static::$_handler = $callback;
 
         set_exception_handler($callback);
@@ -533,13 +538,14 @@ class Debugger {
      * @param array $variables
      * @return string
      */
-    protected static function _renderTemplate(string $template, array $variables = []): string {
+    protected static function _renderTemplate(string $template, array<string, mixed> $variables = []): string {
         if ($variables) {
             extract($variables, EXTR_OVERWRITE);
         }
 
         ob_start();
 
+        // UNSAFE
         include sprintf('%s/templates/%s.php', __DIR__, $template);
 
         return ob_get_clean();

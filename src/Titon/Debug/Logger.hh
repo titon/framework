@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -82,7 +82,7 @@ class Logger extends AbstractLogger {
      * @param array $context
      * @return bool
      */
-    public function log($level, $message, array $context = []): bool { // No type hints as it inherits from PSR
+    public function log($level, $message, array<string, mixed> $context = []): bool { // No type hints as it inherits from PSR
         return (bool) file_put_contents(
             sprintf('%s/%s-%s.log', $this->getDirectory(), $level, date('Y-m-d')),
             static::createMessage($level, $message, $context),
@@ -92,16 +92,16 @@ class Logger extends AbstractLogger {
     /**
      * Sharable message parsing and building method. Conforms to the PSR spec.
      *
-     * @uses Titon\Utility\String
+     * @uses Titon\Utility\Str
      *
      * @param string $level
      * @param string $message
      * @param array $context
      * @return string
      */
-    public static function createMessage(string $level, string $message, array $context = []): string {
+    public static function createMessage(string $level, string $message, array<string, mixed> $context = []): string {
         $exception = null;
-        $url = null;
+        $url = '';
 
         if (isset($context['exception'])) {
             $exception = $context['exception'];
@@ -119,7 +119,7 @@ class Logger extends AbstractLogger {
         $message = sprintf('[%s] %s %s',
             date(DateTime::RFC3339),
             Str::insert($message, new Map($context), Map {'escape' => false}),
-            $url ? '[' . $url . ']' : '') . PHP_EOL;
+            $url ? '[' . (string) $url . ']' : '') . PHP_EOL;
 
         if ($exception instanceof Exception) {
             $message .= $exception->getTraceAsString() . PHP_EOL;

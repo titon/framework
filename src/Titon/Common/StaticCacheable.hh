@@ -18,16 +18,16 @@ trait StaticCacheable {
     /**
      * Cached items indexed by key.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Common\CacheMap
      */
-    protected static Map<string, mixed> $_cache = Map {};
+    protected static CacheMap $_cache = Map {};
 
     /**
      * Return all the current cached items.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Common\CacheMap
      */
-    public static function allCache(): Map<string, mixed> {
+    public static function allCache(): CacheMap {
         return static::$_cache;
     }
 
@@ -35,8 +35,8 @@ trait StaticCacheable {
      * Dynamically read and write from the cache at once. If the cache exists with the key return it, else execute and save the result.
      * If the value happens to be a closure, evaluate the closure and save the result.
      *
-     * @param array|string $key
-     * @param mixed|\Closure $value
+     * @param mixed $key
+     * @param mixed $value
      * @return mixed
      */
     public static function cache(mixed $key, mixed $value): mixed {
@@ -47,6 +47,8 @@ trait StaticCacheable {
         }
 
         if (is_callable($value)) {
+            invariant(is_callable($value), 'Cache callback must be callable');
+
             $value = call_user_func($value);
         }
 
@@ -56,7 +58,7 @@ trait StaticCacheable {
     /**
      * Generate a cache key. If an array is passed, drill down and form a key.
      *
-     * @param string|array $keys
+     * @param mixed $keys
      * @return string
      */
     public static function createCacheKey(mixed $keys): string {
@@ -87,7 +89,7 @@ trait StaticCacheable {
     /**
      * Return a cached item if it exists, else return null.
      *
-     * @param string|array $key
+     * @param mixed $key
      * @return mixed
      */
     public static function getCache(mixed $key): mixed {
@@ -103,7 +105,7 @@ trait StaticCacheable {
     /**
      * Check to see if the cache key exists.
      *
-     * @param string|array $key
+     * @param mixed $key
      * @return bool
      */
     public static function hasCache(mixed $key): bool {
@@ -113,7 +115,7 @@ trait StaticCacheable {
     /**
      * Remove an item from the cache. Return true if the item was removed.
      *
-     * @param string|array $key
+     * @param mixed $key
      */
     public static function removeCache(mixed $key): void {
         static::$_cache->remove(static::createCacheKey($key));
@@ -124,7 +126,7 @@ trait StaticCacheable {
      * This will overwrite any data with the same key.
      * The value being saved will be returned.
      *
-     * @param string|array $key
+     * @param mixed $key
      * @param mixed $value
      * @return mixed
      */

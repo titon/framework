@@ -13,7 +13,11 @@ use Titon\Common\Exception\UnsupportedInterfaceException;
 use Titon\Utility\Inflector;
 use Titon\Utility\Registry;
 
-newtype ClassCallback = (function(): mixed);
+type ClassMap = Map<string, Map<string, mixed>>;
+type AttachedMap = Map<string, mixed>;
+type ObjectCallback = (function(): mixed);
+type ObjectMap = Map<string, ObjectCallback>;
+type RestrictedMap = Map<string, string>;
 
 /**
  * Attachable is an inheritable trait for all classes that need dependency or functionality from other classes.
@@ -27,30 +31,30 @@ trait Attachable {
     /**
      * Classes and their options / namespaces to load for dependencies.
      *
-     * @type Map<string, Map<string, mixed>>
+     * @type \Titon\Common\ClassMap
      */
-    protected Map<string, Map<string, mixed>> $_classes = Map {};
+    protected ClassMap $_classes = Map {};
 
     /**
      * Classes that have been instantiated when called with getObject().
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Common\AttachedMap
      */
-    protected Map<string, mixed> $_attached = Map {};
+    protected AttachedMap $_attached = Map {};
 
     /**
      * Classes that have been loaded, but are unable to be used within the current scope.
      *
-     * @type Map<string, string>
+     * @type \Titon\Common\RestrictedMap
      */
-    protected Map<string, string> $_restricted = Map {};
+    protected RestrictedMap $_restricted = Map {};
 
     /**
      * Object map that relates a Closure object to a defined class, to allow for easy lazy-loading.
      *
-     * @type Map<string, ClassCallback>
+     * @type \Titon\Common\ObjectMap
      */
-    private Map<string, ClassCallback> $__objectMap = Map {};
+    private ObjectMap $__objectMap = Map {};
 
     /**
      * Magic method for getObject().
@@ -108,7 +112,7 @@ trait Attachable {
     /**
      * Attaches the defined closure object to the $__objectMap, as well as saving its options to $_classes.
      *
-     * @param Map<string, mixed> $options {
+     * @param \Titon\Common\OptionMap $options {
      *      @type string $alias     The alias name to use for object linking
      *      @type string $class     The fully qualified class name to use for instantiation
      *      @type bool $register    Should the instance be stored in Registry
@@ -138,7 +142,7 @@ trait Attachable {
             throw new InvalidObjectException('You must define an alias to reference the attached object');
 
         } else if ($object === null && !$options['class']) {
-            throw new InvalidObjectException(sprintf('You must supply an object, Closure or a class name for %s', $options['alias']));
+            throw new InvalidObjectException(sprintf('You must supply an object, callable or a class name for %s', $options['alias']));
 
         } else {
             $options['alias'] = Inflector::variable($options['alias']);
@@ -146,6 +150,8 @@ trait Attachable {
 
         // If closure
         if (is_callable($object)) {
+            invariant($object instanceof Closure, 'Object must be a Closure');
+
             $this->__objectMap[(string) $options['alias']] = $object;
 
         // If object

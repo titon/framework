@@ -51,10 +51,9 @@ class ReflectionBagTest extends TestCase {
     public function testMethods() {
         $methods = Vector {
             'publicMethod', 'protectedMethod', 'privateMethod', 'staticPublicMethod', 'staticProtectedMethod', 'staticPrivateMethod',
-            'serialize', 'unserialize', 'jsonSerialize', 'initialize', 'noop', 'toString', '__toString', '__construct', 'allCache',
+            'serialize', 'unserialize', 'initialize', 'noop', 'toString', '__toString', 'allCache',
             'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
-            'addConfig', 'allConfig', 'setConfig', 'getConfig', 'getConfigBag', 'removeConfig', 'hasConfig',
-            'reflect', 'getReflectionBag', '__initBase', '__initConfigurable'
+            'reflect', 'getReflectionBag'
         };
 
         $this->assertVectorsEqual($methods, $this->object->methods);
@@ -63,10 +62,8 @@ class ReflectionBagTest extends TestCase {
 
     public function testPublicMethods() {
         $methods = Vector {
-            'publicMethod', 'staticPublicMethod',
-            'serialize', 'unserialize', 'jsonSerialize', 'initialize', 'noop', 'toString', '__toString', '__construct', 'allCache',
-            'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
-            'addConfig', 'allConfig', 'setConfig', 'getConfig', 'getConfigBag', 'removeConfig', 'hasConfig',
+            'publicMethod', 'staticPublicMethod', 'initialize', 'noop', 'toString', '__toString', 'allCache',
+            'serialize', 'unserialize', 'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
             'reflect', 'getReflectionBag'
         };
 
@@ -82,7 +79,7 @@ class ReflectionBagTest extends TestCase {
     }
 
     public function testPrivateMethods() {
-        $methods = Vector {'__initBase', '__initConfigurable', 'privateMethod', 'staticPrivateMethod'};
+        $methods = Vector {'privateMethod', 'staticPrivateMethod'};
 
         $this->assertVectorsEqual($methods, $this->object->privateMethods);
         $this->assertVectorsEqual($methods, $this->object->privateMethods());
@@ -98,7 +95,7 @@ class ReflectionBagTest extends TestCase {
     public function testProperties() {
         $props = Vector {
             'publicProp', 'protectedProp', 'privateProp', 'staticPublicProp', 'staticProtectedProp', 'staticPrivateProp',
-            '_config', '_configBag', '_cache', '__cacheEnabled', '_reflectionBag'
+            '_cache', '_cacheEnabled', '_reflectionBag'
         };
 
         $this->assertVectorsEqual($props, $this->object->properties);
@@ -113,14 +110,14 @@ class ReflectionBagTest extends TestCase {
     }
 
     public function testProtectedProperties() {
-        $props = Vector {'protectedProp', 'staticProtectedProp', '_config', '_cache', '_configBag', '_reflectionBag'};
+        $props = Vector {'protectedProp', 'staticProtectedProp', '_cache', '_cacheEnabled', '_reflectionBag'};
 
         $this->assertVectorsEqual($props, $this->object->protectedProperties);
         $this->assertVectorsEqual($props, $this->object->protectedProperties());
     }
 
     public function testPrivateProperties() {
-        $props = Vector {'privateProp', 'staticPrivateProp', '__cacheEnabled'};
+        $props = Vector {'privateProp', 'staticPrivateProp'};
 
         $this->assertVectorsEqual($props, $this->object->privateProperties);
         $this->assertVectorsEqual($props, $this->object->privateProperties());
@@ -143,7 +140,6 @@ class ReflectionBagTest extends TestCase {
     public function testTraits() {
         $traits = Vector {
             'Titon\Common\Cacheable',
-            'Titon\Common\Configurable',
             'Titon\Common\Reflectable'
         };
 
@@ -152,7 +148,7 @@ class ReflectionBagTest extends TestCase {
     }
 
     public function testInterfaces() {
-        $interfaces = Vector {'Serializable', 'JsonSerializable'};
+        $interfaces = Vector {};
 
         // HHVM has a Stringish interface that defines __toString()
         if (defined('HHVM_VERSION')) {

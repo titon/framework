@@ -7,9 +7,12 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\OptionMap;
 use Titon\Common\Macroable;
 use \DateTime;
 use \Indexish;
+
+type TimeMessageMap = Map<string, Map<int, string>>;
 
 /**
  * Format provides utility methods for converting raw data to specific visual formats.
@@ -145,11 +148,11 @@ class Format {
      * @uses Titon\Utility\Time
      *
      * @param string|int $time
-     * @param Map<string, mixed> $options
-     * @param Map<string, Map<int, string>> $messages
+     * @param \Titon\Common\OptionMap $options
+     * @param \Titon\Utility\TimeMessageMap $messages
      * @return string
      */
-    public static function relativeTime(mixed $time, Map<string, mixed> $options = Map {}, Map<string, Map<int, string>> $messages = Map {}): string {
+    public static function relativeTime(mixed $time, OptionMap $options = Map {}, TimeMessageMap $messages = Map {}): string {
         $options = (Map {
             'now' => 'just now',
             'in' => 'in {time}',

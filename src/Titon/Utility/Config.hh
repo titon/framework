@@ -10,6 +10,8 @@ namespace Titon\Utility;
 use Titon\Common\Macroable;
 use Titon\Io\Reader;
 
+type ConfigMap = Map<string, mixed>;
+
 /**
  * Stores the current configuration options for the application.
  * Configuration can be loaded from multiple sources including environment, bootstraps and internal system classes.
@@ -23,18 +25,18 @@ class Config {
     /**
      * Current loaded configuration.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Utility\ConfigMap
      */
-    protected static Map<string, mixed> $_config = Map {};
+    protected static ConfigMap $_config = Map {};
 
     /**
-     * Add a value to a key. If the value is not an array, make it one.
+     * Add a value to a key. If the value is not a vector, make it one.
      *
      * @param string $key
      * @param mixed $value
      */
     public static function add(string $key, mixed $value): void {
-        $data = Converter::toVector(static::get($key, []));
+        $data = Converter::toVector(static::get($key, Vector {}));
         $data[] = $value;
 
         static::set($key, $data);
@@ -43,9 +45,9 @@ class Config {
     /**
      * Return all configuration.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Utility\ConfigMap
      */
-    public static function all(): Map<string, mixed> {
+    public static function all(): ConfigMap {
         return static::$_config;
     }
 

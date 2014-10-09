@@ -9,7 +9,9 @@ namespace Titon\Common;
 
 use \Titon\Utility\Exception\UnsupportedMethodException;
 
-newtype MacroCallback = (function(): mixed);
+type MacroCallback = (function(): mixed);
+type MacroContainer = Map<string, MacroMap>;
+type MacroMap = Map<string, MacroCallback>;
 
 /**
  * Provides a mechanism at runtime for defining static methods that can be triggered during __callStatic().
@@ -21,9 +23,9 @@ trait Macroable {
     /**
      * Custom methods to magically call through the static context.
      *
-     * @type Map<string, Map<string, MacroCallback>>
+     * @type \Titon\Common\MacroContainer
      */
-    protected static Map<string, Map<string, MacroCallback>> $_macros = Map {};
+    protected static MacroContainer $_macros = Map {};
 
     /**
      * Execute a macro if it has been called statically.
@@ -44,9 +46,9 @@ trait Macroable {
     /**
      * Return all defined macros for a class.
      *
-     * @return Map<string, MacroCallback>
+     * @return \Titon\Common\MacroMap
      */
-    public static function getMacros(): Map<string, MacroCallback> {
+    public static function getMacros(): MacroMap {
         $macros = static::$_macros;
         $class = static::class;
 
@@ -71,7 +73,7 @@ trait Macroable {
      * Define a custom macro, that will be triggered when a magic static method is called.
      *
      * @param string $key
-     * @param \Closure $callback
+     * @param \Titon\Common\MacroCallback $callback
      */
     public static function macro(string $key, MacroCallback $callback): void {
         static::getMacros()->set($key, $callback);

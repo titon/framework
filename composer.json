@@ -27,7 +27,7 @@
     "autoload": {
         "psr-0": { "": "src/" },
         "files": [
-            "src/Titon/Common/functions.hh",
+            "src/Titon/Common/bootstrap.hh",
             "src/Titon/Debug/bootstrap.hh",
             "src/Titon/Route/bootstrap.hh",
             "src/Titon/Utility/bootstrap.hh"

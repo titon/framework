@@ -1,7 +1,7 @@
 <?hh
 namespace Titon\Common;
 
-use Titon\Common\Bag\ConfigBag;
+use Titon\Common\Bag\ReflectionBag;
 use Titon\Utility\Registry;
 use Titon\Test\TestCase;
 
@@ -41,11 +41,12 @@ class AttachableTest extends TestCase {
     public function testAttachObjectWithInterface() {
         $this->object->attachObject(Map {
             'alias' => 'bag',
-            'class' => 'Titon\Common\Bag\ConfigBag',
             'interface' => 'Titon\Common\Bag'
+        }, function() {
+            return new ReflectionBag(new Base());
         });
 
-        $this->assertInstanceOf('Titon\Common\Bag\ConfigBag', $this->object->bag);
+        $this->assertInstanceOf('Titon\Common\Bag\ReflectionBag', $this->object->bag);
     }
 
     /**
@@ -56,20 +57,20 @@ class AttachableTest extends TestCase {
             'alias' => 'bag',
             'interface' => 'Iterator',
         }, function() {
-            return new ConfigBag(Map {});
+            return new ReflectionBag(new Base());
         });
 
-        $this->assertInstanceOf('Titon\Common\Bag\ConfigBag', $this->object->bag);
+        $this->assertInstanceOf('Titon\Common\Bag\ReflectionBag', $this->object->bag);
     }
 
     public function testAttachObjectNoRegistry() {
         $this->object->attachObject(Map {
-            'alias' => 'bag',
-            'class' => 'Titon\Common\Bag\ConfigBag',
+            'alias' => 'stub',
+            'class' => 'Titon\Common\BaseStub',
             'register' => false
         });
 
-        $this->assertInstanceOf('Titon\Common\Bag\ConfigBag', $this->object->bag);
+        $this->assertInstanceOf('Titon\Common\BaseStub', $this->object->stub);
     }
 
     /**
@@ -115,8 +116,6 @@ class AttachableTest extends TestCase {
     }
 
     public function testHasObject() {
-        $this->object->base->setConfig('key', 'Forcing this object to be instantiated!');
-
         $this->assertTrue(isset($this->object->base));
         $this->assertTrue($this->object->hasObject('base'));
 
@@ -160,18 +159,21 @@ class AttachableTest extends TestCase {
 class AttachableStub extends Base {
     use Attachable;
 
-    public function initialize() {
+    public function __construct(): void {
         $this->attachObject('relation', function() {
             return new AttachableStub();
         });
     }
 }
 
+class BaseStub extends Base {
+
+}
+
 class NotifyStub {
+    public int $count = 0;
 
-    public $count = 0;
-
-    public function doNotify($step = 1) {
+    public function doNotify(int $step = 1): void {
         $this->count += $step;
     }
 }

@@ -7,6 +7,7 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\OptionMap;
 use Titon\Common\Macroable;
 
 /**
@@ -86,7 +87,7 @@ class Number {
     /**
      * Convert a number from one base to another.
      *
-     * @param string|int|float $no
+     * @param int|float $no
      * @param int $fromBase
      * @param int $toBase
      * @return string
@@ -104,7 +105,7 @@ class Number {
      * Allow for overrides through an options array.
      *
      * @param int|float $number
-     * @param Map<string, mixed> $options {
+     * @param \Titon\Common\OptionMap $options {
      *      @type string $thousands Character used for thousands place
      *      @type string $decimals  Character used for decimal
      *      @type int $places       Decimal (cent) limit
@@ -116,7 +117,7 @@ class Number {
      * }
      * @return string
      */
-    public static function currency(num $number, Map<string, mixed> $options = Map {}): string {
+    public static function currency(num $number, OptionMap $options = Map {}): string {
         $options = (Map {
             'thousands' => ',',
             'decimals' => '.',
@@ -253,15 +254,15 @@ class Number {
     /**
      * Convert a number to a percentage string with decimal and comma separations.
      *
-     * @param string|int|float $number
-     * @param Map<string, mixed> $options {
+     * @param int|float $number
+     * @param \Titon\Common\OptionMap $options {
      *      @type string $thousands Character used for thousands place
      *      @type string $decimals  Character used for decimal
      *      @type int $places       Decimal (cent) limit
      * }
      * @return string
      */
-    public static function percentage(num $number, Map<string, mixed> $options = Map {}): string {
+    public static function percentage(num $number, OptionMap $options = Map {}): string {
         $options = (Map {
             'thousands' => ',',
             'decimals' => '.',
@@ -316,7 +317,7 @@ class Number {
     /**
      * Returns as an unsigned integer in base 2 (binary).
      *
-     * @param string|int|float $number
+     * @param int|float $number
      * @param int $base
      * @return string
      */
@@ -327,7 +328,7 @@ class Number {
     /**
      * Returns as an unsigned integer in base 10 (decimal).
      *
-     * @param string|int|float $number
+     * @param int|float $number
      * @param int $base
      * @return string
      */
@@ -338,7 +339,7 @@ class Number {
     /**
      * Returns as an unsigned integer in base 16 (hexadecimal).
      *
-     * @param string|int|float $number
+     * @param int|float $number
      * @param int $base
      * @return string
      */
@@ -349,7 +350,7 @@ class Number {
     /**
      * Returns as an unsigned integer in base 8 (octal).
      *
-     * @param string|int|float $number
+     * @param int|float $number
      * @param int $base
      * @return string
      */

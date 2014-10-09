@@ -7,5 +7,6 @@
 
 namespace Titon\Common {
     type CacheMap = Map<string, mixed>;
+    type DataMap = Map<string, mixed>;
     type OptionMap = Map<string, mixed>;
 }

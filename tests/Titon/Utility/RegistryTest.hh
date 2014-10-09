@@ -89,13 +89,16 @@ class RegistryTest extends TestCase {
 
     public function testRegisterAndGet() {
         Registry::register('base', function() {
-            return new Base(Map {'key' => 'registry'});
+            $base = new Base();
+            $base->key = 'registry';
+
+            return $base;
         });
 
         $object = Registry::get('base');
 
         $this->assertInstanceOf('Titon\Common\Base', $object);
-        $this->assertEquals('registry', $object->getConfig('key'));
+        $this->assertEquals('registry', $object->key);
 
         $this->assertInstanceOf('Titon\Common\Base', Registry::get('base'));
     }

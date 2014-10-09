@@ -7,16 +7,19 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\DataMap;
 use Titon\Utility\Exception\InvalidArgumentException;
 use Titon\Utility\Exception\InvalidValidationRuleException;
 use \Indexish;
 use \ReflectionClass;
 
-newtype FieldRule = shape(
-    'rule' => string,
-    'message' => string,
-    'options' => Vector<mixed>
-);
+type ErrorMap = Map<string, string>;
+type FieldMap = Map<string, string>;
+type MessageMap = Map<string, string>;
+type Rule = shape('rule' => string, 'message' => string, 'options' => RuleOptionList);
+type RuleContainer = Map<string, RuleMap>;
+type RuleMap = Map<string, Rule>;
+type RuleOptionList = Vector<mixed>;
 
 /**
  * The Validator allows for quick validation against a defined set of rules and fields.
@@ -28,44 +31,44 @@ class Validator {
     /**
      * Data to validate against.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Common\DataMap
      */
-    protected Map<string, mixed> $_data = Map {};
+    protected DataMap $_data = Map {};
 
     /**
      * Errors gathered during validation.
      *
-     * @type Map<string, string>
+     * @type \Titon\Utility\ErrorMap
      */
-    protected Map<string, string> $_errors = Map {};
+    protected ErrorMap $_errors = Map {};
 
     /**
      * Mapping of fields and titles.
      *
-     * @type Map<string, string>
+     * @type \Titon\Utility\FieldMap
      */
-    protected Map<string, string> $_fields = Map {};
+    protected FieldMap $_fields = Map {};
 
     /**
      * Fallback mapping of error messages.
      *
-     * @type Map<string, string>
+     * @type \Titon\Utility\MessageMap
      */
-    protected Map<string, string> $_messages = Map {};
+    protected MessageMap $_messages = Map {};
 
     /**
      * Mapping of fields and validation rules.
      *
-     * @type Map<string, Map<string, FieldRule>>
+     * @type \Titon\Utility\RuleContainer
      */
-    protected Map<string, Map<string, FieldRule>> $_rules = Map {};
+    protected RuleContainer $_rules = Map {};
 
     /**
      * Store the data to validate.
      *
-     * @param Map<string, mixed> $data
+     * @param \Titon\Common\DataMap $data
      */
-    public function __construct(Map<string, mixed> $data = Map {}) {
+    public function __construct(DataMap $data = Map {}) {
         $this->setData($data);
     }
 
@@ -109,10 +112,10 @@ class Validator {
     /**
      * Add messages to the list.
      *
-     * @param Map<string, string> $messages
+     * @param \Titon\Utility\MessageMap $messages
      * @return $this
      */
-    public function addMessages(Map<string, string> $messages): this {
+    public function addMessages(MessageMap $messages): this {
         $this->_messages->setAll($messages);
 
         return $this;
@@ -124,11 +127,11 @@ class Validator {
      * @param string $field
      * @param string $rule
      * @param string $message
-     * @param Vector<mixed> $options
+     * @param \Titon\Utility\RuleOptionList $options
      * @return $this
      * @throws \Titon\Utility\Exception\InvalidArgumentException
      */
-    public function addRule(string $field, string $rule, string $message, Vector<mixed> $options = Vector{}): this {
+    public function addRule(string $field, string $rule, string $message, RuleOptionList $options = Vector{}): this {
         if (!$this->_fields->contains($field)) {
             throw new InvalidArgumentException(sprintf('Field %s does not exist', $field));
         }
@@ -155,45 +158,45 @@ class Validator {
     /**
      * Return the currently set data.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Common\DataMap
      */
-    public function getData(): Map<string, mixed> {
+    public function getData(): DataMap {
         return $this->_data;
     }
 
     /**
      * Return the errors.
      *
-     * @return Map<string, string>
+     * @return \Titon\Utility\ErrorMap
      */
-    public function getErrors(): Map<string, string> {
+    public function getErrors(): ErrorMap {
         return $this->_errors;
     }
 
     /**
      * Return the fields.
      *
-     * @return Map<string, string>
+     * @return \Titon\Utility\FieldMap
      */
-    public function getFields(): Map<string, string> {
+    public function getFields(): FieldMap {
         return $this->_fields;
     }
 
     /**
      * Return the messages.
      *
-     * @return Map<string, string>
+     * @return \Titon\Utility\MessageMap
      */
-    public function getMessages(): Map<string, string> {
+    public function getMessages(): MessageMap {
         return $this->_messages;
     }
 
     /**
      * Return the rules.
      *
-     * @return Map<string, Map<string, FieldRule>>
+     * @return \Titon\Utility\RuleContainer
      */
-    public function getRules(): Map<string, Map<string, FieldRule>> {
+    public function getRules(): RuleContainer {
         return $this->_rules;
     }
 
@@ -212,10 +215,10 @@ class Validator {
     /**
      * Set the data to validate against.
      *
-     * @param Map<string, mixed> $data
+     * @param \Titon\Common\DataMap $data
      * @return $this
      */
-    public function setData(Map<string, mixed> $data): this {
+    public function setData(DataMap $data): this {
         $this->_data = $data;
 
         return $this;
@@ -233,15 +236,15 @@ class Validator {
         }
 
         $fields = $this->getFields();
+        $fieldRules = $this->getRules();
         $messages = $this->getMessages();
 
-        foreach ($this->_data as $field => $value) {
-            if (!$this->_rules->contains($field)) {
+        foreach ($this->getData() as $field => $value) {
+            if (!$fieldRules->contains($field)) {
                 continue;
             }
 
-            $rules = $this->_rules[$field];
-
+            $rules = $fieldRules[$field];
 
             foreach ($rules as $rule => $params) {
                 $options = $params['options'];
@@ -296,11 +299,11 @@ class Validator {
     /**
      * Create a validator instance from a set of shorthand or expanded rule sets.
      *
-     * @param Map<string, mixed> $data
+     * @param \Titon\Common\DataMap $data
      * @param Map<string, mixed> $fields
      * @return $this
      */
-    public static function makeFromShorthand(Map<string, mixed> $data = Map {}, Map<string, mixed> $fields = Map {}): Validator {
+    public static function makeFromShorthand(DataMap $data = Map {}, Map<string, mixed> $fields = Map {}): Validator {
         $class = new ReflectionClass(static::class);
 
         /** @type \Titon\Utility\Validator $obj */
@@ -349,9 +352,9 @@ class Validator {
      * Split a shorthand rule into multiple parts.
      *
      * @param string $shorthand
-     * @return FieldRule
+     * @return Rule
      */
-    public static function splitShorthand(string $shorthand): FieldRule {
+    public static function splitShorthand(string $shorthand): Rule {
         $rule = '';
         $message = '';
         $opts = Vector {};

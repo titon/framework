@@ -7,6 +7,7 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\DataMap;
 use Titon\Common\OptionMap;
 use Titon\Common\Macroable;
 
@@ -149,7 +150,7 @@ class Str {
      * @uses Titon\Utility\Sanitize
      *
      * @param string $string
-     * @param Map<string, mixed> $data
+     * @param \Titon\Common\DataMap $data
      * @param \Titon\Common\OptionMap $options {
      *      @type string $before    Opening variable delimiter
      *      @type string $after     Closing variable delimiter
@@ -157,7 +158,7 @@ class Str {
      * }
      * @return string
      */
-    public static function insert(string $string, Map<string, mixed> $data, OptionMap $options = Map {}): string {
+    public static function insert(string $string, DataMap $data, OptionMap $options = Map {}): string {
         $options = (Map {
             'before' => '{',
             'after' => '}',

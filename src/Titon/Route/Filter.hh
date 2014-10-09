@@ -17,7 +17,7 @@ interface Filter {
 
     /**
      * Method to be triggered once a route has been matched.
-     * The matching route and the route are passed as arguments.
+     * The matching route and the router are passed as arguments.
      *
      * @param \Titon\Route\Router $router
      * @param \Titon\Route\Route $route

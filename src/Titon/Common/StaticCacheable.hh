@@ -61,22 +61,20 @@ trait StaticCacheable {
      */
     public static function createCacheKey(mixed $keys): string {
         if ($keys instanceof Traversable) {
-            $key = array_shift($keys);
+            $key = '';
 
-            if ($keys) {
-                foreach ($keys as $value) {
-                    if ($value instanceof Traversable) {
-                        $key .= '-' . md5(json_encode($value));
-                    } else if ($value) {
-                        $key .= '-' . $value;
-                    }
+            foreach ($keys as $value) {
+                if ($value instanceof Traversable) {
+                    $key .= '-' . md5(json_encode($value));
+                } else if ($value) {
+                    $key .= '-' . $value;
                 }
             }
         } else {
             $key = $keys;
         }
 
-        return (string) $key;
+        return trim((string) $key, '-');
     }
 
     /**

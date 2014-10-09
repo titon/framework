@@ -8,14 +8,14 @@
 namespace Titon\Route;
 
 /**
- * A matcher is used for finding a route that matches the URL passed in.
+ * A matcher is used for matching a route against a defined URL.
  *
  * @package Titon\Route
  */
 interface Matcher {
 
     /**
-     * Attempt to match a route against the URL.
+     * Attempt to match a route against a URL.
      *
      * @param string $url
      * @param \Titon\Route\RouteMap $routes

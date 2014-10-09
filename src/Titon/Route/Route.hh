@@ -413,13 +413,13 @@ class Route implements Serializable {
     }
 
     /**
-     * Return a param from the route.
+     * Return a param from the matched route.
      *
      * @param string $key
      * @return mixed
      */
     public function getParam(string $key): mixed {
-        return $this->_params->get($key);
+        return $this->getParams()->get($key);
     }
 
     /**
@@ -499,6 +499,8 @@ class Route implements Serializable {
             return false;
 
         } else if ($this->getPath() === $url) {
+            $this->_url = $url;
+
             return true;
 
         } else if (preg_match('~^' . $this->compile() . '$~i', $url, $matches)) {

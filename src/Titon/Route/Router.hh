@@ -29,10 +29,8 @@ type RouteMap = Map<string, Route>;
 type SegmentMap = Map<string, mixed>;
 
 /**
- * The Router determines the current routing request, based on the URL address and environment.
- * Stores the current route, its parsed segments and the base URL.
- * Additionally, it will construct a URL based on an array of options, or deconstruct a URL into an array of options.
- * You can also define custom slugs or routes to be used for internal routing mechanisms.
+ * The Router is tasked with the management of routes and filters, at which some point a route is matched against
+ * a URL based on the current environment settings.
  *
  * @package Titon\Route
  * @events
@@ -85,7 +83,7 @@ class Router {
     protected Matcher $_matcher;
 
     /**
-     * Mapping of CRUD actions to URL path parts.
+     * Mapping of CRUD actions to URL path parts for REST resources.
      * These mappings will be used when creating resource() routes.
      *
      * @type \Titon\Route\ResourceMap {
@@ -126,7 +124,7 @@ class Router {
     protected ?Storage $_storage;
 
     /**
-     * Parses the current URL into multiple segments.
+     * Parses the current environment settings into multiple segments and properties.
      */
     public function __construct() {
         $this->_matcher = new LoopMatcher();
@@ -492,6 +490,7 @@ class Router {
     public function match(string $url): Route {
         $this->emit('route.matching', [$this, $url]);
 
+        // Match a route
         $match = $this->getMatcher()->match($url, $this->getRoutes());
 
         if (!$match) {

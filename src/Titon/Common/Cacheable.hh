@@ -43,10 +43,10 @@ trait Cacheable {
      * If the value happens to be a closure, evaluate the closure and save the result.
      *
      * @param mixed $key
-     * @param (function(this): mixed) $callback
+     * @param (function(): mixed) $callback
      * @return mixed
      */
-    public function cache(mixed $key, (function(this): mixed) $callback): mixed {
+    public function cache(mixed $key, (function(): mixed) $callback): mixed {
         $key = $this->createCacheKey($key);
 
         if ($cache = $this->getCache($key)) {

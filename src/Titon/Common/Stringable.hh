@@ -20,7 +20,7 @@ trait Stringable {
      *
      * @return string
      */
-    public function toString() {
+    public function toString(): string {
         return static::class;
     }
 
@@ -29,7 +29,7 @@ trait Stringable {
      *
      * @return string
      */
-    public function __toString() {
+    public function __toString(): string {
         return $this->toString();
     }
 

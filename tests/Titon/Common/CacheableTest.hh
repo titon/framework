@@ -16,12 +16,20 @@ class CacheableTest extends TestCase {
     }
 
     public function testCache() {
-        $this->object->cache('foo', 'bar');
-        $this->assertEquals('bar', $this->object->getCache('foo'));
-        $this->object->cache('foo', 'baz'); // doesn't overwrite
+        $this->object->cache('foo', function() {
+            return 'bar';
+        });
         $this->assertEquals('bar', $this->object->getCache('foo'));
 
-        $this->object->cache('number', 12345);
+        // doesn't overwrite
+        $this->object->cache('foo', function() {
+            return 'baz';
+        });
+        $this->assertEquals('bar', $this->object->getCache('foo'));
+
+        $this->object->cache('number', function() {
+            return 12345;
+        });
         $this->assertEquals(12345, $this->object->getCache('number'));
 
         $this->object->cache('closure', function() {
@@ -39,7 +47,7 @@ class CacheableTest extends TestCase {
         $this->assertEquals('foo', $this->object->createCacheKey('foo'));
         $this->assertEquals('foo-bar', $this->object->createCacheKey(['foo', 'bar']));
         $this->assertEquals('foo-12345-bar', $this->object->createCacheKey(['foo', 12345, 'bar']));
-        $this->assertEquals('foo-12345-bar-2282d912cecf739da50a2e91d071b5cc', $this->object->createCacheKey(['foo', 12345, 'bar', ['nested', 'array']]));
+        $this->assertEquals('foo-12345-bar-d3e545e5b6dd7d1c9c7be76d5bb18241', $this->object->createCacheKey(['foo', 12345, 'bar', ['nested', 'array']]));
     }
 
     public function testFlushCache() {
@@ -93,7 +101,7 @@ class CacheableTest extends TestCase {
         $this->object->toggleCache(false);
         $this->assertEquals(null, $this->object->getCache('key'));
 
-        $this->assertEquals('bar', $this->object->cache('foo', 'bar'));
+        $this->assertEquals('bar', $this->object->setCache('foo', 'bar'));
         $this->assertFalse($this->object->hasCache('foo'));
 
         $this->object->toggleCache(true);

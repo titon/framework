@@ -36,23 +36,17 @@ trait StaticCacheable {
      * If the value happens to be a closure, evaluate the closure and save the result.
      *
      * @param mixed $key
-     * @param mixed $value
+     * @param (function(): mixed) $callback
      * @return mixed
      */
-    public static function cache(mixed $key, mixed $value): mixed {
+    public static function cache(mixed $key, (function(): mixed) $callback): mixed {
         $key = static::createCacheKey($key);
 
         if ($cache = static::getCache($key)) {
             return $cache;
         }
 
-        if (is_callable($value)) {
-            invariant(is_callable($value), 'Cache callback must be callable');
-
-            $value = call_user_func($value);
-        }
-
-        return static::setCache($key, $value);
+        return static::setCache($key, call_user_func($callback));
     }
 
     /**
@@ -67,7 +61,7 @@ trait StaticCacheable {
 
             foreach ($keys as $value) {
                 if ($value instanceof Traversable) {
-                    $key .= '-' . md5(json_encode($value));
+                    $key .= '-' . md5(serialize($value));
                 } else if ($value) {
                     $key .= '-' . $value;
                 }

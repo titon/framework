@@ -43,21 +43,17 @@ trait Cacheable {
      * If the value happens to be a closure, evaluate the closure and save the result.
      *
      * @param mixed $key
-     * @param mixed $value
+     * @param (function(this): mixed) $callback
      * @return mixed
      */
-    public function cache(mixed $key, mixed $value): mixed {
+    public function cache(mixed $key, (function(this): mixed) $callback): mixed {
         $key = $this->createCacheKey($key);
 
         if ($cache = $this->getCache($key)) {
             return $cache;
         }
 
-        if (is_callable($value)) {
-            invariant(is_callable($value), 'Cache callback must be callable');
-
-            $value = call_user_func($value, $this);
-        }
+        $value = call_user_func($callback, $this);
 
         if (!$this->_cacheEnabled) {
             return $value;
@@ -78,7 +74,7 @@ trait Cacheable {
 
             foreach ($keys as $value) {
                 if ($value instanceof Traversable) {
-                    $key .= '-' . md5(json_encode($value));
+                    $key .= '-' . md5(serialize($value));
                 } else if ($value) {
                     $key .= '-' . $value;
                 }
@@ -153,6 +149,10 @@ trait Cacheable {
      * @return mixed
      */
     public function setCache(mixed $key, mixed $value): mixed {
+        if (!$this->_cacheEnabled) {
+            return $value;
+        }
+
         $this->_cache->set($this->createCacheKey($key), $value);
 
         return $value;

@@ -18,23 +18,23 @@ trait Cacheable {
     /**
      * Cached items indexed by key.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Common\CacheMap
      */
-    protected Map<string, mixed> $_cache = Map {};
+    protected CacheMap $_cache = Map {};
 
     /**
      * Is cache on or off?
      *
      * @type bool
      */
-    private bool $__cacheEnabled = true;
+    protected bool $_cacheEnabled = true;
 
     /**
      * Return all the current cached items.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Common\CacheMap
      */
-    public function allCache(): Map<string, mixed> {
+    public function allCache(): CacheMap {
         return $this->_cache;
     }
 
@@ -42,22 +42,20 @@ trait Cacheable {
      * Dynamically read and write from the cache at once. If the cache exists with the key return it, else execute and save the result.
      * If the value happens to be a closure, evaluate the closure and save the result.
      *
-     * @param array|string $key
-     * @param mixed|\Closure $value
+     * @param mixed $key
+     * @param (function(): mixed) $callback
      * @return mixed
      */
-    public function cache(mixed $key, mixed $value): mixed {
+    public function cache(mixed $key, (function(): mixed) $callback): mixed {
         $key = $this->createCacheKey($key);
 
         if ($cache = $this->getCache($key)) {
             return $cache;
         }
 
-        if (is_callable($value)) {
-            $value = call_user_func($value, $this);
-        }
+        $value = call_user_func($callback, $this);
 
-        if (!$this->__cacheEnabled) {
+        if (!$this->isCacheEnabled()) {
             return $value;
         }
 
@@ -67,7 +65,7 @@ trait Cacheable {
     /**
      * Generate a cache key. If an array is passed, drill down and form a key.
      *
-     * @param string|array $keys
+     * @param string|Traversable $keys
      * @return string
      */
     public function createCacheKey(mixed $keys): string {
@@ -76,7 +74,7 @@ trait Cacheable {
 
             foreach ($keys as $value) {
                 if ($value instanceof Traversable) {
-                    $key .= '-' . md5(json_encode($value));
+                    $key .= '-' . md5(serialize($value));
                 } else if ($value) {
                     $key .= '-' . $value;
                 }
@@ -94,7 +92,7 @@ trait Cacheable {
      * @return $this
      */
     public function flushCache(): this {
-        $this->_cache->clear();
+        $this->allCache()->clear();
 
         return $this;
     }
@@ -102,18 +100,18 @@ trait Cacheable {
     /**
      * Return a cached item if it exists, else return null.
      *
-     * @param string|array $key
+     * @param mixed $key
      * @return mixed
      */
     public function getCache(mixed $key): mixed {
-        if (!$this->__cacheEnabled) {
+        if (!$this->isCacheEnabled()) {
             return null;
         }
 
         $key = $this->createCacheKey($key);
 
         if ($this->hasCache($key)) {
-            return $this->_cache->get($key);
+            return $this->allCache()->get($key);
         }
 
         return null;
@@ -122,21 +120,30 @@ trait Cacheable {
     /**
      * Check to see if the cache key exists.
      *
-     * @param string|array $key
+     * @param mixed $key
      * @return bool
      */
     public function hasCache(mixed $key): bool {
-        return $this->_cache->contains($this->createCacheKey($key));
+        return $this->allCache()->contains($this->createCacheKey($key));
+    }
+
+    /**
+     * Return true if caching is enabled.
+     *
+     * @return bool
+     */
+    public function isCacheEnabled(): bool {
+        return $this->_cacheEnabled;
     }
 
     /**
      * Remove an item from the cache. Return true if the item was removed.
      *
-     * @param string|array $key
+     * @param mixed $key
      * @return $this
      */
     public function removeCache(mixed $key): this {
-        $this->_cache->remove($this->createCacheKey($key));
+        $this->allCache()->remove($this->createCacheKey($key));
 
         return $this;
     }
@@ -146,12 +153,16 @@ trait Cacheable {
      * This will overwrite any data with the same key.
      * The value being saved will be returned.
      *
-     * @param string|array $key
+     * @param mixed $key
      * @param mixed $value
      * @return mixed
      */
     public function setCache(mixed $key, mixed $value): mixed {
-        $this->_cache->set($this->createCacheKey($key), $value);
+        if (!$this->isCacheEnabled()) {
+            return $value;
+        }
+
+        $this->allCache()->set($this->createCacheKey($key), $value);
 
         return $value;
     }
@@ -163,7 +174,7 @@ trait Cacheable {
      * @return $this
      */
     public function toggleCache(bool $on = true): this {
-        $this->__cacheEnabled = $on;
+        $this->_cacheEnabled = $on;
 
         return $this;
     }

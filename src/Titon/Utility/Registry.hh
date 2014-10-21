@@ -9,9 +9,11 @@ namespace Titon\Utility;
 
 use Titon\Common\Exception\InvalidObjectException;
 use Titon\Common\Exception\MissingObjectException;
-use \Closure;
-use \ReflectionClass;
 use Titon\Common\Macroable;
+use \ReflectionClass;
+
+type RegistryCallback = (function(): mixed);
+type RegistryMap = Map<string, mixed>;
 
 /**
  * The Registry acts a central hub where any part of the application can access a single instance of a stored object.
@@ -26,16 +28,16 @@ class Registry {
      * Objects that have been registered into memory. The array index is represented by the namespace convention,
      * where as the array value would be the matching instantiated object.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Utility\RegistryMap
      */
-    protected static Map<string, mixed> $_registered = Map {};
+    protected static RegistryMap $_registered = Map {};
 
     /**
      * Return all registered objects.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Utility\RegistryMap
      */
-    public static function all(): Map<string, mixed> {
+    public static function all(): RegistryMap {
         return static::$_registered;
     }
 
@@ -83,7 +85,7 @@ class Registry {
         if (static::has($key)) {
             $object = static::$_registered[$key];
 
-            if ($object instanceof Closure) {
+            if (is_callable($object)) {
                 $object = static::set(call_user_func($object), $key);
             }
 
@@ -116,9 +118,9 @@ class Registry {
      * Register a callback that will be lazily loaded when called.
      *
      * @param string $key
-     * @param \Closure $callback
+     * @param \Titon\Utility\RegistryCallback $callback
      */
-    public static function register(string $key, Closure $callback): void {
+    public static function register(string $key, RegistryCallback $callback): void {
         static::set($callback, $key);
     }
 
@@ -134,7 +136,7 @@ class Registry {
     /**
      * Store an object into registry.
      *
-     * @param object|\Closure $object
+     * @param object $object
      * @param string $key
      * @return object
      * @throws \Titon\Common\Exception\InvalidObjectException

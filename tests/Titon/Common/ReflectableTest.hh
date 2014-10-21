@@ -1,18 +1,17 @@
 <?hh
 namespace Titon\Common;
 
-use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Common\Base $object
+ * @property \Titon\Common\ReflectableStub $object
  */
 class ReflectableTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new Base();
+        $this->object = new ReflectableStub();
     }
 
     public function testGetReflectionBag() {
@@ -20,7 +19,7 @@ class ReflectableTest extends TestCase {
     }
 
     public function testReflect() {
-        $this->assertEquals('Titon\Common\Base', $this->object->reflect('className'));
+        $this->assertEquals('Titon\Common\ReflectableStub', $this->object->reflect('className'));
     }
 
     /**
@@ -30,4 +29,8 @@ class ReflectableTest extends TestCase {
         $this->object->reflect('foobar');
     }
 
+}
+
+class ReflectableStub {
+    use Reflectable;
 }

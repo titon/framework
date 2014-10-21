@@ -1,13 +1,12 @@
 <?hh
 namespace Titon\Utility;
 
-use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 class RegistryTest extends TestCase {
 
     public function testAll() {
-        $base = new Base();
+        $base = new RegistryStub();
         $config = new Config();
         $registry = new Registry();
 
@@ -16,24 +15,24 @@ class RegistryTest extends TestCase {
         Registry::set($registry);
 
         $this->assertEquals(new Map([
-            'Titon\Common\Base' => $base,
+            'Titon\Utility\RegistryStub' => $base,
             'Titon\Utility\Config' => $config,
             'Titon\Utility\Registry' => $registry
         ]), Registry::all());
     }
 
     public function testFactory() {
-        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('Titon\Common\Base', Vector {}, false));
-        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('Titon/Common/Base', Vector {}, false));
-        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('Titon\Common\Base', Vector {}, false));
-        $this->assertInstanceOf('Titon\Common\Base', Registry::factory('/Titon/Common/Base', Vector {}, false));
+        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon\Utility\RegistryStub', Vector {}, false));
+        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon/Utility/RegistryStub', Vector {}, false));
+        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon\Utility\RegistryStub', Vector {}, false));
+        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('/Titon/Utility/RegistryStub', Vector {}, false));
     }
 
     public function testFlushAndKeys() {
         $test = Vector {};
 
         for ($i = 1; $i <= 10; $i++) {
-            Registry::set(new Base(), 'key' . $i);
+            Registry::set(new RegistryStub(), 'key' . $i);
             $test[] = 'key' . $i;
         }
 
@@ -51,7 +50,7 @@ class RegistryTest extends TestCase {
 
     public function testHasAndSet() {
         for ($i = 1; $i <= 10; $i++) {
-            Registry::set(new Base(), 'key' . $i);
+            Registry::set(new RegistryStub(), 'key' . $i);
         }
 
         $this->assertTrue(Registry::has('key1'));
@@ -71,7 +70,7 @@ class RegistryTest extends TestCase {
 
     public function testRemove() {
         for ($i = 1; $i <= 10; $i++) {
-            Registry::set(new Base(), 'key' . $i);
+            Registry::set(new RegistryStub(), 'key' . $i);
         }
 
         $this->assertTrue(Registry::has('key1'));
@@ -89,15 +88,18 @@ class RegistryTest extends TestCase {
 
     public function testRegisterAndGet() {
         Registry::register('base', function() {
-            return new Base(Map {'key' => 'registry'});
+            $base = new RegistryStub();
+            $base->key = 'registry';
+
+            return $base;
         });
 
         $object = Registry::get('base');
 
-        $this->assertInstanceOf('Titon\Common\Base', $object);
-        $this->assertEquals('registry', $object->getConfig('key'));
+        $this->assertInstanceOf('Titon\Utility\RegistryStub', $object);
+        $this->assertEquals('registry', $object->key);
 
-        $this->assertInstanceOf('Titon\Common\Base', Registry::get('base'));
+        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::get('base'));
     }
 
     /**
@@ -107,4 +109,7 @@ class RegistryTest extends TestCase {
         Registry::get('missingKey');
     }
 
+}
+
+class RegistryStub {
 }

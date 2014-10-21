@@ -1,7 +1,6 @@
 <?hh
 namespace Titon\Common;
 
-use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 /**
@@ -28,6 +27,6 @@ class FactoryAwareTest extends TestCase {
 
 }
 
-class FactoryStub extends Base {
+class FactoryStub {
     use FactoryAware;
 }

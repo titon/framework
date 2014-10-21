@@ -9,6 +9,9 @@ namespace Titon\Common;
 
 use \ReflectionClass;
 
+type InstanceContainer = Map<string, InstanceMap>;
+type InstanceMap = Map<string, mixed>;
+
 /**
  * The Instanceable trait provides a low-level multiton interface for classes.
  *
@@ -19,9 +22,9 @@ trait Instanceable {
     /**
      * Collection of class instances.
      *
-     * @type Map<string, Map<string, mixed>>
+     * @type \Titon\Common\InstanceContainer
      */
-    protected static Map<string, Map<string, mixed>> $_instances = Map {};
+    protected static InstanceContainer $_instances = Map {};
 
     /**
      * Return a count of all active instances.
@@ -43,7 +46,7 @@ trait Instanceable {
      * Return an object instance else instantiate a new one.
      *
      * @param string $key
-     * @param array $params
+     * @param array<mixed> $params
      * @return $this
      */
     public static function getInstance(string $key = 'default', array<mixed> $params = []): mixed {
@@ -66,7 +69,7 @@ trait Instanceable {
      *
      * @return Map<string, mixed>
      */
-    public static function getInstances(): Map<string, mixed> {
+    public static function getInstances(): InstanceMap {
         $instances = static::$_instances;
         $class = static::class;
 

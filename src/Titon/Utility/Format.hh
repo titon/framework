@@ -7,6 +7,7 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\OptionMap;
 use Titon\Common\Macroable;
 use \DateTime;
 use \Indexish;
@@ -145,11 +146,11 @@ class Format {
      * @uses Titon\Utility\Time
      *
      * @param string|int $time
-     * @param Map<string, mixed> $options
+     * @param \Titon\Common\OptionMap $options
      * @param Map<string, Map<int, string>> $messages
      * @return string
      */
-    public static function relativeTime(mixed $time, Map<string, mixed> $options = Map {}, Map<string, Map<int, string>> $messages = Map {}): string {
+    public static function relativeTime(mixed $time, OptionMap $options = Map {}, Map<string, Map<int, string>> $messages = Map {}): string {
         $options = (Map {
             'now' => 'just now',
             'in' => 'in {time}',

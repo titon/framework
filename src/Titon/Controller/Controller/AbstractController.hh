@@ -7,8 +7,6 @@
 
 namespace Titon\Controller\Controller;
 
-use Titon\Common\Base;
-use Titon\Common\Attachable;
 use Titon\Controller\Action;
 use Titon\Controller\Controller;
 use Titon\Controller\Exception\InvalidActionException;
@@ -33,17 +31,14 @@ use \Exception;
  * The Controller receives an instance of the View object allowing the Controller to set data to the view,
  * overwrite the View and Engine configuration, attach helpers, etc.
  *
- * Furthermore, the Controller inherits all functionality from the Attachable class, allowing you to attach
- * external classes to use their functionality and trigger specific callbacks.
- *
  * @package Titon\Controller\Controller
  * @events
  *      controller.preProcess(Controller $con, $action, $args)
  *      controller.postProcess(Controller $con, $action, $response)
  *      controller.onError(Controller $con, Exception $exc)
  */
-abstract class AbstractController extends Base implements Controller, Listener {
-    use Attachable, Emittable, RequestAware, ResponseAware;
+abstract class AbstractController implements Controller, Listener {
+    use Emittable, RequestAware, ResponseAware;
 
     /**
      * Configuration.
@@ -156,14 +151,14 @@ abstract class AbstractController extends Base implements Controller, Listener {
      * {@inheritdoc}
      */
     public function preProcess(Event $event, Controller $controller, string &$action, array &$args): void {
-        $this->notifyObjects('preProcess', [$controller, &$action, &$args]);
+        return;
     }
 
     /**
      * {@inheritdoc}
      */
     public function postProcess(Event $event, Controller $controller, string $action, string &$response): void {
-        $this->notifyObjects('postProcess', [$controller, $action, &$response]);
+        return;
     }
 
     /**

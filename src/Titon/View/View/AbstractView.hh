@@ -8,7 +8,6 @@
 namespace Titon\View\View;
 
 use Titon\Cache\Storage;
-use Titon\Common\Attachable;
 use Titon\Common\Cacheable;
 use Titon\Common\FactoryAware;
 use Titon\Event\Emittable;
@@ -31,7 +30,7 @@ use Titon\View\View;
  * @package Titon\View\View
  */
 abstract class AbstractView implements View, Listener {
-    use Attachable, Cacheable, Emittable, FactoryAware;
+    use Cacheable, Emittable, FactoryAware;
 
     /**
      * Variable data for templates.

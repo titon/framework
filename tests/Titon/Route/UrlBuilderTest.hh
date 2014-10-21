@@ -85,11 +85,11 @@ class UrlBuilderTest extends TestCase {
     }
 
     public function testBuildCaching() {
-        $this->assertFalse($this->object->hasCache('Titon\Route\UrlBuilder::build-module-7b6c94ff4c5b880a8784c52ea80606ab'));
+        $this->assertFalse($this->object->hasCache('Titon\Route\UrlBuilder::build-module-97a181b0b36bd36f504742ea2acd6746'));
 
         $this->assertEquals('/users', $this->object->build('module', Map {'module' => 'users'}));
 
-        $this->assertTrue($this->object->hasCache('Titon\Route\UrlBuilder::build-module-7b6c94ff4c5b880a8784c52ea80606ab'));
+        $this->assertTrue($this->object->hasCache('Titon\Route\UrlBuilder::build-module-97a181b0b36bd36f504742ea2acd6746'));
 
         $this->assertEquals('/users?foo=bar', $this->object->build('module', Map {'module' => 'users'}, Map {'foo' => 'bar'}));
         $this->assertEquals('/users?foo=baz', $this->object->build('module', Map {'module' => 'users'}, Map {'foo' => 'baz'}));

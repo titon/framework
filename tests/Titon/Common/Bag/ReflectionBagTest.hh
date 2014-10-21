@@ -1,7 +1,6 @@
 <?hh
 namespace Titon\Common\Bag;
 
-use Titon\Common\Base;
 use Titon\Common\Cacheable;
 use Titon\Test\TestCase;
 
@@ -51,10 +50,8 @@ class ReflectionBagTest extends TestCase {
     public function testMethods() {
         $methods = Vector {
             'publicMethod', 'protectedMethod', 'privateMethod', 'staticPublicMethod', 'staticProtectedMethod', 'staticPrivateMethod',
-            'serialize', 'unserialize', 'jsonSerialize', 'initialize', 'noop', 'toString', '__toString', '__construct', 'allCache',
-            'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
-            'addConfig', 'allConfig', 'setConfig', 'getConfig', 'getConfigBag', 'removeConfig', 'hasConfig',
-            'reflect', 'getReflectionBag', '__initBase', '__initConfigurable'
+            'allCache', 'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
+            'serialize', 'unserialize', 'isCacheEnabled'
         };
 
         $this->assertVectorsEqual($methods, $this->object->methods);
@@ -63,11 +60,8 @@ class ReflectionBagTest extends TestCase {
 
     public function testPublicMethods() {
         $methods = Vector {
-            'publicMethod', 'staticPublicMethod',
-            'serialize', 'unserialize', 'jsonSerialize', 'initialize', 'noop', 'toString', '__toString', '__construct', 'allCache',
-            'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
-            'addConfig', 'allConfig', 'setConfig', 'getConfig', 'getConfigBag', 'removeConfig', 'hasConfig',
-            'reflect', 'getReflectionBag'
+            'publicMethod', 'staticPublicMethod', 'allCache', 'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
+            'serialize', 'unserialize', 'isCacheEnabled'
         };
 
         $this->assertVectorsEqual($methods, $this->object->publicMethods);
@@ -82,7 +76,7 @@ class ReflectionBagTest extends TestCase {
     }
 
     public function testPrivateMethods() {
-        $methods = Vector {'__initBase', '__initConfigurable', 'privateMethod', 'staticPrivateMethod'};
+        $methods = Vector {'privateMethod', 'staticPrivateMethod'};
 
         $this->assertVectorsEqual($methods, $this->object->privateMethods);
         $this->assertVectorsEqual($methods, $this->object->privateMethods());
@@ -98,7 +92,7 @@ class ReflectionBagTest extends TestCase {
     public function testProperties() {
         $props = Vector {
             'publicProp', 'protectedProp', 'privateProp', 'staticPublicProp', 'staticProtectedProp', 'staticPrivateProp',
-            '_config', '_configBag', '_cache', '__cacheEnabled', '_reflectionBag'
+            '_cache', '_cacheEnabled'
         };
 
         $this->assertVectorsEqual($props, $this->object->properties);
@@ -113,14 +107,14 @@ class ReflectionBagTest extends TestCase {
     }
 
     public function testProtectedProperties() {
-        $props = Vector {'protectedProp', 'staticProtectedProp', '_config', '_cache', '_configBag', '_reflectionBag'};
+        $props = Vector {'protectedProp', 'staticProtectedProp', '_cache', '_cacheEnabled'};
 
         $this->assertVectorsEqual($props, $this->object->protectedProperties);
         $this->assertVectorsEqual($props, $this->object->protectedProperties());
     }
 
     public function testPrivateProperties() {
-        $props = Vector {'privateProp', 'staticPrivateProp', '__cacheEnabled'};
+        $props = Vector {'privateProp', 'staticPrivateProp'};
 
         $this->assertVectorsEqual($props, $this->object->privateProperties);
         $this->assertVectorsEqual($props, $this->object->privateProperties());
@@ -141,36 +135,29 @@ class ReflectionBagTest extends TestCase {
     }
 
     public function testTraits() {
-        $traits = Vector {
-            'Titon\Common\Cacheable',
-            'Titon\Common\Configurable',
-            'Titon\Common\Reflectable'
-        };
+        $traits = Vector {'Titon\Common\Cacheable'};
 
         $this->assertVectorsEqual($traits, $this->object->traits);
         $this->assertVectorsEqual($traits, $this->object->traits());
     }
 
     public function testInterfaces() {
-        $interfaces = Vector {'Serializable', 'JsonSerializable'};
-
-        // HHVM has a Stringish interface that defines __toString()
-        if (defined('HHVM_VERSION')) {
-            $interfaces[] = 'Stringish';
-        }
+        $interfaces = Vector {'Serializable'};
 
         $this->assertVectorsEqual($interfaces, $this->object->interfaces);
         $this->assertVectorsEqual($interfaces, $this->object->interfaces());
     }
 
     public function testParent() {
-        $this->assertEquals('Titon\Common\Base', $this->object->parent);
-        $this->assertEquals('Titon\Common\Base', $this->object->parent());
+        $object = new ReflectionBag(new ReflectionParentStub());
+
+        $this->assertEquals('Titon\Common\Bag\ReflectionStub', $object->parent);
+        $this->assertEquals('Titon\Common\Bag\ReflectionStub', $object->parent());
     }
 
 }
 
-class ReflectionStub extends Base {
+class ReflectionStub implements \Serializable {
     use Cacheable;
 
     const YES = true;
@@ -192,6 +179,9 @@ class ReflectionStub extends Base {
     protected static function staticProtectedMethod() { }
     private static function staticPrivateMethod() { }
 
-    public function serialize() { }
-    public function unserialize($data) { }
+    public function serialize() {}
+    public function unserialize($data) {}
+}
+
+class ReflectionParentStub extends ReflectionStub {
 }

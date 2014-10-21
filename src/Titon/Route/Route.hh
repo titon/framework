@@ -748,11 +748,11 @@ class Route implements Serializable {
      * Loop through and set any default values using reflection.
      *
      * @param \ReflectionFunctionAbstract $method
-     * @return Vector<mixed>
+     * @return array<mixed>
      */
-    protected function _getArguments(ReflectionFunctionAbstract $method): Vector<mixed> {
+    protected function _getArguments(ReflectionFunctionAbstract $method): array<mixed> {
         $tokens = $this->getTokens();
-        $args = $this->getParams()->values();
+        $args = $this->getParams()->values()->toArray();
 
         foreach ($method->getParameters() as $i => $param) {
             if (!$tokens->containsKey($i)) {

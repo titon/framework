@@ -1,27 +1,26 @@
 <?hh
 namespace Titon\Common;
 
-use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 class InstanceableTest extends TestCase {
 
     public function testMultiton() {
         $object = InstanceableStub::getInstance();
-        $object->setConfig('key', 1);
+        $object->key = 1;
 
         $this->assertInstanceOf('Titon\Common\InstanceableStub', $object);
         $this->assertEquals(1, InstanceableStub::countInstances());
 
         $object2 = InstanceableStub::getInstance('alternate');
-        $object2->setConfig('key', 2);
+        $object2->key = 2;
 
         $this->assertInstanceOf('Titon\Common\InstanceableStub', $object);
         $this->assertEquals(2, InstanceableStub::countInstances());
 
         // Test differences
-        $this->assertEquals(1, InstanceableStub::getInstance()->getConfig('key'));
-        $this->assertEquals(2, InstanceableStub::getInstance('alternate')->getConfig('key'));
+        $this->assertEquals(1, InstanceableStub::getInstance()->key);
+        $this->assertEquals(2, InstanceableStub::getInstance('alternate')->key);
 
         // Remove
         InstanceableStub::removeInstance('alternate');
@@ -34,7 +33,7 @@ class InstanceableTest extends TestCase {
 
     public function testSingleton() {
         $object = InstanceableStub::getInstance();
-        $object->setConfig('key', 1);
+        $object->key = 1;
 
         $this->assertInstanceOf('Titon\Common\InstanceableStub', $object);
         $this->assertEquals(1, InstanceableStub::countInstances());
@@ -43,13 +42,13 @@ class InstanceableTest extends TestCase {
 
         $this->assertInstanceOf('Titon\Common\InstanceableStub', $object);
         $this->assertEquals(1, InstanceableStub::countInstances());
-        $this->assertEquals(1, InstanceableStub::getInstance()->getConfig('key'));
+        $this->assertEquals(1, InstanceableStub::getInstance()->key);
 
-        $object2->setConfig('key', 2);
+        $object2->key = 2;
 
         // Test differences
-        $this->assertEquals(2, $object->getConfig('key'));
-        $this->assertEquals(2, InstanceableStub::getInstance()->getConfig('key'));
+        $this->assertEquals(2, $object->key);
+        $this->assertEquals(2, InstanceableStub::getInstance()->key);
 
         // Flush
         InstanceableStub::flushInstances();
@@ -58,6 +57,6 @@ class InstanceableTest extends TestCase {
 
 }
 
-class InstanceableStub extends Base {
+class InstanceableStub {
     use Instanceable;
 }

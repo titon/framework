@@ -7,6 +7,7 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\OptionMap;
 use Titon\Common\Macroable;
 
 /**
@@ -32,14 +33,14 @@ class Sanitize {
      * Escape a string using the apps encoding.
      *
      * @param string $value
-     * @param Map<string, mixed> $options {
+     * @param \Titon\Common\OptionMap $options {
      *      @type string $encoding  Character encoding set; defaults to UTF-8
      *      @type int $flags        Encoding flags; defaults to ENT_QUOTES
      *      @type bool $double      Will double escape existing entities
      * }
      * @return string
      */
-    public static function escape(string $value, Map<string, mixed> $options = Map {}): string {
+    public static function escape(string $value, OptionMap $options = Map {}): string {
         $options = (Map {
             'encoding' => 'UTF-8',
             'flags' => ENT_QUOTES,
@@ -63,13 +64,13 @@ class Sanitize {
      * Sanitize a string by removing xor escaping HTML characters and entities.
      *
      * @param string $value
-     * @param Map<string, mixed> $options {
+     * @param \Titon\Common\OptionMap $options {
      *      @type bool $strip       Will remove HTML tags
      *      @type string $whitelist List of tags to not strip
      * }
      * @return string
      */
-    public static function html(string $value, Map<string, mixed> $options = Map {}): string {
+    public static function html(string $value, OptionMap $options = Map {}): string {
         $options = (Map {
             'strip' => true,
             'whitelist' => ''
@@ -97,7 +98,7 @@ class Sanitize {
      * Sanitize a string by removing excess CRLF characters.
      *
      * @param string $value
-     * @param Map<string, mixed> $options {
+     * @param \Titon\Common\OptionMap $options {
      *      @type bool $cr      Will remove carriage returns \r
      *      @type bool $lf      Will remove line feeds \n
      *      @type bool $crlf    Will remove CRLF \r\n
@@ -106,7 +107,7 @@ class Sanitize {
      * }
      * @return string
      */
-    public static function newlines(string $value, Map<string, mixed> $options = Map {}): string {
+    public static function newlines(string $value, OptionMap $options = Map {}): string {
         $options = (Map {
             'cr' => true,
             'lf' => true,
@@ -158,7 +159,7 @@ class Sanitize {
      * Sanitize a string by removing excess whitespace and tab characters.
      *
      * @param string $value
-     * @param Map<string, mixed> $options {
+     * @param \Titon\Common\OptionMap $options {
      *      @type bool $space   Will remove white space
      *      @type bool $tab     Will remove tabs
      *      @type bool $strip   Will remove non-standard white space character
@@ -167,7 +168,7 @@ class Sanitize {
      * }
      * @return string
      */
-    public static function whitespace(string $value, Map<string, mixed> $options = Map {}): string {
+    public static function whitespace(string $value, OptionMap $options = Map {}): string {
         $options = (Map {
             'space' => true,
             'tab' => true,
@@ -209,12 +210,12 @@ class Sanitize {
      * Will bubble up to html() and escape().
      *
      * @param string $value
-     * @param Map<string, mixed> $options {
+     * @param \Titon\Common\OptionMap $options {
      *      @type bool $strip   Remove HTML tags
      * }
      * @return string
      */
-    public static function xss(string $value, Map<string, mixed> $options = Map {}): string {
+    public static function xss(string $value, OptionMap $options = Map {}): string {
         $options = (Map {'strip' => true})->setAll($options);
         $value = str_replace("\0", '', $value);
 

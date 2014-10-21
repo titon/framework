@@ -8,7 +8,6 @@
 namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamInterface;
-use Titon\Common\Attachable;
 use Titon\Common\FactoryAware;
 use Titon\Http\AbstractMessage;
 use Titon\Http\Bag\CookieBag;

@@ -7,6 +7,8 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\DataMap;
+use Titon\Common\OptionMap;
 use Titon\Common\Macroable;
 
 /**
@@ -148,15 +150,15 @@ class Str {
      * @uses Titon\Utility\Sanitize
      *
      * @param string $string
-     * @param Map<string, mixed> $data
-     * @param Map<string, mixed> $options {
+     * @param \Titon\Common\DataMap $data
+     * @param \Titon\Common\OptionMap $options {
      *      @type string $before    Opening variable delimiter
      *      @type string $after     Closing variable delimiter
      *      @type bool $escape      Escape the string
      * }
      * @return string
      */
-    public static function insert(string $string, Map<string, mixed> $data, Map<string, mixed> $options = Map {}): string {
+    public static function insert(string $string, DataMap $data, OptionMap $options = Map {}): string {
         $options = (Map {
             'before' => '{',
             'after' => '}',
@@ -273,7 +275,7 @@ class Str {
      *
      * @param string $string
      * @param int $limit
-     * @param Map<string, mixed> $options {
+     * @param \Titon\Common\OptionMap $options {
      *      @type bool $html        True to preserve HTML tags
      *      @type bool $word        True to preserve trailing words
      *      @type string $suffix    Will be appended to the end of the output
@@ -283,7 +285,7 @@ class Str {
      * }
      * @return string
      */
-    public static function truncate(string $string, int $limit = 25, Map<string, mixed> $options = Map {}): string {
+    public static function truncate(string $string, int $limit = 25, OptionMap $options = Map {}): string {
         $options = (Map {
             'html' => true,
             'word' => true,

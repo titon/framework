@@ -1,7 +1,6 @@
 <?hh
 namespace Titon\Common;
 
-use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 class StaticCacheableTest extends TestCase {
@@ -14,12 +13,20 @@ class StaticCacheableTest extends TestCase {
     }
 
     public function testCache() {
-        StaticCacheableStub::cache('foo', 'bar');
-        $this->assertEquals('bar', StaticCacheableStub::getCache('foo'));
-        StaticCacheableStub::cache('foo', 'baz'); // doesn't overwrite
+        StaticCacheableStub::cache('foo', function() {
+            return 'bar';
+        });
         $this->assertEquals('bar', StaticCacheableStub::getCache('foo'));
 
-        StaticCacheableStub::cache('number', 12345);
+        // doesn't overwrite
+        StaticCacheableStub::cache('foo', function() {
+            return 'baz';
+        });
+        $this->assertEquals('bar', StaticCacheableStub::getCache('foo'));
+
+        StaticCacheableStub::cache('number', function() {
+            return 12345;
+        });
         $this->assertEquals(12345, StaticCacheableStub::getCache('number'));
 
         StaticCacheableStub::cache('closure', function() {
@@ -37,7 +44,7 @@ class StaticCacheableTest extends TestCase {
         $this->assertEquals('foo', StaticCacheableStub::createCacheKey('foo'));
         $this->assertEquals('foo-bar', StaticCacheableStub::createCacheKey(['foo', 'bar']));
         $this->assertEquals('foo-12345-bar', StaticCacheableStub::createCacheKey(['foo', 12345, 'bar']));
-        $this->assertEquals('foo-12345-bar-2282d912cecf739da50a2e91d071b5cc', StaticCacheableStub::createCacheKey(['foo', 12345, 'bar', ['nested', 'array']]));
+        $this->assertEquals('foo-12345-bar-d3e545e5b6dd7d1c9c7be76d5bb18241', StaticCacheableStub::createCacheKey(['foo', 12345, 'bar', ['nested', 'array']]));
     }
 
     public function testFlushCache() {
@@ -83,6 +90,6 @@ class StaticCacheableTest extends TestCase {
 
 }
 
-class StaticCacheableStub extends Base {
+class StaticCacheableStub {
     use StaticCacheable;
 }

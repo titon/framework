@@ -55,7 +55,7 @@ trait Cacheable {
 
         $value = call_user_func($callback, $this);
 
-        if (!$this->_cacheEnabled) {
+        if (!$this->isCacheEnabled()) {
             return $value;
         }
 
@@ -92,7 +92,7 @@ trait Cacheable {
      * @return $this
      */
     public function flushCache(): this {
-        $this->_cache->clear();
+        $this->allCache()->clear();
 
         return $this;
     }
@@ -104,14 +104,14 @@ trait Cacheable {
      * @return mixed
      */
     public function getCache(mixed $key): mixed {
-        if (!$this->_cacheEnabled) {
+        if (!$this->isCacheEnabled()) {
             return null;
         }
 
         $key = $this->createCacheKey($key);
 
         if ($this->hasCache($key)) {
-            return $this->_cache->get($key);
+            return $this->allCache()->get($key);
         }
 
         return null;
@@ -124,7 +124,16 @@ trait Cacheable {
      * @return bool
      */
     public function hasCache(mixed $key): bool {
-        return $this->_cache->contains($this->createCacheKey($key));
+        return $this->allCache()->contains($this->createCacheKey($key));
+    }
+
+    /**
+     * Return true if caching is enabled.
+     *
+     * @return bool
+     */
+    public function isCacheEnabled(): bool {
+        return $this->_cacheEnabled;
     }
 
     /**
@@ -134,7 +143,7 @@ trait Cacheable {
      * @return $this
      */
     public function removeCache(mixed $key): this {
-        $this->_cache->remove($this->createCacheKey($key));
+        $this->allCache()->remove($this->createCacheKey($key));
 
         return $this;
     }
@@ -149,11 +158,11 @@ trait Cacheable {
      * @return mixed
      */
     public function setCache(mixed $key, mixed $value): mixed {
-        if (!$this->_cacheEnabled) {
+        if (!$this->isCacheEnabled()) {
             return $value;
         }
 
-        $this->_cache->set($this->createCacheKey($key), $value);
+        $this->allCache()->set($this->createCacheKey($key), $value);
 
         return $value;
     }

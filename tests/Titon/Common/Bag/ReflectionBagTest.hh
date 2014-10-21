@@ -51,7 +51,7 @@ class ReflectionBagTest extends TestCase {
         $methods = Vector {
             'publicMethod', 'protectedMethod', 'privateMethod', 'staticPublicMethod', 'staticProtectedMethod', 'staticPrivateMethod',
             'allCache', 'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
-            'serialize', 'unserialize'
+            'serialize', 'unserialize', 'isCacheEnabled'
         };
 
         $this->assertVectorsEqual($methods, $this->object->methods);
@@ -61,7 +61,7 @@ class ReflectionBagTest extends TestCase {
     public function testPublicMethods() {
         $methods = Vector {
             'publicMethod', 'staticPublicMethod', 'allCache', 'getCache', 'setCache', 'toggleCache', 'removeCache', 'hasCache', 'createCacheKey', 'flushCache', 'cache',
-            'serialize', 'unserialize'
+            'serialize', 'unserialize', 'isCacheEnabled'
         };
 
         $this->assertVectorsEqual($methods, $this->object->publicMethods);

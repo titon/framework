@@ -93,7 +93,7 @@ trait Mutable<Tk, Tv> {
      * @return $this
      */
     public function flush(): this {
-        $this->_data->clear();
+        $this->all()->clear();
 
         return $this;
     }
@@ -108,7 +108,7 @@ trait Mutable<Tk, Tv> {
      * @return Tv
      */
     public function get(Tk $key, ?Tv $default = null): ?Tv {
-        $value = Col::get($this->_data, (string) $key);
+        $value = Col::get($this->all(), (string) $key);
 
         if ($value === null) {
             return $default;
@@ -123,7 +123,7 @@ trait Mutable<Tk, Tv> {
      * @return Iterator<Tv>
      */
     public function getIterator(): Iterator<Tv> {
-        return $this->_data->getIterator();
+        return $this->all()->getIterator();
     }
 
     /**
@@ -135,7 +135,7 @@ trait Mutable<Tk, Tv> {
      * @return bool
      */
     public function has(Tk $key): bool {
-        return Col::has($this->_data, (string) $key);
+        return Col::has($this->all(), (string) $key);
     }
 
     /**
@@ -144,7 +144,7 @@ trait Mutable<Tk, Tv> {
      * @return Vector<Tk>
      */
     public function keys(): Vector<Tk> {
-        return $this->_data->keys();
+        return $this->all()->keys();
     }
 
     /**
@@ -156,7 +156,7 @@ trait Mutable<Tk, Tv> {
      * @return $this
      */
     public function remove(Tk $key): this {
-        Col::remove($this->_data, (string) $key);
+        Col::remove($this->all(), (string) $key);
 
         return $this;
     }
@@ -171,7 +171,7 @@ trait Mutable<Tk, Tv> {
      * @return $this
      */
     public function set(Tk $key, Tv $value): this {
-        Col::set($this->_data, (string) $key, $value);
+        Col::set($this->all(), (string) $key, $value);
 
         return $this;
     }
@@ -182,7 +182,7 @@ trait Mutable<Tk, Tv> {
      * @return Vector<Tv>
      */
     public function values(): Vector<Tv> {
-        return $this->_data->values();
+        return $this->all()->values();
     }
 
     /**
@@ -191,7 +191,7 @@ trait Mutable<Tk, Tv> {
      * @return array<Tk, Tv>
      */
     public function toArray(): array<Tk, Tv> {
-        return $this->_data->toArray();
+        return $this->all()->toArray();
     }
 
     /**
@@ -200,7 +200,7 @@ trait Mutable<Tk, Tv> {
      * @return int
      */
     public function count(): int {
-        return $this->_data->count();
+        return $this->all()->count();
     }
 
 }

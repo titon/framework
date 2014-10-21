@@ -261,7 +261,9 @@ class ReflectionBag<Tk, Tv> extends AbstractBag<Tk, Tv> {
      * @return string
      */
     public function parent(): string {
-        return $this->reflection()->getParentClass()->getName();
+        $parent = $this->reflection()->getParentClass();
+
+        return $parent ? $parent->getName() : '';
     }
 
     /**

@@ -10,8 +10,6 @@ namespace Titon\Utility;
 use Titon\Common\Macroable;
 use Titon\Utility\Exception\InvalidArgumentException;
 
-type AliasMap = Map<string, string>;
-
 /**
  * Provides convenience functions for inflecting notation paths, namespace paths and file system paths.
  *
@@ -42,7 +40,7 @@ class Path {
      * @param Map<string, string> $paths
      * @return string
      */
-    public static function alias(string $file, AliasMap $paths = Map {}): string {
+    public static function alias(string $file, Map<string, string> $paths = Map {}): string {
         if (!$file) {
             return '[internal]';
         }

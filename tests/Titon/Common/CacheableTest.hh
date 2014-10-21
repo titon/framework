@@ -1,7 +1,6 @@
 <?hh
 namespace Titon\Common;
 
-use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 /**
@@ -103,6 +102,6 @@ class CacheableTest extends TestCase {
 
 }
 
-class CacheableStub extends Base {
+class CacheableStub {
     use Cacheable;
 }

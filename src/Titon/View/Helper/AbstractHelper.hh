@@ -8,8 +8,6 @@
 namespace Titon\View\Helper;
 
 use Psr\Http\Message\RequestInterface;
-use Titon\Common\Base;
-use Titon\Common\Attachable;
 use Titon\Event\Event;
 use Titon\Utility\Sanitize;
 use Titon\Utility\Str;
@@ -22,8 +20,7 @@ use Titon\View\View;
  *
  * @package Titon\View\Helper
  */
-abstract class AbstractHelper extends Base implements Helper {
-    use Attachable;
+abstract class AbstractHelper implements Helper {
 
     /**
      * Configuration.

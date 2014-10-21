@@ -9,7 +9,6 @@ namespace Titon\Http;
 
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
-use Titon\Common\Base;
 use Titon\Http\Bag\HeaderBag;
 
 /**
@@ -17,7 +16,7 @@ use Titon\Http\Bag\HeaderBag;
  *
  * @package Titon\Http
  */
-abstract class AbstractMessage extends Base implements MessageInterface {
+abstract class AbstractMessage implements MessageInterface {
 
     /**
      * Headers to include in the request or response.

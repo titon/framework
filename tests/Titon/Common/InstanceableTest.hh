@@ -1,7 +1,6 @@
 <?hh
 namespace Titon\Common;
 
-use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 class InstanceableTest extends TestCase {
@@ -58,6 +57,6 @@ class InstanceableTest extends TestCase {
 
 }
 
-class InstanceableStub extends Base {
+class InstanceableStub {
     use Instanceable;
 }

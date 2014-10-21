@@ -7,18 +7,17 @@
 
 namespace Titon\Cache\Storage;
 
-use Titon\Common\Base;
 use Titon\Common\Cacheable;
 use Titon\Cache\Storage;
 use Titon\Utility\Time;
 use \Closure;
 
 /**
- * Primary class for all storage engines to extend. Provides functionality from the Base class and the Storage interface.
+ * Primary class for all storage engines to extend. Provides functionality for the Storage interface.
  *
  * @package Titon\Cache\Storage
  */
-abstract class AbstractStorage extends Base implements Storage {
+abstract class AbstractStorage implements Storage {
     use Cacheable;
 
     /**

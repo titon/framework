@@ -7,7 +7,6 @@
 
 namespace Titon\Controller\Action;
 
-use Titon\Common\Base;
 use Titon\Controller\Action;
 use Titon\Controller\Controller;
 
@@ -18,7 +17,7 @@ use Titon\Controller\Controller;
  *
  * @package Titon\Controller\Action
  */
-abstract class AbstractAction extends Base implements Action {
+abstract class AbstractAction implements Action {
 
     /**
      * Controller object.

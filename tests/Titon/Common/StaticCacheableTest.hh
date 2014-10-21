@@ -1,7 +1,6 @@
 <?hh
 namespace Titon\Common;
 
-use Titon\Common\Base;
 use Titon\Test\TestCase;
 
 class StaticCacheableTest extends TestCase {
@@ -83,6 +82,6 @@ class StaticCacheableTest extends TestCase {
 
 }
 
-class StaticCacheableStub extends Base {
+class StaticCacheableStub {
     use StaticCacheable;
 }

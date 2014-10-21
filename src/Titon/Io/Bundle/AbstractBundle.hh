@@ -7,7 +7,6 @@
 
 namespace Titon\Io\Bundle;
 
-use Titon\Common\Base;
 use Titon\Common\Cacheable;
 use Titon\Io\Bundle;
 use Titon\Io\Exception\MissingDomainException;
@@ -25,7 +24,7 @@ use \DirectoryIterator;
  *
  * @package Titon\Io\Bundle
  */
-abstract class AbstractBundle extends Base implements Bundle {
+abstract class AbstractBundle implements Bundle {
     use Cacheable;
 
     /**

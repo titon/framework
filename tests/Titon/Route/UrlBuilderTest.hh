@@ -3,6 +3,8 @@ namespace Titon\Route;
 
 use Titon\Test\TestCase;
 use Titon\Utility\Config;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\Server;
 
 /**
  * @property \Titon\Route\UrlBuilder $object
@@ -49,6 +51,8 @@ class UrlBuilderTest extends TestCase {
     public function testBuildInBaseFolder() {
         $_SERVER['DOCUMENT_ROOT'] = '/root';
         $_SERVER['SCRIPT_FILENAME'] = '/root/base/index.php';
+
+        Server::initialize($_SERVER);
 
         $router = new Router();
         $router->map('module', new TestRoute('/{module}', 'Module\Controller@action'));
@@ -115,7 +119,10 @@ class UrlBuilderTest extends TestCase {
         $_SERVER['SCRIPT_FILENAME'] = '/root/base/app/index.php';
         $_SERVER['REQUEST_URI'] = '/module/controller/action.html/123?foo=bar';
         $_SERVER['HTTPS'] = 'on';
+        Server::initialize($_SERVER);
+
         $_GET = ['foo' => 'bar'];
+        Get::initialize($_GET);
 
         $router = new Router();
 

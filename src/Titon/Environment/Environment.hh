@@ -13,6 +13,7 @@ use Titon\Environment\Exception\MissingBootstrapException;
 use Titon\Environment\Exception\MissingHostException;
 use Titon\Event\Emittable;
 use Titon\Utility\Path;
+use Titon\Utility\State\Server;
 
 /**
  * A hub that allows you to store different environment host configurations,
@@ -217,7 +218,7 @@ class Environment {
      * @return bool
      */
     public function isLocalhost(): bool {
-        return (in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']) || $_SERVER['HTTP_HOST'] === 'localhost');
+        return (in_array(Server::get('REMOTE_ADDR'), ['127.0.0.1', '::1']) || Server::get('HTTP_HOST') === 'localhost');
     }
 
     /**

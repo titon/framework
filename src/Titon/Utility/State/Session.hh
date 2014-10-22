@@ -7,6 +7,11 @@
 
 namespace Titon\Utility\State;
 
+/**
+ * The Session class acts as a static immutable wrapper for the $_SESSION super global.
+ *
+ * @package Titon\Utility\State
+ */
 class Session extends Request {
 
 }

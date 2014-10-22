@@ -7,6 +7,11 @@
 
 namespace Titon\Utility\State;
 
+/**
+ * The Post class acts as a static immutable wrapper for the $_POST super global.
+ *
+ * @package Titon\Utility\State
+ */
 class Post extends Request {
 
 }

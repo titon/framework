@@ -258,7 +258,7 @@ class Col {
         // Drill into the nested collection
         $item = $map[$key];
 
-        invariant($item instanceof Map, 'Item is a Map');
+        invariant($item instanceof Map, 'Item must be a Map');
 
         static::insert($item, implode('.', $paths), $value);
 
@@ -426,7 +426,7 @@ class Col {
         // Drill into the nested collection
         $item = $map[$key];
 
-        invariant($item instanceof Map, 'Item is a Map');
+        invariant($item instanceof Map, 'Item must be a Map');
 
         static::remove($item, implode('.', $paths));
 

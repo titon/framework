@@ -7,6 +7,11 @@
 
 namespace Titon\Utility\State;
 
+/**
+ * The Env class acts as a static immutable wrapper for the $_ENV super global.
+ *
+ * @package Titon\Utility\State
+ */
 class Env extends Request {
 
 }

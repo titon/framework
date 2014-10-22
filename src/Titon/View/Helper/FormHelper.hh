@@ -12,6 +12,8 @@ use Titon\Utility\Config;
 use Titon\Utility\Inflector;
 use Titon\Utility\Col;
 use Titon\Utility\Path;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\Post;
 
 /**
  * The FormHelper is used for HTML form creation. Data is passed to the associated input fields
@@ -367,7 +369,9 @@ class FormHelper extends AbstractHelper {
 
         // Fallback to the globals
         } else {
-            $data = array_merge($_GET, $_POST);
+            $data = (new Map())
+                ->setAll(Get::all())
+                ->setAll(Post::all());
         }
 
         return Col::extract($data, $key);

@@ -12,6 +12,7 @@ use Psr\Log\LogLevel;
 use Titon\Debug\Exception\InvalidDirectoryException;
 use Titon\Debug\Exception\UnwritableDirectoryException;
 use Titon\Utility\Path;
+use Titon\Utility\State\Server;
 use Titon\Utility\Str;
 use \DateTime;
 use \Exception;
@@ -110,10 +111,12 @@ class Logger extends AbstractLogger {
 
         if (isset($context['url'])) {
             $url = $context['url'];
-        } else if (isset($_SERVER['PATH_INFO'])) {
-            $url = $_SERVER['PATH_INFO'];
-        } else if (isset($_SERVER['REQUEST_URI'])) {
-            $url = $_SERVER['REQUEST_URI'];
+
+        } else if ($pathInfo = Server::get('PATH_INFO')) {
+            $url = $pathInfo;
+
+        } else if ($reqUri = Server::get('REQUEST_URI')) {
+            $url = $reqUri;
         }
 
         $message = sprintf('[%s] %s %s',

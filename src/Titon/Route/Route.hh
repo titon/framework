@@ -10,6 +10,7 @@ namespace Titon\Route;
 use Titon\Route\Exception\MissingPatternException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Utility\Registry;
+use Titon\Utility\State\Server;
 use \ReflectionFunctionAbstract;
 use \ReflectionMethod;
 use \Serializable;
@@ -529,7 +530,7 @@ class Route implements Serializable {
     public function isMethod(): bool {
         $methods = $this->getMethods();
 
-        if ($methods && !in_array(strtolower($_SERVER['REQUEST_METHOD']), $methods, true)) {
+        if ($methods && !in_array(strtolower(Server::get('REQUEST_METHOD')), $methods, true)) {
             return false;
         }
 
@@ -542,14 +543,8 @@ class Route implements Serializable {
      * @return bool
      */
     public function isSecure(): bool {
-        $isSecure = (
-            array_key_exists('HTTPS', $_SERVER) && $_SERVER['HTTPS'] === 'on' ||
-            array_key_exists('SERVER_PORT', $_SERVER) && $_SERVER['SERVER_PORT'] == 443
-        );
-
-        // Only validate if the secure flag is true
-        if ($this->getSecure() && !$isSecure) {
-            return false;
+        if ($this->getSecure() && !(Server::get('HTTPS') === 'on' || Server::get('SERVER_PORT') === '443')) {
+            return false; // Only validate if the secure flag is true
         }
 
         return true;

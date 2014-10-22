@@ -3,6 +3,8 @@ namespace Titon\Route;
 
 use Titon\Cache\Storage\MemoryStorage;
 use Titon\Test\TestCase;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\Server;
 
 /**
  * @property \Titon\Route\Router $object
@@ -434,6 +436,7 @@ class RouterTest extends TestCase {
         $_SERVER['HTTP_HOST'] = 'localhost';
         $_SERVER['SCRIPT_FILENAME'] = '/index.php';
         $_SERVER['REQUEST_URI'] = '/';
+        Server::initialize($_SERVER);
 
         $router = new Router();
         $this->assertEquals('/', $router->base());
@@ -452,6 +455,7 @@ class RouterTest extends TestCase {
         $_SERVER['HTTP_HOST'] = 'domain.com';
         $_SERVER['SCRIPT_FILENAME'] = '/index.php';
         $_SERVER['REQUEST_URI'] = '/module/index';
+        Server::initialize($_SERVER);
 
         $router = new Router();
         $this->assertEquals('/', $router->base());
@@ -470,6 +474,7 @@ class RouterTest extends TestCase {
         $_SERVER['HTTP_HOST'] = 'sub.domain.com';
         $_SERVER['SCRIPT_FILENAME'] = '/root/dir/index.php';
         $_SERVER['REQUEST_URI'] = '/module/controller/action.html';
+        Server::initialize($_SERVER);
 
         $router = new Router();
         $this->assertEquals('/root/dir', $router->base());
@@ -489,7 +494,10 @@ class RouterTest extends TestCase {
         $_SERVER['SCRIPT_FILENAME'] = '/rooter/root/dir/index.php'; // query doesn't show up here
         $_SERVER['REQUEST_URI'] = '/module/controller/action.html?foo=bar&int=123';
         $_SERVER['HTTPS'] = 'on';
+        Server::initialize($_SERVER);
+
         $_GET = ['foo' => 'bar', 'int' => 123];
+        Get::initialize($_GET);
 
         $router = new Router();
         $this->assertEquals('/rooter/root/dir', $router->base());
@@ -509,7 +517,10 @@ class RouterTest extends TestCase {
         $_SERVER['SCRIPT_FILENAME'] = '/base/rooter/root/dir/index.php'; // query doesn't show up here
         $_SERVER['REQUEST_URI'] = '/module/controller/action.html/123/abc?foo=bar&int=123';
         $_SERVER['HTTPS'] = 'on';
+        Server::initialize($_SERVER);
+
         $_GET = ['foo' => 'bar', 'int' => 123];
+        Get::initialize($_GET);
 
         $router = new Router();
         $this->assertEquals('/base/rooter/root/dir', $router->base());

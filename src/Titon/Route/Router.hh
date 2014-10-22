@@ -17,6 +17,8 @@ use Titon\Route\Exception\MissingRouteException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
 use Titon\Utility\Registry;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\Server;
 
 type Action = shape('class' => string, 'action' => string);
 type FilterCallback = (function(Router, Route): void);
@@ -130,18 +132,18 @@ class Router {
         $this->_matcher = new LoopMatcher();
 
         // Determine if app is within a base folder
-        $base = dirname(str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
+        $base = dirname(str_replace(Server::get('DOCUMENT_ROOT'), '', Server::get('SCRIPT_FILENAME')));
 
         if ($base && $base !== '.') {
             $this->_base = rtrim(str_replace('\\', '/', $base), '/') ?: '/';
         }
 
         // Store the current URL and query as router segments
-        $this->_segments = (new Map(parse_url($_SERVER['REQUEST_URI'])))->setAll(Map {
-            'scheme' => (array_key_exists('HTTPS', $_SERVER) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http',
-            'query' => new Map($_GET),
-            'host' => $_SERVER['HTTP_HOST'],
-            'port' => $_SERVER['SERVER_PORT']
+        $this->_segments = (new Map(parse_url(Server::get('REQUEST_URI'))))->setAll(Map {
+            'scheme' => (Server::get('HTTPS') === 'on') ? 'https' : 'http',
+            'query' => Get::all(),
+            'host' => Server::get('HTTP_HOST'),
+            'port' => Server::get('SERVER_PORT')
         });
 
         // Set caching events

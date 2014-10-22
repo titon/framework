@@ -7,6 +7,11 @@
 
 namespace Titon\Utility\State;
 
+/**
+ * The Server class acts as a static immutable wrapper for the $_SERVER super global.
+ *
+ * @package Titon\Utility\State
+ */
 class Server extends Request {
 
 }

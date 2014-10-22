@@ -10,19 +10,31 @@ namespace Titon\Utility\State;
 use Titon\Utility\Col;
 use Titon\Utility\Converter;
 
-type GlobalMap = ImmMap<string, mixed>;
+type GlobalMap = Map<string, mixed>;
 
+/**
+ * The Request class acts as a static immutable wrapper for the $_REQUEST super global.
+ *
+ * @package Titon\Utility\State
+ */
 class Request {
 
     /**
-     * Immutable data set.
+     * Super global data collection.
      *
      * @type \Titon\Utility\State\GlobalMap
      */
     protected static GlobalMap $_data = Map {};
 
     /**
-     * Return the entire global collection.
+     * Has the super global data been initialized?
+     *
+     * @type bool
+     */
+    protected static bool $_loaded = false;
+
+    /**
+     * Return the entire data collection.
      *
      * @return \Titon\Utility\State\GlobalMap
      */
@@ -60,11 +72,15 @@ class Request {
 
     /**
      * Initialize the class by supplying an array of data that recursively gets converted to a map.
+     * That data should only be initialized once, unless it is running through the command line.
      *
      * @param array<string, mixed> $global
      */
     public static function initialize(array<string, mixed> $global): void {
-        static::$_data = Converter::toMap($global);
+        if (!static::$_loaded || php_sapi_name() === 'cli') {
+            static::$_data = Converter::toMap($global);
+            static::$_loaded = true;
+        }
     }
 
 }

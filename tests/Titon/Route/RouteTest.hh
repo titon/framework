@@ -2,6 +2,7 @@
 namespace Titon\Route;
 
 use Titon\Test\TestCase;
+use Titon\Utility\State\Server;
 
 class RouteTest extends TestCase {
 
@@ -163,18 +164,21 @@ class RouteTest extends TestCase {
         $multiMethod = (new Route('/', 'Controller@action'))->setMethods(Vector {'post', 'put'});
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
+        Server::initialize($_SERVER);
 
         $this->assertTrue($noMethod->isMethod());
         $this->assertFalse($singleMethod->isMethod());
         $this->assertFalse($multiMethod->isMethod());
 
         $_SERVER['REQUEST_METHOD'] = 'POST';
+        Server::initialize($_SERVER);
 
         $this->assertTrue($noMethod->isMethod());
         $this->assertTrue($singleMethod->isMethod());
         $this->assertTrue($multiMethod->isMethod());
 
         $_SERVER['REQUEST_METHOD'] = 'PUT';
+        Server::initialize($_SERVER);
 
         $this->assertTrue($noMethod->isMethod());
         $this->assertFalse($singleMethod->isMethod());
@@ -189,6 +193,7 @@ class RouteTest extends TestCase {
         $this->assertFalse($secureRoute->isSecure());
 
         $_SERVER['HTTPS'] = 'on';
+        Server::initialize($_SERVER);
 
         $this->assertTrue($unsecureRoute->isSecure());
         $this->assertTrue($secureRoute->isSecure());
@@ -273,6 +278,7 @@ class RouteTest extends TestCase {
         $route = new Route('/{module}', 'Controller@action');
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
+        Server::initialize($_SERVER);
 
         $this->assertTrue($route->isMatch('/foo'));
 
@@ -289,6 +295,7 @@ class RouteTest extends TestCase {
         $route = new Route('/{module}', 'Controller@action');
 
         $_SERVER['HTTPS'] = 'off';
+        Server::initialize($_SERVER);
 
         $this->assertTrue($route->isMatch('/foo'));
 
@@ -297,6 +304,7 @@ class RouteTest extends TestCase {
         $this->assertFalse($route->isMatch('/foo'));
 
         $_SERVER['HTTPS'] = 'on';
+        Server::initialize($_SERVER);
 
         $this->assertTrue($route->isMatch('/foo'));
     }

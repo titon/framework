@@ -146,11 +146,11 @@ class Col {
     /**
      * Flatten a multi-dimensional map by returning the values with their keys representing their previous pathing.
      *
-     * @param Map<Tk, Tv> $map
+     * @param Indexish<Tk, Tv> $map
      * @param string $path
      * @return Map<string, mixed>
      */
-    public static function flatten<Tk, Tv>(Map<Tk, Tv> $map, string $path = ''): Map<string, mixed> {
+    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $map, string $path = ''): Map<string, mixed> {
         if ($path) {
             $path .= '.';
         }
@@ -160,7 +160,7 @@ class Col {
         foreach ($map as $key => $value) {
             $key = (string) $key;
 
-            if ($value instanceof Map) {
+            if ($value instanceof Indexish) {
                 if (!$value) {
                     $data[$path . $key] = null;
                 } else {

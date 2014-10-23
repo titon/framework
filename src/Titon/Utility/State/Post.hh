@@ -12,6 +12,6 @@ namespace Titon\Utility\State;
  *
  * @package Titon\Utility\State
  */
-class Post extends Request {
+final class Post extends Request {
 
 }

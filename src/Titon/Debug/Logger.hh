@@ -104,12 +104,12 @@ class Logger extends AbstractLogger {
         $exception = null;
         $url = '';
 
-        if (isset($context['exception'])) {
+        if (array_key_exists('exception', $context)) {
             $exception = $context['exception'];
             unset($context['exception']);
         }
 
-        if (isset($context['url'])) {
+        if (array_key_exists('url', $context)) {
             $url = $context['url'];
 
         } else if ($pathInfo = Server::get('PATH_INFO')) {

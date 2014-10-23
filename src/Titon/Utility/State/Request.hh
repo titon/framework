@@ -14,24 +14,25 @@ type GlobalMap = Map<string, mixed>;
 
 /**
  * The Request class acts as a static immutable wrapper for the $_REQUEST super global.
+ * The class also acts a base for all other super globals to inherit from.
  *
  * @package Titon\Utility\State
  */
-class Request {
+abstract class Request {
 
     /**
      * Super global data collection.
      *
-     * @type \Titon\Utility\State\GlobalMap
+     * @type Map<string, \Titon\Utility\State\GlobalMap>
      */
-    protected static GlobalMap $_data = Map {};
+    protected static Map<string, GlobalMap> $_data = Map {};
 
     /**
      * Has the super global data been initialized?
      *
-     * @type bool
+     * @type Map<string, bool>
      */
-    protected static bool $_loaded = false;
+    protected static Map<string, bool> $_loaded = Map {};
 
     /**
      * Return the entire data collection.
@@ -39,7 +40,7 @@ class Request {
      * @return \Titon\Utility\State\GlobalMap
      */
     public static function all(): GlobalMap {
-        return static::$_data;
+        return static::$_data->get(static::class) ?: Map {};
     }
 
     /**
@@ -50,7 +51,7 @@ class Request {
      * @return mixed
      */
     public static function get(string $key, mixed $default = null): mixed {
-        $value = Col::get(static::$_data, $key);
+        $value = Col::get(static::$_data, static::class . '.' . $key);
 
         if ($value === null) {
             return $default;
@@ -67,20 +68,32 @@ class Request {
      * @return bool
      */
     public static function has(string $key): bool {
-        return Col::has(static::$_data, $key);
+        return Col::has(static::$_data, static::class . '.' . $key);
     }
 
     /**
      * Initialize the class by supplying an array of data that recursively gets converted to a map.
      * That data should only be initialized once, unless it is running through the command line.
      *
-     * @param array<string, mixed> $global
+     * @param array<string, mixed> $data
      */
-    public static function initialize(array<string, mixed> $global): void {
-        if (!static::$_loaded || php_sapi_name() === 'cli') {
-            static::$_data = Converter::toMap($global);
-            static::$_loaded = true;
+    public static function initialize(array<string, mixed> $data): void {
+        $class = static::class;
+
+        if (php_sapi_name() === 'cli' || !static::$_loaded->contains($class)) {
+            static::$_data[$class] = static::package($data);
+            static::$_loaded[$class] = true;
         }
+    }
+
+    /**
+     * Package the data into a format usable by the framework, primarily a map with string keys.
+     *
+     * @param array<string, mixed> $data
+     * @return \Titon\Utility\State\GlobalMap
+     */
+    public static function package(array<string, mixed> $data): GlobalMap {
+        return Converter::toMap($data);
     }
 
 }

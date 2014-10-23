@@ -2,6 +2,7 @@
 namespace Titon\Debug;
 
 use Titon\Test\TestCase;
+use Titon\Utility\State\Server;
 use VirtualFileSystem\FileSystem;
 use \DateTime;
 
@@ -44,17 +45,23 @@ class LoggerTest extends TestCase {
     }
 
     public function testCreateMessage() {
-        $this->assertEquals('[' . date(DateTime::RFC3339) . '] Message [/]' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message'));
+        $this->assertEquals('[' . date(DateTime::RFC3339) . '] Message ' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message'));
         $this->assertEquals('[' . date(DateTime::RFC3339) . '] Message [/custom/url]' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message', ['url' => '/custom/url']));
 
         $_SERVER['PATH_INFO'] = '/path/url';
+        Server::initialize($_SERVER);
+
         $this->assertEquals('[' . date(DateTime::RFC3339) . '] Message [/path/url]' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message'));
 
         unset($_SERVER['PATH_INFO']);
         $_SERVER['REQUEST_URI'] = '/request/url';
+        Server::initialize($_SERVER);
+
         $this->assertEquals('[' . date(DateTime::RFC3339) . '] Message [/request/url]' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message'));
 
         unset($_SERVER['REQUEST_URI']);
+        Server::initialize($_SERVER);
+
         $this->assertEquals('[' . date(DateTime::RFC3339) . '] Message ' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message'));
     }
 

@@ -12,6 +12,6 @@ namespace Titon\Utility\State;
  *
  * @package Titon\Utility\State
  */
-class Env extends Request {
+final class Env extends Request {
 
 }

@@ -12,6 +12,6 @@ namespace Titon\Utility\State;
  *
  * @package Titon\Utility\State
  */
-class Server extends Request {
+final class Server extends Request {
 
 }

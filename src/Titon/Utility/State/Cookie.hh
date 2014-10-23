@@ -12,6 +12,6 @@ namespace Titon\Utility\State;
  *
  * @package Titon\Utility\State
  */
-class Cookie extends Request {
+final class Cookie extends Request {
 
 }

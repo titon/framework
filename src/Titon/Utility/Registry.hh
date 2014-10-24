@@ -86,6 +86,8 @@ class Registry {
             $object = static::$_registered[$key];
 
             if (is_callable($object)) {
+                invariant(is_callable($object), 'Object is callable');
+
                 $object = static::set(call_user_func($object), $key);
             }
 

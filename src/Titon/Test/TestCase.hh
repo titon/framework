@@ -9,6 +9,14 @@ namespace Titon\Test;
 
 use Titon\Utility\Config;
 use Titon\Utility\Registry;
+use Titon\Utility\State\Cookie;
+use Titon\Utility\State\Env;
+use Titon\Utility\State\Files;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\Post;
+use Titon\Utility\State\Request;
+use Titon\Utility\State\Server;
+use Titon\Utility\State\Session;
 use VirtualFileSystem\FileSystem;
 
 /**
@@ -36,11 +44,12 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     protected function setUp(): void {
         parent::setUp();
 
+        $_COOKIE = [];
+        $_FILES = [];
         $_GET = [];
         $_POST = [];
-        $_COOKIE = [];
-        $_SESSION = [];
         $_REQUEST = [];
+        $_SESSION = [];
         $_SERVER = array_merge($_SERVER, [
             'HTTP_HOST' => 'localhost',
             'DOCUMENT_ROOT' => '/root',
@@ -54,6 +63,15 @@ class TestCase extends \PHPUnit_Framework_TestCase {
             'SERVER_PORT' => 80,
             'HTTPS' => 'off'
         ]);
+
+        Cookie::initialize($_COOKIE);
+        Env::initialize($_ENV);
+        Files::initialize($_FILES);
+        Get::initialize($_GET);
+        Post::initialize($_POST);
+        Request::initialize($_REQUEST);
+        Server::initialize($_SERVER);
+        Session::initialize($_SESSION);
     }
 
     /**

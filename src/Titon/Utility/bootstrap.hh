@@ -1,18 +1,52 @@
-<?hh // strict
+<?hh
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
 
+use Titon\Utility\Col;
 use Titon\Utility\Config;
 use Titon\Utility\Converter;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 use Titon\Utility\Sanitize;
 use Titon\Utility\Registry;
+use Titon\Utility\State\Cookie;
+use Titon\Utility\State\Env;
+use Titon\Utility\State\Files;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\Post;
+use Titon\Utility\State\Request;
+use Titon\Utility\State\Server;
+use Titon\Utility\State\Session;
 use Titon\Utility\Str;
-use Titon\Utility\Col;
+
+/**
+ * --------------------------------------------------------------
+ *  Global State Initialization
+ * --------------------------------------------------------------
+ *
+ * Initialize the global state by bootstrapping all the super
+ * globals into immutable read-only collections.
+ */
+
+Cookie::initialize($_COOKIE);
+Env::initialize($_ENV);
+Files::initialize($_FILES);
+Get::initialize($_GET);
+Post::initialize($_POST);
+Request::initialize($_REQUEST);
+Server::initialize($_SERVER);
+Session::initialize($_SESSION);
+
+/**
+ * --------------------------------------------------------------
+ *  Helper Functions
+ * --------------------------------------------------------------
+ *
+ * Defines global helper functions for common use cases.
+ */
 
 /**
  * @see Titon\Utility\Config::get()

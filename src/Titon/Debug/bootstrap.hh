@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -6,6 +6,14 @@
  */
 
 use Titon\Debug\Debugger;
+
+/**
+ * --------------------------------------------------------------
+ *  Helper Functions
+ * --------------------------------------------------------------
+ *
+ * Defines global helper functions for common use cases.
+ */
 
 /**
  * @see Titon\Debug\Debugger::printException()

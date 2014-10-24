@@ -172,7 +172,7 @@ class ArrayList<Tv> implements
      */
     public function clean(): ArrayList<Tv> {
         return $this->filter(function(Tv $value) {
-            return ($value || $value === 0 || $value === '0');
+            return ($value || $value === 0 || $value === '0' || $value === 0.0);
         });
     }
 
@@ -435,23 +435,6 @@ class ArrayList<Tv> implements
         }
 
         return new static($list);
-    }
-
-    /**
-     * Sort a multi-dimensional list by comparing a field within each item.
-     *
-     * @param string $key
-     * @param int $flags
-     * @return ArrayList<Tv>
-     */
-    public function sortBy(string $key, int $flags = SORT_REGULAR): ArrayList<Tv> {
-        return $this->sort(($a, $b) ==> {
-            if ($a instanceof Indexish && $b instanceof Indexish) {
-                return strcmp($a[$key], $b[$key]);
-            }
-
-            return strcmp((string) $a, (string) $b);
-        }, $flags);
     }
 
     /**

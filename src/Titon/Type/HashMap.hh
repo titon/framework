@@ -167,7 +167,7 @@ class HashMap<Tk, Tv> implements
      */
     public function clean(): HashMap<Tk, Tv> {
         return $this->filter(function(Tv $value) {
-            return ($value || $value === 0 || $value === '0');
+            return ($value || $value === 0 || $value === '0' || $value === 0.0);
         });
     }
 
@@ -311,24 +311,22 @@ class HashMap<Tk, Tv> implements
     }
 
     /**
-     * Group all items into sub-maps based on the value of a specific key.
+     * Group all items into sub-maps based on the return value of callback.
      *
-     * @param Tu $field
-     * @return HashMap<string, HashMap<Tk, Tv>>
+     * @param (function(Tv, Tk): Tu) $callback
+     * @return HashMap<Tu, HashMap<Tk, Tv>>
      */
-    public function groupBy<Tu>(Tu $field): HashMap<string, HashMap<Tk, Tv>> {
+    public function groupBy<Tu>((function(Tv, Tk): Tu) $callback): HashMap<Tu, HashMap<Tk, Tv>> {
         $grouped = Map {};
 
         foreach ($this->value() as $key => $value) {
-            if ($value instanceof Indexish) {
-                $index = (string) $value[$field];
+            $index = call_user_func_array($callback, [$value, $key]);
 
-                if (!$grouped->contains($index)) {
-                    $grouped[$index] = new static();
-                }
-
-                $grouped[$index]->set($key, $value);
+            if (!$grouped->contains($index)) {
+                $grouped[$index] = new static();
             }
+
+            $grouped[$index]->set($key, $value);
         }
 
         return new static($grouped);
@@ -531,23 +529,6 @@ class HashMap<Tk, Tv> implements
         }
 
         return new static($map);
-    }
-
-    /**
-     * Sort a multi-dimensional map by comparing a field within each item.
-     *
-     * @param string $key
-     * @param int $flags
-     * @return HashMap<Tk, Tv>
-     */
-    public function sortBy(string $key, int $flags = SORT_REGULAR): HashMap<Tk, Tv> {
-        return $this->sort(($a, $b) ==> {
-            if ($a instanceof Indexish && $b instanceof Indexish) {
-                return strcmp($a[$key], $b[$key]);
-            }
-
-            return strcmp((string) $a, (string) $b);
-        }, $flags);
     }
 
     /**

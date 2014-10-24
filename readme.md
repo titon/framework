@@ -10,19 +10,18 @@
 Titon is a full-stack web framework built on Hack that runs in HHVM. It is written with simplicity and efficiency in mind,
 with enough room for extensibility and abstraction. The framework takes advantage of Hack's strict mode, type system,
 generics, collections, and more. It also integrates the wonderful PSRs from PHP-FIG for increased interoperability
-with external PHP code bases.
+with external PHP code bases and libraries.
 
 Looking for more information? Find us in [#titon](http://webchat.freenode.net/?channels=titon) on FreeNode.
 
 ### Current State ###
 
-Many packages have already been ported over from their old PHP codebase to Hack.
-However, they have not been linted against Hack's strict mode yet.
+A handful of packages have already been ported over from their old PHP codebase to Hack.
+However, they have not been linted against Hack's strict type checker yet.
 
 The following packages are still in the porting process.
 
 * IO
-* Type
 
 The following packages have yet to be ported over.
 
@@ -37,7 +36,7 @@ The following packages have yet to be ported over.
 
 ### Upcoming Packages ###
 
-The following packages have not been written yet but are planned for future releases.
+The following packages have are planned for future releases.
 
 * Auth
 * ACL
@@ -45,20 +44,25 @@ The following packages have not been written yet but are planned for future rele
 * Session
 * Kernel
 * ADR
+* Mail
+* Queue
 
 ### Linted Packages ###
 
 The following packages have been linted against Hack's type checker.
 They will still fail the checker with unbound errors, or mixed type warnings,
-but there's nothing we can do until HHVM and Hack get updated.
+but there's nothing we can do until HHVM and Hack are patched.
 
 * Common
+* Debug
+* Route
+* Type
 * Utility
 
 ## Requirements ##
 
 Titon is built on [Hack](http://hacklang.com/) and requires [HHVM 3.3.0+](http://hhvm.com/).
-It also requires Composer and for dependencies to be installed for testing.
+It also requires Composer for its autoloader and for dependencies to be installed for testing.
 
 ## Usage ##
 
@@ -72,7 +76,7 @@ Chat with us over in [#titon](http://webchat.freenode.net/?channels=titon) for m
 
 ## Testing ##
 
-Titon comes packaged with a Vagrant box and a handful of bash scripts to ease the testing process.
+Titon comes packaged with a Vagrant box and a handful of Python scripts to ease the testing process.
 Boot up the Vagrant instance with `vagrant up` and SSH into the box with `vagrant ssh`.
 Once in Vagrant, you can run the following command to run all tests.
 
@@ -105,4 +109,18 @@ Or lint a specific folder.
 
 ```bash
 /vagrant/bin/lint-hack --path=Titon/Utility
+```
+
+### PHPUnit Support ###
+
+Titon requires a modified PHPUnit to run tests properly. Simply modify the local file `Framework\TestSuite.php` and change this.
+
+```php
+$shortname = basename($filename, '.php');
+```
+
+To the following. This will allow `.hh` file extensions to be located.
+
+```php
+$shortname = basename(basename($filename, '.hh'), '.php');
 ```

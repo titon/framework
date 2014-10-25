@@ -1,14 +1,13 @@
 <?hh
-namespace Titon\View\View\Engine;
+namespace Titon\View\Engine;
 
-use Titon\View\View;
-use Titon\View\View\TemplateView;
+use Titon\View\TemplateView;
 use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 
 /**
- * @property \Titon\View\View\TemplateView $object
- * @property \Titon\View\View\Engine\TemplateEngine $engine
+ * @property \Titon\View\TemplateView $object
+ * @property \Titon\View\Engine\TemplateEngine $engine
  */
 class TemplateEngineTest extends TestCase {
 

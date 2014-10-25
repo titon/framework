@@ -4,7 +4,7 @@ namespace Titon\View;
 use Titon\Http\Server\Request;
 use Titon\Test\TestCase;
 use Titon\View\Helper\AbstractHelper;
-use Titon\View\View\TemplateView;
+use Titon\View\TemplateView;
 
 /**
  * @property \Titon\View\Helper $object

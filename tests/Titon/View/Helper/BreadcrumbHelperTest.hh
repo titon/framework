@@ -3,7 +3,7 @@ namespace Titon\View\Helper;
 
 use Titon\Utility\Registry;
 use Titon\Test\TestCase;
-use Titon\View\View\TemplateView;
+use Titon\View\TemplateView;
 
 /**
  * @property \Titon\View\Helper\BreadcrumbHelper $object

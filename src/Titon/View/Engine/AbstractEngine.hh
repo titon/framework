@@ -5,16 +5,18 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\View\Engine;
+namespace Titon\View\Engine;
 
+use Titon\Common\DataMap;
 use Titon\View\View;
-use Titon\View\View\Engine;
+use Titon\View\Engine;
+use Titon\View\WrapperList;
 
 /**
  * Defines shared functionality for view engines.
  * Provides support for layouts, wrappers, data and rendering.
  *
- * @package Titon\View\View\Engine
+ * @package Titon\View\Engine
  */
 abstract class AbstractEngine implements Engine {
 
@@ -35,9 +37,9 @@ abstract class AbstractEngine implements Engine {
     /**
      * Variables currently bound to the engine.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Common\DataMap
      */
-    protected Map<string, mixed> $_variables = Map {};
+    protected DataMap $_variables = Map {};
 
     /**
      * View instance.
@@ -47,17 +49,17 @@ abstract class AbstractEngine implements Engine {
     protected View $_view;
 
     /**
-     * List of wrappers to wrap templates with
+     * List of wrappers to wrap templates with.
      *
-     * @type Vector<string>
+     * @type \Titon\View\WrapperList
      */
-    protected Vector<string> $_wrapper = Vector {};
+    protected WrapperList $_wrapper = Vector {};
 
     /**
      * {@inheritdoc}
      */
     public function data(string $key, mixed $default = null): mixed {
-        return isset($this->_variables[$key]) ? $this->_variables[$key] : $default;
+        return $this->_variables->get($key) ?: $default;
     }
 
     /**
@@ -77,7 +79,7 @@ abstract class AbstractEngine implements Engine {
     /**
      * {@inheritdoc}
      */
-    public function getWrapper(): Vector<string> {
+    public function getWrapper(): WrapperList {
         return $this->_wrapper;
     }
 
@@ -91,7 +93,7 @@ abstract class AbstractEngine implements Engine {
     /**
      * {@inheritdoc}
      */
-    public function open(string $partial, Map<string, mixed> $variables = Map {}): string {
+    public function open(string $partial, DataMap $variables = Map {}): string {
         return $this->render(
             $this->getView()->locateTemplate($partial, View::PARTIAL),
             $this->getView()->getVariables()->toMap()->setAll($variables)

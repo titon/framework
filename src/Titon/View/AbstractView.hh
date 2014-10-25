@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\View;
+namespace Titon\View;
 
 use Titon\Cache\Storage;
 use Titon\Common\Cacheable;
@@ -23,6 +23,7 @@ use Titon\View\Exception\MissingHelperException;
 use Titon\View\Exception\MissingTemplateException;
 use Titon\View\Helper;
 use Titon\View\View;
+use Titon\View\View\Map;
 
 /**
  * Defines shared functionality for view managers.
@@ -299,9 +300,9 @@ abstract class AbstractView implements View, Listener {
     /**
      * Register the events to listen to.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Event\ListenerMap
      */
-    public function registerEvents(): Map<string, mixed> {
+    public function registerEvents(): ListenerMap {
         return Map {
             'view.preRender' => Map {'method' => 'preRender', 'priority' => 1},
             'view.postRender' => Map {'method' => 'postRender', 'priority' => 1}

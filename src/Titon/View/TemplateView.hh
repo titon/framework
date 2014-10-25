@@ -5,10 +5,12 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\View;
+namespace Titon\View;
 
 use Titon\Utility\Time;
-use Titon\View\View\Engine\TemplateEngine;
+use Titon\View\AbstractView;
+use Titon\View\Engine;
+use Titon\View\Engine\TemplateEngine;
 
 /**
  * Defines the rendering functionality for basic templating by using a rendering engine.
@@ -24,7 +26,7 @@ class TemplateView extends AbstractView {
     /**
      * Template rendering engine.
      *
-     * @type \Titon\View\View\Engine
+     * @type \Titon\View\Engine
      */
     protected Engine $_engine;
 
@@ -133,7 +135,7 @@ class TemplateView extends AbstractView {
     /**
      * Set the rendering engine.
      *
-     * @param \Titon\View\View\Engine $engine
+     * @param \Titon\View\Engine $engine
      * @return $this
      */
     public function setEngine(Engine $engine): this {

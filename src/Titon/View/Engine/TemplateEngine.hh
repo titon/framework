@@ -5,19 +5,21 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\View\Engine;
+namespace Titon\View\Engine;
+
+use Titon\Common\DataMap;
 
 /**
  * Standard engine used for rendering views using pure PHP code.
  *
- * @package Titon\View\View\Engine
+ * @package Titon\View\Engine
  */
 class TemplateEngine extends AbstractEngine {
 
     /**
      * {@inheritdoc}
      */
-    public function render(string $path, Map<string, mixed> $variables = Map {}): string {
+    public function render(string $path, DataMap $variables = Map {}): string {
         $this->_variables = $variables;
 
         if ($variables) {

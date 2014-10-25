@@ -7,7 +7,11 @@
 
 namespace Titon\View;
 
+use Titon\Common\DataMap;
 use Titon\Cache\Storage;
+
+type HelperMap = Map<string, Helper>;
+type PathList = Vector<string>;
 
 /**
  * The View acts as the hub between the templates and the rendering engine.
@@ -15,10 +19,10 @@ use Titon\Cache\Storage;
  *
  * @package Titon\View
  * @events
- *      view.preRender(View $view, $template)
- *      view.postRender(View $view, $response)
- *      view.preLocate($template, $type, array $paths)
- *      view.postLocate($template, $type, array $paths)
+ *      view.rendering(View $view, $template)
+ *      view.rendered(View $view, $response)
+ *      view.locating($template, $type, array $paths)
+ *      view.located($template, $type, array $paths)
  */
 interface View {
 
@@ -51,10 +55,10 @@ interface View {
     /**
      * Add multiple template lookup paths.
      *
-     * @param Vector<string> $paths
+     * @param \Titon\View\PathList $paths
      * @return $this
      */
-    public function addPaths(Vector<string> $paths): this;
+    public function addPaths(PathList $paths): this;
 
     /**
      * Format the current array of template parts. Any non-string values should be filtered.
@@ -83,16 +87,16 @@ interface View {
     /**
      * Return all helpers.
      *
-     * @return Map<string, Helper>
+     * @return \Titon\View\HelperMap
      */
-    public function getHelpers(): Map<string, Helper>;
+    public function getHelpers(): HelperMap;
 
     /**
      * Return all paths.
      *
-     * @return Vector<string>
+     * @return \Titon\View\PathList
      */
-    public function getPaths(): Vector<string>;
+    public function getPaths(): PathList;
 
     /**
      * Return the storage engine.
@@ -112,9 +116,9 @@ interface View {
     /**
      * Return all variables.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Common\DataMap
      */
-    public function getVariables(): Map<string, mixed>;
+    public function getVariables(): DataMap;
 
     /**
      * Locate a template within the lookup paths.
@@ -142,10 +146,10 @@ interface View {
      * Render a single template and pass in optional variables.
      *
      * @param string $path
-     * @param Map<string, mixed> $variables
+     * @param \Titon\Common\DataMap $variables
      * @return string
      */
-    public function renderTemplate(string $path, Map<string, mixed> $variables = Map {}): string;
+    public function renderTemplate(string $path, DataMap $variables = Map {}): string;
 
     /**
      * Set the template file extension.
@@ -175,9 +179,9 @@ interface View {
     /**
      * Set multiple view variables.
      *
-     * @param Map<string, mixed> $data
+     * @param \Titon\Common\DataMap $data
      * @return $this
      */
-    public function setVariables(Map<string, mixed> $data): this;
+    public function setVariables(DataMap $data): this;
 
 }

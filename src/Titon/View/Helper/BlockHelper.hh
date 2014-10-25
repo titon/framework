@@ -9,6 +9,9 @@ namespace Titon\View\Helper;
 
 use Titon\View\Exception\ActiveBlockException;
 
+type ActiveBlockList = Vector<string>;
+type BlockMap = Map<string, string>;
+
 /**
  * The BlockHelper can be used to capture output within the view layer and render at a later time.
  * Blocks can be created by triggering a start and stop, and all contents in between will be captured.
@@ -20,16 +23,16 @@ class BlockHelper extends AbstractHelper {
     /**
      * List of unclosed blocks.
      *
-     * @type Vector<string>
+     * @type \Titon\View\Helper\ActiveBlockList
      */
-    protected Vector<string> $_active = Vector {};
+    protected ActiveBlockList $_active = Vector {};
 
     /**
      * List of captured output.
      *
-     * @type Map<string, string>
+     * @type \Titon\View\Helper\BlockMap
      */
-    protected Map<string, string> $_blocks = Map {};
+    protected BlockMap $_blocks = Map {};
 
     /**
      * Return the last opened block in the active list.

@@ -7,8 +7,8 @@ use Titon\Http\Exception\NotFoundException;
 use Titon\Http\Server\Request;
 use Titon\Http\Server\Response;
 use Titon\Test\TestCase;
-use Titon\View\View\Engine\TemplateEngine;
-use Titon\View\View\TemplateView;
+use Titon\View\Engine\TemplateEngine;
+use Titon\View\TemplateView;
 use VirtualFileSystem\FileSystem;
 
 /**

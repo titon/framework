@@ -18,11 +18,9 @@ use Titon\Utility\Crypt;
 class HtmlHelper extends AbstractHelper {
 
     /**
-     * Mapping of HTML tags for this helper.
-     *
-     * @type Map<string, mixed>
+     * {@inheritdoc}
      */
-    protected Map<string, mixed> $_tags = Map {
+    protected TagMap $_tags = Map {
         'anchor'    => '<a{attr}>{body}</a>',
         'link'      => '<link{attr}>',
         'meta'      => '<meta{attr}>',
@@ -36,10 +34,10 @@ class HtmlHelper extends AbstractHelper {
      *
      * @param string $title
      * @param string $url
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function anchor(string $title, string $url, Map<string, mixed> $attributes = Map {}): string {
+    public function anchor(string $title, string $url, AttributeMap $attributes = Map {}): string {
         $attributes['href'] = $url;
 
         return $this->tag('anchor', Map {
@@ -61,12 +59,12 @@ class HtmlHelper extends AbstractHelper {
      * Create an image element.
      *
      * @param string $path
-     * @param Map<string, mixed> $attributes
-     * @param mixed $url
+     * @param \Titon\View\Helper\AttributeMap $attributes
+     * @param string $url
      * @return string
      */
-    public function image(string $path, Map<string, mixed> $attributes = Map {}, mixed $url = ''): string {
-        if (!isset($attributes['alt'])) {
+    public function image(string $path, AttributeMap $attributes = Map {}, string $url = ''): string {
+        if (!$attributes->contains('alt')) {
             $attributes['alt'] = '';
         }
 
@@ -90,10 +88,10 @@ class HtmlHelper extends AbstractHelper {
      * Create a link element.
      *
      * @param string $path
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function link(string $path, Map<string, mixed> $attributes = Map {}) {
+    public function link(string $path, AttributeMap $attributes = Map {}) {
         $attributes = (Map {
             'rel'   => 'stylesheet',
             'type'  => 'text/css',
@@ -111,13 +109,13 @@ class HtmlHelper extends AbstractHelper {
      * Creates a mailto hyperlink. Emails will be obfuscated to hide against spambots and harvesters.
      *
      * @param string $email
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function mailto(string $email, Map<string, mixed> $attributes = Map {}) {
+    public function mailto(string $email, AttributeMap $attributes = Map {}) {
         $email = Crypt::obfuscate($email);
 
-        if (!isset($attributes['title'])) {
+        if (!$attributes->contains('title')) {
             $attributes['title'] = '';
         }
 
@@ -135,16 +133,16 @@ class HtmlHelper extends AbstractHelper {
      *
      * @param string|Map $type
      * @param string $content
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function meta(mixed $type, string $content = '', Map<string, mixed> $attributes = Map {}) {
+    public function meta(mixed $type, string $content = '', AttributeMap $attributes = Map {}) {
         if ($type instanceof Map) {
             return $this->tag('meta', Map {
                 'attr' => $this->attributes($type)
             });
         } else {
-            $type = mb_strtolower((string) $type);
+            $type = strtolower((string) $type);
         }
 
         if (!$content) {
@@ -175,7 +173,7 @@ class HtmlHelper extends AbstractHelper {
             'icon'                  => Map {'type' => 'image/x-icon', 'rel' => 'icon', 'link' => $content},
         };
 
-        if (isset($metaTypes[$type])) {
+        if ($metaTypes->contains($type)) {
             $attributes = $metaTypes[$type]->setAll($attributes);
         } else {
             $attributes['name'] = $type;

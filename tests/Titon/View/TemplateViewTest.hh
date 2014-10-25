@@ -1,13 +1,12 @@
 <?hh
-namespace Titon\View\View;
+namespace Titon\View;
 
 use Titon\Cache\Storage\FileSystemStorage;
-use Titon\View\View;
 use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 
 /**
- * @property \Titon\View\View\TemplateView $object
+ * @property \Titon\View\TemplateView $object
  */
 class TemplateViewTest extends TestCase {
 

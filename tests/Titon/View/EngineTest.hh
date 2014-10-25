@@ -1,11 +1,12 @@
 <?hh
-namespace Titon\View\View;
+namespace Titon\View;
 
+use Titon\Common\DataMap;
 use Titon\Test\TestCase;
-use Titon\View\View\Engine\AbstractEngine;
+use Titon\View\Engine\AbstractEngine;
 
 /**
- * @property \Titon\View\View\Engine $object
+ * @property \Titon\View\Engine $object
  */
 class EngineTest extends TestCase {
 
@@ -43,8 +44,8 @@ class EngineTest extends TestCase {
 
 class EngineStub extends AbstractEngine {
 
-    public function open(string $partial, Map<string, mixed> $variables = Map {}): string {}
-    public function render(string $path, Map<string, mixed> $variables = Map {}): string {}
+    public function open(string $partial, DataMap $variables = Map {}): string {}
+    public function render(string $path, DataMap $variables = Map {}): string {}
     public function getExtension(): string {}
 
 }

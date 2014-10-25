@@ -5,14 +5,16 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\View;
+namespace Titon\View;
 
-use Titon\View\View;
+use Titon\Common\DataMap;
+
+type WrapperList = Vector<string>;
 
 /**
  * Interface for the rendering engine.
  *
- * @package Titon\View\View
+ * @package Titon\View
  */
 interface Engine {
 
@@ -42,9 +44,9 @@ interface Engine {
     /**
      * Return the list of wrappers.
      *
-     * @return Vector<string>
+     * @return \Titon\View\WrapperList
      */
-    public function getWrapper(): Vector<string>;
+    public function getWrapper(): WrapperList;
 
     /**
      * Return the view instance.
@@ -58,20 +60,20 @@ interface Engine {
      * Optionally can pass an array of custom variables.
      *
      * @param string $partial
-     * @param Map<string, mixed> $variables
+     * @param \Titon\Common\DataMap $variables
      * @return string
      */
-    public function open(string $partial, Map<string, mixed> $variables = Map {}): string;
+    public function open(string $partial, DataMap $variables = Map {}): string;
 
     /**
      * Render a template at the defined path.
      * Optionally can pass an array of custom variables.
      *
      * @param string $path
-     * @param Map<string, mixed> $variables
+     * @param \Titon\Common\DataMap $variables
      * @return string
      */
-    public function render(string $path, Map<string, mixed> $variables = Map {}): string;
+    public function render(string $path, DataMap $variables = Map {}): string;
 
     /**
      * Set the content.

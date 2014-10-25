@@ -58,6 +58,7 @@ but there's nothing we can do until HHVM and Hack are patched.
 * Route
 * Type
 * Utility
+* View
 
 ## Requirements ##
 

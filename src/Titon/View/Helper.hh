@@ -10,7 +10,6 @@ namespace Titon\View;
 use Psr\Http\Message\RequestInterface;
 use Titon\Event\Event;
 use Titon\Event\Listener;
-use Titon\View\View;
 
 /**
  * Interface for the helpers library.

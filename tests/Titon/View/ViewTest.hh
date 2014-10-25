@@ -6,7 +6,7 @@ use Titon\View\View;
 use Titon\View\Helper\HtmlHelper;
 use Titon\View\Helper\FormHelper;
 use Titon\Test\TestCase;
-use Titon\View\View\AbstractView;
+use Titon\View\AbstractView;
 use VirtualFileSystem\FileSystem;
 
 /**

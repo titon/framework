@@ -24,8 +24,15 @@ trait Emittable {
     /**
      * @see \Titon\Event\Emitter::emit()
      */
-    public function emit(mixed $event, array $params = []): mixed {
+    public function emit(string $event, array<mixed> $params = []): Event {
         return $this->getEmitter()->emit($event, $params);
+    }
+
+    /**
+     * @see \Titon\Event\Emitter::emitMany()
+     */
+    public function emitMany(mixed $event, array<mixed> $params = []): EventList {
+        return $this->getEmitter()->emitMany($event, $params);
     }
 
     /**
@@ -46,8 +53,8 @@ trait Emittable {
      *
      * @return $this
      */
-    public function once(string $event, mixed $callback, Map<string, mixed> $options = Map {}): this {
-        $this->getEmitter()->once($event, $callback, $options);
+    public function once(string $event, mixed $callback, int $priority = 0): this {
+        $this->getEmitter()->once($event, $callback, $priority);
 
         return $this;
     }
@@ -57,8 +64,8 @@ trait Emittable {
      *
      * @return $this
      */
-    public function on(?string $event, mixed $callback, Map<string, mixed> $options = Map {}): this {
-        $this->getEmitter()->on($event, $callback, $options);
+    public function on(string $event, mixed $callback, int $priority = 0, bool $once = false): this {
+        $this->getEmitter()->on($event, $callback, $priority, $once);
 
         return $this;
     }
@@ -68,7 +75,7 @@ trait Emittable {
      *
      * @return $this
      */
-    public function off(?string $event, mixed $callback): this {
+    public function off(string $event, mixed $callback): this {
         $this->getEmitter()->off($event, $callback);
 
         return $this;

@@ -7,6 +7,7 @@
 
 namespace Titon\Event;
 
+use Titon\Common\DataMap;
 use Titon\Utility\Col;
 
 /**
@@ -20,9 +21,9 @@ class Event {
     /**
      * Data to persist between observers.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Common\DataMap
      */
-    protected Map<string, mixed> $_data = Map {};
+    protected DataMap $_data = Map {};
 
     /**
      * The event key.
@@ -48,9 +49,9 @@ class Event {
     /**
      * The call stack in order of priority.
      *
-     * @type Vector<Map<string, mixed>>
+     * @type \Titon\Event\CallStackList
      */
-    protected Vector<Map<string, mixed>> $_stack;
+    protected CallStackList $_stack;
 
     /**
      * The last state before the object was stopped.
@@ -71,9 +72,9 @@ class Event {
      * Initialize the event and pass information from the Emitter.
      *
      * @param string $key
-     * @param Vector<Map<string, mixed>> $stack
+     * @param \Titon\Event\CallStackList $stack
      */
-    public function __construct(string $key, Vector<Map<string, mixed>> $stack = Vector {}) {
+    public function __construct(string $key, CallStackList $stack = Vector {}) {
         $this->_key = $key;
         $this->_stack = $stack;
         $this->_time = time();
@@ -82,9 +83,9 @@ class Event {
     /**
      * Return the call stack in order of priority.
      *
-     * @return Vector<Map<string, mixed>>
+     * @return \Titon\Event\CallStackList
      */
-    public function getCallStack(): Vector<Map<string, mixed>> {
+    public function getCallStack(): CallStackList {
         return $this->_stack;
     }
 
@@ -153,7 +154,7 @@ class Event {
         $index = $this->_index;
         $nextIndex = $index + 1;
 
-        if (isset($this->_stack[$nextIndex])) {
+        if ($this->_stack->containsKey($nextIndex)) {
             $this->_stack[$index]['time'] = time();
             $this->_index = $nextIndex;
 

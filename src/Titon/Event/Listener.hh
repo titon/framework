@@ -7,6 +7,8 @@
 
 namespace Titon\Event;
 
+type ListenerMap = Map<string, mixed>;
+
 /**
  * Interface the defines groups of event callbacks to register for a class.
  *
@@ -19,8 +21,8 @@ interface Listener {
      * The array key should be the name of the event, while the value should be the callback.
      * The callback could be an array containing the method and priority, or a string of the method.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Event\ListenerMap
      */
-    public function registerEvents(): Map<string, mixed>;
+    public function registerEvents(): ListenerMap;
 
 }

@@ -64,8 +64,8 @@ trait Emittable {
      *
      * @return $this
      */
-    public function on(string $event, mixed $callback, int $priority = 0, bool $once = false): this {
-        $this->getEmitter()->on($event, $callback, $priority, $once);
+    public function on(string $event, mixed $callback, int $priority = 0): this {
+        $this->getEmitter()->on($event, $callback, $priority);
 
         return $this;
     }

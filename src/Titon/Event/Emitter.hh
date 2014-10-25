@@ -302,7 +302,7 @@ class Emitter {
         foreach ($listener->registerEvents() as $event => $options) {
             foreach ($this->_parseOptions($options) as $opt) {
                 // UNSAFE
-                $this->register($event, inst_meth($listener, $opt['method']), $opt['priority'], $opt['once']);
+                $this->register($event, inst_meth($listener, (string) $opt['method']), (int) $opt['priority'], (bool) $opt['once']);
             }
         }
 
@@ -343,7 +343,7 @@ class Emitter {
         foreach ($listener->registerEvents() as $event => $options) {
             foreach ($this->_parseOptions($options) as $opt) {
                 // UNSAFE
-                $this->remove($event, inst_meth($listener, $opt['method']));
+                $this->remove($event, inst_meth($listener, (string) $opt['method']));
             }
         }
 

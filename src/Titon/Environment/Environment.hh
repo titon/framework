@@ -7,13 +7,22 @@
 
 namespace Titon\Environment;
 
-use Titon\Common\Configurable;
 use Titon\Common\FactoryAware;
 use Titon\Environment\Exception\MissingBootstrapException;
 use Titon\Environment\Exception\MissingHostException;
 use Titon\Event\Emittable;
 use Titon\Utility\Path;
-use Titon\Utility\State\Server;
+use Titon\Utility\State\Server as ServerGlobal;
+
+type HostMap = Map<string, Host>;
+
+enum Server: string {
+    DEV = 'dev';
+    STAGING = 'staging';
+    PROD = 'prod';
+    QA = 'QA';
+    TESTING = 'testing';
+}
 
 /**
  * A hub that allows you to store different environment host configurations,
@@ -21,32 +30,18 @@ use Titon\Utility\State\Server;
  *
  * @package Titon\Environment
  * @events
- *      env.onInit(Environment $env, Host $host)
- *      env.onBootstrap(Environment $env, Host $host)
- *      env.onFallback(Environment $env, Host $host)
+ *      env.initializing(Environment $env)
+ *      env.initialized(Environment $env, Host $host)
  */
 class Environment {
-    use Configurable, Emittable, FactoryAware;
+    use Emittable, FactoryAware;
 
     /**
-     * Types of environments.
-     */
-    const string DEV = 'dev';
-    const string DEVELOPMENT = 'dev';
-    const string STAGING = 'staging';
-    const string PROD = 'prod';
-    const string PRODUCTION = 'prod';
-    const string QA = 'qa';
-
-    /**
-     * Default configuration.
+     * Root path to the bootstrap directory.
      *
-     * @type Map<string, mixed>
+     * @params string
      */
-    protected Map<string, mixed> $_config = Map {
-        'bootstrapPath' => '',
-        'throwMissingError' => true
-    };
+    protected string $_bootstrapPath = '';
 
     /**
      * Currently active environment.
@@ -58,9 +53,9 @@ class Environment {
     /**
      * List of all environments.
      *
-     * @type Map<string, \Titon\Environment\Host>
+     * @type \Titon\Environment\HostMap
      */
-    protected Map<string, Host> $_hosts = Map {};
+    protected HostMap $_hosts = Map {};
 
     /**
      * The fallback environment.
@@ -70,12 +65,12 @@ class Environment {
     protected ?Host $_fallback = null;
 
     /**
-     * Apply configuration.
+     * Set the bootstrap directory path.
      *
-     * @param Map<string, mixed> $config
+     * @param string $path
      */
-    public function __construct(Map<string, mixed> $config = Map {}) {
-        $this->applyConfig($config);
+    public function __construct(string $path = '') {
+        $this->setBootstrapPath($path);
     }
 
     /**
@@ -89,7 +84,7 @@ class Environment {
         $host->setKey($key);
 
         // Auto-set bootstrap path
-        if ($path = $this->getConfig('bootstrapPath')) {
+        if ($path = $this->getBootstrapPath()) {
             $host->setBootstrap(Path::ds($path, true) . $key . '.php');
         }
 
@@ -113,6 +108,15 @@ class Environment {
     }
 
     /**
+     * Return the bootstrap path.
+     *
+     * @return string
+     */
+    public function getBootstrapPath(): string {
+        return $this->_bootstrapPath;
+    }
+
+    /**
      * Return the fallback environment.
      *
      * @return \Titon\Environment\Host
@@ -129,7 +133,7 @@ class Environment {
      * @throws \Titon\Environment\Exception\MissingHostException
      */
     public function getHost(string $key): Host {
-        if (isset($this->_hosts[$key])) {
+        if ($this->_hosts->contains($key)) {
             return $this->_hosts[$key];
         }
 
@@ -139,52 +143,64 @@ class Environment {
     /**
      * Returns the list of environments.
      *
-     * @return Map<string, \Titon\Environment\Host>
+     * @return \Titon\Environment\HostMap
      */
-    public function getHosts(): Map<string, Host> {
+    public function getHosts(): HostMap {
         return $this->_hosts;
     }
 
     /**
      * Initialize the environment by including the configuration.
      *
+     * @param bool $throwError
      * @throws \Titon\Environment\Exception\MissingBootstrapException
      */
-    public function initialize(): void {
+    public function initialize(bool $throwError = false): void {
         if ($this->_hosts->isEmpty()) {
             return;
         }
 
+        $this->emit('env.initializing', [$this]);
+
         // Match a host to the machine hostname
+        $current = null;
+
         foreach ($this->getHosts() as $host) {
-            foreach ($host->getHosts() as $name) {
+            if ($current !== null) {
+                break;
+            }
+
+            foreach ($host->getHostnames() as $name) {
                 if ($this->isMachine($name)) {
-                    $this->_current = $host;
-                    break 2;
+                    $current = $host;
+                    break;
                 }
             }
         }
 
         // If no environment found, use the fallback
-        if (!$this->_current) {
-            $this->_current = $this->_fallback;
+        if (!$current) {
+            $current = $this->_fallback;
         }
 
-        $current = $this->current();
-
-        $this->emit('env.onInit', [$this, $current]);
+        if ($current !== null) {
+            $this->_current = $current;
+        } else {
+            return;
+        }
 
         // Bootstrap environment configuration
         if ($bootstrap = $current->getBootstrap()) {
             if (file_exists($bootstrap)) {
-                include_once $bootstrap;
+                // UNSAFE
+                include $bootstrap;
 
-                $this->emit('env.onBootstrap', [$this, $current]);
-
-            } else if ($this->getConfig('throwMissingError')) {
+            } else if ($throwError) {
                 throw new MissingBootstrapException(sprintf('Environment bootstrap for %s does not exist', $current->getKey()));
             }
         }
+
+        $this->emit('env.initialized', [$this, $current]);
     }
 
     /**
@@ -204,12 +220,14 @@ class Environment {
      * @return bool
      */
     public function isMachine(string $name): bool {
-        $name = preg_quote($name, '/');
+        $host = gethostname();
+
+        if ($name === $host) {
+            return true;
+        }
 
         // Allow for wildcards
-        $name = str_replace('\*', '(.*?)', $name);
-
-        return (bool) preg_match('/^' . $name . '/i', gethostname());
+        return (bool) preg_match('/^' . str_replace('\*', '(.*?)', preg_quote($name, '/')) . '/i', gethostname());
     }
 
     /**
@@ -218,7 +236,7 @@ class Environment {
      * @return bool
      */
     public function isLocalhost(): bool {
-        return (in_array(Server::get('REMOTE_ADDR'), ['127.0.0.1', '::1']) || Server::get('HTTP_HOST') === 'localhost');
+        return (in_array(ServerGlobal::get('REMOTE_ADDR'), ['127.0.0.1', '::1']) || ServerGlobal::get('HTTP_HOST') === 'localhost');
     }
 
     /**
@@ -227,7 +245,7 @@ class Environment {
      * @return bool
      */
     public function isDevelopment(): bool {
-        return $this->current()->isDevelopment();
+        return (($current = $this->current()) && $current->isDevelopment());
     }
 
     /**
@@ -236,7 +254,7 @@ class Environment {
      * @return bool
      */
     public function isProduction(): bool {
-        return $this->current()->isProduction();
+        return (($current = $this->current()) && $current->isProduction());
     }
 
     /**
@@ -245,7 +263,7 @@ class Environment {
      * @return bool
      */
     public function isQA(): bool {
-        return $this->current()->isQA();
+        return (($current = $this->current()) && $current->isQA());
     }
 
     /**
@@ -254,7 +272,28 @@ class Environment {
      * @return bool
      */
     public function isStaging(): bool {
-        return $this->current()->isStaging();
+        return (($current = $this->current()) && $current->isStaging());
+    }
+
+    /**
+     * Is the current environment testing?
+     *
+     * @return bool
+     */
+    public function isTesting(): bool {
+        return (($current = $this->current()) && $current->isTesting());
+    }
+
+    /**
+     * Set the bootstrap path directory.
+     *
+     * @param string $path
+     * @return $this
+     */
+    public function setBootstrapPath(string $path): this {
+        $this->_bootstrapPath = $path;
+
+        return $this;
     }
 
     /**
@@ -265,8 +304,6 @@ class Environment {
      */
     public function setFallback(string $key): this {
         $this->_fallback = $this->getHost($key);
-
-        $this->emit('env.onFallback', [$this, $this->_fallback]);
 
         return $this;
     }

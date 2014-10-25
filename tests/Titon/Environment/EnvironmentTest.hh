@@ -3,6 +3,7 @@ namespace Titon\Environment;
 
 use Titon\Test\TestCase;
 use Titon\Utility\Path;
+use Titon\Utility\State\Server as ServerGlobal;
 
 /**
  * @property \Titon\Environment\EnvironmentStub $object
@@ -19,51 +20,58 @@ class EnvironmentTest extends TestCase {
 
         $this->object->addHost('dev', $host);
 
-        $host = new Host(Vector {'prod', '123.456.0.0'}, Environment::PRODUCTION);
+        $host = new Host(Vector {'prod', '123.456.0.0'}, Server::PROD);
         $host->setBootstrap(TEMP_DIR . '/environment/prod.php');
 
         $this->object->addHost('prod', $host);
-        $this->object->addHost('staging', new Host(Vector {'staging', '123.456.789.0'}, Environment::STAGING));
+        $this->object->addHost('staging', new Host(Vector {'staging', '123.456.789.0'}, Server::STAGING));
     }
 
     public function testCurrent() {
         // dev
         $_SERVER['HTTP_HOST'] = 'dev';
+
         $this->object->initialize();
         $this->assertInstanceOf('Titon\Environment\Host', $this->object->current());
         $this->assertEquals('dev', $this->object->current()->getKey());
-        $this->assertEquals(Environment::DEVELOPMENT, $this->object->current()->getType());
+        $this->assertEquals(Server::DEV, $this->object->current()->getType());
 
         // dev ip
         $_SERVER['HTTP_HOST'] = '123.0.0.0';
+
         $this->object->initialize();
         $this->assertEquals('dev', $this->object->current()->getKey());
 
         // prod
         $_SERVER['HTTP_HOST'] = 'prod';
+
         $this->object->initialize();
         $this->assertEquals('prod', $this->object->current()->getKey());
-        $this->assertEquals(Environment::PRODUCTION, $this->object->current()->getType());
+        $this->assertEquals(Server::PROD, $this->object->current()->getType());
 
         // prod ip
         $_SERVER['HTTP_HOST'] = '123.456.0.0';
+
         $this->object->initialize();
         $this->assertEquals('prod', $this->object->current()->getKey());
 
         // staging
         $_SERVER['HTTP_HOST'] = 'staging';
+
         $this->object->initialize();
         $this->assertEquals('staging', $this->object->current()->getKey());
-        $this->assertEquals(Environment::STAGING, $this->object->current()->getType());
+        $this->assertEquals(Server::STAGING, $this->object->current()->getType());
 
         // staging ip
         $_SERVER['HTTP_HOST'] = '123.456.789.0';
+
         $this->object->initialize();
         $this->assertEquals('staging', $this->object->current()->getKey());
 
         // test SERVER_ADDR over HTTP_HOST
         $_SERVER['HTTP_HOST'] = '';
         $_SERVER['SERVER_ADDR'] = '123.0.0.0';
+
         $this->object->initialize();
         $this->assertEquals('dev', $this->object->current()->getKey());
     }
@@ -91,21 +99,22 @@ class EnvironmentTest extends TestCase {
     }
 
     public function testInitialize() {
-        $this->markTestSkipped('Figure out how to modify globals and have it persist in Hack');
-
         $_SERVER['HTTP_HOST'] = 'dev';
+
         $this->object->initialize();
-        $this->assertEquals('dev', $_SERVER['ENV_TEST']);
+        $this->assertEquals('dev', EnvironmentStub::$bootstrapTester);
 
         $_SERVER['HTTP_HOST'] = 'prod';
+
         $this->object->initialize();
-        $this->assertEquals('prod', $_SERVER['ENV_TEST']);
+        $this->assertEquals('prod', EnvironmentStub::$bootstrapTester);
 
         // Should be falsey values since staging doesn't exist
         $_SERVER['HTTP_HOST'] = 'staging';
-        $_SERVER['ENV_TEST'] = null;
+        EnvironmentStub::$bootstrapTester = '';
+
         $this->object->initialize();
-        $this->assertEquals(null, $_SERVER['ENV_TEST']);
+        $this->assertEquals('', EnvironmentStub::$bootstrapTester);
     }
 
     public function testInitializeNoHosts() {
@@ -118,36 +127,42 @@ class EnvironmentTest extends TestCase {
     public function testIs() {
         // dev
         $_SERVER['HTTP_HOST'] = 'dev';
+
         $this->object->initialize();
         $this->assertTrue($this->object->is('dev'));
         $this->assertFalse($this->object->is('prod'));
 
         // dev ip
         $_SERVER['HTTP_HOST'] = '123.0.0.0';
+
         $this->object->initialize();
         $this->assertTrue($this->object->is('dev'));
         $this->assertFalse($this->object->is('prod'));
 
         // prod
         $_SERVER['HTTP_HOST'] = 'prod';
+
         $this->object->initialize();
         $this->assertTrue($this->object->is('prod'));
         $this->assertFalse($this->object->is('staging'));
 
         // prod ip
         $_SERVER['HTTP_HOST'] = '123.456.0.0';
+
         $this->object->initialize();
         $this->assertTrue($this->object->is('prod'));
         $this->assertFalse($this->object->is('staging'));
 
         // staging
         $_SERVER['HTTP_HOST'] = 'staging';
+
         $this->object->initialize();
         $this->assertTrue($this->object->is('staging'));
         $this->assertFalse($this->object->is('dev'));
 
         // staging ip
         $_SERVER['HTTP_HOST'] = '123.456.789.0';
+
         $this->object->initialize();
         $this->assertTrue($this->object->is('staging'));
         $this->assertFalse($this->object->is('dev'));
@@ -155,6 +170,7 @@ class EnvironmentTest extends TestCase {
         // test SERVER_ADDR over HTTP_HOST
         $_SERVER['HTTP_HOST'] = '';
         $_SERVER['SERVER_ADDR'] = '123.0.0.0';
+
         $this->object->initialize();
         $this->assertTrue($this->object->is('dev'));
         $this->assertFalse($this->object->is('staging'));
@@ -174,21 +190,31 @@ class EnvironmentTest extends TestCase {
     public function testIsLocalhost() {
         $_SERVER['HTTP_HOST'] = 'domain.com';
         $_SERVER['REMOTE_ADDR'] = '127.33.123.54';
+        ServerGlobal::initialize($_SERVER);
+
         $this->assertFalse($this->object->isLocalhost());
 
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        ServerGlobal::initialize($_SERVER);
+
         $this->assertTrue($this->object->isLocalhost());
 
         $_SERVER['REMOTE_ADDR'] = '::1';
+        ServerGlobal::initialize($_SERVER);
+
         $this->assertTrue($this->object->isLocalhost());
 
         $_SERVER['HTTP_HOST'] = 'localhost';
         $_SERVER['REMOTE_ADDR'] = '127.33.123.54';
+        ServerGlobal::initialize($_SERVER);
+
         $this->assertTrue($this->object->isLocalhost());
     }
 
     public function testIsDevelopment() {
         $_SERVER['HTTP_HOST'] = 'dev';
+        ServerGlobal::initialize($_SERVER);
+
         $this->object->initialize();
         $this->assertTrue($this->object->isDevelopment());
         $this->assertFalse($this->object->isProduction());
@@ -198,6 +224,7 @@ class EnvironmentTest extends TestCase {
 
     public function testIsProduction() {
         $_SERVER['HTTP_HOST'] = 'prod';
+
         $this->object->initialize();
         $this->assertFalse($this->object->isDevelopment());
         $this->assertTrue($this->object->isProduction());
@@ -206,9 +233,10 @@ class EnvironmentTest extends TestCase {
     }
 
     public function testIsQA() {
-        $this->object->addHost('qa', new Host(['qa', '123.456.0.666'], Environment::QA));
+        $this->object->addHost('qa', new Host(['qa', '123.456.0.666'], Server::QA));
 
         $_SERVER['HTTP_HOST'] = 'qa';
+
         $this->object->initialize();
         $this->assertFalse($this->object->isDevelopment());
         $this->assertFalse($this->object->isProduction());
@@ -218,6 +246,7 @@ class EnvironmentTest extends TestCase {
 
     public function testIsStaging() {
         $_SERVER['HTTP_HOST'] = 'staging';
+
         $this->object->initialize();
         $this->assertFalse($this->object->isDevelopment());
         $this->assertFalse($this->object->isProduction());
@@ -229,19 +258,19 @@ class EnvironmentTest extends TestCase {
      * @expectedException \Titon\Environment\Exception\MissingBootstrapException
      */
     public function testBootstrapErrorsMissingFile() {
-        $env = new Environment(Map {'bootstrapPath' => TEMP_DIR, 'throwMissingError' => true});
+        $env = new Environment(TEMP_DIR);
         $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
-        $env->initialize();
+        $env->initialize(true);
     }
 
     public function testBootstrapDoesntErrorMissingFile() {
-        $env = new Environment(Map {'bootstrapPath' => TEMP_DIR, 'throwMissingError' => false});
+        $env = new Environment(TEMP_DIR);
         $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
         $env->initialize();
     }
 
     public function testAutoBootstrapping() {
-        $env = new Environment(Map {'bootstrapPath' => TEMP_DIR});
+        $env = new Environment(TEMP_DIR);
         $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
 
         $this->assertEquals(Path::ds(TEMP_DIR, true) . 'dev-us.php', $env->getHost('dev-us')->getBootstrap());
@@ -251,12 +280,15 @@ class EnvironmentTest extends TestCase {
 
 class EnvironmentStub extends Environment {
 
+    public static string $bootstrapTester = '';
+
     // Use host/IP for testing
     public function isMachine(string $name): bool {
         $host = null;
 
         if (!empty($_SERVER['HTTP_HOST'])) {
             $host = $_SERVER['HTTP_HOST'];
+
         } else if (!empty($_SERVER['SERVER_ADDR'])) {
             $host = $_SERVER['SERVER_ADDR'];
         }

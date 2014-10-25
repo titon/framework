@@ -25,20 +25,20 @@ interface Controller {
      * Dispatch the request to the correct controller action. Checks to see if the action exists and is not protected.
      *
      * @param string $action
-     * @param array $args
+     * @param array<mixed> $args
      * @param bool $emit
      * @return string
      */
-    public function dispatchAction(string $action, array $args = [], bool $emit = true): string;
+    public function dispatchAction(string $action, array<mixed> $args = [], bool $emit = true): string;
 
     /**
      * Forward the current request to a new action, instead of doing an additional HTTP request.
      *
      * @param string $action
-     * @param array $args
+     * @param array<mixed> $args
      * @return string
      */
-    public function forwardAction(string $action, array $args = []): string;
+    public function forwardAction(string $action, array<mixed> $args = []): string;
 
     /**
      * Return the request object.
@@ -74,9 +74,9 @@ interface Controller {
      * @param \Titon\Event\Event $event
      * @param \Titon\Controller\Controller $controller
      * @param string $action
-     * @param array $args
+     * @param array<mixed> $args
      */
-    public function preProcess(Event $event, Controller $controller, string &$action, array &$args): void;
+    public function preProcess(Event $event, Controller $controller, string &$action, array<mixed> &$args): void;
 
     /**
      * Triggered after the action processes, but before the view renders.

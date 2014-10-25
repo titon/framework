@@ -5,10 +5,8 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Controller\Controller;
+namespace Titon\Controller;
 
-use Titon\Controller\Action;
-use Titon\Controller\Controller;
 use Titon\Controller\Exception\InvalidActionException;
 use Titon\Event\Emittable;
 use Titon\Event\Event;

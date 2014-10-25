@@ -54,6 +54,7 @@ They will still fail the checker with unbound errors, or mixed type warnings,
 but there's nothing we can do until HHVM and Hack are patched.
 
 * Common
+* Controller
 * Debug
 * Route
 * Type

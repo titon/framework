@@ -2,7 +2,7 @@
 namespace Titon\Controller;
 
 use Titon\Controller\Action\AbstractAction;
-use Titon\Controller\Controller\ErrorController;
+use Titon\Controller\ErrorController;
 use Titon\Http\Server\Request;
 use Titon\Test\TestCase;
 

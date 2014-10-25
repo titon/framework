@@ -1,8 +1,8 @@
 <?hh
 namespace Titon\Controller;
 
-use Titon\Controller\Controller\AbstractController;
-use Titon\Controller\Controller\ErrorController;
+use Titon\Controller\AbstractController;
+use Titon\Controller\ErrorController;
 use Titon\Http\Exception\NotFoundException;
 use Titon\Http\Server\Request;
 use Titon\Http\Server\Response;

@@ -7,29 +7,31 @@
 
 namespace Titon\Environment;
 
-use Titon\Environment\Exception\InvalidEnvironmentException;
+use Titon\Environment\Exception\MissingBootstrapException;
 use Titon\Utility\Converter;
 
+type HostnameList = Vector<string>;
+
 /**
- * A Host represents a shared configuration for a collection of IPs and host names.
+ * A Host represents a shared configuration for a collection of hostnames.
  *
  * @package Titon\Environment
  */
 class Host {
 
     /**
-     * Path to configuration bootstrap.
+     * Path to configuration file.
      *
      * @type string
      */
     protected string $_bootstrap = '';
 
     /**
-     * List of host names and IPs.
+     * List of hostnames.
      *
-     * @type Vector<string>
+     * @type \Titon\Environment\HostnameList
      */
-    protected Vector<string> $_hosts;
+    protected HostnameList $_hostnames;
 
     /**
      * Unique identifier.
@@ -41,24 +43,40 @@ class Host {
     /**
      * Type of environment.
      *
-     * @type string
+     * @type \Titon\Environment\Server
      */
-    protected string $_type = '';
+    protected Server $_type;
 
     /**
      * Set the required settings.
      *
-     * @param string|array $hosts
-     * @param string $type
-     * @throws \Titon\Environment\Exception\InvalidEnvironmentException
+     * @param string|array $hostnames
+     * @param \Titon\Environment\Server $type
      */
-    public function __construct(mixed $hosts, string $type = Environment::DEV) {
-        if (!in_array($type, [Environment::DEV, Environment::PROD, Environment::STAGING, Environment::QA])) {
-            throw new InvalidEnvironmentException(sprintf('Invalid %s environment type detected', $type));
+    public function __construct(mixed $hostnames, Server $type = Server::DEV) {
+        $this->_hostnames = Converter::toVector($hostnames);
+        $this->_type = $type;
+    }
+
+    /**
+     * Bootstrap the current host by including the configuration file if it exists.
+     *
+     * @param bool $throwError
+     */
+    public function bootstrap(bool $throwError = false): void {
+        $bootstrap = $this->getBootstrap();
+
+        if (!$bootstrap) {
+            return;
         }
 
-        $this->_hosts = Converter::toVector($hosts);
-        $this->_type = $type;
+        if (file_exists($bootstrap)) {
+            // UNSAFE
+            include $bootstrap;
+
+        } else if ($throwError) {
+            throw new MissingBootstrapException(sprintf('Environment bootstrap for %s does not exist', $this->getKey()));
+        }
     }
 
     /**
@@ -71,12 +89,12 @@ class Host {
     }
 
     /**
-     * Return the list of hosts.
+     * Return the list of hostnames.
      *
-     * @return Vector<string>
+     * @return \Titon\Environment\HostnameList
      */
-    public function getHosts(): Vector<string> {
-        return $this->_hosts;
+    public function getHostnames(): HostnameList {
+        return $this->_hostnames;
     }
 
     /**
@@ -91,9 +109,9 @@ class Host {
     /**
      * Return the environment type.
      *
-     * @return string
+     * @return \Titon\Environment\Server
      */
-    public function getType(): string {
+    public function getType(): Server {
         return $this->_type;
     }
 
@@ -103,7 +121,7 @@ class Host {
      * @return bool
      */
     public function isDevelopment(): bool {
-        return ($this->getType() === Environment::DEVELOPMENT);
+        return ($this->getType() === Server::DEV);
     }
 
     /**
@@ -112,7 +130,7 @@ class Host {
      * @return bool
      */
     public function isProduction(): bool {
-        return ($this->getType() === Environment::PRODUCTION);
+        return ($this->getType() === Server::PROD);
     }
 
     /**
@@ -121,7 +139,7 @@ class Host {
      * @return bool
      */
     public function isQA(): bool {
-        return ($this->getType() === Environment::QA);
+        return ($this->getType() === Server::QA);
     }
 
     /**
@@ -130,7 +148,16 @@ class Host {
      * @return bool
      */
     public function isStaging(): bool {
-        return ($this->getType() === Environment::STAGING);
+        return ($this->getType() === Server::STAGING);
+    }
+
+    /**
+     * Is the current environment testing?
+     *
+     * @return bool
+     */
+    public function isTesting(): bool {
+        return ($this->getType() === Server::TESTING);
     }
 
     /**

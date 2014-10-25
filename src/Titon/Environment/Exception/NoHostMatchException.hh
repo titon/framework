@@ -8,10 +8,10 @@
 namespace Titon\Environment\Exception;
 
 /**
- * Exception thrown when an invalid environment type is used.
+ * Exception thrown when a host could not be found based on hostname matching.
  *
  * @package Titon\Environment\Exception
  */
-class InvalidEnvironmentException extends \UnexpectedValueException {
+class NoHostMatchException extends \RuntimeException {
 
 }

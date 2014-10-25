@@ -24,7 +24,7 @@ class EmittableTest extends TestCase {
         $this->object->on('event.test', $obj);
 
         $this->assertEquals(Vector {
-            Map {'callback' => $obj, 'priority' => 100, 'once' => false},
+            shape('callback' => $obj, 'priority' => 100, 'once' => false),
         }, $this->object->getEmitter()->getObservers('event.test'));
 
         $this->object->off('event.test', $obj);

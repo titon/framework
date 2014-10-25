@@ -1,2 +1,2 @@
 <?hh
-$_SERVER['ENV_TEST'] = 'prod';
+\Titon\Environment\EnvironmentStub::$bootstrapTester = 'prod';

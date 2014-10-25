@@ -7,6 +7,7 @@
 
 namespace Titon\Environment;
 
+use Titon\Environment\Exception\MissingBootstrapException;
 use Titon\Utility\Converter;
 
 type HostnameList = Vector<string>;
@@ -19,7 +20,7 @@ type HostnameList = Vector<string>;
 class Host {
 
     /**
-     * Path to configuration bootstrap.
+     * Path to configuration file.
      *
      * @type string
      */
@@ -55,6 +56,27 @@ class Host {
     public function __construct(mixed $hostnames, Server $type = Server::DEV) {
         $this->_hostnames = Converter::toVector($hostnames);
         $this->_type = $type;
+    }
+
+    /**
+     * Bootstrap the current host by including the configuration file if it exists.
+     *
+     * @param bool $throwError
+     */
+    public function bootstrap(bool $throwError = false): void {
+        $bootstrap = $this->getBootstrap();
+
+        if (!$bootstrap) {
+            return;
+        }
+
+        if (file_exists($bootstrap)) {
+            // UNSAFE
+            include $bootstrap;
+
+        } else if ($throwError) {
+            throw new MissingBootstrapException(sprintf('Environment bootstrap for %s does not exist', $this->getKey()));
+        }
     }
 
     /**

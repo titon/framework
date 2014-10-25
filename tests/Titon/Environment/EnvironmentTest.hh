@@ -25,6 +25,7 @@ class EnvironmentTest extends TestCase {
 
         $this->object->addHost('prod', $host);
         $this->object->addHost('staging', new Host(Vector {'staging', '123.456.789.0'}, Server::STAGING));
+        $this->object->setFallback('dev');
     }
 
     public function testCurrent() {
@@ -260,12 +261,14 @@ class EnvironmentTest extends TestCase {
     public function testBootstrapErrorsMissingFile() {
         $env = new Environment(TEMP_DIR);
         $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
+        $env->setFallback('dev-us');
         $env->initialize(true);
     }
 
     public function testBootstrapDoesntErrorMissingFile() {
         $env = new Environment(TEMP_DIR);
         $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
+        $env->setFallback('dev-us');
         $env->initialize();
     }
 

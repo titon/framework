@@ -10,6 +10,7 @@ namespace Titon\Environment;
 use Titon\Common\FactoryAware;
 use Titon\Environment\Exception\MissingBootstrapException;
 use Titon\Environment\Exception\MissingHostException;
+use Titon\Environment\Exception\NoHostMatchException;
 use Titon\Event\Emittable;
 use Titon\Utility\Path;
 use Titon\Utility\State\Server as ServerGlobal;
@@ -18,9 +19,9 @@ type HostMap = Map<string, Host>;
 
 enum Server: string {
     DEV = 'dev';
-    STAGING = 'staging';
     PROD = 'prod';
-    QA = 'QA';
+    QA = 'qa';
+    STAGING = 'staging';
     TESTING = 'testing';
 }
 
@@ -74,7 +75,8 @@ class Environment {
     }
 
     /**
-     * Add an environment host and setup the host mapping and fallback.
+     * Add an environment host to the mapping.
+     * Automatically define a bootstrap file if the path has been set.
      *
      * @param string $key
      * @param \Titon\Environment\Host $host
@@ -89,11 +91,6 @@ class Environment {
         }
 
         $this->_hosts[$key] = $host;
-
-        // Set fallback if empty
-        if (!$this->_fallback) {
-            $this->setFallback($key);
-        }
 
         return $this;
     }
@@ -153,10 +150,11 @@ class Environment {
      * Initialize the environment by including the configuration.
      *
      * @param bool $throwError
-     * @throws \Titon\Environment\Exception\MissingBootstrapException
      */
     public function initialize(bool $throwError = false): void {
-        if ($this->_hosts->isEmpty()) {
+        $hosts = $this->getHosts();
+
+        if ($hosts->isEmpty()) {
             return;
         }
 
@@ -165,7 +163,7 @@ class Environment {
         // Match a host to the machine hostname
         $current = null;
 
-        foreach ($this->getHosts() as $host) {
+        foreach ($hosts as $host) {
             if ($current !== null) {
                 break;
             }
@@ -178,27 +176,20 @@ class Environment {
             }
         }
 
-        // If no environment found, use the fallback
-        if (!$current) {
-            $current = $this->_fallback;
-        }
-
-        if ($current !== null) {
+        if ($current) {
             $this->_current = $current;
+
+        // If no environment found, use the fallback
+        } else if ($fallback = $this->getFallback()) {
+            $this->_current = $current = $fallback;
+
+        // Throw an error if no fallback defined and no match
         } else {
-            return;
+            throw new NoHostMatchException('No host matched for environment bootstrapping');
         }
 
         // Bootstrap environment configuration
-        if ($bootstrap = $current->getBootstrap()) {
-            if (file_exists($bootstrap)) {
-                // UNSAFE
-                include $bootstrap;
-
-            } else if ($throwError) {
-                throw new MissingBootstrapException(sprintf('Environment bootstrap for %s does not exist', $current->getKey()));
-            }
-        }
+        $current->bootstrap($throwError);
 
         $this->emit('env.initialized', [$this, $current]);
     }

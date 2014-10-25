@@ -10,9 +10,11 @@ namespace Titon\View;
 use Titon\Cache\Storage;
 use Titon\Common\Cacheable;
 use Titon\Common\FactoryAware;
+use Titon\Common\DataMap;
 use Titon\Event\Emittable;
 use Titon\Event\Event;
 use Titon\Event\Listener;
+use Titon\Event\ListenerMap;
 use Titon\Utility\Config;
 use Titon\Utility\Converter;
 use Titon\Utility\Col;
@@ -22,8 +24,6 @@ use Titon\Utility\Registry;
 use Titon\View\Exception\MissingHelperException;
 use Titon\View\Exception\MissingTemplateException;
 use Titon\View\Helper;
-use Titon\View\View;
-use Titon\View\View\Map;
 
 /**
  * Defines shared functionality for view managers.
@@ -36,9 +36,9 @@ abstract class AbstractView implements View, Listener {
     /**
      * Variable data for templates.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Common\DataMap
      */
-    protected Map<string, mixed> $_data = Map {};
+    protected DataMap $_data = Map {};
 
     /**
      * The extension used in templates.
@@ -50,16 +50,16 @@ abstract class AbstractView implements View, Listener {
     /**
      * List of helpers.
      *
-     * @type Map<string, Helper>
+     * @type \Titon\View\HelperMap
      */
-    protected Map<string, Helper> $_helpers = Map {};
+    protected HelperMap $_helpers = Map {};
 
     /**
      * List of template lookup paths.
      *
-     * @type Vector<string>
+     * @type \Titon\View\PathList
      */
-    protected Vector<string> $_paths = Vector {};
+    protected PathList $_paths = Vector {};
 
     /**
      * Storage engine.
@@ -123,7 +123,7 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function addPaths(Vector<string> $paths): this {
+    public function addPaths(PathList $paths): this {
         foreach ($paths as $path) {
             $this->addPath($path);
         }
@@ -144,7 +144,7 @@ abstract class AbstractView implements View, Listener {
 
             unset($template['ext'], $template['locale']);
 
-            $template = implode('/', Col::filter($template, false, function($value) {
+            $template = implode('/', $template->filter(function($value) {
                 return ((is_string($value) || is_numeric($value)) && $value);
             }));
 
@@ -179,14 +179,14 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function getHelpers(): Map<string, Helper> {
+    public function getHelpers(): HelperMap {
         return $this->_helpers;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getPaths(): Vector<string> {
+    public function getPaths(): PathList {
         return $this->_paths;
     }
 
@@ -207,7 +207,7 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function getVariables(): Map<string, mixed> {
+    public function getVariables(): DataMap {
         return $this->_data;
     }
 
@@ -339,7 +339,7 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function setVariables(Map<string, mixed> $data): this {
+    public function setVariables(DataMap $data): this {
         foreach ($data as $key => $value) {
             $this->setVariable($key, $value);
         }

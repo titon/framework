@@ -7,10 +7,9 @@
 
 namespace Titon\View;
 
+use Titon\Common\DataMap;
 use Titon\Utility\Time;
-use Titon\View\AbstractView;
 use Titon\View\Engine;
-use Titon\View\Engine\TemplateEngine;
 
 /**
  * Defines the rendering functionality for basic templating by using a rendering engine.
@@ -112,7 +111,7 @@ class TemplateView extends AbstractView {
     /**
      * {@inheritdoc}
      */
-    public function renderTemplate(string $path, Map<string, mixed> $variables = Map {}): string {
+    public function renderTemplate(string $path, DataMap $variables = Map {}): string {
         $expires = isset($variables['cache']) ? $variables['cache'] : null;
         $storage = $this->getStorage();
         $key = md5($path);

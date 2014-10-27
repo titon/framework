@@ -4,7 +4,7 @@ namespace Titon\View;
 use Titon\Http\Server\Request;
 use Titon\Test\TestCase;
 use Titon\View\Helper\AbstractHelper;
-use Titon\View\TemplateView;
+use Titon\View\EngineView;
 
 /**
  * @property \Titon\View\Helper $object
@@ -42,15 +42,12 @@ class HelperTest extends TestCase {
         $this->assertEquals('This is &quot;double&quot; and &#039;single&#039; quotes.', $this->object->escape($value));
         $this->assertEquals('This is "double" and \'single\' quotes.', $this->object->escape($value, false));
 
-        $this->object->setConfig('escape', false);
+        $this->object->setEscaping(false);
         $this->assertEquals('This is "double" and \'single\' quotes.', $this->object->escape($value));
         $this->assertEquals('This is &quot;double&quot; and &#039;single&#039; quotes.', $this->object->escape($value, true));
 
-        $this->object->setConfig('escape', true);
+        $this->object->setEscaping(true);
         $this->assertEquals('This is &quot;double&quot; and &#039;single&#039; quotes.', $this->object->escape($value));
-
-        $this->object->setConfig('escape', null);
-        $this->assertEquals('This is "double" and \'single\' quotes.', $this->object->escape($value));
     }
 
     public function testTag() {
@@ -61,16 +58,8 @@ class HelperTest extends TestCase {
         $this->assertEquals('<tag 1>2</tag>3' . PHP_EOL, $this->object->tag('default', Map {'0' => 1, '1' => 2, '2' => 3}));
     }
 
-    public function testGetSetRequest() {
-        $request = Request::createFromGlobals();
-        $this->assertEquals(null, $this->object->getRequest());
-
-        $this->object->setRequest($request);
-        $this->assertEquals($request, $this->object->getRequest());
-    }
-
     public function testGetSetView() {
-        $view = new TemplateView(Vector {'/'});
+        $view = new EngineView(Vector {'/'});
         $this->assertEquals(null, $this->object->getView());
 
         $this->object->setView($view);

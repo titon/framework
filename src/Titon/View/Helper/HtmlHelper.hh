@@ -96,7 +96,7 @@ class HtmlHelper extends AbstractHelper {
             'rel'   => 'stylesheet',
             'type'  => 'text/css',
             'media' => 'screen'
-        })->setAll($options);
+        })->setAll($attributes);
 
         $attributes['href'] = $path;
 

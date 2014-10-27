@@ -7,7 +7,6 @@
 
 namespace Titon\View;
 
-use Psr\Http\Message\RequestInterface;
 use Titon\Event\Event;
 use Titon\Event\Listener;
 
@@ -17,13 +16,6 @@ use Titon\Event\Listener;
  * @package Titon\View
  */
 interface Helper extends Listener {
-
-    /**
-     * Return the HTTP request.
-     *
-     * @return \Psr\Http\Message\RequestInterface
-     */
-    public function getRequest(): ?RequestInterface;
 
     /**
      * Return the view manager.
@@ -37,9 +29,9 @@ interface Helper extends Listener {
      *
      * @param \Titon\Event\Event $event
      * @param \Titon\View\View $view
-     * @param string|array $template
+     * @param string $template
      */
-    public function preRender(Event $event, View $view, mixed &$template): void;
+    public function preRender(Event $event, View $view, string &$template): void;
 
     /**
      * Triggered after all templates are rendered at once.
@@ -49,14 +41,6 @@ interface Helper extends Listener {
      * @param string $response
      */
     public function postRender(Event $event, View $view, string &$response): void;
-
-    /**
-     * Set the HTTP request.
-     *
-     * @param \Psr\Http\Message\RequestInterface $request
-     * @return $this
-     */
-    public function setRequest(RequestInterface $request): this;
 
     /**
      * Set the view manager.

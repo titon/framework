@@ -3,7 +3,7 @@ namespace Titon\View\Helper;
 
 use Titon\Utility\Registry;
 use Titon\Test\TestCase;
-use Titon\View\TemplateView;
+use Titon\View\EngineView;
 
 /**
  * @property \Titon\View\Helper\BreadcrumbHelper $object
@@ -111,7 +111,7 @@ class BreadcrumbHelperTest extends TestCase {
     }
 
     public function testTitleFallback() {
-        $view = new TemplateView(Vector {'/'});
+        $view = new EngineView(Vector {'/'});
         $view->setVariable('pageTitle', 'Page Title');
 
         $html = Registry::factory('Titon\View\Helper\HtmlHelper');

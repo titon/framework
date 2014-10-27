@@ -1,12 +1,11 @@
 <?hh
 namespace Titon\View;
 
+use Titon\Common\DataMap;
 use Titon\Utility\Config;
-use Titon\View\View;
 use Titon\View\Helper\HtmlHelper;
 use Titon\View\Helper\FormHelper;
 use Titon\Test\TestCase;
-use Titon\View\AbstractView;
 use VirtualFileSystem\FileSystem;
 
 /**
@@ -54,6 +53,11 @@ class ViewTest extends TestCase {
                     'index/' => [
                         'add.tpl' => 'add.tpl',
                         'view.xml.tpl' => 'view.xml.tpl',
+                    ],
+                    'lang/' => [
+                        'index.en-us.tpl' => 'index.en-us.tpl',
+                        'index.fr.tpl' => 'index.fr.tpl',
+                        'index.tpl' => 'index.tpl',
                     ]
                 ]
             ]
@@ -127,82 +131,66 @@ class ViewTest extends TestCase {
     }
 
     public function testLocateTemplate() {
-        $this->assertEquals($this->vfs->path('/views/public/index/add.tpl'), $this->object->locateTemplate(['index', 'add']));
         $this->assertEquals($this->vfs->path('/views/public/index/add.tpl'), $this->object->locateTemplate('index/add'));
         $this->assertEquals($this->vfs->path('/views/public/index/add.tpl'), $this->object->locateTemplate('index\add'));
-        $this->assertEquals($this->vfs->path('/views/public/index/view.xml.tpl'), $this->object->locateTemplate(['controller' => 'index', 'action' => 'view', 'ext' => 'xml']));
+        $this->assertEquals($this->vfs->path('/views/public/index/add.tpl'), $this->object->locateTemplate('index/add.tpl'));
+        $this->assertEquals($this->vfs->path('/views/public/index/view.xml.tpl'), $this->object->locateTemplate('index/view.xml'));
 
         // partials
-        $this->assertEquals($this->vfs->path('/views/private/partials/include.tpl'), $this->object->locateTemplate('include', View::PARTIAL));
-        $this->assertEquals($this->vfs->path('/views/private/partials/nested/include.tpl'), $this->object->locateTemplate('nested/include', View::PARTIAL));
+        $this->assertEquals($this->vfs->path('/views/private/partials/include.tpl'), $this->object->locateTemplate('include', Template::PARTIAL));
+        $this->assertEquals($this->vfs->path('/views/private/partials/nested/include.tpl'), $this->object->locateTemplate('nested/include', Template::PARTIAL));
 
         // wrapper
-        $this->assertEquals($this->vfs->path('/views/private/wrappers/wrapper.tpl'), $this->object->locateTemplate('wrapper', View::WRAPPER));
-        $this->assertEquals($this->vfs->path('/views/fallback/private/wrappers/fallback.tpl'), $this->object->locateTemplate('fallback', View::WRAPPER));
+        $this->assertEquals($this->vfs->path('/views/private/wrappers/wrapper.tpl'), $this->object->locateTemplate('wrapper', Template::WRAPPER));
+        $this->assertEquals($this->vfs->path('/views/fallback/private/wrappers/fallback.tpl'), $this->object->locateTemplate('fallback', Template::WRAPPER));
 
         // layout
-        $this->assertEquals($this->vfs->path('/views/private/layouts/default.tpl'), $this->object->locateTemplate('default', View::LAYOUT));
-        $this->assertEquals($this->vfs->path('/views/fallback/private/layouts/fallback.tpl'), $this->object->locateTemplate('fallback', View::LAYOUT));
+        $this->assertEquals($this->vfs->path('/views/private/layouts/default.tpl'), $this->object->locateTemplate('default', Template::LAYOUT));
+        $this->assertEquals($this->vfs->path('/views/fallback/private/layouts/fallback.tpl'), $this->object->locateTemplate('fallback', Template::LAYOUT));
 
         // private
-        $this->assertEquals($this->vfs->path('/views/private/errors/404.tpl'), $this->object->locateTemplate('errors/404', View::PRIVATE_TEMPLATE));
-        $this->assertEquals($this->vfs->path('/views/fallback/private/emails/example.html.tpl'), $this->object->locateTemplate(['emails', 'example', 'ext' => 'html'], View::PRIVATE_TEMPLATE));
-
-        // private (default)
-        $this->assertEquals($this->vfs->path('/views/private/errors/404.tpl'), $this->object->locateTemplate('errors/404', 666));
-        $this->assertEquals($this->vfs->path('/views/fallback/private/emails/example.html.tpl'), $this->object->locateTemplate(['emails', 'example', 'ext' => 'html'], 666));
+        $this->assertEquals($this->vfs->path('/views/private/errors/404.tpl'), $this->object->locateTemplate('errors/404', Template::CLOSED));
+        $this->assertEquals($this->vfs->path('/views/fallback/private/emails/example.html.tpl'), $this->object->locateTemplate('emails/example.html', Template::CLOSED));
     }
 
     /**
      * @expectedException \Titon\View\Exception\MissingTemplateException
      */
     public function testLocateTemplateMissing() {
-        $this->object->locateTemplate(['index', 'missing']);
+        $this->object->locateTemplate('index/missing');
     }
 
     public function testLocateTemplateLocales() {
-        $testTemplates = Vector {};
+        $localePath = '';
+        $rootPath = $this->vfs->path('/views/');
 
-        Config::set('titon.locale.cascade', Vector {});
-
-        $this->object->on('view.postLocate', function($event, $templates, $type, $paths) use (&$testTemplates) {
-            $testTemplates = $templates;
+        $this->object->on('view.located', function($event, $path, $type) use (&$localePath) {
+            $localePath = $path;
         });
 
-        $this->object->locateTemplate('index/add');
+        $this->object->setLocales(Vector {});
+        $this->object->locateTemplate('lang/index');
 
-        $this->assertEquals(Vector {
-            'public/index/add.tpl'
-        }, $testTemplates);
+        $this->assertEquals($rootPath . 'public/lang/index.tpl', $localePath);
 
-        Config::set('titon.locale.cascade', Vector {'en'});
-
+        $this->object->setLocales(Vector {'en-us'});
         $this->object->flushCache();
-        $this->object->locateTemplate('index/add');
+        $this->object->locateTemplate('lang/index');
 
-        $this->assertEquals(Vector {
-            'public/index/add.en.tpl',
-            'public/index/add.tpl'
-        }, $testTemplates);
+        $this->assertEquals($rootPath . 'public/lang/index.en-us.tpl', $localePath);
 
-        Config::set('titon.locale.cascade', Vector {'en-us', 'en', 'fr'});
-
+        $this->object->setLocales(Vector {'en', 'fr'});
         $this->object->flushCache();
-        $this->object->locateTemplate('index/add');
+        $this->object->locateTemplate('lang/index');
 
-        $this->assertEquals(Vector {
-            'public/index/add.en-us.tpl',
-            'public/index/add.en.tpl',
-            'public/index/add.fr.tpl',
-            'public/index/add.tpl'
-        }, $testTemplates);
+        $this->assertEquals($rootPath . 'public/lang/index.fr.tpl', $localePath);
     }
 
 }
 
 class ViewStub extends AbstractView {
 
-    public function render(mixed $template, bool $private = false): string {}
-    public function renderTemplate(string $path, Map<string, mixed> $variables = Map {}): string {}
+    public function render(string $template, bool $private = false): string {}
+    public function renderTemplate(string $path, DataMap $variables = Map {}): string {}
 
 }

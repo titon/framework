@@ -10,7 +10,7 @@ namespace Titon\View\Engine;
 use Titon\Common\DataMap;
 
 /**
- * Standard engine used for rendering views using pure PHP code.
+ * Standard engine used for rendering templates. Uses raw PHP code.
  *
  * @package Titon\View\Engine
  */

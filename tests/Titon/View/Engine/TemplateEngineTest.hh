@@ -1,12 +1,12 @@
 <?hh
 namespace Titon\View\Engine;
 
-use Titon\View\TemplateView;
+use Titon\View\EngineView;
 use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 
 /**
- * @property \Titon\View\TemplateView $object
+ * @property \Titon\View\EngineView $object
  * @property \Titon\View\Engine\TemplateEngine $engine
  */
 class TemplateEngineTest extends TestCase {
@@ -36,7 +36,7 @@ class TemplateEngineTest extends TestCase {
 
         $this->engine = new TemplateEngine();
 
-        $this->object = new TemplateView([$this->vfs->path('/views')]);
+        $this->object = new EngineView([$this->vfs->path('/views')]);
         $this->object->setEngine($this->engine);
     }
 

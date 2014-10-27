@@ -10,6 +10,7 @@ namespace Titon\View\Engine;
 use Titon\Common\DataMap;
 use Titon\View\View;
 use Titon\View\Engine;
+use Titon\View\Template;
 use Titon\View\WrapperList;
 
 /**
@@ -21,7 +22,7 @@ use Titon\View\WrapperList;
 abstract class AbstractEngine implements Engine {
 
     /**
-     * Current parsed template content.
+     * Current parsed template.
      *
      * @type string
      */
@@ -79,7 +80,7 @@ abstract class AbstractEngine implements Engine {
     /**
      * {@inheritdoc}
      */
-    public function getWrapper(): WrapperList {
+    public function getWrappers(): WrapperList {
         return $this->_wrapper;
     }
 
@@ -95,7 +96,7 @@ abstract class AbstractEngine implements Engine {
      */
     public function open(string $partial, DataMap $variables = Map {}): string {
         return $this->render(
-            $this->getView()->locateTemplate($partial, View::PARTIAL),
+            $this->getView()->locateTemplate($partial, Template::PARTIAL),
             $this->getView()->getVariables()->toMap()->setAll($variables)
         );
     }

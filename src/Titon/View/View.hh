@@ -11,41 +11,24 @@ use Titon\Common\DataMap;
 use Titon\Cache\Storage;
 
 type HelperMap = Map<string, Helper>;
+type LocaleList = Vector<string>;
 type PathList = Vector<string>;
 
 /**
- * The View acts as the hub between the templates and the rendering engine.
- * It keeps a mapping of template locations, helpers, data variables and more.
+ * The View class acts as the hub between the individual templates and the rendering engine.
+ * It manages a list of lookup paths, which it uses to locate templates for rendering.
  *
  * @package Titon\View
  * @events
- *      view.rendering(View $view, $template)
- *      view.rendered(View $view, $response)
- *      view.locating($template, $type, array $paths)
- *      view.located($template, $type, array $paths)
+ *      view.rendering(View $view, string $template)
+ *      view.rendered(View $view, string $response)
+ *      view.locating(string $template, Template $type, Vector<string> $paths)
+ *      view.located(string $path, Template $type)
  */
 interface View {
 
     /**
-     * Constants for all the possible types of templates.
-     */
-    const int TEMPLATE = 1;
-    const int LAYOUT = 2;
-    const int WRAPPER = 3;
-    const int PARTIAL = 4;
-    const int PRIVATE_TEMPLATE = 5;
-
-    /**
-     * Add a view helper.
-     *
-     * @param string $key
-     * @param \Titon\View\Helper $helper
-     * @return $this
-     */
-    public function addHelper(string $key, Helper $helper): this;
-
-    /**
-     * Add a template lookup path.
+     * Add a lookup path.
      *
      * @param string $path
      * @return $this
@@ -53,7 +36,7 @@ interface View {
     public function addPath(string $path): this;
 
     /**
-     * Add multiple template lookup paths.
+     * Add multiple lookup paths.
      *
      * @param \Titon\View\PathList $paths
      * @return $this
@@ -61,13 +44,12 @@ interface View {
     public function addPaths(PathList $paths): this;
 
     /**
-     * Format the current array of template parts. Any non-string values should be filtered.
-     * Extensions should be appended on the end of the path.
+     * Format the current template path by converting slashes and removing extensions.
      *
-     * @param mixed $template
+     * @param string $template
      * @return string
      */
-    public function formatPath(mixed $template): string;
+    public function formatPath(string $template): string;
 
     /**
      * Return the template file extension.
@@ -77,73 +59,36 @@ interface View {
     public function getExtension(): string;
 
     /**
-     * Return a helper by key.
-     *
-     * @param string $key
-     * @return \Titon\View\Helper
-     */
-    public function getHelper(string $key): Helper;
-
-    /**
-     * Return all helpers.
-     *
-     * @return \Titon\View\HelperMap
-     */
-    public function getHelpers(): HelperMap;
-
-    /**
-     * Return all paths.
+     * Return all lookup paths.
      *
      * @return \Titon\View\PathList
      */
     public function getPaths(): PathList;
 
     /**
-     * Return the storage engine.
+     * Locate a template within the lookup paths and organize based on the type of template.
      *
-     * @return \Titon\Cache\Storage
-     */
-    public function getStorage(): ?Storage;
-
-    /**
-     * Return a variable by key.
-     *
-     * @param string $key
-     * @return mixed
-     */
-    public function getVariable(string $key): mixed;
-
-    /**
-     * Return all variables.
-     *
-     * @return \Titon\Common\DataMap
-     */
-    public function getVariables(): DataMap;
-
-    /**
-     * Locate a template within the lookup paths.
-     *
-     * @param array|string $template
-     * @param int $type
+     * @param string $template
+     * @param \Titon\View\Template $type
      * @return string
      */
-    public function locateTemplate(mixed $template, int $type = self::TEMPLATE): string;
+    public function locateTemplate(string $template, Template $type = Template::OPEN): string;
 
     /**
-     * Determine the template path by parsing. the template argument.
-     * Render the template and apply wrappers and layout.
-     * Will render in order of template -> wrapper(s) -> layout.
+     * The all-in-one rendering method that pieces together the layout, wrapper, and template,
+     * and returns a single rendered response.
      *
-     * If $private is true, render a template from the private folder.
+     * If `$private` is true, render a template from the private folder.
      *
-     * @param string|array $template
+     * @param string $template
      * @param bool $private
      * @return string
      */
-    public function render(mixed $template, bool $private = false): string;
+    public function render(string $template, bool $private = false): string;
 
     /**
-     * Render a single template and pass in optional variables.
+     * Render a single template from the defined file system path.
+     * Can optionally pass in a list of variables that is accessible in the template.
      *
      * @param string $path
      * @param \Titon\Common\DataMap $variables
@@ -160,28 +105,11 @@ interface View {
     public function setExtension(string $ext): this;
 
     /**
-     * Set the storage engine to cache views.
+     * Set a list of lookup paths and overwrite any previously defined paths.
      *
-     * @param \Titon\Cache\Storage $storage
+     * @param \Titon\View\PathList $paths
      * @return $this
      */
-    public function setStorage(Storage $storage): this;
-
-    /**
-     * Set a view variable.
-     *
-     * @param string $key
-     * @param mixed $value
-     * @return $this
-     */
-    public function setVariable(string $key, mixed $value): this;
-
-    /**
-     * Set multiple view variables.
-     *
-     * @param \Titon\Common\DataMap $data
-     * @return $this
-     */
-    public function setVariables(DataMap $data): this;
+    public function setPaths(PathList $paths): this;
 
 }

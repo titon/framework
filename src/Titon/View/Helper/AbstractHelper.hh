@@ -7,7 +7,6 @@
 
 namespace Titon\View\Helper;
 
-use Psr\Http\Message\RequestInterface;
 use Titon\Common\DataMap;
 use Titon\Event\Event;
 use Titon\Event\ListenerMap;
@@ -41,13 +40,6 @@ abstract class AbstractHelper implements Helper {
      * @type \Titon\View\Helper\TagMap
      */
     protected TagMap $_tags = Map {};
-
-    /**
-     * Request object.
-     *
-     * @type \Psr\Http\Message\RequestInterface
-     */
-    protected ?RequestInterface $_request;
 
     /**
      * View object.
@@ -100,7 +92,7 @@ abstract class AbstractHelper implements Helper {
      */
     public function escape(string $value, ?bool $escape = null): string {
         if ($escape === null) {
-            $escape = $this->_escape;
+            $escape = $this->getEscaping();
         }
 
         if ($escape) {
@@ -111,10 +103,12 @@ abstract class AbstractHelper implements Helper {
     }
 
     /**
-     * {@inheritdoc}
+     * Return the automatic escaping setting.
+     *
+     * @return bool
      */
-    public function getRequest(): ?RequestInterface {
-        return $this->_request;
+    public function getEscaping(): bool {
+        return $this->_escape;
     }
 
     /**
@@ -151,7 +145,7 @@ abstract class AbstractHelper implements Helper {
     /**
      * {@inheritdoc}
      */
-    public function preRender(Event $event, View $view, mixed &$template): void {
+    public function preRender(Event $event, View $view, string &$template): void {
         $this->setView($view);
     }
 
@@ -167,16 +161,19 @@ abstract class AbstractHelper implements Helper {
      */
     public function registerEvents(): ListenerMap {
         return Map {
-            'view.preRender' => 'preRender',
-            'view.postRender' => 'postRender',
+            'view.rendering' => 'preRender',
+            'view.rendered' => 'postRender',
         };
     }
 
     /**
-     * {@inheritdoc}
+     * Enable or disable automatic escaping.
+     *
+     * @param bool $escape
+     * @return $this
      */
-    public function setRequest(RequestInterface $request): this {
-        $this->_request = $request;
+    public function setEscaping(bool $escape): this {
+        $this->_escape = $escape;
 
         return $this;
     }
@@ -191,7 +188,7 @@ abstract class AbstractHelper implements Helper {
     }
 
     /**
-     * Generates an HTML tag if it exists.
+     * Generates an HTML tag by interpolating variables into the markup.
      *
      * @param string $tag
      * @param \Titon\Common\DataMap $params

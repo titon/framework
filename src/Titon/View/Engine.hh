@@ -28,14 +28,14 @@ interface Engine {
     public function data(string $key, mixed $default = null): mixed;
 
     /**
-     * Return the currently parsed template content.
+     * Return the currently parsed template.
      *
      * @return string
      */
     public function getContent(): string;
 
     /**
-     * Return the current layout.
+     * Return the layout.
      *
      * @return string
      */
@@ -46,7 +46,7 @@ interface Engine {
      *
      * @return \Titon\View\WrapperList
      */
-    public function getWrapper(): WrapperList;
+    public function getWrappers(): WrapperList;
 
     /**
      * Return the view instance.
@@ -56,8 +56,8 @@ interface Engine {
     public function getView(): View;
 
     /**
-     * Render a partial template at the defined path.
-     * Optionally can pass an array of custom variables.
+     * Render a template partial (nested templates) that is included within the current template.
+     * Can optionally pass in a list of variables that is accessible in the template.
      *
      * @param string $partial
      * @param \Titon\Common\DataMap $variables
@@ -66,8 +66,8 @@ interface Engine {
     public function open(string $partial, DataMap $variables = Map {}): string;
 
     /**
-     * Render a template at the defined path.
-     * Optionally can pass an array of custom variables.
+     * Render a template at the defined absolute path.
+     * Can optionally pass in a list of variables that is accessible in the template.
      *
      * @param string $path
      * @param \Titon\Common\DataMap $variables
@@ -84,7 +84,7 @@ interface Engine {
     public function setContent(string $content): this;
 
     /**
-     * Set the parent view layer.
+     * Set the parent view manager.
      *
      * @param \Titon\View\View $view
      * @return $this

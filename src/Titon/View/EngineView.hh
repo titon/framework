@@ -10,17 +10,17 @@ namespace Titon\View;
 use Titon\Common\DataMap;
 use Titon\Utility\Time;
 use Titon\View\Engine;
+use Titon\View\Engine\TemplateEngine;
 
 /**
- * Defines the rendering functionality for basic templating by using a rendering engine.
- * All rendering and templates use basic PHP syntax.
+ * Adds support for rendering engines which handle the basics of rendering a template.
  *
  * @package Titon\View\View
  * @events
- *      view.preTemplate(View $engine, $template, $type), preLayout, preWrapper
- *      view.postTemplate(View $engine, $template, $type), postLayout, postWrapper
+ *      view.rendering.layout|wrapper|template(View $engine, string $template, Template $type)
+ *      view.rendered.layout|wrapper|template(View $engine, string $template, Template $type)
  */
-class TemplateView extends AbstractView {
+class EngineView extends AbstractView {
 
     /**
      * Template rendering engine.
@@ -30,9 +30,9 @@ class TemplateView extends AbstractView {
     protected Engine $_engine;
 
     /**
-     * Return the rendering engine. Use the default if none was set.
+     * Return the rendering engine. If none is set, load the default engine.
      *
-     * @return $this\Engine
+     * @return \Titon\View\Engine
      */
     public function getEngine(): Engine {
         if (!$this->_engine) {
@@ -45,65 +45,60 @@ class TemplateView extends AbstractView {
     /**
      * {@inheritdoc}
      */
-    public function render(mixed $template, bool $private = false): string {
+    public function render(string $template, bool $private = false): string {
         return $this->cache([__METHOD__, $template, $private], function() use ($template, $private) {
-            $this->emit('view.preRender', [$this, &$template]);
+            $this->emit('view.rendering', [$this, &$template]);
 
             $engine = $this->getEngine();
-            $type = self::TEMPLATE;
-
-            // Use private templates
-            if ($private) {
-                $type = self::PRIVATE_TEMPLATE;
-            }
+            $type = $private ? Template::CLOSED : Template::OPEN;
 
             // Render template
             $this->renderLoop($template, $type);
 
             // Apply wrappers
-            foreach ($engine->getWrapper() as $wrapper) {
-                $this->renderLoop($wrapper, self::WRAPPER);
+            foreach ($engine->getWrappers() as $wrapper) {
+                $this->renderLoop($wrapper, Template::WRAPPER);
             }
 
             // Apply layout
             if ($layout = $engine->getLayout()) {
-                $this->renderLoop($layout, self::LAYOUT);
+                $this->renderLoop($layout, Template::LAYOUT);
             }
 
             $response = $engine->getContent();
 
-            $this->emit('view.postRender', [$this, &$response]);
+            $this->emit('view.rendered', [$this, &$response]);
 
             return $response;
         });
     }
 
     /**
-     * Render of individual template parts for each type: layout, wrapper, etc.
+     * Rendering of individual template parts for each type: layout, wrapper, etc.
      *
-     * @param string|array $template
-     * @param int $type
+     * @param string $template
+     * @param \Titon\View\Template $type
      * @return $this
      */
-    public function renderLoop(mixed $template, int $type): this {
+    public function renderLoop(string $template, Template $type): this {
         $engine = $this->getEngine();
 
-        if ($type === self::LAYOUT) {
-            $event = 'Layout';
-        } else if ($type === self::WRAPPER) {
-            $event = 'Wrapper';
+        if ($type === Template::LAYOUT) {
+            $event = 'layout';
+        } else if ($type === Template::WRAPPER) {
+            $event = 'wrapper';
         } else {
-            $event = 'Template';
+            $event = 'template';
         }
 
-        $this->emit('view.pre' . $event, [$this, &$template, $type]);
+        $this->emit('view.rendering.' . $event, [$this, &$template, $type]);
 
         $engine->setContent($this->renderTemplate(
             $this->locateTemplate($template, $type),
             $this->getVariables()
         ));
 
-        $this->emit('view.post' . $event, [$this, &$template, $type]);
+        $this->emit('view.rendered.' . $event, [$this, &$template, $type]);
 
         return $this;
     }
@@ -112,7 +107,7 @@ class TemplateView extends AbstractView {
      * {@inheritdoc}
      */
     public function renderTemplate(string $path, DataMap $variables = Map {}): string {
-        $expires = isset($variables['cache']) ? $variables['cache'] : null;
+        $expires = $variables->get('cache');
         $storage = $this->getStorage();
         $key = md5($path);
 

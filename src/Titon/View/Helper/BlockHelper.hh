@@ -84,7 +84,7 @@ class BlockHelper extends AbstractHelper {
      * @return bool
      */
     public function has(string $key): bool {
-        return isset($this->_blocks[$key]);
+        return $this->_blocks->contains($key);
     }
 
     /**

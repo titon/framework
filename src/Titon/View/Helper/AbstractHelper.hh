@@ -10,6 +10,7 @@ namespace Titon\View\Helper;
 use Titon\Common\DataMap;
 use Titon\Event\Event;
 use Titon\Event\ListenerMap;
+use Titon\Utility\Registry;
 use Titon\Utility\Sanitize;
 use Titon\Utility\Str;
 use Titon\View\Exception\MissingTagException;
@@ -109,6 +110,20 @@ abstract class AbstractHelper implements Helper {
      */
     public function getEscaping(): bool {
         return $this->_escape;
+    }
+
+    /**
+     * Return a helper from the registry defined by name.
+     *
+     * @param string $name
+     * @return \Titon\View\Helper
+     */
+    public function getHelper(string $name): Helper {
+        if (strpos($name, '\\') === false) {
+            $name = sprintf('Titon\View\Helper\%sHelper', str_replace('Helper', '', $name));
+        }
+
+        return Registry::factory($name);
     }
 
     /**

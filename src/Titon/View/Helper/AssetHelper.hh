@@ -7,8 +7,12 @@
 
 namespace Titon\View\Helper;
 
-use Titon\Utility\Config;
-use Titon\Utility\Registry;
+use Titon\Utility\Path;
+use Titon\View\Exception\InvalidWebrootException;
+
+type Asset = shape('path' => string, 'env' => string, 'attributes' => AttributeMap);
+type ScriptMap = Map<string, Map<int, Asset>>;
+type StyleSheetMap = Map<int, Asset>;
 
 /**
  * The AssetHelper aids in the process of including external stylesheets and scripts.
@@ -19,37 +23,43 @@ use Titon\Utility\Registry;
 class AssetHelper extends AbstractHelper {
 
     /**
-     * Default locations.
-     */
-    const string HEADER = 'header';
-    const string FOOTER = 'footer';
-
-    /**
-     * Configuration.
+     * Provides asset timestamping for cache busting.
      *
-     * @type Map<string, mixed> {
-     *      @type bool $timestamp   Add a file timestamp to every asset URL
-     *      @type string $webroot   Path to the webroot to use for file checking
-     * }
+     * @type bool
      */
-    protected Map<string, mixed> $_config = Map {
-        'timestamp' => true,
-        'webroot' => ''
-    };
+    protected bool $_timestamping = true;
 
     /**
      * A list of JavaScript files to include in the current page.
      *
-     * @type Map<string, Map<int, Map<string, mixed>>>
+     * @type \Titon\View\Helper\ScriptMap
      */
-    protected Map<string, Map<int, Map<string, mixed>>> $_scripts = Map {};
+    protected ScriptMap $_scripts = Map {};
 
     /**
      * A list of CSS stylesheets to include in the current page.
      *
-     * @type Map<int, Map<string, mixed>>
+     * @type \Titon\View\Helper\StyleSheetMap
      */
-    protected Map<int, Map<string, mixed>> $_stylesheets = Map {};
+    protected StyleSheetMap $_stylesheets = Map {};
+
+    /**
+     * Path to the webroot where assets reside.
+     *
+     * @type string
+     */
+    protected string $_webroot = '';
+
+    /**
+     * Set the webroot and timestamping configuration.
+     *
+     * @param string $webroot
+     * @param bool $timestamp
+     */
+    public function __construct(string $webroot, bool $timestamp = true) {
+        $this->setWebroot($webroot);
+        $this->setTimestamping($timestamp);
+    }
 
     /**
      * Add a JavaScript file to the current page request.
@@ -60,21 +70,24 @@ class AssetHelper extends AbstractHelper {
      * @param string $env
      * @return $this
      */
-    public function addScript(string $script, string $location = self::FOOTER, int $order = 0, string $env = ''): this {
-        if (!isset($this->_scripts[$location])) {
+    public function addScript(string $script, string $location = 'footer', int $order = 0, string $env = ''): this {
+        $scripts = $this->getScripts();
+
+        if (!$scripts->contains($location)) {
             $this->_scripts[$location] = Map {};
         }
 
         if ($order === 0) {
-            $order = count($this->_scripts[$location]);
+            $order = count($scripts[$location]);
         }
 
-        while (isset($this->_scripts[$location][$order])) {
+        while ($scripts[$location]->contains($order)) {
             $order++;
         }
 
         $this->_scripts[$location][$order] = Map {
             'path' => $this->preparePath($script, 'js'),
+            'attributes' => Map {},
             'env' => $env
         };
 
@@ -85,17 +98,19 @@ class AssetHelper extends AbstractHelper {
      * Add a CSS stylesheet to the current page request.
      *
      * @param string $sheet
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @param int $order
      * @param int $env
      * @return $this
      */
-    public function addStylesheet(string $sheet, Map<string, mixed> $attributes = Map {}, int $order = 0, string $env = ''): this {
+    public function addStyleSheet(string $sheet, AttributeMap $attributes = Map {}, int $order = 0, string $env = ''): this {
+        $stylesheets = $this->getStyleSheets();
+
         if ($order === 0) {
-            $order = count($this->_stylesheets);
+            $order = count($stylesheets);
         }
 
-        while (isset($this->_stylesheets[$order])) {
+        while ($stylesheets->contains($order)) {
             $order++;
         }
 
@@ -106,6 +121,42 @@ class AssetHelper extends AbstractHelper {
         };
 
         return $this;
+    }
+
+    /**
+     * Return the list of defined scripts.
+     *
+     * @return \Titon\View\Helper\ScriptMap
+     */
+    public function getScripts(): ScriptMap {
+        return $this->_scripts;
+    }
+
+    /**
+     * Return the list of defined stylesheets.
+     *
+     * @return \Titon\View\Helper\StyleSheetMap
+     */
+    public function getStyleSheets(): StyleSheetMap {
+        return $this->_stylesheets;
+    }
+
+    /**
+     * Return the asset webroot.
+     *
+     * @return string
+     */
+    public function getWebroot(): string {
+        return $this->_webroot;
+    }
+
+    /**
+     * Return true if asset timestamping is enabled.
+     *
+     * @return bool
+     */
+    public function isTimestamping(): bool {
+        return $this->_timestamping;
     }
 
     /**
@@ -123,23 +174,15 @@ class AssetHelper extends AbstractHelper {
             return $path;
         }
 
+        // Remove query string
         $parts = explode('?', $path);
         $path = $parts[0];
-        $query = isset($parts[1]) ? $parts[1] : null;
+        $query = array_key_exists(1, $parts) ? $parts[1] : '';
 
         // Apply extension
         if (substr($path, -(strlen($ext) + 1)) !== '.' . $ext) {
             $path .= '.' . $ext;
         }
-
-        // Determine system path via webroot in the request
-        $root = $this->getConfig('webroot');
-
-        if (!$root && Config::has('titon.webroot')) {
-            $root = Config::get('titon.webroot');
-        }
-
-        $systemPath = $root . $path;
 
         // Apply query
         if ($query) {
@@ -147,20 +190,45 @@ class AssetHelper extends AbstractHelper {
         }
 
         // Apply timestamp
-        if ($this->getConfig('timestamp') && file_exists($systemPath)) {
-            $path .= ($query ? '&' : '?') . filemtime($systemPath);
+        if ($this->isTimestamping()) {
+            $absPath = $this->getWebroot() . $path;
+
+            if (file_exists($absPath)) {
+                $path .= ($query ? '&' : '?') . filemtime($absPath);
+            }
         }
 
         return $path;
     }
 
     /**
-     * Attach the HtmlHelper.
+     * Enable or disable asset timestamping.
+     *
+     * @param bool $status
+     * @return $this
      */
-    public function initialize(): void {
-        $this->attachObject('html', function() {
-            return Registry::factory('Titon\View\Helper\HtmlHelper');
-        });
+    public function setTimestamping(bool $status): this {
+        $this->_timestamping = $status;
+
+        return $this;
+    }
+
+    /**
+     * Set the webroot path.
+     *
+     * @param string $path
+     * @return $this
+     */
+    public function setWebroot(string $path): this {
+        $path = Path::ds($path, true);
+
+        if (!file_exists($path)) {
+            throw new InvalidWebrootException('Asset webroot does not exist');
+        }
+
+        $this->_webroot = $path;
+
+        return $this;
     }
 
     /**
@@ -170,16 +238,20 @@ class AssetHelper extends AbstractHelper {
      * @param string $env
      * @return string
      */
-    public function scripts(string $location = self::FOOTER, string $env = ''): string {
+    public function scripts(string $location = 'footer', string $env = ''): string {
+        $scripts = $this->getScripts();
         $output = '';
 
-        if (isset($this->_scripts[$location])) {
-            $scripts = $this->_scripts[$location];
-            ksort($scripts);
+        /** @type \Titon\View\Helper\HtmlHelper $html */
+        $html = $this->getHelper('Html');
 
-            foreach ($scripts as $script) {
+        if ($scripts->contains($location)) {
+            $groupedScripts = $scripts[$location];
+            ksort($groupedScripts);
+
+            foreach ($groupedScripts as $script) {
                 if ($script['env'] === '' || $script['env'] === $env) {
-                    $output .= $this->html->script($script['path']);
+                    $output .= $html->script($script['path']);
                 }
             }
         }
@@ -194,15 +266,18 @@ class AssetHelper extends AbstractHelper {
      * @return string
      */
     public function stylesheets(string $env = ''): string {
+        $stylesheets = $this->getStyleSheets();
         $output = '';
 
-        if ($this->_stylesheets) {
-            $stylesheets = $this->_stylesheets;
+        /** @type \Titon\View\Helper\HtmlHelper $html */
+        $html = $this->getHelper('Html');
+
+        if ($stylesheets) {
             ksort($stylesheets);
 
             foreach ($stylesheets as $sheet) {
                 if ($sheet['env'] === '' || $sheet['env'] === $env) {
-                    $output .= $this->html->link($sheet['path'], $sheet['attributes']);
+                    $output .= $html->link($sheet['path'], $sheet['attributes']);
                 }
             }
         }

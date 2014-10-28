@@ -23,14 +23,14 @@ class EngineTest extends TestCase {
         $this->assertEquals('alternate', $this->object->getLayout());
     }
 
-    public function testWrapper() {
-        $this->assertEquals(Vector {}, $this->object->getWrapper());
+    public function testWrappers() {
+        $this->assertEquals(Vector {}, $this->object->getWrappers());
 
         $this->object->wrapWith('alternate');
-        $this->assertEquals(Vector {'alternate'}, $this->object->getWrapper());
+        $this->assertEquals(Vector {'alternate'}, $this->object->getWrappers());
 
         $this->object->wrapWith('alternate', 'double');
-        $this->assertEquals(Vector {'alternate', 'double'}, $this->object->getWrapper());
+        $this->assertEquals(Vector {'alternate', 'double'}, $this->object->getWrappers());
     }
 
     public function testContent() {

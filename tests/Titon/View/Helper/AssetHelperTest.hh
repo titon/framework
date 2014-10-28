@@ -1,64 +1,74 @@
 <?hh
 namespace Titon\View\Helper;
 
-use Titon\Utility\Config;
 use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 
+/**
+ * @property \Titon\View\Helper\AssetHelper $object
+ */
 class AssetHelperTest extends TestCase {
 
-    public function testScripts() {
-        $helper = new AssetHelper();
-        $helper
-            ->addScript('script.js')
-            ->addScript('path/commons.js', AssetHelper::HEADER)
-            ->addScript('path/no-extension')
-            ->addScript('/a/really/really/deep/path/include.js', AssetHelper::HEADER);
+    protected function setUp() {
+        parent::setUp();
 
-        $this->assertEquals('', $helper->scripts('fakeLocation'));
+        $this->vfs = new FileSystem();
+        $this->vfs->createDirectory('/css/');
+        $this->vfs->createFile('/css/test.css');
+
+        $this->object = new AssetHelper($this->vfs->path('/'));
+    }
+
+    public function testScripts() {
+        $this->object
+            ->addScript('script.js')
+            ->addScript('path/commons.js', 'header')
+            ->addScript('path/no-extension')
+            ->addScript('/a/really/really/deep/path/include.js', 'header');
+
+        $this->assertEquals('', $this->object->scripts('fakeLocation'));
 
         $this->assertEquals(
             '<script src="path/commons.js" type="text/javascript"></script>' . PHP_EOL .
             '<script src="/a/really/really/deep/path/include.js" type="text/javascript"></script>' . PHP_EOL
-        , $helper->scripts(AssetHelper::HEADER));
+        , $this->object->scripts('header'));
 
         $this->assertEquals(
             '<script src="script.js" type="text/javascript"></script>' . PHP_EOL .
             '<script src="path/no-extension.js" type="text/javascript"></script>' . PHP_EOL
-        , $helper->scripts(AssetHelper::FOOTER));
+        , $this->object->scripts('footer'));
+    }
 
-        // with ordering
-        $helper = new AssetHelper();
-        $helper
-            ->addScript('script.js', AssetHelper::FOOTER, 3)
-            ->addScript('path/commons.js', AssetHelper::FOOTER, 2)
-            ->addScript('path/no-extension', AssetHelper::FOOTER)
-            ->addScript('/a/really/really/deep/path/include.js', AssetHelper::FOOTER, 5);
+    public function testScriptsOrdering() {
+        $this->object
+            ->addScript('script.js', 'footer', 3)
+            ->addScript('path/commons.js', 'footer', 2)
+            ->addScript('path/no-extension', 'footer')
+            ->addScript('/a/really/really/deep/path/include.js', 'footer', 5);
 
         $this->assertEquals(
             '<script src="path/commons.js" type="text/javascript"></script>' . PHP_EOL .
             '<script src="script.js" type="text/javascript"></script>' . PHP_EOL .
             '<script src="path/no-extension.js" type="text/javascript"></script>' . PHP_EOL .
             '<script src="/a/really/really/deep/path/include.js" type="text/javascript"></script>' . PHP_EOL
-        , $helper->scripts(AssetHelper::FOOTER));
+        , $this->object->scripts('footer'));
+    }
 
-        // environment
-        $helper = new AssetHelper();
-        $helper
-            ->addScript('script.js', AssetHelper::FOOTER, 30, 'dev')
-            ->addScript('path/commons.js', AssetHelper::FOOTER, 30, 'prod')
-            ->addScript('path/no-extension', AssetHelper::FOOTER, 30, 'staging')
-            ->addScript('/a/really/really/deep/path/include.js', AssetHelper::FOOTER, 30, 'dev');
+    public function testScriptsEnv() {
+        $this->object
+            ->addScript('script.js', 'footer', 30, 'dev')
+            ->addScript('path/commons.js', 'footer', 30, 'prod')
+            ->addScript('path/no-extension', 'footer', 30, 'staging')
+            ->addScript('/a/really/really/deep/path/include.js', 'footer', 30, 'dev');
 
         $this->assertEquals(
             '<script src="script.js" type="text/javascript"></script>' . PHP_EOL .
             '<script src="/a/really/really/deep/path/include.js" type="text/javascript"></script>' . PHP_EOL
-        , $helper->scripts(AssetHelper::FOOTER, 'dev'));
+        , $this->object->scripts('footer', 'dev'));
     }
 
     public function testStylesheets() {
-        $helper = new AssetHelper();
-        $helper
+        $this->object
             ->addStylesheet('style.css')
             ->addStylesheet('a/really/deep/path/with/no/extension/style.css')
             ->addStylesheet('mobile.css', Map {'media' => 'mobile'});
@@ -67,11 +77,11 @@ class AssetHelperTest extends TestCase {
             '<link href="style.css" media="screen" rel="stylesheet" type="text/css">' . PHP_EOL .
             '<link href="a/really/deep/path/with/no/extension/style.css" media="screen" rel="stylesheet" type="text/css">' . PHP_EOL .
             '<link href="mobile.css" media="mobile" rel="stylesheet" type="text/css">' . PHP_EOL
-        , $helper->stylesheets());
+        , $this->object->stylesheets());
+    }
 
-        // with ordering
-        $helper = new AssetHelper();
-        $helper
+    public function testStylesheetsOrdering() {
+        $this->object
             ->addStylesheet('style.css', Map {'media' => 'handheld'}, 3)
             ->addStylesheet('a/really/deep/path/with/no/extension/style.css', Map {'media' => 'screen'}, 1)
             ->addStylesheet('mobile.css', Map {'media' => 'mobile'}, 2);
@@ -80,20 +90,20 @@ class AssetHelperTest extends TestCase {
             '<link href="a/really/deep/path/with/no/extension/style.css" media="screen" rel="stylesheet" type="text/css">' . PHP_EOL .
             '<link href="mobile.css" media="mobile" rel="stylesheet" type="text/css">' . PHP_EOL .
             '<link href="style.css" media="handheld" rel="stylesheet" type="text/css">' . PHP_EOL
-        , $helper->stylesheets());
+        , $this->object->stylesheets());
+    }
 
-        // environment
-        $helper = new AssetHelper();
-        $helper
+    public function testStylesheetsEnv() {
+        $this->object
             ->addStylesheet('style.css', Map {'media' => 'handheld'}, 30, 'dev')
             ->addStylesheet('a/really/deep/path/with/no/extension/style.css', Map {'media' => 'screen'}, 30, 'staging')
             ->addStylesheet('mobile.css', Map {'media' => 'mobile'}, 30, 'prod');
 
-        $this->assertEquals('<link href="style.css" media="handheld" rel="stylesheet" type="text/css">' . PHP_EOL, $helper->stylesheets('dev'));
+        $this->assertEquals('<link href="style.css" media="handheld" rel="stylesheet" type="text/css">' . PHP_EOL, $this->object->stylesheets('dev'));
     }
 
     public function testPreparePath() {
-        $helper = new AssetHelper();
+        $helper = $this->object;
 
         $this->assertEquals('style.css', $helper->preparePath('style', 'css'));
         $this->assertEquals('style.css', $helper->preparePath('style.css', 'css'));
@@ -108,38 +118,9 @@ class AssetHelperTest extends TestCase {
     }
 
     public function testTimestamping() {
-        $vfs = new FileSystem();
-        $vfs->createDirectory('/css/');
-        $vfs->createFile('/css/test.css');
+        $this->object->addStylesheet('/css/test.css');
 
-        $helper = new AssetHelper(Map {'timestamp' => true, 'webroot' => $vfs->path('/')});
-        $helper->addStylesheet('/css/test.css');
-
-        $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css">/', $helper->stylesheets());
-
-        unset($vfs);
-    }
-
-    public function testTimestampingNoWebroot() {
-        $helper = new AssetHelper(Map {'timestamp' => true});
-        $helper->addStylesheet('/css/test.css');
-
-        $this->assertEquals('<link href="/css/test.css" media="screen" rel="stylesheet" type="text/css">' . PHP_EOL, $helper->stylesheets());
-    }
-
-    public function testTimestampingThroughConfig() {
-        $vfs = new FileSystem();
-        $vfs->createDirectory('/css/');
-        $vfs->createFile('/css/test.css');
-
-        Config::set('titon.webroot', $vfs->path('/'));
-
-        $helper = new AssetHelper(Map {'timestamp' => true, 'webroot' => null});
-        $helper->addStylesheet('/css/test.css');
-
-        $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css">/', $helper->stylesheets());
-
-        unset($vfs);
+        $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css">/', $this->object->stylesheets());
     }
 
 }

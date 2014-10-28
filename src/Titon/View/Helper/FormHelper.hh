@@ -375,7 +375,7 @@ class FormHelper extends AbstractHelper {
      * @return mixed
      */
     public function getRequestValue(string $key): mixed {
-        $data = (new Map())
+        $data = (new Map([]))
             ->setAll(Get::all())
             ->setAll(Post::all())
             ->setAll(Files::all());
@@ -734,7 +734,7 @@ class FormHelper extends AbstractHelper {
      * @param \Titon\View\Helper\AttributeMap $attributes
      * @return array
      */
-    public function prepareAttributes(AttributeMap $defaults = Map {}, AttributeMap $attributes = Map {}) {
+    public function prepareAttributes(AttributeMap $defaults = Map {}, AttributeMap $attributes = Map {}): AttributeMap {
         $attributes = $defaults->setAll($attributes);
         $namePath = $attributes['name'];
 
@@ -1055,8 +1055,8 @@ class FormHelper extends AbstractHelper {
         $year = date('Y');
         $reverse = $this->getAttributeValue('reverseYear', $attributes, false);
         $format = $this->getAttributeValue('yearFormat', $attributes, 'Y');
-        $start = $this->getAttributeValue('startYear', $attributes, $year);
-        $end = $this->getAttributeValue('endYear', $attributes, ($year + 10));
+        $start = (int) $this->getAttributeValue('startYear', $attributes, $year);
+        $end = (int) $this->getAttributeValue('endYear', $attributes, ($year + 10));
         $options = Map {};
 
         for ($i = $start; $i <= $end; ++ $i) {

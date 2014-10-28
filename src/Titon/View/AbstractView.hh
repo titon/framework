@@ -195,7 +195,7 @@ abstract class AbstractView implements View, Listener {
      * @return \Titon\View\Helper
      */
     public function getHelper(string $key): Helper {
-        if (isset($this->_helpers[$key])) {
+        if ($this->_helpers->contains($key)) {
             return $this->_helpers[$key];
         }
 
@@ -237,19 +237,14 @@ abstract class AbstractView implements View, Listener {
     }
 
     /**
-     * Return a variable by key.
-     *
-     * @param string $key
-     * @return mixed
+     * {@inheritdoc}
      */
     public function getVariable(string $key): mixed {
         return $this->getVariables()->get($key);
     }
 
     /**
-     * Return all variables.
-     *
-     * @return \Titon\Common\DataMap
+     * {@inheritdoc}
      */
     public function getVariables(): DataMap {
         return $this->_data;
@@ -270,21 +265,16 @@ abstract class AbstractView implements View, Listener {
                 case Template::LAYOUT:
                     $template = sprintf('private/layouts/%s', $template);
                 break;
-
                 case Template::WRAPPER:
                     $template = sprintf('private/wrappers/%s', $template);
                 break;
-
                 case Template::PARTIAL:
                     $template = sprintf('private/partials/%s', $template);
                 break;
-
                 case Template::OPEN:
                     $template = sprintf('public/%s', $template);
                 break;
-
                 case Template::CLOSED:
-                default:
                     $template = sprintf('private/%s', $template);
                 break;
             }
@@ -335,7 +325,7 @@ abstract class AbstractView implements View, Listener {
      * @param \Titon\View\View $view
      * @param string $template
      */
-    public function preRender(Event $event, View $view, string &$template): void {
+    public function preRender(Event $event, View $view, string $template): void {
         return;
     }
 
@@ -346,7 +336,7 @@ abstract class AbstractView implements View, Listener {
      * @param \Titon\View\View $view
      * @param string $response
      */
-    public function postRender(Event $event, View $view, string &$response): void {
+    public function postRender(Event $event, View $view, string $response): void {
         return;
     }
 
@@ -405,11 +395,7 @@ abstract class AbstractView implements View, Listener {
     }
 
     /**
-     * Set a view variable.
-     *
-     * @param string $key
-     * @param mixed $value
-     * @return $this
+     * {@inheritdoc}
      */
     public function setVariable(string $key, mixed $value): this {
         $this->_data[Inflector::variable($key)] = $value;
@@ -418,10 +404,7 @@ abstract class AbstractView implements View, Listener {
     }
 
     /**
-     * Set multiple view variables.
-     *
-     * @param \Titon\Common\DataMap $data
-     * @return $this
+     * {@inheritdoc}
      */
     public function setVariables(DataMap $data): this {
         foreach ($data as $key => $value) {

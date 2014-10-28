@@ -58,12 +58,12 @@ class TemplateEngineTest extends TestCase {
     }
 
     public function testRender() {
-        $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate(['index', 'add'])));
-        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate(['index', 'test-include'])));
+        $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/add')));
+        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/test-include')));
     }
 
     public function testData() {
-        $this->assertEquals('add.tpl', $this->engine->render($this->object->locateTemplate(['index', 'add']), Map {
+        $this->assertEquals('add.tpl', $this->engine->render($this->object->locateTemplate('index/add'), Map {
             'foo' => 'bar'
         }));
 

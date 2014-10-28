@@ -66,6 +66,21 @@ interface View {
     public function getPaths(): PathList;
 
     /**
+     * Return a variable by key.
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public function getVariable(string $key): mixed;
+
+    /**
+     * Return all variables.
+     *
+     * @return \Titon\Common\DataMap
+     */
+    public function getVariables(): DataMap;
+
+    /**
      * Locate a template within the lookup paths and organize based on the type of template.
      *
      * @param string $template
@@ -111,5 +126,22 @@ interface View {
      * @return $this
      */
     public function setPaths(PathList $paths): this;
+
+    /**
+     * Set a view variable.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return $this
+     */
+    public function setVariable(string $key, mixed $value): this;
+
+    /**
+     * Set multiple view variables.
+     *
+     * @param \Titon\Common\DataMap $data
+     * @return $this
+     */
+    public function setVariables(DataMap $data): this;
 
 }

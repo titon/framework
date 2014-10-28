@@ -160,14 +160,14 @@ abstract class AbstractHelper implements Helper {
     /**
      * {@inheritdoc}
      */
-    public function preRender(Event $event, View $view, string &$template): void {
+    public function preRender(Event $event, View $view, string $template): void {
         $this->setView($view);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function postRender(Event $event, View $view, string &$response): void {
+    public function postRender(Event $event, View $view, string $response): void {
         $this->setView($view);
     }
 

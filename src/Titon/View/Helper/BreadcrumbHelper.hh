@@ -10,7 +10,6 @@ namespace Titon\View\Helper;
 use Titon\Common\OptionMap;
 use Titon\Type\ArrayList;
 use Titon\Utility\Col;
-use Titon\Utility\Registry;
 
 type Breadcrumb = shape('title' => string, 'url' => string, 'attributes' => AttributeMap);
 
@@ -39,7 +38,7 @@ class BreadcrumbHelper extends AbstractHelper {
     /**
      * Add a link to the breadcrumbs.
      *
-     * @param string|array $titles
+     * @param string|Traversable $titles
      * @param string $url
      * @param \Titon\View\Helper\AttributeMap $attributes
      * @return $this
@@ -101,20 +100,14 @@ class BreadcrumbHelper extends AbstractHelper {
     public function generate(AttributeMap $attributes = Map {}): Vector<string> {
         $trail = Vector {};
 
+        /** @type \Titon\View\Helper\HtmlHelper $html */
+        $html = $this->getHelper('Html');
+
         foreach ($this->all() as $crumb) {
-            $trail[] = $this->getHtmlHelper()->anchor($crumb['title'], $crumb['url'], $crumb['attributes']->setAll($attributes));
+            $trail[] = $html->anchor($crumb['title'], $crumb['url'], $crumb['attributes']->setAll($attributes));
         }
 
         return $trail;
-    }
-
-    /**
-     * Return the HtmlHelper.
-     *
-     * @return \Titon\View\Helper\HtmlHelper
-     */
-    public function getHtmlHelper(): HtmlHelper {
-        return Registry::factory('Titon\View\Helper\HtmlHelper');
     }
 
     /**
@@ -162,6 +155,9 @@ class BreadcrumbHelper extends AbstractHelper {
         $count = count($crumbs);
         $title = [];
 
+        /** @type \Titon\View\Helper\HtmlHelper $html */
+        $html = $this->getHelper('Html');
+
         if ($count) {
             if ($options['depth'] && $count > $options['depth']) {
                 $title = array_slice($crumbs, -$options['depth']);
@@ -171,7 +167,7 @@ class BreadcrumbHelper extends AbstractHelper {
                 $title = $crumbs;
             }
 
-        } else if ($pageTitle = $this->getHtmlHelper()->title($options['separator'])) {
+        } else if ($pageTitle = $html->title($options['separator'])) {
             $title[] = $pageTitle;
         }
 

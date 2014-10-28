@@ -91,7 +91,7 @@ class HtmlHelper extends AbstractHelper {
      * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function link(string $path, AttributeMap $attributes = Map {}) {
+    public function link(string $path, AttributeMap $attributes = Map {}): string {
         $attributes = (Map {
             'rel'   => 'stylesheet',
             'type'  => 'text/css',
@@ -112,7 +112,7 @@ class HtmlHelper extends AbstractHelper {
      * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function mailto(string $email, AttributeMap $attributes = Map {}) {
+    public function mailto(string $email, AttributeMap $attributes = Map {}): string {
         $email = Crypt::obfuscate($email);
 
         if (!$attributes->contains('title')) {
@@ -136,7 +136,7 @@ class HtmlHelper extends AbstractHelper {
      * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function meta(mixed $type, string $content = '', AttributeMap $attributes = Map {}) {
+    public function meta(mixed $type, string $content = '', AttributeMap $attributes = Map {}): string {
         if ($type instanceof Map) {
             return $this->tag('meta', Map {
                 'attr' => $this->attributes($type)
@@ -228,7 +228,13 @@ class HtmlHelper extends AbstractHelper {
      * @return string
      */
     public function title(string $separator = ' - '): string {
-        $pageTitle = $this->getView()->getVariable('pageTitle');
+        $view = $this->getView();
+
+        if (!$view) {
+            return '';
+        }
+
+        $pageTitle = $view->getVariable('pageTitle');
 
         if ($pageTitle instanceof Traversable) {
             return implode($separator, $pageTitle);

@@ -1,9 +1,11 @@
 <?hh
 namespace Titon\View\Helper;
 
-use Titon\Http\Server\Request;
 use Titon\Model\Model;
 use Titon\Test\TestCase;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\Post;
+use Titon\Utility\State\Server;
 
 /**
  * @property \Titon\View\Helper\FormHelper $object
@@ -16,6 +18,9 @@ class FormHelperTest extends TestCase {
         $_SERVER['HTTP_USER_AGENT'] = 'browser';
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST['Test'] = [];
+
+        Server::initialize($_SERVER);
+        Post::initialize($_POST);
 
         $this->object = new FormHelper();
         $this->object->open('/');
@@ -46,10 +51,12 @@ class FormHelperTest extends TestCase {
 
         // Request value should take highest precedence
         $_POST['text'] = 'request';
+        Post::initialize($_POST);
 
         $this->assertEquals('<input id="model-text" name="text" type="text" value="request">' . PHP_EOL, $this->object->text('text', 'default'));
 
         $_POST = [];
+        Post::initialize($_POST);
 
         $this->assertEquals('<input id="model-text" name="text" type="text" value="model">' . PHP_EOL, $this->object->text('text', 'default'));
     }
@@ -60,6 +67,7 @@ class FormHelperTest extends TestCase {
 
         // With data
         $_POST['binary'] = 1;
+        Post::initialize($_POST);
 
         $this->assertEquals('<input id="binary-hidden" name="binary" type="hidden" value="0">' . PHP_EOL .
             '<input checked="checked" id="binary" name="binary" type="checkbox" value="1">' . PHP_EOL, $this->object->binary('binary'));
@@ -72,7 +80,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="check-box" name="check[box]" type="checkbox" value="1">' . PHP_EOL, $this->object->checkbox('check.box'));
 
         // attributes
-        $this->assertEquals('<input class="class-name" id="custom-id" name="checkbox" type="checkbox" value="1">' . PHP_EOL, $this->object->checkbox('checkbox', 1, Map {
+        $this->assertEquals('<input class="class-name" id="custom-id" name="checkbox" type="checkbox" value="1">' . PHP_EOL, $this->object->checkbox('checkbox', '1', Map {
             'class' => 'class-name',
             'id' => 'custom-id'
         }));
@@ -85,10 +93,12 @@ class FormHelperTest extends TestCase {
 
         // value with data
         $_POST['Test']['checkbox'] = 0;
+        Post::initialize($_POST);
 
         $this->assertEquals('<input id="test-checkbox" name="Test[checkbox]" type="checkbox" value="1">' . PHP_EOL, $this->object->checkbox('Test.checkbox'));
 
         $_POST['Test']['checkbox'] = 1;
+        Post::initialize($_POST);
 
         $this->assertEquals('<input checked="checked" id="test-checkbox" name="Test[checkbox]" type="checkbox" value="1">' . PHP_EOL, $this->object->checkbox('Test.checkbox'));
     }
@@ -119,6 +129,7 @@ class FormHelperTest extends TestCase {
 
         // default with data
         $_POST['Test']['checkboxes'] = 'red';
+        Post::initialize($_POST);
 
         $this->assertEquals(Vector {
             '<input checked="checked" id="test-checkboxes-red" name="Test[checkboxes][]" type="checkbox" value="red">' . PHP_EOL,
@@ -128,6 +139,7 @@ class FormHelperTest extends TestCase {
 
         // default with multiple data
         $_POST['Test']['checkboxes_multi'] = ['red', 'green'];
+        Post::initialize($_POST);
 
         $this->assertEquals(Vector {
             '<input checked="checked" id="test-checkboxesmulti-red" name="Test[checkboxes_multi][]" type="checkbox" value="red">' . PHP_EOL,
@@ -253,6 +265,7 @@ class FormHelperTest extends TestCase {
 
         // with data
         $_POST['Test']['day'] = 3;
+        Post::initialize($_POST);
 
         $this->assertEquals(
             '<select id="test-day" name="Test[day]">' . PHP_EOL .
@@ -355,7 +368,7 @@ class FormHelperTest extends TestCase {
     }
 
     public function testDateTime() {
-        $this->object->setConfig('24hour', false);
+        $this->object->use12Hour();
 
         $this->assertEquals(
             '<select id="created-month" name="created[month]">' . PHP_EOL .
@@ -568,6 +581,8 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="test-email" name="Test[email]" type="email" value="">' . PHP_EOL, $this->object->email('Test.email'));
 
         $_POST['Test']['email'] = 'email@domain.com';
+        Post::initialize($_POST);
+
         $this->assertEquals('<input id="test-email" name="Test[email]" type="email" value="email@domain.com">' . PHP_EOL, $this->object->email('Test.email'));
     }
 
@@ -610,31 +625,24 @@ class FormHelperTest extends TestCase {
     public function testGetDefaultValue() {
         $this->assertEquals(null, $this->object->getDefaultValue(Map {}));
         $this->assertEquals('foo', $this->object->getDefaultValue(Map {'default' => 'foo'}));
-        $this->assertEquals('bar', $this->object->getDefaultValue(Map {'default' => 'foo', 'defaultFirst' => 'bar'}, Vector {'defaultFirst', 'default'}));
     }
 
     public function testGetRequestValue() {
         $this->assertEquals(null, $this->object->getRequestValue('foo'));
 
         $_POST['foo'] = 'bar';
+        Post::initialize($_POST);
+
         $this->assertEquals('bar', $this->object->getRequestValue('foo'));
 
         $_GET['get'] = '123';
+        Get::initialize($_GET);
+
         $this->assertEquals('123', $this->object->getRequestValue('get'));
 
         $_POST['Test']['foo'] = 'baz';
-        $this->assertEquals('baz', $this->object->getRequestValue('Test.foo'));
-    }
+        Post::initialize($_POST);
 
-    public function testGetRequestValueObject() {
-        $_POST['foo'] = 'bar';
-        $_GET['get'] = '123';
-        $_POST['Test']['foo'] = 'baz';
-
-        $this->object->setRequest(Request::createFromGlobals());
-
-        $this->assertEquals('bar', $this->object->getRequestValue('foo'));
-        $this->assertEquals('123', $this->object->getRequestValue('get'));
         $this->assertEquals('baz', $this->object->getRequestValue('Test.foo'));
     }
 
@@ -661,6 +669,8 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('bar', $this->object->getValue('foo', Map {'default' => 'bar'}));
 
         $_POST['foo'] = 'baz';
+        Post::initialize($_POST);
+
         $this->assertEquals('baz', $this->object->getValue('foo', Map {'default' => 'bar'}));
     }
 
@@ -672,11 +682,13 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="test-hidden" name="Test[hidden]" type="hidden" value="no">' . PHP_EOL, $this->object->hidden('Test.hidden', 'no'));
 
         $_POST['Test']['hidden'] = 'yes';
+        Post::initialize($_POST);
+
         $this->assertEquals('<input id="test-hidden" name="Test[hidden]" type="hidden" value="yes">' . PHP_EOL, $this->object->hidden('Test.hidden', 'no'));
     }
 
     public function testHour() {
-        $this->object->setConfig('24hour', false);
+        $this->object->use12Hour();
 
         $this->assertEquals(
             '<select id="hour" name="hour">' . PHP_EOL .
@@ -713,7 +725,7 @@ class FormHelperTest extends TestCase {
         , $this->object->hour('hour', Map {'defaultHour' => 8, 'onchange' => 'update(this);'}));
 
         // 24 hour
-        $this->object->setConfig('24hour', true);
+        $this->object->use24Hour();
 
         $this->assertEquals(
             '<select id="hour" name="hour">' . PHP_EOL .
@@ -774,9 +786,10 @@ class FormHelperTest extends TestCase {
         , $this->object->hour('hour', Map {'defaultHour' => 18, 'onchange' => 'update(this);'}));
 
         // with data
-        $this->object->setConfig('24hour', false);
+        $this->object->use12Hour();
 
         $_POST['Test']['hour'] = 4;
+        Post::initialize($_POST);
 
         $this->assertEquals(
             '<select id="test-hour" name="Test[hour]">' . PHP_EOL .
@@ -795,9 +808,10 @@ class FormHelperTest extends TestCase {
             '</select>' . PHP_EOL
         , $this->object->hour('Test.hour', Map {'defaultHour' => 2}));
 
-        $this->object->setConfig('24hour', true);
+        $this->object->use24Hour();
 
         $_POST['Test']['hour24'] = 22;
+        Post::initialize($_POST);
 
         $this->assertEquals(
             '<select id="test-hour24" name="Test[hour24]">' . PHP_EOL .
@@ -879,6 +893,7 @@ class FormHelperTest extends TestCase {
 
         // with data
         $_POST['Test']['meridiem'] = 'am';
+        Post::initialize($_POST);
 
         $this->assertEquals(
             '<select id="test-meridiem" name="Test[meridiem]">' . PHP_EOL .
@@ -1022,6 +1037,7 @@ class FormHelperTest extends TestCase {
 
         // with data
         $_POST['Test']['minute'] = 19;
+        Post::initialize($_POST);
 
         $this->assertEquals(
             '<select id="test-minute" name="Test[minute]">' . PHP_EOL .
@@ -1138,6 +1154,7 @@ class FormHelperTest extends TestCase {
 
         // with data
         $_POST['Test']['month'] = 2;
+        Post::initialize($_POST);
 
         $this->assertEquals(
             '<select id="test-month" name="Test[month]">' . PHP_EOL .
@@ -1175,6 +1192,8 @@ class FormHelperTest extends TestCase {
 
         // with data
         $_POST['Test']['password'] = 'nasd7ads';
+        Post::initialize($_POST);
+
         $this->assertEquals('<input id="test-password" name="Test[password]" type="password">' . PHP_EOL, $this->object->password('Test.password'));
     }
 
@@ -1199,13 +1218,13 @@ class FormHelperTest extends TestCase {
     }
 
     public function testRadio() {
-        $this->assertEquals('<input id="radio" name="radio" type="radio" value="1">' . PHP_EOL, $this->object->radio('radio', 1));
+        $this->assertEquals('<input id="radio" name="radio" type="radio" value="1">' . PHP_EOL, $this->object->radio('radio', '1'));
 
         // tiered depth
-        $this->assertEquals('<input id="radio-box" name="radio[box]" type="radio" value="1">' . PHP_EOL, $this->object->radio('radio.box', 1));
+        $this->assertEquals('<input id="radio-box" name="radio[box]" type="radio" value="1">' . PHP_EOL, $this->object->radio('radio.box', '1'));
 
         // attributes
-        $this->assertEquals('<input class="class-name" id="custom-id" name="radio" type="radio" value="1">' . PHP_EOL, $this->object->radio('radio', 1, Map {
+        $this->assertEquals('<input class="class-name" id="custom-id" name="radio" type="radio" value="1">' . PHP_EOL, $this->object->radio('radio', '1', Map {
             'class' => 'class-name',
             'id' => 'custom-id'
         }));
@@ -1215,9 +1234,13 @@ class FormHelperTest extends TestCase {
 
         // value with data
         $_POST['Test']['radio'] = 'no';
+        Post::initialize($_POST);
+
         $this->assertEquals('<input id="test-radio" name="Test[radio]" type="radio" value="yes">' . PHP_EOL, $this->object->radio('Test.radio', 'yes'));
 
         $_POST['Test']['radio'] = 'yes';
+        Post::initialize($_POST);
+
         $this->assertEquals('<input checked="checked" id="test-radio" name="Test[radio]" type="radio" value="yes">' . PHP_EOL, $this->object->radio('Test.radio', 'yes'));
     }
 
@@ -1240,6 +1263,7 @@ class FormHelperTest extends TestCase {
 
         // with data
         $_POST['Test']['radio'] = 'red';
+        Post::initialize($_POST);
 
         $this->assertEquals(Vector {
             '<input checked="checked" id="test-radio-red" name="Test[radio]" type="radio" value="red">' . PHP_EOL,
@@ -1392,6 +1416,7 @@ class FormHelperTest extends TestCase {
 
         // with data
         $_POST['Test']['second'] = 40;
+        Post::initialize($_POST);
 
         $this->assertEquals(
             '<select id="test-second" name="Test[second]">' . PHP_EOL .
@@ -1568,6 +1593,7 @@ class FormHelperTest extends TestCase {
 
         // with data
         $_POST['Test']['select'] = 'mage';
+        Post::initialize($_POST);
 
         $this->assertEquals(
             '<select id="test-select" name="Test[select]">' . PHP_EOL .
@@ -1578,6 +1604,7 @@ class FormHelperTest extends TestCase {
         , $this->object->select('Test.select', $options));
 
         $_POST['Test']['select_group'] = ['sword', 'warrior'];
+        Post::initialize($_POST);
 
         $this->assertEquals(
             '<select id="test-selectgroup" multiple="multiple" name="Test[select_group]">' . PHP_EOL .
@@ -1608,7 +1635,7 @@ class FormHelperTest extends TestCase {
 
     public function testText() {
         $this->assertEquals('<input id="text" name="text" type="text" value="">' . PHP_EOL, $this->object->text('text'));
-        $this->assertEquals('<input class="input" id="text" name="text" placeholder="Testing &quot;quotes&quot; placeholder" readonly="readonly" type="text" value="">' . PHP_EOL, $this->object->text('text', null, Map {
+        $this->assertEquals('<input class="input" id="text" name="text" placeholder="Testing &quot;quotes&quot; placeholder" readonly="readonly" type="text" value="">' . PHP_EOL, $this->object->text('text', '', Map {
             'placeholder' => 'Testing "quotes" placeholder',
             'class' => 'input',
             'readonly' => true
@@ -1618,12 +1645,14 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="test-text" name="Test[text]" type="text" value="foo">' . PHP_EOL, $this->object->text('Test.text', 'foo'));
 
         $_POST['Test']['text'] = 'bar';
+        Post::initialize($_POST);
+
         $this->assertEquals('<input id="test-text" name="Test[text]" type="text" value="bar">' . PHP_EOL, $this->object->text('Test.text', 'foo'));
     }
 
     public function testTextarea() {
         $this->assertEquals('<textarea cols="25" id="textarea" name="textarea" rows="5"></textarea>' . PHP_EOL, $this->object->textarea('textarea'));
-        $this->assertEquals('<textarea class="input" cols="50" disabled="disabled" id="textarea" name="textarea" rows="10"></textarea>' . PHP_EOL, $this->object->textarea('textarea', null, Map {
+        $this->assertEquals('<textarea class="input" cols="50" disabled="disabled" id="textarea" name="textarea" rows="10"></textarea>' . PHP_EOL, $this->object->textarea('textarea', '', Map {
             'class' => 'input',
             'rows' => 10,
             'cols' => 50,
@@ -1634,11 +1663,13 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<textarea cols="25" id="test-textarea" name="Test[textarea]" rows="5">foo</textarea>' . PHP_EOL, $this->object->textarea('Test.textarea', 'foo'));
 
         $_POST['Test']['textarea'] = 'bar';
+        Post::initialize($_POST);
+
         $this->assertEquals('<textarea cols="25" id="test-textarea" name="Test[textarea]" rows="5">bar</textarea>' . PHP_EOL, $this->object->textarea('Test.textarea', 'foo'));
     }
 
     public function testTime() {
-        $this->object->setConfig('24hour', false);
+        $this->object->use12Hour();
 
         $this->assertEquals('<select id="created-hour" name="created[hour]">' . PHP_EOL .
             '<option value="1">01</option>' . PHP_EOL .
@@ -1784,7 +1815,7 @@ class FormHelperTest extends TestCase {
             '</select>' . PHP_EOL
         , $this->object->time('created'));
 
-        $this->object->setConfig('24hour', true);
+        $this->object->use24Hour();
 
         $this->assertEquals('<select id="created-hour" name="created[hour]">' . PHP_EOL .
             '<option value="0">00</option>' . PHP_EOL .
@@ -1950,6 +1981,8 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="test-url" name="Test[url]" type="url" value="">' . PHP_EOL, $this->object->url('Test.url'));
 
         $_POST['Test']['url'] = 'http://domain.com';
+        Post::initialize($_POST);
+
         $this->assertEquals('<input id="test-url" name="Test[url]" type="url" value="http://domain.com">' . PHP_EOL, $this->object->url('Test.url'));
     }
 
@@ -1991,6 +2024,7 @@ class FormHelperTest extends TestCase {
 
         // with data
         $_POST['Test']['year'] = 2005;
+        Post::initialize($_POST);
 
         $this->assertEquals(
             '<select id="test-year" name="Test[year]">' . PHP_EOL .

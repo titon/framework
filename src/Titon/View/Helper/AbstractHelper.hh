@@ -18,7 +18,7 @@ use Titon\View\Helper;
 use Titon\View\View;
 
 type AttributeMap = Map<string, mixed>;
-type TagMap = Map<string, mixed>;
+type TagMap = Map<string, string>;
 
 /**
  * The Helper class acts as the base for all children helpers to extend.
@@ -33,7 +33,7 @@ abstract class AbstractHelper implements Helper {
      *
      * @type bool
      */
-    protected $_escape = true;
+    protected bool $_escape = true;
 
     /**
      * Mapping of HTML tags.
@@ -73,8 +73,10 @@ abstract class AbstractHelper implements Helper {
                     continue;
                 }
 
+                $value = (string) $value;
+
                 if (($escape instanceof Traversable && !in_array($key, $escape)) || ($escape === true)) {
-                    $value = $this->escape((string) $value, true);
+                    $value = $this->escape($value, true);
                 }
 
                 $parsed .= ' ' . strtolower($key) . '="' . $value . '"';
@@ -113,13 +115,14 @@ abstract class AbstractHelper implements Helper {
     }
 
     /**
-     * Return a helper that has been loaded into the view.
-     *
-     * @param string $name
-     * @return \Titon\View\Helper
+     * {@inheritdoc}
      */
     public function getHelper(string $name): Helper {
-        return $this->getView()->getHelper($name);
+        if ($view = $this->getView()) {
+            return $view->getHelper($name);
+        }
+
+        return Registry::factory(sprintf('Titon\View\Helper\%sHelper', ucfirst(str_replace('Helper', '', $name))));
     }
 
     /**
@@ -205,7 +208,7 @@ abstract class AbstractHelper implements Helper {
      * @param \Titon\Common\DataMap $params
      * @return string
      */
-    public function tag(string $tag, DataMap $params = Map {}) {
+    public function tag(string $tag, DataMap $params = Map {}): string {
         return Str::insert($this->getTag($tag), $params, Map {'escape' => false}) . PHP_EOL;
     }
 

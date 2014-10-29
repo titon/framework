@@ -53,7 +53,7 @@ interface Engine {
      *
      * @return $this
      */
-    public function getView(): View;
+    public function getView(): ?View;
 
     /**
      * Render a template partial (nested templates) that is included within the current template.

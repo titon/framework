@@ -28,6 +28,15 @@ type PathList = Vector<string>;
 interface View {
 
     /**
+     * Add a view helper.
+     *
+     * @param string $key
+     * @param \Titon\View\Helper $helper
+     * @return $this
+     */
+    public function addHelper(string $key, Helper $helper): this;
+
+    /**
      * Add a lookup path.
      *
      * @param string $path
@@ -57,6 +66,21 @@ interface View {
      * @return string
      */
     public function getExtension(): string;
+
+    /**
+     * Return a helper by key.
+     *
+     * @param string $key
+     * @return \Titon\View\Helper
+     */
+    public function getHelper(string $key): Helper;
+
+    /**
+     * Return all helpers.
+     *
+     * @return \Titon\View\HelperMap
+     */
+    public function getHelpers(): HelperMap;
 
     /**
      * Return all lookup paths.

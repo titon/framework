@@ -43,7 +43,7 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return $this
      */
     public function add(mixed $titles, string $url = '', AttributeMap $attributes = Map {}): this {
-        if ($titles instanceof Traversable) {
+        if ($titles instanceof KeyedTraversable) {
             foreach ($titles as $title => $url) {
                 $this->append((string) $title, $url, $attributes);
             }

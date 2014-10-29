@@ -240,7 +240,7 @@ class HtmlHelper extends AbstractHelper {
             return implode($separator, $pageTitle);
         }
 
-        return $pageTitle;
+        return (string) $pageTitle;
     }
 
 }

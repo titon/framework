@@ -8,6 +8,7 @@
 namespace Titon\View\Engine;
 
 use Titon\Common\DataMap;
+use Titon\View\Exception\MissingViewException;
 use Titon\View\View;
 use Titon\View\Engine;
 use Titon\View\Template;
@@ -47,7 +48,7 @@ abstract class AbstractEngine implements Engine {
      *
      * @type \Titon\View\View
      */
-    protected View $_view;
+    protected ?View $_view;
 
     /**
      * List of wrappers to wrap templates with.
@@ -87,7 +88,7 @@ abstract class AbstractEngine implements Engine {
     /**
      * {@inheritdoc}
      */
-    public function getView(): View {
+    public function getView(): ?View {
         return $this->_view;
     }
 
@@ -95,9 +96,15 @@ abstract class AbstractEngine implements Engine {
      * {@inheritdoc}
      */
     public function open(string $partial, DataMap $variables = Map {}): string {
+        $view = $this->getView();
+
+        if (!$view) {
+            throw new MissingViewException('View manager has not been set on this engine');
+        }
+
         return $this->render(
-            $this->getView()->locateTemplate($partial, Template::PARTIAL),
-            $this->getView()->getVariables()->toMap()->setAll($variables)
+            $view->locateTemplate($partial, Template::PARTIAL),
+            $view->getVariables()->toMap()->setAll($variables)
         );
     }
 

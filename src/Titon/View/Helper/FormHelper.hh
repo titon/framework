@@ -331,13 +331,25 @@ class FormHelper extends AbstractHelper {
     }
 
     /**
-     * Find and return a default value that has been defined in the attributes.
+     * Find and return a default value that may have been defined in the attributes.
      *
      * @param \Titon\View\Helper\AttributeMap $attributes
      * @return mixed
      */
     public function getDefaultValue(AttributeMap $attributes): mixed {
         return $attributes->get('default');
+    }
+
+    /**
+     * Find and return an escape value that may have been defined in the attributes.
+     *
+     * @param AttributeMap $attributes
+     * @return bool
+     */
+    public function getEscapeValue(AttributeMap $attributes): ?bool {
+        $escape = $attributes->get('escape');
+
+        return ($escape === null) ? null : (bool) $escape;
     }
 
     /**
@@ -553,7 +565,7 @@ class FormHelper extends AbstractHelper {
 
         return $this->tag('label', Map {
             'attr' => $this->attributes($attributes),
-            'body' => $this->escape($title, $attributes->get('escape'))
+            'body' => $this->escape($title, $this->getEscapeValue($attributes))
         });
     }
 
@@ -736,7 +748,7 @@ class FormHelper extends AbstractHelper {
      */
     public function prepareAttributes(AttributeMap $defaults = Map {}, AttributeMap $attributes = Map {}): AttributeMap {
         $attributes = $defaults->setAll($attributes);
-        $namePath = $attributes['name'];
+        $namePath = (string) $attributes['name'];
 
         if (!$attributes->contains('id')) {
             $attributes['id'] = $this->formatID($namePath);
@@ -823,7 +835,7 @@ class FormHelper extends AbstractHelper {
 
         return $this->tag('button', Map {
             'attr' => $this->attributes($attributes),
-            'body' => $this->escape($title, $attributes->get('escape'))
+            'body' => $this->escape($title, $this->getEscapeValue($attributes))
         });
     }
 
@@ -928,7 +940,7 @@ class FormHelper extends AbstractHelper {
 
         return $this->tag('button', Map {
             'attr' => $this->attributes($attributes),
-            'body' => $this->escape($title, $attributes->get('escape'))
+            'body' => $this->escape($title, $this->getEscapeValue($attributes))
         });
     }
 

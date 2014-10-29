@@ -85,11 +85,11 @@ class AssetHelper extends AbstractHelper {
             $order++;
         }
 
-        $this->_scripts[$location][$order] = Map {
+        $this->_scripts[$location][$order] = shape(
             'path' => $this->preparePath($script, 'js'),
             'attributes' => Map {},
             'env' => $env
-        };
+        );
 
         return $this;
     }
@@ -114,11 +114,11 @@ class AssetHelper extends AbstractHelper {
             $order++;
         }
 
-        $this->_stylesheets[$order] = Map {
+        $this->_stylesheets[$order] = shape(
             'path' => $this->preparePath($sheet, 'css'),
             'attributes' => $attributes,
             'env' => $env
-        };
+        );
 
         return $this;
     }

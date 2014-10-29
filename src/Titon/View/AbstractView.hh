@@ -103,11 +103,7 @@ abstract class AbstractView implements View, Listener {
     }
 
     /**
-     * Add a view helper.
-     *
-     * @param string $key
-     * @param \Titon\View\Helper $helper
-     * @return $this
+     * {@inheritdoc}
      */
     public function addHelper(string $key, Helper $helper): this {
         $helper->setView($this);
@@ -189,10 +185,7 @@ abstract class AbstractView implements View, Listener {
     }
 
     /**
-     * Return a helper by key.
-     *
-     * @param string $key
-     * @return \Titon\View\Helper
+     * {@inheritdoc}
      */
     public function getHelper(string $key): Helper {
         if ($this->_helpers->contains($key)) {
@@ -203,9 +196,7 @@ abstract class AbstractView implements View, Listener {
     }
 
     /**
-     * Return all helpers.
-     *
-     * @return \Titon\View\HelperMap
+     * {@inheritdoc}
      */
     public function getHelpers(): HelperMap {
         return $this->_helpers;

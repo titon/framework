@@ -30,15 +30,24 @@ class EngineView extends AbstractView {
     protected Engine $_engine;
 
     /**
-     * Return the rendering engine. If none is set, load the default engine.
+     * Set the default rendering engine.
+     *
+     * @param mixed $paths
+     * @param string $ext
+     */
+    public function __construct(mixed $paths, string $ext = 'tpl') {
+        parent::__construct($paths, $ext);
+
+        $this->_engine = new TemplateEngine();
+        $this->_engine->setView($this);
+    }
+
+    /**
+     * Return the rendering engine.
      *
      * @return \Titon\View\Engine
      */
     public function getEngine(): Engine {
-        if (!$this->_engine) {
-            $this->setEngine(new TemplateEngine());
-        }
-
         return $this->_engine;
     }
 

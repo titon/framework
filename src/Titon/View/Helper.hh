@@ -18,6 +18,15 @@ use Titon\Event\Listener;
 interface Helper extends Listener {
 
     /**
+     * Return a helper that has been loaded into the view manager.
+     * If no view has been set, factory the helper from registry.
+     *
+     * @param string $name
+     * @return \Titon\View\Helper
+     */
+    public function getHelper(string $name): Helper;
+
+    /**
      * Return the view manager.
      *
      * @return \Titon\View\View
@@ -31,7 +40,7 @@ interface Helper extends Listener {
      * @param \Titon\View\View $view
      * @param string $template
      */
-    public function preRender(Event $event, View $view, string &$template): void;
+    public function preRender(Event $event, View $view, string $template): void;
 
     /**
      * Triggered after all templates are rendered at once.
@@ -40,7 +49,7 @@ interface Helper extends Listener {
      * @param \Titon\View\View $view
      * @param string $response
      */
-    public function postRender(Event $event, View $view, string &$response): void;
+    public function postRender(Event $event, View $view, string $response): void;
 
     /**
      * Set the view manager.

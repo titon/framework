@@ -113,17 +113,13 @@ abstract class AbstractHelper implements Helper {
     }
 
     /**
-     * Return a helper from the registry defined by name.
+     * Return a helper that has been loaded into the view.
      *
      * @param string $name
      * @return \Titon\View\Helper
      */
     public function getHelper(string $name): Helper {
-        if (strpos($name, '\\') === false) {
-            $name = sprintf('Titon\View\Helper\%sHelper', str_replace('Helper', '', $name));
-        }
-
-        return Registry::factory($name);
+        return $this->getView()->getHelper($name);
     }
 
     /**

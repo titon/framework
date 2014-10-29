@@ -81,6 +81,16 @@ class ArrayListTest extends TestCase {
         $this->assertEquals('bar', $this->object->at(5));
     }
 
+    public function testAppend() {
+        $this->assertEquals(new ArrayList(Vector {'foo', 'bar', 'baz'}), $this->object);
+
+        $list = $this->object->append('fop');
+        $list = $list->append('oof');
+
+        $this->assertEquals(new ArrayList(Vector {'foo', 'bar', 'baz'}), $this->object);
+        $this->assertEquals(new ArrayList(Vector {'foo', 'bar', 'baz', 'fop', 'oof'}), $list);
+    }
+
     public function testChunk() {
         $this->assertEquals(new ArrayList(Vector {
             new ArrayList(Vector {'foo'}),
@@ -221,6 +231,28 @@ class ArrayListTest extends TestCase {
 
     public function testMerge() {
         $this->assertEquals(new ArrayList(Vector {1, 2, 'baz'}), $this->object->merge(new ArrayList(Vector {1, 2})));
+    }
+
+    public function testPluck() {
+        $list = new ArrayList(Vector {
+            Map {'key' => 1},
+            Map {'key' => 2},
+            Map {'key' => 3},
+        });
+
+        $this->assertEquals(Vector {1, 2, 3}, $list->pluck(function($value, $key) {
+            return $value['key'];
+        }));
+    }
+
+    public function testPrepend() {
+        $this->assertEquals(new ArrayList(Vector {'foo', 'bar', 'baz'}), $this->object);
+
+        $list = $this->object->prepend('fop');
+        $list = $list->prepend('oof');
+
+        $this->assertEquals(new ArrayList(Vector {'foo', 'bar', 'baz'}), $this->object);
+        $this->assertEquals(new ArrayList(Vector {'oof', 'fop', 'foo', 'bar', 'baz'}), $list);
     }
 
     public function testRemove() {

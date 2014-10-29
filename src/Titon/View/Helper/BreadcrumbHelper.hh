@@ -9,7 +9,6 @@ namespace Titon\View\Helper;
 
 use Titon\Common\OptionMap;
 use Titon\Type\ArrayList;
-use Titon\Utility\Col;
 
 type Breadcrumb = shape('title' => string, 'url' => string, 'attributes' => AttributeMap);
 
@@ -46,22 +45,13 @@ class BreadcrumbHelper extends AbstractHelper {
     public function add(mixed $titles, string $url = '', AttributeMap $attributes = Map {}): this {
         if ($titles instanceof Traversable) {
             foreach ($titles as $title => $url) {
-                $this->append((string) $title, (string) $url, $attributes);
+                $this->append((string) $title, $url, $attributes);
             }
         } else {
             $this->append((string) $titles, $url, $attributes);
         }
 
         return $this;
-    }
-
-    /**
-     * Return all breadcrumbs.
-     *
-     * @return ArrayList<Breadcrumb>
-     */
-    public function all(): ArrayList<Breadcrumb> {
-        return $this->_breadcrumbs;
     }
 
     /**
@@ -73,7 +63,7 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return $this
      */
     public function append(string $title, string $url, AttributeMap $attributes = Map {}): this {
-        $this->_breadcrumbs->append(shape(
+        $this->_breadcrumbs = $this->getBreadcrumbs()->append(shape(
             'title' => $title,
             'url' => $url,
             'attributes' => $attributes
@@ -88,7 +78,7 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return \Titon\View\Helper\Breadcrumb
      */
     public function first(): ?Breadcrumb {
-        return $this->_breadcrumbs->first();
+        return $this->getBreadcrumbs()->first();
     }
 
     /**
@@ -101,13 +91,22 @@ class BreadcrumbHelper extends AbstractHelper {
         $trail = Vector {};
 
         /** @type \Titon\View\Helper\HtmlHelper $html */
-        $html = $this->getHelper('Html');
+        $html = $this->getHelper('html');
 
-        foreach ($this->all() as $crumb) {
+        foreach ($this->getBreadcrumbs() as $crumb) {
             $trail[] = $html->anchor($crumb['title'], $crumb['url'], $crumb['attributes']->setAll($attributes));
         }
 
         return $trail;
+    }
+
+    /**
+     * Return all breadcrumbs.
+     *
+     * @return \Titon\Type\ArrayList<Breadcrumb>
+     */
+    public function getBreadcrumbs(): ArrayList<Breadcrumb> {
+        return $this->_breadcrumbs;
     }
 
     /**
@@ -116,7 +115,7 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return \Titon\View\Helper\Breadcrumb
      */
     public function last(): ?Breadcrumb {
-        return $this->_breadcrumbs->last();
+        return $this->getBreadcrumbs()->last();
     }
 
     /**
@@ -128,7 +127,7 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return $this
      */
     public function prepend(string $title, string $url, AttributeMap $attributes = Map {}): this {
-        $this->_breadcrumbs->prepend(shape(
+        $this->_breadcrumbs = $this->getBreadcrumbs()->prepend(shape(
             'title' => $title,
             'url' => $url,
             'attributes' => $attributes
@@ -151,16 +150,17 @@ class BreadcrumbHelper extends AbstractHelper {
             'separator' => ' - '
         })->setAll($options);
 
-        $crumbs = Col::pluck($this->_breadcrumbs, 'title')->toArray();
+        $crumbs = $this->getBreadcrumbs()->pluck(($value, $key) ==> $value['title'])->toArray();
         $count = count($crumbs);
+        $depth = (int) $options['depth'];
         $title = [];
 
         /** @type \Titon\View\Helper\HtmlHelper $html */
-        $html = $this->getHelper('Html');
+        $html = $this->getHelper('html');
 
         if ($count) {
-            if ($options['depth'] && $count > $options['depth']) {
-                $title = array_slice($crumbs, -$options['depth']);
+            if ($depth && $count > $depth) {
+                $title = array_slice($crumbs, -$depth);
                 array_unshift($title, array_shift($crumbs));
 
             } else {
@@ -179,7 +179,7 @@ class BreadcrumbHelper extends AbstractHelper {
             array_unshift($title, $base);
         }
 
-        return implode($options['separator'], array_unique($title));
+        return implode((string) $options['separator'], array_unique($title));
     }
 
 }

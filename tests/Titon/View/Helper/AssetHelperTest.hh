@@ -2,6 +2,7 @@
 namespace Titon\View\Helper;
 
 use Titon\Test\TestCase;
+use Titon\View\EngineView;
 use VirtualFileSystem\FileSystem;
 
 /**
@@ -16,7 +17,11 @@ class AssetHelperTest extends TestCase {
         $this->vfs->createDirectory('/css/');
         $this->vfs->createFile('/css/test.css');
 
+        $view = new EngineView(TEMP_DIR);
+        $view->addHelper('html', new HtmlHelper());
+
         $this->object = new AssetHelper($this->vfs->path('/'));
+        $this->object->setView($view);
     }
 
     public function testScripts() {

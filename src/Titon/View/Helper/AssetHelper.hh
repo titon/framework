@@ -243,7 +243,7 @@ class AssetHelper extends AbstractHelper {
         $output = '';
 
         /** @type \Titon\View\Helper\HtmlHelper $html */
-        $html = $this->getHelper('Html');
+        $html = $this->getHelper('html');
 
         if ($scripts->contains($location)) {
             $groupedScripts = $scripts[$location];
@@ -270,7 +270,7 @@ class AssetHelper extends AbstractHelper {
         $output = '';
 
         /** @type \Titon\View\Helper\HtmlHelper $html */
-        $html = $this->getHelper('Html');
+        $html = $this->getHelper('html');
 
         if ($stylesheets) {
             ksort($stylesheets);

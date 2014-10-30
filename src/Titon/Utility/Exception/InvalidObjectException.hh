@@ -5,13 +5,13 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Exception;
+namespace Titon\Utility\Exception;
 
 /**
- * Exception thrown when an information descriptor is called that doesn't exist.
+ * Exception thrown when an object is expected as an argument.
  *
  * @package Titon\Common\Exception
  */
-class InvalidDescriptorException extends \BadMethodCallException {
+class InvalidObjectException extends \InvalidArgumentException {
 
 }

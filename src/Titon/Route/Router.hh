@@ -591,7 +591,7 @@ class Router {
             $newAction['action'] = $actionMap[$resource];
 
             // Build the new URL path
-            $newPath = $path;
+            $newPath = rtrim($path, '/');
 
             if (in_array($resource, Vector {'read', 'update', 'delete'})) {
                 $newPath .= '/{id}';

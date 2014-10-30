@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Exception;
+namespace Titon\Utility\Exception;
 
 /**
  * Exception thrown when an object doesn't exist in the registry.

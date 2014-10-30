@@ -7,9 +7,9 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\Exception\InvalidObjectException;
-use Titon\Common\Exception\MissingObjectException;
 use Titon\Common\Macroable;
+use Titon\Utility\Exception\InvalidObjectException;
+use Titon\Utility\Exception\MissingObjectException;
 use \ReflectionClass;
 
 type RegistryCallback = (function(): mixed);
@@ -79,7 +79,7 @@ class Registry {
      *
      * @param string $key
      * @return object
-     * @throws \Titon\Common\Exception\MissingObjectException
+     * @throws \Titon\Utility\Exception\MissingObjectException
      */
     public static function get(string $key): mixed {
         if (static::has($key)) {
@@ -141,7 +141,7 @@ class Registry {
      * @param object $object
      * @param string $key
      * @return object
-     * @throws \Titon\Common\Exception\InvalidObjectException
+     * @throws \Titon\Utility\Exception\InvalidObjectException
      */
     public static function set(mixed $object, string $key = ''): mixed {
         if (!is_object($object)) {

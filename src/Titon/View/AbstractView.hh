@@ -5,24 +5,24 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\View;
+namespace Titon\View;
 
 use Titon\Cache\Storage;
 use Titon\Common\Cacheable;
 use Titon\Common\FactoryAware;
+use Titon\Common\DataMap;
 use Titon\Event\Emittable;
 use Titon\Event\Event;
 use Titon\Event\Listener;
+use Titon\Event\ListenerMap;
 use Titon\Utility\Config;
 use Titon\Utility\Converter;
-use Titon\Utility\Col;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 use Titon\Utility\Registry;
 use Titon\View\Exception\MissingHelperException;
 use Titon\View\Exception\MissingTemplateException;
 use Titon\View\Helper;
-use Titon\View\View;
 
 /**
  * Defines shared functionality for view managers.
@@ -35,12 +35,12 @@ abstract class AbstractView implements View, Listener {
     /**
      * Variable data for templates.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Common\DataMap
      */
-    protected Map<string, mixed> $_data = Map {};
+    protected DataMap $_data = Map {};
 
     /**
-     * The extension used in templates.
+     * The extension used for templates.
      *
      * @type string
      */
@@ -49,16 +49,23 @@ abstract class AbstractView implements View, Listener {
     /**
      * List of helpers.
      *
-     * @type Map<string, Helper>
+     * @type \Titon\View\HelperMap
      */
-    protected Map<string, Helper> $_helpers = Map {};
+    protected HelperMap $_helpers = Map {};
 
     /**
-     * List of template lookup paths.
+     * List of locales to use during template locating.
      *
-     * @type Vector<string>
+     * @type \Titon\View\LocaleList
      */
-    protected Vector<string> $_paths = Vector {};
+    protected LocaleList $_locales = Vector {};
+
+    /**
+     * List of lookup paths.
+     *
+     * @type \Titon\View\PathList
+     */
+    protected PathList $_paths = Vector {};
 
     /**
      * Storage engine.
@@ -68,9 +75,11 @@ abstract class AbstractView implements View, Listener {
     protected ?Storage $_storage;
 
     /**
-     * Add paths through the constructor.
+     * Add lookup paths through the constructor and set the extension.
+     * Furthermore, if any Titon configuration paths and locales are defined,
+     * load those in.
      *
-     * @param array|string $paths
+     * @param string|Traversable $paths
      * @param string $ext
      */
     public function __construct(mixed $paths, string $ext = 'tpl') {
@@ -78,8 +87,12 @@ abstract class AbstractView implements View, Listener {
             $this->addPaths(Converter::toVector($paths));
         }
 
-        if ($configPaths = Config::get('titon.path.views')) {
-            $this->addPaths(Converter::toVector($configPaths));
+        if ($paths = Config::get('titon.path.views')) {
+            $this->addPaths(Converter::toVector($paths));
+        }
+
+        if ($locales = Config::get('titon.locale.cascade')) {
+            $this->addLocales(Converter::toVector($locales));
         }
 
         if ($ext) {
@@ -96,7 +109,6 @@ abstract class AbstractView implements View, Listener {
         $helper->setView($this);
 
         $this->_helpers[$key] = $helper;
-        $this->_attached[$key] = $helper;
 
         if ($helper instanceof Listener) {
             $this->on('view', $helper);
@@ -106,6 +118,34 @@ abstract class AbstractView implements View, Listener {
 
         // Store so helpers can use helpers
         Registry::set($helper);
+
+        return $this;
+    }
+
+    /**
+     * Add a locale lookup.
+     *
+     * @param string $locale
+     * @return $this
+     */
+    public function addLocale(string $locale): this {
+        if (!in_array($locale, $this->_locales)) {
+            $this->_locales[] = $locale;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add multiple locale lookups.
+     *
+     * @param \Titon\View\LocaleList $locales
+     * @return $this
+     */
+    public function addLocales(LocaleList $locales): this {
+        foreach ($locales as $locale) {
+            $this->addLocale($locale);
+        }
 
         return $this;
     }
@@ -122,7 +162,7 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function addPaths(Vector<string> $paths): this {
+    public function addPaths(PathList $paths): this {
         foreach ($paths as $path) {
             $this->addPath($path);
         }
@@ -133,28 +173,8 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function formatPath(mixed $template): string {
-        if ($template instanceof Traversable) {
-            $template = new Map($template);
-        }
-
-        if ($template instanceof Collection) {
-            $ext = isset($template['ext']) ? $template['ext'] : null;
-
-            unset($template['ext'], $template['locale']);
-
-            $template = implode('/', Col::filter($template, false, function($value) {
-                return ((is_string($value) || is_numeric($value)) && $value);
-            }));
-
-            if ($ext) {
-                $template .= '.' . $ext;
-            }
-        }
-
-        // Replace \ with / in case we are running on unix
-        // Also remove the template extension, but not the type extension
-        return str_replace(['\\', '.' . $this->getExtension()], ['/', ''], $template);
+    public function formatPath(string $template): string {
+        return trim(str_replace(['\\', '.' . $this->getExtension()], ['/', ''], $template), '/');
     }
 
     /**
@@ -168,7 +188,7 @@ abstract class AbstractView implements View, Listener {
      * {@inheritdoc}
      */
     public function getHelper(string $key): Helper {
-        if (isset($this->_helpers[$key])) {
+        if ($this->_helpers->contains($key)) {
             return $this->_helpers[$key];
         }
 
@@ -178,19 +198,30 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function getHelpers(): Map<string, Helper> {
+    public function getHelpers(): HelperMap {
         return $this->_helpers;
+    }
+
+    /**
+     * Return all locales.
+     *
+     * @return \Titon\View\LocaleList
+     */
+    public function getLocales(): LocaleList {
+        return $this->_locales;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getPaths(): Vector<string> {
+    public function getPaths(): PathList {
         return $this->_paths;
     }
 
     /**
-     * {@inheritdoc}
+     * Return the storage engine.
+     *
+     * @return \Titon\Cache\Storage
      */
     public function getStorage(): ?Storage {
         return $this->_storage;
@@ -200,55 +231,48 @@ abstract class AbstractView implements View, Listener {
      * {@inheritdoc}
      */
     public function getVariable(string $key): mixed {
-        return isset($this->_data[$key]) ? $this->_data[$key] : null;
+        return $this->getVariables()->get($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getVariables(): Map<string, mixed> {
+    public function getVariables(): DataMap {
         return $this->_data;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function locateTemplate(mixed $template, int $type = self::TEMPLATE): string {
+    public function locateTemplate(string $template, Template $type = Template::OPEN): string {
         return $this->cache([__METHOD__, $template, $type], function() use ($template, $type) {
+            $template = $this->formatPath($template);
             $paths = $this->getPaths();
 
-            $this->emit('view.preLocate', [&$template, $type, &$paths]);
+            $this->emit('view.locating', [&$template, $type, &$paths]);
 
-            // Combine path parts
-            $template = $this->formatPath($template);
-
-            // Determine parent path
+            // Prepend parent path
             switch ($type) {
-                case self::LAYOUT:
+                case Template::LAYOUT:
                     $template = sprintf('private/layouts/%s', $template);
                 break;
-
-                case self::WRAPPER:
+                case Template::WRAPPER:
                     $template = sprintf('private/wrappers/%s', $template);
                 break;
-
-                case self::PARTIAL:
+                case Template::PARTIAL:
                     $template = sprintf('private/partials/%s', $template);
                 break;
-
-                case self::TEMPLATE:
+                case Template::OPEN:
                     $template = sprintf('public/%s', $template);
                 break;
-
-                case self::PRIVATE_TEMPLATE:
-                default:
+                case Template::CLOSED:
                     $template = sprintf('private/%s', $template);
                 break;
             }
 
-            // Fetch locales to loop through
+            // Generate a list of locale appended templates
             $templates = Vector {};
-            $locales = Config::get('titon.locale.cascade') ?: Vector {};
+            $locales = $this->getLocales();
             $ext = $this->getExtension();
 
             if ($locales) {
@@ -259,18 +283,29 @@ abstract class AbstractView implements View, Listener {
 
             $templates[] = $template . '.' . $ext;
 
-            $this->emit('view.postLocate', [&$templates, $type, &$paths]);
-
             // Locate absolute path
+            $absPath = '';
+
             foreach ($paths as $path) {
+                if ($absPath) {
+                    break;
+                }
+
                 foreach ($templates as $template) {
                     if (file_exists($path . $template)) {
-                        return Path::ds($path . $template);
+                        $absPath = $path . $template;
+                        break;
                     }
                 }
             }
 
-            throw new MissingTemplateException(sprintf('View template %s does not exist', Path::alias(rtrim($paths[0], DIRECTORY_SEPARATOR) . $template)));
+            if (!$absPath) {
+                throw new MissingTemplateException(sprintf('View template `%s` does not exist', $template));
+            }
+
+            $this->emit('view.located', [&$absPath, $type]);
+
+            return $absPath;
         });
     }
 
@@ -279,9 +314,9 @@ abstract class AbstractView implements View, Listener {
      *
      * @param \Titon\Event\Event $event
      * @param \Titon\View\View $view
-     * @param string|array $template
+     * @param string $template
      */
-    public function preRender(Event $event, View $view, mixed &$template): void {
+    public function preRender(Event $event, View $view, string $template): void {
         return;
     }
 
@@ -292,19 +327,19 @@ abstract class AbstractView implements View, Listener {
      * @param \Titon\View\View $view
      * @param string $response
      */
-    public function postRender(Event $event, View $view, string &$response): void {
+    public function postRender(Event $event, View $view, string $response): void {
         return;
     }
 
     /**
      * Register the events to listen to.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Event\ListenerMap
      */
-    public function registerEvents(): Map<string, mixed> {
+    public function registerEvents(): ListenerMap {
         return Map {
-            'view.preRender' => Map {'method' => 'preRender', 'priority' => 1},
-            'view.postRender' => Map {'method' => 'postRender', 'priority' => 1}
+            'view.rendering' => Map {'method' => 'preRender', 'priority' => 1},
+            'view.rendered' => Map {'method' => 'postRender', 'priority' => 1}
         };
     }
 
@@ -318,7 +353,31 @@ abstract class AbstractView implements View, Listener {
     }
 
     /**
+     * Set a list of locales and overwrite any previously defined paths.
+     *
+     * @param \Titon\View\LocaleList $locales
+     * @return $this
+     */
+    public function setLocales(LocaleList $locales): this {
+        $this->_locales = $locales;
+
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
+     */
+    public function setPaths(PathList $paths): this {
+        $this->_paths = $paths;
+
+        return $this;
+    }
+
+    /**
+     * Set the storage engine to cache views.
+     *
+     * @param \Titon\Cache\Storage $storage
+     * @return $this
      */
     public function setStorage(Storage $storage): this {
         $this->_storage = $storage;
@@ -338,7 +397,7 @@ abstract class AbstractView implements View, Listener {
     /**
      * {@inheritdoc}
      */
-    public function setVariables(Map<string, mixed> $data): this {
+    public function setVariables(DataMap $data): this {
         foreach ($data as $key => $value) {
             $this->setVariable($key, $value);
         }

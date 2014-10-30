@@ -7,12 +7,18 @@
 
 namespace Titon\View\Helper;
 
-use Psr\Http\Message\RequestInterface;
+use Titon\Common\DataMap;
 use Titon\Event\Event;
+use Titon\Event\ListenerMap;
+use Titon\Utility\Registry;
 use Titon\Utility\Sanitize;
 use Titon\Utility\Str;
+use Titon\View\Exception\MissingTagException;
 use Titon\View\Helper;
 use Titon\View\View;
+
+type AttributeMap = Map<string, mixed>;
+type TagMap = Map<string, string>;
 
 /**
  * The Helper class acts as the base for all children helpers to extend.
@@ -23,29 +29,18 @@ use Titon\View\View;
 abstract class AbstractHelper implements Helper {
 
     /**
-     * Configuration.
+     * Automatic escaping.
      *
-     * @type Map<string, mixed> {
-     *      @type bool $escape  Global escaping
-     * }
+     * @type bool
      */
-    protected Map<string, mixed> $_config = Map {
-        'escape' => true
-    };
+    protected bool $_escape = true;
 
     /**
      * Mapping of HTML tags.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\View\Helper\TagMap
      */
-    protected Map<string, mixed> $_tags = Map {};
-
-    /**
-     * Request object.
-     *
-     * @type \Psr\Http\Message\RequestInterface
-     */
-    protected ?RequestInterface $_request;
+    protected TagMap $_tags = Map {};
 
     /**
      * View object.
@@ -57,15 +52,15 @@ abstract class AbstractHelper implements Helper {
     /**
      * Parses an array of attributes to the HTML equivalent.
      *
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @param Vector<string> $remove
      * @return string
      */
-    public function attributes(Map<string, mixed> $attributes, Vector<string> $remove = Vector {}): string {
+    public function attributes(AttributeMap $attributes, Vector<string> $remove = Vector {}): string {
         $parsed = '';
         $escape = true;
 
-        if (isset($attributes['escape'])) {
+        if ($attributes->contains('escape')) {
             $escape = $attributes['escape'];
             $remove[] = 'escape';
         }
@@ -78,8 +73,10 @@ abstract class AbstractHelper implements Helper {
                     continue;
                 }
 
+                $value = (string) $value;
+
                 if (($escape instanceof Traversable && !in_array($key, $escape)) || ($escape === true)) {
-                    $value = $this->escape((string) $value, true);
+                    $value = $this->escape($value, true);
                 }
 
                 $parsed .= ' ' . strtolower($key) . '="' . $value . '"';
@@ -98,7 +95,7 @@ abstract class AbstractHelper implements Helper {
      */
     public function escape(string $value, ?bool $escape = null): string {
         if ($escape === null) {
-            $escape = $this->getConfig('escape');
+            $escape = $this->getEscaping();
         }
 
         if ($escape) {
@@ -109,10 +106,47 @@ abstract class AbstractHelper implements Helper {
     }
 
     /**
+     * Return the automatic escaping setting.
+     *
+     * @return bool
+     */
+    public function getEscaping(): bool {
+        return $this->_escape;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function getRequest(): ?RequestInterface {
-        return $this->_request;
+    public function getHelper(string $name): Helper {
+        if ($view = $this->getView()) {
+            return $view->getHelper($name);
+        }
+
+        return Registry::factory(sprintf('Titon\View\Helper\%sHelper', ucfirst(str_replace('Helper', '', $name))));
+    }
+
+    /**
+     * Return the HTML for a single tag.
+     *
+     * @param string $tag
+     * @return string
+     * @throws \Titon\View\Exception\MissingTagException
+     */
+    public function getTag(string $tag): string {
+        if ($this->getTags()->contains($tag)) {
+            return $this->_tags[$tag];
+        }
+
+        throw new MissingTagException(sprintf('Tag %s does not exist', $tag));
+    }
+
+    /**
+     * Return all defined HTML tags.
+     *
+     * @return \Titon\View\Helper\TagMap
+     */
+    public function getTags(): TagMap {
+        return $this->_tags;
     }
 
     /**
@@ -125,32 +159,35 @@ abstract class AbstractHelper implements Helper {
     /**
      * {@inheritdoc}
      */
-    public function preRender(Event $event, View $view, mixed &$template): void {
+    public function preRender(Event $event, View $view, string $template): void {
         $this->setView($view);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function postRender(Event $event, View $view, string &$response): void {
+    public function postRender(Event $event, View $view, string $response): void {
         $this->setView($view);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function registerEvents(): Map<string, mixed> {
+    public function registerEvents(): ListenerMap {
         return Map {
-            'view.preRender' => 'preRender',
-            'view.postRender' => 'postRender',
+            'view.rendering' => 'preRender',
+            'view.rendered' => 'postRender',
         };
     }
 
     /**
-     * {@inheritdoc}
+     * Enable or disable automatic escaping.
+     *
+     * @param bool $escape
+     * @return $this
      */
-    public function setRequest(RequestInterface $request): this {
-        $this->_request = $request;
+    public function setEscaping(bool $escape): this {
+        $this->_escape = $escape;
 
         return $this;
     }
@@ -165,14 +202,14 @@ abstract class AbstractHelper implements Helper {
     }
 
     /**
-     * Generates an HTML tag if it exists.
+     * Generates an HTML tag by interpolating variables into the markup.
      *
      * @param string $tag
-     * @param Map<string, mixed> $params
+     * @param \Titon\Common\DataMap $params
      * @return string
      */
-    public function tag(string $tag, Map<string, mixed> $params = Map {}) {
-        return Str::insert($this->_tags[$tag], $params, Map {'escape' => false}) . PHP_EOL;
+    public function tag(string $tag, DataMap $params = Map {}): string {
+        return Str::insert($this->getTag($tag), $params, Map {'escape' => false}) . PHP_EOL;
     }
 
 }

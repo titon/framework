@@ -1,11 +1,12 @@
 <?hh
-namespace Titon\View\View;
+namespace Titon\View;
 
+use Titon\Common\DataMap;
 use Titon\Test\TestCase;
-use Titon\View\View\Engine\AbstractEngine;
+use Titon\View\Engine\AbstractEngine;
 
 /**
- * @property \Titon\View\View\Engine $object
+ * @property \Titon\View\Engine $object
  */
 class EngineTest extends TestCase {
 
@@ -22,14 +23,14 @@ class EngineTest extends TestCase {
         $this->assertEquals('alternate', $this->object->getLayout());
     }
 
-    public function testWrapper() {
-        $this->assertEquals(Vector {}, $this->object->getWrapper());
+    public function testWrappers() {
+        $this->assertEquals(Vector {}, $this->object->getWrappers());
 
         $this->object->wrapWith('alternate');
-        $this->assertEquals(Vector {'alternate'}, $this->object->getWrapper());
+        $this->assertEquals(Vector {'alternate'}, $this->object->getWrappers());
 
         $this->object->wrapWith('alternate', 'double');
-        $this->assertEquals(Vector {'alternate', 'double'}, $this->object->getWrapper());
+        $this->assertEquals(Vector {'alternate', 'double'}, $this->object->getWrappers());
     }
 
     public function testContent() {
@@ -43,8 +44,8 @@ class EngineTest extends TestCase {
 
 class EngineStub extends AbstractEngine {
 
-    public function open(string $partial, Map<string, mixed> $variables = Map {}): string {}
-    public function render(string $path, Map<string, mixed> $variables = Map {}): string {}
+    public function open(string $partial, DataMap $variables = Map {}): string {}
+    public function render(string $path, DataMap $variables = Map {}): string {}
     public function getExtension(): string {}
 
 }

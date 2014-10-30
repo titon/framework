@@ -1,15 +1,14 @@
 <?hh
-namespace Titon\View\View;
+namespace Titon\View;
 
 use Titon\Cache\Storage\FileSystemStorage;
-use Titon\View\View;
 use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 
 /**
- * @property \Titon\View\View\TemplateView $object
+ * @property \Titon\View\EngineView $object
  */
-class TemplateViewTest extends TestCase {
+class EngineViewTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
@@ -57,26 +56,26 @@ class TemplateViewTest extends TestCase {
             '/cache/' => []
         ]);
 
-        $this->object = new TemplateView([
+        $this->object = new EngineView([
             $this->vfs->path('/views/'),
             $this->vfs->path('/views/fallback/')
         ]);
     }
 
     public function testRender() {
-        $this->assertEquals('<layout>edit.tpl</layout>', $this->object->render(['index', 'edit']));
+        $this->assertEquals('<layout>edit.tpl</layout>', $this->object->render('index/edit'));
 
         $this->object->getEngine()->useLayout('fallback');
-        $this->assertEquals('<fallbackLayout>add.tpl</fallbackLayout>', $this->object->render(['index', 'add']));
+        $this->assertEquals('<fallbackLayout>add.tpl</fallbackLayout>', $this->object->render('index/add'));
 
         $this->object->getEngine()->wrapWith('wrapper');
-        $this->assertEquals('<fallbackLayout><wrapper>index.tpl</wrapper></fallbackLayout>', $this->object->render(['index', 'index']));
+        $this->assertEquals('<fallbackLayout><wrapper>index.tpl</wrapper></fallbackLayout>', $this->object->render('index/index'));
 
         $this->object->getEngine()->wrapWith('wrapper', 'fallback');
-        $this->assertEquals('<fallbackLayout><fallbackWrapper><wrapper>view.tpl</wrapper></fallbackWrapper></fallbackLayout>', $this->object->render(['index', 'view']));
+        $this->assertEquals('<fallbackLayout><fallbackWrapper><wrapper>view.tpl</wrapper></fallbackWrapper></fallbackLayout>', $this->object->render('index/view'));
 
         $this->object->getEngine()->wrapWith()->useLayout('');
-        $this->assertEquals('view.xml.tpl', $this->object->render(['index', 'view', 'ext' => 'xml']));
+        $this->assertEquals('view.xml.tpl', $this->object->render('index/view.xml'));
     }
 
     public function testRenderPrivate() {
@@ -85,11 +84,11 @@ class TemplateViewTest extends TestCase {
     }
 
     public function testRenderTemplate() {
-        $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate(['index', 'add'])));
-        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate(['index', 'test-include'])));
+        $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/add')));
+        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/test-include')));
 
         // variables
-        $this->assertEquals('Titon - partial - variables.tpl', $this->object->renderTemplate($this->object->locateTemplate('variables', View::PARTIAL), Map {
+        $this->assertEquals('Titon - partial - variables.tpl', $this->object->renderTemplate($this->object->locateTemplate('variables', Template::PARTIAL), Map {
             'name' => 'Titon',
             'type' => 'partial',
             'filename' => 'variables.tpl'

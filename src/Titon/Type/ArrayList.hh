@@ -94,7 +94,7 @@ class ArrayList<Tv> implements
      *
      * @param string $method
      * @param array<mixed> $args
-     * @return ArrayList<Tv>
+     * @return \Titon\Type\ArrayList<Tv>
      * @throws \Titon\Type\Exception\MissingMethodException
      */
     public function __call(string $method, array<mixed> $args): ArrayList<Tv> {
@@ -139,6 +139,16 @@ class ArrayList<Tv> implements
     }
 
     /**
+     * Will append a value to the end of the list and return a new ArrayList.
+     *
+     * @param Tv $value
+     * @return \Titon\Type\ArrayList<Tv>
+     */
+    public function append(Tv $value): ArrayList<Tv> {
+        return $this->concat(new ArrayList(Vector {$value}));
+    }
+
+    /**
      * Alias for Vector::at(). Will return the value at the specified index or throw an exception.
      *
      * @param int $index
@@ -152,7 +162,7 @@ class ArrayList<Tv> implements
      * Split a list into multiple chunked lists.
      *
      * @param int $size
-     * @return ArrayList<ArrayList<Tv>>
+     * @return \Titon\Type\ArrayList<ArrayList<Tv>>
      */
     public function chunk(int $size): ArrayList<ArrayList<Tv>> {
         $chunks = array_chunk($this->toArray(), $size);
@@ -168,7 +178,7 @@ class ArrayList<Tv> implements
     /**
      * Removes all empty, null, and false values.
      *
-     * @return ArrayList<Tv>
+     * @return \Titon\Type\ArrayList<Tv>
      */
     public function clean(): ArrayList<Tv> {
         return $this->filter(function(Tv $value) {
@@ -177,12 +187,12 @@ class ArrayList<Tv> implements
     }
 
     /**
-     * Merges the current ArrayList with the another ArrayList and returns a new ArrayList.
+     * Merges the current ArrayList with another ArrayList and returns a new ArrayList.
      * Can either prepend or append the defined list.
      *
      * @param ArrayList<Tv> $value
      * @param bool $append
-     * @return ArrayList<Tv>
+     * @return \Titon\Type\ArrayList<Tv>
      */
     public function concat(ArrayList<Tv> $value, bool $append = true): ArrayList<Tv> {
         $oldList = $this->toVector();
@@ -234,7 +244,7 @@ class ArrayList<Tv> implements
      *
      * @param (function(int, Tv): mixed) $callback
      * @param bool $recursive
-     * @return ArrayList<Tv>
+     * @return \Titon\Type\ArrayList<Tv>
      */
     public function each((function(int, Tv): mixed) $callback, bool $recursive = true): ArrayList<Tv> {
         return new static(Col::each($this->value(), $callback, $recursive));
@@ -379,10 +389,36 @@ class ArrayList<Tv> implements
      * Merge two ArrayLists together with values from the second list overwriting the first list.
      *
      * @param ArrayList<Tv> $value
-     * @return ArrayList<Tv>
+     * @return \Titon\Type\ArrayList<Tv>
      */
     public function merge(ArrayList<Tv> $value): ArrayList<Tv> {
         return new static($this->toVector()->setAll($value->toVector()));
+    }
+
+    /**
+     * Pluck a nested value from each item and return a list of plucked values.
+     *
+     * @param (function(Tv, int): Tu) $callback
+     * @return Vector<Tu>
+     */
+    public function pluck<Tu>((function(Tv, int): Tu) $callback): Vector<Tu> {
+        $list = Vector {};
+
+        foreach ($this->value() as $key => $value) {
+            $list[] = call_user_func_array($callback, [$value, $key]);
+        }
+
+        return $list;
+    }
+
+    /**
+     * Will prepend a value to the beginning of the list and will return a new ArrayList.
+     *
+     * @param Tv $value
+     * @return \Titon\Type\ArrayList<Tv>
+     */
+    public function prepend(Tv $value): ArrayList<Tv> {
+        return $this->concat(new ArrayList(Vector {$value}), false);
     }
 
     /**
@@ -392,7 +428,7 @@ class ArrayList<Tv> implements
      * @return $this
      */
     public function remove(int $index): this {
-        $this->_value->removeKey($index);
+        $this->value()->removeKey($index);
 
         return $this;
     }
@@ -423,7 +459,7 @@ class ArrayList<Tv> implements
      *
      * @param (function(Tv, Tv): int) $callback
      * @param int $flags
-     * @return ArrayList<Tv>
+     * @return \Titon\Type\ArrayList<Tv>
      */
     public function sort(?(function(Tv, Tv): int) $callback = null, int $flags = SORT_REGULAR): ArrayList<Tv> {
         $list = $this->toVector();
@@ -442,7 +478,7 @@ class ArrayList<Tv> implements
      * alphanumeric strings in the way a human being would.
      *
      * @param bool $sensitive
-     * @return ArrayList<Tv>
+     * @return \Titon\Type\ArrayList<Tv>
      */
     public function sortNatural(bool $sensitive = false): ArrayList<Tv> {
         $list = $this->toArray();
@@ -516,7 +552,7 @@ class ArrayList<Tv> implements
      * Removes duplicate values from the list.
      *
      * @param int $flags
-     * @return ArrayList<Tv>
+     * @return \Titon\Type\ArrayList<Tv>
      */
     public function unique(int $flags = SORT_REGULAR): ArrayList<Tv> {
         return new static(array_unique($this->toArray(), $flags));

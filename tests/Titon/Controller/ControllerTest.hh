@@ -7,8 +7,8 @@ use Titon\Http\Exception\NotFoundException;
 use Titon\Http\Server\Request;
 use Titon\Http\Server\Response;
 use Titon\Test\TestCase;
-use Titon\View\View\Engine\TemplateEngine;
-use Titon\View\View\TemplateView;
+use Titon\View\Engine\TemplateEngine;
+use Titon\View\EngineView;
 use VirtualFileSystem\FileSystem;
 
 /**
@@ -51,7 +51,7 @@ class ControllerTest extends TestCase {
     }
 
     protected function makeController() {
-        $view = new TemplateView($this->vfs->path('/views/'));
+        $view = new EngineView($this->vfs->path('/views/'));
         $view->setEngine(new TemplateEngine());
 
         $controller = new ErrorController(Map {'module' => 'main', 'controller' => 'core', 'action' => 'index'});
@@ -136,7 +136,7 @@ class ControllerTest extends TestCase {
     }
 
     public function testGetSetView() {
-        $view = new TemplateView($this->vfs->path('/views/'));
+        $view = new EngineView($this->vfs->path('/views/'));
         $this->assertEquals(null, $this->object->getView());
 
         $this->object->setView($view);

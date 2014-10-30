@@ -10,31 +10,23 @@ namespace Titon\Common;
 use \ReflectionClass;
 use \ReflectionMethod;
 
-type AnnotationArgumentList = Vector<mixed>;
-type AnnotationMap = Map<string, AnnotationArgumentList>;
-
 /**
- * The Annotateable trait provides an easy access layer to annotations (also known as attributes)
- * defined on the current class and its methods.
+ * The Annotateable trait implements the methods required by the Annotator interface.
  *
  * @package Titon\Common
  */
 trait Annotateable {
+    require implements Annotator;
 
     /**
-     * Return the arguments for a single attribute on the current class.
-     *
-     * @param string $name
-     * @return \Titon\Common\AnnotationArgumentList
+     * {@inheritdoc}
      */
     public function getClassAnnotation(string $name): AnnotationArgumentList {
         return $this->getClassAnnotations()->get($name) ?: Vector {};
     }
 
     /**
-     * Return a map of all attributes defined on the current class.
-     *
-     * @return \Titon\Common\AnnotationMap
+     * {@inheritdoc}
      */
     <<__Memoize>>
     public function getClassAnnotations(): AnnotationMap {
@@ -42,21 +34,14 @@ trait Annotateable {
     }
 
     /**
-     * Return the arguments for a single attribute defined on a method.
-     *
-     * @param string $method
-     * @param string $name
-     * @return \Titon\Common\AnnotationArgumentList
+     * {@inheritdoc}
      */
     public function getMethodAnnotation(string $method, string $name): AnnotationArgumentList {
         return $this->getMethodAnnotations($method)->get($name) ?: Vector {};
     }
 
     /**
-     * Return a map of all attributes defined for a method on the current class.
-     *
-     * @param string $method
-     * @return \Titon\Common\AnnotationMap
+     * {@inheritdoc}
      */
     <<__Memoize>>
     public function getMethodAnnotations(string $method): AnnotationMap {
@@ -64,10 +49,7 @@ trait Annotateable {
     }
 
     /**
-     * Convert the attributes returned from the reflection layer into maps and vectors.
-     *
-     * @param array<string, array<mixed>> $attributes
-     * @return \Titon\Common\AnnotationMap
+     * {@inheritdoc}
      */
     public function packageAnnotations(array<string, array<mixed>> $attributes): AnnotationMap {
         $annotations = Map {};

@@ -7,6 +7,7 @@
 
 namespace Titon\Route;
 
+use Titon\Common\Annotator;
 use Titon\Utility\Converter;
 use Titon\Utility\Path;
 use \ReflectionClass;
@@ -18,18 +19,16 @@ use \ReflectionMethod;
  *
  * @package Titon\Route
  */
-trait RouteAttribute {
+trait RouteAnnotation {
+    require implements Annotator;
 
     /**
      * Wire up all possible routes by looking in the class and method attributes.
      * The following format is supported. Both the methods and filters can be a string, or an array of strings.
      *
      *      <<Route($path[, $methods[, $filters]])>>
-     *
-     * This method currently fails the type checker as it requires the Annotateable trait.
      */
     private function __wireRouteAnnotations(): void {
-        // UNSAFE
         $router = Router::registry();
         $class = static::class;
         $key = strtolower(Path::className($class));

@@ -54,7 +54,7 @@ class AnnotateableTest extends TestCase {
 Foo,
 Bar('abc', 123)
 >>
-class AnnotateableStub {
+class AnnotateableStub implements Annotator {
     use Annotateable;
 
     <<Baz(['a' => 1])>>

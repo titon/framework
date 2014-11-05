@@ -5,19 +5,12 @@ use Titon\Test\TestCase;
 
 class HostTest extends TestCase {
 
-    /**
-     * @expectedException \Titon\Environment\Exception\InvalidEnvironmentException
-     */
-    public function testErrorsOnInvalidType() {
-        new Host('localhost', 'foobar');
-    }
-
     public function testGet() {
         $host = new Host(['dev', '123.0.0.0']);
         $host->setBootstrap(TEMP_DIR . '/dev.php');
 
-        $this->assertEquals(Vector {'dev', '123.0.0.0'}, $host->getHosts());
-        $this->assertEquals(Environment::DEVELOPMENT, $host->getType());
+        $this->assertEquals(Vector {'dev', '123.0.0.0'}, $host->getHostnames());
+        $this->assertEquals(Server::DEV, $host->getType());
         $this->assertEquals(TEMP_DIR . '/dev.php', $host->getBootstrap());
     }
 
@@ -38,7 +31,7 @@ class HostTest extends TestCase {
     }
 
     public function testIsStaging() {
-        $host = new Host('127.0.0.1', Environment::STAGING);
+        $host = new Host('127.0.0.1', Server::STAGING);
 
         $this->assertFalse($host->isDevelopment());
         $this->assertTrue($host->isStaging());
@@ -46,7 +39,7 @@ class HostTest extends TestCase {
     }
 
     public function testIsProduction() {
-        $host = new Host('127.0.0.1', Environment::PRODUCTION);
+        $host = new Host('127.0.0.1', Server::PROD);
 
         $this->assertFalse($host->isDevelopment());
         $this->assertFalse($host->isStaging());

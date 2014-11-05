@@ -147,8 +147,8 @@ class Router {
         });
 
         // Set caching events
-        $this->on('route.matching', inst_meth($this, 'loadRoutes'), Map {'priority' => 1});
-        $this->on('route.matched', inst_meth($this, 'cacheRoutes'), Map {'priority' => 1});
+        $this->on('route.matching', inst_meth($this, 'loadRoutes'), 1);
+        $this->on('route.matched', inst_meth($this, 'cacheRoutes'), 1);
     }
 
     /**
@@ -591,7 +591,7 @@ class Router {
             $newAction['action'] = $actionMap[$resource];
 
             // Build the new URL path
-            $newPath = $path;
+            $newPath = rtrim($path, '/');
 
             if (in_array($resource, Vector {'read', 'update', 'delete'})) {
                 $newPath .= '/{id}';

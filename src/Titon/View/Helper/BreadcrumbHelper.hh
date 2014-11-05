@@ -7,10 +7,10 @@
 
 namespace Titon\View\Helper;
 
-use Titon\Utility\Col;
-use Titon\Utility\Registry;
+use Titon\Common\OptionMap;
+use Titon\Type\ArrayList;
 
-newtype breadcrumb = Map<string, mixed>;
+type Breadcrumb = shape('title' => string, 'url' => string, 'attributes' => AttributeMap);
 
 /**
  * The BreadcrumbHelper is primarily used for adding and generating breadcrumb lists.
@@ -23,53 +23,51 @@ class BreadcrumbHelper extends AbstractHelper {
     /**
      * A list of all breadcrumbs in the trail, with the title, url and attributes.
      *
-     * @type Vector<breadcrumb>
+     * @type ArrayList<Breadcrumb>
      */
-    protected Vector<breadcrumb> $_breadcrumbs = Vector {};
+    protected ArrayList<Breadcrumb> $_breadcrumbs;
+
+    /**
+     * Initialize the ArrayList.
+     */
+    public function __construct() {
+        $this->_breadcrumbs = new ArrayList();
+    }
 
     /**
      * Add a link to the breadcrumbs.
      *
-     * @param string|array $titles
-     * @param string|array $url
-     * @param Map<string, mixed> $attributes
+     * @param string|Traversable $titles
+     * @param string $url
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return $this
      */
-    public function add(mixed $titles, mixed $url = '', Map<string, mixed> $attributes = Map {}): this {
-        if ($titles instanceof Traversable) {
+    public function add(mixed $titles, string $url = '', AttributeMap $attributes = Map {}): this {
+        if ($titles instanceof KeyedTraversable) {
             foreach ($titles as $title => $url) {
-                $this->append($title, $url, $attributes);
+                $this->append((string) $title, $url, $attributes);
             }
         } else {
-            $this->append($titles, $url, $attributes);
+            $this->append((string) $titles, $url, $attributes);
         }
 
         return $this;
     }
 
     /**
-     * Return all breadcrumbs.
-     *
-     * @return Vector<breadcrumb>
-     */
-    public function all(): Vector<breadcrumb> {
-        return $this->_breadcrumbs;
-    }
-
-    /**
      * Add a breadcrumb to the end of the list.
      *
      * @param string $title
-     * @param string|array $url
-     * @param Map<string, mixed> $attributes
+     * @param string $url
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return $this
      */
-    public function append(string $title, mixed $url, Map<string, mixed> $attributes = Map {}): this {
-        $this->_breadcrumbs[] = Map {
+    public function append(string $title, string $url, AttributeMap $attributes = Map {}): this {
+        $this->_breadcrumbs = $this->getBreadcrumbs()->append(shape(
             'title' => $title,
             'url' => $url,
             'attributes' => $attributes
-        };
+        ));
 
         return $this;
     }
@@ -77,62 +75,63 @@ class BreadcrumbHelper extends AbstractHelper {
     /**
      * Return the first crumb in the list.
      *
-     * @return breadcrumb
+     * @return \Titon\View\Helper\Breadcrumb
      */
-    public function first(): ?breadcrumb {
-        return $this->_breadcrumbs->get(0);
+    public function first(): ?Breadcrumb {
+        return $this->getBreadcrumbs()->first();
     }
 
     /**
      * Return an array of breadcrumbs formatted as anchor links.
      *
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return Vector<string>
      */
-    public function generate(Map<string, mixed> $attributes = Map {}): this {
+    public function generate(AttributeMap $attributes = Map {}): Vector<string> {
         $trail = Vector {};
 
-        if ($this->_breadcrumbs) {
-            foreach ($this->_breadcrumbs as $crumb) {
-                $trail[] = $this->html->anchor($crumb['title'], $crumb['url'], $crumb['attributes']->setAll($attributes));
-            }
+        /** @type \Titon\View\Helper\HtmlHelper $html */
+        $html = $this->getHelper('html');
+
+        foreach ($this->getBreadcrumbs() as $crumb) {
+            $trail[] = $html->anchor($crumb['title'], $crumb['url'], $crumb['attributes']->setAll($attributes));
         }
 
         return $trail;
     }
 
     /**
-     * Attach the HtmlHelper.
+     * Return all breadcrumbs.
+     *
+     * @return \Titon\Type\ArrayList<Breadcrumb>
      */
-    public function initialize(): void {
-        $this->attachObject('html', function() {
-            return Registry::factory('Titon\View\Helper\HtmlHelper');
-        });
+    public function getBreadcrumbs(): ArrayList<Breadcrumb> {
+        return $this->_breadcrumbs;
     }
 
     /**
      * Return the last crumb in the list.
      *
-     * @return breadcrumb
+     * @return \Titon\View\Helper\Breadcrumb
      */
-    public function last(): ?breadcrumb {
-        return $this->_breadcrumbs->get(count($this->_breadcrumbs) - 1);
+    public function last(): ?Breadcrumb {
+        return $this->getBreadcrumbs()->last();
     }
 
     /**
      * Add a breadcrumb to the beginning of the list.
      *
      * @param string $title
-     * @param string|array $url
-     * @param Map<string, mixed> $attributes
+     * @param string $url
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return $this
      */
-    public function prepend(string $title, mixed $url, Map<string, mixed> $attributes = Map {}): this {
-        array_unshift($this->_breadcrumbs, Map {
+    public function prepend(string $title, string $url, AttributeMap $attributes = Map {}): this {
+        $this->_breadcrumbs = $this->getBreadcrumbs()->prepend(shape(
             'title' => $title,
             'url' => $url,
             'attributes' => $attributes
-        });
+        ));
 
         return $this;
     }
@@ -141,30 +140,34 @@ class BreadcrumbHelper extends AbstractHelper {
      * Generate a page title based off the current crumbs.
      *
      * @param string $base
-     * @param Map<string, mixed> $options
+     * @param \Titon\Common\OptionMap $options
      * @return string
      */
-    public function title(string $base = '', Map<string, mixed> $options = Map {}): string {
+    public function title(string $base = '', OptionMap $options = Map {}): string {
         $options = (Map {
             'reverse' => false,
             'depth' => 3,
             'separator' => ' - '
         })->setAll($options);
 
-        $crumbs = Col::pluck($this->_breadcrumbs, 'title')->toArray();
+        $crumbs = $this->getBreadcrumbs()->pluck(($value, $key) ==> $value['title'])->toArray();
         $count = count($crumbs);
+        $depth = (int) $options['depth'];
         $title = [];
 
+        /** @type \Titon\View\Helper\HtmlHelper $html */
+        $html = $this->getHelper('html');
+
         if ($count) {
-            if ($options['depth'] && $count > $options['depth']) {
-                $title = array_slice($crumbs, -$options['depth']);
+            if ($depth && $count > $depth) {
+                $title = array_slice($crumbs, -$depth);
                 array_unshift($title, array_shift($crumbs));
 
             } else {
                 $title = $crumbs;
             }
 
-        } else if ($pageTitle = $this->html->title($options['separator'])) {
+        } else if ($pageTitle = $html->title($options['separator'])) {
             $title[] = $pageTitle;
         }
 
@@ -176,7 +179,7 @@ class BreadcrumbHelper extends AbstractHelper {
             array_unshift($title, $base);
         }
 
-        return implode($options['separator'], array_unique($title));
+        return implode((string) $options['separator'], array_unique($title));
     }
 
 }

@@ -31,9 +31,9 @@ use \Exception;
  *
  * @package Titon\Controller\Controller
  * @events
- *      controller.preProcess(Controller $con, $action, $args)
- *      controller.postProcess(Controller $con, $action, $response)
- *      controller.onError(Controller $con, Exception $exc)
+ *      controller.processing(Controller $con, string $action, array<mixed> $args)
+ *      controller.processed(Controller $con, string $action, string $response)
+ *      controller.error(Controller $con, Exception $exc)
  */
 abstract class AbstractController implements Controller, Listener {
     use Emittable, RequestAware, ResponseAware;
@@ -102,7 +102,7 @@ abstract class AbstractController implements Controller, Listener {
         }
 
         if ($emit) {
-            $this->emit('controller.preProcess', [$this, &$action, &$args]);
+            $this->emit('controller.processing', [$this, &$action, &$args]);
         }
 
         // Do not include the base controller methods
@@ -117,7 +117,7 @@ abstract class AbstractController implements Controller, Listener {
         }
 
         if ($emit) {
-            $this->emit('controller.postProcess', [$this, $action, &$response]);
+            $this->emit('controller.processed', [$this, $action, &$response]);
         }
 
         return $response;
@@ -166,8 +166,8 @@ abstract class AbstractController implements Controller, Listener {
      */
     public function registerEvents(): Map<string, mixed> {
         return Map {
-            'controller.preProcess' => Map {'method' => 'preProcess', 'priority' => 1},
-            'controller.postProcess' => Map {'method' => 'postProcess', 'priority' => 1}
+            'controller.processing' => Map {'method' => 'preProcess', 'priority' => 1},
+            'controller.processed' => Map {'method' => 'postProcess', 'priority' => 1}
         };
     }
 
@@ -188,7 +188,7 @@ abstract class AbstractController implements Controller, Listener {
             $status = $exception->getCode();
         }
 
-        $this->emit('controller.onError', [$this, $exception]);
+        $this->emit('controller.error', [$this, $exception]);
 
         $this->getResponse()->setStatusCode($status);
 

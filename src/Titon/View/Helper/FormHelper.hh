@@ -12,8 +12,12 @@ use Titon\Utility\Config;
 use Titon\Utility\Inflector;
 use Titon\Utility\Col;
 use Titon\Utility\Path;
+use Titon\Utility\State\Files;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Post;
+
+type SelectOptionMap = Map<string, string>;
+type TimeFormatMap = Map<string, string>;
 
 /**
  * The FormHelper is used for HTML form creation. Data is passed to the associated input fields
@@ -24,20 +28,26 @@ use Titon\Utility\State\Post;
 class FormHelper extends AbstractHelper {
 
     /**
-     * Configuration.
+     * Whether to render in 24-hour or 12-hour format.
      *
-     * @type Map<string, mixed> {
+     * @type bool
+     */
+    protected bool $_24hour = true;
+
+    /**
+     * Mapping of datetime formats.
+     *
+     * @type \Titon\View\Helper\TimeFormatMap {
      *      @type string $dayFormat     Format to display days in
      *      @type string $monthFormat   Format to display months in
      *      @type string $yearFormat    Format to display years in
      *      @type string $24hour        Display all times in 24 hour formats
      * }
      */
-    protected Map<string, mixed> $_config = Map {
+    protected TimeFormatMap $_formats = Map {
         'dayFormat' => 'j',
         'monthFormat' => 'F',
-        'yearFormat' => 'Y',
-        '24hour' => true
+        'yearFormat' => 'Y'
     };
 
     /**
@@ -46,13 +56,6 @@ class FormHelper extends AbstractHelper {
      * @type int
      */
     protected int $_forms = 0;
-
-    /**
-     * Fields that have failed validation.
-     *
-     * @type Vector<string>
-     */
-    protected Vector<string> $_invalid = Vector {};
 
     /**
      * The model currently being used to generate a form.
@@ -64,9 +67,9 @@ class FormHelper extends AbstractHelper {
     /**
      * A list of all HTML tags used within the current helper.
      *
-     * @type Map<string, string>
+     * @type \Titon\View\Helper\TagMap
      */
-    protected Map<string, string> $_tags = Map {
+    protected TagMap $_tags = Map {
         'input'             => '<input{attr}>',
         'textarea'          => '<textarea{attr}>{body}</textarea>',
         'label'             => '<label{attr}>{body}</label>',
@@ -75,20 +78,20 @@ class FormHelper extends AbstractHelper {
         'optgroup'          => '<optgroup{attr}>{body}</optgroup>',
         'button'            => '<button{attr}>{body}</button>',
         'legend'            => '<legend>{body}</legend>',
-        'form_open'         => '<form{attr}>',
-        'form_close'        => '</form>',
-        'fieldset_open'     => '<fieldset>',
-        'fieldset_close'    => '</fieldset>'
+        'form.open'         => '<form{attr}>',
+        'form.close'        => '</form>',
+        'fieldset.open'     => '<fieldset>',
+        'fieldset.close'    => '</fieldset>'
     };
 
     /**
      * Parses an array of attributes to the HTML equivalent.
      *
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @param Vector<string> $remove
      * @return string
      */
-    public function attributes(Map<string, mixed> $attributes, Vector<string> $remove = Vector {}): string {
+    public function attributes(AttributeMap $attributes, Vector<string> $remove = Vector {}): string {
         $remove->addAll(Vector {
             'defaultDay', 'dayFormat', 'defaultHour', 'defaultMeridiem', 'defaultSecond',
             'defaultMinute', 'defaultMonth', 'monthFormat', 'options', 'default',
@@ -100,39 +103,38 @@ class FormHelper extends AbstractHelper {
 
     /**
      * Create a binary checkbox that accepts a 0 or 1 value.
-     * Uses a hidden input field as a fallback since checkbox values aren't sent in the request
-     * when not checked.
+     * Uses a hidden input field as a fallback since checkbox values aren't sent in the request when not checked.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function binary(string $name, Map<string, mixed> $attributes = Map {}): string {
+    public function binary(string $name, AttributeMap $attributes = Map {}): string {
 
         // Don't use input() since the `value` attribute will change
         $hidden = $this->tag('input', Map {
             'attr' => $this->attributes(Map {
-                'value' => 0,
+                'value' => '0',
                 'type' => 'hidden',
                 'name' => $this->formatName($name),
                 'id' => $this->formatID($name . '.hidden')
             })
         });
 
-        return $hidden . $this->checkbox($name, 1, $attributes);
+        return $hidden . $this->checkbox($name, '1', $attributes);
     }
 
     /**
      * Create a single checkbox element.
      *
      * @param string $name
-     * @param mixed $value
-     * @param Map<string, mixed> $attributes {
+     * @param string $value
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type string $default   The checkbox to be selected by default
      * }
      * @return string
      */
-    public function checkbox(string $name, mixed $value = 1, Map<string, mixed> $attributes = Map {}): string {
+    public function checkbox(string $name, string $value = '1', AttributeMap $attributes = Map {}): string {
         $checked = $this->getValue($name, $attributes);
 
         if ($this->isChecked($checked, $value)) {
@@ -146,13 +148,13 @@ class FormHelper extends AbstractHelper {
      * Create an array of multiple checkboxes using the option values.
      *
      * @param string $name
-     * @param Vector<mixed> $options
-     * @param Map<string, mixed> $attributes {
+     * @param Vector<string> $options
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type string $default   The checkbox to be selected by default
      * }
      * @return Vector<string>
      */
-    public function checkboxes(string $name, Vector<mixed> $options, Map<string, mixed> $attributes = Map {}): Vector<string> {
+    public function checkboxes(string $name, Vector<string> $options, AttributeMap $attributes = Map {}): Vector<string> {
         $checkboxes = Vector {};
         $id = $this->formatID($name);
 
@@ -168,43 +170,24 @@ class FormHelper extends AbstractHelper {
     }
 
     /**
-     * Close a form by outputting the form close tag. If the submit button text or legend is present, append those elements.
+     * Close a form by outputting the form close tag and resetting the model.
      *
      * @return string
      */
     public function close(): string {
         $this->_model = null;
 
-        return $this->tag('form_close');
-    }
-
-    /**
-     * Get a value from the attributes if it exists, else check the Helper config, and lastly return the default if nothing was found.
-     *
-     * @param string $key
-     * @param Map<string, mixed> $attributes
-     * @param mixed $default
-     * @return mixed
-     */
-    public function config(string $key, Map<string, mixed> $attributes, mixed $default = null): mixed {
-        if (isset($attributes[$key])) {
-            return $attributes[$key];
-
-        } else if ($this->hasConfig($key)) {
-            return $this->getConfig($key);
-        }
-
-        return $default;
+        return $this->tag('form.close');
     }
 
     /**
      * Create a select dropdown for a calendar date: month, day, year.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function date(string $name, Map<string, mixed> $attributes = Map {}): string {
+    public function date(string $name, AttributeMap $attributes = Map {}): string {
         $map = Map {'name' => $name . '.year'};
         $year = $this->year($name . '.year', $map->setAll($attributes));
 
@@ -221,10 +204,10 @@ class FormHelper extends AbstractHelper {
      * Combine both date() and time() to output all datetime related dropdowns.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function dateTime(string $name, Map<string, mixed> $attributes = Map {}): string {
+    public function dateTime(string $name, AttributeMap $attributes = Map {}): string {
         return $this->date($name, $attributes) . ' - ' . $this->time($name, $attributes);
     }
 
@@ -232,14 +215,14 @@ class FormHelper extends AbstractHelper {
      * Create a select dropdown for calendar days, with a range of 1-31.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes {
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type string $dayFormat How the day should be formatted
      *      @type int $defaultDay   The default selected day
      * }
      * @return string
      */
-    public function day(string $name, Map<string, mixed> $attributes = Map {}): string {
-        $format = $this->config('dayFormat', $attributes, 'j');
+    public function day(string $name, AttributeMap $attributes = Map {}): string {
+        $format = $this->getAttributeValue('dayFormat', $attributes, 'j');
         $options = Map {};
 
         for ($i = 1; $i <= 31; ++$i) {
@@ -249,10 +232,10 @@ class FormHelper extends AbstractHelper {
                 $v = str_pad($v, 2, '0', STR_PAD_LEFT);
             }
 
-            $options[$i] = $v;
+            $options[(string) $i] = (string) $v;
         }
 
-        if (isset($attributes['defaultDay'])) {
+        if ($attributes->contains('defaultDay')) {
             $attributes['default'] = $attributes['defaultDay'];
         }
 
@@ -263,11 +246,11 @@ class FormHelper extends AbstractHelper {
      * Create an email input field.
      *
      * @param string $name
-     * @param mixed $value
-     * @param Map<string, mixed> $attributes
+     * @param string $value
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function email(string $name, mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
+    public function email(string $name, string $value = '', AttributeMap $attributes = Map {}): string {
         return $this->input($name, $value, 'email', $attributes);
     }
 
@@ -275,11 +258,11 @@ class FormHelper extends AbstractHelper {
      * Create a file upload and browse input field.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function file(string $name, Map<string, mixed> $attributes = Map {}): string {
-        return $this->input($name, null, 'file', $attributes);
+    public function file(string $name, AttributeMap $attributes = Map {}): string {
+        return $this->input($name, '', 'file', $attributes);
     }
 
     /**
@@ -329,20 +312,63 @@ class FormHelper extends AbstractHelper {
     }
 
     /**
-     * Find and return a default value that has been defined in the attributes.
+     * Get a value from the attributes if it exists, else check the helper properties, and lastly return the default if nothing was found.
      *
-     * @param Map<string, mixed> $attributes
-     * @param Vector<string> $keys
+     * @param string $key
+     * @param \Titon\View\Helper\AttributeMap $attributes
+     * @param mixed $default
      * @return mixed
      */
-    public function getDefaultValue(Map<string, mixed> $attributes, Vector<string> $keys = Vector {'default'}): mixed {
-        foreach ($keys as $key) {
-            if (isset($attributes[$key])) {
-                return $attributes[$key];
-            }
+    public function getAttributeValue(string $key, AttributeMap $attributes, mixed $default = null): mixed {
+        if ($attributes->contains($key)) {
+            return $attributes[$key];
+
+        } else if ($format = $this->getFormat($key)) {
+            return $format;
         }
 
-        return null;
+        return $default;
+    }
+
+    /**
+     * Find and return a default value that may have been defined in the attributes.
+     *
+     * @param \Titon\View\Helper\AttributeMap $attributes
+     * @return mixed
+     */
+    public function getDefaultValue(AttributeMap $attributes): mixed {
+        return $attributes->get('default');
+    }
+
+    /**
+     * Find and return an escape value that may have been defined in the attributes.
+     *
+     * @param AttributeMap $attributes
+     * @return bool
+     */
+    public function getEscapeValue(AttributeMap $attributes): ?bool {
+        $escape = $attributes->get('escape');
+
+        return ($escape === null) ? null : (bool) $escape;
+    }
+
+    /**
+     * Return a format by key.
+     *
+     * @param string $format
+     * @return string
+     */
+    public function getFormat(string $format): string {
+        return $this->getFormats()->get($format) ?: '';
+    }
+
+    /**
+     * Return all formats.
+     *
+     * @return \Titon\View\Helper\TimeFormatMap
+     */
+    public function getFormats(): TimeFormatMap {
+        return $this->_formats;
     }
 
     /**
@@ -361,18 +387,10 @@ class FormHelper extends AbstractHelper {
      * @return mixed
      */
     public function getRequestValue(string $key): mixed {
-        $request = $this->getRequest();
-
-        // Use the data bag on the request object
-        if ($request && isset($request->data)) {
-            $data = $request->data;
-
-        // Fallback to the globals
-        } else {
-            $data = (new Map())
-                ->setAll(Get::all())
-                ->setAll(Post::all());
-        }
+        $data = (new Map([]))
+            ->setAll(Get::all())
+            ->setAll(Post::all())
+            ->setAll(Files::all());
 
         return Col::extract($data, $key);
     }
@@ -380,17 +398,17 @@ class FormHelper extends AbstractHelper {
     /**
      * Find and return a value from the request, or from a default value if no request is found.
      *
-     * @param string $name
-     * @param Map<string, mixed> $attributes
+     * @param string $key
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return mixed
      */
-    public function getValue(string $name, Map<string, mixed> $attributes = Map {}): mixed {
-        $value = $this->getRequestValue($name);
+    public function getValue(string $key, AttributeMap $attributes = Map {}): mixed {
+        $value = $this->getRequestValue($key);
         $model = $this->getModel();
 
         // Fetch from model attributes directly
         if ($value === null && $model) {
-            $value = Col::extract($model->toArray(), $name);
+            $value = Col::extract($model->getAttributes(), $key);
         }
 
         // Fallback to default value
@@ -405,11 +423,11 @@ class FormHelper extends AbstractHelper {
      * Create a hidden input field.
      *
      * @param string $name
-     * @param mixed $value
-     * @param Map<string, mixed> $attributes
+     * @param string $value
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function hidden(string $name, mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
+    public function hidden(string $name, string $value = '', AttributeMap $attributes = Map {}): string {
         return $this->input($name, $value, 'hidden', $attributes);
     }
 
@@ -417,15 +435,15 @@ class FormHelper extends AbstractHelper {
      * Create a select dropdown for hours, with a range of 0-23, or 1-12.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes {
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type int $defaultHour  The default selected hour
      * }
      * @return string
      */
-    public function hour(string $name, Map<string, mixed> $attributes = Map {}): string {
+    public function hour(string $name, AttributeMap $attributes = Map {}): string {
         $options = Map {};
 
-        if ($this->getConfig('24hour')) {
+        if ($this->is24Hour()) {
             $start = 0;
             $end = 23;
         } else {
@@ -434,10 +452,10 @@ class FormHelper extends AbstractHelper {
         }
 
         for ($i = $start; $i <= $end; ++$i) {
-            $options[$i] = sprintf('%02d', $i);
+            $options[(string) $i] = sprintf('%02d', $i);
         }
 
-        if (isset($attributes['defaultHour'])) {
+        if ($attributes->contains('defaultHour')) {
             $attributes['default'] = $attributes['defaultHour'];
         }
 
@@ -448,30 +466,48 @@ class FormHelper extends AbstractHelper {
      * Create a standard input field that auto-populates with the correct request value.
      *
      * @param string $name
-     * @param mixed $value
+     * @param string $value
      * @param string $type
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function input(string $name, mixed $value = null, string $type = 'text', Map<string, mixed> $attributes = Map {}): string {
+    public function input(string $name, string $value = '', string $type = 'text', AttributeMap $attributes = Map {}): string {
         $attributes = $this->prepareAttributes(Map {'name' => $name, 'value' => $value, 'type' => $type}, $attributes);
 
         // Grab current value from the request
         $requestValue = $this->getValue($name, $attributes);
 
         // Set the value attribute on non-radio/checkbox since those use `checked` attribute
-        if ($requestValue !== null && !in_array($type, ['radio', 'checkbox'])) {
+        if ($requestValue !== null && !in_array($type, Vector {'radio', 'checkbox'})) {
             $attributes['value'] = $requestValue;
         }
 
         // Don't set value attribute for files or password
         if ($type === 'file' || $type === 'password') {
-            unset($attributes['value']);
+            $attributes->remove('value');
         }
 
         return $this->tag('input', Map {
             'attr' => $this->attributes($attributes)
         });
+    }
+
+    /**
+     * Are we using a 12-hour clock?
+     *
+     * @return bool
+     */
+    public function is12Hour(): bool {
+        return !$this->_24hour;
+    }
+
+    /**
+     * Are we using a 24-hour clock?
+     *
+     * @return bool
+     */
+    public function is24Hour(): bool {
+        return $this->_24hour;
     }
 
     /**
@@ -521,15 +557,15 @@ class FormHelper extends AbstractHelper {
      *
      * @param string $name
      * @param string $title
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function label(string $name, string $title, Map<string, mixed> $attributes = Map {}): string {
+    public function label(string $name, string $title, AttributeMap $attributes = Map {}): string {
         $attributes = (Map {'for' => $this->formatID($name)})->setAll($attributes);
 
         return $this->tag('label', Map {
             'attr' => $this->attributes($attributes),
-            'body' => $this->escape($title, $this->config('escape', $attributes, true))
+            'body' => $this->escape($title, $this->getEscapeValue($attributes))
         });
     }
 
@@ -537,13 +573,13 @@ class FormHelper extends AbstractHelper {
      * Create a select dropdown for a time meridiem.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes {
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type string $defaultMeridiem   The default selected meridiem
      * }
      * @return string
      */
-    public function meridiem(string $name, Map<string, mixed> $attributes = Map {}): string {
-        if (isset($attributes['defaultMeridiem'])) {
+    public function meridiem(string $name, AttributeMap $attributes = Map {}): string {
+        if ($attributes->contains('defaultMeridiem')) {
             $attributes['default'] = $attributes['defaultMeridiem'];
         }
 
@@ -554,19 +590,19 @@ class FormHelper extends AbstractHelper {
      * Create a select dropdown for minutes, with a range of 1-60.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes {
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type int $defaultMinute    The default selected minute
      * }
      * @return string
      */
-    public function minute(string $name, Map<string, mixed> $attributes = Map {}): string {
+    public function minute(string $name, AttributeMap $attributes = Map {}): string {
         $options = Map {};
 
         for ($i = 0; $i <= 59; ++$i) {
-            $options[$i] = sprintf('%02d', $i);
+            $options[(string) $i] = sprintf('%02d', $i);
         }
 
-        if (isset($attributes['defaultMinute'])) {
+        if ($attributes->contains('defaultMinute')) {
             $attributes['default'] = $attributes['defaultMinute'];
         }
 
@@ -578,10 +614,10 @@ class FormHelper extends AbstractHelper {
      *
      * @param \Titon\Model\Model $model
      * @param string $action
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function model(Model $model, string $action, Map<string, mixed> $attributes = Map {}): string {
+    public function model(Model $model, string $action, AttributeMap $attributes = Map {}): string {
         $this->setModel($model);
 
         return $this->open($action, $attributes);
@@ -591,22 +627,22 @@ class FormHelper extends AbstractHelper {
      * Create a select dropdown for calendar months, with a range of 1-12.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes {
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type string $monthFormat   Format the month names in the dropdown
      *      @type int $defaultMonth     The default selected month
      * }
      * @return string
      */
-    public function month(string $name, Map<string, mixed> $attributes = Map {}): string {
-        $format = $this->config('monthFormat', $attributes, 'F');
+    public function month(string $name, AttributeMap $attributes = Map {}): string {
+        $format = $this->getAttributeValue('monthFormat', $attributes, 'F');
         $options = Map {};
         $year = date('Y');
 
         for ($i = 1; $i <= 12; ++$i) {
-            $options[$i] = date($format, mktime(0, 0, 0, $i, 1, $year));
+            $options[(string) $i] = date($format, mktime(0, 0, 0, $i, 1, $year));
         }
 
-        if (isset($attributes['defaultMonth'])) {
+        if ($attributes->contains('defaultMonth')) {
             $attributes['default'] = $attributes['defaultMonth'];
         }
 
@@ -617,19 +653,19 @@ class FormHelper extends AbstractHelper {
      * Open a form by outputting the form open tag.
      *
      * @param string $action
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function open(string $action, Map<string, mixed> $attributes = Map {}): string {
+    public function open(string $action, AttributeMap $attributes = Map {}): string {
         $this->_forms++;
 
-        if (isset($attributes['type'])) {
+        if ($attributes->contains('type')) {
             if ($attributes['type'] === 'file') {
                 $attributes['enctype'] = 'multipart/form-data';
                 $attributes['method'] = 'post';
             }
 
-            unset($attributes['type']);
+            $attributes->remove('type');
         }
 
         $attributes = (Map {
@@ -638,11 +674,11 @@ class FormHelper extends AbstractHelper {
             'method' => 'post',
             'action' => $action,
             'id' => $this->formatID('form.' . $this->_forms)
-        })->setAll($options);
+        })->setAll($attributes);
 
         $attributes['method'] = strtoupper($attributes['method']);
 
-        return $this->tag('form_open', Map {
+        return $this->tag('form.open', Map {
             'attr' => $this->attributes($attributes)
         });
     }
@@ -651,12 +687,12 @@ class FormHelper extends AbstractHelper {
      * Create an option element for a select drop down.
      *
      * @param string $label
-     * @param mixed $value
-     * @param mixed $selected
-     * @param Map<string, mixed> $attributes
+     * @param string $value
+     * @param string $selected
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function option(string $label, mixed $value, mixed $selected = null, Map<string, mixed> $attributes = Map {}): string {
+    public function option(string $label, string $value, mixed $selected = null, AttributeMap $attributes = Map {}): string {
         $attributes['value'] = $value;
 
         if ($this->isSelected($selected, $value)) {
@@ -673,12 +709,12 @@ class FormHelper extends AbstractHelper {
      * Create an optgroup element with a nested list of options.
      *
      * @param string $label
-     * @param Map<mixed, mixed> $options
-     * @param mixed $selected
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\SelectOptionMap $options
+     * @param string $selected
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function optionGroup(string $label, Map<mixed, mixed> $options, mixed $selected = null, Map<string, mixed> $attributes = Map {}): string {
+    public function optionGroup(string $label, SelectOptionMap $options, mixed $selected = null, AttributeMap $attributes = Map {}): string {
         $attributes['label'] = $label;
         $output = PHP_EOL;
 
@@ -696,25 +732,25 @@ class FormHelper extends AbstractHelper {
      * Create a password input field.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function password(string $name, Map<string, mixed> $attributes = Map {}): string {
-        return $this->input($name, null, 'password', $attributes);
+    public function password(string $name, AttributeMap $attributes = Map {}): string {
+        return $this->input($name, '', 'password', $attributes);
     }
 
     /**
      * Parse all the default and required attributes that are used within the input field.
      *
-     * @param Map<string, mixed> $defaults
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $defaults
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return array
      */
-    public function prepareAttributes(Map<string, mixed> $defaults = Map {}, Map<string, mixed> $attributes = Map {}) {
+    public function prepareAttributes(AttributeMap $defaults = Map {}, AttributeMap $attributes = Map {}): AttributeMap {
         $attributes = $defaults->setAll($attributes);
-        $namePath = $attributes['name'];
+        $namePath = (string) $attributes['name'];
 
-        if (!isset($attributes['id'])) {
+        if (!$attributes->contains('id')) {
             $attributes['id'] = $this->formatID($namePath);
         }
 
@@ -736,7 +772,7 @@ class FormHelper extends AbstractHelper {
         }
 
         foreach ($remove as $key) {
-            unset($attributes[$key]);
+            $attributes->remove($key);
         }
 
         return $attributes;
@@ -746,11 +782,11 @@ class FormHelper extends AbstractHelper {
      * Create a single radio input element.
      *
      * @param string $name
-     * @param mixed $value
-     * @param Map<string, mixed> $attributes
+     * @param string $value
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function radio(string $name, mixed $value, Map<string, mixed> $attributes = Map {}): string {
+    public function radio(string $name, string $value, AttributeMap $attributes = Map {}): string {
         $checked = $this->getValue($name, $attributes);
 
         if ($this->isChecked($checked, $value)) {
@@ -764,13 +800,13 @@ class FormHelper extends AbstractHelper {
      * Create a multiple radio buttons using the array of option values.
      *
      * @param string $name
-     * @param Vector<mixed> $options
-     * @param Map<string, mixed> $attributes {
+     * @param Vector<string> $options
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type string default    The radio to be selected by default
      * }
      * @return Vector<string>
      */
-    public function radios(string $name, Vector<mixed> $options, Map<string, mixed> $attributes = Map {}): Vector<string> {
+    public function radios(string $name, Vector<string> $options, AttributeMap $attributes = Map {}): Vector<string> {
         $radios = Vector {};
         $id = $this->formatID($name);
 
@@ -788,18 +824,18 @@ class FormHelper extends AbstractHelper {
      * Create a form reset button.
      *
      * @param string $title
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function reset(string $title, Map<string, mixed> $attributes = Map {}): string {
+    public function reset(string $title, AttributeMap $attributes = Map {}): string {
         $attributes = (Map {
             'id' => $this->formatID('form.' . $this->_forms . '.reset'),
             'type' => 'reset'
-        })->setAll($options);
+        })->setAll($attributes);
 
         return $this->tag('button', Map {
             'attr' => $this->attributes($attributes),
-            'body' => $this->escape($title, $this->config('escape', $attributes, true))
+            'body' => $this->escape($title, $this->getEscapeValue($attributes))
         });
     }
 
@@ -807,19 +843,19 @@ class FormHelper extends AbstractHelper {
      * Create a select dropdown for seconds, with a range of 0-59.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes {
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type int $defaultSecond    The default selected second
      * }
      * @return string
      */
-    public function second(string $name, Map<string, mixed> $attributes = Map {}): string {
+    public function second(string $name, AttributeMap $attributes = Map {}): string {
         $options = Map {};
 
         for ($i = 0; $i <= 59; ++$i) {
-            $options[$i] = sprintf('%02d', $i);
+            $options[(string) $i] = sprintf('%02d', $i);
         }
 
-        if (isset($attributes['defaultSecond'])) {
+        if ($attributes->contains('defaultSecond')) {
             $attributes['default'] = $attributes['defaultSecond'];
         }
 
@@ -830,31 +866,31 @@ class FormHelper extends AbstractHelper {
      * Create a select list with values based off an options array.
      *
      * @param string $name
-     * @param Map<mixed, mixed> $options
-     * @param Map<string, mixed> $attributes {
+     * @param \Titon\View\Helper\SelectOptionMap $options
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type mixed $default    The option to be selected by default
      *      @type string $empty     Display an empty option at the top of the list
      *      @type bool $multiple    Set to true to allow multiple selection
      * }
      * @return string
      */
-    public function select(string $name, Map<mixed, mixed> $options, Map<string, mixed> $attributes = Map {}): string {
+    public function select(string $name, SelectOptionMap $options, AttributeMap $attributes = Map {}): string {
         $attributes = $this->prepareAttributes(Map {'name' => $name}, $attributes);
         $output = PHP_EOL;
         $selected = $this->getValue($name, $attributes);
 
         // Prepend with an empty option
-        if (isset($attributes['empty'])) {
-            $empty = ($attributes['empty'] === true) ? '' : $attributes['empty'];
+        if ($attributes->contains('empty')) {
+            $empty = ($attributes['empty'] === true) ? '' : (string) $attributes['empty'];
             $output .= $this->option($empty, '', $selected);
         }
 
         // Generate the options
         foreach ($options as $value => $option) {
-            if ($option instanceof Traversable) {
+            if ($option instanceof Map) {
                 $output .= $this->optionGroup($value, $option, $selected);
             } else {
-                $output .= $this->option((string) $option, $value, $selected);
+                $output .= $this->option($option, $value, $selected);
             }
         }
 
@@ -862,6 +898,19 @@ class FormHelper extends AbstractHelper {
             'attr' => $this->attributes($attributes, Vector {'value', 'empty'}),
             'body' => $output
         });
+    }
+
+    /**
+     * Set the format for a key.
+     *
+     * @param string $key
+     * @param string $format
+     * @return $this
+     */
+    public function setFormat(string $key, string $format): this {
+        $this->_formats[$key] = $format;
+
+        return $this;
     }
 
     /**
@@ -880,18 +929,18 @@ class FormHelper extends AbstractHelper {
      * Create a form submit button.
      *
      * @param string $title
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function submit(string $title, Map<string, mixed> $attributes = Map {}): string {
+    public function submit(string $title, AttributeMap $attributes = Map {}): string {
         $attributes = (Map {
             'id' => $this->formatID('form.' . $this->_forms . '.submit'),
             'type' => 'submit'
-        })->setAll($options);
+        })->setAll($attributes);
 
         return $this->tag('button', Map {
             'attr' => $this->attributes($attributes),
-            'body' => $this->escape($title, $this->config('escape', $attributes, true))
+            'body' => $this->escape($title, $this->getEscapeValue($attributes))
         });
     }
 
@@ -899,11 +948,11 @@ class FormHelper extends AbstractHelper {
      * Create a basic input text field.
      *
      * @param string $name
-     * @param mixed $value
-     * @param Map<string, mixed> $attributes
+     * @param string $value
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function text(string $name, mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
+    public function text(string $name, string $value = '', AttributeMap $attributes = Map {}): string {
         return $this->input($name, $value, 'text', $attributes);
     }
 
@@ -911,15 +960,15 @@ class FormHelper extends AbstractHelper {
      * Create a textarea field and determine the correct value content.
      *
      * @param string $name
-     * @param mixed $value
-     * @param Map<string, mixed> $attributes
+     * @param string $value
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function textarea(string $name, mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
+    public function textarea(string $name, string $value = '', AttributeMap $attributes = Map {}): string {
         $attributes = $this->prepareAttributes(Map {'name' => $name, 'cols' => 25, 'rows' => 5}, $attributes);
         $requestValue = $this->getRequestValue($name);
 
-        if ($requestValue !== null) {
+        if ($requestValue) {
             $value = $requestValue;
         }
 
@@ -933,10 +982,10 @@ class FormHelper extends AbstractHelper {
      * Create multiple select dropdowns for hours, minutes, seconds and the meridiem.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function time(string $name, Map<string, mixed> $attributes = Map {}): string {
+    public function time(string $name, AttributeMap $attributes = Map {}): string {
         $map = Map {'name' => $name . '.hour'};
         $hour = $this->hour($name . '.hour', $map->setAll($attributes));
 
@@ -948,7 +997,7 @@ class FormHelper extends AbstractHelper {
 
         $output = $hour . ':' . $minute . ':' . $second;
 
-        if (!$this->getConfig('24hour')) {
+        if ($this->is12Hour()) {
             $map = Map {'name' => $name . '.meridiem'};
             $output .= $this->meridiem($name . '.meridiem', $map->setAll($attributes));
         }
@@ -970,19 +1019,41 @@ class FormHelper extends AbstractHelper {
      * Create a url input field.
      *
      * @param string $name
-     * @param mixed $value
-     * @param Map<string, mixed> $attributes
+     * @param string $value
+     * @param \Titon\View\Helper\AttributeMap $attributes
      * @return string
      */
-    public function url(string $name, mixed $value = null, Map<string, mixed> $attributes = Map {}): string {
+    public function url(string $name, string $value = '', AttributeMap $attributes = Map {}): string {
         return $this->input($name, $value, 'url', $attributes);
+    }
+
+    /**
+     * Use a 12-hour clock.
+     *
+     * @return $this
+     */
+    public function use12Hour(): this {
+        $this->_24hour = false;
+
+        return $this;
+    }
+
+    /**
+     * Use a 24-hour clock.
+     *
+     * @return $this
+     */
+    public function use24Hour(): this {
+        $this->_24hour = true;
+
+        return $this;
     }
 
     /**
      * Create a select dropdown for calendar years, with a user defined range.
      *
      * @param string $name
-     * @param Map<string, mixed> $attributes {
+     * @param \Titon\View\Helper\AttributeMap $attributes {
      *      @type int $startYear        The year to start the range
      *      @type int $endYear          The year to end the range
      *      @type bool $reverseYear     Should the years be in reverse order
@@ -991,24 +1062,31 @@ class FormHelper extends AbstractHelper {
      * }
      * @return string
      */
-    public function year(string $name, Map<string, mixed> $attributes = Map {}): string {
+    public function year(string $name, AttributeMap $attributes = Map {}): string {
         $month = date('n');
         $year = date('Y');
-        $reverse = $this->config('reverseYear', $attributes, false);
-        $format = $this->config('yearFormat', $attributes, 'Y');
-        $start = $this->config('startYear', $attributes, $year);
-        $end = $this->config('endYear', $attributes, ($year + 10));
+        $reverse = $this->getAttributeValue('reverseYear', $attributes, false);
+        $format = $this->getAttributeValue('yearFormat', $attributes, 'Y');
+        $start = (int) $this->getAttributeValue('startYear', $attributes, $year);
+        $end = (int) $this->getAttributeValue('endYear', $attributes, ($year + 10));
         $options = Map {};
 
-        for ($i = $start; $i <= $end; ++$i) {
-            $options[$i] = date($format, mktime(0, 0, 0, $month, 1, $i));
+        for ($i = $start; $i <= $end; ++ $i) {
+            $options[(string) $i] = date($format, mktime(0, 0, 0, $month, 1, $i));
         }
 
+        // We must rebuild the map as `array_reverse()` converts the keys to integers
         if ($reverse) {
-            $options = array_reverse($options, true);
+            $reversed = Map {};
+
+            foreach (array_reverse($options, true) as $key => $value) {
+                $reversed[(string) $key] = $value;
+            }
+
+            $options = $reversed;
         }
 
-        if (isset($attributes['defaultYear'])) {
+        if ($attributes->contains('defaultYear')) {
             $attributes['default'] = $attributes['defaultYear'];
         }
 

@@ -1,14 +1,13 @@
 <?hh
-namespace Titon\View\View\Engine;
+namespace Titon\View\Engine;
 
-use Titon\View\View;
-use Titon\View\View\TemplateView;
+use Titon\View\EngineView;
 use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 
 /**
- * @property \Titon\View\View\TemplateView $object
- * @property \Titon\View\View\Engine\TemplateEngine $engine
+ * @property \Titon\View\EngineView $object
+ * @property \Titon\View\Engine\TemplateEngine $engine
  */
 class TemplateEngineTest extends TestCase {
 
@@ -37,7 +36,7 @@ class TemplateEngineTest extends TestCase {
 
         $this->engine = new TemplateEngine();
 
-        $this->object = new TemplateView([$this->vfs->path('/views')]);
+        $this->object = new EngineView([$this->vfs->path('/views')]);
         $this->object->setEngine($this->engine);
     }
 
@@ -59,12 +58,12 @@ class TemplateEngineTest extends TestCase {
     }
 
     public function testRender() {
-        $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate(['index', 'add'])));
-        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate(['index', 'test-include'])));
+        $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/add')));
+        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/test-include')));
     }
 
     public function testData() {
-        $this->assertEquals('add.tpl', $this->engine->render($this->object->locateTemplate(['index', 'add']), Map {
+        $this->assertEquals('add.tpl', $this->engine->render($this->object->locateTemplate('index/add'), Map {
             'foo' => 'bar'
         }));
 

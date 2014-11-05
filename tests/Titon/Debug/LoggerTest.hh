@@ -45,7 +45,7 @@ class LoggerTest extends TestCase {
     }
 
     public function testCreateMessage() {
-        $this->assertEquals('[' . date(DateTime::RFC3339) . '] Message ' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message'));
+        $this->assertEquals('[' . date(DateTime::RFC3339) . '] Message [/]' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message'));
         $this->assertEquals('[' . date(DateTime::RFC3339) . '] Message [/custom/url]' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message', ['url' => '/custom/url']));
 
         $_SERVER['PATH_INFO'] = '/path/url';

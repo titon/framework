@@ -5,21 +5,25 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\View\Engine;
+namespace Titon\View\Engine;
 
+use Titon\Common\DataMap;
+use Titon\View\Exception\MissingViewException;
 use Titon\View\View;
-use Titon\View\View\Engine;
+use Titon\View\Engine;
+use Titon\View\Template;
+use Titon\View\WrapperList;
 
 /**
  * Defines shared functionality for view engines.
  * Provides support for layouts, wrappers, data and rendering.
  *
- * @package Titon\View\View\Engine
+ * @package Titon\View\Engine
  */
 abstract class AbstractEngine implements Engine {
 
     /**
-     * Current parsed template content.
+     * Current parsed template.
      *
      * @type string
      */
@@ -35,29 +39,29 @@ abstract class AbstractEngine implements Engine {
     /**
      * Variables currently bound to the engine.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Common\DataMap
      */
-    protected Map<string, mixed> $_variables = Map {};
+    protected DataMap $_variables = Map {};
 
     /**
      * View instance.
      *
      * @type \Titon\View\View
      */
-    protected View $_view;
+    protected ?View $_view;
 
     /**
-     * List of wrappers to wrap templates with
+     * List of wrappers to wrap templates with.
      *
-     * @type Vector<string>
+     * @type \Titon\View\WrapperList
      */
-    protected Vector<string> $_wrapper = Vector {};
+    protected WrapperList $_wrapper = Vector {};
 
     /**
      * {@inheritdoc}
      */
     public function data(string $key, mixed $default = null): mixed {
-        return isset($this->_variables[$key]) ? $this->_variables[$key] : $default;
+        return $this->_variables->get($key) ?: $default;
     }
 
     /**
@@ -77,24 +81,30 @@ abstract class AbstractEngine implements Engine {
     /**
      * {@inheritdoc}
      */
-    public function getWrapper(): Vector<string> {
+    public function getWrappers(): WrapperList {
         return $this->_wrapper;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getView(): View {
+    public function getView(): ?View {
         return $this->_view;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function open(string $partial, Map<string, mixed> $variables = Map {}): string {
+    public function open(string $partial, DataMap $variables = Map {}): string {
+        $view = $this->getView();
+
+        if (!$view) {
+            throw new MissingViewException('View manager has not been set on this engine');
+        }
+
         return $this->render(
-            $this->getView()->locateTemplate($partial, View::PARTIAL),
-            $this->getView()->getVariables()->toMap()->setAll($variables)
+            $view->locateTemplate($partial, Template::PARTIAL),
+            $view->getVariables()->toMap()->setAll($variables)
         );
     }
 

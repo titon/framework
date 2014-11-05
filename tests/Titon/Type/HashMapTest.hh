@@ -344,6 +344,18 @@ class HashMapTest extends TestCase {
         $this->assertEquals(new HashMap(Map {'a' => 1, 'b' => 2, 'c' => 'baz'}), $this->object->merge(new HashMap(Map {'a' => 1, 'b' => 2})));
     }
 
+    public function testPluck() {
+        $list = new HashMap(Map {
+            'a' => Map {'key' => 1},
+            'b' => Map {'key' => 2},
+            'c' => Map {'key' => 3},
+        });
+
+        $this->assertEquals(Vector {1, 2, 3}, $list->pluck(function($value, $key) {
+            return $value['key'];
+        }));
+    }
+
     public function testRemove() {
         $this->assertEquals(new HashMap(Map {'b' => 'bar', 'c' => 'baz'}), $this->object->remove('a'));
     }

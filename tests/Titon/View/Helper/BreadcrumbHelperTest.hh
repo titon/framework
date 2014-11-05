@@ -1,9 +1,9 @@
 <?hh
 namespace Titon\View\Helper;
 
-use Titon\Utility\Registry;
 use Titon\Test\TestCase;
-use Titon\View\View\TemplateView;
+use Titon\Type\ArrayList;
+use Titon\View\EngineView;
 
 /**
  * @property \Titon\View\Helper\BreadcrumbHelper $object
@@ -13,7 +13,11 @@ class BreadcrumbHelperTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
+        $view = new EngineView(TEMP_DIR);
+        $view->addHelper('html', new HtmlHelper());
+
         $this->object = new BreadcrumbHelper();
+        $this->object->setView($view);
     }
 
     public function testOneCrumb() {
@@ -37,57 +41,59 @@ class BreadcrumbHelperTest extends TestCase {
         }, $this->object->generate());
     }
 
-    public function testFirstList() {
+    public function testFirstLast() {
         $this->assertEquals(null, $this->object->first());
         $this->assertEquals(null, $this->object->last());
 
         $this->object
             ->add('Title', '/')
             ->add('Title 2', '/static/url', Map {'class' => 'tier2'})
-            ->add('Title 3', ['action' => 'view', 123], Map {'class' => 'tier3'});
+            ->add('Title 3', '/view/123', Map {'class' => 'tier3'});
 
-        $this->assertEquals(Map {
+        $this->assertEquals(shape(
             'title' => 'Title',
             'url' => '/',
             'attributes' => Map {}
-        }, $this->object->first());
+        ), $this->object->first());
 
-        $this->assertEquals(Map {
+        $this->assertEquals(shape(
             'title' => 'Title 3',
-            'url' => ['action' => 'view', 123],
+            'url' => '/view/123',
             'attributes' => Map {'class' => 'tier3'}
-        }, $this->object->last());
+        ), $this->object->last());
     }
 
     public function testAppendPrepend() {
         $this->object->add('Base', '/');
 
-        $this->assertEquals(Vector {
-            Map {
+        $this->assertEquals(new ArrayList(Vector {
+            shape(
                 'title' => 'Base',
                 'url' => '/',
                 'attributes' => Map {}
-            }
-        }, $this->object->all());
+            )
+        }), $this->object->getBreadcrumbs());
 
         $this->object->prepend('Before', '/');
         $this->object->append('After', '/');
 
-        $this->assertEquals(Vector {
-            Map {
+        $this->assertEquals(new ArrayList(Vector {
+            shape(
                 'title' => 'Before',
                 'url' => '/',
                 'attributes' => Map {}
-            }, Map {
+            ),
+            shape(
                 'title' => 'Base',
                 'url' => '/',
                 'attributes' => Map {}
-            }, Map {
+            ),
+            shape(
                 'title' => 'After',
                 'url' => '/',
                 'attributes' => Map {}
-            }
-        }, $this->object->all());
+            )
+        }), $this->object->getBreadcrumbs());
     }
 
     public function testTitle() {
@@ -111,11 +117,7 @@ class BreadcrumbHelperTest extends TestCase {
     }
 
     public function testTitleFallback() {
-        $view = new TemplateView(Vector {'/'});
-        $view->setVariable('pageTitle', 'Page Title');
-
-        $html = Registry::factory('Titon\View\Helper\HtmlHelper');
-        $html->setView($view);
+        $this->object->getView()->setVariable('pageTitle', 'Page Title');
 
         $this->assertEquals('Page Title', $this->object->title());
     }

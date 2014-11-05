@@ -5,14 +5,16 @@
  * @link        http://titon.io
  */
 
-namespace Titon\View\View;
+namespace Titon\View;
 
-use Titon\View\View;
+use Titon\Common\DataMap;
+
+type WrapperList = Vector<string>;
 
 /**
  * Interface for the rendering engine.
  *
- * @package Titon\View\View
+ * @package Titon\View
  */
 interface Engine {
 
@@ -26,14 +28,14 @@ interface Engine {
     public function data(string $key, mixed $default = null): mixed;
 
     /**
-     * Return the currently parsed template content.
+     * Return the currently parsed template.
      *
      * @return string
      */
     public function getContent(): string;
 
     /**
-     * Return the current layout.
+     * Return the layout.
      *
      * @return string
      */
@@ -42,36 +44,36 @@ interface Engine {
     /**
      * Return the list of wrappers.
      *
-     * @return Vector<string>
+     * @return \Titon\View\WrapperList
      */
-    public function getWrapper(): Vector<string>;
+    public function getWrappers(): WrapperList;
 
     /**
      * Return the view instance.
      *
      * @return $this
      */
-    public function getView(): View;
+    public function getView(): ?View;
 
     /**
-     * Render a partial template at the defined path.
-     * Optionally can pass an array of custom variables.
+     * Render a template partial (nested templates) that is included within the current template.
+     * Can optionally pass in a list of variables that is accessible in the template.
      *
      * @param string $partial
-     * @param Map<string, mixed> $variables
+     * @param \Titon\Common\DataMap $variables
      * @return string
      */
-    public function open(string $partial, Map<string, mixed> $variables = Map {}): string;
+    public function open(string $partial, DataMap $variables = Map {}): string;
 
     /**
-     * Render a template at the defined path.
-     * Optionally can pass an array of custom variables.
+     * Render a template at the defined absolute path.
+     * Can optionally pass in a list of variables that is accessible in the template.
      *
      * @param string $path
-     * @param Map<string, mixed> $variables
+     * @param \Titon\Common\DataMap $variables
      * @return string
      */
-    public function render(string $path, Map<string, mixed> $variables = Map {}): string;
+    public function render(string $path, DataMap $variables = Map {}): string;
 
     /**
      * Set the content.
@@ -82,7 +84,7 @@ interface Engine {
     public function setContent(string $content): this;
 
     /**
-     * Set the parent view layer.
+     * Set the parent view manager.
      *
      * @param \Titon\View\View $view
      * @return $this

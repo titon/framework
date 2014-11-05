@@ -89,7 +89,7 @@ class HashMap<Tk, Tv> implements
      *
      * @param string $method
      * @param array<mixed> $args
-     * @return HashMap<Tk, Tv>
+     * @return \Titon\Type\HashMap<Tk, Tv>
      * @throws \Titon\Type\Exception\MissingMethodException
      */
     public function __call(string $method, array<mixed> $args): HashMap<Tk, Tv> {
@@ -147,7 +147,7 @@ class HashMap<Tk, Tv> implements
      * Split a map into multiple chunked maps.
      *
      * @param int $size
-     * @return ArrayList<HashMap<Tk, Tv>>
+     * @return \Titon\Type\ArrayList<HashMap<Tk, Tv>>
      */
     public function chunk(int $size): ArrayList<HashMap<Tk, Tv>> {
         $chunks = array_chunk($this->toArray(), $size, true);
@@ -163,7 +163,7 @@ class HashMap<Tk, Tv> implements
     /**
      * Removes all empty, null, and false values.
      *
-     * @return HashMap<Tk, Tv>
+     * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function clean(): HashMap<Tk, Tv> {
         return $this->filter(function(Tv $value) {
@@ -172,12 +172,12 @@ class HashMap<Tk, Tv> implements
     }
 
     /**
-     * Merges the current HashMap with the another HashMap and returns a new HashMap.
+     * Merges the current HashMap with another HashMap and returns a new HashMap.
      * Can either prepend or append the defined list.
      *
      * @param HashMap<Tk, Tv> $value
      * @param bool $append
-     * @return HashMap<Tk, Tv>
+     * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function concat(HashMap<Tk, Tv> $value, bool $append = true): HashMap<Tk, Tv> {
         $oldMap = $this->toMap();
@@ -229,7 +229,7 @@ class HashMap<Tk, Tv> implements
      *
      * @param (function(Tk, Tv): mixed) $callback
      * @param bool $recursive
-     * @return HashMap<Tk, Tv>
+     * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function each((function(Tk, Tv): mixed) $callback, bool $recursive = true): HashMap<Tk, Tv> {
         return new static(Col::each($this->value(), $callback, $recursive));
@@ -239,7 +239,7 @@ class HashMap<Tk, Tv> implements
      * Removes all occurrences of an item from the map.
      *
      * @param Tv $erase
-     * @return HashMap<Tk, Tv>
+     * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function erase(Tv $erase): HashMap<Tk, Tv> {
         $map = Map {};
@@ -314,7 +314,7 @@ class HashMap<Tk, Tv> implements
      * Group all items into sub-maps based on the return value of callback.
      *
      * @param (function(Tv, Tk): Tu) $callback
-     * @return HashMap<Tu, HashMap<Tk, Tv>>
+     * @return \Titon\Type\HashMap<Tu, HashMap<Tk, Tv>>
      */
     public function groupBy<Tu>((function(Tv, Tk): Tu) $callback): HashMap<Tu, HashMap<Tk, Tv>> {
         $grouped = Map {};
@@ -436,10 +436,26 @@ class HashMap<Tk, Tv> implements
      * Merge two HashMaps together with values from the second map overwriting the first map.
      *
      * @param HashMap<Tk, Tv> $value
-     * @return HashMap<Tk, Tv>
+     * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function merge(HashMap<Tk, Tv> $value): HashMap<Tk, Tv> {
         return new static($this->toMap()->setAll($value->toMap()));
+    }
+
+    /**
+     * Pluck a nested value from each item and return a list of plucked values.
+     *
+     * @param (function(Tv, Tk): Tu) $callback
+     * @return Vector<Tu>
+     */
+    public function pluck<Tu>((function(Tv, Tk): Tu) $callback): Vector<Tu> {
+        $list = Vector {};
+
+        foreach ($this->value() as $key => $value) {
+            $list[] = call_user_func_array($callback, [$value, $key]);
+        }
+
+        return $list;
     }
 
     /**
@@ -449,7 +465,7 @@ class HashMap<Tk, Tv> implements
      * @return $this
      */
     public function remove(Tk $key): this {
-        $this->_value->removeKey($key);
+        $this->value()->removeKey($key);
 
         return $this;
     }
@@ -458,7 +474,7 @@ class HashMap<Tk, Tv> implements
      * Reorder the keys using a defined callback function and return a new HashMap.
      *
      * @param (function(Tv, Tk): Tu) $callback
-     * @return HashMap<Tu, Tv>
+     * @return \Titon\Type\HashMap<Tu, Tv>
      */
     public function reorder<Tu>((function(Tv, Tk): Tu) $callback): HashMap<Tu, Tv> {
         $map = new static();
@@ -473,7 +489,7 @@ class HashMap<Tk, Tv> implements
     /**
      * Reverse the items in the map.
      *
-     * @return HashMap<Tk, Tv>
+     * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function reverse(): HashMap<Tk, Tv> {
         return new static(array_reverse($this->toArray(), true));
@@ -491,7 +507,7 @@ class HashMap<Tk, Tv> implements
     /**
      * Shuffle the items in the map into a random order.
      *
-     * @return HashMap<Tk, Tv>
+     * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function shuffle(): HashMap<Tk, Tv> {
         $map = $this->toArray();
@@ -517,7 +533,7 @@ class HashMap<Tk, Tv> implements
      *
      * @param (function(Tv, Tv): int) $callback
      * @param int $flags
-     * @return HashMap<Tk, Tv>
+     * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function sort(?(function(Tv, Tv): int) $callback = null, int $flags = SORT_REGULAR): HashMap<Tk, Tv> {
         $map = $this->toMap();
@@ -591,7 +607,7 @@ class HashMap<Tk, Tv> implements
      * Removes duplicate values from the map.
      *
      * @param int $flags
-     * @return HashMap<Tk, Tv>
+     * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function unique(int $flags = SORT_REGULAR): HashMap<Tk, Tv> {
         return new static(array_unique($this->toArray(), $flags));

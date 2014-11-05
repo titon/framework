@@ -15,17 +15,17 @@ class EventTest extends TestCase {
 
         $this->time = time();
         $this->object = new Event('event.test.key', Vector {
-            Map {'callback' => 'ClassName::method3', 'priority' => 10},
-            Map {'callback' => 'ClassName::method1', 'priority' => 100},
-            Map {'callback' => 'ClassName::method2', 'priority' => 110}
+            shape('callback' => 'ClassName::method3', 'priority' => 10, 'once' => false, 'time' => 0),
+            shape('callback' => 'ClassName::method1', 'priority' => 100, 'once' => false, 'time' => 0),
+            shape('callback' => 'ClassName::method2', 'priority' => 110, 'once' => false, 'time' => 0)
         });
     }
 
-    public function testGetCallstack() {
+    public function testGetCallStack() {
         $this->assertEquals(Vector {
-            Map {'callback' => 'ClassName::method3', 'priority' => 10},
-            Map {'callback' => 'ClassName::method1', 'priority' => 100},
-            Map {'callback' => 'ClassName::method2', 'priority' => 110}
+            shape('callback' => 'ClassName::method3', 'priority' => 10, 'once' => false, 'time' => 0),
+            shape('callback' => 'ClassName::method1', 'priority' => 100, 'once' => false, 'time' => 0),
+            shape('callback' => 'ClassName::method2', 'priority' => 110, 'once' => false, 'time' => 0)
         }, $this->object->getCallStack());
     }
 

@@ -33,13 +33,9 @@ abstract class AbstractMessage implements MessageInterface {
     protected ?StreamInterface $_body = null;
 
     /**
-     * Instantiate a new header augment.
-     *
-     * @param Map<string, mixed> $config
+     * Instantiate a new header bag.
      */
-    public function __construct(Map<string, mixed> $config = Map {}) {
-        parent::__construct($config);
-
+    public function __construct() {
         $this->headers = new HeaderBag();
     }
 

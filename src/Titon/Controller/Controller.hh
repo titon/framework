@@ -112,7 +112,7 @@ interface Controller {
      * Set the view instance.
      *
      * @param \Titon\View\View $view
-     * @return \Titon\View\View
+     * @return $this
      */
     public function setView(View $view): this;
 

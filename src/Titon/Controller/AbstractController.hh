@@ -72,10 +72,15 @@ abstract class AbstractController implements Controller, Listener {
     /**
      * Return a probable path to a view template that matches the current controller and action.
      *
+     * @param string $action
      * @return string
      */
-    public function buildViewPath(): string {
-        return sprintf('%s/%s', str_replace('_', '-', Inflector::underscore(Path::className(static::class))), $this->getCurrentAction());
+    public function buildViewPath(string $action): string {
+        $prepare = function(string $path): string {
+            return trim(str_replace(['_', 'controller'], ['-', ''], Inflector::underscore($path)), '-');
+        };
+
+        return sprintf('%s/%s', $prepare(Path::className(static::class)), $prepare($action));
     }
 
     /**
@@ -94,12 +99,13 @@ abstract class AbstractController implements Controller, Listener {
             $this->emit('controller.processing', [$this, $action, $args]);
         }
 
-        // Calling missingAction() if the action does not exist
+        // Calling `missingAction()` if the action does not exist
         if (!method_exists($this, $action)) {
             $response = $this->missingAction();
 
         // Trigger action and generate response from view templates
         } else {
+            // UNSAFE
             $response = call_user_func_array(inst_meth($this, $action), $args);
         }
 
@@ -122,14 +128,13 @@ abstract class AbstractController implements Controller, Listener {
      *
      * @param string $action
      * @return \Titon\Controller\ArgumentList
-     * @throws \Titon\Controller\Exception\InvalidActionException
      */
     public function getActionArguments(string $action): ArgumentList {
         if ($this->_arguments->contains($action)) {
             return $this->_arguments[$action];
         }
 
-        throw new InvalidActionException(sprintf('No arguments found for the %s action', $action));
+        return Vector {};
     }
 
     /**
@@ -158,13 +163,19 @@ abstract class AbstractController implements Controller, Listener {
     }
 
     /**
+     * Empty initializer method.
+     */
+    public function initialize(): void {
+        return;
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @throws \Titon\Controller\Exception\InvalidActionException
      */
     public function missingAction(): string {
-        throw new InvalidActionException(sprintf('Your action %s does not exist, or is not public, or is found within the parent controller.
-            Supply your own missingAction() method to customize this error.', $this->getCurrentAction()));
+        throw new InvalidActionException(sprintf('Your action %s does not exist. Supply your own missingAction() method to customize this error or view.', $this->getCurrentAction()));
     }
 
     /**
@@ -201,6 +212,7 @@ abstract class AbstractController implements Controller, Listener {
     public function renderError(Exception $exception): string {
         $template = 'error';
         $status = 500;
+        $view = $this->getView();
 
         if (error_reporting() <= 0) {
             $template = 'http';
@@ -214,7 +226,12 @@ abstract class AbstractController implements Controller, Listener {
 
         $this->getResponse()->setStatusCode($status);
 
-        return $this->getView()
+        // If no view, exit with a generic message
+        if (!$view) {
+            return 'Internal server error.';
+        }
+
+        return $view
             ->setVariables(Map {
                 'pageTitle' => Http::getStatusCode($status),
                 'error' => $exception,
@@ -229,7 +246,14 @@ abstract class AbstractController implements Controller, Listener {
      * {@inheritdoc}
      */
     public function renderView(): string {
-        return $this->getView()->render($this->buildViewPath());
+        $view = $this->getView();
+
+        // If no view, return nothing
+        if (!$view) {
+            return '';
+        }
+
+        return $view->render($this->buildViewPath($this->getCurrentAction()));
     }
 
     /**
@@ -238,6 +262,7 @@ abstract class AbstractController implements Controller, Listener {
     public function runAction(Action $action): string {
         $action->setController($this);
 
+        // UNSAFE
         return call_user_func_array(inst_meth($action, strtolower($this->getRequest()->getMethod())), $this->getCurrentArguments());
     }
 
@@ -247,7 +272,7 @@ abstract class AbstractController implements Controller, Listener {
     public function setView(View $view): this {
         $this->_view = $view;
 
-        return $view;
+        return $this;
     }
 
 }

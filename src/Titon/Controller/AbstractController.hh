@@ -17,10 +17,11 @@ use Titon\Http\Http;
 use Titon\Http\RequestAware;
 use Titon\Http\ResponseAware;
 use Titon\Utility\Inflector;
+use Titon\Utility\Path;
 use Titon\View\View;
 use \Exception;
 
-type ActionMap = Map<string, ArgumentsList>;
+type ActionMap = Map<string, ArgumentList>;
 
 /**
  * The Controller (MVC) acts as the median between the request and response within the dispatch cycle.
@@ -30,7 +31,7 @@ type ActionMap = Map<string, ArgumentsList>;
  * The Controller receives an instance of the View object allowing the Controller to set data to the view,
  * overwrite the View and Engine configuration, attach helpers, etc.
  *
- * @package Titon\Controller\Controller
+ * @package Titon\Controller
  * @events
  *      controller.processing(Controller $con, string $action, array<mixed> $args)
  *      controller.processed(Controller $con, string $action, string $response)
@@ -44,7 +45,7 @@ abstract class AbstractController implements Controller, Listener {
      *
      * @type string
      */
-    protected string $_action = '';
+    protected string $_action = 'index';
 
     /**
      * A mapping of actions that have been dispatched,
@@ -74,15 +75,13 @@ abstract class AbstractController implements Controller, Listener {
      * @return string
      */
     public function buildViewPath(): string {
-        $controller = str_replace('_', '-', Inflector::underscore(static::class));
-
-        return sprintf('%s/%s', $controller, $this->getCurrentAction());
+        return sprintf('%s/%s', str_replace('_', '-', Inflector::underscore(Path::className(static::class))), $this->getCurrentAction());
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dispatchAction(string $action, ArgumentsList $args = Vector {}, bool $emit = true): string {
+    public function dispatchTo(string $action, ArgumentList $args = Vector {}, bool $emit = true): string {
         $this->_action = $action;
         $this->_arguments[$action] = $args;
 
@@ -95,15 +94,13 @@ abstract class AbstractController implements Controller, Listener {
             $this->emit('controller.processing', [$this, $action, $args]);
         }
 
-        // Do not include the base controller methods
-        $methods = array_diff(get_class_methods($this), get_class_methods(__CLASS__));
-
-        if (!in_array($action, $methods)) {
+        // Calling missingAction() if the action does not exist
+        if (!method_exists($this, $action)) {
             $response = $this->missingAction();
 
         // Trigger action and generate response from view templates
         } else {
-            $response = call_user_func_array([$this, $action], $args);
+            $response = call_user_func_array(inst_meth($this, $action), $args);
         }
 
         if ($emit) {
@@ -116,18 +113,18 @@ abstract class AbstractController implements Controller, Listener {
     /**
      * {@inheritdoc}
      */
-    public function forwardAction(string $action, ArgumentsList $args = Vector {}): string {
-        return $this->dispatchAction($action, $args, false);
+    public function forwardTo(string $action, ArgumentList $args = Vector {}): string {
+        return $this->dispatchTo($action, $args, false);
     }
 
     /**
      * Return the currently defined arguments for a specific action.
      *
      * @param string $action
-     * @return \Titon\Controller\ArgumentsList
+     * @return \Titon\Controller\ArgumentList
      * @throws \Titon\Controller\Exception\InvalidActionException
      */
-    public function getActionArguments(string $action): ArgumentsList {
+    public function getActionArguments(string $action): ArgumentList {
         if ($this->_arguments->contains($action)) {
             return $this->_arguments[$action];
         }
@@ -136,12 +133,21 @@ abstract class AbstractController implements Controller, Listener {
     }
 
     /**
-     * Return the name of the dispatched action.
+     * Return the name of the currently dispatched action.
      *
      * @return string
      */
     public function getCurrentAction(): string {
         return $this->_action;
+    }
+
+    /**
+     * Return the arguments for the current action.
+     *
+     * @return \Titon\Controller\ArgumentList
+     */
+    public function getCurrentArguments(): ArgumentList {
+        return $this->getActionArguments($this->getCurrentAction());
     }
 
     /**
@@ -164,7 +170,7 @@ abstract class AbstractController implements Controller, Listener {
     /**
      * {@inheritdoc}
      */
-    public function preProcess(Event $event, Controller $controller, string $action, ArgumentsList $args): void {
+    public function preProcess(Event $event, Controller $controller, string $action, ArgumentList $args): void {
         return;
     }
 
@@ -232,7 +238,7 @@ abstract class AbstractController implements Controller, Listener {
     public function runAction(Action $action): string {
         $action->setController($this);
 
-        return call_user_func_array(inst_meth($action, strtolower($this->getRequest()->getMethod())), $this->getActionArguments($this->getCurrentAction()));
+        return call_user_func_array(inst_meth($action, strtolower($this->getRequest()->getMethod())), $this->getCurrentArguments());
     }
 
     /**

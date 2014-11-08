@@ -11,8 +11,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\RequestInterface;
 use Titon\Controller\Action;
 use Titon\View\View;
+use \Exception;
 
-type ArgumentsList = Vector<mixed>;
+type ArgumentList = Vector<mixed>;
 
 /**
  * Interface for the controllers library.
@@ -25,20 +26,20 @@ interface Controller {
      * Dispatch the request to the correct controller action. Checks to see if the action exists and is not protected.
      *
      * @param string $action
-     * @param \Titon\Controller\ArgumentsList $args
+     * @param \Titon\Controller\ArgumentList $args
      * @param bool $emit
      * @return string
      */
-    public function dispatchAction(string $action, ArgumentsList $args = Vector {}, bool $emit = true): string;
+    public function dispatchTo(string $action, ArgumentList $args = Vector {}, bool $emit = true): string;
 
     /**
      * Forward the current request to a new action, instead of doing an additional HTTP request.
      *
      * @param string $action
-     * @param \Titon\Controller\ArgumentsList $args
+     * @param \Titon\Controller\ArgumentList $args
      * @return string
      */
-    public function forwardAction(string $action, ArgumentsList $args = Vector {}): string;
+    public function forwardTo(string $action, ArgumentList $args = Vector {}): string;
 
     /**
      * Return the request object.
@@ -74,7 +75,7 @@ interface Controller {
      * @param \Exception $exception
      * @return string
      */
-    public function renderError(\Exception $exception): string;
+    public function renderError(Exception $exception): string;
 
     /**
      * Render the view templates and return the output.

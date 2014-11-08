@@ -7,8 +7,7 @@
 
 namespace Titon\Common;
 
-type AnnotationArgumentList = Vector<mixed>;
-type AnnotationMap = Map<string, AnnotationArgumentList>;
+type AnnotationMap = Map<string, ArgumentList>;
 
 /**
  * The Annotator interface defines an easy access layer to annotations (also known as attributes)
@@ -22,9 +21,9 @@ interface Annotator {
      * Return the arguments for a single attribute on the current class.
      *
      * @param string $name
-     * @return \Titon\Common\AnnotationArgumentList
+     * @return \Titon\Common\ArgumentList
      */
-    public function getClassAnnotation(string $name): AnnotationArgumentList;
+    public function getClassAnnotation(string $name): ArgumentList;
 
     /**
      * Return a map of all attributes defined on the current class.
@@ -38,9 +37,9 @@ interface Annotator {
      *
      * @param string $method
      * @param string $name
-     * @return \Titon\Common\AnnotationArgumentList
+     * @return \Titon\Common\ArgumentList
      */
-    public function getMethodAnnotation(string $method, string $name): AnnotationArgumentList;
+    public function getMethodAnnotation(string $method, string $name): ArgumentList;
 
     /**
      * Return a map of all attributes defined for a method on the current class.

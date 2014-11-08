@@ -7,8 +7,6 @@
 
 namespace Titon\Controller;
 
-use Titon\Controller\Controller;
-
 /**
  * Interface for the actions library.
  *

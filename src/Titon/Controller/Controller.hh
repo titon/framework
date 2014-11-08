@@ -7,12 +7,12 @@
 
 namespace Titon\Controller;
 
+use Titon\Common\ArgumentList;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\RequestInterface;
 use Titon\Controller\Action;
-use Titon\Event\Event;
-use Titon\Mvc\Module;
 use Titon\View\View;
+use \Exception;
 
 /**
  * Interface for the controllers library.
@@ -25,20 +25,20 @@ interface Controller {
      * Dispatch the request to the correct controller action. Checks to see if the action exists and is not protected.
      *
      * @param string $action
-     * @param array $args
+     * @param \Titon\Common\ArgumentList $args
      * @param bool $emit
      * @return string
      */
-    public function dispatchAction(string $action, array $args = [], bool $emit = true): string;
+    public function dispatchTo(string $action, ArgumentList $args = Vector {}, bool $emit = true): string;
 
     /**
      * Forward the current request to a new action, instead of doing an additional HTTP request.
      *
      * @param string $action
-     * @param array $args
+     * @param \Titon\Common\ArgumentList $args
      * @return string
      */
-    public function forwardAction(string $action, array $args = []): string;
+    public function forwardTo(string $action, ArgumentList $args = Vector {}): string;
 
     /**
      * Return the request object.
@@ -69,40 +69,19 @@ interface Controller {
     public function missingAction(): string;
 
     /**
-     * Triggered before the controller processes the requested action.
-     *
-     * @param \Titon\Event\Event $event
-     * @param \Titon\Controller\Controller $controller
-     * @param string $action
-     * @param array $args
-     */
-    public function preProcess(Event $event, Controller $controller, string &$action, array &$args): void;
-
-    /**
-     * Triggered after the action processes, but before the view renders.
-     *
-     * @param \Titon\Event\Event $event
-     * @param \Titon\Controller\Controller $controller
-     * @param string $action
-     * @param string $response
-     */
-    public function postProcess(Event $event, Controller $controller, string $action, string &$response): void;
-
-    /**
      * Render the view template for an error/exception.
      *
      * @param \Exception $exception
      * @return string
      */
-    public function renderError(\Exception $exception): string;
+    public function renderError(Exception $exception): string;
 
     /**
      * Render the view templates and return the output.
      *
-     * @param string|array $template
      * @return string
      */
-    public function renderView(mixed $template = ''): string;
+    public function renderView(): string;
 
     /**
      * Trigger a custom Action class.
@@ -132,7 +111,7 @@ interface Controller {
      * Set the view instance.
      *
      * @param \Titon\View\View $view
-     * @return \Titon\View\View
+     * @return $this
      */
     public function setView(View $view): this;
 

@@ -5,12 +5,12 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Controller\Controller;
+namespace Titon\Controller;
 
 /**
  * The ErrorController is used in circumstances where the controller being located could not be found.
  *
- * @package Titon\Controller\Controller
+ * @package Titon\Controller
  */
 class ErrorController extends AbstractController {
 

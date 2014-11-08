@@ -1,8 +1,6 @@
 <?hh
 namespace Titon\Controller;
 
-use Titon\Controller\Controller\AbstractController;
-use Titon\Controller\Controller\ErrorController;
 use Titon\Http\Exception\NotFoundException;
 use Titon\Http\Server\Request;
 use Titon\Http\Server\Response;
@@ -12,7 +10,7 @@ use Titon\View\EngineView;
 use VirtualFileSystem\FileSystem;
 
 /**
- * @property \Titon\Controller\Controller $object
+ * @property \Titon\Controller\ControllerStub $object
  */
 class ControllerTest extends TestCase {
 
@@ -32,122 +30,111 @@ class ControllerTest extends TestCase {
                     ]
                 ],
                 'public/' => [
-                    'core/' => [
-                        'custom.tpl' => 'core:custom',
-                        'index.tpl' => 'core:index'
+                    'stub/' => [
+                        'action-no-args.tpl' => 'stub:action-no-args',
+                        'index.tpl' => 'stub:index'
                     ]
                 ]
             ]
         ]);
 
-        $this->object = new ControllerStub(Map {
-            'module' => 'module',
-            'controller' => 'controller',
-            'action' => 'action',
-            'args' => [100, 25]
-        });
-        $this->object->setRequest(Request::createFromGlobals());
-        $this->object->setResponse(new Response());
-    }
-
-    protected function makeController() {
         $view = new EngineView($this->vfs->path('/views/'));
         $view->setEngine(new TemplateEngine());
 
-        $controller = new ErrorController(Map {'module' => 'main', 'controller' => 'core', 'action' => 'index'});
-        $controller->setRequest(Request::createFromGlobals());
-        $controller->setResponse(new Response());
-        $controller->setView($view);
-        $controller->initialize();
-
-        return $controller;
+        $this->object = new ControllerStub();
+        $this->object->setRequest(Request::createFromGlobals());
+        $this->object->setResponse(new Response());
+        $this->object->setView($view);
+        $this->object->initialize();
     }
 
-    public function testDispatchAction() {
-        $this->assertEquals('actionNoArgs', $this->object->dispatchAction('action-no-args'));
-        $this->assertEquals('actionNoArgs', $this->object->dispatchAction('actionNoArgs'));
-        $this->assertEquals('actionNoArgs', $this->object->dispatchAction('actionNoArgs', ['foo', 'bar']));
-        $this->assertEquals(125, $this->object->dispatchAction('actionWithArgs'));
-        $this->assertEquals(555, $this->object->dispatchAction('actionWithArgs', [505, 50]));
-        $this->assertEquals(335, $this->object->dispatchAction('actionWithArgs', [335]));
-        $this->assertEquals(0, $this->object->dispatchAction('actionWithArgs', ['foo', 'bar']));
+    public function testBuildViewPath() {
+        $this->assertEquals('stub/index', $this->object->buildViewPath('index'));
+        $this->assertEquals('stub/action-no-args', $this->object->buildViewPath('actionNoArgs'));
+        $this->assertEquals('stub/action-with-args', $this->object->buildViewPath('actionWithArgs'));
     }
 
-    /**
-     * @expectedException \Titon\Controller\Exception\InvalidActionException
-     */
-    public function testDispatchActionMissingAction() {
-        $this->object->dispatchAction('noAction');
+    public function testDispatchTo() {
+        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('action-no-args'));
+        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('actionNoArgs'));
+        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('actionNoArgs', Vector {'foo', 'bar'}));
+        $this->assertEquals(125, $this->object->dispatchTo('actionWithArgs', Vector {125}));
+        $this->assertEquals(555, $this->object->dispatchTo('actionWithArgs', Vector {505, 50}));
+        $this->assertEquals(335, $this->object->dispatchTo('actionWithArgs', Vector {335}));
+        $this->assertEquals(0, $this->object->dispatchTo('actionWithArgs', Vector {'foo', 'bar'}));
     }
 
     /**
      * @expectedException \Titon\Controller\Exception\InvalidActionException
      */
-    public function testDispatchActionPrivateAction() {
-        $this->object->dispatchAction('actionPrivate');
+    public function testDispatchToMissingAction() {
+        $this->object->dispatchTo('noAction');
     }
 
-    /**
-     * @expectedException \Titon\Controller\Exception\InvalidActionException
-     */
-    public function testDispatchActionInheritedAction() {
-        $this->object->dispatchAction('dispatchAction');
+    public function testForwardTo() {
+        $this->object->forwardTo('actionNoArgs');
+        $this->assertEquals('actionNoArgs', $this->object->getCurrentAction());
+
+        $this->object->forwardTo('actionWithArgs', Vector {'foo'});
+        $this->assertEquals('actionWithArgs', $this->object->getCurrentAction());
     }
 
-    public function testForwardAction() {
-        $this->object->forwardAction('actionNoArgs');
-        $this->assertEquals('actionNoArgs', $this->object->getConfig('action'));
+    public function testGetActionAndArguments() {
+        $this->object->dispatchTo('actionNoArgs');
+        $this->assertEquals('actionNoArgs', $this->object->getCurrentAction());
+        $this->assertEquals(Vector {}, $this->object->getCurrentArguments());
 
-        $this->object->forwardAction('actionWithArgs');
-        $this->assertEquals('actionWithArgs', $this->object->getConfig('action'));
-    }
+        $this->object->dispatchTo('actionWithArgs', Vector {'foo', 'bar'});
+        $this->assertEquals('actionWithArgs', $this->object->getCurrentAction());
+        $this->assertEquals(Vector {'foo', 'bar'}, $this->object->getCurrentArguments());
 
-    public function testRenderView() {
-        $controller = $this->makeController();
-
-        // Using config
-        $this->assertEquals('core:index', $controller->renderView());
-
-        // Custom template
-        $this->assertEquals('core:custom', $controller->renderView('core\custom'));
-
-        // Custom template config
-        $controller->setConfig('template', 'core/custom');
-        $this->assertEquals('core:custom', $controller->renderView());
-        $controller->setConfig('template', '');
-
-        // Disable rendering
-        $controller->setConfig('render', false);
-        $this->assertEquals('', $controller->renderView());
+        $this->assertEquals(Vector {}, $this->object->getActionArguments('actionNoArgs'));
+        $this->assertEquals(Vector {'foo', 'bar'}, $this->object->getActionArguments('actionWithArgs'));
+        $this->assertEquals(Vector {}, $this->object->getActionArguments('noAction'));
     }
 
     public function testRenderError() {
-        $controller = $this->makeController();
+        $this->assertEquals('Message', $this->object->renderError(new \Exception('Message')));
+        $this->assertEquals(500, $this->object->getResponse()->getStatusCode());
 
-        $this->assertEquals('Message', $controller->renderError(new \Exception('Message')));
-        $this->assertEquals(500, $controller->getResponse()->getStatusCode());
+        $old = error_reporting(0);
 
-        error_reporting(0);
+        $this->assertEquals('404: Not Found', $this->object->renderError(new NotFoundException('Not Found')));
+        $this->assertEquals(404, $this->object->getResponse()->getStatusCode());
 
-        $this->assertEquals('404: Not Found', $controller->renderError(new NotFoundException('Not Found')));
-        $this->assertEquals(404, $controller->getResponse()->getStatusCode());
+        error_reporting($old);
+    }
 
-        error_reporting(E_ALL | E_STRICT);
+    public function testRenderView() {
+        $this->assertEquals('stub:index', $this->object->renderView());
+
+        $this->object->dispatchTo('actionNoArgs');
+        $this->assertEquals('stub:action-no-args', $this->object->renderView());
+    }
+
+    /**
+     * @expectedException \Titon\View\Exception\MissingTemplateException
+     */
+    public function testRenderViewMissingView() {
+        $this->object->dispatchTo('actionWithArgs', Vector {'foo', 'bar'});
+        $this->assertEquals('stub:action-with-args', $this->object->renderView());
     }
 
     public function testGetSetView() {
+        $stub = new ControllerStub();
         $view = new EngineView($this->vfs->path('/views/'));
-        $this->assertEquals(null, $this->object->getView());
 
-        $this->object->setView($view);
-        $this->assertEquals($view, $this->object->getView());
+        $this->assertEquals(null, $stub->getView());
+
+        $stub->setView($view);
+        $this->assertEquals($view, $stub->getView());
     }
 
 }
 
 class ControllerStub extends AbstractController {
 
-    public function actionWithArgs($arg1, $arg2 = 0): string {
+    public function actionWithArgs(mixed $arg1, mixed $arg2 = 0): string {
         return strval($arg1 + $arg2);
     }
 
@@ -165,9 +152,6 @@ class ControllerStub extends AbstractController {
 
     private function actionPrivate(): string {
         return 'wontBeCalled';
-    }
-
-    public function renderView(mixed $template = ''): string {
     }
 
 }

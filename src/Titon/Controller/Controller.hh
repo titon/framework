@@ -7,13 +7,12 @@
 
 namespace Titon\Controller;
 
+use Titon\Common\ArgumentList;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\RequestInterface;
 use Titon\Controller\Action;
 use Titon\View\View;
 use \Exception;
-
-type ArgumentList = Vector<mixed>;
 
 /**
  * Interface for the controllers library.
@@ -26,7 +25,7 @@ interface Controller {
      * Dispatch the request to the correct controller action. Checks to see if the action exists and is not protected.
      *
      * @param string $action
-     * @param \Titon\Controller\ArgumentList $args
+     * @param \Titon\Common\ArgumentList $args
      * @param bool $emit
      * @return string
      */
@@ -36,7 +35,7 @@ interface Controller {
      * Forward the current request to a new action, instead of doing an additional HTTP request.
      *
      * @param string $action
-     * @param \Titon\Controller\ArgumentList $args
+     * @param \Titon\Common\ArgumentList $args
      * @return string
      */
     public function forwardTo(string $action, ArgumentList $args = Vector {}): string;

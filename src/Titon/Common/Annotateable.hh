@@ -7,6 +7,7 @@
 
 namespace Titon\Common;
 
+use Titon\Common\ArgumentList;
 use \ReflectionClass;
 use \ReflectionMethod;
 
@@ -21,7 +22,7 @@ trait Annotateable {
     /**
      * {@inheritdoc}
      */
-    public function getClassAnnotation(string $name): AnnotationArgumentList {
+    public function getClassAnnotation(string $name): ArgumentList {
         return $this->getClassAnnotations()->get($name) ?: Vector {};
     }
 
@@ -36,7 +37,7 @@ trait Annotateable {
     /**
      * {@inheritdoc}
      */
-    public function getMethodAnnotation(string $method, string $name): AnnotationArgumentList {
+    public function getMethodAnnotation(string $method, string $name): ArgumentList {
         return $this->getMethodAnnotations($method)->get($name) ?: Vector {};
     }
 

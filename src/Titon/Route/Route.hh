@@ -7,6 +7,7 @@
 
 namespace Titon\Route;
 
+use Titon\Common\ArgumentList;
 use Titon\Route\Exception\MissingPatternException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Utility\Registry;
@@ -365,7 +366,7 @@ class Route implements Serializable {
         $object = Registry::factory($action['class']);
         $method = new ReflectionMethod($object, $action['action']);
 
-        return $method->invokeArgs($object, $this->_getArguments($method));
+        return $method->invokeArgs($object, $this->getActionArguments());
     }
 
     /**
@@ -375,6 +376,18 @@ class Route implements Serializable {
      */
     public function getAction(): Action {
         return $this->_action;
+    }
+
+    /**
+     * Return the type casted arguments for the defined action method.
+     *
+     * @return \Titon\Common\ArgumentList
+     */
+    public function getActionArguments(): ArgumentList {
+        $action = $this->getAction();
+        $method = new ReflectionMethod($action['class'], $action['action']);
+
+        return $this->_getArguments($method);
     }
 
     /**
@@ -740,14 +753,14 @@ class Route implements Serializable {
 
     /**
      * Gather a list of arguments to pass to the dispatcher based on the tokens and params from the route.
-     * Loop through and set any default values using reflection.
+     * Furthermore, loop through and set any default values using reflection, and type cast appropriately.
      *
      * @param \ReflectionFunctionAbstract $method
-     * @return array<mixed>
+     * @return \Titon\Common\ArgumentList
      */
-    protected function _getArguments(ReflectionFunctionAbstract $method): array<mixed> {
+    protected function _getArguments(ReflectionFunctionAbstract $method): ArgumentList {
         $tokens = $this->getTokens();
-        $args = $this->getParams()->values()->toArray();
+        $args = $this->getParams()->values();
 
         foreach ($method->getParameters() as $i => $param) {
             if (!$tokens->containsKey($i)) {

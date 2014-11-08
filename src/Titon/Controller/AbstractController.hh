@@ -7,6 +7,7 @@
 
 namespace Titon\Controller;
 
+use Titon\Common\ArgumentList;
 use Titon\Controller\Exception\InvalidActionException;
 use Titon\Event\Emittable;
 use Titon\Event\Event;
@@ -127,7 +128,7 @@ abstract class AbstractController implements Controller, Listener {
      * Return the currently defined arguments for a specific action.
      *
      * @param string $action
-     * @return \Titon\Controller\ArgumentList
+     * @return \Titon\Common\ArgumentList
      */
     public function getActionArguments(string $action): ArgumentList {
         if ($this->_arguments->contains($action)) {
@@ -149,7 +150,7 @@ abstract class AbstractController implements Controller, Listener {
     /**
      * Return the arguments for the current action.
      *
-     * @return \Titon\Controller\ArgumentList
+     * @return \Titon\Common\ArgumentList
      */
     public function getCurrentArguments(): ArgumentList {
         return $this->getActionArguments($this->getCurrentAction());

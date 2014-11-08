@@ -21,6 +21,8 @@ However, they have not been linted against Hack's strict type checker yet.
 
 The following packages are still in the porting process.
 
+* Cache
+* HTTP
 * IO
 
 The following packages have yet to be ported over.
@@ -36,7 +38,7 @@ The following packages have yet to be ported over.
 
 ### Upcoming Packages ###
 
-The following packages have are planned for future releases.
+The following packages are planned for future releases.
 
 * Auth
 * ACL

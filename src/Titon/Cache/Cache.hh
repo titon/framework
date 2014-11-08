@@ -7,10 +7,10 @@
 
 namespace Titon\Cache;
 
+use Closure;
 use Titon\Cache\Exception\MissingStorageException;
 use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
-use \Closure;
 
 /**
  * Provides a very basic interface for caching individual sets of data. Multiple storage engines can be setup

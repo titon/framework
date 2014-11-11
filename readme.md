@@ -116,17 +116,3 @@ Or lint a specific folder.
 ```bash
 /vagrant/bin/lint-hack --path=Titon/Utility
 ```
-
-### PHPUnit Support ###
-
-Titon requires a modified PHPUnit to run tests properly. Simply modify the local file `Framework\TestSuite.php` and change this.
-
-```php
-$shortname = basename($filename, '.php');
-```
-
-To the following. This will allow `.hh` file extensions to be located.
-
-```php
-$shortname = basename(basename($filename, '.hh'), '.php');
-```

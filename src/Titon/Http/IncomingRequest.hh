@@ -7,14 +7,14 @@
 
 namespace Titon\Http;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\IncomingRequestInterface;
 
 /**
- * Represents an HTTP request, either about a server request, or for a client making a request.
+ * Represents an incoming server HTTP request.
  *
  * @package Titon\Http
  */
-interface Request extends RequestInterface {
+interface IncomingRequest extends IncomingRequestInterface {
 
     /**
      * Gets the host for the current request.

@@ -15,7 +15,7 @@ use Titon\Http\Bag\ParameterBag;
 use Titon\Http\Exception\InvalidMethodException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
-use Titon\Http\Request as BaseRequest;
+use Titon\Http\IncomingRequest;
 use Titon\Utility\Col;
 
 /**
@@ -24,7 +24,7 @@ use Titon\Utility\Col;
  *
  * @package Titon\Http\Server
  */
-class Request extends AbstractMessage implements BaseRequest {
+class Request extends AbstractMessage implements IncomingRequest {
     use FactoryAware;
 
     /**
@@ -247,6 +247,27 @@ class Request extends AbstractMessage implements BaseRequest {
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getAttribute(string $attribute, mixed $default = null): mixed {
+
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAttributes(): Map<string, mixed> {
+
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBodyParams(): Map<string, mixed> {
+        return $this->post->all();
+    }
+
+    /**
      * Get the IP address of the client, the correct way.
      * If trust proxies is enabled, use appropriate headers.
      *
@@ -296,6 +317,20 @@ class Request extends AbstractMessage implements BaseRequest {
         }
 
         return $cookies;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCookieParams(): Map<string, mixed> {
+        return $this->cookies->all();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFilesParams(): Map<string, mixed> {
+        return $this->files->all();
     }
 
     /**
@@ -373,6 +408,13 @@ class Request extends AbstractMessage implements BaseRequest {
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getQueryParams(): Map<string, mixed> {
+        return $this->get->all();
+    }
+
+    /**
      * Get the referring URL. Will strip the hostname if it comes from the same domain.
      *
      * @return string
@@ -407,6 +449,13 @@ class Request extends AbstractMessage implements BaseRequest {
      */
     public function getServerIP(): string {
         return $this->server->get('SERVER_ADDR');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getServerParams(): Map<string, mixed> {
+        return $this->server->all();
     }
 
     /**
@@ -615,6 +664,20 @@ class Request extends AbstractMessage implements BaseRequest {
         }
 
         return (strtolower($this->server->get('HTTPS')) === 'on' || $this->server->get('SERVER_PORT') == 443);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setAttribute(string $attribute, mixed $value): this {
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setAttributes(array $attributes): this {
+        return $this;
     }
 
     /**

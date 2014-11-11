@@ -7,15 +7,15 @@
 
 namespace Titon\Http\Server;
 
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\StreamableInterface;
 use Titon\Common\FactoryAware;
 use Titon\Http\AbstractMessage;
 use Titon\Http\Bag\CookieBag;
 use Titon\Http\Http;
 use Titon\Http\Mime;
-use Titon\Http\Response as BaseResponse;
-use Titon\Http\Request as BaseRequest;
-use Titon\Http\RequestAware;
+use Titon\Http\OutgoingResponse;
+use Titon\Http\IncomingRequest;
+use Titon\Http\IncomingRequestAware;
 use Titon\Utility\Config;
 use Titon\Utility\Format;
 use Titon\Utility\Number;
@@ -28,8 +28,8 @@ use Titon\Utility\Time;
  *
  * @package Titon\Http\Server
  */
-class Response extends AbstractMessage implements BaseResponse {
-    use FactoryAware, RequestAware;
+class Response extends AbstractMessage implements OutgoingResponse {
+    use FactoryAware, IncomingRequestAware;
 
     /**
      * COOKIE data to set.
@@ -63,11 +63,11 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * Set body and status during initialization.
      *
-     * @param StreamInterface $body
+     * @param StreamableInterface $body
      * @param int $status
      * @param Map<string, mixed> $config
      */
-    public function __construct(?StreamInterface $body = null, int $status = Http::OK, Map<string, mixed> $config = Map {}) {
+    public function __construct(?StreamableInterface $body = null, int $status = Http::OK, Map<string, mixed> $config = Map {}) {
         parent::__construct($config);
 
         $this
@@ -119,10 +119,10 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * Alias for setBody().
      *
-     * @param StreamInterface $body
+     * @param StreamableInterface $body
      * @return $this
      */
-    public function body(?StreamInterface $body = null): this {
+    public function body(StreamableInterface $body): this {
         return $this->setBody($body);
     }
 
@@ -482,7 +482,7 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * {@inheritdoc}
      */
-    public function prepare(BaseRequest $request): this {
+    public function prepare(IncomingRequest $request): this {
         $this->setRequest($request);
 
         return $this;
@@ -607,7 +607,7 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * {@inheritdoc}
      */
-    public function setBody(?StreamInterface $body = null): this {
+    public function setBody(StreamableInterface $body): this {
         $this->_body = $body;
 
         return $this;
@@ -628,6 +628,13 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * {@inheritdoc}
      */
+    public function setProtocolVersion($version): this { // @todo No type hint because of PSR
+
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setReasonPhrase($phrase): this { // @todo No type hint because of PSR
         return $this->setHeader('Reason-Phrase', $phrase);
     }
@@ -635,10 +642,10 @@ class Response extends AbstractMessage implements BaseResponse {
     /**
      * {@inheritdoc}
      */
-    public function setStatusCode($code): this { // @todo No type hint because of PSR
+    public function setStatus($code, $reasonPhrase = null): this { // @todo No type hint because of PSR
         $this->_status = $code;
 
-        return $this->setHeader('Status-Code', $code . ' ' . $this->getReasonPhrase());
+        return $this->setHeader('Status-Code', $code . ' ' . ($reasonPhrase || $this->getReasonPhrase()));
     }
 
     /**

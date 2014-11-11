@@ -8,7 +8,7 @@
 namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
-use Titon\Http\RequestAware;
+use Titon\Http\IncomingRequestAware;
 use Titon\Utility\Converter;
 
 /**
@@ -18,7 +18,7 @@ use Titon\Utility\Converter;
  * @codeCoverageIgnore
  */
 class ParameterBag extends AbstractBag {
-    use RequestAware;
+    use IncomingRequestAware;
 
     /**
      * Set the parameters using an array. This is because all super globals are arrays.

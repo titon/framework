@@ -7,23 +7,23 @@
 
 namespace Titon\Http;
 
-use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\OutgoingResponseInterface;
 
 /**
- * Represents an HTTP response, either for sending a server response, or from a client request.
+ * Represents an outgoing server HTTP response.
  *
  * @package Titon\Http
  */
-interface Response extends ResponseInterface {
+interface OutgoingResponse extends OutgoingResponseInterface {
 
     /**
      * Pass the current request to the response so that the response
      * can make use of any request data or environment variables.
      *
-     * @param \Titon\Http\Request $request
+     * @param \Titon\Http\IncomingRequest $request
      * @return $this
      */
-    public function prepare(Request $request): this;
+    public function prepare(IncomingRequest $request): this;
 
     /**
      * Output the response by looping through and setting all headers,

@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Bag;
 
-use Titon\Http\RequestAware;
+use Titon\Http\IncomingRequestAware;
 use Titon\Utility\Inflector;
 
 /**
@@ -17,7 +17,7 @@ use Titon\Utility\Inflector;
  * @package Titon\Http\Bag
  */
 class HeaderBag extends ParameterBag {
-    use RequestAware;
+    use IncomingRequestAware;
 
     /**
      * {@inheritdoc}

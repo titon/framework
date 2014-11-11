@@ -10,6 +10,8 @@ namespace Titon\Http;
 use Titon\Http\Exception\InvalidExtensionException;
 use Titon\Common\StaticCacheable;
 
+type MimeMap = Map<string, string>;
+
 /**
  * MIME type related constants and static variables.
  *
@@ -32,9 +34,9 @@ class Mime {
     /**
      * List of all mime types.
      *
-     * @type Map<string, string>
+     * @type \Titon\Http\MimeMap
      */
-    protected static Map<string, string> $_types = Map {
+    protected static MimeMap $_types = Map {
         '3dml' => 'text/vnd.in3d.3dml',
         '3g2' => 'video/3gpp2',
         '3gp' => 'video/3gpp',
@@ -947,9 +949,9 @@ class Mime {
     /**
      * Return all types.
      *
-     * @return Map<string, string>
+     * @return \Titon\Http\MimeMap
      */
-    public static function getAll(): Map<string, string> {
+    public static function getAll(): MimeMap {
         return static::$_types;
     }
 
@@ -957,9 +959,9 @@ class Mime {
      * Return all by top level type.
      *
      * @param string $type
-     * @return Map<string, string>
+     * @return \Titon\Http\MimeMap
      */
-    public static function getAllByType(string $type): Map<string, string> {
+    public static function getAllByType(string $type): MimeMap {
         return static::cache([__METHOD__, $type], function() use ($type) {
             $clean = Map {};
 

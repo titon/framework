@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Bag;
 
-use Titon\Http\RequestAware;
+use Titon\Http\IncomingRequestAware;
 use Titon\Utility\Col;
 
 /**
@@ -16,7 +16,7 @@ use Titon\Utility\Col;
  * @package Titon\Http\Bag
  */
 class FileBag extends ParameterBag {
-    use RequestAware;
+    use IncomingRequestAware;
 
     /**
      * Set and normalize the FILES array.

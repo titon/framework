@@ -9,6 +9,10 @@ namespace Titon\Http;
 
 use Titon\Http\Exception\InvalidStatusException;
 
+type HeaderList = Vector<string>;
+type MethodList = Vector<string>;
+type StatusCodeMap = Map<int, string>;
+
 /**
  * HTTP related constants and static variables.
  *
@@ -76,9 +80,9 @@ class Http {
     /**
      * List of acceptable header types.
      *
-     * @type Vector<string>
+     * @type \Titon\Http\HeaderList
      */
-    protected static Vector<string> $_headerTypes = Vector {
+    protected static HeaderList $_headerTypes = Vector {
         'Accept',
         'Accept-Charset',
         'Accept-Encoding',
@@ -143,9 +147,9 @@ class Http {
     /**
      * List of possible method types.
      *
-     * @type Vector<string>
+     * @type \Titon\Http\MethodList
      */
-    protected static Vector<string> $_methodTypes = Vector {
+    protected static MethodList $_methodTypes = Vector {
         'GET',
         'POST',
         'PUT',
@@ -159,9 +163,9 @@ class Http {
     /**
      * List of all available response status codes.
      *
-     * @type Map<int, string>
+     * @type \Titon\Http\StatusCodeMap
      */
-    protected static Map<int, string> $_statusCodes = Map {
+    protected static StatusCodeMap $_statusCodes = Map {
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing', // RFC2518
@@ -219,18 +223,18 @@ class Http {
     /**
      * Return all the standard types of HTTP headers.
      *
-     * @return Vector<string>
+     * @return \Titon\Http\HeaderList
      */
-    public static function getHeaderTypes(): Vector<string> {
+    public static function getHeaderTypes(): HeaderList {
         return static::$_headerTypes;
     }
 
     /**
      * Return all the supported method types.
      *
-     * @return Vector<string>
+     * @return \Titon\Http\MethodList
      */
-    public static function getMethodTypes(): Vector<string> {
+    public static function getMethodTypes(): MethodList {
         return static::$_methodTypes;
     }
 
@@ -252,9 +256,9 @@ class Http {
     /**
      * Get all status codes.
      *
-     * @return Map<int, string>
+     * @return \Titon\Http\StatusCodeMap
      */
-    public static function getStatusCodes(): Map<int, string> {
+    public static function getStatusCodes(): StatusCodeMap {
         return static::$_statusCodes;
     }
 

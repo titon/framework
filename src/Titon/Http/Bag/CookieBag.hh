@@ -8,7 +8,7 @@
 namespace Titon\Http\Bag;
 
 use Titon\Http\Http;
-use Titon\Http\RequestAware;
+use Titon\Http\IncomingRequestAware;
 use Titon\Utility\Config;
 use Titon\Utility\Converter;
 use Titon\Utility\Crypt;
@@ -21,7 +21,7 @@ use Titon\Utility\Col;
  * @package Titon\Http\Bag
  */
 class CookieBag extends ParameterBag {
-    use RequestAware;
+    use IncomingRequestAware;
 
     /**
      * Configuration.

@@ -8,7 +8,7 @@
 namespace Titon\Http;
 
 use Psr\Http\Message\MessageInterface;
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\StreamableInterface;
 use Titon\Http\Bag\HeaderBag;
 
 /**
@@ -28,9 +28,9 @@ abstract class AbstractMessage implements MessageInterface {
     /**
      * The request or response body.
      *
-     * @type StreamInterface
+     * @type StreamableInterface
      */
-    protected ?StreamInterface $_body = null;
+    protected ?StreamableInterface $_body = null;
 
     /**
      * Instantiate a new header bag.
@@ -76,7 +76,7 @@ abstract class AbstractMessage implements MessageInterface {
     /**
      * {@inheritdoc}
      */
-    public function getBody(): ?StreamInterface {
+    public function getBody(): ?StreamableInterface {
         return $this->_body;
     }
 
@@ -108,7 +108,7 @@ abstract class AbstractMessage implements MessageInterface {
     /**
      * {@inheritdoc}
      */
-    public function setBody(?StreamInterface $body = null): this {
+    public function setBody(?StreamableInterface $body = null): this {
         $this->_body = $body;
 
         return $this;

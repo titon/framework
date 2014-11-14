@@ -67,7 +67,7 @@ but there's nothing we can do until HHVM and Hack are patched.
 
 ## Requirements ##
 
-Titon is built on [Hack](http://hacklang.com/) and requires [HHVM 3.3.0+](http://hhvm.com/).
+Titon is built on [Hack](http://hacklang.org/) and requires [HHVM 3.3.0+](http://hhvm.com/).
 It also requires Composer for its autoloader and for dependencies to be installed for testing.
 
 ## Usage ##

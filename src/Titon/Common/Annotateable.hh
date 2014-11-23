@@ -22,6 +22,23 @@ trait Annotateable {
     /**
      * {@inheritdoc}
      */
+    <<__Memoize>>
+    public function getAnnotatedMethods(): Vector<string> {
+        $reflection = new ReflectionClass($this);
+        $methods = Vector {};
+
+        foreach ($reflection->getMethods() as $method) {
+            if ($this->getMethodAnnotations($method->getName())) {
+                $methods[] = $method->getName();
+            }
+        }
+
+        return $methods;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getClassAnnotation(string $name): ArgumentList {
         return $this->getClassAnnotations()->get($name) ?: Vector {};
     }
@@ -50,7 +67,10 @@ trait Annotateable {
     }
 
     /**
-     * {@inheritdoc}
+     * Convert the attributes returned from the reflection layer into maps and vectors.
+     *
+     * @param array<string, array<mixed>> $attributes
+     * @return \Titon\Common\AnnotationMap
      */
     public function packageAnnotations(array<string, array<mixed>> $attributes): AnnotationMap {
         $annotations = Map {};

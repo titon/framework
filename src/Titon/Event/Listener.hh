@@ -10,16 +10,15 @@ namespace Titon\Event;
 type ListenerMap = Map<string, mixed>;
 
 /**
- * Interface the defines groups of event callbacks to register for a class.
+ * The Listener interface defines groups of observers to register for events.
  *
  * @package Titon\Event
  */
 interface Listener {
 
     /**
-     * Return an array of callbacks to register to events.
-     * The array key should be the name of the event, while the value should be the callback.
-     * The callback could be an array containing the method and priority, or a string of the method.
+     * Return an array of observers to register to events.
+     * The collection key should be the name of the event, while the value should be the callable.
      *
      * @return \Titon\Event\ListenerMap
      */

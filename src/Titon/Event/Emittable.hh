@@ -7,12 +7,15 @@
 
 namespace Titon\Event;
 
+use Titon\Event\Exception\InvalidObserverException;
+
 /**
- * Provides class level event management.
+ * Provides functionality for the Subject while injecting a customizable Emitter.
  *
  * @package Titon\Event
  */
 trait Emittable {
+    require implements Subject;
 
     /**
      * Emitter object.
@@ -22,16 +25,16 @@ trait Emittable {
     protected Emitter $_emitter;
 
     /**
-     * @see \Titon\Event\Emitter::emit()
+     * {@inheritdoc}
      */
     public function emit(string $event, array<mixed> $params = []): Event {
         return $this->getEmitter()->emit($event, $params);
     }
 
     /**
-     * @see \Titon\Event\Emitter::emitMany()
+     * {@inheritdoc}
      */
-    public function emitMany(mixed $event, array<mixed> $params = []): EventList {
+    public function emitMany(mixed $event, array<mixed> $params = []): EventMap {
         return $this->getEmitter()->emitMany($event, $params);
     }
 
@@ -49,34 +52,44 @@ trait Emittable {
     }
 
     /**
-     * @see \Titon\Event\Emitter::once()
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function once(string $event, mixed $callback, int $priority = 0): this {
-        $this->getEmitter()->once($event, $callback, $priority);
-
-        return $this;
+        return $this->on($event, $callback, $priority, true);
     }
 
     /**
-     * @see \Titon\Event\Emitter::on()
-     *
-     * @return $this
+     * {@inheritdoc}
      */
-    public function on(string $event, mixed $callback, int $priority = 0): this {
-        $this->getEmitter()->on($event, $callback, $priority);
+    public function on(string $event, mixed $callback, int $priority = 0, bool $once = false): this {
+        if ($callback instanceof Listener) {
+            $this->getEmitter()->registerListener($callback);
+
+        } else if (is_callable($callback)) {
+            // UNSAFE
+            $this->getEmitter()->register($event, $callback, $priority, $once);
+
+        } else {
+            throw new InvalidObserverException('Observer must be a callable or a Listener');
+        }
 
         return $this;
     }
 
     /**
-     * @see \Titon\Event\Emitter::off()
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function off(string $event, mixed $callback): this {
-        $this->getEmitter()->off($event, $callback);
+        if ($callback instanceof Listener) {
+            $this->getEmitter()->removeListener($callback);
+
+        } else if (is_callable($callback)) {
+            // UNSAFE
+            $this->getEmitter()->remove($event, $callback);
+
+        } else {
+            throw new InvalidObserverException('Observer must be a callable or a Listener');
+        }
 
         return $this;
     }

@@ -7,20 +7,19 @@
 
 namespace Titon\Event;
 
-use Titon\Event\Exception\InvalidObserverException;
 use \Closure;
 
 type CallStack = shape('priority' => int, 'once' => bool, 'callback' => string, 'time' => int);
 type CallStackList = Vector<CallStack>;
-type EventList = Vector<Event>;
+type EventMap = Map<string, Event>;
 type Observer = shape('priority' => int, 'once' => bool, 'callback' => ObserverCallback);
 type ObserverList = Vector<Observer>;
 type ObserverContainer = Map<string, ObserverList>;
 type ObserverCallback = (function(...): mixed);
 
 /**
- * The Emitter manages the registering and removing of callbacks (observers).
- * A dispatched (or emitted) event will cycle through and trigger all callbacks.
+ * The Emitter manages the registering and removing of observers (and listeners).
+ * An emitted event will cycle through and trigger all observers.
  *
  * @package Titon\Event
  */
@@ -75,7 +74,7 @@ class Emitter {
 
         // We must do this as you can't remove keys while iterating
         foreach ($turnOff as $callback) {
-            $this->off($event, $callback);
+            $this->remove($event, $callback);
         }
 
         return $object;
@@ -87,13 +86,13 @@ class Emitter {
      *
      * @param mixed $event
      * @param array<mixed> $params
-     * @return \Titon\Event\EventList
+     * @return \Titon\Event\EventMap
      */
-    public function emitMany(mixed $event, array<mixed> $params = []): EventList {
-        $objects = Vector {};
+    public function emitMany(mixed $event, array<mixed> $params = []): EventMap {
+        $objects = Map {};
 
         foreach ($this->_resolveEvents($event) as $event) {
-            $objects[] = $this->emit($event, $params);
+            $objects[$event] = $this->emit($event, $params);
         }
 
         return $objects;
@@ -198,70 +197,6 @@ class Emitter {
      */
     public function hasObservers(string $event): bool {
         return $this->_observers->contains($event);
-    }
-
-    /**
-     * Register an event callback or listener to only trigger once and then remove itself from the observer list.
-     *
-     * @param string $event
-     * @param mixed $callback
-     * @param int $priority
-     * @return $this
-     */
-    public function once(string $event, mixed $callback, int $priority = 0): this {
-        return $this->on($event, $callback, $priority, true);
-    }
-
-    /**
-     * Register an event callback or a listener.
-     *
-     * @param string $event
-     * @param mixed $callback
-     * @param int $priority
-     * @param bool $once
-     * @return $this
-     * @throws \Titon\Event\Exception\InvalidObserverException
-     */
-    public function on(string $event, mixed $callback, int $priority = 0, bool $once = false): this {
-        if ($callback instanceof Listener) {
-            $this->registerListener($callback);
-
-        } else if (is_callable($callback)) {
-            invariant(is_callable($callback), 'Callback must be callable');
-
-            // UNSAFE
-            $this->register($event, $callback, $priority, $once);
-
-        } else {
-            throw new InvalidObserverException('Observer must be a callable or a Listener');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Remove an event callback or a listener.
-     *
-     * @param string $event
-     * @param mixed $callback
-     * @return $this
-     * @throws \Titon\Event\Exception\InvalidObserverException
-     */
-    public function off(string $event, mixed $callback): this {
-        if ($callback instanceof Listener) {
-            $this->removeListener($callback);
-
-        } else if (is_callable($callback)) {
-            invariant(is_callable($callback), 'Callback must be callable');
-
-            // UNSAFE
-            $this->remove($event, $callback);
-
-        } else {
-            throw new InvalidObserverException('Observer must be a callable or a Listener');
-        }
-
-        return $this;
     }
 
     /**

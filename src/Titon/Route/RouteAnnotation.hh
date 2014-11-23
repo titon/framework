@@ -10,11 +10,9 @@ namespace Titon\Route;
 use Titon\Common\Annotator;
 use Titon\Utility\Converter;
 use Titon\Utility\Path;
-use \ReflectionClass;
-use \ReflectionMethod;
 
 /**
- * The RouteAttribute provides access to the <<Route>> annotation which will auto-wire the Router via the registry.
+ * The RouteAnnotation provides access to the <<Route>> annotation which will auto-wire the Router via the registry.
  * This annotation is usable on both the class (as a resource route) and each method.
  *
  * @package Titon\Route
@@ -39,13 +37,9 @@ trait RouteAnnotation {
         }
 
         // Map individual method route
-        $reflection = new ReflectionClass($this);
-
-        foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            $name = $method->getName();
-
-            if ($annotation = $this->getMethodAnnotation($name, 'Route')) {
-                $route = new Route($annotation[0], $class . '@' . $name);
+        foreach ($this->getAnnotatedMethods() as $method) {
+            if ($annotation = $this->getMethodAnnotation($method, 'Route')) {
+                $route = new Route($annotation[0], $class . '@' . $method);
 
                 if ($annotation->containsKey(1)) {
                     $route->setMethods(Converter::toVector($annotation[1]));
@@ -55,7 +49,7 @@ trait RouteAnnotation {
                     $route->setFilters(Converter::toVector($annotation[2]));
                 }
 
-                $router->map($key . '.' . strtolower($name), $route);
+                $router->map($key . '.' . strtolower($method), $route);
             }
         }
     }

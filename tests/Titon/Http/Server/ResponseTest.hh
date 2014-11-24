@@ -20,8 +20,9 @@ class ResponseTest extends TestCase {
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-us,en;q=0.5';
 
         $this->time = time();
-        $this->object = new Response(null, 200, Map {'debug' => true});
-        $this->object->prepare(Request::createFromGlobals());
+        $this->object = new Response(null, 200);
+        $this->object->debug();
+        //$this->object->prepare(Request::createFromGlobals());
     }
 
     public function testAcceptRanges() {
@@ -154,7 +155,7 @@ class ResponseTest extends TestCase {
     }
 
     public function testContentLength300Status() {
-        $this->object->setStatusCode(302);
+        $this->object->setStatus(302);
         $this->object->contentLength(1234);
         $this->assertEquals('', $this->object->getHeader('Content-Length'));
     }
@@ -181,7 +182,7 @@ class ResponseTest extends TestCase {
     }
 
     public function testContentType300Status() {
-        $this->object->setStatusCode(304);
+        $this->object->setStatus(304);
         $this->object->contentType('xhtml');
         $this->assertEquals('text/html; charset=UTF-8', $this->object->getHeader('Content-Type'));
     }
@@ -250,7 +251,7 @@ class ResponseTest extends TestCase {
     }
 
     public function testGetReasonPhrase() {
-        $this->object->setStatusCode(400);
+        $this->object->setStatus(400);
         $this->assertEquals('Bad Request', $this->object->getReasonPhrase());
     }
 

@@ -58,7 +58,7 @@ class Message implements MessageInterface {
      * {@inheritdoc}
      */
     public function getHeaderAsArray($key): array<string> {
-        return $this->headers->get($key);
+        return $this->headers->get($key) ?: [];
     }
 
     /**
@@ -72,7 +72,7 @@ class Message implements MessageInterface {
      * {@inheritdoc}
      */
     public function getProtocolVersion(): string {
-        return Http::HTTP_11;
+        return '1.1';
     }
 
     /**

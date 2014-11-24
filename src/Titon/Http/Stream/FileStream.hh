@@ -7,6 +7,8 @@
 
 namespace Titon\Http\Stream;
 
+use Titon\Http\Exception\InvalidFileException;
+
 /**
  * The FileStream will load a local file defined by path as the stream resource.
  *
@@ -22,7 +24,7 @@ class FileStream extends AbstractStream {
      */
     public function __construct(string $path, string $mode = 'r+b') {
         if (!file_exists($path)) {
-            throw new \InvalidArgumentException(sprintf('File does not exist at path %s', $path));
+            throw new InvalidFileException(sprintf('File does not exist at path %s', $path));
         }
 
         $this->setStream(fopen($path, $mode));

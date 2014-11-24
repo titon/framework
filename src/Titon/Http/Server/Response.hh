@@ -39,21 +39,32 @@ class Response extends Message implements OutgoingResponse {
     public CookieBag $cookies;
 
     /**
-     * Configuration.
+     * The range in which to break up the body into chunks.
      *
-     * @type Map<string, mixed> {
-     *      @type int $buffer   The range in which to break up the body into chunks.
-     *      @type bool $md5     When enabled, will add a Content-MD5 header based on the body.
-     *      @type bool $debug   When enabled, will return the response as a string instead of outputting.
-     * }
+     * @type int
      */
-    protected Map<string, mixed> $_config = Map {
-        'buffer' => 8192,
-        'md5' => false,
-        'debug' => false
-    };
+    protected int $_bufferSize = 8192;
 
-    protected string $_protocolVersion = Http::HTTP_11;
+    /**
+     * Will return the response as a string instead of sending output.
+     *
+     * @type bool
+     */
+    protected bool $_debug = false;
+
+    /**
+     * Will add a Content-MD5 header based on the body.
+     *
+     * @type bool
+     */
+    protected bool $_md5 = false;
+
+    /**
+     * The HTTP protocol version.
+     *
+     * @type string
+     */
+    protected string $_protocolVersion = '1.1';
 
     /**
      * HTTP status code to output.
@@ -65,19 +76,22 @@ class Response extends Message implements OutgoingResponse {
     /**
      * Set body and status during initialization.
      *
-     * @param StreamableInterface $body
+     * @param \Psr\Http\Message\StreamableInterface $body
      * @param int $status
-     * @param Map<string, mixed> $config
      */
-    public function __construct(?StreamableInterface $body = null, int $status = Http::OK, Map<string, mixed> $config = Map {}) {
-        parent::__construct($config);
+    <<__ConsistentConstruct>>
+    public function __construct(?StreamableInterface $body = null, int $status = Http::OK) {
+        parent::__construct();
 
         $this
             ->date(time())
             ->connection(true)
             ->contentType('text/html')
-            ->setStatusCode($status)
-            ->setBody($body);
+            ->setStatus($status);
+
+        if ($body) {
+            $this->setBody($body);
+        }
 
         $this->cookies = new CookieBag();
     }
@@ -141,7 +155,7 @@ class Response extends Message implements OutgoingResponse {
     /**
      * Alias for setBody().
      *
-     * @param StreamableInterface $body
+     * @param \Psr\Http\Message\StreamableInterface $body
      * @return $this
      */
     public function body(StreamableInterface $body): this {
@@ -305,7 +319,7 @@ class Response extends Message implements OutgoingResponse {
      */
     public function contentMD5(mixed $content): this {
         if (is_bool($content)) {
-            $this->setConfig('md5', $content);
+            $this->_md5 = $content;
         } else {
             $this->setHeader('Content-MD5', $content);
         }
@@ -364,6 +378,17 @@ class Response extends Message implements OutgoingResponse {
      */
     public function date(mixed $time): this {
         return $this->setHeader('Date', Format::http($time));
+    }
+
+    /**
+     * Enable debugging.
+     *
+     * @return $this
+     */
+    public function debug(): this {
+        $this->_debug = true;
+
+        return $this;
     }
 
     /**
@@ -571,6 +596,7 @@ class Response extends Message implements OutgoingResponse {
      */
     public function send(): string {
         $body = $this->getBody();
+        $contents = $body->getContents();
 
         // Create an MD5 digest?
         if ($this->getConfig('md5') && $body) {
@@ -578,7 +604,7 @@ class Response extends Message implements OutgoingResponse {
         }
 
         // Return while in debug
-        if ($this->getConfig('debug')) {
+        if ($this->isDebugging()) {
             return $body->getContents();
         }
 
@@ -686,8 +712,8 @@ class Response extends Message implements OutgoingResponse {
     /**
      * {@inheritdoc}
      */
-    public function setProtocolVersion($version): this { // @todo No type hint because of PSR
-        if ($version === Http::HTTP_10 || $version === Http::HTTP_11) {
+    public function setProtocolVersion($version): this {
+        if ($version === '1.0' || $version === '1.1') {
             $this->_protocolVersion = $version;
         }
 
@@ -697,14 +723,14 @@ class Response extends Message implements OutgoingResponse {
     /**
      * {@inheritdoc}
      */
-    public function setReasonPhrase($phrase): this { // @todo No type hint because of PSR
+    public function setReasonPhrase($phrase): this {
         return $this->setHeader('Reason-Phrase', $phrase);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setStatus($code, $reasonPhrase = null): this { // @todo No type hint because of PSR
+    public function setStatus($code, $reasonPhrase = null): this {
         if (Http::getStatusCode($code)) {
             $this->_status = $code;
         }

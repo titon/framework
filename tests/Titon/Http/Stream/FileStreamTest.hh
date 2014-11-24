@@ -21,7 +21,7 @@ class FileStreamTest extends TestCase {
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Titon\Http\Exception\InvalidFileException
      */
     public function testConstructorErrorsOnInvalidPath() {
         new FileStream('foo');

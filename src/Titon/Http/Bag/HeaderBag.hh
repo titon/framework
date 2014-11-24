@@ -17,7 +17,7 @@ use Titon\Utility\Inflector;
  *
  * @package Titon\Http\Bag
  */
-class HeaderBag<string, array<string>> extends AbstractBag {
+class HeaderBag extends AbstractBag {
 
     /**
      * {@inheritdoc}

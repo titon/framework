@@ -8,6 +8,7 @@
 namespace Titon\Http\Server;
 
 use Titon\Common\FactoryAware;
+use Titon\Http\AcceptHeader;
 use Titon\Http\Message;
 use Titon\Http\Bag\CookieBag;
 use Titon\Http\Bag\FileBag;
@@ -16,7 +17,14 @@ use Titon\Http\Exception\InvalidMethodException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
 use Titon\Http\IncomingRequest;
-use Titon\Utility\Col;
+use Titon\Utility\State\Cookie;
+use Titon\Utility\State\Files;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\GlobalMap;
+use Titon\Utility\State\Post;
+use Titon\Utility\State\Server;
+
+type AcceptHeader = shape('value' => string, 'quality' => float);
 
 /**
  * The Request object is the primary source of data and state management for the environment.
@@ -49,13 +57,6 @@ class Request extends Message implements IncomingRequest {
     public FileBag $files;
 
     /**
-     * GET data for the request.
-     *
-     * @type \Titon\Http\Bag\ParameterBag
-     */
-    public ParameterBag $get;
-
-    /**
      * POST data for the request.
      *
      * @type \Titon\Http\Bag\ParameterBag
@@ -63,22 +64,18 @@ class Request extends Message implements IncomingRequest {
     public ParameterBag $post;
 
     /**
-     * List of server and environment variables.
+     * GET data for the request.
+     *
+     * @type \Titon\Http\Bag\ParameterBag
+     */
+    public ParameterBag $query;
+
+    /**
+     * SERVER environment variables.
      *
      * @type \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $server;
-
-    /**
-     * Configuration.
-     *
-     * @type Map<string, mixed> {
-     *      @type bool $trustProxies    When enabled, will use applicable HTTP headers set by proxies
-     * }
-     */
-    protected Map<string, mixed> $_config = Map {
-        'trustProxies' => true
-    };
 
     /**
      * The current type of request method.
@@ -86,6 +83,13 @@ class Request extends Message implements IncomingRequest {
      * @type string
      */
     protected string $_method = '';
+
+    /**
+     * When enabled, will use applicable HTTP headers set by proxies.
+     *
+     * @type bool
+     */
+    protected bool $_trustProxies = true;
 
     /**
      * The current URL for the request.
@@ -97,25 +101,25 @@ class Request extends Message implements IncomingRequest {
     /**
      * Load post data, query data, files data, cookies, server and environment settings.
      *
-     * @param array $query
-     * @param array $post
-     * @param array $files
-     * @param array $cookies
-     * @param array $server
+     * @param \Titon\Utility\State\GlobalMap $query
+     * @param \Titon\Utility\State\GlobalMap $post
+     * @param \Titon\Utility\State\GlobalMap $files
+     * @param \Titon\Utility\State\GlobalMap $cookies
+     * @param \Titon\Utility\State\GlobalMap $server
      */
-    public function __construct(array $query = [], array $post = [], array $files = [], array $cookies = [], array $server = []) {
+    <<__ConsistentConstruct>>
+    public function __construct(GlobalMap $query = Map {}, GlobalMap $post = Map {}, GlobalMap $files = Map {}, GlobalMap $cookies = Map {}, GlobalMap $server = Map {}) {
         parent::__construct();
 
-        $this->attributes = (new ParameterBag())->setRequest($this);
-        $this->get = (new ParameterBag($query))->setRequest($this);
-        $this->post = (new ParameterBag($post))->setRequest($this);
-        $this->files = (new FileBag($files))->setRequest($this);
-        $this->cookies = (new CookieBag($cookies))->setRequest($this);
-        $this->server = (new ParameterBag($server))->setRequest($this);
-        $this->data = Col::merge($this->get->all(), $this->post->all(), $this->files->all());
+        $this->attributes = new ParameterBag();
+        $this->cookies = new CookieBag($cookies);
+        $this->files = new ParameterBag($files);
+        $this->post = new ParameterBag($post);
+        $this->query = new ParameterBag($query);
+        $this->server = new ParameterBag($server);
 
         // Extract headers from server
-        $headers = [];
+        $headers = Map {};
 
         foreach ($server as $key => $value) {
             if (substr($key, 0, 5) === 'HTTP_') {
@@ -128,8 +132,7 @@ class Request extends Message implements IncomingRequest {
             $headers[$key] = explode(',', $value);
         }
 
-        $this->headers->setRequest($this);
-        $this->setHeaders($headers);
+        $this->headers->add($headers);
     }
 
     /**
@@ -137,11 +140,11 @@ class Request extends Message implements IncomingRequest {
      */
     public function __clone() {
         $this->attributes = clone $this->attributes;
-        $this->headers = clone $this->headers;
-        $this->get = clone $this->get;
-        $this->post = clone $this->post;
-        $this->files = clone $this->files;
         $this->cookies = clone $this->cookies;
+        $this->files = clone $this->files;
+        $this->headers = clone $this->headers;
+        $this->post = clone $this->post;
+        $this->query = clone $this->query;
         $this->server = clone $this->server;
     }
 
@@ -151,12 +154,7 @@ class Request extends Message implements IncomingRequest {
      * @return $this
      */
     public static function createFromGlobals(): Request {
-        if (isset($_POST['_method'])) {
-            $_SERVER['REQUEST_METHOD'] = $_POST['_method'];
-            unset($_POST['_method']);
-        }
-
-        return new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
+        return new static(Get::all(), Post::all(), Files::all(), Cookie::all(), Server::all());
     }
 
     /**
@@ -165,9 +163,9 @@ class Request extends Message implements IncomingRequest {
      * @uses Titon\Http\Mime
      *
      * @param string $type
-     * @return Map<string, string>
+     * @return \Titon\Http\AcceptHeader
      */
-    public function accepts(mixed $type): ?Map<string, string> {
+    public function accepts(mixed $type): ?AcceptHeader {
         if (is_array($type)) {
             $contentType = $type;
         } else if (strpos($type, '/') !== false) {
@@ -178,11 +176,11 @@ class Request extends Message implements IncomingRequest {
 
         foreach ($this->_accepts('Accept') as $accept) {
             foreach ($contentType as $cType) {
-                if ($cType === $accept['type'] || $accept['type'] === '*/*') {
+                if ($cType === $accept['value'] || $accept['value'] === '*/*') {
                     return $accept;
 
                 // Wildcard matching
-                } else if (strpos($accept['type'], '/*') && strpos($cType, trim($accept['type'], '*')) === 0) {
+                } else if (strpos($accept['value'], '/*') && strpos($cType, trim($accept['value'], '*')) === 0) {
                     return $accept;
                 }
             }
@@ -195,11 +193,11 @@ class Request extends Message implements IncomingRequest {
      * Checks to see if the client accepts a certain charset, based on the Accept-Charset header.
      *
      * @param string $charset
-     * @return Map<string, string>
+     * @return \Titon\Http\AcceptHeader
      */
-    public function acceptsCharset(string $charset): ?Map<string, string> {
+    public function acceptsCharset(string $charset): ?AcceptHeader {
         foreach ($this->_accepts('Accept-Charset') as $accept) {
-            if (strtolower($charset) === $accept['type'] || $accept['type'] === '*') {
+            if (strtolower($charset) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
         }
@@ -211,11 +209,11 @@ class Request extends Message implements IncomingRequest {
      * Checks to see if the client accepts a certain encoding, based on the Accept-Encoding header.
      *
      * @param string $encoding
-     * @return Map<string, string>
+     * @return \Titon\Http\AcceptHeader
      */
-    public function acceptsEncoding(string $encoding): ?Map<string, string> {
+    public function acceptsEncoding(string $encoding): ?AcceptHeader {
         foreach ($this->_accepts('Accept-Encoding') as $accept) {
-            if (strtolower($encoding) === $accept['type'] || $accept['type'] === '*') {
+            if (strtolower($encoding) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
         }
@@ -227,11 +225,11 @@ class Request extends Message implements IncomingRequest {
      * Checks to see if the client accepts a certain charset, based on the Accept-Language header.
      *
      * @param string $language
-     * @return Map<string, string>
+     * @return \Titon\Http\AcceptHeader
      */
-    public function acceptsLanguage(string $language): ?Map<string, string> {
+    public function acceptsLanguage(string $language): ?AcceptHeader {
         foreach ($this->_accepts('Accept-Language') as $accept) {
-            if (strtolower($language) === $accept['type'] || $accept['type'] === '*') {
+            if (strtolower($language) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
         }
@@ -240,9 +238,20 @@ class Request extends Message implements IncomingRequest {
     }
 
     /**
+     * Do not trust the headers from proxies.
+     *
+     * @return $this;
+     */
+    public function dontTrustProxies(): this {
+        $this->_trustProxies = false;
+
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function getAttribute(string $attribute, mixed $default = null): mixed {
+    public function getAttribute($attribute, $default = null): mixed {
         return $this->attributes->get($attribute, $default);
     }
 
@@ -268,9 +277,9 @@ class Request extends Message implements IncomingRequest {
      */
     public function getClientIP(): string {
         $headers = ['REMOTE_ADDR', 'HTTP_CLIENT_IP'];
-        $ip = null;
+        $ip = '';
 
-        if ($this->getConfig('trustProxies')) {
+        if ($this->isTrustingProxies()) {
             array_unshift($headers, 'HTTP_X_FORWARDED_FOR');
         }
 
@@ -322,7 +331,7 @@ class Request extends Message implements IncomingRequest {
     /**
      * {@inheritdoc}
      */
-    public function getFilesParams(): array<string, mixed> {
+    public function getFileParams(): array<string, mixed> {
         return $this->files->all()->toArray();
     }
 
@@ -331,9 +340,9 @@ class Request extends Message implements IncomingRequest {
      */
     public function getHost(): string {
         $headers = ['HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR'];
-        $host = null;
+        $host = '';
 
-        if ($this->getConfig('trustProxies')) {
+        if ($this->isTrustingProxies()) {
             array_unshift($headers, 'HTTP_X_FORWARDED_HOST');
         }
 
@@ -379,7 +388,7 @@ class Request extends Message implements IncomingRequest {
      * @return int
      */
     public function getPort(): int {
-        if ($this->getConfig('trustProxies')) {
+        if ($this->isTrustingProxies()) {
             if ($port = $this->server->get('HTTP_X_FORWARDED_PORT')) {
                 return (int) $port;
             }
@@ -650,7 +659,7 @@ class Request extends Message implements IncomingRequest {
      * @return bool
      */
     public function isSecure(): bool {
-        if ($this->getConfig('trustProxies')) {
+        if ($this->isTrustingProxies()) {
             if ($scheme = $this->server->get('HTTP_X_FORWARDED_PROTO')) {
                 return ($scheme === 'https');
             }
@@ -660,9 +669,18 @@ class Request extends Message implements IncomingRequest {
     }
 
     /**
+     * Return true if we should trust proxies headers.
+     *
+     * @return bool
+     */
+    public function isTrustingProxies(): bool {
+        return $this->_trustProxies;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function setAttribute(string $attribute, mixed $value): this {
+    public function setAttribute($attribute, $value): this {
         $this->attributes->set($attribute, $value);
 
         return $this;
@@ -682,7 +700,7 @@ class Request extends Message implements IncomingRequest {
     /**
      * {@inheritdoc}
      */
-    public function setMethod($method): this { // @todo No type hint because of PSR
+    public function setMethod($method): this {
         $method = strtoupper($method);
 
         if (!in_array($method, Http::getMethodTypes())) {
@@ -698,8 +716,19 @@ class Request extends Message implements IncomingRequest {
     /**
      * {@inheritdoc}
      */
-    public function setUrl($url): this { // @todo No type hint because of PSR
+    public function setUrl($url): this {
         $this->_url = $url;
+
+        return $this;
+    }
+
+    /**
+     * Trust the headers from proxies.
+     *
+     * @return $this;
+     */
+    public function trustProxies(): this {
+        $this->_trustProxies = true;
 
         return $this;
     }
@@ -708,25 +737,28 @@ class Request extends Message implements IncomingRequest {
      * Lazy loading functionality for extracting Accept header information and parsing it.
      *
      * @param string $header
-     * @return Vector<Map<string, string>>
+     * @return Vector<Titon\Http\AcceptHeader>
      */
-    protected function _accepts(string $header): Vector<Map<string, string>> {
+    protected function _accepts(string $header): Vector<AcceptHeader> {
         $data = Vector {};
 
         if ($accept = $this->headers->get($header)) {
-            foreach (explode(',', $accept) as $type) {
-                $type = str_replace(' ', '', $type);
+            if (!array_key_exists(0, $accept)) {
+                return $data;
+            }
+
+            foreach (explode(',', $accept[0]) as $type) {
+                $type = trim($type);
+                $quality = 1;
 
                 if (strpos($type, ';') !== false) {
                     list($type, $quality) = explode(';', $type);
-                } else {
-                    $quality = 1;
                 }
 
-                $data[] = Map {
-                    'type' => strtolower($type),
-                    'quality' => str_replace('q=', '', $quality)
-                };
+                $data[] = shape(
+                    'value' => strtolower($type),
+                    'quality' => (float) str_replace('q=', '', $quality)
+                );
             }
         }
 

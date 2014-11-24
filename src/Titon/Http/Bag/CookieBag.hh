@@ -50,9 +50,9 @@ class CookieBag extends ParameterBag {
      * @param array $cookies
      * @param Map<string, mixed> $config
      */
-    public function __construct(array $cookies = [], Map<string, mixed> $config = Map {}) {
+    public function __construct(Map $cookies = Map {}, Map<string, mixed> $config = Map {}) {
         //$this->applyConfig(Col::merge(Config::get('cookie', Map {}), $config));
-        $this->_data = Converter::toMap($cookies);
+        $this->_data = $cookies; //Converter::toMap($cookies);
     }
 
     /**

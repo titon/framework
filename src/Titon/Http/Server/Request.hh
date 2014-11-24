@@ -8,7 +8,7 @@
 namespace Titon\Http\Server;
 
 use Titon\Common\FactoryAware;
-use Titon\Http\AbstractMessage;
+use Titon\Http\Message;
 use Titon\Http\Bag\CookieBag;
 use Titon\Http\Bag\FileBag;
 use Titon\Http\Bag\ParameterBag;
@@ -24,8 +24,15 @@ use Titon\Utility\Col;
  *
  * @package Titon\Http\Server
  */
-class Request extends AbstractMessage implements IncomingRequest {
+class Request extends Message implements IncomingRequest {
     use FactoryAware;
+
+    /**
+     * Custom attributes for the request.
+     *
+     * @type \Titon\Http\Bag\ParameterBag
+     */
+    public ParameterBag $attributes;
 
     /**
      * COOKIE data for the request.
@@ -33,13 +40,6 @@ class Request extends AbstractMessage implements IncomingRequest {
      * @type \Titon\Http\Bag\CookieBag
      */
     public CookieBag $cookies;
-
-    /**
-     * An combined array of GET, POST, and FILES data.
-     *
-     * @type Map<string, mixed>
-     */
-    public Map<string, mixed> $data = Map {};
 
     /**
      * FILES data for the request.
@@ -54,13 +54,6 @@ class Request extends AbstractMessage implements IncomingRequest {
      * @type \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $get;
-
-    /**
-     * Data that has been generated internally via the framework during the request.
-     *
-     * @type \Titon\Http\Bag\ParameterBag
-     */
-    public ParameterBag $internal;
 
     /**
      * POST data for the request.
@@ -113,7 +106,7 @@ class Request extends AbstractMessage implements IncomingRequest {
     public function __construct(array $query = [], array $post = [], array $files = [], array $cookies = [], array $server = []) {
         parent::__construct();
 
-        $this->internal = (new ParameterBag())->setRequest($this);
+        $this->attributes = (new ParameterBag())->setRequest($this);
         $this->get = (new ParameterBag($query))->setRequest($this);
         $this->post = (new ParameterBag($post))->setRequest($this);
         $this->files = (new FileBag($files))->setRequest($this);
@@ -143,7 +136,7 @@ class Request extends AbstractMessage implements IncomingRequest {
      * Clone the bags.
      */
     public function __clone() {
-        $this->internal = clone $this->internal;
+        $this->attributes = clone $this->attributes;
         $this->headers = clone $this->headers;
         $this->get = clone $this->get;
         $this->post = clone $this->post;
@@ -250,21 +243,21 @@ class Request extends AbstractMessage implements IncomingRequest {
      * {@inheritdoc}
      */
     public function getAttribute(string $attribute, mixed $default = null): mixed {
-
+        return $this->attributes->get($attribute, $default);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAttributes(): Map<string, mixed> {
-
+    public function getAttributes(): array<string, mixed> {
+        return $this->attributes->all()->toArray();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBodyParams(): Map<string, mixed> {
-        return $this->post->all();
+    public function getBodyParams(): array<string, mixed> {
+        return $this->post->all()->toArray();
     }
 
     /**
@@ -322,15 +315,15 @@ class Request extends AbstractMessage implements IncomingRequest {
     /**
      * {@inheritdoc}
      */
-    public function getCookieParams(): Map<string, mixed> {
-        return $this->cookies->all();
+    public function getCookieParams(): array<string, mixed> {
+        return $this->cookies->all()->toArray();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFilesParams(): Map<string, mixed> {
-        return $this->files->all();
+    public function getFilesParams(): array<string, mixed> {
+        return $this->files->all()->toArray();
     }
 
     /**
@@ -410,8 +403,8 @@ class Request extends AbstractMessage implements IncomingRequest {
     /**
      * {@inheritdoc}
      */
-    public function getQueryParams(): Map<string, mixed> {
-        return $this->get->all();
+    public function getQueryParams(): array<string, mixed> {
+        return $this->get->all()->toArray();
     }
 
     /**
@@ -454,8 +447,8 @@ class Request extends AbstractMessage implements IncomingRequest {
     /**
      * {@inheritdoc}
      */
-    public function getServerParams(): Map<string, mixed> {
-        return $this->server->all();
+    public function getServerParams(): array<string, mixed> {
+        return $this->server->all()->toArray();
     }
 
     /**
@@ -670,6 +663,8 @@ class Request extends AbstractMessage implements IncomingRequest {
      * {@inheritdoc}
      */
     public function setAttribute(string $attribute, mixed $value): this {
+        $this->attributes->set($attribute, $value);
+
         return $this;
     }
 
@@ -677,6 +672,10 @@ class Request extends AbstractMessage implements IncomingRequest {
      * {@inheritdoc}
      */
     public function setAttributes(array $attributes): this {
+        foreach ($attributes as $attribute => $value) {
+            $this->attributes->set($attribute, $value);
+        }
+
         return $this;
     }
 

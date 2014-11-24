@@ -9,7 +9,7 @@ namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamableInterface;
 use Titon\Common\FactoryAware;
-use Titon\Http\AbstractMessage;
+use Titon\Http\Message;
 use Titon\Http\Bag\CookieBag;
 use Titon\Http\Http;
 use Titon\Http\Mime;
@@ -28,7 +28,7 @@ use Titon\Utility\Time;
  *
  * @package Titon\Http\Server
  */
-class Response extends AbstractMessage implements OutgoingResponse {
+class Response extends Message implements OutgoingResponse {
     use FactoryAware, IncomingRequestAware;
 
     /**
@@ -52,6 +52,8 @@ class Response extends AbstractMessage implements OutgoingResponse {
         'md5' => false,
         'debug' => false
     };
+
+    protected string $_protocolVersion = Http::HTTP_11;
 
     /**
      * HTTP status code to output.
@@ -88,6 +90,26 @@ class Response extends AbstractMessage implements OutgoingResponse {
      */
     public function acceptRanges(string $range = 'bytes'): this {
         return $this->setHeader('Accept-Ranges', $range);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addHeader($key, $value): this {
+        $this->headers->set($key, $header, true);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addHeaders(array $headers): this {
+        foreach ($headers as $key => $value) {
+            $this->addHeader($key, $value);
+        }
+
+        return $this;
     }
 
     /**
@@ -388,18 +410,14 @@ class Response extends AbstractMessage implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function getProtocolVersion(): string {
-        if ($request = $this->getRequest()) {
-            return $request->getProtocolVersion();
-        }
-
-        return '1.1';
+        return $this->_protocolVersion;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getReasonPhrase(): string {
-        return $this->getHeader('Reason-Phrase') ?: Http::getStatusCode($this->_status);
+        return $this->getHeader('Reason-Phrase') ?: Http::getStatusCode($this->getStatusCode());
     }
 
     /**
@@ -510,6 +528,26 @@ class Response extends AbstractMessage implements OutgoingResponse {
         $config['expires'] = time();
 
         return $this->setCookie($key, '', $config);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeHeader($key): this {
+        $this->headers->remove($key);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeHeaders(array $keys): this {
+        foreach ($keys as $key) {
+            $this->removeHeader($key);
+        }
+
+        return $this;
     }
 
     /**
@@ -628,8 +666,32 @@ class Response extends AbstractMessage implements OutgoingResponse {
     /**
      * {@inheritdoc}
      */
-    public function setProtocolVersion($version): this { // @todo No type hint because of PSR
+    public function setHeader($key, $value): this {
+        $this->headers->set($key, $value);
 
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setHeaders(array $headers): this {
+        foreach ($headers as $key => $value) {
+            $this->setHeader($key, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setProtocolVersion($version): this { // @todo No type hint because of PSR
+        if ($version === Http::HTTP_10 || $version === Http::HTTP_11) {
+            $this->_protocolVersion = $version;
+        }
+
+        return $this;
     }
 
     /**
@@ -643,7 +705,9 @@ class Response extends AbstractMessage implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function setStatus($code, $reasonPhrase = null): this { // @todo No type hint because of PSR
-        $this->_status = $code;
+        if (Http::getStatusCode($code)) {
+            $this->_status = $code;
+        }
 
         return $this->setHeader('Status-Code', $code . ' ' . ($reasonPhrase || $this->getReasonPhrase()));
     }

@@ -127,7 +127,7 @@ class MessageTest extends TestCase {
 
 }
 
-class MessageStub extends AbstractMessage {
+class MessageStub extends Message {
 
     public function getProtocolVersion() {}
 

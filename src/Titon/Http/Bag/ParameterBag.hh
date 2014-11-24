@@ -17,7 +17,7 @@ use Titon\Utility\Converter;
  * @package Titon\Http\Bag
  * @codeCoverageIgnore
  */
-class ParameterBag extends AbstractBag {
+class ParameterBag<string, mixed> extends AbstractBag {
     use IncomingRequestAware;
 
     /**

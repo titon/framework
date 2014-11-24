@@ -102,40 +102,6 @@ class EmitterTest extends TestCase {
         $this->assertTrue($this->object->hasObservers('event.test'));
     }
 
-    public function testOnAndOff() {
-        $callback = function(Event $event) { };
-        $listener = new ListenerStub();
-
-        $this->object->on('event.test1', $callback);
-        $this->object->on('event', $listener);
-
-        $this->assertEquals(Vector {
-            shape('callback' => $callback, 'priority' => 100, 'once' => false),
-            shape('callback' => inst_meth($listener, 'noop1'), 'priority' => 101, 'once' => false),
-            shape('callback' => inst_meth($listener, 'noop2'), 'priority' => 45, 'once' => false),
-        }, $this->object->getObservers('event.test1'));
-
-        $this->object->off('event.test1', $callback);
-        $this->object->off('event', $listener);
-
-        $this->assertEquals(Vector {}, $this->object->getObservers('event.test1'));
-    }
-
-    public function testOnce() {
-        $ob1 = function(Event $event) { };
-        $ob2 = [new ListenerStub(), 'noop2'];
-        $ob3 = function(Event $event) { };
-        $ob4 = [new ListenerStub(), 'noop1'];
-
-        $this->object->once('event.test', $ob1, 20);
-        $this->object->on('event.test', $ob2, 15);
-        $this->object->on('event.test', $ob3, 5, true);
-        $this->object->on('event.test', $ob4, 75);
-
-        $this->assertEquals(4, count($this->object->emit('event.test')->getCallStack()));
-        $this->assertEquals(2, count($this->object->emit('event.test')->getCallStack()));
-    }
-
     public function testExit() {
         $n = 0;
         $ob1 = function(Event $event, &$i) { $i++; };
@@ -143,10 +109,10 @@ class EmitterTest extends TestCase {
         $ob3 = function(Event $event, &$i) { $i++; return false; };
         $ob4 = function(Event $event, &$i) { $i++; };
 
-        $this->object->on('event.test', $ob1);
-        $this->object->on('event.test', $ob2);
-        $this->object->on('event.test', $ob3);
-        $this->object->on('event.test', $ob4);
+        $this->object->register('event.test', $ob1);
+        $this->object->register('event.test', $ob2);
+        $this->object->register('event.test', $ob3);
+        $this->object->register('event.test', $ob4);
 
         $this->object->emit('event.test', [&$n]);
 
@@ -159,10 +125,10 @@ class EmitterTest extends TestCase {
         $ob3 = function(Event $event) { $event->setData('key', $event->getData('key') + 1); };
         $ob4 = function(Event $event) { $event->setData('key', $event->getData('key') + 1); };
 
-        $this->object->on('event.test', $ob1);
-        $this->object->on('event.test', $ob2);
-        $this->object->on('event.test', $ob3);
-        $this->object->on('event.test', $ob4);
+        $this->object->register('event.test', $ob1);
+        $this->object->register('event.test', $ob2);
+        $this->object->register('event.test', $ob3);
+        $this->object->register('event.test', $ob4);
 
         $event = $this->object->emit('event.test');
 

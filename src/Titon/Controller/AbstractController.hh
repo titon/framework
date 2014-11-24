@@ -13,6 +13,7 @@ use Titon\Event\Emittable;
 use Titon\Event\Event;
 use Titon\Event\Listener;
 use Titon\Event\ListenerMap;
+use Titon\Event\Subject;
 use Titon\Http\Exception\HttpException;
 use Titon\Http\Http;
 use Titon\Http\IncomingRequestAware;
@@ -38,7 +39,7 @@ type ActionMap = Map<string, ArgumentList>;
  *      controller.processed(Controller $con, string $action, string $response)
  *      controller.error(Controller $con, Exception $exc)
  */
-abstract class AbstractController implements Controller, Listener {
+abstract class AbstractController implements Controller, Listener, Subject {
     use Emittable, IncomingRequestAware, OutgoingResponseAware;
 
     /**

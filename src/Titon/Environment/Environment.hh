@@ -8,10 +8,10 @@
 namespace Titon\Environment;
 
 use Titon\Common\FactoryAware;
-use Titon\Environment\Exception\MissingBootstrapException;
 use Titon\Environment\Exception\MissingHostException;
 use Titon\Environment\Exception\NoHostMatchException;
 use Titon\Event\Emittable;
+use Titon\Event\Subject;
 use Titon\Utility\Path;
 use Titon\Utility\State\Server as ServerGlobal;
 
@@ -34,7 +34,7 @@ enum Server: string {
  *      env.initializing(Environment $env)
  *      env.initialized(Environment $env, Host $host)
  */
-class Environment {
+class Environment implements Subject {
     use Emittable, FactoryAware;
 
     /**

@@ -15,6 +15,7 @@ use Titon\Event\Emittable;
 use Titon\Event\Event;
 use Titon\Event\Listener;
 use Titon\Event\ListenerMap;
+use Titon\Event\Subject;
 use Titon\Utility\Config;
 use Titon\Utility\Converter;
 use Titon\Utility\Inflector;
@@ -29,7 +30,7 @@ use Titon\View\Helper;
  *
  * @package Titon\View\View
  */
-abstract class AbstractView implements View, Listener {
+abstract class AbstractView implements View, Listener, Subject {
     use Cacheable, Emittable, FactoryAware;
 
     /**

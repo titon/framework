@@ -14,6 +14,18 @@ class AnnotateableTest extends TestCase {
         $this->object = new AnnotateableStub();
     }
 
+    public function testGetAnnotatedMethods() {
+        $this->assertVectorsEqual(Vector {
+            'method',
+            'getMethodAnnotations',
+            'getMethodAnnotations$memoize_impl', // Hack
+            'getAnnotatedMethods',
+            'getAnnotatedMethods$memoize_impl', // Hack
+            'getClassAnnotations',
+            'getClassAnnotations$memoize_impl', // Hack
+        }, $this->object->getAnnotatedMethods());
+    }
+
     public function testGetClassAnnotation() {
         $this->assertEquals(Vector {}, $this->object->getClassAnnotation('Foo'));
         $this->assertEquals(Vector {'abc', 123}, $this->object->getClassAnnotation('Bar'));
@@ -58,7 +70,7 @@ class AnnotateableStub implements Annotator {
     use Annotateable;
 
     <<Baz(['a' => 1])>>
-    public function method(): string {
-        return '';
-    }
+    public function method(): void {}
+
+    public function noAnnoMethod(): void {}
 }

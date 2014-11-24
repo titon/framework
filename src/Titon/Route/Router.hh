@@ -10,6 +10,7 @@ namespace Titon\Route;
 use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
 use Titon\Event\Emittable;
+use Titon\Event\Subject;
 use Titon\Route\Exception\InvalidRouteException;
 use Titon\Route\Exception\MissingFilterException;
 use Titon\Route\Exception\MissingSegmentException;
@@ -39,7 +40,7 @@ type SegmentMap = Map<string, mixed>;
  *      route.matching(Router $router, $url)
  *      route.matched(Router $router, Route $route)
  */
-class Router {
+class Router implements Subject {
     use Emittable, FactoryAware;
 
     /**

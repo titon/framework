@@ -7,6 +7,7 @@ use Titon\Utility\State\Cookie;
 use Titon\Utility\State\Files;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Post;
+use Titon\Utility\State\Server;
 
 /**
  * @property \Titon\Http\Server\Request $object
@@ -282,10 +283,9 @@ class RequestTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_SERVER['HTTP_X_METHOD_OVERRIDE'] = 'DELETE';
 
-        // New instance so it won't inherit from setup
-        $request = Request::createFromGlobals();
+        Server::initialize($_SERVER);
 
-        $this->assertEquals('DELETE', $request->getMethod());
+        $this->assertEquals('DELETE', Request::createFromGlobals()->getMethod());
     }
 
     public function testGetProtocolVersion() {

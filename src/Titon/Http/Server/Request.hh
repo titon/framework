@@ -8,10 +8,8 @@
 namespace Titon\Http\Server;
 
 use Titon\Common\FactoryAware;
-use Titon\Http\AcceptHeader;
 use Titon\Http\Message;
 use Titon\Http\Bag\CookieBag;
-use Titon\Http\Bag\FileBag;
 use Titon\Http\Bag\ParameterBag;
 use Titon\Http\Exception\InvalidMethodException;
 use Titon\Http\Http;
@@ -52,9 +50,9 @@ class Request extends Message implements IncomingRequest {
     /**
      * FILES data for the request.
      *
-     * @type \Titon\Http\Bag\FileBag
+     * @type \Titon\Http\Bag\ParameterBag
      */
-    public FileBag $files;
+    public ParameterBag $files;
 
     /**
      * POST data for the request.
@@ -111,6 +109,13 @@ class Request extends Message implements IncomingRequest {
     public function __construct(GlobalMap $query = Map {}, GlobalMap $post = Map {}, GlobalMap $files = Map {}, GlobalMap $cookies = Map {}, GlobalMap $server = Map {}) {
         parent::__construct();
 
+        // Fix method overrides
+        if ($post->contains('_method')) {
+            $server['REQUEST_METHOD'] = $post['_method'];
+            $post->remove('_method');
+        }
+
+        // Create bags
         $this->attributes = new ParameterBag();
         $this->cookies = new CookieBag($cookies);
         $this->files = new ParameterBag($files);
@@ -174,7 +179,7 @@ class Request extends Message implements IncomingRequest {
             $contentType = (array) Mime::getTypeByExt($type);
         }
 
-        foreach ($this->_accepts('Accept') as $accept) {
+        foreach ($this->_extractAcceptHeaders('Accept') as $accept) {
             foreach ($contentType as $cType) {
                 if ($cType === $accept['value'] || $accept['value'] === '*/*') {
                     return $accept;
@@ -196,7 +201,7 @@ class Request extends Message implements IncomingRequest {
      * @return \Titon\Http\AcceptHeader
      */
     public function acceptsCharset(string $charset): ?AcceptHeader {
-        foreach ($this->_accepts('Accept-Charset') as $accept) {
+        foreach ($this->_extractAcceptHeaders('Accept-Charset') as $accept) {
             if (strtolower($charset) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
@@ -212,7 +217,7 @@ class Request extends Message implements IncomingRequest {
      * @return \Titon\Http\AcceptHeader
      */
     public function acceptsEncoding(string $encoding): ?AcceptHeader {
-        foreach ($this->_accepts('Accept-Encoding') as $accept) {
+        foreach ($this->_extractAcceptHeaders('Accept-Encoding') as $accept) {
             if (strtolower($encoding) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
@@ -228,7 +233,7 @@ class Request extends Message implements IncomingRequest {
      * @return \Titon\Http\AcceptHeader
      */
     public function acceptsLanguage(string $language): ?AcceptHeader {
-        foreach ($this->_accepts('Accept-Language') as $accept) {
+        foreach ($this->_extractAcceptHeaders('Accept-Language') as $accept) {
             if (strtolower($language) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
@@ -739,26 +744,24 @@ class Request extends Message implements IncomingRequest {
      * @param string $header
      * @return Vector<Titon\Http\AcceptHeader>
      */
-    protected function _accepts(string $header): Vector<AcceptHeader> {
+    protected function _extractAcceptHeaders(string $header): Vector<AcceptHeader> {
         $data = Vector {};
 
-        if ($accept = $this->headers->get($header)) {
-            if (!array_key_exists(0, $accept)) {
-                return $data;
-            }
+        if ($accepts = $this->headers->get($header)) {
+            foreach ($accepts as $accept) {
+                foreach (explode(',', $accept) as $type) {
+                    $type = trim($type);
+                    $quality = 1;
 
-            foreach (explode(',', $accept[0]) as $type) {
-                $type = trim($type);
-                $quality = 1;
+                    if (strpos($type, ';') !== false) {
+                        list($type, $quality) = explode(';', $type);
+                    }
 
-                if (strpos($type, ';') !== false) {
-                    list($type, $quality) = explode(';', $type);
+                    $data[] = shape(
+                        'value' => strtolower($type),
+                        'quality' => (float) str_replace('q=', '', $quality)
+                    );
                 }
-
-                $data[] = shape(
-                    'value' => strtolower($type),
-                    'quality' => (float) str_replace('q=', '', $quality)
-                );
             }
         }
 

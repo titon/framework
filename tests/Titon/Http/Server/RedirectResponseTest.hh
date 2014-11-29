@@ -9,7 +9,7 @@ class RedirectResponseTest extends TestCase {
     public function testSend() {
         $time = time();
         $response = new RedirectResponse('/new/url');
-        $response->prepare(Request::createFromGlobals());
+        $response->debug();
 
         ob_start();
         $body = $response->send();

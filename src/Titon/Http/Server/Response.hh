@@ -65,7 +65,6 @@ class Response extends Message implements OutgoingResponse {
      * @param \Psr\Http\Message\StreamableInterface $body
      * @param int $status
      */
-    <<__ConsistentConstruct>>
     public function __construct(?StreamableInterface $body = null, int $status = Http::OK) {
         parent::__construct();
 
@@ -389,11 +388,21 @@ class Response extends Message implements OutgoingResponse {
      * @return \Titon\Http\Server\DownloadResponse
      */
     public static function download(string $path, string $name = '', bool $autoEtag = false, bool $autoModified = true): DownloadResponse {
-        return new DownloadResponse($path, Http::OK, Map {
-            'autoEtag' => $autoEtag,
-            'autoModified' => $autoModified,
-            'dispositionName' => $name
-        });
+        $download = new DownloadResponse($path, Http::OK);
+
+        if ($name) {
+            $download->contentDisposition($name);
+        }
+
+        if ($autoEtag) {
+            $download->etag(sha1_file($path));
+        }
+
+        if ($autoModified) {
+            $download->lastModified(filemtime($path));
+        }
+
+        return $download;
     }
 
     /**
@@ -459,9 +468,7 @@ class Response extends Message implements OutgoingResponse {
      * @return \Titon\Http\Server\JsonResponse
      */
     public static function json(mixed $data, int $flags = 0, string $callback = ''): JsonResponse {
-        return new JsonResponse($data, Http::OK, $flags, Map {
-            'callback' => $callback
-        });
+        return new JsonResponse($data, Http::OK, $flags, $callback);
     }
 
     /**
@@ -528,11 +535,11 @@ class Response extends Message implements OutgoingResponse {
      * Redirect to another URL by instantiating a new RedirectResponse.
      *
      * @param string $url
-     * @param int $code
+     * @param int $status
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function redirect(string $url, int $code = Http::FOUND): RedirectResponse {
-        return new RedirectResponse($url, $code);
+    public static function redirect(string $url, int $status = Http::FOUND): RedirectResponse {
+        return new RedirectResponse($url, $status);
     }
 
     /**

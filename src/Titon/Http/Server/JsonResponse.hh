@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Server;
 
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\StreamableInterface;
 use Titon\Http\Http;
 use Titon\Http\Exception\MalformedResponseException;
 use Titon\Http\Stream\MemoryStream;
@@ -36,15 +36,15 @@ class JsonResponse extends Response {
      * @param mixed $body
      * @param int $status
      * @param int $flags
-     * @param Map<string, mixed> $config
+     * @param string $callback
      * @throws \Titon\Http\Exception\MalformedResponseException
      */
-    public function __construct(mixed $body = null, int $status = Http::OK, ?int $flags = null, Map<string, mixed> $config = Map {}) {
-        if ($flags === null) {
+    public function __construct(mixed $body, int $status = Http::OK, int $flags = -1, string $callback = '') {
+        if ($flags === -1) {
             $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
         }
 
-        if (!$body instanceof StreamInterface) {
+        if (!$body instanceof StreamableInterface) {
             $body = new MemoryStream(Converter::toJson($body, $flags));
 
             // @codeCoverageIgnoreStart
@@ -54,11 +54,9 @@ class JsonResponse extends Response {
             // @codeCoverageIgnoreEnd
         }
 
-        parent::__construct($body, $status, $config);
+        parent::__construct($body, $status);
 
-        if (isset($config['callback'])) {
-            $this->setCallback($config['callback']);
-        }
+        $this->setCallback($callback);
     }
 
     /**
@@ -82,16 +80,16 @@ class JsonResponse extends Response {
         }
 
         $error = json_last_error();
-        $messages = [
+        $messages = Map {
             JSON_ERROR_NONE             => true,
             JSON_ERROR_DEPTH            => 'Maximum stack depth exceeded',
             JSON_ERROR_STATE_MISMATCH   => 'Underflow or the modes mismatch',
             JSON_ERROR_CTRL_CHAR        => 'Unexpected control character found',
             JSON_ERROR_SYNTAX           => 'Syntax error, malformed JSON',
             JSON_ERROR_UTF8             => 'Malformed UTF-8 characters, possibly incorrectly encoded'
-        ];
+        };
 
-        if (isset($messages[$error])) {
+        if ($messages->contains($error)) {
             return $messages[$error];
         }
 

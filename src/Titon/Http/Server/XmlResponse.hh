@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Server;
 
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\StreamableInterface;
 use Titon\Http\Http;
 use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Converter;
@@ -26,14 +26,13 @@ class XmlResponse extends Response {
      * @param mixed $body
      * @param int $status
      * @param string $root
-     * @param Map<string, mixed> $config
      */
-    public function __construct(mixed $body = null, int $status = Http::OK, string $root = 'root', Map<string, mixed> $config = Map {}) {
-        if (!$body instanceof StreamInterface) {
+    public function __construct(mixed $body = null, int $status = Http::OK, string $root = 'root') {
+        if (!$body instanceof StreamableInterface) {
             $body = new MemoryStream(Converter::toXml($body, $root));
         }
 
-        parent::__construct($body, $status, $config);
+        parent::__construct($body, $status);
     }
 
     /**

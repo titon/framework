@@ -8,7 +8,8 @@
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
-use \Closure;
+
+type RedirectCallback = (function(Response): void);
 
 /**
  * The Redirector bundles convenience methods for redirecting to new URLs using HTTP headers.
@@ -30,10 +31,10 @@ class Redirector {
      * Redirect to the previous page using the REFERER HTTP header.
      *
      * @param int $status
-     * @param \Closure $callback
+     * @param \Titon\Http\Server\RedirectCallback $callback
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function back(int $status = Http::FOUND, ?Closure $callback = null): RedirectResponse {
+    public static function back(int $status = Http::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
         return static::to(Request::createFromGlobals()->getReferrer(), $status, $callback);
     }
 
@@ -41,10 +42,10 @@ class Redirector {
      * Redirect to the home page.
      *
      * @param int $status
-     * @param \Closure $callback
+     * @param \Titon\Http\Server\RedirectCallback $callback
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function home(int $status = Http::FOUND, ?Closure $callback = null): RedirectResponse {
+    public static function home(int $status = Http::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
         return static::to('/', $status, $callback);
     }
 
@@ -52,10 +53,10 @@ class Redirector {
      * Refresh the current page.
      *
      * @param int $status
-     * @param \Closure $callback
+     * @param \Titon\Http\Server\RedirectCallback $callback
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function refresh(int $status = Http::FOUND, ?Closure $callback = null): RedirectResponse {
+    public static function refresh(int $status = Http::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
         return static::to(Request::createFromGlobals()->getUrl(), $status, $callback);
     }
 
@@ -65,10 +66,10 @@ class Redirector {
      *
      * @param string $url
      * @param int $status
-     * @param \Closure $callback
+     * @param \Titon\Http\Server\RedirectCallback $callback
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function to(string $url, int $status = Http::FOUND, ?Closure $callback = null): RedirectResponse {
+    public static function to(string $url, int $status = Http::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
         $response = new RedirectResponse($url, $status);
 
         if ($callback) {

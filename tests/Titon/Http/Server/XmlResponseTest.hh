@@ -9,7 +9,7 @@ class XmlResponseTest extends TestCase {
     public function testSend() {
         $time = time();
         $response = new XmlResponse(['foo' => 'bar']);
-        $response->prepare(Request::createFromGlobals());
+        $response->debug();
 
         ob_start();
         $body = $response->send();
@@ -30,7 +30,7 @@ class XmlResponseTest extends TestCase {
     public function testRoot() {
         $time = time();
         $response = new XmlResponse(['foo' => 'bar'], 200, 'data');
-        $response->prepare(Request::createFromGlobals());
+        $response->debug();
 
         ob_start();
         $body = $response->send();

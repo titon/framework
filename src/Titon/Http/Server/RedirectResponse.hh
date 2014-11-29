@@ -24,10 +24,9 @@ class RedirectResponse extends Response {
      *
      * @param string $url
      * @param int $status
-     * @param Map<string, mixed> $config
      */
-    public function __construct(string $url, int $status = Http::FOUND, Map<string, mixed> $config = Map {}) {
-        parent::__construct(null, $status, $config);
+    public function __construct(string $url, int $status = Http::FOUND) {
+        parent::__construct(null, $status);
 
         $this->headers->flush();
 
@@ -43,7 +42,7 @@ class RedirectResponse extends Response {
      * @return string
      * @throws \Titon\Http\Exception\MalformedResponseException
      */
-    public function send() {
+    public function send(): string {
         $url = $this->getHeader('Location');
 
         if (!$url) {

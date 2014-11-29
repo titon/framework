@@ -9,7 +9,7 @@ class JsonResponseTest extends TestCase {
     public function testSend() {
         $time = time();
         $response = new JsonResponse(['foo' => 'bar']);
-        $response->prepare(Request::createFromGlobals());
+        $response->debug();
 
         ob_start();
         $body = $response->send();
@@ -29,7 +29,7 @@ class JsonResponseTest extends TestCase {
     public function testSendCallback() {
         $time = time();
         $response = new JsonResponse(['foo' => 'bar']);
-        $response->prepare(Request::createFromGlobals());
+        $response->debug();
         $response->setCallback('Vendor.API.method');
 
         ob_start();
@@ -50,7 +50,7 @@ class JsonResponseTest extends TestCase {
     public function testFlags() {
         $time = time();
         $response = new JsonResponse(['Carets <>', 'Quotes ""', 'Ampersand &'], 200, JSON_HEX_QUOT);
-        $response->prepare(Request::createFromGlobals());
+        $response->debug();
 
         ob_start();
         $body = $response->send();

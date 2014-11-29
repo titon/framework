@@ -9,8 +9,8 @@ namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamableInterface;
 use Titon\Common\FactoryAware;
+use Titon\Http\Cookie;
 use Titon\Http\Message;
-use Titon\Http\Bag\CookieBag;
 use Titon\Http\Http;
 use Titon\Http\Mime;
 use Titon\Http\OutgoingResponse;
@@ -30,20 +30,6 @@ use Titon\Utility\Time;
  */
 class Response extends Message implements OutgoingResponse {
     use FactoryAware, IncomingRequestAware;
-
-    /**
-     * COOKIE data to set.
-     *
-     * @type \Titon\Http\Bag\CookieBag
-     */
-    public CookieBag $cookies;
-
-    /**
-     * The range in which to break up the body into chunks.
-     *
-     * @type int
-     */
-    protected int $_bufferSize = 8192;
 
     /**
      * Will return the response as a string instead of sending output.
@@ -92,8 +78,6 @@ class Response extends Message implements OutgoingResponse {
         if ($body) {
             $this->setBody($body);
         }
-
-        $this->cookies = new CookieBag();
     }
 
     /**
@@ -110,7 +94,7 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function addHeader($key, $value): this {
-        $this->headers->set($key, $header, true);
+        $this->headers->set($key, $value, true);
 
         return $this;
     }
@@ -168,24 +152,28 @@ class Response extends Message implements OutgoingResponse {
      * @param string $directive
      * @param int|string $expires
      * @param bool $proxy
-     * @param array $options
+     * @param Map<string, mixed> $options
      * @return $this
      * @throws \InvalidArgumentException
      */
-    public function cache(string $directive, mixed $expires = '+24 hours', bool $proxy = true, array $options = []): this {
+    public function cache(string $directive, mixed $expires = '+24 hours', bool $proxy = true, Map<string, mixed> $options = Map {}): this {
         $expires = Time::toUnix($expires);
 
         if ($directive === 'none') {
-            $control = ['no-cache', 'no-store', 'must-revalidate'];
+            $control = Map {
+                'no-cache' => true,
+                'no-store' => true,
+                'must-revalidate' => true
+            };
 
             if ($proxy) {
-                $control[] = 'proxy-revalidate';
+                $control['proxy-revalidate'] = true;
             }
 
             $this->setHeader('Pragma', 'no-cache');
 
         } else if ($directive === 'public' || $directive === 'private') {
-            $control = [$directive];
+            $control = Map {$directive => true};
             $ttl = $expires - time();
 
             if ($ttl > 0) {
@@ -199,7 +187,7 @@ class Response extends Message implements OutgoingResponse {
             throw new \InvalidArgumentException(sprintf('Invalid cache directive %s', $directive));
         }
 
-        return $this->expires($expires)->cacheControl(array_merge($options, $control));
+        return $this->expires($expires)->cacheControl($control->setAll($options));
     }
 
     /**
@@ -207,15 +195,15 @@ class Response extends Message implements OutgoingResponse {
      *
      * @uses Titon\Utility\Time
      *
-     * @param array $values
+     * @param Map<string, mixed> $values
      * @return $this
      */
-    public function cacheControl(array $values): this {
+    public function cacheControl(Map<string, mixed> $values): this {
         $header = [];
 
         foreach ($values as $key => $value) {
-            if (is_numeric($key)) {
-                $header[] = $value;
+            if ($value === true) {
+                $header[] = $key;
             } else {
                 if ($key === 'private' || $key === 'no-cache') {
                     $value = '"' . $value . '"';
@@ -258,7 +246,7 @@ class Response extends Message implements OutgoingResponse {
             throw new \InvalidArgumentException('Disposition type must be either "attachment" or "inline"');
         }
 
-        return $this->setHeader('Content-Disposition', sprintf('attachment; filename="%s"', $file));
+        return $this->setHeader('Content-Disposition', sprintf('%s; filename="%s"', $type, $file));
     }
 
     /**
@@ -453,6 +441,15 @@ class Response extends Message implements OutgoingResponse {
     }
 
     /**
+     * Return true if we are debugging.
+     *
+     * @return bool
+     */
+    public function isDebugging(): bool {
+        return $this->_debug;
+    }
+
+    /**
      * Convert a resource to JSON by instantiating a JsonResponse.
      * Can optionally pass encoding options, and a JSONP callback.
      *
@@ -504,9 +501,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function notModified(): this {
-        $this->statusCode(Http::NOT_MODIFIED)->setBody(null);
-
-        foreach ([
+        $this->statusCode(Http::NOT_MODIFIED)->removeHeaders([
             'Allow',
             'Content-Disposition',
             'Content-Encoding',
@@ -515,9 +510,7 @@ class Response extends Message implements OutgoingResponse {
             'Content-MD5',
             'Content-Type',
             'Last-Modified'
-        ] as $header) {
-            $this->headers->remove($header);
-        }
+        ]);
 
         return $this;
     }
@@ -545,14 +538,15 @@ class Response extends Message implements OutgoingResponse {
     /**
      * Remove a cookie by setting a Set-Cookie header with a negative expires.
      *
-     * @param string $key
-     * @param Map<string, mixed> $config
+     * @param string $name
+     * @param string $path
+     * @param string $domain
+     * @param bool $httpOnly
+     * @param bool $secure
      * @return $this
      */
-    public function removeCookie(string $key, Map<string, mixed> $config = Map {}) {
-        $config['expires'] = time();
-
-        return $this->setCookie($key, '', $config);
+    public function removeCookie(string $name, string $path = '/', string $domain = '', bool $httpOnly = true, bool $secure = false) {
+        return $this->setCookie($name, '', time(), $path, $domain, $httpOnly, $secure);
     }
 
     /**
@@ -599,7 +593,7 @@ class Response extends Message implements OutgoingResponse {
         $contents = $body->getContents();
 
         // Create an MD5 digest?
-        if ($this->getConfig('md5') && $body) {
+        if ($this->_md5 && $body) {
             $this->setHeader('Content-MD5', base64_encode(pack('H*', md5($body->getContents()))));
         }
 
@@ -630,14 +624,10 @@ class Response extends Message implements OutgoingResponse {
         $body = $this->getBody();
 
         if ($body) {
-            if ($buffer = $this->getConfig('buffer')) {
-                $chunks = str_split($body->getContents(), $buffer);
+            $chunks = str_split($body->getContents(), 8192);
 
-                foreach ($chunks as $chunk) {
-                    echo $chunk;
-                }
-            } else {
-                echo $body->getContents();
+            foreach ($chunks as $chunk) {
+                echo $chunk;
             }
         }
 
@@ -680,13 +670,17 @@ class Response extends Message implements OutgoingResponse {
     /**
      * Set a cookie with the Set-Cookie header.
      *
-     * @param string $key,
-     * @param mixed $value
-     * @param Map<string, mixed> $config
+     * @param string $name
+     * @param string $value
+     * @param mixed $expires
+     * @param string $path
+     * @param string $domain
+     * @param bool $httpOnly
+     * @param bool $secure
      * @return $this
      */
-    public function setCookie(string $key, mixed $value, Map<string, mixed> $config = Map {}): this {
-        return $this->addHeader('Set-Cookie', $this->cookies->prepare($key, $value, $config));
+    public function setCookie(string $name, string $value, mixed $expires = 0, string $path = '/', string $domain = '', bool $httpOnly = true, bool $secure = false): this {
+        return $this->addHeader('Set-Cookie', (string) new Cookie($name, $value, $expires, $path, $domain, $httpOnly, $secure));
     }
 
     /**
@@ -713,9 +707,7 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function setProtocolVersion($version): this {
-        if ($version === '1.0' || $version === '1.1') {
-            $this->_protocolVersion = $version;
-        }
+        $this->_protocolVersion = $version;
 
         return $this;
     }
@@ -735,17 +727,17 @@ class Response extends Message implements OutgoingResponse {
             $this->_status = $code;
         }
 
-        return $this->setHeader('Status-Code', $code . ' ' . ($reasonPhrase || $this->getReasonPhrase()));
+        return $this->setHeader('Status-Code', $code . ' ' . ($reasonPhrase ?: $this->getReasonPhrase()));
     }
 
     /**
-     * Alias for setStatusCode().
+     * Alias for setStatus().
      *
      * @param int $code
      * @return $this
      */
     public function statusCode(int $code): this {
-        return $this->setStatusCode($code);
+        return $this->setStatus($code);
     }
 
     /**

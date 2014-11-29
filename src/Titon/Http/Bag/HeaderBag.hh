@@ -8,7 +8,6 @@
 namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
-use Titon\Http\Exception\InvalidHeaderException;
 use Titon\Utility\Inflector;
 
 /**
@@ -17,7 +16,7 @@ use Titon\Utility\Inflector;
  *
  * @package Titon\Http\Bag
  */
-class HeaderBag extends AbstractBag {
+class HeaderBag extends AbstractBag<string, array<string>> {
 
     /**
      * {@inheritdoc}

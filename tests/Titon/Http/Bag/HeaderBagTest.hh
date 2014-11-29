@@ -14,11 +14,23 @@ class HeaderBagTest extends TestCase {
         $this->object = new HeaderBag();
     }
 
-    public function testKey() {
+    public function testKeyFormatsCorrectly() {
         $this->assertEquals('Content-Length', $this->object->key('CONTENT_LENGTH'));
         $this->assertEquals('Content-Type', $this->object->key('Content-TYPE'));
         $this->assertEquals('Location', $this->object->key('location'));
         $this->assertEquals('Last-Modified', $this->object->key('LAST ModiFIed'));
+        $this->assertEquals('WWW-Authenticate', $this->object->key('WwW_Authenticate'));
+    }
+
+    public function testSetWillAddToOrOverride() {
+        $this->object->set('foo', 'bar');
+        $this->assertEquals(['bar'], $this->object->get('foo'));
+
+        $this->object->set('foo', 'baz', true);
+        $this->assertEquals(['bar', 'baz'], $this->object->get('foo'));
+
+        $this->object->set('foo', 'qux');
+        $this->assertEquals(['qux'], $this->object->get('foo'));
     }
 
 }

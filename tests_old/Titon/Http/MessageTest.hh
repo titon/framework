@@ -103,28 +103,6 @@ class MessageTest extends TestCase {
         ], $this->object->getHeaders());
     }
 
-    public function testRemoveHeader() {
-        $this->object->setHeader('Content-Type', 'text/html');
-        $this->assertTrue($this->object->hasHeader('Content-Type'));
-
-        $this->object->removeHeader('Content-Type');
-        $this->assertFalse($this->object->hasHeader('Content-Type'));
-    }
-
-    public function testRemoveHeaders() {
-        $this->object->setHeader('Content-Type', 'text/html');
-        $this->object->setHeader('Content-Length', 100);
-
-        $this->assertEquals([
-            'Content-Type' => ['text/html'],
-            'Content-Length' => [100]
-        ], $this->object->getHeaders());
-
-        $this->object->removeHeaders(['Content-Type', 'Content-Length']);
-
-        $this->assertEquals([], $this->object->getHeaders());
-    }
-
 }
 
 class MessageStub extends Message {

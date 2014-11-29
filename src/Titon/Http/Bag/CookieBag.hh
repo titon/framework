@@ -15,7 +15,7 @@ use Titon\Http\Cookie;
  *
  * @package Titon\Http\Bag
  */
-class CookieBag<Tv as Cookie> extends AbstractBag {
+class CookieBag extends AbstractBag<string, Cookie> {
 
     /**
      * Instantiate a new Cookie class for every cookie in the map.

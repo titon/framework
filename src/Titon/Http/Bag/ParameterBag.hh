@@ -13,17 +13,7 @@ use Titon\Common\Bag\AbstractBag;
  * Bag for interacting with request parameters.
  *
  * @package Titon\Http\Bag
- * @codeCoverageIgnore
  */
-class ParameterBag<string, mixed> extends AbstractBag {
-
-    /**
-     * Set the parameter data.
-     *
-     * @param Map $data
-     */
-    public function __construct(Map $data = Map {}) {
-        $this->add($data);
-    }
+class ParameterBag extends AbstractBag<string, mixed> {
 
 }

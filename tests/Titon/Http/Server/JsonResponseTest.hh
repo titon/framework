@@ -7,9 +7,9 @@ use Titon\Test\TestCase;
 class JsonResponseTest extends TestCase {
 
     public function testSend() {
-        $time = time();
         $response = new JsonResponse(['foo' => 'bar']);
         $response->debug();
+        $time = time();
 
         ob_start();
         $body = $response->send();
@@ -27,10 +27,10 @@ class JsonResponseTest extends TestCase {
     }
 
     public function testSendCallback() {
-        $time = time();
         $response = new JsonResponse(['foo' => 'bar']);
         $response->debug();
         $response->setCallback('Vendor.API.method');
+        $time = time();
 
         ob_start();
         $body = $response->send();
@@ -48,9 +48,9 @@ class JsonResponseTest extends TestCase {
     }
 
     public function testFlags() {
-        $time = time();
         $response = new JsonResponse(['Carets <>', 'Quotes ""', 'Ampersand &'], 200, JSON_HEX_QUOT);
         $response->debug();
+        $time = time();
 
         ob_start();
         $body = $response->send();

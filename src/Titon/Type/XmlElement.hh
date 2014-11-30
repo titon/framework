@@ -477,6 +477,11 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
             foreach ($this->getChildren() as $child) {
                 $xml .= $child->toString($indent, $depth + 1);
             }
+
+            // Apply indenting for nested elements
+            if ($indent) {
+                $xml .= str_repeat('    ', $depth);
+            }
         } else {
             $xml .= $this->getValue();
         }

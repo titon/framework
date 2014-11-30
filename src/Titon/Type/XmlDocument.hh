@@ -70,39 +70,18 @@ class XmlDocument {
         return $name;
     }
 
+    /**
+     * Transform a structure consisting of maps and vectors into an XmlElement tree.
+     *
+     * @param string $root
+     * @param \Titon\Type\XmlMap $map
+     * @return \Titon\Type\XmlElement
+     */
     public static function fromMap(string $root = 'root', XmlMap $map): XmlElement {
         $root = new XmlElement($root);
 
         foreach ($map as $key => $value) {
-            // Child element that contains other children or contains attributes
-            if ($value instanceof Map) {
-
-                // An element with a value and attributes
-                if ($value->contains('value')) {
-                    $attributes = $value->toMap()->remove('value');
-                    $value = $value['value'];
-
-                    $root->addChild( (new XmlElement($key, $attributes))->setValue($value) );
-
-                // A child
-                } else {
-                    $root->addChild( static::fromMap($key, $value) );
-                }
-
-            // Multiple children with the same element name
-            } else if ($value instanceof Vector) {
-                foreach ($value as $item) {
-                    $child = new XmlElement($key);
-                    $child->setValue($item);
-
-                    $root->addChild($child);
-                }
-
-            // Child element with a value
-            } else {
-                $root->addChild( (new XmlElement($key))->setValue($value) );
-            }
-
+            static::_createElement($root, $key, $value);
         }
 
         return $root;
@@ -114,6 +93,41 @@ class XmlDocument {
 
     public static function fromFile(string $root = 'root', string $string): XmlElement {
 
+    }
+
+    protected static function _createElement(XmlElement $parent, string $key, mixed $value): void {
+
+        // One of two things:
+        // An element that contains other children
+        // An element that has attributes
+        if ($value instanceof Map) {
+
+            // An element with a value and attributes
+            if ($value->contains('value')) {
+                $attributes = $value;
+                $value = $value['value'];
+                $cdata = (bool) $attributes->get('cdata');
+
+                $attributes->remove('value');
+                $attributes->remove('cdata');
+
+                $parent->addChild( (new XmlElement($key, $attributes))->setValue($value, $cdata) );
+
+            // A child
+            } else {
+                $parent->addChild( static::fromMap($key, $value) );
+            }
+
+        // Multiple children with the same element name
+        } else if ($value instanceof Vector) {
+            foreach ($value as $item) {
+                static::_createElement($parent, $key, $item);
+            }
+
+        // Child element with a value
+        } else {
+            $parent->addChild( (new XmlElement($key))->setValue($value) );
+        }
     }
 
 }

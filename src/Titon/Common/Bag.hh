@@ -48,16 +48,6 @@ interface Bag<Tk, Tv> {
     public function get(Tk $key, ?Tv $default = null): ?Tv;
 
     /**
-     * Set a value defined by key. Can pass in a dot notated path
-     * to insert into a nested structure.
-     *
-     * @param Tk $key
-     * @param Tv $value
-     * @return $this
-     */
-    public function set(Tk $key, Tv $value): this;
-
-    /**
      * Check if a key exists within the bag.
      * Can use a dot notated path as the key.
      *
@@ -73,5 +63,15 @@ interface Bag<Tk, Tv> {
      * @return $this
      */
     public function remove(Tk $key): this;
+
+    /**
+     * Set a value defined by key. Can pass in a dot notated path
+     * to insert into a nested structure.
+     *
+     * @param Tk $key
+     * @param Tv $value
+     * @return $this
+     */
+    public function set(Tk $key, Tv $value): this;
 
 }

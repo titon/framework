@@ -3,6 +3,7 @@ namespace Titon\Http\Server;
 
 use Titon\Http\Http;
 use Titon\Test\TestCase;
+use Titon\Utility\State\Server;
 use VirtualFileSystem\FileSystem;
 
 class DownloadResponseTest extends TestCase {
@@ -48,7 +49,6 @@ class DownloadResponseTest extends TestCase {
             'Content-Disposition' => ['attachment; filename="download.txt"'],
             'Accept-Ranges' => ['bytes'],
             'Content-Transfer-Encoding' => ['binary'],
-            'Last-Modified' => [gmdate(Http::DATE_FORMAT, filemtime($this->vfs->path('/http/download.txt')))],
             'Content-Length' => [123],
         ], $response->getHeaders());
 
@@ -74,7 +74,6 @@ class DownloadResponseTest extends TestCase {
             'Content-Disposition' => ['attachment; filename="download"'],
             'Accept-Ranges' => ['bytes'],
             'Content-Transfer-Encoding' => ['binary'],
-            'Last-Modified' => [gmdate(Http::DATE_FORMAT, filemtime($this->vfs->path('/http/download')))],
             'Content-Length' => [123],
         ], $response->getHeaders());
 
@@ -83,12 +82,8 @@ class DownloadResponseTest extends TestCase {
 
     public function testSendConfig() {
         $time = time();
-        $response = new DownloadResponse($this->vfs->path('/http/download.txt'), 200, Map {
-            'autoEtag' => true,
-            'autoModified' => true,
-            'dispositionName' => 'custom-filename.txt'
-        });
-        $response->prepare(Request::registry());
+        $response = Response::download($this->vfs->path('/http/download.txt'), 'custom-filename.txt', true, true);
+        $response->prepare(Request::createFromGlobals());
 
         ob_start();
         $body = $response->send();
@@ -111,8 +106,11 @@ class DownloadResponseTest extends TestCase {
     }
 
     public function testFileRange() {
+        $_SERVER['HTTP_RANGE'] = 'bytes=0-5';
+        Server::initialize($_SERVER);
+
         $response = new DownloadResponse($this->vfs->path('/http/download.txt'));
-        $response->prepare(new Request([], [], [], [], ['HTTP_RANGE' => 'bytes=0-5']));
+        $response->prepare(Request::createFromGlobals());
 
         ob_start();
         $response->send();
@@ -124,8 +122,11 @@ class DownloadResponseTest extends TestCase {
     }
 
     public function testInvalidFileRange() {
+        $_SERVER['HTTP_RANGE'] = 'bytes=5-3';
+        Server::initialize($_SERVER);
+
         $response = new DownloadResponse($this->vfs->path('/http/download.txt'));
-        $response->prepare(new Request([], [], [], [], ['HTTP_RANGE' => 'bytes=5-3']));
+        $response->prepare(Request::createFromGlobals());
 
         ob_start();
         $response->send();
@@ -137,12 +138,15 @@ class DownloadResponseTest extends TestCase {
     }
 
     public function testSetFileRange() {
+        $_SERVER['HTTP_RANGE'] = 'bytes=0-19';
+        Server::initialize($_SERVER);
+
         $path = $this->vfs->path('/http/download.txt');
 
         $response = new DownloadResponse($path);
+        $response->prepare(Request::createFromGlobals());
 
         // Valid starting range
-        $response->prepare(new Request([], [], [], [], ['HTTP_RANGE' => 'bytes=0-19']));
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
@@ -150,7 +154,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 0-19/123', $response->getHeader('Content-Range'));
 
         // No starting range
-        $response->getRequest()->setHeader('Range', 'bytes=-35');
+        $response->getRequest()->headers->set('Range', 'bytes=-35');
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
@@ -158,7 +162,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 0-35/123', $response->getHeader('Content-Range'));
 
         // No ending range
-        $response->getRequest()->setHeader('Range', 'bytes=45-');
+        $response->getRequest()->headers->set('Range', 'bytes=45-');
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
@@ -166,7 +170,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 45-122/123', $response->getHeader('Content-Range'));
 
         // Valid ending range
-        $response->getRequest()->setHeader('Range', 'bytes=33-92');
+        $response->getRequest()->headers->set('Range', 'bytes=33-92');
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
@@ -174,7 +178,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 33-92/123', $response->getHeader('Content-Range'));
 
         // No ranges at all
-        $response->getRequest()->setHeader('Range', 'bytes=-');
+        $response->getRequest()->headers->set('Range', 'bytes=-');
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
@@ -182,22 +186,27 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 0-122/123', $response->getHeader('Content-Range'));
 
         // Invalid ranges
-        $response->getRequest()->setHeader('Range', 'bytes=100-0');
+        $response->getRequest()->headers->set('Range', 'bytes=100-0');
         $response->setFileRange($path);
 
         $this->assertEquals(416, $response->getStatusCode());
 
-        $response->getRequest()->setHeader('Range', 'bytes=0-125');
+        $response->getRequest()->headers->set('Range', 'bytes=0-125');
         $response->setFileRange($path);
 
         $this->assertEquals(416, $response->getStatusCode());
     }
 
     public function testSetFileRangeIfRange() {
+        $_SERVER['HTTP_RANGE'] = 'bytes=0-19';
+        $_SERVER['HTTP_IF_RANGE'] = 'ETAG';
+        $_SERVER['HTTP_ETAG'] = 'ETAG';
+        Server::initialize($_SERVER);
+
         $path = $this->vfs->path('/http/download.txt');
 
         $response = new DownloadResponse($path);
-        $response->prepare(new Request([], [], [], [], ['HTTP_RANGE' => 'bytes=0-19', 'HTTP_IF_RANGE' => 'ETAG', 'HTTP_ETAG' => 'ETAG']));
+        $response->prepare(Request::createFromGlobals());
         $response->setFileRange($path);
 
         $this->assertEquals(200, $response->getStatusCode());

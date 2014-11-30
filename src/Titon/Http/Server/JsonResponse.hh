@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Server;
 
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\StreamableInterface;
 use Titon\Http\Http;
 use Titon\Http\Exception\MalformedResponseException;
 use Titon\Http\Stream\MemoryStream;
@@ -36,29 +36,27 @@ class JsonResponse extends Response {
      * @param mixed $body
      * @param int $status
      * @param int $flags
-     * @param Map<string, mixed> $config
+     * @param string $callback
      * @throws \Titon\Http\Exception\MalformedResponseException
      */
-    public function __construct(mixed $body = null, int $status = Http::OK, ?int $flags = null, Map<string, mixed> $config = Map {}) {
-        if ($flags === null) {
+    public function __construct(mixed $body, int $status = Http::OK, int $flags = -1, string $callback = '') {
+        if ($flags === -1) {
             $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
         }
 
-        if (!$body instanceof StreamInterface) {
+        if (!$body instanceof StreamableInterface) {
             $body = new MemoryStream(Converter::toJson($body, $flags));
-
-            // @codeCoverageIgnoreStart
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new MalformedResponseException($this->getErrorMessage());
-            }
-            // @codeCoverageIgnoreEnd
         }
 
-        parent::__construct($body, $status, $config);
+        parent::__construct($body, $status);
 
-        if (isset($config['callback'])) {
-            $this->setCallback($config['callback']);
+        // @codeCoverageIgnoreStart
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new MalformedResponseException($this->getErrorMessage());
         }
+        // @codeCoverageIgnoreEnd
+
+        $this->setCallback($callback);
     }
 
     /**
@@ -82,17 +80,17 @@ class JsonResponse extends Response {
         }
 
         $error = json_last_error();
-        $messages = [
-            JSON_ERROR_NONE             => true,
+        $messages = Map {
+            JSON_ERROR_NONE             => '',
             JSON_ERROR_DEPTH            => 'Maximum stack depth exceeded',
             JSON_ERROR_STATE_MISMATCH   => 'Underflow or the modes mismatch',
             JSON_ERROR_CTRL_CHAR        => 'Unexpected control character found',
             JSON_ERROR_SYNTAX           => 'Syntax error, malformed JSON',
             JSON_ERROR_UTF8             => 'Malformed UTF-8 characters, possibly incorrectly encoded'
-        ];
+        };
 
-        if (isset($messages[$error])) {
-            return $messages[$error];
+        if ($messages->contains($error)) {
+            return (string) $messages[$error];
         }
 
         return sprintf('Unknown error (%s)', $error);
@@ -124,7 +122,9 @@ class JsonResponse extends Response {
             $this->contentType('application/json');
         }
 
-        $this->contentLength($this->getBody()->getSize());
+        if ($body = $this->getBody()) {
+            $this->contentLength($body->getSize());
+        }
 
         return parent::send();
     }

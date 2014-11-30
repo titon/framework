@@ -9,6 +9,7 @@ namespace Titon\Http\Server;
 
 use Titon\Http\Exception\InvalidExtensionException;
 use Titon\Http\Exception\InvalidFileException;
+use Titon\Http\Exception\MalformedRequestException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
 use Titon\Http\Stream\FileStream;
@@ -22,21 +23,6 @@ use Titon\Utility\Path;
 class DownloadResponse extends Response {
 
     /**
-     * Configuration.
-     *
-     * @type Map<string, mixed> {
-     *      @type bool $autoEtag            Automatically set an ETag header
-     *      @type bool $autoModified        Automatically set a last modified header based on file modified time
-     *      @type string $dispositionName   Custom file name to use when forcing a download
-     * }
-     */
-    protected Map<string, mixed> $_config = Map {
-        'autoEtag' => false,
-        'autoModified' => true,
-        'dispositionName' => ''
-    };
-
-    /**
      * Path to the file.
      *
      * @type string
@@ -48,11 +34,10 @@ class DownloadResponse extends Response {
      *
      * @param string $path
      * @param int $status
-     * @param Map<string, mixed> $config
      * @throws \Titon\Http\Exception\InvalidFileException
      */
-    public function __construct(string $path, int $status = Http::OK, Map<string, mixed> $config = Map {}) {
-        parent::__construct(null, $status, $config);
+    public function __construct(string $path, int $status = Http::OK) {
+        parent::__construct(null, $status);
 
         if (!file_exists($path)) {
             throw new InvalidFileException(sprintf('File %s does not exist', basename($path)));
@@ -62,6 +47,16 @@ class DownloadResponse extends Response {
         }
 
         $this->_path = $path;
+        $this->contentDisposition(basename($path));
+    }
+
+    /**
+     * Return the file path.
+     *
+     * @return string
+     */
+    public function getPath(): string {
+        return $this->_path;
     }
 
     /**
@@ -72,6 +67,10 @@ class DownloadResponse extends Response {
      */
     public function setFileRange(string $path): this {
         $request = $this->getRequest();
+
+        if (!$request) {
+            throw new MalformedRequestException('An incoming request is missing.');
+        }
 
         if ($request->hasHeader('If-Range') || $request->getHeader('If-Range') !== $request->getHeader('ETag')) {
             return $this;
@@ -103,7 +102,7 @@ class DownloadResponse extends Response {
      * @return string
      */
     public function send(): string {
-        $path = $this->_path;
+        $path = $this->getPath();
 
         try {
             $contentType = Mime::getTypeByExt(Path::ext($path));
@@ -112,21 +111,12 @@ class DownloadResponse extends Response {
         }
 
         $this
-            ->contentDisposition($this->getConfig('dispositionName') ?: basename($path))
             ->contentType($contentType)
             ->acceptRanges()
             ->setHeader('Content-Transfer-Encoding', 'binary')
             ->setBody(new FileStream($path));
 
-        if ($this->getConfig('autoModified')) {
-            $this->lastModified(filemtime($path));
-        }
-
-        if ($this->getConfig('autoEtag')) {
-            $this->etag(sha1_file($path));
-        }
-
-        if ($this->getRequest()->hasHeader('Range')) {
+        if ($this->getRequest()?->hasHeader('Range')) {
             $this->setFileRange($path);
         } else {
             $this->contentLength(filesize($path));

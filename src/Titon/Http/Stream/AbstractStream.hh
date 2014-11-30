@@ -1,4 +1,5 @@
-<?hh // strict
+<?hh // partial
+// Because of PSR HTTP Message
 /**
  * @copyright   2010-2014, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -7,21 +8,22 @@
 
 namespace Titon\Http\Stream;
 
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\StreamableInterface;
+use Titon\Common\CacheMap;
 
 /**
  * Defines shared functionality for an HTTP resource stream.
  *
  * @package Titon\Http\Stream
  */
-abstract class AbstractStream implements StreamInterface {
+abstract class AbstractStream implements StreamableInterface {
 
     /**
      * Cached meta data.
      *
-     * @type Map<string, mixed>
+     * @type \Titon\Common\CacheMap
      */
-    protected Map<string, mixed> $_cache = Map {};
+    protected CacheMap $_cache = Map {};
 
     /**
      * The stream resource.
@@ -40,7 +42,7 @@ abstract class AbstractStream implements StreamInterface {
     /**
      * {@inheritdoc}
      */
-    public function __toString(): ?string {
+    public function __toString(): string {
         return $this->getContents();
     }
 
@@ -80,10 +82,12 @@ abstract class AbstractStream implements StreamInterface {
     /**
      * {@inheritdoc}
      */
-    public function detach(): bool {
+    public function detach(): ?resource {
+        $resource = $this->_stream;
+
         $this->_stream = null;
 
-        return true;
+        return $resource;
     }
 
     /**
@@ -96,16 +100,16 @@ abstract class AbstractStream implements StreamInterface {
     /**
      * Return the cached meta data.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Common\CacheMap
      */
-    public function getCache(): Map<string, mixed> {
+    public function getCache(): CacheMap {
         return $this->_cache;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getContents($maxLength = -1): ?string {
+    public function getContents($maxLength = -1): string {
         if (!$this->isReadable() || (!$this->isSeekable() && $this->eof())) {
             return '';
         }
@@ -118,7 +122,18 @@ abstract class AbstractStream implements StreamInterface {
         // Reset cursor position
         $this->seek($tell);
 
-        return ($buffer === false) ? null : $buffer;
+        return ($buffer === false) ? '' : $buffer;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMetadata($key = null): mixed {
+        if ($key === null) {
+            return $this->_cache;
+        }
+
+        return $this->_cache->get($key);
     }
 
     /**
@@ -141,8 +156,8 @@ abstract class AbstractStream implements StreamInterface {
         if ($this->_cache['wrapper_type'] !== 'PHP') {
             $stat = fstat($this->getStream());
 
-            if (isset($stat['size'])) {
-                return $stat['size'];
+            if (array_key_exists('size', $stat)) {
+                return (int) $stat['size'];
             }
         }
 
@@ -224,7 +239,7 @@ abstract class AbstractStream implements StreamInterface {
      *
      * @return bool
      */
-    public function rewind() {
+    public function rewind(): bool {
         return $this->seek(0);
     }
 

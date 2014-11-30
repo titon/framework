@@ -16,8 +16,8 @@ use Titon\Event\ListenerMap;
 use Titon\Event\Subject;
 use Titon\Http\Exception\HttpException;
 use Titon\Http\Http;
-use Titon\Http\RequestAware;
-use Titon\Http\ResponseAware;
+use Titon\Http\IncomingRequestAware;
+use Titon\Http\OutgoingResponseAware;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 use Titon\View\View;
@@ -40,7 +40,7 @@ type ActionMap = Map<string, ArgumentList>;
  *      controller.error(Controller $con, Exception $exc)
  */
 abstract class AbstractController implements Controller, Listener, Subject {
-    use Emittable, RequestAware, ResponseAware;
+    use Emittable, IncomingRequestAware, OutgoingResponseAware;
 
     /**
      * The currently dispatched action.
@@ -226,7 +226,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
 
         $this->emit('controller.error', [$this, $exception]);
 
-        $this->getResponse()->setStatusCode($status);
+        $this->getResponse()->statusCode($status);
 
         // If no view, exit with a generic message
         if (!$view) {

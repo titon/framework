@@ -31,7 +31,6 @@ class ConverterTest extends TestCase {
         $object = new \stdClass();
         $object->foo = 'bar';
         $this->object = $object;
-
     }
 
     public function testAutobox() {
@@ -105,6 +104,24 @@ class ConverterTest extends TestCase {
         $this->assertFalse((bool) Converter::isXml($this->json));
         $this->assertFalse((bool) Converter::isXml($this->serialized));
         $this->assertTrue((bool) Converter::isXml($this->xml));
+    }
+
+    public function testToArray() {
+        $map = Map {
+            'foo' => 'bar',
+            'map' => Map {'baz' => 'qux'},
+            'vector' => Vector {1, 2, 3},
+            'array' => [1, 2, 'a' => 'b']
+        };
+
+        $this->assertEquals([
+            'foo' => 'bar',
+            'map' => ['baz' => 'qux'],
+            'vector' => [1, 2, 3],
+            'array' => [1, 2, 'a' => 'b']
+        ], Converter::toArray($map));
+
+        $this->assertEquals(['foo'], Converter::toArray('foo'));
     }
 
     public function testToJson() {

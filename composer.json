@@ -22,7 +22,7 @@
         "mockery/mockery": "*",
         "php-vfs/php-vfs": "*",
         "psr/log": "*",
-        "psr/http-message": "0.1.0"
+        "psr/http-message": "*"
     },
     "autoload": {
         "psr-0": { "": "src/" },

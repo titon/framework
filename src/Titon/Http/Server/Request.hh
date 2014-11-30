@@ -1,4 +1,5 @@
-<?hh // strict
+<?hh // partial
+// Because of PSR HTTP Message
 /**
  * @copyright   2010-2014, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -8,15 +9,22 @@
 namespace Titon\Http\Server;
 
 use Titon\Common\FactoryAware;
-use Titon\Http\AbstractMessage;
+use Titon\Http\Cookie;
+use Titon\Http\Message;
 use Titon\Http\Bag\CookieBag;
-use Titon\Http\Bag\FileBag;
 use Titon\Http\Bag\ParameterBag;
 use Titon\Http\Exception\InvalidMethodException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
-use Titon\Http\Request as BaseRequest;
-use Titon\Utility\Col;
+use Titon\Http\IncomingRequest;
+use Titon\Utility\State\Cookie as CookieGlobal;
+use Titon\Utility\State\Files;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\GlobalMap;
+use Titon\Utility\State\Post;
+use Titon\Utility\State\Server;
+
+type AcceptHeader = shape('value' => string, 'quality' => float);
 
 /**
  * The Request object is the primary source of data and state management for the environment.
@@ -24,8 +32,16 @@ use Titon\Utility\Col;
  *
  * @package Titon\Http\Server
  */
-class Request extends AbstractMessage implements BaseRequest {
+<<__ConsistentConstruct>>
+class Request extends Message implements IncomingRequest {
     use FactoryAware;
+
+    /**
+     * Custom attributes for the request.
+     *
+     * @type \Titon\Http\Bag\ParameterBag
+     */
+    public ParameterBag $attributes;
 
     /**
      * COOKIE data for the request.
@@ -35,32 +51,11 @@ class Request extends AbstractMessage implements BaseRequest {
     public CookieBag $cookies;
 
     /**
-     * An combined array of GET, POST, and FILES data.
-     *
-     * @type Map<string, mixed>
-     */
-    public Map<string, mixed> $data = Map {};
-
-    /**
      * FILES data for the request.
      *
-     * @type \Titon\Http\Bag\FileBag
-     */
-    public FileBag $files;
-
-    /**
-     * GET data for the request.
-     *
      * @type \Titon\Http\Bag\ParameterBag
      */
-    public ParameterBag $get;
-
-    /**
-     * Data that has been generated internally via the framework during the request.
-     *
-     * @type \Titon\Http\Bag\ParameterBag
-     */
-    public ParameterBag $internal;
+    public ParameterBag $files;
 
     /**
      * POST data for the request.
@@ -70,22 +65,18 @@ class Request extends AbstractMessage implements BaseRequest {
     public ParameterBag $post;
 
     /**
-     * List of server and environment variables.
+     * GET data for the request.
+     *
+     * @type \Titon\Http\Bag\ParameterBag
+     */
+    public ParameterBag $query;
+
+    /**
+     * SERVER environment variables.
      *
      * @type \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $server;
-
-    /**
-     * Configuration.
-     *
-     * @type Map<string, mixed> {
-     *      @type bool $trustProxies    When enabled, will use applicable HTTP headers set by proxies
-     * }
-     */
-    protected Map<string, mixed> $_config = Map {
-        'trustProxies' => true
-    };
 
     /**
      * The current type of request method.
@@ -93,6 +84,13 @@ class Request extends AbstractMessage implements BaseRequest {
      * @type string
      */
     protected string $_method = '';
+
+    /**
+     * When enabled, will use applicable HTTP headers set by proxies.
+     *
+     * @type bool
+     */
+    protected bool $_trustProxies = true;
 
     /**
      * The current URL for the request.
@@ -104,25 +102,31 @@ class Request extends AbstractMessage implements BaseRequest {
     /**
      * Load post data, query data, files data, cookies, server and environment settings.
      *
-     * @param array $query
-     * @param array $post
-     * @param array $files
-     * @param array $cookies
-     * @param array $server
+     * @param \Titon\Utility\State\GlobalMap $query
+     * @param \Titon\Utility\State\GlobalMap $post
+     * @param \Titon\Utility\State\GlobalMap $files
+     * @param \Titon\Utility\State\GlobalMap $cookies
+     * @param \Titon\Utility\State\GlobalMap $server
      */
-    public function __construct(array $query = [], array $post = [], array $files = [], array $cookies = [], array $server = []) {
+    public function __construct(GlobalMap $query = Map {}, GlobalMap $post = Map {}, GlobalMap $files = Map {}, GlobalMap $cookies = Map {}, GlobalMap $server = Map {}) {
         parent::__construct();
 
-        $this->internal = (new ParameterBag())->setRequest($this);
-        $this->get = (new ParameterBag($query))->setRequest($this);
-        $this->post = (new ParameterBag($post))->setRequest($this);
-        $this->files = (new FileBag($files))->setRequest($this);
-        $this->cookies = (new CookieBag($cookies))->setRequest($this);
-        $this->server = (new ParameterBag($server))->setRequest($this);
-        $this->data = Col::merge($this->get->all(), $this->post->all(), $this->files->all());
+        // Fix method overrides
+        if ($post->contains('_method')) {
+            $server['HTTP_X_METHOD_OVERRIDE'] = $post['_method'];
+            $post->remove('_method');
+        }
+
+        // Create bags
+        $this->attributes = new ParameterBag();
+        $this->cookies = new CookieBag($cookies);
+        $this->files = new ParameterBag($files);
+        $this->post = new ParameterBag($post);
+        $this->query = new ParameterBag($query);
+        $this->server = new ParameterBag($server);
 
         // Extract headers from server
-        $headers = [];
+        $headers = Map {};
 
         foreach ($server as $key => $value) {
             if (substr($key, 0, 5) === 'HTTP_') {
@@ -135,20 +139,19 @@ class Request extends AbstractMessage implements BaseRequest {
             $headers[$key] = explode(',', $value);
         }
 
-        $this->headers->setRequest($this);
-        $this->setHeaders($headers);
+        $this->headers->add($headers);
     }
 
     /**
      * Clone the bags.
      */
-    public function __clone() {
-        $this->internal = clone $this->internal;
-        $this->headers = clone $this->headers;
-        $this->get = clone $this->get;
-        $this->post = clone $this->post;
-        $this->files = clone $this->files;
+    public function __clone(): void {
+        $this->attributes = clone $this->attributes;
         $this->cookies = clone $this->cookies;
+        $this->files = clone $this->files;
+        $this->headers = clone $this->headers;
+        $this->post = clone $this->post;
+        $this->query = clone $this->query;
         $this->server = clone $this->server;
     }
 
@@ -158,12 +161,7 @@ class Request extends AbstractMessage implements BaseRequest {
      * @return $this
      */
     public static function createFromGlobals(): Request {
-        if (isset($_POST['_method'])) {
-            $_SERVER['REQUEST_METHOD'] = $_POST['_method'];
-            unset($_POST['_method']);
-        }
-
-        return new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
+        return new static(Get::all(), Post::all(), Files::all(), CookieGlobal::all(), Server::all());
     }
 
     /**
@@ -172,24 +170,24 @@ class Request extends AbstractMessage implements BaseRequest {
      * @uses Titon\Http\Mime
      *
      * @param string $type
-     * @return Map<string, string>
+     * @return \Titon\Http\AcceptHeader
      */
-    public function accepts(mixed $type): ?Map<string, string> {
+    public function accepts(mixed $type): ?AcceptHeader {
         if (is_array($type)) {
             $contentType = $type;
         } else if (strpos($type, '/') !== false) {
             $contentType = [$type];
         } else {
-            $contentType = (array) Mime::getTypeByExt($type);
+            $contentType = [Mime::getTypeByExt((string) $type)];
         }
 
-        foreach ($this->_accepts('Accept') as $accept) {
+        foreach ($this->_extractAcceptHeaders('Accept') as $accept) {
             foreach ($contentType as $cType) {
-                if ($cType === $accept['type'] || $accept['type'] === '*/*') {
+                if ($cType === $accept['value'] || $accept['value'] === '*/*') {
                     return $accept;
 
                 // Wildcard matching
-                } else if (strpos($accept['type'], '/*') && strpos($cType, trim($accept['type'], '*')) === 0) {
+                } else if (strpos($accept['value'], '/*') && strpos($cType, trim($accept['value'], '*')) === 0) {
                     return $accept;
                 }
             }
@@ -202,11 +200,11 @@ class Request extends AbstractMessage implements BaseRequest {
      * Checks to see if the client accepts a certain charset, based on the Accept-Charset header.
      *
      * @param string $charset
-     * @return Map<string, string>
+     * @return \Titon\Http\AcceptHeader
      */
-    public function acceptsCharset(string $charset): ?Map<string, string> {
-        foreach ($this->_accepts('Accept-Charset') as $accept) {
-            if (strtolower($charset) === $accept['type'] || $accept['type'] === '*') {
+    public function acceptsCharset(string $charset): ?AcceptHeader {
+        foreach ($this->_extractAcceptHeaders('Accept-Charset') as $accept) {
+            if (strtolower($charset) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
         }
@@ -218,11 +216,11 @@ class Request extends AbstractMessage implements BaseRequest {
      * Checks to see if the client accepts a certain encoding, based on the Accept-Encoding header.
      *
      * @param string $encoding
-     * @return Map<string, string>
+     * @return \Titon\Http\AcceptHeader
      */
-    public function acceptsEncoding(string $encoding): ?Map<string, string> {
-        foreach ($this->_accepts('Accept-Encoding') as $accept) {
-            if (strtolower($encoding) === $accept['type'] || $accept['type'] === '*') {
+    public function acceptsEncoding(string $encoding): ?AcceptHeader {
+        foreach ($this->_extractAcceptHeaders('Accept-Encoding') as $accept) {
+            if (strtolower($encoding) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
         }
@@ -234,16 +232,48 @@ class Request extends AbstractMessage implements BaseRequest {
      * Checks to see if the client accepts a certain charset, based on the Accept-Language header.
      *
      * @param string $language
-     * @return Map<string, string>
+     * @return \Titon\Http\AcceptHeader
      */
-    public function acceptsLanguage(string $language): ?Map<string, string> {
-        foreach ($this->_accepts('Accept-Language') as $accept) {
-            if (strtolower($language) === $accept['type'] || $accept['type'] === '*') {
+    public function acceptsLanguage(string $language): ?AcceptHeader {
+        foreach ($this->_extractAcceptHeaders('Accept-Language') as $accept) {
+            if (strtolower($language) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
         }
 
         return null;
+    }
+
+    /**
+     * Do not trust the headers from proxies.
+     *
+     * @return $this;
+     */
+    public function dontTrustProxies(): this {
+        $this->_trustProxies = false;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAttribute($attribute, $default = null): mixed {
+        return $this->attributes->get($attribute, $default);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAttributes(): array<string, mixed> {
+        return $this->attributes->all()->toArray();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBodyParams(): array<string, mixed> {
+        return $this->post->toArray();
     }
 
     /**
@@ -254,9 +284,9 @@ class Request extends AbstractMessage implements BaseRequest {
      */
     public function getClientIP(): string {
         $headers = ['REMOTE_ADDR', 'HTTP_CLIENT_IP'];
-        $ip = null;
+        $ip = '';
 
-        if ($this->getConfig('trustProxies')) {
+        if ($this->isTrustingProxies()) {
             array_unshift($headers, 'HTTP_X_FORWARDED_FOR');
         }
 
@@ -270,32 +300,46 @@ class Request extends AbstractMessage implements BaseRequest {
             }
         }
 
-        return $ip;
+        return (string) $ip;
     }
 
     /**
-     * Return a cookie by key and decrypt if encryption is enabled.
+     * Return an HTTP cookie as a Cookie class defined by key/name.
      *
      * @param string $key
-     * @return mixed
+     * @return \Titon\Http\Cookie
      */
-    public function getCookie(string $key): mixed {
+    public function getCookie(string $key): ?Cookie {
         return $this->cookies->get($key);
     }
 
     /**
-     * Return all cookies and decrypt if encryption is enabled.
+     * Return all HTTP cookies as Cookie classes.
      *
-     * @return Map<string, mixed>
+     * @return Map<string, Cookie>
      */
-    public function getCookies(): Map<string, mixed> {
-        $cookies = Map {};
+    public function getCookies(): Map<string, Cookie> {
+        return $this->cookies->all();
+    }
 
-        foreach ($this->cookies->keys() as $key) {
-            $cookies[$key] = $this->cookies->get($key);
+    /**
+     * {@inheritdoc}
+     */
+    public function getCookieParams(): array<string, mixed> {
+        $array = [];
+
+        foreach ($this->getCookies() as $key => $cookie) {
+            $array[$key] = $cookie->getDecryptedValue();
         }
 
-        return $cookies;
+        return $array;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFileParams(): array<string, mixed> {
+        return $this->files->toArray();
     }
 
     /**
@@ -303,9 +347,9 @@ class Request extends AbstractMessage implements BaseRequest {
      */
     public function getHost(): string {
         $headers = ['HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR'];
-        $host = null;
+        $host = '';
 
-        if ($this->getConfig('trustProxies')) {
+        if ($this->isTrustingProxies()) {
             array_unshift($headers, 'HTTP_X_FORWARDED_HOST');
         }
 
@@ -341,7 +385,7 @@ class Request extends AbstractMessage implements BaseRequest {
      * {@inheritdoc}
      */
     public function getProtocolVersion(): string {
-        return str_replace('HTTP/', '', $this->server->get('SERVER_PROTOCOL', Http::HTTP_11));
+        return $this->server->get('SERVER_PROTOCOL', '1.1');
     }
 
     /**
@@ -351,7 +395,7 @@ class Request extends AbstractMessage implements BaseRequest {
      * @return int
      */
     public function getPort(): int {
-        if ($this->getConfig('trustProxies')) {
+        if ($this->isTrustingProxies()) {
             if ($port = $this->server->get('HTTP_X_FORWARDED_PORT')) {
                 return (int) $port;
             }
@@ -370,6 +414,13 @@ class Request extends AbstractMessage implements BaseRequest {
         }
 
         return (int) $this->server->get('SERVER_PORT');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getQueryParams(): array<string, mixed> {
+        return $this->query->toArray();
     }
 
     /**
@@ -407,6 +458,13 @@ class Request extends AbstractMessage implements BaseRequest {
      */
     public function getServerIP(): string {
         return $this->server->get('SERVER_ADDR');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getServerParams(): array<string, mixed> {
+        return $this->server->toArray();
     }
 
     /**
@@ -544,7 +602,7 @@ class Request extends AbstractMessage implements BaseRequest {
      * @param string $type
      * @return bool
      */
-    public function isMethod($type): bool {
+    public function isMethod(string $type): bool {
         return (strtoupper($type) === $this->getMethod());
     }
 
@@ -608,7 +666,7 @@ class Request extends AbstractMessage implements BaseRequest {
      * @return bool
      */
     public function isSecure(): bool {
-        if ($this->getConfig('trustProxies')) {
+        if ($this->isTrustingProxies()) {
             if ($scheme = $this->server->get('HTTP_X_FORWARDED_PROTO')) {
                 return ($scheme === 'https');
             }
@@ -618,9 +676,38 @@ class Request extends AbstractMessage implements BaseRequest {
     }
 
     /**
+     * Return true if we should trust proxies headers.
+     *
+     * @return bool
+     */
+    public function isTrustingProxies(): bool {
+        return $this->_trustProxies;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function setMethod($method): this { // @todo No type hint because of PSR
+    public function setAttribute($attribute, $value): this {
+        $this->attributes->set($attribute, $value);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setAttributes(array $attributes): this {
+        foreach ($attributes as $attribute => $value) {
+            $this->attributes->set($attribute, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setMethod($method): this {
         $method = strtoupper($method);
 
         if (!in_array($method, Http::getMethodTypes())) {
@@ -636,8 +723,19 @@ class Request extends AbstractMessage implements BaseRequest {
     /**
      * {@inheritdoc}
      */
-    public function setUrl($url): this { // @todo No type hint because of PSR
+    public function setUrl($url): this {
         $this->_url = $url;
+
+        return $this;
+    }
+
+    /**
+     * Trust the headers from proxies.
+     *
+     * @return $this;
+     */
+    public function trustProxies(): this {
+        $this->_trustProxies = true;
 
         return $this;
     }
@@ -646,25 +744,28 @@ class Request extends AbstractMessage implements BaseRequest {
      * Lazy loading functionality for extracting Accept header information and parsing it.
      *
      * @param string $header
-     * @return Vector<Map<string, string>>
+     * @return Vector<Titon\Http\AcceptHeader>
      */
-    protected function _accepts(string $header): Vector<Map<string, string>> {
+    protected function _extractAcceptHeaders(string $header): Vector<AcceptHeader> {
         $data = Vector {};
 
-        if ($accept = $this->headers->get($header)) {
-            foreach (explode(',', $accept) as $type) {
-                $type = str_replace(' ', '', $type);
+        if ($accepts = $this->headers->get($header)) {
+            invariant($accepts instanceof Traversable, 'Accepts header must be traversable.');
 
-                if (strpos($type, ';') !== false) {
-                    list($type, $quality) = explode(';', $type);
-                } else {
+            foreach ($accepts as $accept) {
+                foreach (explode(',', $accept) as $type) {
+                    $type = trim($type);
                     $quality = 1;
-                }
 
-                $data[] = Map {
-                    'type' => strtolower($type),
-                    'quality' => str_replace('q=', '', $quality)
-                };
+                    if (strpos($type, ';') !== false) {
+                        list($type, $quality) = explode(';', $type);
+                    }
+
+                    $data[] = shape(
+                        'value' => strtolower($type),
+                        'quality' => (float) str_replace('q=', '', $quality)
+                    );
+                }
             }
         }
 

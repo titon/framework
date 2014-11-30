@@ -7,17 +7,17 @@
 
 namespace Titon\Http\Bag;
 
-use Titon\Http\RequestAware;
+use Titon\Common\Bag\AbstractBag;
+use Titon\Utility\Converter;
 use Titon\Utility\Inflector;
 
 /**
  * Bag for interacting with request and response headers.
- * Keys should be case-insensitive, so format each call.
+ * Keys should be case-insensitive.
  *
  * @package Titon\Http\Bag
  */
-class HeaderBag extends ParameterBag {
-    use RequestAware;
+class HeaderBag extends AbstractBag<string, array<string>> {
 
     /**
      * {@inheritdoc}
@@ -62,8 +62,18 @@ class HeaderBag extends ParameterBag {
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value = null): this {
-        return parent::set($this->key($key), $value);
+    public function set(string $key, mixed $value = null, bool $add = false): this {
+        if (!$add) {
+            return parent::set($this->key($key), Converter::toArray($value));
+        }
+
+        $list = $this->get($key, []);
+
+        invariant(is_array($list), 'Value must be an array.');
+
+        $list[] = $value;
+
+        return parent::set($this->key($key), $list);
     }
 
 }

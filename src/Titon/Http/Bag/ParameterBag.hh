@@ -8,25 +8,22 @@
 namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
-use Titon\Http\RequestAware;
 use Titon\Utility\Converter;
 
 /**
  * Bag for interacting with request parameters.
  *
  * @package Titon\Http\Bag
- * @codeCoverageIgnore
  */
-class ParameterBag extends AbstractBag {
-    use RequestAware;
+class ParameterBag extends AbstractBag<string, mixed> {
 
     /**
-     * Set the parameters using an array. This is because all super globals are arrays.
+     * Recursively convert the parameter maps/vectors to an array.
      *
-     * @param array $data
+     * @return array<Tk, Tv>
      */
-    public function __construct(array $data = []) {
-        $this->add(Converter::toMap($data));
+    public function toArray(): array<string, mixed> {
+        return Converter::toArray($this->all());
     }
 
 }

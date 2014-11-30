@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c4cf3e083eb282ff3d4a19a95abfadbf",
+    "hash": "5514c9f84f6326ef7091bab68794d047",
     "packages": [],
     "packages-dev": [
         {
@@ -555,16 +555,16 @@
         },
         {
             "name": "psr/http-message",
-            "version": "0.1.0",
+            "version": "0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/http-message.git",
-                "reference": "98ef8f215a7b86af3fd35b98b98bc79c15057f65"
+                "reference": "18619eee10ecf266bafe048e5a2922fa20938498"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/http-message/zipball/98ef8f215a7b86af3fd35b98b98bc79c15057f65",
-                "reference": "98ef8f215a7b86af3fd35b98b98bc79c15057f65",
+                "url": "https://api.github.com/repos/php-fig/http-message/zipball/18619eee10ecf266bafe048e5a2922fa20938498",
+                "reference": "18619eee10ecf266bafe048e5a2922fa20938498",
                 "shasum": ""
             },
             "type": "library",
@@ -597,7 +597,7 @@
                 "request",
                 "response"
             ],
-            "time": "2014-07-10 17:31:27"
+            "time": "2014-11-04 14:03:01"
         },
         {
             "name": "psr/log",
@@ -905,17 +905,17 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.5.6",
+            "version": "v2.5.7",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "2d9f527449cabfa8543dd7fa3a466d6ae83d6726"
+                "reference": "900d38bc8f74a50343ce65dd1c1e9819658ee56b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/2d9f527449cabfa8543dd7fa3a466d6ae83d6726",
-                "reference": "2d9f527449cabfa8543dd7fa3a466d6ae83d6726",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/900d38bc8f74a50343ce65dd1c1e9819658ee56b",
+                "reference": "900d38bc8f74a50343ce65dd1c1e9819658ee56b",
                 "shasum": ""
             },
             "require": {
@@ -948,7 +948,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2014-10-01 05:50:18"
+            "time": "2014-11-20 13:22:25"
         }
     ],
     "aliases": [],

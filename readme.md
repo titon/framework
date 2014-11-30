@@ -22,7 +22,6 @@ However, they have not been linted against Hack's strict type checker yet.
 The following packages are still in the porting process.
 
 * Cache
-* HTTP
 * IO
 
 The following packages have yet to be ported over.
@@ -60,6 +59,7 @@ but there's nothing we can do until HHVM and Hack are patched.
 * Debug
 * Environment
 * Event
+* HTTP
 * Route
 * Type
 * Utility
@@ -117,16 +117,7 @@ Or lint a specific folder.
 /vagrant/bin/lint-hack --path=Titon/Utility
 ```
 
-### PHPUnit Support ###
-
-Titon requires a modified PHPUnit to run tests properly. Simply modify the local file `Framework\TestSuite.php` and change this.
-
-```php
-$shortname = basename($filename, '.php');
-```
-
-To the following. This will allow `.hh` file extensions to be located.
-
-```php
-$shortname = basename(basename($filename, '.hh'), '.php');
-```
+When filtering down by path, multiple errors will still arise like "Was expecting a class", "Unbound name",
+"Unbound global constant", "This is not a container, this is an object of type X", etc. The main cause of this issue 
+is that the type checker is ran in a sub-folder, and not the root, so all those classes are not in scope. 
+This should not be an issue if the type checker is ran in the source root.

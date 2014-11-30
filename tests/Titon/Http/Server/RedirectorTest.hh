@@ -3,6 +3,7 @@ namespace Titon\Http\Server;
 
 use Titon\Http\Http;
 use Titon\Test\TestCase;
+use Titon\Utility\State\Server;
 
 class RedirectorTest extends TestCase {
 
@@ -20,9 +21,10 @@ class RedirectorTest extends TestCase {
 
     public function testBack() {
         $_SERVER['HTTP_REFERER'] = '/new/url';
+        Server::initialize($_SERVER);
 
-        $time = time();
         $response = Redirector::back();
+        $time = time();
 
         $this->assertEquals([
             'Date' => [gmdate(Http::DATE_FORMAT, $time)],
@@ -32,8 +34,8 @@ class RedirectorTest extends TestCase {
     }
 
     public function testHome() {
-        $time = time();
         $response = Redirector::home();
+        $time = time();
 
         $this->assertEquals([
             'Date' => [gmdate(Http::DATE_FORMAT, $time)],
@@ -44,9 +46,10 @@ class RedirectorTest extends TestCase {
 
     public function testRefresh() {
         $_SERVER['PATH_INFO'] = '/current/url';
+        Server::initialize($_SERVER);
 
-        $time = time();
         $response = Redirector::refresh();
+        $time = time();
 
         $this->assertEquals([
             'Date' => [gmdate(Http::DATE_FORMAT, $time)],
@@ -56,10 +59,10 @@ class RedirectorTest extends TestCase {
     }
 
     public function testTo() {
-        $time = time();
         $response = Redirector::to('/custom/url', 300, function(Response $response) {
             $response->setHeader('X-Test', 'Foobar');
         });
+        $time = time();
 
         $this->assertEquals([
             'Date' => [gmdate(Http::DATE_FORMAT, $time)],

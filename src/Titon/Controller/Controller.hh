@@ -8,8 +8,8 @@
 namespace Titon\Controller;
 
 use Titon\Common\ArgumentList;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\OutgoingResponseInterface;
+use Psr\Http\Message\IncomingRequestInterface;
 use Titon\Controller\Action;
 use Titon\View\View;
 use \Exception;
@@ -43,16 +43,16 @@ interface Controller {
     /**
      * Return the request object.
      *
-     * @return \Psr\Http\Message\RequestInterface
+     * @return \Psr\Http\Message\IncomingRequestInterface
      */
-    public function getRequest(): RequestInterface;
+    public function getRequest(): IncomingRequestInterface;
 
     /**
      * Return the response object.
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function getResponse(): ResponseInterface;
+    public function getResponse(): OutgoingResponseInterface;
 
     /**
      * Return the view object.
@@ -94,18 +94,18 @@ interface Controller {
     /**
      * Set the request object.
      *
-     * @param \Psr\Http\Message\RequestInterface $request
+     * @param \Psr\Http\Message\IncomingRequestInterface $request
      * @return $this
      */
-    public function setRequest(RequestInterface $request): this;
+    public function setRequest(IncomingRequestInterface $request): this;
 
     /**
      * Set the response object.
      *
-     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param \Psr\Http\Message\OutgoingResponseInterface $response
      * @return $this
      */
-    public function setResponse(ResponseInterface $response): this;
+    public function setResponse(OutgoingResponseInterface $response): this;
 
     /**
      * Set the view instance.

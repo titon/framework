@@ -1,8 +1,14 @@
 <?hh
 namespace Titon\Http\Server;
 
+use Titon\Http\Http;
 use Titon\Test\TestCase;
-use Titon\Utility\Crypt;
+use Titon\Http\Cookie;
+use Titon\Utility\State\Cookie as CookieGlobal;
+use Titon\Utility\State\Files;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\Post;
+use Titon\Utility\State\Server;
 
 /**
  * @property \Titon\Http\Server\Request $object
@@ -28,7 +34,7 @@ class RequestTest extends TestCase {
         ];
 
         $_COOKIE = [
-            'foo' => Crypt::rijndael(base64_encode(serialize('bar')), 'foo')
+            'foo' => (new Cookie('foo', 'bar'))->getEncryptedValue()
         ];
 
         $_FILES = [
@@ -92,6 +98,14 @@ class RequestTest extends TestCase {
             ],
         ];
 
+        $_SERVER['REQUEST_METHOD'] = 'PUT';
+
+        CookieGlobal::initialize($_COOKIE);
+        Files::initialize($_FILES);
+        Get::initialize($_GET);
+        Post::initialize($_POST);
+        Server::initialize($_SERVER);
+
         $this->object = Request::createFromGlobals();
     }
 
@@ -101,7 +115,7 @@ class RequestTest extends TestCase {
             'Model' => Map {
                 'foo' => 'bar'
             }
-        }, $this->object->get->all());
+        }, $this->object->query->all());
 
         $this->assertEquals(Map {
             'key' => 'value',
@@ -157,9 +171,9 @@ class RequestTest extends TestCase {
     public function testClone() {
         $clone = clone $this->object;
 
-        $this->assertEquals($clone->internal, $this->object->internal);
+        $this->assertEquals($clone->attributes, $this->object->attributes);
         $this->assertEquals($clone->headers, $this->object->headers);
-        $this->assertEquals($clone->get, $this->object->get);
+        $this->assertEquals($clone->query, $this->object->query);
         $this->assertEquals($clone->post, $this->object->post);
         $this->assertEquals($clone->files, $this->object->files);
         $this->assertEquals($clone->cookies, $this->object->cookies);
@@ -169,48 +183,75 @@ class RequestTest extends TestCase {
     public function testAccepts() {
         $this->object->headers->set('Accept', 'text/xml,application/xml;q=0.9,application/xhtml+xml,text/html,text/plain,image/png');
 
-        $this->assertEquals(Map {'type' =>'text/html', 'quality' => 1}, $this->object->accepts('html'));
-        $this->assertEquals(Map {'type' =>'application/xhtml+xml', 'quality' => 1}, $this->object->accepts('xhtml'));
-        $this->assertEquals(Map {'type' =>'application/xml', 'quality' => 0.9}, $this->object->accepts('xml'));
+        $this->assertEquals(shape('value' =>'text/html', 'quality' => 1), $this->object->accepts('html'));
+        $this->assertEquals(shape('value' =>'application/xhtml+xml', 'quality' => 1), $this->object->accepts('xhtml'));
+        $this->assertEquals(shape('value' =>'application/xml', 'quality' => 0.9), $this->object->accepts('xml'));
         $this->assertEquals(null, $this->object->accepts('json'));
 
         $this->object->headers->set('Accept', 'application/json,*/*');
 
-        $this->assertEquals(Map {'type' =>'application/json', 'quality' => 1}, $this->object->accepts('json'));
-        $this->assertEquals(Map {'type' =>'*/*', 'quality' => 1}, $this->object->accepts('html')); // */*
+        $this->assertEquals(shape('value' =>'application/json', 'quality' => 1), $this->object->accepts('json'));
+        $this->assertEquals(shape('value' =>'*/*', 'quality' => 1), $this->object->accepts('html')); // */*
 
         $this->object->headers->set('Accept', 'text/*');
 
-        $this->assertEquals(Map {'type' =>'text/*', 'quality' => 1}, $this->object->accepts('text/html'));
-        $this->assertEquals(Map {'type' =>'text/*', 'quality' => 1}, $this->object->accepts(['text/xml', 'application/json']));
+        $this->assertEquals(shape('value' =>'text/*', 'quality' => 1), $this->object->accepts('text/html'));
+        $this->assertEquals(shape('value' =>'text/*', 'quality' => 1), $this->object->accepts(['text/xml', 'application/json']));
         $this->assertEquals(null, $this->object->accepts('application/json'));
     }
 
     public function testAcceptsCharset() {
         $this->object->headers->set('Accept-Charset', 'UTF-8');
 
-        $this->assertEquals(Map {'type' =>'utf-8', 'quality' => 1}, $this->object->acceptsCharset('utf-8'));
+        $this->assertEquals(shape('value' =>'utf-8', 'quality' => 1), $this->object->acceptsCharset('utf-8'));
         $this->assertEquals(null, $this->object->acceptsCharset('iso-8859-1'));
 
         $this->object->headers->set('Accept-Charset', 'ISO-8859-1');
 
-        $this->assertEquals(Map {'type' =>'iso-8859-1', 'quality' => 1}, $this->object->acceptsCharset('iso-8859-1'));
+        $this->assertEquals(shape('value' =>'iso-8859-1', 'quality' => 1), $this->object->acceptsCharset('iso-8859-1'));
     }
 
     public function testAcceptsEncoding() {
         $this->object->headers->set('Accept-Encoding', 'compress;q=0.5, gzip;q=1.0');
 
-        $this->assertEquals(Map {'type' =>'gzip', 'quality' => 1}, $this->object->acceptsEncoding('gzip'));
+        $this->assertEquals(shape('value' =>'gzip', 'quality' => 1), $this->object->acceptsEncoding('gzip'));
         $this->assertEquals(null, $this->object->acceptsEncoding('identity'));
     }
 
     public function testAcceptsLanguage() {
         $this->object->headers->set('Accept-Language', 'en-us,en;q=0.8,fr-fr;q=0.5,fr;q=0.3');
 
-        $this->assertEquals(Map {'type' =>'en-us', 'quality' => 1}, $this->object->acceptsLanguage('en-US'));
-        $this->assertEquals(Map {'type' =>'en', 'quality' => 0.8}, $this->object->acceptsLanguage('en'));
-        $this->assertEquals(Map {'type' =>'fr', 'quality' => 0.3}, $this->object->acceptsLanguage('fr'));
+        $this->assertEquals(shape('value' =>'en-us', 'quality' => 1), $this->object->acceptsLanguage('en-US'));
+        $this->assertEquals(shape('value' =>'en', 'quality' => 0.8), $this->object->acceptsLanguage('en'));
+        $this->assertEquals(shape('value' =>'fr', 'quality' => 0.3), $this->object->acceptsLanguage('fr'));
         $this->assertEquals(null, $this->object->acceptsLanguage('DE'));
+    }
+
+    public function testGetAttribute() {
+        $this->assertEquals(null, $this->object->getAttribute('foo'));
+        $this->assertEquals('bar', $this->object->getAttribute('foo', 'bar'));
+
+        $this->object->setAttribute('foo', 'baz');
+        $this->assertEquals('baz', $this->object->getAttribute('foo'));
+    }
+
+    public function testGetAttributes() {
+        $this->object->setAttribute('foo', 'bar');
+        $this->object->setAttribute('baz', 'qux');
+
+        $this->assertEquals([
+            'foo' => 'bar',
+            'baz' => 'qux'
+        ], $this->object->getAttributes());
+    }
+
+    public function testGetBodyParams() {
+        $this->assertEquals([
+            'key' => 'value',
+            'Model' => [
+                'foo' => 'baz'
+            ]
+        ], $this->object->getBodyParams());
     }
 
     public function testGetClientIp() {
@@ -227,20 +268,51 @@ class RequestTest extends TestCase {
 
         $this->assertEquals('192.168.1.3', $this->object->getClientIP());
 
-        $this->object->setConfig('trustProxies', false);
+        $this->object->dontTrustProxies();
 
         $this->assertEquals('192.168.1.1', $this->object->getClientIP());
     }
 
     public function testGetCookie() {
         $this->assertEquals(null, $this->object->getCookie('key'));
-        $this->assertEquals('bar', $this->object->getCookie('foo')); // decrypted
+        $this->assertEquals(new Cookie('foo', '5hxAThObwiiTyh0mhfxIKw%3D%3D'), $this->object->getCookie('foo'));
+        $this->assertEquals('bar', $this->object->getCookie('foo')->getDecryptedValue());
     }
 
     public function testGetCookies() {
         $this->assertEquals(Map {
-            'foo' => 'bar'
+            'foo' => new Cookie('foo', '5hxAThObwiiTyh0mhfxIKw%3D%3D') // Object version
         }, $this->object->getCookies());
+    }
+
+    public function testGetCookieParams() {
+        $this->assertEquals([
+            'foo' => 'bar' // Unencrypted version
+        ], $this->object->getCookieParams());
+    }
+
+    public function testGetFileParams() {
+        $this->assertEquals(4, count($this->object->getFileParams()));
+        $this->assertEquals([
+            'two' => [
+                'file' => [
+                    'name' => 'file3.png',
+                    'type' => 'image/png',
+                    'tmp_name' => '/tmp/phpgUtcPf',
+                    'error' => 0,
+                    'size' => 19571
+                ],
+            ],
+        ], $this->object->getFileParams()['three']);
+    }
+
+    public function testGetHeader() {
+        $this->assertEquals('', $this->object->getHeader('Accept-Charset'));
+        $this->object->headers->set('Accept-Charset', 'utf-8');
+        $this->object->headers->set('Accept-Charset', 'utf-16', true);
+
+        $this->assertEquals('utf-8, utf-16', $this->object->getHeader('Accept-Charset'));
+        $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeaderAsArray('Accept-Charset'));
     }
 
     public function testGetHost() {
@@ -261,7 +333,7 @@ class RequestTest extends TestCase {
         $this->object->server->set('HTTP_X_FORWARDED_HOST', 'titon-proxy.com');
         $this->assertEquals('titon-proxy.com', $this->object->getHost());
 
-        $this->object->setConfig('trustProxies', false);
+        $this->object->dontTrustProxies();
         $this->assertEquals('74.232.443.122', $this->object->getHost());
     }
 
@@ -273,10 +345,9 @@ class RequestTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_SERVER['HTTP_X_METHOD_OVERRIDE'] = 'DELETE';
 
-        // New instance so it won't inherit from setup
-        $request = Request::createFromGlobals();
+        Server::initialize($_SERVER);
 
-        $this->assertEquals('DELETE', $request->getMethod());
+        $this->assertEquals('DELETE', Request::createFromGlobals()->getMethod());
     }
 
     public function testGetProtocolVersion() {
@@ -308,11 +379,11 @@ class RequestTest extends TestCase {
 
         $this->assertEquals(77, $this->object->getPort());
 
-        $this->object->setConfig('trustProxies', false);
+        $this->object->dontTrustProxies();
 
         $this->assertEquals(88, $this->object->getPort());
 
-        $this->object->setConfig('trustProxies', true);
+        $this->object->trustProxies();
 
         $this->object->server->remove('HTTP_X_FORWARDED_PORT');
 
@@ -321,6 +392,15 @@ class RequestTest extends TestCase {
         $this->object->server->remove('HTTP_X_FORWARDED_PROTO');
 
         $this->assertEquals(88, $this->object->getPort());
+    }
+
+    public function testGetQueryParams() {
+        $this->assertEquals([
+            'key' => 'value',
+            'Model' => [
+                'foo' => 'bar'
+            ]
+        ], $this->object->getQueryParams());
     }
 
     public function testGetReferrer() {
@@ -346,6 +426,10 @@ class RequestTest extends TestCase {
         $this->assertEquals('127.0.0.1', $this->object->getServerIP());
     }
 
+    public function testGetServerParams() {
+        $this->assertGreaterThan(0, count($this->object->getServerParams())); // Too many values to explicitly test
+    }
+
     public function testGetUrl() {
         $this->object->server->add(Map {
             'SCRIPT_FILENAME' => '/var/www/titon/app/web/index.php',
@@ -358,12 +442,12 @@ class RequestTest extends TestCase {
         $this->assertEquals('/en/some/path/', $this->object->getUrl()); // PATH_INFO
 
         $this->object->server->remove('PATH_INFO');
-        $this->object->setUrl(null);
+        $this->object->setUrl('');
 
         $this->assertEquals('/en/some/path/', $this->object->getUrl()); // REQUEST_URI without query
 
         $this->object->server->remove('REQUEST_URI');
-        $this->object->setUrl(null);
+        $this->object->setUrl('');
 
         $this->assertEquals('/en/some/path/', $this->object->getUrl()); // PHP_SELF
     }
@@ -380,12 +464,12 @@ class RequestTest extends TestCase {
         $this->assertEquals('/root/en/some/path/', $this->object->getUrl()); // PATH_INFO
 
         $this->object->server->remove('PATH_INFO');
-        $this->object->setUrl(null);
+        $this->object->setUrl('');
 
         $this->assertEquals('/root/en/some/path/', $this->object->getUrl()); // REQUEST_URI without query
 
         $this->object->server->remove('REQUEST_URI');
-        $this->object->setUrl(null);
+        $this->object->setUrl('');
 
         $this->assertEquals('/root/en/some/path/', $this->object->getUrl()); // PHP_SELF
     }
@@ -393,6 +477,13 @@ class RequestTest extends TestCase {
     public function testGetUserAgent() {
         $this->object->server->set('HTTP_USER_AGENT', 'Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0');
         $this->assertEquals('Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0', $this->object->getUserAgent());
+    }
+
+    public function testHasHeader() {
+        $this->assertFalse($this->object->hasHeader('Accept-Charset'));
+
+        $this->object->headers->set('Accept-Charset', 'utf-8');
+        $this->assertTrue($this->object->hasHeader('Accept-Charset'));
     }
 
     public function testIsAjax() {
@@ -404,7 +495,7 @@ class RequestTest extends TestCase {
     }
 
     public function testIsMethods() {
-        $this->assertTrue($this->object->isPut()); // set in $_POST
+        $this->assertTrue($this->object->isPut()); // Set in $_POST
 
         $this->object->setMethod('get');
         $this->assertTrue($this->object->isGet());
@@ -480,6 +571,26 @@ class RequestTest extends TestCase {
         $this->assertTrue($this->object->isSecure());
     }
 
+    public function testSetAttribute() {
+        $this->object->setAttribute('foo', 'bar');
+        $this->assertEquals('bar', $this->object->getAttribute('foo'));
+
+        $this->object->setAttribute('foo', 'baz');
+        $this->assertEquals('baz', $this->object->getAttribute('foo'));
+    }
+
+    public function testSetAttributes() {
+        $this->object->setAttributes([
+            'foo' => 'bar',
+            'baz' => 'qux'
+        ]);
+
+        $this->assertEquals([
+            'foo' => 'bar',
+            'baz' => 'qux'
+        ], $this->object->getAttributes());
+    }
+
     public function testSetMethod() {
         $this->assertEquals('PUT', $this->object->getMethod());
 
@@ -492,6 +603,21 @@ class RequestTest extends TestCase {
      */
     public function testSetMethodInvalidMethod() {
         $this->object->setMethod('FOO');
+    }
+
+    public function testSetUrl() {
+        $this->assertEquals('/', $this->object->getUrl());
+
+        $this->object->setUrl('/foo');
+        $this->assertEquals('/foo', $this->object->getUrl());
+    }
+
+    public function testTrustProxyToggle() {
+        $this->object->trustProxies();
+        $this->assertTrue($this->object->isTrustingProxies());
+
+        $this->object->dontTrustProxies();
+        $this->assertFalse($this->object->isTrustingProxies());
     }
 
 }

@@ -7,38 +7,38 @@
 
 namespace Titon\Http;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\IncomingRequestInterface;
 
 /**
- * Permits a class to interact with a request object.
+ * Permits a class to interact with an incoming request object.
  *
  * @package Titon\Http
  */
-trait RequestAware {
+trait IncomingRequestAware {
 
     /**
      * Request object.
      *
-     * @type \Psr\Http\Message\RequestInterface
+     * @type \Psr\Http\Message\IncomingRequestInterface
      */
-    protected ?RequestInterface $_request;
+    protected ?IncomingRequestInterface $_request;
 
     /**
      * Return the request object.
      *
-     * @return \Psr\Http\Message\RequestInterface
+     * @return \Psr\Http\Message\IncomingRequestInterface
      */
-    public function getRequest(): ?RequestInterface {
+    public function getRequest(): ?IncomingRequestInterface {
         return $this->_request;
     }
 
     /**
      * Set the request object.
      *
-     * @param \Psr\Http\Message\RequestInterface $request
+     * @param \Psr\Http\Message\IncomingRequestInterface $request
      * @return $this
      */
-    public function setRequest(RequestInterface $request): this {
+    public function setRequest(IncomingRequestInterface $request): this {
         $this->_request = $request;
 
         return $this;

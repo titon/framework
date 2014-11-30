@@ -1,0 +1,120 @@
+<?hh // strict
+/**
+ * @copyright   2010-2013, The Titon Project
+ * @license     http://opensource.org/licenses/bsd-license.php
+ * @link        http://titon.io
+ */
+
+namespace Titon\Type;
+
+use Titon\Utility\Inflector;
+
+type XmlMap = Map<string, mixed>;
+
+/**
+ * The XmlDocument class provides helper methods for XML parsing and building as well as static methods
+ * for generating XmlElement trees based on maps and raw XML files.
+ *
+ * @package Titon\Type
+ */
+class XmlDocument {
+
+    /**
+     * Autobox a value by type casting it from a string to a scalar.
+     *
+     * @param string $value
+     * @return mixed
+     */
+    public static function autobox(string $value): mixed {
+        if (is_numeric($value)) {
+            if (strpos($value, '.') !== false) {
+                return (float) $value;
+
+            } else {
+                return (int) $value;
+            }
+
+        } else if ($value === 'true' || $value === 'false') {
+            return ($value === 'true');
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Unbox values by type casting to a string equivalent.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    public static function unbox(mixed $value): string {
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Format an element or attribute name for converting to camel case.
+     * If the element starts with a number, prefix it with an underscore.
+     *
+     * @return string
+     */
+    public static function formatName(string $name): string {
+        $name = Inflector::camelCase($name);
+
+        if (is_numeric(substr($name, 0, 1))) {
+            $name = '_' . $name;
+        }
+
+        return lcfirst($name);
+    }
+
+    public static function fromMap(string $root = 'root', XmlMap $map): XmlElement {
+        $root = new XmlElement($root);
+
+        foreach ($map as $key => $value) {
+            // Child element that contains other children or contains attributes
+            if ($value instanceof Map) {
+
+                // An element with a value and attributes
+                if ($value->contains('value')) {
+                    $attributes = $value->toMap()->remove('value');
+                    $value = $value['value'];
+
+                    $root->addChild( (new XmlElement($key, $attributes))->setValue($value) );
+
+                // A child
+                } else {
+                    $root->addChild( static::fromMap($key, $value) );
+                }
+
+            // Multiple children with the same element name
+            } else if ($value instanceof Vector) {
+                foreach ($value as $item) {
+                    $child = new XmlElement($key);
+                    $child->setValue($item);
+
+                    $root->addChild($child);
+                }
+
+            // Child element with a value
+            } else {
+                $root->addChild( (new XmlElement($key))->setValue($value) );
+            }
+
+        }
+
+        return $root;
+    }
+
+    public static function fromString(string $root = 'root', string $string): XmlElement {
+
+    }
+
+    public static function fromFile(string $root = 'root', string $string): XmlElement {
+
+    }
+
+}

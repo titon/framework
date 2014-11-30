@@ -8,7 +8,7 @@
 namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
-use Titon\Utility\Converter;
+use Titon\Utility\Col;
 use Titon\Utility\Inflector;
 
 /**
@@ -64,7 +64,7 @@ class HeaderBag extends AbstractBag<string, array<string>> {
      */
     public function set(string $key, mixed $value = null, bool $add = false): this {
         if (!$add) {
-            return parent::set($this->key($key), Converter::toArray($value));
+            return parent::set($this->key($key), Col::toArray($value));
         }
 
         $list = $this->get($key, []);

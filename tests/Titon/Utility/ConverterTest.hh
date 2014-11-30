@@ -51,34 +51,6 @@ class ConverterTest extends TestCase {
         $this->assertSame('foo', Converter::unbox('foo'));
     }
 
-    public function testIs() {
-        $this->assertEquals('array', Converter::is($this->array));
-        $this->assertEquals('object', Converter::is($this->object));
-        $this->assertEquals('json', Converter::is($this->json));
-        $this->assertEquals('serialized', Converter::is($this->serialized));
-        $this->assertEquals('xml', Converter::is($this->xml));
-        $this->assertEquals('map', Converter::is(Map {}));
-        $this->assertEquals('vector', Converter::is(Vector {}));
-        $this->assertEquals('set', Converter::is(Set {}));
-        $this->assertEquals('pair', Converter::is(Pair {1, 2}));
-    }
-
-    public function testIsMacro() {
-        Converter::macro('isBoolean', function($value) {
-            return is_bool($value);
-        });
-
-        $this->assertEquals('boolean', Converter::is(true));
-    }
-
-    public function testIsResource() {
-        $f = fopen('php://input', 'r');
-
-        $this->assertEquals('resource', Converter::is($f));
-
-        fclose($f);
-    }
-
     public function testIsJson() {
         $this->assertFalse((bool) Converter::isJson($this->array));
         $this->assertFalse((bool) Converter::isJson($this->collection));
@@ -106,24 +78,6 @@ class ConverterTest extends TestCase {
         $this->assertTrue((bool) Converter::isXml($this->xml));
     }
 
-    public function testToArray() {
-        $map = Map {
-            'foo' => 'bar',
-            'map' => Map {'baz' => 'qux'},
-            'vector' => Vector {1, 2, 3},
-            'array' => [1, 2, 'a' => 'b']
-        };
-
-        $this->assertEquals([
-            'foo' => 'bar',
-            'map' => ['baz' => 'qux'],
-            'vector' => [1, 2, 3],
-            'array' => [1, 2, 'a' => 'b']
-        ], Converter::toArray($map));
-
-        $this->assertEquals(['foo'], Converter::toArray('foo'));
-    }
-
     public function testToJson() {
         $this->assertEquals($this->json, Converter::toJson($this->array));
         $this->assertEquals($this->json, Converter::toJson($this->collection));
@@ -137,32 +91,6 @@ class ConverterTest extends TestCase {
 
         $test = new TypeContractStub(['a' => 1]);
         $this->assertEquals('{"a":1}', Converter::toJson($test));
-    }
-
-    public function testToMap() {
-        $this->assertEquals(Map {}, Converter::toMap(Vector {}));
-        $this->assertEquals(Map {0 => 'foo'}, Converter::toMap(Vector {'foo'}));
-        $this->assertEquals(Map {}, Converter::toMap([]));
-        $this->assertEquals(Map {0 => 'foo'}, Converter::toMap(['foo']));
-        $this->assertEquals(Map {0 => 'foo'}, Converter::toMap('foo'));
-        $this->assertEquals(Map {0 => 123}, Converter::toMap(123));
-        $this->assertEquals(Map {}, Converter::toMap(Map {}));
-        $this->assertEquals(Map {'foo' => 'bar'}, Converter::toMap(Map {'foo' => 'bar'}));
-        $this->assertEquals(Map {'foo' => 'bar'}, Converter::toMap(new TypeContractStub([])));
-    }
-
-    public function testToMapRecursive() {
-        $this->assertEquals(Map {
-            'depth' => 1,
-            'two' => Map {
-                'depth' => 2
-            }
-        }, Converter::toMap([
-            'depth' => 1,
-            'two' => [
-                'depth' => 2
-            ]
-        ]));
     }
 
     public function testToSerialize() {
@@ -322,28 +250,6 @@ class ConverterTest extends TestCase {
         $expected .= '</root>';
 
         $this->assertXmlStringEqualsXmlString($expected, Converter::toXml($items));
-    }
-
-    public function testToVector() {
-        $this->assertEquals(Vector {}, Converter::toVector(Vector {}));
-        $this->assertEquals(Vector {'foo'}, Converter::toVector(Vector {'foo'}));
-        $this->assertEquals(Vector {}, Converter::toVector([]));
-        $this->assertEquals(Vector {'foo'}, Converter::toVector(['foo']));
-        $this->assertEquals(Vector {'foo'}, Converter::toVector('foo'));
-        $this->assertEquals(Vector {123}, Converter::toVector(123));
-        $this->assertEquals(Vector {}, Converter::toVector(Map {}));
-        $this->assertEquals(Vector {'bar'}, Converter::toVector(Map {'foo' => 'bar'}));
-        $this->assertEquals(Vector {'foo'}, Converter::toVector(new TypeContractStub([])));
-    }
-
-    public function testToVectorRecursive() {
-        $this->assertEquals(Vector {
-            'one',
-            Vector {'two'}
-        }, Converter::toVector([
-            'one',
-            ['two']
-        ]));
     }
 
     public function testXmlTypeCasting() {

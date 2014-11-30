@@ -8,7 +8,7 @@
 namespace Titon\Io\Reader;
 
 use Titon\Io\Exception\ReadErrorException;
-use Titon\Utility\Converter;
+use Titon\Utility\Col;
 
 /**
  * A file reader that parses JSON files; must have the JSON module installed.
@@ -25,7 +25,7 @@ class JsonReader extends AbstractReader {
     public function read(): Map<string, mixed> {
         return $this->cache([__METHOD__, $this->path()], function() {
             if ($this->exists()) {
-                return Converter::toMap(@json_decode(parent::read(), true));
+                return Col::toMap(@json_decode(parent::read(), true));
             }
 
             throw new ReadErrorException(sprintf('JsonReader failed to parse %s', $this->name()));

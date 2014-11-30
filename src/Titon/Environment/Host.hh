@@ -8,7 +8,7 @@
 namespace Titon\Environment;
 
 use Titon\Environment\Exception\MissingBootstrapException;
-use Titon\Utility\Converter;
+use Titon\Utility\Col;
 
 type HostnameList = Vector<string>;
 
@@ -54,7 +54,7 @@ class Host {
      * @param \Titon\Environment\Server $type
      */
     public function __construct(mixed $hostnames, Server $type = Server::DEV) {
-        $this->_hostnames = Converter::toVector($hostnames);
+        $this->_hostnames = Col::toVector($hostnames);
         $this->_type = $type;
     }
 

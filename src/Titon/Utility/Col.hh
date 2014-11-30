@@ -8,6 +8,9 @@
 namespace Titon\Utility;
 
 use Titon\Common\Macroable;
+use Titon\Type\Contract\Arrayable;
+use Titon\Type\Contract\Mapable;
+use Titon\Type\Contract\Vectorable;
 use \Indexish;
 
 /**
@@ -181,12 +184,18 @@ class Col {
      * @param string $path
      * @return mixed
      */
-    public static function get<Tk>(Map<Tk, mixed> $map, string $path): mixed {
+    public static function get<Tk>(Map<Tk, mixed> $map, string $path, mixed $default = null): mixed {
         if ($path === '') {
             return $map; // Allow whole collection to be returned
         }
 
-        return static::extract($map, $path);
+        $value = static::extract($map, $path);
+
+        if ($value === null) {
+            return $default;
+        }
+
+        return $value;
     }
 
     /**
@@ -469,5 +478,97 @@ class Col {
 
         return false;
     }
+    /**
+     * Recursively convert a resource into an array.
+     *
+     * @param mixed $resource
+     * @return array<Tk, Tv>
+     */
+    public static function toArray<Tk, Tv>(mixed $resource): array<Tk, Tv> {
+        if ($resource instanceof Arrayable) {
+            return $resource->toArray();
+        }
+
+        $array = [];
+
+        if ($resource instanceof Indexish) {
+            foreach ($resource as $key => $value) {
+                if ($value instanceof Indexish) {
+                    $array[$key] = static::toArray($value);
+                } else {
+                    $array[$key] = $value;
+                }
+            }
+        } else {
+            $array[] = $resource;
+        }
+
+        return $array;
+    }
+
+    /**
+     * Recursively convert a resource into a map.
+     *
+     * @param mixed $resource
+     * @return Map<Tk, Tv>
+     */
+    public static function toMap<Tk, Tv>(mixed $resource): Map<Tk, Tv> {
+        if ($resource instanceof Mapable) {
+            return $resource->toMap();
+
+        } else if (!$resource instanceof KeyedTraversable) {
+            return new Map([$resource]);
+        }
+
+        $map = Map {};
+
+        invariant($resource instanceof KeyedTraversable, 'Resource must be traversable');
+
+        foreach ($resource as $key => $value) {
+            if ($value instanceof Vector) {
+                $map[$key] = static::toVector($value);
+
+            } else if ($value instanceof KeyedTraversable) {
+                $map[$key] = static::toMap($value);
+
+            } else {
+                $map[$key] = $value;
+            }
+        }
+
+        return $map;
+    }
+
+    /**
+     * Recursively convert a resource into a vector.
+     *
+     * @param mixed $resource
+     * @return Vector<Tv>
+     */
+    public static function toVector<Tv>(mixed $resource): Vector<Tv> {
+        if ($resource instanceof Vectorable) {
+            return $resource->toVector();
+
+        } else if (!$resource instanceof KeyedTraversable) {
+            return new Vector([$resource]);
+        }
+
+        $vector = Vector {};
+
+        foreach ($resource as $value) {
+            if ($value instanceof Map || (is_array($value) && !Col::isNumeric(array_keys($value)))) {
+                $vector[] = static::toMap($value);
+
+            } else if ($value instanceof KeyedTraversable) {
+                $vector[] = static::toVector($value);
+
+            } else {
+                $vector[] = $value;
+            }
+        }
+
+        return $vector;
+    }
+
 
 }

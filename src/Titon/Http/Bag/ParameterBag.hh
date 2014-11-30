@@ -8,7 +8,7 @@
 namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
-use Titon\Utility\Converter;
+use Titon\Utility\Col;
 
 /**
  * Bag for interacting with request parameters.
@@ -23,7 +23,7 @@ class ParameterBag extends AbstractBag<string, mixed> {
      * @return array<Tk, Tv>
      */
     public function toArray(): array<string, mixed> {
-        return Converter::toArray($this->all());
+        return Col::toArray($this->all());
     }
 
 }

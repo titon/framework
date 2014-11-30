@@ -36,7 +36,7 @@ class Config {
      * @param mixed $value
      */
     public static function add(string $key, mixed $value): void {
-        $data = Converter::toVector(static::get($key, Vector {}));
+        $data = Col::toVector(static::get($key, Vector {}));
         $data[] = $value;
 
         static::set($key, $data);

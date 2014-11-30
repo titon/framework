@@ -167,30 +167,6 @@ class Converter {
     }
 
     /**
-     * Recursively convert a resource into an array.
-     *
-     * @param mixed $resource
-     * @return array<Tk, Tv>
-     */
-    public static function toArray<Tk, Tv>(mixed $resource): array<Tk, Tv> {
-        $array = [];
-
-        if ($resource instanceof Indexish) {
-            foreach ($resource as $key => $value) {
-                if ($value instanceof Indexish) {
-                    $array[$key] = static::toArray($value);
-                } else {
-                    $array[$key] = $value;
-                }
-            }
-        } else {
-            $array[] = $resource;
-        }
-
-        return $array;
-    }
-
-    /**
      * Transforms a resource into a JSON object.
      *
      * @param mixed $resource
@@ -212,39 +188,6 @@ class Converter {
     }
 
     /**
-     * Recursively convert a resource into a map.
-     *
-     * @param mixed $resource
-     * @return Map<Tk, Tv>
-     */
-    public static function toMap<Tk, Tv>(mixed $resource): Map<Tk, Tv> {
-        if ($resource instanceof Mapable) {
-            return $resource->toMap();
-
-        } else if (!$resource instanceof KeyedTraversable) {
-            return new Map([$resource]);
-        }
-
-        $map = Map {};
-
-        invariant($resource instanceof KeyedTraversable, 'Resource is traversable');
-
-        foreach ($resource as $key => $value) {
-            if ($value instanceof Vector) {
-                $map[$key] = static::toVector($value);
-
-            } else if ($value instanceof KeyedTraversable) {
-                $map[$key] = static::toMap($value);
-
-            } else {
-                $map[$key] = $value;
-            }
-        }
-
-        return $map;
-    }
-
-    /**
      * Transforms a resource into a serialized form.
      *
      * @param mixed $resource
@@ -259,37 +202,6 @@ class Converter {
         }
 
         return serialize($resource);
-    }
-
-    /**
-     * Recursively convert a resource into a vector.
-     *
-     * @param mixed $resource
-     * @return Vector<Tv>
-     */
-    public static function toVector<Tv>(mixed $resource): Vector<Tv> {
-        if ($resource instanceof Vectorable) {
-            return $resource->toVector();
-
-        } else if (!$resource instanceof KeyedTraversable) {
-            return new Vector([$resource]);
-        }
-
-        $vector = Vector {};
-
-        foreach ($resource as $value) {
-            if ($value instanceof Map || (is_array($value) && !Col::isNumeric(array_keys($value)))) {
-                $vector[] = static::toMap($value);
-
-            } else if ($value instanceof KeyedTraversable) {
-                $vector[] = static::toVector($value);
-
-            } else {
-                $vector[] = $value;
-            }
-        }
-
-        return $vector;
     }
 
     /**

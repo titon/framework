@@ -28,7 +28,7 @@ class XmlWriter extends AbstractWriter {
      * {@inheritdoc}
      *
      * @uses Titon\Utility\Hash
-     * @uses Titon\Utility\Converter
+     * @uses Titon\Utility\Col
      */
     public function append($data) {
         if ($contents = $this->read()) {
@@ -41,7 +41,7 @@ class XmlWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      *
-     * @uses Titon\Utility\Converter
+     * @uses Titon\Utility\Col
      */
     public function write($data) {
         return parent::write(Converter::toXml($data));

@@ -17,7 +17,7 @@ use Titon\Event\Listener;
 use Titon\Event\ListenerMap;
 use Titon\Event\Subject;
 use Titon\Utility\Config;
-use Titon\Utility\Converter;
+use Titon\Utility\Col;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 use Titon\Utility\Registry;
@@ -85,15 +85,15 @@ abstract class AbstractView implements View, Listener, Subject {
      */
     public function __construct(mixed $paths, string $ext = 'tpl') {
         if ($paths) {
-            $this->addPaths(Converter::toVector($paths));
+            $this->addPaths(Col::toVector($paths));
         }
 
         if ($paths = Config::get('titon.path.views')) {
-            $this->addPaths(Converter::toVector($paths));
+            $this->addPaths(Col::toVector($paths));
         }
 
         if ($locales = Config::get('titon.locale.cascade')) {
-            $this->addLocales(Converter::toVector($locales));
+            $this->addLocales(Col::toVector($locales));
         }
 
         if ($ext) {

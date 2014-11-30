@@ -226,7 +226,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
 
         $this->emit('controller.error', [$this, $exception]);
 
-        $this->getResponse()->setStatusCode($status);
+        $this->getResponse()->statusCode($status);
 
         // If no view, exit with a generic message
         if (!$view) {

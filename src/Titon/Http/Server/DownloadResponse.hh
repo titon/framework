@@ -9,6 +9,7 @@ namespace Titon\Http\Server;
 
 use Titon\Http\Exception\InvalidExtensionException;
 use Titon\Http\Exception\InvalidFileException;
+use Titon\Http\Exception\MalformedRequestException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
 use Titon\Http\Stream\FileStream;
@@ -67,6 +68,10 @@ class DownloadResponse extends Response {
     public function setFileRange(string $path): this {
         $request = $this->getRequest();
 
+        if (!$request) {
+            throw new MalformedRequestException('An incoming request is missing.');
+        }
+
         if ($request->hasHeader('If-Range') || $request->getHeader('If-Range') !== $request->getHeader('ETag')) {
             return $this;
         }
@@ -111,7 +116,7 @@ class DownloadResponse extends Response {
             ->setHeader('Content-Transfer-Encoding', 'binary')
             ->setBody(new FileStream($path));
 
-        if ($this->getRequest()->hasHeader('Range')) {
+        if ($this->getRequest()?->hasHeader('Range')) {
             $this->setFileRange($path);
         } else {
             $this->contentLength(filesize($path));

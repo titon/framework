@@ -1,4 +1,5 @@
-<?hh // strict
+<?hh // partial
+// Because of PSR HTTP Message
 /**
  * @copyright   2010-2014, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -132,7 +133,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function allow(Vector<string> $methods): this {
-        return $this->setHeader('Allow', array_intersect(array_map('strtoupper', $methods), Http::getMethodTypes()));
+        return $this->setHeader('Allow', array_intersect(array_map(fun('strtoupper'), $methods), Http::getMethodTypes()));
     }
 
     /**
@@ -204,6 +205,8 @@ class Response extends Message implements OutgoingResponse {
             if ($value === true) {
                 $header[] = $key;
             } else {
+                $value = (string) $value;
+
                 if ($key === 'private' || $key === 'no-cache') {
                     $value = '"' . $value . '"';
                 }
@@ -552,7 +555,7 @@ class Response extends Message implements OutgoingResponse {
      * @param bool $secure
      * @return $this
      */
-    public function removeCookie(string $name, string $path = '/', string $domain = '', bool $httpOnly = true, bool $secure = false) {
+    public function removeCookie(string $name, string $path = '/', string $domain = '', bool $httpOnly = true, bool $secure = false): this {
         return $this->setCookie($name, '', time(), $path, $domain, $httpOnly, $secure);
     }
 
@@ -597,16 +600,16 @@ class Response extends Message implements OutgoingResponse {
      */
     public function send(): string {
         $body = $this->getBody();
-        $contents = $body->getContents();
+        $contents = (string) $body?->getContents();
 
         // Create an MD5 digest?
-        if ($this->_md5 && $body) {
-            $this->setHeader('Content-MD5', base64_encode(pack('H*', md5($body->getContents()))));
+        if ($contents && $this->_md5) {
+            $this->setHeader('Content-MD5', base64_encode(pack('H*', md5($contents))));
         }
 
         // Return while in debug
         if ($this->isDebugging()) {
-            return $body->getContents();
+            return $contents;
         }
 
         $this->sendHeaders();
@@ -618,7 +621,7 @@ class Response extends Message implements OutgoingResponse {
         }
         // @codeCoverageIgnoreEnd
 
-        return $body->getContents();
+        return $contents;
     }
 
     /**

@@ -246,7 +246,7 @@ class Http {
      * @throws \Titon\Http\Exception\InvalidStatusException
      */
     public static function getStatusCode(int $code): string {
-        if (isset(static::$_statusCodes[$code])) {
+        if (static::$_statusCodes->contains($code)) {
             return static::$_statusCodes[$code];
         }
 

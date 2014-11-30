@@ -49,15 +49,17 @@ class RedirectResponse extends Response {
             throw new MalformedResponseException('Redirect URL cannot be empty');
         }
 
+        $url = Sanitize::escape($url);
+
         $this->setBody(new MemoryStream(sprintf('<!DOCTYPE html>
             <html>
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                <meta http-equiv="refresh" content="0; url=%1$s">
-                <title>Redirecting to %1$s</title>
+                <meta http-equiv="refresh" content="0; url=%s">
+                <title>Redirecting to %s</title>
             </head>
             <body></body>
-            </html>', Sanitize::escape($url))));
+            </html>', $url, $url)));
 
         return parent::send();
     }

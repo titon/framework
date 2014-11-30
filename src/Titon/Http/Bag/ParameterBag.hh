@@ -22,7 +22,7 @@ class ParameterBag extends AbstractBag<string, mixed> {
      *
      * @return array<Tk, Tv>
      */
-    public function toArray(): array<Tk, Tv> {
+    public function toArray(): array<string, mixed> {
         return Converter::toArray($this->all());
     }
 

@@ -8,6 +8,7 @@
 namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
+use Titon\Utility\Converter;
 use Titon\Utility\Inflector;
 
 /**
@@ -63,10 +64,13 @@ class HeaderBag extends AbstractBag<string, array<string>> {
      */
     public function set(string $key, mixed $value = null, bool $add = false): this {
         if (!$add) {
-            return parent::set($this->key($key), (array) $value);
+            return parent::set($this->key($key), Converter::toArray($value));
         }
 
         $list = $this->get($key, []);
+
+        invariant(is_array($list), 'Value must be an array.');
+
         $list[] = $value;
 
         return parent::set($this->key($key), $list);

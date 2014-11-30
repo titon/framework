@@ -40,10 +40,12 @@ class XmlResponse extends Response {
      *
      * @return string
      */
-    public function send() {
-        $this
-            ->contentType('xml')
-            ->contentLength($this->getBody()->getSize());
+    public function send(): string {
+        $this->contentType('xml');
+
+        if ($body = $this->getBody()) {
+            $this->contentLength($body->getSize());
+        }
 
         return parent::send();
     }

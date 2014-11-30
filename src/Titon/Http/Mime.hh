@@ -981,7 +981,7 @@ class Mime {
      * @param string $type
      * @return Vector<string>
      */
-    public static function getExtByType($type): Vector<string> {
+    public static function getExtByType(string $type): Vector<string> {
         return static::cache([__METHOD__, $type], function() use ($type) {
             $clean = Vector {};
 
@@ -1003,7 +1003,7 @@ class Mime {
      * @throws \Titon\Http\Exception\InvalidExtensionException
      */
     public static function getTypeByExt(string $ext): string {
-        if (isset(static::$_types[$ext])) {
+        if (static::$_types->contains($ext)) {
             return static::$_types[$ext];
         }
 

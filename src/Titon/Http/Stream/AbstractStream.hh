@@ -1,4 +1,5 @@
-<?hh // strict
+<?hh // partial
+// Because of PSR HTTP Message
 /**
  * @copyright   2010-2014, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -155,7 +156,7 @@ abstract class AbstractStream implements StreamableInterface {
         if ($this->_cache['wrapper_type'] !== 'PHP') {
             $stat = fstat($this->getStream());
 
-            if (isset($stat['size'])) {
+            if (array_key_exists('size', $stat)) {
                 return (int) $stat['size'];
             }
         }
@@ -238,7 +239,7 @@ abstract class AbstractStream implements StreamableInterface {
      *
      * @return bool
      */
-    public function rewind() {
+    public function rewind(): bool {
         return $this->seek(0);
     }
 

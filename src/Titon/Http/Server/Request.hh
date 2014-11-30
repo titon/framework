@@ -1,4 +1,5 @@
-<?hh // strict
+<?hh // partial
+// Because of PSR HTTP Message
 /**
  * @copyright   2010-2014, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -144,7 +145,7 @@ class Request extends Message implements IncomingRequest {
     /**
      * Clone the bags.
      */
-    public function __clone() {
+    public function __clone(): void {
         $this->attributes = clone $this->attributes;
         $this->cookies = clone $this->cookies;
         $this->files = clone $this->files;
@@ -177,7 +178,7 @@ class Request extends Message implements IncomingRequest {
         } else if (strpos($type, '/') !== false) {
             $contentType = [$type];
         } else {
-            $contentType = (array) Mime::getTypeByExt($type);
+            $contentType = [Mime::getTypeByExt((string) $type)];
         }
 
         foreach ($this->_extractAcceptHeaders('Accept') as $accept) {
@@ -299,7 +300,7 @@ class Request extends Message implements IncomingRequest {
             }
         }
 
-        return $ip;
+        return (string) $ip;
     }
 
     /**
@@ -601,7 +602,7 @@ class Request extends Message implements IncomingRequest {
      * @param string $type
      * @return bool
      */
-    public function isMethod($type): bool {
+    public function isMethod(string $type): bool {
         return (strtoupper($type) === $this->getMethod());
     }
 
@@ -749,6 +750,8 @@ class Request extends Message implements IncomingRequest {
         $data = Vector {};
 
         if ($accepts = $this->headers->get($header)) {
+            invariant($accepts instanceof Traversable, 'Accepts header must be traversable.');
+
             foreach ($accepts as $accept) {
                 foreach (explode(',', $accept) as $type) {
                     $type = trim($type);

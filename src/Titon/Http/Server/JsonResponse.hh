@@ -46,15 +46,15 @@ class JsonResponse extends Response {
 
         if (!$body instanceof StreamableInterface) {
             $body = new MemoryStream(Converter::toJson($body, $flags));
-
-            // @codeCoverageIgnoreStart
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new MalformedResponseException($this->getErrorMessage());
-            }
-            // @codeCoverageIgnoreEnd
         }
 
         parent::__construct($body, $status);
+
+        // @codeCoverageIgnoreStart
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new MalformedResponseException($this->getErrorMessage());
+        }
+        // @codeCoverageIgnoreEnd
 
         $this->setCallback($callback);
     }
@@ -81,7 +81,7 @@ class JsonResponse extends Response {
 
         $error = json_last_error();
         $messages = Map {
-            JSON_ERROR_NONE             => true,
+            JSON_ERROR_NONE             => '',
             JSON_ERROR_DEPTH            => 'Maximum stack depth exceeded',
             JSON_ERROR_STATE_MISMATCH   => 'Underflow or the modes mismatch',
             JSON_ERROR_CTRL_CHAR        => 'Unexpected control character found',
@@ -90,7 +90,7 @@ class JsonResponse extends Response {
         };
 
         if ($messages->contains($error)) {
-            return $messages[$error];
+            return (string) $messages[$error];
         }
 
         return sprintf('Unknown error (%s)', $error);
@@ -122,7 +122,9 @@ class JsonResponse extends Response {
             $this->contentType('application/json');
         }
 
-        $this->contentLength($this->getBody()->getSize());
+        if ($body = $this->getBody()) {
+            $this->contentLength($body->getSize());
+        }
 
         return parent::send();
     }

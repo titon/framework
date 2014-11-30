@@ -1,5 +1,5 @@
-<?hh // strict
-// partial because of PSR HTTP Message
+<?hh // partial
+// Because of PSR HTTP Message
 /**
  * @copyright   2010-2014, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -58,7 +58,13 @@ class Message implements MessageInterface {
      * {@inheritdoc}
      */
     public function getHeaderAsArray($key): array<string> {
-        return $this->headers->get($key) ?: [];
+        if ($value = $this->headers->get($key)) {
+            invariant(is_array($value), 'Headers must be an array.');
+
+            return $value;
+        }
+
+        return [];
     }
 
     /**

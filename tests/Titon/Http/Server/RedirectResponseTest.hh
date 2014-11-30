@@ -7,9 +7,9 @@ use Titon\Test\TestCase;
 class RedirectResponseTest extends TestCase {
 
     public function testSend() {
-        $time = time();
         $response = new RedirectResponse('/new/url');
         $response->debug();
+        $time = time();
 
         ob_start();
         $body = $response->send();

@@ -1,6 +1,7 @@
 <?hh
 namespace Titon\Http\Server;
 
+use Titon\Http\Http;
 use Titon\Test\TestCase;
 use Titon\Http\Cookie;
 use Titon\Utility\State\Cookie as CookieGlobal;
@@ -305,6 +306,15 @@ class RequestTest extends TestCase {
         ], $this->object->getFileParams()['three']);
     }
 
+    public function testGetHeader() {
+        $this->assertEquals('', $this->object->getHeader('Accept-Charset'));
+        $this->object->headers->set('Accept-Charset', 'utf-8');
+        $this->object->headers->set('Accept-Charset', 'utf-16', true);
+
+        $this->assertEquals('utf-8, utf-16', $this->object->getHeader('Accept-Charset'));
+        $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeaderAsArray('Accept-Charset'));
+    }
+
     public function testGetHost() {
         $this->object->server->set('HTTP_HOST', 'titon.io');
         $this->assertEquals('titon.io', $this->object->getHost());
@@ -467,6 +477,13 @@ class RequestTest extends TestCase {
     public function testGetUserAgent() {
         $this->object->server->set('HTTP_USER_AGENT', 'Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0');
         $this->assertEquals('Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0', $this->object->getUserAgent());
+    }
+
+    public function testHasHeader() {
+        $this->assertFalse($this->object->hasHeader('Accept-Charset'));
+
+        $this->object->headers->set('Accept-Charset', 'utf-8');
+        $this->assertTrue($this->object->hasHeader('Accept-Charset'));
     }
 
     public function testIsAjax() {

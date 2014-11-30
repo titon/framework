@@ -7,8 +7,6 @@
 
 namespace Titon\Type;
 
-use Titon\Utility\Inflector;
-
 type XmlMap = Map<string, mixed>;
 
 /**
@@ -62,13 +60,14 @@ class XmlDocument {
      * @return string
      */
     public static function formatName(string $name): string {
-        $name = Inflector::camelCase($name);
+        $name = preg_replace('/[^a-z0-9:\.\-_]+/i', '', $name);
+        $firstChar = mb_substr($name, 0, 1);
 
-        if (is_numeric(substr($name, 0, 1))) {
+        if (is_numeric($firstChar) || $firstChar === '-' || $firstChar === '.') {
             $name = '_' . $name;
         }
 
-        return lcfirst($name);
+        return $name;
     }
 
     public static function fromMap(string $root = 'root', XmlMap $map): XmlElement {

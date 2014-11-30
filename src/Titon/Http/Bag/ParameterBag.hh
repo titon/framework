@@ -8,6 +8,7 @@
 namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
+use Titon\Utility\Converter;
 
 /**
  * Bag for interacting with request parameters.
@@ -15,5 +16,14 @@ use Titon\Common\Bag\AbstractBag;
  * @package Titon\Http\Bag
  */
 class ParameterBag extends AbstractBag<string, mixed> {
+
+    /**
+     * Recursively convert the parameter maps/vectors to an array.
+     *
+     * @return array<Tk, Tv>
+     */
+    public function toArray(): array<Tk, Tv> {
+        return Converter::toArray($this->all());
+    }
 
 }

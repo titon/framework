@@ -14,6 +14,7 @@ use Titon\Type\Contract\Vectorable;
 use Titon\Type\Contract\Xmlable;
 use \JsonSerializable;
 use \SimpleXMLElement;
+use \Indexish;
 
 /**
  * A class that handles the detection and conversion of certain resource formats / content types into other formats.
@@ -166,6 +167,30 @@ class Converter {
     }
 
     /**
+     * Recursively convert a resource into an array.
+     *
+     * @param mixed $resource
+     * @return array<Tk, Tv>
+     */
+    public static function toArray<Tk, Tv>(mixed $resource): array<Tk, Tv> {
+        $array = [];
+
+        if ($resource instanceof Indexish) {
+            foreach ($resource as $key => $value) {
+                if ($value instanceof Indexish) {
+                    $array[$key] = static::toArray($value);
+                } else {
+                    $array[$key] = $value;
+                }
+            }
+        } else {
+            $array[] = $resource;
+        }
+
+        return $array;
+    }
+
+    /**
      * Transforms a resource into a JSON object.
      *
      * @param mixed $resource
@@ -187,12 +212,12 @@ class Converter {
     }
 
     /**
-     * Transform a resource into a map recursively.
+     * Recursively convert a resource into a map.
      *
-     * @param mixed $resouce
-     * @return Map<mixed, mixed>
+     * @param mixed $resource
+     * @return Map<Tk, Tv>
      */
-    public static function toMap(mixed $resource): Map<mixed, mixed> {
+    public static function toMap<Tk, Tv>(mixed $resource): Map<Tk, Tv> {
         if ($resource instanceof Mapable) {
             return $resource->toMap();
 
@@ -237,12 +262,12 @@ class Converter {
     }
 
     /**
-     * Transform a resource into a vector recursively.
+     * Recursively convert a resource into a vector.
      *
-     * @param mixed $resouce
-     * @return Vector<mixed>
+     * @param mixed $resource
+     * @return Vector<Tv>
      */
-    public static function toVector(mixed $resource): Vector<mixed> {
+    public static function toVector<Tv>(mixed $resource): Vector<Tv> {
         if ($resource instanceof Vectorable) {
             return $resource->toVector();
 

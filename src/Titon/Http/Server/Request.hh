@@ -8,6 +8,7 @@
 namespace Titon\Http\Server;
 
 use Titon\Common\FactoryAware;
+use Titon\Http\Cookie;
 use Titon\Http\Message;
 use Titon\Http\Bag\CookieBag;
 use Titon\Http\Bag\ParameterBag;
@@ -15,7 +16,7 @@ use Titon\Http\Exception\InvalidMethodException;
 use Titon\Http\Http;
 use Titon\Http\Mime;
 use Titon\Http\IncomingRequest;
-use Titon\Utility\State\Cookie;
+use Titon\Utility\State\Cookie as CookieGlobal;
 use Titon\Utility\State\Files;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\GlobalMap;
@@ -30,6 +31,7 @@ type AcceptHeader = shape('value' => string, 'quality' => float);
  *
  * @package Titon\Http\Server
  */
+<<__ConsistentConstruct>>
 class Request extends Message implements IncomingRequest {
     use FactoryAware;
 
@@ -105,13 +107,12 @@ class Request extends Message implements IncomingRequest {
      * @param \Titon\Utility\State\GlobalMap $cookies
      * @param \Titon\Utility\State\GlobalMap $server
      */
-    <<__ConsistentConstruct>>
     public function __construct(GlobalMap $query = Map {}, GlobalMap $post = Map {}, GlobalMap $files = Map {}, GlobalMap $cookies = Map {}, GlobalMap $server = Map {}) {
         parent::__construct();
 
         // Fix method overrides
         if ($post->contains('_method')) {
-            $server['REQUEST_METHOD'] = $post['_method'];
+            $server['HTTP_X_METHOD_OVERRIDE'] = $post['_method'];
             $post->remove('_method');
         }
 
@@ -159,7 +160,7 @@ class Request extends Message implements IncomingRequest {
      * @return $this
      */
     public static function createFromGlobals(): Request {
-        return new static(Get::all(), Post::all(), Files::all(), Cookie::all(), Server::all());
+        return new static(Get::all(), Post::all(), Files::all(), CookieGlobal::all(), Server::all());
     }
 
     /**
@@ -271,7 +272,7 @@ class Request extends Message implements IncomingRequest {
      * {@inheritdoc}
      */
     public function getBodyParams(): array<string, mixed> {
-        return $this->post->all()->toArray();
+        return $this->post->toArray();
     }
 
     /**
@@ -302,42 +303,42 @@ class Request extends Message implements IncomingRequest {
     }
 
     /**
-     * Return a cookie by key and decrypt if encryption is enabled.
+     * Return an HTTP cookie as a Cookie class defined by key/name.
      *
      * @param string $key
-     * @return mixed
+     * @return \Titon\Http\Cookie
      */
-    public function getCookie(string $key): mixed {
+    public function getCookie(string $key): ?Cookie {
         return $this->cookies->get($key);
     }
 
     /**
-     * Return all cookies and decrypt if encryption is enabled.
+     * Return all HTTP cookies as Cookie classes.
      *
-     * @return Map<string, mixed>
+     * @return Map<string, Cookie>
      */
-    public function getCookies(): Map<string, mixed> {
-        $cookies = Map {};
-
-        foreach ($this->cookies->keys() as $key) {
-            $cookies[$key] = $this->cookies->get($key);
-        }
-
-        return $cookies;
+    public function getCookies(): Map<string, Cookie> {
+        return $this->cookies->all();
     }
 
     /**
      * {@inheritdoc}
      */
     public function getCookieParams(): array<string, mixed> {
-        return $this->cookies->all()->toArray();
+        $array = [];
+
+        foreach ($this->getCookies() as $key => $cookie) {
+            $array[$key] = $cookie->getDecryptedValue();
+        }
+
+        return $array;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getFileParams(): array<string, mixed> {
-        return $this->files->all()->toArray();
+        return $this->files->toArray();
     }
 
     /**
@@ -383,7 +384,7 @@ class Request extends Message implements IncomingRequest {
      * {@inheritdoc}
      */
     public function getProtocolVersion(): string {
-        return str_replace('HTTP/', '', $this->server->get('SERVER_PROTOCOL', Http::HTTP_11));
+        return $this->server->get('SERVER_PROTOCOL', '1.1');
     }
 
     /**
@@ -418,7 +419,7 @@ class Request extends Message implements IncomingRequest {
      * {@inheritdoc}
      */
     public function getQueryParams(): array<string, mixed> {
-        return $this->get->all()->toArray();
+        return $this->query->toArray();
     }
 
     /**
@@ -462,7 +463,7 @@ class Request extends Message implements IncomingRequest {
      * {@inheritdoc}
      */
     public function getServerParams(): array<string, mixed> {
-        return $this->server->all()->toArray();
+        return $this->server->toArray();
     }
 
     /**

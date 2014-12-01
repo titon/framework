@@ -7,6 +7,9 @@
 
 namespace Titon\Type;
 
+use Titon\Type\Exception\MissingFileException;
+use \SimpleXMLElement;
+
 type XmlMap = Map<string, mixed>;
 
 /**
@@ -87,12 +90,29 @@ class XmlDocument {
         return $root;
     }
 
-    public static function fromString(string $root = 'root', string $string): XmlElement {
-
+    /**
+     * Transform a string representation of an XML document into an XmlElement tree.
+     *
+     * @param string $string
+     * @return \Titon\Type\XmlElement
+     */
+    public static function fromString(string $string): XmlElement {
+        return static::_convertSimpleXml(simplexml_load_string($string));
     }
 
-    public static function fromFile(string $root = 'root', string $string): XmlElement {
+    /**
+     * Load an XML file from the file system and transform it into an XmlElement tree.
+     *
+     * @param string $path
+     * @return \Titon\Type\XmlElement
+     * @throws \Titon\Type\Exception\MissingFileException
+     */
+    public static function fromFile(string $path): XmlElement {
+        if (file_exists($path)) {
+            return static::fromString(file_get_contents($path));
+        }
 
+        throw new MissingFileException(sprintf('File %s does not exist', $path));
     }
 
     protected static function _createElement(XmlElement $parent, string $key, mixed $value): void {
@@ -128,6 +148,36 @@ class XmlDocument {
         } else {
             $parent->addChild( (new XmlElement($key))->setValue($value) );
         }
+    }
+
+    protected static function _convertSimpleXml(SimpleXMLElement $xml): XmlElement {
+        $element = new XmlElement($xml->getName());
+
+        // Set attributes
+        if ($attributes = $xml->attributes()) {
+            foreach ($attributes as $key => $value) {
+                $element->setAttribute((string) $key, (string) $value);
+            }
+        }
+
+        // Set namespaces
+        if ($namespaces = $xml->getNamespaces()) {
+            foreach ($namespaces as $key => $value) {
+                $element->setNamespace((string) $key, (string) $value);
+            }
+        }
+
+        // Set value
+        if ($value = (string) $xml) {
+            $element->setValue($value);
+        }
+
+        // Add children
+        foreach ($xml->children() as $child) {
+            $element->addChild( static::_convertSimpleXml($child) );
+        }
+
+        return $element;
     }
 
 }

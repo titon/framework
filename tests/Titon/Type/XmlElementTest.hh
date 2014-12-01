@@ -259,6 +259,64 @@ class XmlElementTest extends TestCase {
         $this->assertEquals('<![CDATA[' . PHP_EOL . 'value' . PHP_EOL . ']]>', $this->object->getValue());
     }
 
+    public function testToMap() {
+        $this->assertEquals(Map {
+            'root' => Map {
+                '@attributes' => Map {'foo' => 'bar'},
+                '@value' => ''
+            }
+        }, $this->object->toMap());
+    }
+
+    public function testToMapValue() {
+        $this->object->setValue('foo');
+
+        $this->assertEquals(Map {
+            'root' => Map {
+                '@attributes' => Map {'foo' => 'bar'},
+                '@value' => 'foo'
+            }
+        }, $this->object->toMap());
+    }
+
+    public function testToMapChildren() {
+        $this->object->setValue('foo');
+
+        $this->object->addChildren(Vector {
+            new XmlElement('boy'),
+            new XmlElement('girl')
+        });
+
+        $this->assertEquals(Map {
+            'root' => Map {
+                '@attributes' => Map {'foo' => 'bar'},
+                'boy' => Map {'@value' => ''},
+                'girl' => Map {'@value' => ''}
+            }
+        }, $this->object->toMap());
+    }
+
+    public function testToMapChildrenWithSameName() {
+        $this->object->addChildren(Vector {
+            new XmlElement('boy', Map {'a' => 1}),
+            new XmlElement('boy', Map {'b' => 2}),
+            (new XmlElement('boy'))->setValue('3'),
+            new XmlElement('girl')
+        });
+
+        $this->assertEquals(Map {
+            'root' => Map {
+                '@attributes' => Map {'foo' => 'bar'},
+                'boy' => Vector {
+                    Map {'@attributes' => Map {'a' => 1}, '@value' => ''},
+                    Map {'@attributes' => Map {'b' => 2}, '@value' => ''},
+                    Map {'@value' => '3'}
+                },
+                'girl' => Map {'@value' => ''}
+            }
+        }, $this->object->toMap());
+    }
+
     public function testToString() {
         $xml = new XmlElement('root');
 

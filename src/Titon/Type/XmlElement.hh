@@ -428,12 +428,45 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
     }
 
     /**
-     * Return the element in a nested map structure.
+     * Return the element as a nested map structure.
      *
-     * @return\Titon\Type\XmlMap
+     * @return \Titon\Type\XmlMap
      */
     public function toMap(): XmlMap {
-        return Map {}; // tood
+        $map = Map {};
+
+        if ($this->hasAttributes()) {
+            $map['@attributes'] = $this->getAttributes();
+        }
+
+        if ($this->hasChildren()) {
+            foreach ($this->getChildren() as $child) {
+                $name = $child->getName();
+
+                // That element with that name already exists
+                // So we need to turn it into a vector
+                if ($map->contains($name)) {
+                    if (!$map[$name] instanceof Vector) {
+                        $map[$name] = new Vector([$map[$name]]);
+                    }
+
+                    $map[$name][] = $child->toMap();
+
+                // Set the value directly
+                } else {
+                    $map[$child->getName()] = $child->toMap();
+                }
+            }
+
+        } else {
+            $map['@value'] = $this->getValue();
+        }
+
+        if ($this->isRoot()) {
+            return Map {$this->getName() => $map};
+        }
+
+        return $map;
     }
 
     /**

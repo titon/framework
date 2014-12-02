@@ -74,6 +74,21 @@ class XmlDocument {
     }
 
     /**
+     * Load an XML file from the file system and transform it into an XmlElement tree.
+     *
+     * @param string $path
+     * @return \Titon\Type\XmlElement
+     * @throws \Titon\Type\Exception\MissingFileException
+     */
+    public static function fromFile(string $path): XmlElement {
+        if (file_exists($path)) {
+            return static::fromString(file_get_contents($path));
+        }
+
+        throw new MissingFileException(sprintf('File %s does not exist', $path));
+    }
+
+    /**
      * Transform a structure consisting of maps and vectors into an XmlElement tree.
      *
      * @param string $root
@@ -100,21 +115,6 @@ class XmlDocument {
      */
     public static function fromString(string $string): XmlElement {
         return static::_convertSimpleXml(simplexml_load_string($string));
-    }
-
-    /**
-     * Load an XML file from the file system and transform it into an XmlElement tree.
-     *
-     * @param string $path
-     * @return \Titon\Type\XmlElement
-     * @throws \Titon\Type\Exception\MissingFileException
-     */
-    public static function fromFile(string $path): XmlElement {
-        if (file_exists($path)) {
-            return static::fromString(file_get_contents($path));
-        }
-
-        throw new MissingFileException(sprintf('File %s does not exist', $path));
     }
 
     /**
@@ -180,6 +180,12 @@ class XmlDocument {
         }
     }
 
+    /**
+     * Converts a SimpleXmlElement tree into an XmlElement tree.
+     *
+     * @param \SimpleXMLElement $xml
+     * @return \Titon\Type\XmlElement
+     */
     protected static function _convertSimpleXml(SimpleXMLElement $xml): XmlElement {
         $element = new XmlElement($xml->getName());
 
@@ -198,7 +204,7 @@ class XmlDocument {
         }
 
         // Set value
-        if ($value = (string) $xml) {
+        if ($value = trim((string) $xml)) {
             $element->setValue($value);
         }
 

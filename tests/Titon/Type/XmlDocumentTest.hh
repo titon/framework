@@ -305,4 +305,49 @@ XML;
         XmlDocument::fromFile(TEMP_DIR . '/type/barbarian-missing.xml');
     }
 
+    public function testFromVector() {
+        $list = Vector {'Helmet', 'Shoulder Plates', 'Breast Plate', 'Greaves', 'Gloves', 'Shield'};
+
+        $xml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<armors>
+    <armor>Helmet</armor>
+    <armor>Shoulder Plates</armor>
+    <armor>Breast Plate</armor>
+    <armor>Greaves</armor>
+    <armor>Gloves</armor>
+    <armor>Shield</armor>
+</armors>
+
+XML;
+
+        $this->assertEquals($xml, XmlDocument::fromVector('armors', 'armor', $list)->toString());
+    }
+
+    public function testFromVectorWithAttributes() {
+        $list = Vector {
+            'Helmet',
+            'Shoulder Plates',
+            'Breast Plate',
+            Map {'@value' => 'Greaves', '@attributes' => Map {'defense' => 15}},
+            'Gloves',
+            'Shield'
+        };
+
+        $xml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<armors>
+    <armor>Helmet</armor>
+    <armor>Shoulder Plates</armor>
+    <armor>Breast Plate</armor>
+    <armor defense="15">Greaves</armor>
+    <armor>Gloves</armor>
+    <armor>Shield</armor>
+</armors>
+
+XML;
+
+        $this->assertEquals($xml, XmlDocument::fromVector('armors', 'armor', $list)->toString());
+    }
+
 }

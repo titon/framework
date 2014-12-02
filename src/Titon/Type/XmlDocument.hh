@@ -74,6 +74,24 @@ class XmlDocument {
     }
 
     /**
+     * Depending on the type of data, return an XmlElement tree.
+     *
+     * @param mixed $data
+     * @param string $root
+     * @return \Titon\Type\XmlElement
+     */
+    public static function from(mixed $data, string $root = 'root'): XmlElement {
+        if ($data instanceof Map) {
+            return static::fromMap($root, $data);
+
+        } else if ($data instanceof Vector) {
+            return static::fromVector($root, $data);
+        }
+
+        return static::fromString((string) $data);
+    }
+
+    /**
      * Load an XML file from the file system and transform it into an XmlElement tree.
      *
      * @param string $path
@@ -95,7 +113,7 @@ class XmlDocument {
      * @param \Titon\Type\XmlMap $map
      * @return \Titon\Type\XmlElement
      */
-    public static function fromMap(string $root = 'root', XmlMap $map): XmlElement {
+    public static function fromMap(string $root, XmlMap $map): XmlElement {
         $root = new XmlElement($root);
 
         static::_addAttributes($root, $map);
@@ -115,6 +133,22 @@ class XmlDocument {
      */
     public static function fromString(string $string): XmlElement {
         return static::_convertSimpleXml(simplexml_load_string($string));
+    }
+
+    /**
+     * Transform a list of items into an XmlElement tree.
+     *
+     * @param string $root
+     * @param string $item
+     * @param Vector<Tv> $list
+     * @return \Titon\Type\XmlElement
+     */
+    public static function fromVector<Tv>(string $root, string $item, Vector<Tv> $list): XmlElement {
+        $root = new XmlElement($root);
+
+        static::_createElement($root, $item, $list);
+
+        return $root;
     }
 
     /**

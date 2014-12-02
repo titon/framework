@@ -185,6 +185,15 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
     }
 
     /**
+     * Return a type casted value.
+     *
+     * @return mixed
+     */
+    public function getBoxedValue(): mixed {
+        return XmlDocument::box($this->getValueWithoutCdata());
+    }
+
+    /**
      * Returns the first child that matches the defined name.
      *
      * @param string $name
@@ -300,6 +309,23 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
      */
     public function getValue(): string {
         return $this->_value;
+    }
+
+    /**
+     * Return the value without the wrapping CDATA block.
+     *
+     * @return string
+     */
+    public function getValueWithoutCdata(): string {
+        $value = $this->getValue();
+
+        if (strpos($value, '<![CDATA[') === 0) {
+            $value = mb_substr($value, 10); // Remove opening
+            $value = mb_substr($value, 0, mb_strlen($value) - 3); // Remove closing
+            $value = trim($value); // Remove newlines
+        }
+
+        return $value;
     }
 
     /**
@@ -526,7 +552,7 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
             }
 
         } else {
-            $map['@value'] = $this->getValue();
+            $map['@value'] = $this->getBoxedValue();
         }
 
         if ($this->isRoot()) {

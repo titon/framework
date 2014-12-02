@@ -21,12 +21,12 @@ type XmlMap = Map<string, mixed>;
 class XmlDocument {
 
     /**
-     * Autobox a value by type casting it from a string to a scalar.
+     * Box a value by type casting it from a string to a scalar.
      *
      * @param string $value
      * @return mixed
      */
-    public static function autobox(string $value): mixed {
+    public static function box(string $value): mixed {
         if (is_numeric($value)) {
             if (strpos($value, '.') !== false) {
                 return (float) $value;

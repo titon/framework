@@ -5,13 +5,13 @@ use Titon\Test\TestCase;
 
 class XmlDocumentTest extends TestCase {
 
-    public function testAutobox() {
-        $this->assertSame(123.45, XmlDocument::autobox('123.45'));
-        $this->assertSame(123.45, XmlDocument::autobox('123.45'));
-        $this->assertSame(123, XmlDocument::autobox('123'));
-        $this->assertSame(true, XmlDocument::autobox('true'));
-        $this->assertSame(false, XmlDocument::autobox('false'));
-        $this->assertSame('foo', XmlDocument::autobox('foo'));
+    public function testBox() {
+        $this->assertSame(123.45, XmlDocument::box('123.45'));
+        $this->assertSame(123.45, XmlDocument::box('123.45'));
+        $this->assertSame(123, XmlDocument::box('123'));
+        $this->assertSame(true, XmlDocument::box('true'));
+        $this->assertSame(false, XmlDocument::box('false'));
+        $this->assertSame('foo', XmlDocument::box('foo'));
     }
 
     public function testUnbox() {

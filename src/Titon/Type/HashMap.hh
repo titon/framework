@@ -590,6 +590,8 @@ class HashMap<Tk, Tv> implements
      * @return string
      */
     public function toXml(string $root = 'document'): string {
+        // UNSAFE
+        // The HashMap value is Map<Tk, Tv> while the XmlMap is Map<string, mixed>.
         return XmlDocument::fromMap($root, $this->value())->toString();
     }
 

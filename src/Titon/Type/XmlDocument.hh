@@ -86,7 +86,7 @@ class XmlDocument {
             return static::fromMap($root, $data);
 
         } else if ($data instanceof Vector) {
-            return static::fromVector($root, $data);
+            return static::fromVector($root, 'item', $data);
 
         } else if (is_array($data)) {
             return static::fromMap($root, Col::toMap($data));
@@ -163,9 +163,9 @@ class XmlDocument {
      */
     protected static function _addAttributes(XmlElement $element, XmlMap $map): void {
         if ($map->contains('@attributes')) {
-            if ($attributes = $map->get('@attributes')) {
-                invariant($attributes instanceof Map, 'Attributes must be a map');
+            $attributes = $map->get('@attributes');
 
+            if ($attributes instanceof Map) {
                 $element->setAttributes($attributes);
             }
 

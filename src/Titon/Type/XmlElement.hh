@@ -21,7 +21,7 @@ type XmlNamespaces = Map<string, string>;
  *
  * @package Titon\Type
  */
-class XmlElement implements IteratorAggregate<Tv>, Countable {
+class XmlElement implements IteratorAggregate<XmlElement>, Countable {
 
     /**
      * Map of attributes for this element.
@@ -66,7 +66,7 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
      *
      * @type \Titon\Type\XmlElement
      */
-    protected XmlElement $_parent = null;
+    protected ?XmlElement $_parent = null;
 
     /**
      * The value within the element. Is override by children.
@@ -239,9 +239,9 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
     /**
      * Return an iterator.
      *
-     * @return Iterator<Tv>
+     * @return Iterator<XmlElement>
      */
-    public function getIterator(): Iterator<Tv> {
+    public function getIterator(): Iterator<XmlElement> {
         return $this->getChildren()->getIterator();
     }
 
@@ -533,6 +533,9 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
         }
 
         if ($this->hasChildren()) {
+
+            // UNSAFE
+            // Hack gets confused here and won't resolve the Vector
             foreach ($this->getChildren() as $child) {
                 $name = $child->getName();
 
@@ -543,11 +546,14 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
                         $map[$name] = new Vector([$map[$name]]);
                     }
 
+                    $list = $map[$name];
+                    invariant($list instanceof Vector, 'Element list must be a vector');
+
                     $map[$name][] = $child->toMap();
 
                 // Set the value directly
                 } else {
-                    $map[$child->getName()] = $child->toMap();
+                    $map[$name] = $child->toMap();
                 }
             }
 

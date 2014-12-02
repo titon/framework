@@ -8,6 +8,7 @@
 namespace Titon\Type;
 
 use Titon\Type\Exception\MissingFileException;
+use Titon\Utility\Col;
 use \SimpleXMLElement;
 
 type XmlMap = Map<string, mixed>;
@@ -86,6 +87,9 @@ class XmlDocument {
 
         } else if ($data instanceof Vector) {
             return static::fromVector($root, $data);
+
+        } else if (is_array($data)) {
+            return static::fromMap($root, Col::toMap($data));
         }
 
         return static::fromString((string) $data);

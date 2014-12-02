@@ -605,7 +605,6 @@ class ColTest extends TestCase {
         $this->assertEquals(Map {0 => 123}, Col::toMap(123));
         $this->assertEquals(Map {}, Col::toMap(Map {}));
         $this->assertEquals(Map {'foo' => 'bar'}, Col::toMap(Map {'foo' => 'bar'}));
-        $this->assertEquals(Map {'foo' => 'bar'}, Col::toMap(new TypeContractStub([])));
     }
 
     public function testToMapRecursive() {
@@ -631,7 +630,6 @@ class ColTest extends TestCase {
         $this->assertEquals(Vector {123}, Col::toVector(123));
         $this->assertEquals(Vector {}, Col::toVector(Map {}));
         $this->assertEquals(Vector {'bar'}, Col::toVector(Map {'foo' => 'bar'}));
-        $this->assertEquals(Vector {'foo'}, Col::toVector(new TypeContractStub([])));
     }
 
     public function testToVectorRecursive() {

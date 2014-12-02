@@ -83,6 +83,8 @@ class XmlDocument {
     public static function fromMap(string $root = 'root', XmlMap $map): XmlElement {
         $root = new XmlElement($root);
 
+        static::_addAttributes($root, $map);
+
         foreach ($map as $key => $value) {
             static::_createElement($root, $key, $value);
         }
@@ -115,25 +117,53 @@ class XmlDocument {
         throw new MissingFileException(sprintf('File %s does not exist', $path));
     }
 
+    /**
+     * Add attributes to an element if the special `@attributes` map exists.
+     *
+     * @param \Titon\Type\XmlElement $element
+     * @param \Titon\Type\XmlMap $map
+     */
+    protected static function _addAttributes(XmlElement $element, XmlMap $map): void {
+        if ($map->contains('@attributes')) {
+            if ($attributes = $map->get('@attributes')) {
+                invariant($attributes instanceof Map, 'Attributes must be a map');
+
+                $element->setAttributes($attributes);
+            }
+
+            $map->remove('@attributes');
+        }
+    }
+
+    /**
+     * Create an element and set the value/children depending on the data structure.
+     *
+     *  - If a map is provided, it is either an element with a value, or a list of children with different names.
+     *  - If a vector is provided, it is a list of elements with the same name.
+     *  - If a scalar value is provided, it is a literal element with a value.
+     *
+     * @param \Titon\Type\XmlElement $parent
+     * @param string $key
+     * @param mixed $value
+     */
     protected static function _createElement(XmlElement $parent, string $key, mixed $value): void {
 
         // One of two things:
         // An element that contains other children
-        // An element that has attributes
+        // An element that has attributes or a value
         if ($value instanceof Map) {
 
-            // An element with a value and attributes
-            if ($value->contains('value')) {
-                $attributes = $value;
-                $value = $value['value'];
-                $cdata = (bool) $attributes->get('cdata');
+            // An element with a value
+            if ($value->contains('@value')) {
+                $child = new XmlElement($key);
+                $child->setValue($value['@value'], (bool) $value->get('@cdata'));
 
-                $attributes->remove('value');
-                $attributes->remove('cdata');
+                // Add attributes to the child
+                static::_addAttributes($child, $value);
 
-                $parent->addChild( (new XmlElement($key, $attributes))->setValue($value, $cdata) );
+                $parent->addChild($child);
 
-            // A child
+            // Multiple elements as children
             } else {
                 $parent->addChild( static::fromMap($key, $value) );
             }

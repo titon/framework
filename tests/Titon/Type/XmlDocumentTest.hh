@@ -115,35 +115,35 @@ XML;
     public function testFromMapWithAttributes() {
         $map = Map {
             'name' => 'Barbarian',
-            'life' => Map {'value' => 50, 'max' => 150},
-            'mana' => Map {'value' => 100, 'max' => 250},
+            'life' => Map {'@value' => 50},
+            'mana' => Map {'@value' => 100, '@attributes' => Map {'max' => 250}},
             'stamina' => 15,
             'vitality' => 20,
-            'dexterity' => Map {'value' => '', 'evade' => '5%', 'block' => '10%'},
-            'agility' => Map {'value' => '', 'turnRate' => '1.25', 'acceleration' => 5},
+            'dexterity' => Map {'@value' => '', '@attributes' => Map {'evade' => '5%', 'block' => '10%'}},
+            'agility' => Map {'@value' => '', '@attributes' => Map {'turnRate' => '1.25', 'acceleration' => 5}},
             'armors' => Map {
                 'armor' => Vector {
-                    Map {'value' => 'Helmet', 'defense' => 15},
-                    Map {'value' => 'Shoulder Plates', 'defense' => 25},
-                    Map {'value' => 'Breast Plate', 'defense' => 50},
-                    Map {'value' => 'Greaves', 'defense' => 10},
-                    Map {'value' => 'Gloves', 'defense' => 10},
-                    Map {'value' => 'Shield', 'defense' => 25},
+                    Map {'@value' => 'Helmet', '@attributes' => Map {'defense' => 15}},
+                    Map {'@value' => 'Shoulder Plates', '@attributes' => Map {'defense' => 25}},
+                    Map {'@value' => 'Breast Plate', '@attributes' => Map {'defense' => 50}},
+                    Map {'@value' => 'Greaves', '@attributes' => Map {'defense' => 10}},
+                    Map {'@value' => 'Gloves', '@attributes' => Map {'defense' => 10}},
+                    Map {'@value' => 'Shield', '@attributes' => Map {'defense' => 25}},
                 },
-                'items' => 6
+                '@attributes' => Map {'items' => 6}
             },
             'weapons' => Map {
                 'sword' => Vector {
-                    Map {'value' => 'Broadsword', 'damage' => 25},
-                    Map {'value' => 'Longsword', 'damage' => 30}
+                    Map {'@value' => 'Broadsword', '@attributes' => Map {'damage' => 25}},
+                    Map {'@value' => 'Longsword', '@attributes' => Map {'damage' => 30}}
                 },
                 'axe' => Vector {
-                    Map {'value' => 'Heavy Axe', 'damage' => 20},
-                    Map {'value' => 'Double-edged Axe', 'damage' => 25},
+                    Map {'@value' => 'Heavy Axe', '@attributes' => Map {'damage' => 20}},
+                    Map {'@value' => 'Double-edged Axe', '@attributes' => Map {'damage' => 25}},
                 },
-                'polearm' => Map {'value' => 'Polearm', 'damage' => 50, 'range' => 3, 'speed' => 'slow'},
-                'mace' => Map {'value' => 'Mace', 'damage' => 15, 'speed' => 'fast'},
-                'items' => 6
+                'polearm' => Map {'@value' => 'Polearm', '@attributes' => Map {'damage' => 50, 'range' => 3, 'speed' => 'slow'}},
+                'mace' => Map {'@value' => 'Mace', '@attributes' => Map {'damage' => 15, 'speed' => 'fast'}},
+                '@attributes' => Map {'items' => 6}
             },
             'items' => Map {
                 'potions' => Map {
@@ -154,7 +154,7 @@ XML;
                     'bossKey' => 'Boss Key'
                 },
                 'food' => Vector {'Fruit', 'Bread', 'Vegetables'},
-                'scrap' => Map {'value' => 'Scrap', 'count' => 25}
+                'scrap' => Map {'@value' => 'Scrap', '@attributes' => Map {'count' => 25}}
             }
         };
 
@@ -162,29 +162,27 @@ XML;
 <?xml version="1.0" encoding="UTF-8"?>
 <unit>
     <name>Barbarian</name>
-    <life max="150">50</life>
+    <life>50</life>
     <mana max="250">100</mana>
     <stamina>15</stamina>
     <vitality>20</vitality>
     <dexterity evade="5%" block="10%"/>
     <agility turnRate="1.25" acceleration="5"/>
-    <armors>
+    <armors items="6">
         <armor defense="15">Helmet</armor>
         <armor defense="25">Shoulder Plates</armor>
         <armor defense="50">Breast Plate</armor>
         <armor defense="10">Greaves</armor>
         <armor defense="10">Gloves</armor>
         <armor defense="25">Shield</armor>
-        <items>6</items>
     </armors>
-    <weapons>
+    <weapons items="6">
         <sword damage="25">Broadsword</sword>
         <sword damage="30">Longsword</sword>
         <axe damage="20">Heavy Axe</axe>
         <axe damage="25">Double-edged Axe</axe>
         <polearm damage="50" range="3" speed="slow">Polearm</polearm>
         <mace damage="15" speed="fast">Mace</mace>
-        <items>6</items>
     </weapons>
     <items>
         <potions>
@@ -209,7 +207,13 @@ XML;
 
     public function testFromMapWithCdata() {
         $map = Map {
-            'data' => Map {'value' => 'foobar', 'cdata' => true, 'baz' => 'qux'}
+            'data' => Map {
+                '@value' => 'foobar',
+                '@cdata' => true,
+                '@attributes' => Map {
+                    'baz' => 'qux'
+                }
+            }
         };
 
         $xml = <<<XML

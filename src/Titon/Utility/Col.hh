@@ -478,6 +478,7 @@ class Col {
 
         return false;
     }
+
     /**
      * Recursively convert a resource into an array.
      *

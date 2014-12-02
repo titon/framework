@@ -11,7 +11,6 @@ use Psr\Http\Message\StreamableInterface;
 use Titon\Http\Http;
 use Titon\Http\Exception\MalformedResponseException;
 use Titon\Http\Stream\MemoryStream;
-use Titon\Utility\Converter;
 
 /**
  * Output JSON as the response by converting any type of resource to JSON.
@@ -45,7 +44,7 @@ class JsonResponse extends Response {
         }
 
         if (!$body instanceof StreamableInterface) {
-            $body = new MemoryStream(Converter::toJson($body, $flags));
+            $body = new MemoryStream(json_encode($body, $flags));
         }
 
         parent::__construct($body, $status);

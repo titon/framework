@@ -13,7 +13,6 @@ use Titon\Type\Contract\Mapable;
 use Titon\Type\Contract\Vectorable;
 use Titon\Type\Contract\Xmlable;
 use Titon\Type\Exception\MissingMethodException;
-use Titon\Utility\Converter;
 use Titon\Utility\Col;
 use \ArrayAccess;
 use \Countable;
@@ -533,10 +532,11 @@ class ArrayList<Tv> implements
      * Return the list as an XML string.
      *
      * @param string $root
+     * @param string $item
      * @return string
      */
-    public function toXml(string $root = 'root'): string {
-        return Converter::arrayToXml($this->toArray(), $root);
+    public function toXml(string $root = 'items', string $item = 'item'): string {
+        return XmlDocument::fromVector($root, $item, $this->value())->toString();
     }
 
     /**

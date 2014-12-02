@@ -11,7 +11,7 @@ class FileStreamTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new FileStream(TEMP_DIR . '/utility/barbarian.xml');
+        $this->object = new FileStream(TEMP_DIR . '/type/barbarian.xml');
     }
 
     protected function tearDown() {
@@ -32,7 +32,7 @@ class FileStreamTest extends TestCase {
     }
 
     public function testGetSize() {
-        $this->assertEquals(1361, $this->object->getSize());
+        $this->assertEquals(1321, $this->object->getSize());
     }
 
     public function testIsLocal() {

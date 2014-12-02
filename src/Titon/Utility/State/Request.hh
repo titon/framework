@@ -8,7 +8,6 @@
 namespace Titon\Utility\State;
 
 use Titon\Utility\Col;
-use Titon\Utility\Converter;
 
 type GlobalMap = Map<string, mixed>;
 
@@ -93,7 +92,7 @@ abstract class Request {
      * @return \Titon\Utility\State\GlobalMap
      */
     public static function package(array<string, mixed> $data): GlobalMap {
-        return Converter::toMap($data);
+        return Col::toMap($data);
     }
 
 }

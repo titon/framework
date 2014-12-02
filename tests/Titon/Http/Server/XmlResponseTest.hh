@@ -20,11 +20,15 @@ class XmlResponseTest extends TestCase {
             'Connection' => ['keep-alive'],
             'Content-Type' => ['application/xml; charset=UTF-8'],
             'Status-Code' => ['200 OK'],
-            'Content-Length' => [66],
+            'Content-Length' => [73],
         ], $response->getHeaders());
 
-        $this->assertEquals('<?xml version="1.0" encoding="utf-8"?>' . "\n" .
-            '<root><foo>bar</foo></root>', $body);
+        $this->assertEquals(
+            '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
+            '<root>' . PHP_EOL .
+            '    <foo>bar</foo>' . PHP_EOL .
+            '</root>' . PHP_EOL
+        , $body);
     }
 
     public function testRoot() {
@@ -41,11 +45,15 @@ class XmlResponseTest extends TestCase {
             'Connection' => ['keep-alive'],
             'Content-Type' => ['application/xml; charset=UTF-8'],
             'Status-Code' => ['200 OK'],
-            'Content-Length' => [66],
+            'Content-Length' => [73],
         ], $response->getHeaders());
 
-        $this->assertEquals('<?xml version="1.0" encoding="utf-8"?>' . "\n" .
-            '<data><foo>bar</foo></data>', $body);
+        $this->assertEquals(
+            '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
+            '<data>' . PHP_EOL .
+            '    <foo>bar</foo>' . PHP_EOL .
+            '</data>' . PHP_EOL
+        , $body);
     }
 
 }

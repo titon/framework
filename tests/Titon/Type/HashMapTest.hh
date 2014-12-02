@@ -504,7 +504,14 @@ class HashMapTest extends TestCase {
     }
 
     public function testToXml() {
-        $this->markTestSkipped('Need to implement!');
+        $this->assertEquals(
+            '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
+            '<document>' . PHP_EOL .
+            '    <a>foo</a>' . PHP_EOL .
+            '    <b>bar</b>' . PHP_EOL .
+            '    <c>baz</c>' . PHP_EOL .
+            '</document>' . PHP_EOL
+            , $this->object->toXml());
     }
 
     public function testUnserialize() {

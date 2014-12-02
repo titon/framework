@@ -175,6 +175,7 @@ class ColTest extends TestCase {
 
         $this->assertEquals(123, Col::get($map, 'number'));
         $this->assertEquals(null, Col::get($map, 'boolean'));
+        $this->assertEquals(false, Col::get($map, 'boolean', false));
         $this->assertEquals(Map {
             'number' => 123,
             'string' => 'foo'
@@ -575,6 +576,70 @@ class ColTest extends TestCase {
         $this->assertFalse(Col::some(Vector {'foo', 123, true}, function($key, $value) {
             return is_float($value);
         }));
+    }
+
+    public function testToArray() {
+        $map = Map {
+            'foo' => 'bar',
+            'map' => Map {'baz' => 'qux'},
+            'vector' => Vector {1, 2, 3},
+            'array' => [1, 2, 'a' => 'b']
+        };
+
+        $this->assertEquals([
+            'foo' => 'bar',
+            'map' => ['baz' => 'qux'],
+            'vector' => [1, 2, 3],
+            'array' => [1, 2, 'a' => 'b']
+        ], Col::toArray($map));
+
+        $this->assertEquals(['foo'], Col::toArray('foo'));
+    }
+
+    public function testToMap() {
+        $this->assertEquals(Map {}, Col::toMap(Vector {}));
+        $this->assertEquals(Map {0 => 'foo'}, Col::toMap(Vector {'foo'}));
+        $this->assertEquals(Map {}, Col::toMap([]));
+        $this->assertEquals(Map {0 => 'foo'}, Col::toMap(['foo']));
+        $this->assertEquals(Map {0 => 'foo'}, Col::toMap('foo'));
+        $this->assertEquals(Map {0 => 123}, Col::toMap(123));
+        $this->assertEquals(Map {}, Col::toMap(Map {}));
+        $this->assertEquals(Map {'foo' => 'bar'}, Col::toMap(Map {'foo' => 'bar'}));
+    }
+
+    public function testToMapRecursive() {
+        $this->assertEquals(Map {
+            'depth' => 1,
+            'two' => Map {
+                'depth' => 2
+            }
+        }, Col::toMap([
+            'depth' => 1,
+            'two' => [
+                'depth' => 2
+            ]
+        ]));
+    }
+
+    public function testToVector() {
+        $this->assertEquals(Vector {}, Col::toVector(Vector {}));
+        $this->assertEquals(Vector {'foo'}, Col::toVector(Vector {'foo'}));
+        $this->assertEquals(Vector {}, Col::toVector([]));
+        $this->assertEquals(Vector {'foo'}, Col::toVector(['foo']));
+        $this->assertEquals(Vector {'foo'}, Col::toVector('foo'));
+        $this->assertEquals(Vector {123}, Col::toVector(123));
+        $this->assertEquals(Vector {}, Col::toVector(Map {}));
+        $this->assertEquals(Vector {'bar'}, Col::toVector(Map {'foo' => 'bar'}));
+    }
+
+    public function testToVectorRecursive() {
+        $this->assertEquals(Vector {
+            'one',
+            Vector {'two'}
+        }, Col::toVector([
+            'one',
+            ['two']
+        ]));
     }
 
 }

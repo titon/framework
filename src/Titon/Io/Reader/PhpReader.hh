@@ -8,7 +8,7 @@
 namespace Titon\Io\Reader;
 
 use Titon\Io\Exception\ReadErrorException;
-use Titon\Utility\Converter;
+use Titon\Utility\Col;
 
 /**
  * A file reader that parses PHP files.
@@ -26,7 +26,7 @@ class PhpReader extends AbstractReader {
     public function read(): Map<string, mixed> {
         return $this->cache([__METHOD__, $this->path()], function() {
             if ($this->exists()) {
-                return Converter::toMap(include $this->path());
+                return Col::toMap(include $this->path());
             }
 
             throw new ReadErrorException(sprintf('PhpReader failed to parse %s', $this->name()));

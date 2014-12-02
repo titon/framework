@@ -8,10 +8,10 @@
 namespace Titon\Type\Exception;
 
 /**
- * Exception thrown when an invalid enum is instantiated.
+ * Exception thrown when a file does not exist.
  *
  * @package Titon\Type\Exception
  */
-class InvalidEnumerableException extends \OutOfRangeException {
+class MissingFileException extends \RuntimeException {
 
 }

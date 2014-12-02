@@ -52,7 +52,7 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
      *
      * @type string
      */
-    protected string $_name;
+    protected string $_name = '';
 
     /**
      * Map of namespaces for this element.
@@ -80,9 +80,10 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
      *
      * @param string $name
      * @param \Titon\Type\XmlAttributes $attributes
+     * @param string $namespace
      */
-    public function __construct(string $name, XmlAttributes $attributes = Map {}) {
-        $this->_name = XmlDocument::formatName($name);
+    public function __construct(string $name, XmlAttributes $attributes = Map {}, string $namespace = '') {
+        $this->setName($name, $namespace);
         $this->setAttributes($attributes);
     }
 
@@ -184,12 +185,37 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
     }
 
     /**
+     * Returns the first child that matches the defined name.
+     *
+     * @param string $name
+     * @return \Titon\Type\XmlElement
+     */
+    public function getChild(string $name): ?XmlElement {
+        foreach ($this->getChildren() as $child) {
+            if ($child->getName() === $name) {
+                return $child;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Return a list of children.
      *
      * @return \Titon\Type\XmlElementList
      */
     public function getChildren(): XmlElementList {
         return $this->_children;
+    }
+
+    /**
+     * Return a list of children with the defined name.
+     *
+     * @return \Titon\Type\XmlElementList
+     */
+    public function getChildrenByName(string $name): XmlElementList {
+        return $this->getChildren()->filter( $item ==> $item->getName() === $name );
     }
 
     /**
@@ -236,6 +262,26 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
      */
     public function getNamespaces(): XmlNamespaces {
         return $this->_namespaces;
+    }
+
+    /**
+     * Return all attributes for a specific namespace.
+     *
+     * @param string $namespace
+     * @return \Titon\Type\XmlAttributes
+     */
+    public function getNamespaceAttributes(string $namespace): XmlAttributes {
+        return $this->getAttributes()->filterWithKey( ($key, $value) ==> strpos($key, $namespace . ':') === 0 );
+    }
+
+    /**
+     * Return all children for a specific namespace.
+     *
+     * @param string $namespace
+     * @return \Titon\Type\XmlElementList
+     */
+    public function getNamespaceChildren(string $namespace): XmlElementList {
+        return $this->getChildren()->filter( $item ==> strpos($item->getName(), $namespace . ':') === 0 );
     }
 
     /**
@@ -304,12 +350,21 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
     }
 
     /**
+     * Return true if the element is a child.
+     *
+     * @return bool
+     */
+    public function isChild(): bool {
+        return !$this->isRoot();
+    }
+
+    /**
      * Return true if the element is the top level parent node.
      *
      * @return bool
      */
     public function isRoot(): bool {
-        return !$this->getParent();
+        return ($this->getParent() === null);
     }
 
     /**
@@ -317,9 +372,14 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
      *
      * @param string $key
      * @param mixed $value
+     * @param string $namespace
      * @return $this
      */
-    public function setAttribute(string $key, mixed $value): this {
+    public function setAttribute(string $key, mixed $value, string $namespace = ''): this {
+        if ($namespace) {
+            $key = $namespace . ':' . $key;
+        }
+
         $this->_attributes[$key] = XmlDocument::unbox($value);
 
         return $this;
@@ -361,10 +421,17 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
      * it will be prefixed with an underscore.
      *
      * @param string $name
+     * @param string $namespace
      * @return $this
      */
-    public function setName(string $name): this {
-        $this->_name = XmlDocument::formatName($name);
+    public function setName(string $name, string $namespace = ''): this {
+        $name = XmlDocument::formatName($name);
+
+        if ($namespace) {
+            $name = $namespace . ':' . $name;
+        }
+
+        $this->_name = $name;
 
         return $this;
     }
@@ -443,8 +510,8 @@ class XmlElement implements IteratorAggregate<Tv>, Countable {
             foreach ($this->getChildren() as $child) {
                 $name = $child->getName();
 
-                // That element with that name already exists
-                // So we need to turn it into a vector
+                // An element with that name already exists
+                // So we need to turn it into a list
                 if ($map->contains($name)) {
                     if (!$map[$name] instanceof Vector) {
                         $map[$name] = new Vector([$map[$name]]);

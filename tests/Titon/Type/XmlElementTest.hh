@@ -62,6 +62,29 @@ class XmlElementTest extends TestCase {
         $this->assertEquals(Map {'foo' => 'bar'}, $this->object->getAttributes());
     }
 
+    public function testGetChild() {
+        $boy1 = new XmlElement('boy');
+        $boy2 = new XmlElement('boy');
+        $girl = new XmlElement('girl');
+
+        $this->object->addChildren(Vector {$boy1, $boy2, $girl});
+
+        $this->assertEquals($boy1, $this->object->getChild('boy'));
+        $this->assertEquals($girl, $this->object->getChild('girl'));
+        $this->assertEquals(null, $this->object->getChild('dog'));
+    }
+
+    public function testGetChildrenByName() {
+        $boy1 = new XmlElement('boy');
+        $boy2 = new XmlElement('boy');
+        $girl = new XmlElement('girl');
+
+        $this->object->addChildren(Vector {$boy1, $boy2, $girl});
+
+        $this->assertEquals(Vector {$boy1, $boy2}, $this->object->getChildrenByName('boy'));
+        $this->assertEquals(Vector {}, $this->object->getChildrenByName('dog'));
+    }
+
     public function testGetDeclaration() {
         $this->assertEquals(Map {
             'version' => '1.0',
@@ -93,6 +116,23 @@ class XmlElementTest extends TestCase {
             'foo' => 'bar',
             'baz' => 'qux'
         }, $this->object->getNamespaces());
+    }
+
+    public function testGetNamespaceAttributes() {
+        $this->object->setAttribute('ns:foo', 'qux');
+
+        $this->assertEquals(Map {'foo' => 'bar', 'ns:foo' => 'qux'}, $this->object->getAttributes());
+        $this->assertEquals(Map {'ns:foo' => 'qux'}, $this->object->getNamespaceAttributes('ns'));
+    }
+
+    public function testGetNamespaceChildren() {
+        $boy = new XmlElement('boy');
+        $girl = new XmlElement('ns:girl');
+
+        $this->object->addChildren(Vector {$boy, $girl});
+
+        $this->assertEquals(Vector {$boy, $girl}, $this->object->getChildren());
+        $this->assertEquals(Vector {$girl}, $this->object->getNamespaceChildren('ns'));
     }
 
     public function testGetParent() {
@@ -145,6 +185,15 @@ class XmlElementTest extends TestCase {
         $this->assertTrue($this->object->hasNamespaces());
     }
 
+    public function testIsChild() {
+        $child = new XmlElement('child');
+
+        $this->object->addChild($child);
+
+        $this->assertFalse($this->object->isChild());
+        $this->assertTrue($child->isChild());
+    }
+
     public function testIsRoot() {
         $child = new XmlElement('child');
 
@@ -174,6 +223,10 @@ class XmlElementTest extends TestCase {
         $this->object->setAttribute('foo', 'baz');
 
         $this->assertEquals(Map {'foo' => 'baz'}, $this->object->getAttributes());
+
+        $this->object->setAttribute('foo', 'baz', 'ns');
+
+        $this->assertEquals(Map {'foo' => 'baz', 'ns:foo' => 'baz'}, $this->object->getAttributes());
     }
 
     public function testSetAttributes() {
@@ -211,6 +264,10 @@ class XmlElementTest extends TestCase {
         $this->object->setName('document');
 
         $this->assertEquals('document', $this->object->getName());
+
+        $this->object->setName('document', 'ns');
+
+        $this->assertEquals('ns:document', $this->object->getName());
     }
 
     public function testSetNamespace() {

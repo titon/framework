@@ -7,51 +7,36 @@
 
 namespace Titon\Cache\Storage;
 
-use Titon\Io\Exception\MissingFileException;
 use Titon\Io\File;
 use Titon\Io\Folder;
+
+type FileMap = Map<string, File>;
 
 /**
  * A storage engine that uses the servers local filesystem to store its cached items.
  * This engine can be installed using the Cache::addStorage() method.
  *
  * {{{
- *        new FileSystemStorage([
- *            'prefix' => 'sql_',
- *            'expires' => '+1 day'
- *        ]);
+ *        new FileSystemStorage('/path/to/cache/');
  * }}}
- *
- * A sample configuration can be found above, and the following options are available: prefix, expires.
  *
  * @package Titon\Cache\Storage
  */
 class FileSystemStorage extends AbstractStorage {
 
     /**
-     * Configuration.
-     *
-     * @type Map<string, mixed> {
-     *      @type string $directory Temporary directory to store files
-     * }
-     */
-    protected Map<string, mixed> $_config = Map {
-        'directory' => ''
-    };
-
-    /**
      * List of cache expiration times via File objects.
      *
-     * @type Map<string, File>
+     * @type \Titon\Cache\FileMap
      */
-    protected Map<string, File> $_expires = Map {};
+    protected FileMap $_expires = Map {};
 
     /**
      * List of cache File objects.
      *
-     * @type Map<string, File>
+     * @type \Titon\Cache\FileMap
      */
-    protected Map<string, File> $_files = Map {};
+    protected FileMap $_files = Map {};
 
     /**
      * Folder object for the cache folder.
@@ -63,32 +48,9 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * Allow path to be set through constructor.
      *
-     * @param string|Map $path
+     * @param string $path
      */
-    public function __construct(mixed $path) {
-        if (is_string($path)) {
-            $path = Map {'directory' => $path};
-        }
-
-        parent::__construct($path);
-    }
-
-    /**
-     * Always use serialization with file system caching.
-     *
-     * @uses Titon\Utility\Path
-     *
-     * @throws \Titon\Io\Exception\MissingFileException
-     */
-    public function initialize(): void {
-        parent::initialize();
-
-        $path = $this->getConfig('directory');
-
-        if (!$path) {
-            throw new MissingFileException('Temporary storage directory not defined');
-        }
-
+    public function __construct(string $path) {
         $this->_folder = new Folder($path, true);
     }
 
@@ -141,7 +103,7 @@ class FileSystemStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function loadCache(string $key): File {
-        if (isset($this->_files[$key])) {
+        if ($this->_files->contains($key)) {
             return $this->_files[$key];
         }
 
@@ -152,7 +114,7 @@ class FileSystemStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function loadExpires(string $key): File {
-        if (isset($this->_expires[$key])) {
+        if ($this->_expires->contains($key)) {
             return $this->_expires[$key];
         }
 
@@ -166,7 +128,8 @@ class FileSystemStorage extends AbstractStorage {
         $this->loadCache($key)->delete();
         $this->loadExpires($key)->delete();
 
-        unset($this->_expires[$key], $this->_files[$key]);
+        $this->_expires->remove($key);
+        $this->_files->remove($key);
 
         return true;
     }

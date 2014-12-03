@@ -26,7 +26,7 @@ trait StorageAware {
      *
      * @return \Titon\Cache\Storage
      */
-    public function getStorage(): Storage {
+    public function getStorage(): ?Storage {
         return $this->_storage;
     }
 

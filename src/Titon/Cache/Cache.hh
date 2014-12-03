@@ -10,7 +10,8 @@ namespace Titon\Cache;
 use Titon\Cache\Exception\MissingStorageException;
 use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
-use \Closure;
+
+type StorageMap = Map<string, Storage>;
 
 /**
  * Provides a very basic interface for caching individual sets of data. Multiple storage engines can be setup
@@ -24,9 +25,9 @@ class Cache {
     /**
      * Storage engines.
      *
-     * @type Map<string, Storage>
+     * @type \Titon\Cache\StorageMap
      */
-    protected Map<string, Storage> $_storage = Map {};
+    protected StorageMap $_storage = Map {};
 
     /**
      * Add a new storage engine to the cache system.
@@ -90,7 +91,7 @@ class Cache {
      * @throws \Titon\Cache\Exception\MissingStorageException
      */
     public function getStorage(string $key): Storage {
-        if (isset($this->_storage[$key])) {
+        if ($this->_storage->contains($key)) {
             return $this->_storage[$key];
         }
 
@@ -100,9 +101,9 @@ class Cache {
     /**
      * Return all storage engines.
      *
-     * @return Map<string, Storage>
+     * @return \Titon\Cache\StorageMap
      */
-    public function getStorages(): Map<string, Storage> {
+    public function getStorages(): StorageMap {
         return $this->_storage;
     }
 
@@ -157,9 +158,9 @@ class Cache {
      * Returns cached information from the storage engine.
      *
      * @param string $storage
-     * @return Map<string, mixed>
+     * @return \Titon\Cache\StatsMap
      */
-    public function stats(string $storage = 'default'): Map<string, mixed> {
+    public function stats(string $storage = 'default'): StatsMap {
         return $this->getStorage($storage)->stats();
     }
 
@@ -167,12 +168,12 @@ class Cache {
      * Get or set data to the storage engine.
      *
      * @param string $key
-     * @param \Closure $callback
+     * @param \Titon\Cache\CacheCallback $callback
      * @param mixed $expires
      * @param string $storage
      * @return mixed
      */
-    public function store(string $key, Closure $callback, mixed $expires = '+1 day', string $storage = 'default'): mixed {
+    public function store(string $key, CacheCallback $callback, mixed $expires = '+1 day', string $storage = 'default'): mixed {
         return $this->getStorage($storage)->store($key, $callback, $expires);
     }
 

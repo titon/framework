@@ -24,11 +24,8 @@ class DatabaseStorage extends AbstractStorage {
      * Set a repository object.
      *
      * @param \Titon\Db\Repository $repository
-     * @param Map<string, mixed> $config
      */
-    public function __construct(Repository $repository, Map<string, mixed> $config = Map {}) {
-        parent::__construct($config);
-
+    public function __construct(Repository $repository) {
         $this->setRepository($repository);
     }
 
@@ -68,14 +65,14 @@ class DatabaseStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function has($key): bool {
+    public function has(string $key): bool {
         return (bool) $this->find($key)->count();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function remove($key): bool {
+    public function remove(string $key): bool {
         return (bool) $this->getRepository()->query(Query::DELETE)->where('key', $this->key($key))->save();
     }
 

@@ -7,6 +7,7 @@
 
 namespace Titon\Cache\Storage;
 
+use Titon\Cache\StatsMap;
 use Titon\Cache\Exception\MissingExtensionException;
 
 /**
@@ -24,9 +25,7 @@ class ApcStorage extends AbstractStorage {
      *
      * @throws \Titon\Cache\Exception\MissingExtensionException
      */
-    public function initialize(): void {
-        parent::initialize();
-
+    public function __construct() {
         if (!extension_loaded('apc')) {
             throw new MissingExtensionException('APC extension is not loaded');
         }
@@ -36,7 +35,7 @@ class ApcStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function decrement(string $key, int $step = 1): ?int {
-        return $this->returnValue(apc_dec($this->key($key), $step));
+        return $this->returnInt(apc_dec($this->key($key), $step));
     }
 
     /**
@@ -50,7 +49,7 @@ class ApcStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function get(string $key): mixed {
-        return $this->returnValue(apc_fetch($this->key($key)));
+        return $this->returnInt(apc_fetch($this->key($key)));
     }
 
     /**
@@ -64,7 +63,7 @@ class ApcStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function increment(string $key, int $step = 1): ?int {
-        return $this->returnValue(apc_inc($this->key($key), $step));
+        return $this->returnInt(apc_inc($this->key($key), $step));
     }
 
     /**
@@ -91,7 +90,7 @@ class ApcStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function stats(): Map<string, mixed> {
+    public function stats(): StatsMap {
         $stats = apc_cache_info();
         $info = apc_sma_info();
 
@@ -101,11 +100,11 @@ class ApcStorage extends AbstractStorage {
 
         // HHVM needs index checks as it doesn't return all keys
         return Map {
-            self::HITS => isset($stats['num_hits']) ? $stats['num_hits'] : 0,
-            self::MISSES => isset($stats['num_misses']) ? $stats['num_misses'] : 0,
-            self::UPTIME => isset($stats['start_time']) ? $stats['start_time'] : 0,
-            self::MEMORY_USAGE => isset($stats['mem_size']) ? $stats['mem_size'] : 0,
-            self::MEMORY_AVAILABLE => isset($info['avail_mem']) ? $info['avail_mem'] : 0
+            self::HITS => array_key_exists('num_hits', $stats) ? $stats['num_hits'] : 0,
+            self::MISSES => array_key_exists('num_misses', $stats) ? $stats['num_misses'] : 0,
+            self::UPTIME => array_key_exists('start_time', $stats) ? $stats['start_time'] : 0,
+            self::MEMORY_USAGE => array_key_exists('mem_size', $stats) ? $stats['mem_size'] : 0,
+            self::MEMORY_AVAILABLE => array_key_exists('avail_mem', $info) ? $info['avail_mem'] : 0
         };
     }
 

@@ -120,7 +120,6 @@ class CacheTest extends TestCase {
         $this->object->addStorage('test', new MemoryStorage(Map {'storage' => 'test'}));
 
         $this->assertInstanceOf('Titon\Cache\Storage', $this->object->getStorage('test'));
-        $this->assertEquals('test', $this->object->getStorage('test')->getConfig('storage'));
         $this->assertEquals(['default', 'custom', 'test'], array_keys($this->object->getStorages()));
     }
 

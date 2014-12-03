@@ -1,6 +1,8 @@
 <?hh
 namespace Titon\Cache\Storage;
 
+use \Redis;
+
 class RedisStorageTest extends AbstractStorageTest {
 
     protected function setUp() {
@@ -8,12 +10,13 @@ class RedisStorageTest extends AbstractStorageTest {
             $this->markTestSkipped('Redis is not installed or configured properly');
         }
 
-        $this->object = new RedisStorage(Map {
-            'server' => '127.0.0.1:6379'
-        });
+        $redis = new Redis();
+        $redis->pconnect('127.0.0.1', '6379');
+
+        $this->object = new RedisStorage($redis);
 
         // Check that memcache connected
-        $this->assertEquals('+PONG', $this->object->connection->ping());
+        $this->assertEquals('+PONG', $redis->ping());
 
         // Redis requires serializing data
         $this->assertEquals(true, $this->object->set('User::getById-1337', serialize(['username' => 'Titon']), '+5 minutes'));

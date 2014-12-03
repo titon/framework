@@ -7,7 +7,8 @@
 
 namespace Titon\Cache;
 
-use \Closure;
+type CacheCallback = (function(): mixed);
+type StatsMap = Map<string, mixed>;
 
 /**
  * Interface for the storage containers library.
@@ -86,19 +87,19 @@ interface Storage {
     /**
      * Returns cached information from the storage engine.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Cache\StatsMap
      */
-    public function stats(): Map<string, mixed>;
+    public function stats(): StatsMap;
 
     /**
      * Read and write cache using a callback.
      * Return the value of the read cache or the value being set.
      *
      * @param string $key
-     * @param \Closure $callback
+     * @param \Titon\Cache\CacheCallback $callback
      * @param mixed $expires
      * @return mixed
      */
-    public function store(string $key, Closure $callback, mixed $expires = '+1 day'): mixed;
+    public function store(string $key, CacheCallback $callback, mixed $expires = '+1 day'): mixed;
 
 }

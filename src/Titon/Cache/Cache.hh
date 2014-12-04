@@ -78,7 +78,7 @@ class Cache {
      *
      * @param string $key
      * @param string $storage
-     * @return mixed
+     * @return \Titon\Cache\Item
      */
     public function get(string $key, string $storage = 'default'): Item {
         return $this->getStorage($storage)->getItem($key);

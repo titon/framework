@@ -46,7 +46,7 @@ abstract class AbstractStorage implements Storage {
             $this->save($item);
         }
 
-        $this->_deferred->clear();
+        $this->getDeferred()->clear();
 
         return true;
     }

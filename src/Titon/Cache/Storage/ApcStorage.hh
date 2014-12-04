@@ -85,12 +85,16 @@ class ApcStorage extends AbstractStorage {
             return Map {};
         }
 
+        $get = function(string $key, array<string, mixed> $data): mixed {
+            return array_key_exists($key, $data) ? $data[$key] : 0;
+        };
+
         return Map {
-            self::HITS => array_key_exists('num_hits', $stats) ? $stats['num_hits'] : 0,
-            self::MISSES => array_key_exists('num_misses', $stats) ? $stats['num_misses'] : 0,
-            self::UPTIME => array_key_exists('start_time', $stats) ? $stats['start_time'] : 0,
-            self::MEMORY_USAGE => array_key_exists('mem_size', $stats) ? $stats['mem_size'] : 0,
-            self::MEMORY_AVAILABLE => array_key_exists('avail_mem', $info) ? $info['avail_mem'] : 0
+            self::HITS => $get('num_hits', $stats),
+            self::MISSES => $get('num_misses', $stats),
+            self::UPTIME => $get('start_time', $stats),
+            self::MEMORY_USAGE => $get('mem_size', $stats),
+            self::MEMORY_AVAILABLE => $get('avail_mem', $info)
         };
     }
 

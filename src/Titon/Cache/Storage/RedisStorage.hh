@@ -55,7 +55,7 @@ class RedisStorage extends AbstractStorage {
         $value = $this->getRedis()->get($key);
 
         if ($value === false) {
-            throw new MissingItemException(sprintf('Item with key %s does not exist.', $key));
+            throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
         }
 
         return unserialize($value);

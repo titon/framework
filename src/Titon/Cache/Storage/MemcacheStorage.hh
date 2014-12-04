@@ -55,7 +55,7 @@ class MemcacheStorage extends AbstractStorage {
         $value = $this->getMemcache()->get($key);
 
         if ($value === false && $this->getMemcache()->getResultCode() === Memcached::RES_NOTFOUND) {
-            throw new MissingItemException(sprintf('Item with key %s does not exist.', $key));
+            throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
         }
 
         return $value;

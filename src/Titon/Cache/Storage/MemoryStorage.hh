@@ -35,7 +35,7 @@ class MemoryStorage extends AbstractStorage {
             return $this->getCache($key);
         }
 
-        throw new MissingItemException(sprintf('Item with key %s does not exist.', $key));
+        throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
     }
 
     /**

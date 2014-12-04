@@ -32,7 +32,7 @@ class FileStreamTest extends TestCase {
     }
 
     public function testGetSize() {
-        $this->assertEquals(1361, $this->object->getSize());
+        $this->assertGreaterThan(1300, $this->object->getSize()); // Depending on the lookup method, this value can change
     }
 
     public function testIsLocal() {

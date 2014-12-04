@@ -47,7 +47,7 @@ class ApcStorage extends AbstractStorage {
         $value = apc_fetch($key, $success);
 
         if ($value === false && $success === false) {
-            throw new MissingItemException(sprintf('Item with key %s does not exist.', $key));
+            throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
         }
 
         return $value;

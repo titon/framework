@@ -8,6 +8,8 @@
 namespace Titon\Cache;
 
 type CacheCallback = (function(): mixed);
+type ItemList = Vector<Item>;
+type ItemMap = Map<string, Item>;
 type StatsMap = Map<string, mixed>;
 
 /**
@@ -24,29 +26,90 @@ interface Storage {
     const string MEMORY_AVAILABLE = 'memoryAvailable';
 
     /**
+     * Deletes all items in the pool.
+     *
+     * @return boolean
+     *   True if the pool was successfully cleared. False if there was an error.
+     */
+    public function clear(): bool;
+
+    /**
+     * Persists any deferred cache items.
+     *
+     * @return bool
+     *   TRUE if all not-yet-saved items were successfully saved. FALSE otherwise.
+     */
+    public function commit(): bool;
+
+    /**
      * Decrement a value within the cache and return the new number.
-     * Return null if the item cannot be found.
+     * If the item does not exist, it will create the item with an initial value.
      *
      * @param string $key
      * @param int $step
+     * @param int $initial
      * @return int
      */
-    public function decrement(string $key, int $step = 1): ?int;
+    public function decrement(string $key, int $step = 1, int $initial = 0): int;
 
     /**
-     * Empty the cache.
+     * Delete a single item from the pool.
+     *
+     * @param string $key
+     * @return $this
+     */
+    public function deleteItem(string $key): this;
+
+    /**
+     * Removes multiple items from the pool.
+     *
+     * @param array $keys
+     *   An array of keys that should be removed from the pool.
+     * @return $this
+     */
+    public function deleteItems(array $keys): this;
+
+    /**
+     * Empty the cache. Alias for clear().
      *
      * @return bool
      */
     public function flush(): bool;
 
     /**
-     * Get data from the cache if it exists.
+     * Return the raw value from the storage pool instead of returning an item.
+     * If the item does not exist, throw a MissingItemException.
      *
      * @param string $key
-     * @return mixed Returns null if the key isn't found, else the value
+     * @return mixed
+     * @throws \Titon\Cache\Exception\MissingItemException
      */
     public function get(string $key): mixed;
+
+    /**
+     * Returns a Cache Item representing the specified key.
+     *
+     * This method must always return an ItemInterface object, even in case of
+     * a cache miss. It MUST NOT return null.
+     *
+     * @param string $key
+     *   The key for which to return the corresponding Cache Item.
+     * @return \Titon\Cache\Item
+     */
+    public function getItem(string $key): Item;
+
+    /**
+     * Returns a traversable set of cache items.
+     *
+     * @param array $keys
+     * An indexed array of keys of items to retrieve.
+     * @return array|\Traversable
+     * A traversable collection of Cache Items keyed by the cache keys of
+     * each item. A Cache item will be returned for each key, even if that
+     * key is not found. However, if no keys are specified then an empty
+     * traversable MUST be returned instead.
+     */
+    public function getItems(array $keys = []): ItemMap;
 
     /**
      * Check if the item exists within the cache.
@@ -58,13 +121,14 @@ interface Storage {
 
     /**
      * Increment a value within the cache and return the new number.
-     * Return null if the item cannot be found.
+     * If the item does not exist, it will create the item with an initial value.
      *
      * @param string $key
      * @param int $step
+     * @param int $initial
      * @return int
      */
-    public function increment(string $key, int $step = 1): ?int;
+    public function increment(string $key, int $step = 1, int $initial = 0): int;
 
     /**
      * Remove the item if it exists and return true, else return false.
@@ -75,14 +139,33 @@ interface Storage {
     public function remove(string $key): bool;
 
     /**
-     * Set data to the cache.
+     * Persists a cache item immediately.
+     *
+     * @param \Titon\Cache\Item $item
+     *   The cache item to save.
+     *
+     * @return $this
+     */
+    public function save(Item $item): this;
+
+    /**
+     * Sets a cache item to be persisted later.
+     *
+     * @param \Titon\Cache\Item $item
+     *   The cache item to save.
+     * @return $this
+     */
+    public function saveDeferred(Item $item): this;
+
+    /**
+     * Write data to the storage cache directly.
      *
      * @param string $key
      * @param mixed $value
-     * @param mixed $expires
+     * @param int $expires
      * @return bool
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool;
+    public function set(string $key, mixed $value, int $expires): bool;
 
     /**
      * Returns cached information from the storage engine.
@@ -100,6 +183,6 @@ interface Storage {
      * @param mixed $expires
      * @return mixed
      */
-    public function store(string $key, CacheCallback $callback, mixed $expires = '+1 day'): mixed;
+    public function store(string $key, CacheCallback $callback, mixed $expires = null): mixed;
 
 }

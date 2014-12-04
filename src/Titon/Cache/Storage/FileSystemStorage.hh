@@ -137,10 +137,10 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
+    public function set(string $key, mixed $value, int $expires): bool {
         return (
             $this->loadCache($key)->write(serialize($value)) &&
-            $this->loadExpires($key)->write($this->expires($expires))
+            $this->loadExpires($key)->write($expires)
         );
     }
 
@@ -152,7 +152,9 @@ class FileSystemStorage extends AbstractStorage {
      * @return string
      */
     protected function _getPath(string $key, string $ext = 'cache'): string {
-        return $this->_folder->path() . $this->key($key) . '.' . $ext;
+        $key = trim(preg_replace('/[^a-z0-9\-]+/is', '-', $key), '-');
+
+        return $this->_folder->path() . $key . '.' . $ext;
     }
 
 }

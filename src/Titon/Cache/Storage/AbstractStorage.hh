@@ -7,10 +7,14 @@
 
 namespace Titon\Cache\Storage;
 
-use Titon\Common\Cacheable;
+use Titon\Cache\Exception\MissingItemException;
 use Titon\Cache\CacheCallback;
+use Titon\Cache\HitItem;
+use Titon\Cache\Item;
+use Titon\Cache\ItemList;
+use Titon\Cache\MissItem;
+use Titon\Cache\StatsMap;
 use Titon\Cache\Storage;
-use Titon\Utility\Time;
 
 /**
  * Primary class for all storage engines to extend. Provides functionality for the Storage interface.
@@ -18,107 +22,157 @@ use Titon\Utility\Time;
  * @package Titon\Cache\Storage
  */
 abstract class AbstractStorage implements Storage {
-    use Cacheable;
+
+    /**
+     * List of cache items to be committed.
+     *
+     * @type \Titon\Cache\ItemList
+     */
+    protected ItemList $_deferred = Vector {};
 
     /**
      * {@inheritdoc}
      */
-    public function decrement(string $key, int $step = 1): ?int {
-        $value = $this->get($key);
+    public function clear(): bool {
+        return $this->flush();
+    }
 
-        if ($value === null) {
-            return null;
+    /**
+     * {@inheritdoc}
+     */
+    public function commit(): bool {
+        foreach ($this->getDeferred() as $item) {
+            $this->save($item);
         }
 
-        $value = (int) $value - $step;
+        $this->_deferred->clear();
 
-        $this->set($key, $value);
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function decrement(string $key, int $step = 1, int $initial = 0): int {
+        $item = $this->getItem($key);
+
+        $value = ($item->get() ?: $initial) - $step;
+
+        $item->set($value);
+
+        $this->save($item);
 
         return $value;
     }
 
     /**
-     * Convert the expires date into a valid UNIX timestamp,
-     * or if $ttl is true it will convert to relative seconds.
-     *
-     * @param mixed $timestamp
-     * @param bool $ttl Convert to TTL seconds
-     * @return int
+     * {@inheritdoc}
      */
-    public function expires(mixed $timestamp, bool $ttl = false): int {
-        if ($timestamp === 0) {
-            // Fall-through
+    public function deleteItem(string $key): this {
+        $this->remove($key);
 
-        } else if ($timestamp === null) {
-            $timestamp = strtotime('+1 hour');
-
-        } else if (is_string($timestamp)) {
-            $timestamp = Time::toUnix($timestamp);
-
-            if ($ttl) {
-                $timestamp -= time();
-            }
-        }
-
-        return (int) $timestamp;
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function increment(string $key, int $step = 1): ?int {
-        $value = $this->get($key);
-
-        if ($value === null) {
-            return null;
+    public function deleteItems(array $keys): this {
+        foreach ($keys as $key) {
+            $this->remove($key);
         }
 
-        $value = (int) $value + $step;
+        return $this;
+    }
 
-        $this->set($key, $value);
+    /**
+     * Return a list of items waiting to be cached.
+     *
+     * @return \Titon\Cache\ItemList
+     */
+    public function getDeferred(): ItemList {
+        return $this->_deferred;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getItem(string $key): Item {
+        try {
+            return new HitItem($key, $this->get($key));
+        } catch (MissingItemException $e) {
+            return new MissItem($key);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getItems(array $keys = []): ItemMap {
+        $map = Map {};
+
+        foreach ($keys as $key) {
+            $map[$key] = $this->getItem($key);
+        }
+
+        return $map;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function increment(string $key, int $step = 1, int $initial = 0): int {
+        $item = $this->getItem($key);
+
+        $value = ($item->get() ?: $initial) + $step;
+
+        $item->set($value);
+
+        $this->save($item);
 
         return $value;
     }
 
     /**
-     * Rewrite the key to use a specific format.
-     *
-     * @param string $key
-     * @return string
+     * {@inheritdoc}
      */
-    public function key(string $key): string {
-        return $this->cache([__METHOD__, $key], () ==> trim(preg_replace('/[^a-z0-9\-]+/is', '-', $key), '-') );
-    }
+    public function save(Item $item): this {
+        if ($item->getExpiration() <= time()) {
+            return $this; // Already expired
+        }
 
-    /**
-     * This method fixes discrepancies with PHP and Hack and its nullable types.
-     * Any API method that returns false as failure should return null instead so we can use type hinting.
-     *
-     * @param mixed $value
-     * @return int
-     */
-    public function returnInt(mixed $value): ?int {
-        return ($value === false || $value === null) ? null : (int) $value;
+        $this->set($item->getKey(), $item->get(), $item->getExpiration());
+
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function stats(): Map<string, mixed> {
+    public function saveDeferred(Item $item): this {
+        $this->_deferred[] = $item;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function stats(): StatsMap {
         return Map {};
     }
 
     /**
      * {@inheritdoc}
      */
-    public function store(string $key, CacheCallback $callback, mixed $expires = '+1 day'): mixed {
+    public function store(string $key, CacheCallback $callback, mixed $expires = null): mixed {
         if ($this->has($key)) {
-            return $this->get($key);
+            return $this->getItem($key)->get();
         }
 
         $value = call_user_func($callback);
 
-        $this->set($key, $value, $expires);
+        $this->save(new Item($key, $value, $expires));
 
         return $value;
     }

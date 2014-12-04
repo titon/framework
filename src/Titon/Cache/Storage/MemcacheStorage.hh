@@ -7,6 +7,7 @@
 
 namespace Titon\Cache\Storage;
 
+use Titon\Cache\Exception\MissingItemException;
 use Titon\Cache\StatsMap;
 use \Memcached;
 
@@ -43,13 +44,6 @@ class MemcacheStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function decrement(string $key, int $step = 1): ?int {
-        return $this->returnInt($this->getMemcache()->decrement($this->key($key), $step));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function flush(): bool {
         return $this->getMemcache()->flush();
     }
@@ -58,10 +52,10 @@ class MemcacheStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function get(string $key): mixed {
-        $value = $this->getMemcache()->get($this->key($key));
+        $value = $this->getMemcache()->get($key);
 
         if ($value === false && $this->getMemcache()->getResultCode() === Memcached::RES_NOTFOUND) {
-            return null;
+            throw new MissingItemException(sprintf('Item with key %s does not exist.', $key));
         }
 
         return $value;
@@ -80,28 +74,24 @@ class MemcacheStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function has(string $key): bool {
-        return ($this->get($key) && $this->getMemcache()->getResultCode() === Memcached::RES_SUCCESS);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function increment(string $key, int $step = 1): ?int {
-        return $this->returnInt($this->getMemcache()->increment($this->key($key), $step));
+        return (
+            $this->getMemcache()->get($key) &&
+            $this->getMemcache()->getResultCode() === Memcached::RES_SUCCESS
+        );
     }
 
     /**
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        return $this->getMemcache()->delete($this->key($key));
+        return $this->getMemcache()->delete($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
-        return $this->getMemcache()->set($this->key($key), $value, $this->expires($expires));
+    public function set(string $key, mixed $value, int $expires): bool {
+        return $this->getMemcache()->set($key, $value, $expires);
     }
 
     /**

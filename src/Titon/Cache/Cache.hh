@@ -47,11 +47,12 @@ class Cache {
      *
      * @param string $key
      * @param int $step
+     * @param int $initial
      * @param string $storage
      * @return int
      */
-    public function decrement(string $key, int $step = 1, string $storage = 'default'): ?int {
-        return $this->getStorage($storage)->decrement($key, $step);
+    public function decrement(string $key, int $step = 1, int $initial = 0, string $storage = 'default'): int {
+        return $this->getStorage($storage)->decrement($key, $step, $initial);
     }
 
     /**
@@ -79,8 +80,8 @@ class Cache {
      * @param string $storage
      * @return mixed
      */
-    public function get(string $key, string $storage = 'default'): mixed {
-        return $this->getStorage($storage)->get($key);
+    public function get(string $key, string $storage = 'default'): Item {
+        return $this->getStorage($storage)->getItem($key);
     }
 
     /**
@@ -123,11 +124,12 @@ class Cache {
      *
      * @param string $key
      * @param int $step
+     * @param int $initial
      * @param string $storage
      * @return int
      */
-    public function increment(string $key, int $step = 1, string $storage = 'default'): ?int {
-        return $this->getStorage($storage)->increment($key, $step);
+    public function increment(string $key, int $step = 1, int $initial = 0, string $storage = 'default'): int {
+        return $this->getStorage($storage)->increment($key, $step, $initial);
     }
 
     /**
@@ -150,8 +152,10 @@ class Cache {
      * @param string $storage
      * @return bool
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day', string $storage = 'default'): bool {
-        return $this->getStorage($storage)->set($key, $value, $expires);
+    public function set(string $key, mixed $value, mixed $expires = null, string $storage = 'default'): bool {
+        $this->getStorage($storage)->save(new Item($key, $value, $expires));
+
+        return true;
     }
 
     /**
@@ -173,7 +177,7 @@ class Cache {
      * @param string $storage
      * @return mixed
      */
-    public function store(string $key, CacheCallback $callback, mixed $expires = '+1 day', string $storage = 'default'): mixed {
+    public function store(string $key, CacheCallback $callback, mixed $expires = null, string $storage = 'default'): mixed {
         return $this->getStorage($storage)->store($key, $callback, $expires);
     }
 

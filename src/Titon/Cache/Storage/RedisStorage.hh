@@ -7,6 +7,7 @@
 
 namespace Titon\Cache\Storage;
 
+use Titon\Cache\Exception\MissingItemException;
 use Titon\Cache\StatsMap;
 use \Redis;
 
@@ -43,13 +44,6 @@ class RedisStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function decrement(string $key, int $step = 1): ?int {
-        return $this->getRedis()->decrBy($this->key($key), $step);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function flush(): bool {
         return $this->getRedis()->flushDB();
     }
@@ -58,13 +52,13 @@ class RedisStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function get(string $key): mixed {
-        $value = $this->getRedis()->get($this->key($key));
+        $value = $this->getRedis()->get($key);
 
         if ($value === false) {
-            return null;
+            throw new MissingItemException(sprintf('Item with key %s does not exist.', $key));
         }
 
-        return $value;
+        return unserialize($value);
     }
 
     /**
@@ -80,41 +74,21 @@ class RedisStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function has(string $key): bool {
-        return $this->getRedis()->exists($this->key($key));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function increment(string $key, int $step = 1): ?int {
-        return $this->getRedis()->incrBy($this->key($key), $step);
+        return $this->getRedis()->exists($key);
     }
 
     /**
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        $this->getRedis()->delete($this->key($key));
-
-        return true;
+        return (bool) $this->getRedis()->delete($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
-        if ($expires === 0) {
-            return $this->getRedis()->set($this->key($key), $value);
-        }
-
-        $expires = $this->expires($expires, true);
-
-        // Immediately invalidate
-        if ($expires < 0) {
-            return true;
-        }
-
-        return $this->getRedis()->setex($this->key($key), $expires, $value);
+    public function set(string $key, mixed $value, int $expires): bool {
+        return $this->getRedis()->setex($key, $expires - time(), serialize($value)); // Redis is TTL
     }
 
     /**
@@ -124,8 +98,8 @@ class RedisStorage extends AbstractStorage {
         $stats = $this->getRedis()->info();
 
         return Map {
-            self::HITS => false,
-            self::MISSES => false,
+            self::HITS => $stats['keyspace_hits'],
+            self::MISSES => $stats['keyspace_misses'],
             self::UPTIME => $stats['uptime_in_seconds'],
             self::MEMORY_USAGE => $stats['used_memory'],
             self::MEMORY_AVAILABLE => false

@@ -7,12 +7,13 @@
 
 namespace Titon\Cache\Storage;
 
-use Titon\Cache\StatsMap;
+use Titon\Cache\Exception\MissingItemException;
 use Titon\Cache\Exception\MissingExtensionException;
+use Titon\Cache\StatsMap;
 
 /**
  * A storage engine that uses the APC extension for a cache store; requires pecl/apc.
- * This engine can be installed using the Cache::addStorage() method. No configuration options are available for this engine.
+ * This engine can be installed using the Cache::addStorage() method.
  *
  * @link http://pecl.php.net/package/apc
  *
@@ -34,13 +35,6 @@ class ApcStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function decrement(string $key, int $step = 1): ?int {
-        return $this->returnInt(apc_dec($this->key($key), $step));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function flush(): bool {
         return (apc_clear_cache() && apc_clear_cache('user'));
     }
@@ -49,42 +43,34 @@ class ApcStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function get(string $key): mixed {
-        return $this->returnInt(apc_fetch($this->key($key)));
+        $value = apc_fetch($key, $success);
+
+        if ($value === false && $success === false) {
+            throw new MissingItemException(sprintf('Item with key %s does not exist.', $key));
+        }
+
+        return $value;
     }
 
     /**
      * {@inheritdoc}
      */
     public function has(string $key): bool {
-        return apc_exists($this->key($key));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function increment(string $key, int $step = 1): ?int {
-        return $this->returnInt(apc_inc($this->key($key), $step));
+        return apc_exists($key);
     }
 
     /**
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        return apc_delete($this->key($key));
+        return apc_delete($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
-        $expires = $this->expires($expires, true);
-
-        // Immediately invalidate
-        if ($expires < 0) {
-            return true;
-        }
-
-        return apc_store($this->key($key), $value, $expires);
+    public function set(string $key, mixed $value, int $expires): bool {
+        return apc_store($key, $value, $expires - time()); // APC uses TTL
     }
 
     /**
@@ -98,7 +84,6 @@ class ApcStorage extends AbstractStorage {
             return Map {};
         }
 
-        // HHVM needs index checks as it doesn't return all keys
         return Map {
             self::HITS => array_key_exists('num_hits', $stats) ? $stats['num_hits'] : 0,
             self::MISSES => array_key_exists('num_misses', $stats) ? $stats['num_misses'] : 0,

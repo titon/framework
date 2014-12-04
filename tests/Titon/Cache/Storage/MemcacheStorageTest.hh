@@ -3,9 +3,6 @@ namespace Titon\Cache\Storage;
 
 use \Memcached;
 
-/**
- * There seems to be many issues with the HHVM/Hack Memcached implementation.
- */
 class MemcacheStorageTest extends AbstractStorageTest {
 
     protected function setUp() {
@@ -24,7 +21,7 @@ class MemcacheStorageTest extends AbstractStorageTest {
         $stats = $memcache->getStats();
 
         if (empty($stats['127.0.0.1:11211'])) {
-            throw new \Exception('Could not connect to Memcache');
+            $this->markTestSkipped('Could not connect to Memcache');
         }
 
         $this->object = new MemcacheStorage($memcache);

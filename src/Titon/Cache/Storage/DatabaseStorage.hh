@@ -36,7 +36,7 @@ class DatabaseStorage extends AbstractStorage {
      * @return \Titon\Db\Query
      */
     public function find(string $key): Query {
-        return $this->getRepository()->select()->where('key', $this->key($key));
+        return $this->getRepository()->select()->where('key', $key);
     }
 
     /**
@@ -73,13 +73,13 @@ class DatabaseStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        return (bool) $this->getRepository()->query(Query::DELETE)->where('key', $this->key($key))->save();
+        return (bool) $this->getRepository()->query(Query::DELETE)->where('key', $key)->save();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
+    public function set(string $key, mixed $value, mixed $expires = null): bool {
         $repo = $this->getRepository();
 
         if ($entity = $this->find($key)->first()) {
@@ -89,7 +89,7 @@ class DatabaseStorage extends AbstractStorage {
 
         } else {
             return (bool) $repo->create([
-                'key' => $this->key($key),
+                'key' => $key,
                 'value' => serialize($value),
                 'expires_at' => $this->expires($expires)
             ]);

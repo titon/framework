@@ -15,27 +15,27 @@ class CacheTest extends TestCase {
         $this->object = new Cache();
 
         $default = new MemoryStorage();
-        $default->set('key', 'foo');
+        $default->set('key', 'foo', 300);
 
         $custom = new MemoryStorage();
-        $custom->set('key', 'bar');
+        $custom->set('key', 'bar', 300);
 
         $this->object->addStorage('default', $default);
         $this->object->addStorage('custom', $custom);
     }
 
     public function testDecrement() {
-        $this->assertEquals(null, $this->object->get('decrement'));
-        $this->assertEquals(null, $this->object->get('decrement', 'custom'));
+        $this->assertEquals(null, $this->object->get('decrement')->get());
+        $this->assertEquals(null, $this->object->get('decrement', 'custom')->get());
 
         $this->object->set('decrement', 0);
         $this->object->decrement('decrement', 1);
 
         $this->object->set('decrement', 0, '+1 day', 'custom');
-        $this->object->decrement('decrement', 5, 'custom');
+        $this->object->decrement('decrement', 5, 0, 'custom');
 
-        $this->assertEquals(-1, $this->object->get('decrement'));
-        $this->assertEquals(-5, $this->object->get('decrement', 'custom'));
+        $this->assertEquals(-1, $this->object->get('decrement')->get());
+        $this->assertEquals(-5, $this->object->get('decrement', 'custom')->get());
     }
 
     public function testFlush() {
@@ -63,11 +63,11 @@ class CacheTest extends TestCase {
     }
 
     public function testGet() {
-        $this->assertEquals(null, $this->object->get('fakeKey'));
-        $this->assertEquals('foo', $this->object->get('key'));
+        $this->assertEquals(null, $this->object->get('fakeKey')->get());
+        $this->assertEquals('foo', $this->object->get('key')->get());
 
-        $this->assertEquals(null, $this->object->get('fakeKey', 'custom'));
-        $this->assertEquals('bar', $this->object->get('key', 'custom'));
+        $this->assertEquals(null, $this->object->get('fakeKey', 'custom')->get());
+        $this->assertEquals('bar', $this->object->get('key', 'custom')->get());
     }
 
     public function testHas() {
@@ -79,37 +79,45 @@ class CacheTest extends TestCase {
     }
 
     public function testIncrement() {
-        $this->assertEquals(null, $this->object->get('increment'));
-        $this->assertEquals(null, $this->object->get('increment', 'custom'));
+        $this->assertEquals(null, $this->object->get('increment')->get());
+        $this->assertEquals(null, $this->object->get('increment', 'custom')->get());
 
         $this->object->set('increment', 0);
         $this->object->increment('increment', 4);
 
         $this->object->set('increment', 0, '+1 day', 'custom');
-        $this->object->increment('increment', 2, 'custom');
+        $this->object->increment('increment', 2, 0, 'custom');
 
-        $this->assertEquals(4, $this->object->get('increment'));
-        $this->assertEquals(2, $this->object->get('increment', 'custom'));
+        $this->assertEquals(4, $this->object->get('increment')->get());
+        $this->assertEquals(2, $this->object->get('increment', 'custom')->get());
     }
 
     public function testRemove() {
-        $this->assertEquals('foo', $this->object->get('key'));
-        $this->object->remove('key');
-        $this->assertEquals(null, $this->object->get('key'));
+        $this->assertEquals('foo', $this->object->get('key')->get());
 
-        $this->assertEquals('bar', $this->object->get('key', 'custom'));
+        $this->object->remove('key');
+
+        $this->assertEquals(null, $this->object->get('key')->get());
+
+        $this->assertEquals('bar', $this->object->get('key', 'custom')->get());
+
         $this->object->remove('key', 'custom');
-        $this->assertEquals(null, $this->object->get('key', 'custom'));
+
+        $this->assertEquals(null, $this->object->get('key', 'custom')->get());
     }
 
     public function testSet() {
-        $this->assertEquals('foo', $this->object->get('key'));
-        $this->object->set('key', 'bar', '+1 hour');
-        $this->assertEquals('bar', $this->object->get('key'));
+        $this->assertEquals('foo', $this->object->get('key')->get());
 
-        $this->assertEquals('bar', $this->object->get('key', 'custom'));
+        $this->object->set('key', 'bar', '+1 hour');
+
+        $this->assertEquals('bar', $this->object->get('key')->get());
+
+        $this->assertEquals('bar', $this->object->get('key', 'custom')->get());
+
         $this->object->set('key', 'baz', null, 'custom');
-        $this->assertEquals('baz', $this->object->get('key', 'custom'));
+
+        $this->assertEquals('baz', $this->object->get('key', 'custom')->get());
     }
 
     public function testStats() {

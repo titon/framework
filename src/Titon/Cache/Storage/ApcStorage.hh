@@ -43,6 +43,7 @@ class ApcStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function get(string $key): mixed {
+        $success = true;
         $value = apc_fetch($key, $success);
 
         if ($value === false && $success === false) {

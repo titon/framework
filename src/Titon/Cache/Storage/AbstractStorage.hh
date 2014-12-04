@@ -12,6 +12,7 @@ use Titon\Cache\CacheCallback;
 use Titon\Cache\HitItem;
 use Titon\Cache\Item;
 use Titon\Cache\ItemList;
+use Titon\Cache\ItemMap;
 use Titon\Cache\MissItem;
 use Titon\Cache\StatsMap;
 use Titon\Cache\Storage;
@@ -56,7 +57,7 @@ abstract class AbstractStorage implements Storage {
     public function decrement(string $key, int $step = 1, int $initial = 0): int {
         $item = $this->getItem($key);
 
-        $value = ($item->get() ?: $initial) - $step;
+        $value = ((int) $item->get() ?: $initial) - $step;
 
         $item->set($value);
 
@@ -77,7 +78,7 @@ abstract class AbstractStorage implements Storage {
     /**
      * {@inheritdoc}
      */
-    public function deleteItems(array $keys): this {
+    public function deleteItems(array<string> $keys): this {
         foreach ($keys as $key) {
             $this->remove($key);
         }
@@ -108,7 +109,7 @@ abstract class AbstractStorage implements Storage {
     /**
      * {@inheritdoc}
      */
-    public function getItems(array $keys = []): ItemMap {
+    public function getItems(array<string> $keys = []): ItemMap {
         $map = Map {};
 
         foreach ($keys as $key) {
@@ -124,7 +125,7 @@ abstract class AbstractStorage implements Storage {
     public function increment(string $key, int $step = 1, int $initial = 0): int {
         $item = $this->getItem($key);
 
-        $value = ($item->get() ?: $initial) + $step;
+        $value = ((int) $item->get() ?: $initial) + $step;
 
         $item->set($value);
 

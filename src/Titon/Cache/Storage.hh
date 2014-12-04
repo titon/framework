@@ -67,7 +67,7 @@ interface Storage {
      *   An array of keys that should be removed from the pool.
      * @return $this
      */
-    public function deleteItems(array $keys): this;
+    public function deleteItems(array<string> $keys): this;
 
     /**
      * Empty the cache. Alias for clear().
@@ -109,7 +109,7 @@ interface Storage {
      * key is not found. However, if no keys are specified then an empty
      * traversable MUST be returned instead.
      */
-    public function getItems(array $keys = []): ItemMap;
+    public function getItems(array<string> $keys = []): ItemMap;
 
     /**
      * Check if the item exists within the cache.

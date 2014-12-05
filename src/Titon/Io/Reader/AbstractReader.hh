@@ -7,7 +7,7 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Common\DataMap;
+use Titon\Io\ResourceMap;
 use Titon\Io\File;
 use Titon\Io\Reader;
 use Titon\Io\Exception\MissingFileException;

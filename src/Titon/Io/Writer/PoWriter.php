@@ -8,8 +8,7 @@
 namespace Titon\Io\Writer;
 
 use Titon\Common\Config;
-use Titon\Common\DataMap;
-use Titon\Io\Reader\PoReader;
+use Titon\Io\ResourceMap;
 use Titon\Utility\Col;
 
 /**
@@ -22,20 +21,7 @@ class PoWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      */
-    public function append(DataMap $data) {
-        $reader = new PoReader($this->path());
-
-        if ($contents = $reader->read()) {
-            $data = Col::merge($contents, $data);
-        }
-
-        return parent::write($data);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function write(DataMap $data) {
+    public function write(ResourceMap $data) {
         return parent::write($this->_process($data));
     }
 
@@ -44,10 +30,10 @@ class PoWriter extends AbstractWriter {
      *
      * @uses Titon\Common\Config
      *
-     * @param \Titon\Common\DataMap $data
+     * @param \Titon\Io\ResourceMap $data
      * @return string
      */
-    protected function _process(DataMap $data): string {
+    protected function _process(ResourceMap $data): string {
         $comments = Map {
             'Project-Id-Version' => 'Titon',
             'POT-Creation-Date' => date('Y-m-d H:iO'),
@@ -69,20 +55,16 @@ class PoWriter extends AbstractWriter {
         $output = '';
 
         // Output comments first
-        if ($comments) {
-            $output .= 'msgid ""' . PHP_EOL;
-            $output .= 'msgstr ""' . PHP_EOL;
+        $output .= 'msgid ""' . PHP_EOL;
+        $output .= 'msgstr ""' . PHP_EOL;
 
-            foreach ($comments as $key => $value) {
-                $output .= sprintf('"%s: %s\n"', $key, $value) . PHP_EOL;
-            }
+        foreach ($comments as $key => $value) {
+            $output .= sprintf('"%s: %s\n"', $key, $value) . PHP_EOL;
         }
 
         // Output values
-        if ($data) {
-            foreach ($data as $key => $value) {
-                $output .= $this->_processLine($key, $value);
-            }
+        foreach ($data as $key => $value) {
+            $output .= $this->_processLine($key, $value);
         }
 
         return $output;

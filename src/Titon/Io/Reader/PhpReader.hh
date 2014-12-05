@@ -7,7 +7,7 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Common\DataMap;
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Utility\Col;
 
@@ -24,7 +24,7 @@ class PhpReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): DataMap {
+    public function read(): ResourceMap {
         if ($this->exists()) {
             return Col::toMap(include $this->path());
         }

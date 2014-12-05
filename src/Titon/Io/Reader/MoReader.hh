@@ -7,7 +7,7 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Common\DataMap;
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 
 /**
@@ -22,7 +22,7 @@ class MoReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): DataMap {
+    public function read(): ResourceMap {
         if ($this->exists()) {
             return ($data = $this->_unpack()) ? $data : Map {};
         }
@@ -33,9 +33,9 @@ class MoReader extends AbstractReader {
     /**
      * Unpack the mo file contents and extract the hash tables.
      *
-     * @return \Titon\Common\DataMap
+     * @return \Titon\Io\ResourceMap
      */
-    protected function _unpack(): ?DataMap {
+    protected function _unpack(): ?ResourceMap {
         $file = fopen($this->path(), 'rb');
         $header = fread($file, 28);
 

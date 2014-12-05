@@ -7,22 +7,14 @@
 
 namespace Titon\Io;
 
-use Titon\Common\DataMap;
+use Titon\Io\ResourceMap;
 
 /**
- * Interface for the file writers library.
+ * Interface for writing file resources.
  *
  * @package Titon\Io
  */
 interface Writer {
-
-    /**
-     * Append data to the end of a file.
-     *
-     * @param \Titon\Common\DataMap $data
-     * @return bool
-     */
-    public function append(DataMap $data): bool;
 
     /**
      * Return the current path.
@@ -42,9 +34,9 @@ interface Writer {
     /**
      * Truncate source file and write data to it.
      *
-     * @param \Titon\Common\DataMap $data
+     * @param \Titon\Io\ResourceMap $data
      * @return bool
      */
-    public function write(DataMap $data): bool;
+    public function write(ResourceMap $data): bool;
 
 }

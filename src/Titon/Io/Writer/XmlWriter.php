@@ -7,10 +7,8 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Common\DataMap;
-use Titon\Io\Reader\XmlReader;
+use Titon\Io\ResourceMap;
 use Titon\Type\XmlDocument;
-use Titon\Utility\Col;
 
 /**
  * A file writer that generates XML files.
@@ -22,24 +20,9 @@ class XmlWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      *
-     * @uses Titon\Utility\Col
-     */
-    public function append(DataMap $data) {
-        $reader = new XmlReader($this->path());
-
-        if ($contents = $reader->read()) {
-            $data = Col::merge($contents, $data);
-        }
-
-        return $this->write($data);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
      * @uses Titon\Type\XmlDocument
      */
-    public function write(DataMap $data) {
+    public function write(ResourceMap $data) {
         return parent::write(XmlDocument::fromMap($data)->toString());
     }
 

@@ -6,8 +6,7 @@ php:
 
 matrix:
   allow_failures:
-    #- php: hhvm
-    - php: hhvm-nightly
+    - php: hhvm
 
 services:
   - memcached

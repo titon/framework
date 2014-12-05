@@ -7,7 +7,7 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Common\DataMap;
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 
 /**
@@ -22,7 +22,7 @@ class PoReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): DataMap {
+    public function read(): ResourceMap {
         if ($this->exists()) {
             return $this->_parse();
         }
@@ -33,9 +33,9 @@ class PoReader extends AbstractReader {
     /**
      * Parse out the po contents.
      *
-     * @return \Titon\Common\DataMap
+     * @return \Titon\Io\ResourceMap
      */
-    protected function _parse(): DataMap {
+    protected function _parse(): ResourceMap {
         $lines = file($this->path(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $data = Map {};
         $key = '';

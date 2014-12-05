@@ -7,9 +7,7 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Common\DataMap;
-use Titon\Io\Reader\PhpReader;
-use Titon\Utility\Col;
+use Titon\Io\ResourceMap;
 
 /**
  * A file writer that generates PHP files.
@@ -20,23 +18,8 @@ class PhpWriter extends AbstractWriter {
 
     /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Utility\Col
      */
-    public function append(DataMap $data) {
-        $reader = new PhpReader($this->path());
-
-        if ($contents = $reader->read()) {
-            $data = Col::merge($contents, $data);
-        }
-
-        return parent::write($data);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function write(DataMap $data) {
+    public function write(ResourceMap $data) {
         return parent::write(sprintf('<?php return %s;', var_export($data, true)));
     }
 

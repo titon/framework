@@ -7,7 +7,7 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Common\DataMap;
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Io\Exception\MissingExtensionException;
 use Titon\Utility\Col;
@@ -28,7 +28,7 @@ class YamlReader extends AbstractReader {
      * @throws \Titon\Io\Exception\MissingExtensionException
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): DataMap {
+    public function read(): ResourceMap {
         if (!extension_loaded('yaml')) {
             throw new MissingExtensionException('YAML extension must be installed to use the YamlReader');
         }

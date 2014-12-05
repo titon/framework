@@ -7,6 +7,8 @@
 
 namespace Titon\Io\Writer;
 
+use Titon\Common\DataMap;
+use Titon\Io\Reader\IniReader;
 use Titon\Utility\Col;
 
 /**
@@ -19,36 +21,38 @@ class IniWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      *
-     * @uses Titon\Utility\Hash
+     * @uses Titon\Utility\Col
      */
-    public function append($data) {
-        if ($contents = $this->read()) {
-            $data = Col::merge(parse_ini_string($contents, true), $data);
+    public function append(DataMap $data) {
+        $reader = new IniReader($this->path());
+
+        if ($contents = $reader->read()) {
+            $data = Col::merge($contents, $data);
         }
 
-        return $this->write($data);
+        return parent::write($data);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($data) {
+    public function write(DataMap $data) {
         return parent::write($this->_process($data));
     }
 
     /**
      * Process a multi-dimensional array into an INI format.
      *
-     * @param string|array $data
+     * @param \Titon\Common\DataMap $data
      * @return string
      */
-    protected function _process($data) {
+    protected function _process(DataMap $data): string {
         $sections = [];
         $settings = [];
         $output = '';
 
         // Parse out the sections and settings
-        foreach ((array) $data as $key => $value) {
+        foreach ($data as $key => $value) {
             if (is_array($value) && !isset($value[0])) {
                 $sections[$key] = $value;
             } else {
@@ -88,7 +92,7 @@ class IniWriter extends AbstractWriter {
      * @param mixed $value
      * @return string
      */
-    protected function _processLine($key, $value) {
+    protected function _processLine(string $key, mixed $value): string {
         $output = '';
 
         if (is_array($value)) {
@@ -108,9 +112,9 @@ class IniWriter extends AbstractWriter {
      * @param mixed $value
      * @return bool|int|string
      */
-    protected function _getValue($value) {
+    protected function _getValue(mixed $value): mixed {
         if (is_numeric($value)) {
-            return $value;
+            return (int) $value;
 
         } else if ($value === true || in_array($value, ['on', 'yes', 'true'])) {
             return true;

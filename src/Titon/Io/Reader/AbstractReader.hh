@@ -7,7 +7,7 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Common\Cacheable;
+use Titon\Common\DataMap;
 use Titon\Io\File;
 use Titon\Io\Reader;
 use Titon\Io\Exception\MissingFileException;
@@ -18,10 +18,10 @@ use Titon\Io\Exception\MissingFileException;
  * @package Titon\Io\Reader
  */
 abstract class AbstractReader extends File implements Reader {
-    use Cacheable;
 
     /**
      * Set the path during construction.
+     * The path is optional as we don't want to create the file under some situations.
      *
      * @param string $path
      * @throws \Titon\Io\Exception\MissingFileException
@@ -29,20 +29,11 @@ abstract class AbstractReader extends File implements Reader {
     public function __construct(string $path = '') {
         if ($path) {
             if (!file_exists($path)) {
-                throw new MissingFileException(sprintf('File %s does not exist', basename($path)));
+                throw new MissingFileException(sprintf('File %s does not exist', $path));
             }
 
             parent::__construct($path);
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function reset(string $path = ''): this {
-        $this->flushCache();
-
-        return parent::reset($path);
     }
 
 }

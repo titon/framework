@@ -7,6 +7,7 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Common\DataMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Utility\Col;
 
@@ -23,14 +24,12 @@ class PhpReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): Map<string, mixed> {
-        return $this->cache([__METHOD__, $this->path()], function() {
-            if ($this->exists()) {
-                return Col::toMap(include $this->path());
-            }
+    public function read(): DataMap {
+        if ($this->exists()) {
+            return Col::toMap(include $this->path());
+        }
 
-            throw new ReadErrorException(sprintf('PhpReader failed to parse %s', $this->name()));
-        });
+        throw new ReadErrorException(sprintf('PhpReader failed to parse %s', $this->path()));
     }
 
 }

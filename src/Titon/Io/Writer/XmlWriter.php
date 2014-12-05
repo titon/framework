@@ -7,8 +7,10 @@
 
 namespace Titon\Io\Writer;
 
+use Titon\Common\DataMap;
+use Titon\Io\Reader\XmlReader;
+use Titon\Type\XmlDocument;
 use Titon\Utility\Col;
-use Titon\Utility\Converter;
 
 /**
  * A file writer that generates XML files.
@@ -18,21 +20,15 @@ use Titon\Utility\Converter;
 class XmlWriter extends AbstractWriter {
 
     /**
-     * Allow for format overrides.
-     *
-     * @type int
-     */
-    public static $format = Converter::XML_MERGE;
-
-    /**
      * {@inheritdoc}
      *
-     * @uses Titon\Utility\Hash
      * @uses Titon\Utility\Col
      */
-    public function append($data) {
-        if ($contents = $this->read()) {
-            $data = Col::merge(Converter::xmlToArray(simplexml_load_string($contents), self::$format), $data);
+    public function append(DataMap $data) {
+        $reader = new XmlReader($this->path());
+
+        if ($contents = $reader->read()) {
+            $data = Col::merge($contents, $data);
         }
 
         return $this->write($data);
@@ -41,10 +37,10 @@ class XmlWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      *
-     * @uses Titon\Utility\Col
+     * @uses Titon\Type\XmlDocument
      */
-    public function write($data) {
-        return parent::write(Converter::toXml($data));
+    public function write(DataMap $data) {
+        return parent::write(XmlDocument::fromMap($data)->toString());
     }
 
 }

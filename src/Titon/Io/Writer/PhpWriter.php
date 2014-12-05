@@ -7,6 +7,8 @@
 
 namespace Titon\Io\Writer;
 
+use Titon\Common\DataMap;
+use Titon\Io\Reader\PhpReader;
 use Titon\Utility\Col;
 
 /**
@@ -19,23 +21,23 @@ class PhpWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      *
-     * @uses Titon\Utility\Hash
+     * @uses Titon\Utility\Col
      */
-    public function append($data) {
-        if ($this->exists()) {
-            if ($contents = include $this->path()) {
-                $data = Col::merge($contents, $data);
-            }
+    public function append(DataMap $data) {
+        $reader = new PhpReader($this->path());
+
+        if ($contents = $reader->read()) {
+            $data = Col::merge($contents, $data);
         }
 
-        return $this->write($data);
+        return parent::write($data);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($data) {
-        return parent::write(sprintf('<?hh // strict return %s;', var_export($data, true)));
+    public function write(DataMap $data) {
+        return parent::write(sprintf('<?php return %s;', var_export($data, true)));
     }
 
 }

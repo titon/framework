@@ -7,6 +7,7 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Common\DataMap;
 use Titon\Io\Exception\ReadErrorException;
 
 /**
@@ -21,22 +22,20 @@ class PoReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): Map<string, mixed> {
-        return $this->cache([__METHOD__, $this->path()], function() {
-            if ($this->exists()) {
-                return $this->_parse();
-            }
+    public function read(): DataMap {
+        if ($this->exists()) {
+            return $this->_parse();
+        }
 
-            throw new ReadErrorException(sprintf('PoReader failed to parse %s', $this->name()));
-        });
+        throw new ReadErrorException(sprintf('PoReader failed to parse %s', $this->path()));
     }
 
     /**
      * Parse out the po contents.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Common\DataMap
      */
-    protected function _parse(): Map<string, mixed> {
+    protected function _parse(): DataMap {
         $lines = file($this->path(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $data = Map {};
         $key = '';

@@ -7,6 +7,7 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Common\DataMap;
 use Titon\Io\Exception\ReadErrorException;
 
 /**
@@ -21,22 +22,20 @@ class MoReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): Map<string, mixed> {
-        return $this->cache([__METHOD__, $this->path()], function() {
-            if ($this->exists()) {
-                return $this->_unpack();
-            }
+    public function read(): DataMap {
+        if ($this->exists()) {
+            return ($data = $this->_unpack()) ? $data : Map {};
+        }
 
-            throw new ReadErrorException(sprintf('MoReader failed to parse %s', $this->name()));
-        });
+        throw new ReadErrorException(sprintf('MoReader failed to parse %s', $this->path()));
     }
 
     /**
      * Unpack the mo file contents and extract the hash tables.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Common\DataMap
      */
-    protected function _unpack(): ?Map<string, mixed> {
+    protected function _unpack(): ?DataMap {
         $file = fopen($this->path(), 'rb');
         $header = fread($file, 28);
 
@@ -162,12 +161,12 @@ class MoReader extends AbstractReader {
                 if ($originalCount && ($originalCount == count($translation))) {
                     $plurals = array_combine($original, $translation);
                 } else {
-                    $plurals = array();
+                    $plurals = [];
                 }
 
                 $key = is_null($context) ? $singularFrom : "$context\04$singularFrom";
 
-                $hash[$key] = new Vector(!$plurals ? $singularTo : $plurals);
+                $hash[$key] = new Vector($plurals ?: $singularTo);
             }
         }
 

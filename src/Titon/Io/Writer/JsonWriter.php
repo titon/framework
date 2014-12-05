@@ -7,6 +7,8 @@
 
 namespace Titon\Io\Writer;
 
+use Titon\Common\DataMap;
+use Titon\Io\Reader\JsonReader;
 use Titon\Utility\Col;
 
 /**
@@ -21,18 +23,20 @@ class JsonWriter extends AbstractWriter {
      *
      * @uses Titon\Utility\Hash
      */
-    public function append($data) {
-        if ($contents = $this->read()) {
-            $data = Col::merge(json_decode($contents, true), $data);
+    public function append(DataMap $data) {
+        $reader = new JsonReader($this->path());
+
+        if ($contents = $reader->read()) {
+            $data = Col::merge($contents, $data);
         }
 
-        return $this->write($data);
+        return parent::write($data);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($data) {
+    public function write(DataMap $data) {
         return parent::write(json_encode($data, JSON_PRETTY_PRINT));
     }
 

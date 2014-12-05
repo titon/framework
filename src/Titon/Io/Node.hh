@@ -8,7 +8,6 @@
 namespace Titon\Io;
 
 use Titon\Io\Exception\ExistingFileException;
-use Titon\Io\Exception\InvalidPathException;
 use Titon\Io\Exception\MissingFileException;
 use Titon\Utility\Path;
 
@@ -192,7 +191,7 @@ abstract class Node {
      * @return string
      */
     public function dir(): string {
-        return dirname($this->path());
+        return dirname($this->path()) . '/';
     }
 
     /**
@@ -253,7 +252,7 @@ abstract class Node {
      */
     public static function load(string $path): Node {
         if (!file_exists($path)) {
-            throw new MissingFileException(sprintf('No file or folder found at path: %s', $path));
+            throw new MissingFileException(sprintf('No file or folder found at  %s', $path));
         }
 
         if (is_dir($path)) {

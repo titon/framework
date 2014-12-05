@@ -8,8 +8,9 @@
 namespace Titon\Io\Writer;
 
 use Titon\Common\Config;
-use Titon\Io\Writer\AbstractWriter;
-use Titon\Utility\Hash;
+use Titon\Common\DataMap;
+use Titon\Io\Reader\PoReader;
+use Titon\Utility\Col;
 
 /**
  * A file writer that generates PO files.
@@ -21,23 +22,20 @@ class PoWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      */
-    public function append($data) {
-        unset($data['_comments']);
-        $output = (string) $this->read();
+    public function append(DataMap $data) {
+        $reader = new PoReader($this->path());
 
-        if ($data) {
-            foreach ((array) $data as $key => $value) {
-                $output .= $this->_processLine($key, $value);
-            }
+        if ($contents = $reader->read()) {
+            $data = Col::merge($contents, $data);
         }
 
-        return parent::write($output);
+        return parent::write($data);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($data) {
+    public function write(DataMap $data) {
         return parent::write($this->_process($data));
     }
 
@@ -46,11 +44,11 @@ class PoWriter extends AbstractWriter {
      *
      * @uses Titon\Common\Config
      *
-     * @param string|array $data
+     * @param \Titon\Common\DataMap $data
      * @return string
      */
-    protected function _process($data) {
-        $comments = [
+    protected function _process(DataMap $data): string {
+        $comments = Map {
             'Project-Id-Version' => 'Titon',
             'POT-Creation-Date' => date('Y-m-d H:iO'),
             'PO-Revision-Date' => date('Y-m-d H:iO'),
@@ -61,11 +59,11 @@ class PoWriter extends AbstractWriter {
             'Content-Type' => 'text/plain; charset=' . Config::encoding(),
             'Content-Transfer-Encoding' => '8bit',
             'Plural-Forms' => 'nplurals=2; plural=0;'
-        ];
+        };
 
-        if (isset($data['_comments'])) {
-            $comments = $data['_comments'] + $comments;
-            unset($data['_comments']);
+        if ($data->contains('_comments')) {
+            $comments = Col::merge($comments, $data['_comments']);
+            $data->remove('_comments');
         }
 
         $output = '';
@@ -97,7 +95,7 @@ class PoWriter extends AbstractWriter {
      * @param mixed $value
      * @return string
      */
-    protected function _processLine($key, $value) {
+    protected function _processLine(string $key, mixed $value): string {
         if (is_numeric($key)) {
             $key = $value;
             $value = '';
@@ -107,7 +105,7 @@ class PoWriter extends AbstractWriter {
         $output .= sprintf('msgid "%s"', $key) . PHP_EOL;
 
         // Plurals
-        if (is_array($value)) {
+        if ($value instanceof Vector) {
             $output .= sprintf('msgid_plural "%s"', $key) . PHP_EOL;
 
             foreach ($value as $i => $v) {

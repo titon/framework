@@ -7,10 +7,8 @@
 
 namespace Titon\Io;
 
-use Titon\Io\Exception\DisabledMethodException;
 use Titon\Io\Exception\ExistingFileException;
 use Titon\Io\Exception\InvalidPathException;
-use Titon\Io\Folder;
 
 /**
  * Provides an object interface for interacting with a file on the file system.

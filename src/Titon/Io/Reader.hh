@@ -7,6 +7,8 @@
 
 namespace Titon\Io;
 
+use Titon\Common\DataMap;
+
 /**
  * Interface for the file readers library.
  *
@@ -24,9 +26,9 @@ interface Reader {
     /**
      * Read the file contents.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Common\DataMap
      */
-    public function read(): Map<string, mixed>;
+    public function read(): DataMap;
 
     /**
      * Reset the file path.

@@ -7,8 +7,9 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Common\DataMap;
 use Titon\Io\Exception\ReadErrorException;
-use Titon\Utility\Converter;
+use Titon\Type\XmlDocument;
 
 /**
  * A reader that loads its configuration from an XML file.
@@ -19,27 +20,16 @@ use Titon\Utility\Converter;
 class XmlReader extends AbstractReader {
 
     /**
-     * Allow for format overrides.
-     *
-     * @type int
-     */
-    public static int $format = Converter::XML_MERGE;
-
-    /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Utility\Col
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): Map<string, mixed> {
-        return $this->cache([__METHOD__, $this->path()], function() {
-            if ($this->exists()) {
-                return Converter::toMap(Converter::xmlToArray(simplexml_load_string(parent::read()), static::$format));
-            }
+    public function read(): DataMap {
+        if ($this->exists()) {
+            return XmlDocument::fromFile($this->getPath())->toMap();
+        }
 
-            throw new ReadErrorException(sprintf('XmlReader failed to parse %s', $this->name()));
-        });
+        throw new ReadErrorException(sprintf('XmlReader failed to parse %s', $this->path()));
     }
 
 }

@@ -7,13 +7,8 @@
 
 namespace Titon\Io;
 
-use Titon\Io\Reader;
-
-type PathList = Vector<string>;
-type ReaderMap = Map<string, Reader>;
-
 /**
- * Interface for the bundles library.
+ * Interface for the resource bundles library.
  *
  * @package Titon\Io
  */
@@ -46,19 +41,19 @@ interface Bundle {
     public function addReader(Reader $reader): this;
 
     /**
-     * Return a list of all files within all resource locations.
+     * Return a list of all files within a specific domain.
      *
      * @param string $domain
-     * @return array
+     * @return \Titon\Io\PathList
      */
-    public function getContents(string $domain): Vector<string>;
+    public function getContents(string $domain): PathList;
 
     /**
      * Return a list of all domain keys.
      *
-     * @return Vector<string>
+     * @return \Titon\Io\DomainList
      */
-    public function getDomains(): Vector<string>;
+    public function getDomains(): DomainList;
 
     /**
      * Return all resource paths for a single domain.
@@ -71,9 +66,9 @@ interface Bundle {
     /**
      * Return all resource paths for all domains.
      *
-     * @return Map<string, \Titon\Io\PathList>
+     * @return \Titon\Io\DomainPathMap
      */
-    public function getPaths(): Map<string, PathList>;
+    public function getPaths(): DomainPathMap;
 
     /**
      * Return all loaded Readers.
@@ -90,8 +85,8 @@ interface Bundle {
      *
      * @param string $domain
      * @param string $resource
-     * @return Vector<mixed>
+     * @return \Titon\Io\ResourceMap
      */
-    public function loadResource(string $domain, string $resource): Vector<mixed>;
+    public function loadResource(string $domain, string $resource): ResourceMap;
 
 }

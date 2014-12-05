@@ -7,10 +7,15 @@
 
 namespace Titon\Cache\Storage;
 
-use Titon\Common\Cacheable;
+use Titon\Cache\Exception\MissingItemException;
+use Titon\Cache\CacheCallback;
+use Titon\Cache\HitItem;
+use Titon\Cache\Item;
+use Titon\Cache\ItemList;
+use Titon\Cache\ItemMap;
+use Titon\Cache\MissItem;
+use Titon\Cache\StatsMap;
 use Titon\Cache\Storage;
-use Titon\Utility\Time;
-use \Closure;
 
 /**
  * Primary class for all storage engines to extend. Provides functionality for the Storage interface.
@@ -18,150 +23,159 @@ use \Closure;
  * @package Titon\Cache\Storage
  */
 abstract class AbstractStorage implements Storage {
-    use Cacheable;
 
     /**
-     * Configuration.
+     * List of cache items to be committed.
      *
-     * @type Map<string, mixed> {
-     *      @type string $server    Server(s) to connect and store data in
-     *      @type bool $compress    Toggle data compression
-     *      @type bool $persistent  Toggle persistent server connections
-     *      @type string $expires   Global expiration timer
-     *      @type string $prefix    String to prefix before each cache key
-     * }
+     * @type \Titon\Cache\ItemList
      */
-    protected Map<string, mixed> $_config = Map {
-        'server' => '127.0.0.1',
-        'compress' => false,
-        'persistent' => true,
-        'expires' => '+1 day',
-        'prefix' => ''
-    };
+    protected ItemList $_deferred = Vector {};
 
     /**
      * {@inheritdoc}
      */
-    public function decrement(string $key, int $step = 1): ?int {
-        $value = $this->get($key);
+    public function clear(): bool {
+        return $this->flush();
+    }
 
-        if ($value === null) {
-            return null;
+    /**
+     * {@inheritdoc}
+     */
+    public function commit(): bool {
+        foreach ($this->getDeferred() as $item) {
+            $this->save($item);
         }
 
-        $value -= $step;
+        $this->getDeferred()->clear();
 
-        $this->set($key, $value);
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function decrement(string $key, int $step = 1, int $initial = 0): int {
+        $item = $this->getItem($key);
+
+        $value = ((int) $item->get() ?: $initial) - $step;
+
+        $item->set($value);
+
+        $this->save($item);
 
         return $value;
     }
 
     /**
-     * Convert the expires date into a valid UNIX timestamp,
-     * or if $ttl is true it will convert to relative seconds.
-     *
-     * @param mixed $timestamp
-     * @param bool $ttl Convert to TTL seconds
-     * @return int
+     * {@inheritdoc}
      */
-    public function expires(mixed $timestamp, bool $ttl = false): int {
-        if ($timestamp === 0) {
-            return $timestamp;
+    public function deleteItem(string $key): this {
+        $this->remove($key);
 
-        } else if ($timestamp === null) {
-            $timestamp = strtotime($this->getConfig('expires'));
-
-        } else if (is_string($timestamp)) {
-            $timestamp = Time::toUnix($timestamp);
-
-            if ($ttl) {
-                $timestamp -= time();
-            }
-        }
-
-        return $timestamp;
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function increment(string $key, int $step = 1): ?int {
-        $value = $this->get($key);
-
-        if ($value !== null) {
-            $value = $value + $step;
-
-            $this->set($key, $value);
-
-            return $value;
+    public function deleteItems(array<string> $keys): this {
+        foreach ($keys as $key) {
+            $this->remove($key);
         }
 
-        return null;
+        return $this;
     }
 
     /**
-     * Rewrite the key to use a specific format.
+     * Return a list of items waiting to be cached.
      *
-     * @param string $key
-     * @return string
+     * @return \Titon\Cache\ItemList
      */
-    public function key(string $key): string {
-        return $this->cache([__METHOD__, $key], function(AbstractStorage $self) use ($key) {
-            return $self->getConfig('prefix') . trim(preg_replace('/[^a-z0-9\-]+/is', '-', $key), '-');
-        });
-    }
-
-    /**
-     * Parse a server to return host and other values.
-     *
-     * @param string|array $server
-     * @param int $port
-     * @param mixed $arg
-     * @return Vector<mixed>
-     */
-    public function parseServer(mixed $server, ?int $port = null, mixed $arg = null): Vector<mixed> {
-        if ($server instanceof Traversable) {
-            return new Vector($server);
-        }
-
-        $parts = explode(':', $server);
-
-        return Vector {
-            $parts[0],
-            isset($parts[1]) ? $parts[1] : $port,
-            isset($parts[2]) ? $parts[2] : $arg
-        };
-    }
-
-    /**
-     * This method fixes discrepancies with PHP and Hack and its nullable types.
-     * Any API method that returns false as failure should return null instead so we can use type hinting.
-     *
-     * @param mixed $value
-     * @return mixed
-     */
-    public function returnValue(mixed $value): mixed {
-        return ($value === false) ? null : $value;
+    public function getDeferred(): ItemList {
+        return $this->_deferred;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function stats(): Map<string, mixed> {
+    public function getItem(string $key): Item {
+        try {
+            return new HitItem($key, $this->get($key));
+        } catch (MissingItemException $e) {
+            return new MissItem($key);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getItems(array<string> $keys = []): ItemMap {
+        $map = Map {};
+
+        foreach ($keys as $key) {
+            $map[$key] = $this->getItem($key);
+        }
+
+        return $map;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function increment(string $key, int $step = 1, int $initial = 0): int {
+        $item = $this->getItem($key);
+
+        $value = ((int) $item->get() ?: $initial) + $step;
+
+        $item->set($value);
+
+        $this->save($item);
+
+        return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function save(Item $item): this {
+        $timestamp = $item->getExpiration()?->getTimestamp() ?: 0;
+
+        if ($timestamp <= time()) {
+            return $this; // Already expired
+        }
+
+        $this->set($item->getKey(), $item->get(), $timestamp);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function saveDeferred(Item $item): this {
+        $this->_deferred[] = $item;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function stats(): StatsMap {
         return Map {};
     }
 
     /**
      * {@inheritdoc}
      */
-    public function store(string $key, Closure $callback, mixed $expires = '+1 day'): mixed {
+    public function store(string $key, CacheCallback $callback, mixed $expires = null): mixed {
         if ($this->has($key)) {
-            return $this->get($key);
+            return $this->getItem($key)->get();
         }
 
         $value = call_user_func($callback);
 
-        $this->set($key, $value, $expires);
+        $this->save(new Item($key, $value, $expires));
 
         return $value;
     }

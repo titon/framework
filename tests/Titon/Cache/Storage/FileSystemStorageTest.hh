@@ -9,9 +9,7 @@ use VirtualFileSystem\FileSystem;
 class FileSystemStorageTest extends AbstractStorageTest {
 
     protected function setUp() {
-        if (!class_exists('Titon\Io\Folder')) {
-            $this->markTestSkipped('Test skipped; Please install titon/io via Composer');
-        }
+        $this->markTestSkipped('Requires the io package');
 
         $this->vfs = new FileSystem();
         $this->vfs->createDirectory('/cache/');

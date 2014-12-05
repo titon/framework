@@ -1,7 +1,7 @@
 <?hh
 namespace Titon\View;
 
-use Titon\Cache\Storage\FileSystemStorage;
+use Titon\Cache\Storage\MemoryStorage;
 use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 
@@ -96,26 +96,25 @@ class EngineViewTest extends TestCase {
     }
 
     public function testViewCaching() {
-        $this->markTestSkipped('Test skipped; Please install titon/cache via Composer');
+        $storage = new MemoryStorage();
 
-        $storage = new FileSystemStorage(Map {'directory' => $this->vfs->path('/cache/')});
         $this->object->setStorage($storage);
 
-        $path = $this->object->locateTemplate(['index', 'test-include']);
+        $path = $this->object->locateTemplate('index/test-include');
         $key = md5($path);
-        $cachePath = $this->vfs->path('/cache/' . $key . '.cache');
+
+        $this->assertFalse($storage->has($key));
 
         $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($path));
-        $this->assertFileNotExists($cachePath);
 
-        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($path, Map {'cache' => '+5 minutes'}));
-        $this->assertFileExists($cachePath);
-        $mtime = filemtime($cachePath);
+        $this->assertTrue($storage->has($key));
 
-        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($path, Map {'cache' => '+5 minutes'}));
-        $this->assertEquals($mtime, filemtime($cachePath));
+        // Validate it returns the cached value
+        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($path));
 
         $storage->flush();
+
+        $this->assertFalse($storage->has($key));
     }
 
 }

@@ -7,12 +7,16 @@
 
 namespace Titon\Cache\Storage;
 
+use Titon\Cache\Exception\MissingItemException;
+use Titon\Common\Cacheable;
+
 /**
  * A lightweight caching engine that stores data in memory for the duration of the HTTP request.
  *
  * @package Titon\Cache\Storage
  */
 class MemoryStorage extends AbstractStorage {
+    use Cacheable;
 
     /**
      * {@inheritdoc}
@@ -27,11 +31,11 @@ class MemoryStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function get(string $key): mixed {
-        if ($this->hasCache($key)) {
+        if ($this->has($key)) {
             return $this->getCache($key);
         }
 
-        return null;
+        throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
     }
 
     /**
@@ -53,11 +57,7 @@ class MemoryStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
-        if ($expires && $this->expires($expires) <= time()) {
-            return true;
-        }
-
+    public function set(string $key, mixed $value, int $expires): bool {
         $this->setCache($key, $value);
 
         return true;

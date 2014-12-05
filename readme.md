@@ -21,7 +21,6 @@ However, they have not been linted against Hack's strict type checker yet.
 
 The following packages are still in the porting process.
 
-* Cache
 * IO
 
 The following packages have yet to be ported over.
@@ -54,6 +53,7 @@ The following packages have been linted against Hack's type checker.
 They will still fail the checker with unbound errors, or mixed type warnings,
 but there's nothing we can do until HHVM and Hack are patched.
 
+* Cache
 * Common
 * Controller
 * Debug
@@ -67,8 +67,8 @@ but there's nothing we can do until HHVM and Hack are patched.
 
 ## Requirements ##
 
-Titon is built on [Hack](http://hacklang.org/) and requires [HHVM 3.3.0+](http://hhvm.com/).
-It also requires Composer for its autoloader and for dependencies to be installed for testing.
+Titon is built on the powerful [Hack language](http://hacklang.org/) and requires [HHVM 3.4.0+](http://hhvm.com/) 
+and [Composer](http://getcomposer.org) for its autoloader.
 
 ## Usage ##
 
@@ -102,16 +102,16 @@ Or filter tests based on class or method name.
 /vagrant/bin/run-tests --filter=methodName
 ```
 
-### Hack Strict Linting ###
+### Hack Strict Mode ###
 
-For the most part, Titon strives to be strict mode only. This can be very challenging, but with Hack's built-in linter,
+For the most part, Titon strives to be strict mode only. This can be very challenging, but with Hack's built-in type checker,
 it couldn't be easier. Simply run the following command to check for strict issues.
 
 ```bash
 /vagrant/bin/lint-hack
 ```
 
-Or lint a specific folder.
+Or type check a specific folder.
 
 ```bash
 /vagrant/bin/lint-hack --path=Titon/Utility

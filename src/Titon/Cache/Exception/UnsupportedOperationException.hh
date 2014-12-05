@@ -8,10 +8,10 @@
 namespace Titon\Cache\Exception;
 
 /**
- * Exception thrown when the remote ends failed to authenticate.
+ * Exception thrown when an operation is triggered that is not supported.
  *
  * @package Titon\Cache\Exception
  */
-class AuthenticateFailureException extends \RuntimeException {
+class UnsupportedOperationException extends \RuntimeException {
 
 }

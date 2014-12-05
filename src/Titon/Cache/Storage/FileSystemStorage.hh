@@ -7,51 +7,32 @@
 
 namespace Titon\Cache\Storage;
 
-use Titon\Io\Exception\MissingFileException;
+use Titon\Cache\Exception\MissingItemException;
 use Titon\Io\File;
 use Titon\Io\Folder;
+
+type FileCache = shape('expires' => int, 'data' => string);
+type FileMap = Map<string, File>;
 
 /**
  * A storage engine that uses the servers local filesystem to store its cached items.
  * This engine can be installed using the Cache::addStorage() method.
  *
  * {{{
- *        new FileSystemStorage([
- *            'prefix' => 'sql_',
- *            'expires' => '+1 day'
- *        ]);
+ *        new FileSystemStorage('/path/to/cache/');
  * }}}
- *
- * A sample configuration can be found above, and the following options are available: prefix, expires.
  *
  * @package Titon\Cache\Storage
  */
 class FileSystemStorage extends AbstractStorage {
 
     /**
-     * Configuration.
+     * List of cached file objects for the current request.
+     * Does not include files that already exist.
      *
-     * @type Map<string, mixed> {
-     *      @type string $directory Temporary directory to store files
-     * }
+     * @type \Titon\Cache\FileMap
      */
-    protected Map<string, mixed> $_config = Map {
-        'directory' => ''
-    };
-
-    /**
-     * List of cache expiration times via File objects.
-     *
-     * @type Map<string, File>
-     */
-    protected Map<string, File> $_expires = Map {};
-
-    /**
-     * List of cache File objects.
-     *
-     * @type Map<string, File>
-     */
-    protected Map<string, File> $_files = Map {};
+    protected FileMap $_files = Map {};
 
     /**
      * Folder object for the cache folder.
@@ -61,34 +42,11 @@ class FileSystemStorage extends AbstractStorage {
     protected Folder $_folder;
 
     /**
-     * Allow path to be set through constructor.
+     * Set path through constructor.
      *
-     * @param string|Map $path
+     * @param string $path
      */
-    public function __construct(mixed $path) {
-        if (is_string($path)) {
-            $path = Map {'directory' => $path};
-        }
-
-        parent::__construct($path);
-    }
-
-    /**
-     * Always use serialization with file system caching.
-     *
-     * @uses Titon\Utility\Path
-     *
-     * @throws \Titon\Io\Exception\MissingFileException
-     */
-    public function initialize(): void {
-        parent::initialize();
-
-        $path = $this->getConfig('directory');
-
-        if (!$path) {
-            throw new MissingFileException('Temporary storage directory not defined');
-        }
-
+    public function __construct(string $path) {
         $this->_folder = new Folder($path, true);
     }
 
@@ -96,13 +54,8 @@ class FileSystemStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function flush(): bool {
-        foreach ($this->_files as $key => $file) {
-            $file->delete();
-            $this->_expires[$key]->delete();
-        }
-
         $this->_files->clear();
-        $this->_expires->clear();;
+        $this->_folder->flush();
 
         clearstatcache();
 
@@ -114,20 +67,18 @@ class FileSystemStorage extends AbstractStorage {
      */
     public function get(string $key): mixed {
         if ($this->has($key)) {
-            return unserialize($this->loadCache($key)->read());
+            return unserialize($this->_readCache($key)['data']);
         }
 
-        return null;
+        throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
     }
 
     /**
      * {@inheritdoc}
      */
     public function has(string $key): bool {
-        if (file_exists($this->_getPath($key, 'expires'))) {
-            $expires = $this->loadExpires($key)->read();
-
-            if ($expires && $expires >= time()) {
+        if (file_exists($this->_buildPath($key))) {
+            if ($this->_readCache($key)['expires'] >= time()) {
                 return true;
             } else {
                 $this->remove($key);
@@ -140,33 +91,9 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function loadCache(string $key): File {
-        if (isset($this->_files[$key])) {
-            return $this->_files[$key];
-        }
-
-        return $this->_files[$key] = new File($this->_getPath($key), true);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function loadExpires(string $key): File {
-        if (isset($this->_expires[$key])) {
-            return $this->_expires[$key];
-        }
-
-        return $this->_expires[$key] = new File($this->_getPath($key, 'expires'), true);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function remove(string $key): bool {
-        $this->loadCache($key)->delete();
-        $this->loadExpires($key)->delete();
-
-        unset($this->_expires[$key], $this->_files[$key]);
+        $this->_loadCache($key)->delete();
+        $this->_files->remove($key);
 
         return true;
     }
@@ -174,22 +101,58 @@ class FileSystemStorage extends AbstractStorage {
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
-        return (
-            $this->loadCache($key)->write(serialize($value)) &&
-            $this->loadExpires($key)->write($this->expires($expires))
-        );
+    public function set(string $key, mixed $value, int $expires): bool {
+        return $this->_loadCache($key)->write($expires . "\n" . serialize($value));
     }
 
     /**
-     * Return the file system path for a cache key.
+     * Build an absolute path to the cache on the file system using the defined key.
      *
      * @param string $key
-     * @param string $ext
      * @return string
      */
-    protected function _getPath(string $key, string $ext = 'cache'): string {
-        return $this->_folder->path() . $this->key($key) . '.' . $ext;
+    <<__Memoize>>
+    protected function _buildPath(string $key): string {
+        $path = trim(preg_replace('/[^a-z0-9\-]+/is', '-', $key), '-');
+        $path = $this->_folder->path() . $path . '.cache';
+
+        return $path;
+    }
+
+    /**
+     * Attempt to load a cache from the file system. If the cache does not exist, create it.
+     *
+     * @param string $key
+     * @return \Titon\Io\File
+     */
+    protected function _loadCache(string $key): File {
+        if ($this->_files->contains($key)) {
+            return $this->_files[$key];
+        }
+
+        return $this->_files[$key] = new File($this->_buildPath($key), true);
+    }
+
+    /**
+     * Load the cached file and return the expires timestamp and serialized data.
+     *
+     * @param string $key
+     * @return \Titon\Cache\Storage\FileCache
+     */
+    protected function _readCache(string $key): FileCache {
+        return $this->_splitCache($this->_loadCache($key)->read());
+    }
+
+    /**
+     * Split the cache into 2 separate parts, the expires timestamp, and the serialized data.
+     *
+     * @param string $cache
+     * @return \Titon\Cache\Storage\FileCache
+     */
+    protected function _splitCache(string $cache): FileCache {
+        list($expires, $data) = explode("\n", $cache, 2);
+
+        return shape('expires' => (int) $expires, 'data' => $data);
     }
 
 }

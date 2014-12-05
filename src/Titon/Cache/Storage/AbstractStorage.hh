@@ -138,11 +138,13 @@ abstract class AbstractStorage implements Storage {
      * {@inheritdoc}
      */
     public function save(Item $item): this {
-        if ($item->getExpiration() <= time()) {
+        $timestamp = $item->getExpiration()?->getTimestamp() ?: 0;
+
+        if ($timestamp <= time()) {
             return $this; // Already expired
         }
 
-        $this->set($item->getKey(), $item->get(), $item->getExpiration());
+        $this->set($item->getKey(), $item->get(), $timestamp);
 
         return $this;
     }

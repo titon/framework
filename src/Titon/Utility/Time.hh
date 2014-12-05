@@ -7,9 +7,9 @@
 
 namespace Titon\Utility;
 
+use Titon\Common\Macroable;
 use \DateTime;
 use \DateTimeZone;
-use Titon\Common\Macroable;
 
 /**
  * Time provides functionality for calculating date and time ranges and making timezones easy to use.

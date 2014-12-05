@@ -9,6 +9,7 @@ namespace Titon\Cache;
 
 use Titon\Cache\Exception\UnsupportedOperationException;
 use Titon\Utility\Time;
+use \DateTime;
 
 /**
  * The Item class represents an item with a key, value, and expiration date that is persisted in a cache.
@@ -18,11 +19,11 @@ use Titon\Utility\Time;
 class Item {
 
     /**
-     * The unix timestamp of when the item expires.
+     * The timestamp of when the item expires.
      *
-     * @type int
+     * @type \DateTime
      */
-    protected int $_expires = 0;
+    protected ?DateTime $_expires;
 
     /**
      * The unique cache key.
@@ -90,7 +91,7 @@ class Item {
      * @return \DateTime
      *   The timestamp at which this cache item will expire.
      */
-    public function getExpiration(): int {
+    public function getExpiration(): ?DateTime {
         return $this->_expires;
     }
 
@@ -158,14 +159,16 @@ class Item {
      */
     public function setExpiration(mixed $ttl = null): this {
         if (!$ttl) {
-            $this->_expires = strtotime('+1 hour');
+            $time = strtotime('+1 hour');
 
         } else if (is_int($ttl)) {
-            $this->_expires = time() + $ttl;
+            $time = time() + $ttl;
 
         } else {
-            $this->_expires = Time::toUnix($ttl);
+            $time = Time::toUnix($ttl);
         }
+
+        $this->_expires = Time::factory($time);
 
         return $this;
     }

@@ -8,7 +8,7 @@
 namespace Titon\Route;
 
 use Titon\Common\Annotator;
-use Titon\Utility\Converter;
+use Titon\Utility\Col;
 use Titon\Utility\Path;
 
 /**
@@ -42,11 +42,11 @@ trait RouteAnnotation {
                 $route = new Route($annotation[0], $class . '@' . $method);
 
                 if ($annotation->containsKey(1)) {
-                    $route->setMethods(Converter::toVector($annotation[1]));
+                    $route->setMethods(Col::toVector($annotation[1]));
                 }
 
                 if ($annotation->containsKey(2)) {
-                    $route->setFilters(Converter::toVector($annotation[2]));
+                    $route->setFilters(Col::toVector($annotation[2]));
                 }
 
                 $router->map($key . '.' . strtolower($method), $route);

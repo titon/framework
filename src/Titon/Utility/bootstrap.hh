@@ -7,7 +7,6 @@
 
 use Titon\Utility\Col;
 use Titon\Utility\Config;
-use Titon\Utility\Converter;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 use Titon\Utility\Sanitize;
@@ -126,8 +125,8 @@ function col_flatten<Tk, Tv>(Map<Tk, Tv> $map, string $path = ''): Map<string, m
 /**
  * @see Titon\Utility\Col::get()
  */
-function col_get<Tk>(Map<Tk, mixed> $map, string $path): mixed {
-    return Col::get($map, $path);
+function col_get<Tk>(Map<Tk, mixed> $map, string $path, mixed $default = null): mixed {
+    return Col::get($map, $path, $default);
 }
 
 /**
@@ -243,45 +242,24 @@ function str_truncate(string $string, int $limit = 25, Map<string, mixed> $optio
 }
 
 /**
- * @see Titon\Utility\Converter::toArray()
+ * @see Titon\Utility\Col::toArray()
  */
-function to_array(mixed $data): array<mixed, mixed> {
-    return Converter::toArray($data);
+function to_array<Tk, Tv>(mixed $data): array<Tk, Tv> {
+    return Col::toArray($data);
 }
 
 /**
- * @see Titon\Utility\Converter::toJson()
+ * @see Titon\Utility\Col::toMap()
  */
-function to_json(mixed $data): string {
-    return Converter::toJson($data);
+function to_map<Tk, Tv>(mixed $data): Map<Tk, Tv> {
+    return Col::toMap($data);
 }
 
 /**
- * @see Titon\Utility\Converter::toMap()
+ * @see Titon\Utility\Col::toVector()
  */
-function to_map(mixed $data): Map<mixed, mixed> {
-    return Converter::toMap($data);
-}
-
-/**
- * @see Titon\Utility\Converter::toSerialize()
- */
-function to_serialize(mixed $data): string {
-    return Converter::toSerialize($data);
-}
-
-/**
- * @see Titon\Utility\Converter::toVector()
- */
-function to_vector(mixed $data): Vector<mixed> {
-    return Converter::toVector($data);
-}
-
-/**
- * @see Titon\Utility\Converter::toXml()
- */
-function to_xml(mixed $data): string {
-    return Converter::toXml($data);
+function to_vector<Tv>(mixed $data): Vector<Tv> {
+    return Col::toVector($data);
 }
 
 /**

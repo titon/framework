@@ -8,7 +8,7 @@
 namespace Titon\Io\Reader;
 
 use Titon\Io\Exception\ReadErrorException;
-use Titon\Utility\Converter;
+use Titon\Utility\Col;
 
 /**
  * A file reader that parses INI files.
@@ -25,7 +25,7 @@ class IniReader extends AbstractReader {
     public function read(): Map<string, mixed> {
         return $this->cache([__METHOD__, $this->path()], function() {
             if ($this->exists()) {
-                return Converter::toMap(parse_ini_file($this->path(), true, INI_SCANNER_NORMAL));
+                return Col::toMap(parse_ini_file($this->path(), true, INI_SCANNER_NORMAL));
             }
 
             throw new ReadErrorException(sprintf('IniReader failed to parse %s', $this->name()));

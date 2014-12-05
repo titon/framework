@@ -28,7 +28,7 @@ class XmlReader extends AbstractReader {
     /**
      * {@inheritdoc}
      *
-     * @uses Titon\Utility\Converter
+     * @uses Titon\Utility\Col
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */

@@ -11,7 +11,7 @@ class FileStreamTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new FileStream(TEMP_DIR . '/utility/barbarian.xml');
+        $this->object = new FileStream(TEMP_DIR . '/type/barbarian.xml');
     }
 
     protected function tearDown() {

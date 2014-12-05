@@ -336,8 +336,11 @@ class Validator {
 
             $obj->addField($field, (string) $title);
 
-            if ($options['rules'] instanceof Vector) {
-                foreach ($options['rules'] as $ruleOpts) {
+            // Dereference for the type checker
+            $rules = $options['rules'];
+
+            if ($rules instanceof Vector) {
+                foreach ($rules as $ruleOpts) {
                     $shorthand = static::splitShorthand($ruleOpts);
 
                     $obj->addRule($field, $shorthand['rule'], $shorthand['message'], $shorthand['options']);

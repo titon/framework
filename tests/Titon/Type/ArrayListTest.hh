@@ -401,7 +401,14 @@ class ArrayListTest extends TestCase {
     }
 
     public function testToXml() {
-        $this->markTestSkipped('Need to implement!');
+        $this->assertEquals(
+            '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
+            '<items>' . PHP_EOL .
+            '    <item>foo</item>' . PHP_EOL .
+            '    <item>bar</item>' . PHP_EOL .
+            '    <item>baz</item>' . PHP_EOL .
+            '</items>' . PHP_EOL
+        , $this->object->toXml());
     }
 
     public function testUnserialize() {

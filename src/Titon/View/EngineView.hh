@@ -8,7 +8,6 @@
 namespace Titon\View;
 
 use Titon\Common\DataMap;
-use Titon\Utility\Time;
 use Titon\View\Engine;
 use Titon\View\Engine\TemplateEngine;
 
@@ -116,23 +115,15 @@ class EngineView extends AbstractView {
      * {@inheritdoc}
      */
     public function renderTemplate(string $path, DataMap $variables = Map {}): string {
-        $expires = $variables->get('cache');
-        $storage = $this->getStorage();
-        $key = md5($path);
+        $expires = $variables->get('cache') ?: '+1 day';
 
-        if ($expires && $storage) {
-            if ($content = $storage->get($key)) {
-                return $content;
-            }
-        }
+        $callback = function() use ($path, $variables) {
+            return $this->getEngine()->render($path, $variables);
+        };
 
-        $content = $this->getEngine()->render($path, $variables);
-
-        if ($expires && $storage) {
-            $storage->set($key, $content, Time::toUnix($expires));
-        }
-
-        return $content;
+        return ($storage = $this->getStorage())
+            ? $storage->store(md5($path), $callback, $expires)
+            : call_user_func($callback);
     }
 
     /**

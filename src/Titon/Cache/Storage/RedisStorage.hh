@@ -7,9 +7,8 @@
 
 namespace Titon\Cache\Storage;
 
-use Titon\Cache\Exception\AuthenticateFailureException;
-use Titon\Cache\Exception\InvalidServerException;
-use Titon\Cache\Exception\MissingExtensionException;
+use Titon\Cache\Exception\MissingItemException;
+use Titon\Cache\StatsMap;
 use \Redis;
 
 /**
@@ -17,14 +16,8 @@ use \Redis;
  * This engine can be installed using the Cache::addStorage() method.
  *
  * {{{
- *        new RedisStorage(array(
- *            'server' => 'localhost:11211',
- *            'persistent' => true
- *        ));
+ *        new RedisStorage(new Redis());
  * }}}
- *
- * A sample configuration can be found above, and the following options are available:
- * server, persistent, serialize, expires.
  *
  * @link https://github.com/nicolasff/phpredis
  *
@@ -33,146 +26,80 @@ use \Redis;
 class RedisStorage extends AbstractStorage {
 
     /**
-     * Default Redis server port.
-     */
-    const int PORT = 6379;
-
-    /**
      * The third-party class instance.
      *
      * @type \Redis
      */
-    public Redis $connection;
+    protected Redis $_redis;
 
     /**
-     * Configuration.
+     * Set the Redis instance.
      *
-     * @type Map<string, mixed> {
-     *      @type string $password  Password to authenticate with
-     * }
+     * @param \Redis $redis
      */
-    protected Map<string, mixed> $_config = Map {
-        'password' => ''
-    };
-
-    /**
-     * Initialize the Redis instance and set all relevant options.
-     *
-     * @throws \Titon\Cache\Exception\MissingExtensionException
-     * @throws \Titon\Cache\Exception\InvalidServerException
-     * @throws \Titon\Cache\Exception\AuthenticateFailureException
-     */
-    public function initialize() {
-        parent::initialize();
-
-        if (!extension_loaded('redis')) {
-            throw new MissingExtensionException('Redis extension is not loaded');
-        }
-
-        $config = $this->allConfig();
-
-        if (!$config['server']) {
-            throw new InvalidServerException(sprintf('No server has been defined for %s', $this->inform('className')));
-        }
-
-        $this->connection = new Redis();
-
-        if (extension_loaded('igbinary')) {
-            $this->connection->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_IGBINARY);
-        }
-
-        list($host, $port, $timeout) = $this->parseServer($config['server'], self::PORT, 0);
-
-        if ($config['persistent']) {
-            $this->connection->pconnect($host, $port, $timeout);
-        } else {
-            $this->connection->connect($host, $port, $timeout);
-        }
-
-        if ($config['password']) {
-            if (!$this->connection->auth($config['password'])) {
-                throw new AuthenticateFailureException('Could not authenticate with Redis');
-            }
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function decrement(string $key, int $step = 1): ?int {
-        return $this->connection->decrBy($this->key($key), $step);
+    public function __construct(Redis $redis) {
+        $this->_redis = $redis;
     }
 
     /**
      * {@inheritdoc}
      */
     public function flush(): bool {
-        return $this->connection->flushDB();
+        return $this->getRedis()->flushDB();
     }
 
     /**
      * {@inheritdoc}
      */
     public function get(string $key): mixed {
-        $value = $this->connection->get($this->key($key));
+        $value = $this->getRedis()->get($key);
 
         if ($value === false) {
-            return null;
+            throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
         }
 
-        return $value;
+        return unserialize($value);
+    }
+
+    /**
+     * Return the Redis instance.
+     *
+     * @return \Redis
+     */
+    public function getRedis(): Redis {
+        return $this->_redis;
     }
 
     /**
      * {@inheritdoc}
      */
     public function has(string $key): bool {
-        return $this->connection->exists($this->key($key));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function increment(string $key, int $step = 1): ?int {
-        return $this->connection->incrBy($this->key($key), $step);
+        return $this->getRedis()->exists($key);
     }
 
     /**
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        $this->connection->delete($this->key($key));
-
-        return true;
+        return (bool) $this->getRedis()->delete($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
-        if ($expires === 0) {
-            return $this->connection->set($this->key($key), $value);
-        }
-
-        $expires = $this->expires($expires, true);
-
-        // Immediately invalidate
-        if ($expires < 0) {
-            return true;
-        }
-
-        return $this->connection->setex($this->key($key), $expires, $value);
+    public function set(string $key, mixed $value, int $expires): bool {
+        return $this->getRedis()->setex($key, $expires - time(), serialize($value)); // Redis is TTL
     }
 
     /**
      * {@inheritdoc}
      */
-    public function stats(): Map<string, mixed> {
-        $stats = $this->connection->info();
+    public function stats(): StatsMap {
+        $stats = $this->getRedis()->info();
 
         return Map {
-            self::HITS => false,
-            self::MISSES => false,
+            self::HITS => $stats['keyspace_hits'],
+            self::MISSES => $stats['keyspace_misses'],
             self::UPTIME => $stats['uptime_in_seconds'],
             self::MEMORY_USAGE => $stats['used_memory'],
             self::MEMORY_AVAILABLE => false

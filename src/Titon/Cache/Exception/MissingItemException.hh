@@ -8,10 +8,10 @@
 namespace Titon\Cache\Exception;
 
 /**
- * Exception thrown when a server is not defined.
+ * Exception thrown when an item does not exist in the cache.
  *
  * @package Titon\Cache\Exception
  */
-class InvalidServerException extends \InvalidArgumentException {
+class MissingItemException extends \RuntimeException {
 
 }

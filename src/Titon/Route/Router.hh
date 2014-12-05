@@ -7,6 +7,7 @@
 
 namespace Titon\Route;
 
+use Titon\Cache\Item;
 use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
 use Titon\Event\Emittable;
@@ -196,7 +197,7 @@ class Router implements Subject {
             }
 
             // Compiling before hand should speed up the next request
-            $storage->set('routes', serialize($routes), '+1 year');
+            $storage->save(new Item('routes', serialize($routes), '+1 year'));
         }
 
         return $this;
@@ -423,9 +424,9 @@ class Router implements Subject {
      * @return $this
      */
     public function loadRoutes(): this {
-        if ($storage = $this->getStorage()) {
-            if ($routes = unserialize($storage->get('routes'))) {
-                $this->_routes = $routes;
+        if ($item = $this->getStorage()?->getItem('routes')) {
+            if ($item->isHit()) {
+                $this->_routes = unserialize($item->get());
                 $this->_cached = true;
             }
         }

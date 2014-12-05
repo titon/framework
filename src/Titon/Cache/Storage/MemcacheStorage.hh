@@ -7,8 +7,8 @@
 
 namespace Titon\Cache\Storage;
 
-use Titon\Cache\Exception\InvalidServerException;
-use Titon\Cache\Exception\MissingExtensionException;
+use Titon\Cache\Exception\MissingItemException;
+use Titon\Cache\StatsMap;
 use \Memcached;
 
 /**
@@ -16,15 +16,8 @@ use \Memcached;
  * This engine can be installed using the Cache::addStorage() method.
  *
  * {{{
- *        new MemcacheStorage(array(
- *            'server' => 'localhost:11211',
- *            'persistent' => true,
- *            'compress' => true
- *        ));
+ *        new MemcacheStorage(new Memcached());
  * }}}
- *
- * A sample configuration can be found above, and the following options are available:
- * server (array or string), compress, persistent, serialize, expires, prefix.
  *
  * @link http://pecl.php.net/package/memcached
  *
@@ -33,149 +26,80 @@ use \Memcached;
 class MemcacheStorage extends AbstractStorage {
 
     /**
-     * Default Memcache server port.
-     */
-    const int PORT = 11211;
-
-    /**
-     * Default Memcache server weight.
-     */
-    const int WEIGHT = 100;
-
-    /**
      * The third-party class instance.
      *
      * @type \Memcached
      */
-    public Memcached $connection;
+    protected Memcached $_memcache;
 
     /**
-     * Configuration.
+     * Set the Memcached instance.
      *
-     * @type Map<string, mixed> {
-     *      @type string $id    Unique ID used for persistence
-     *      @type bool $buffer  Buffer writes until data is retrieved
-     * }
+     * @param \Memcached $memcache
      */
-    protected Map<string, mixed> $_config = Map {
-        'id' => '',
-        'buffer' => false
-    };
-
-    /**
-     * Initialize the Memcached instance and set all relevant options.
-     *
-     * @throws \Titon\Cache\Exception\MissingExtensionException
-     * @throws \Titon\Cache\Exception\InvalidServerException
-     */
-    public function initialize() {
-        parent::initialize();
-
-        if (!extension_loaded('memcached')) {
-            throw new MissingExtensionException('Memcache extension is not loaded');
-        }
-
-        $config = $this->allConfig();
-
-        if (!$config['server']) {
-            throw new InvalidServerException(sprintf('No server has been defined for %s', $this->inform('className')));
-        }
-
-        if ($config['persistent'] && !$config['id']) {
-            $config['id'] = 'titon';
-        }
-
-        $this->connection = new Memcached($config['id']);
-
-        $serverList = $this->connection->getServerList();
-
-        // Only add servers if none exist
-        if (!$serverList) {
-            $this->connection->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
-            $this->connection->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
-            $this->connection->setOption(Memcached::OPT_COMPRESSION, (bool) $config['compress']);
-            $this->connection->setOption(Memcached::OPT_BUFFER_WRITES, (bool) $config['buffer']);
-
-            if ($config['persistent']) {
-                $this->connection->setOption(Memcached::OPT_DISTRIBUTION, Memcached::DISTRIBUTION_CONSISTENT);
-            }
-
-            if (extension_loaded('igbinary')) {
-                $this->connection->setOption(Memcached::OPT_SERIALIZER, Memcached::SERIALIZER_IGBINARY);
-            }
-
-            if (is_array($config['server'])) {
-                $this->connection->addServers(array_map([$this, 'parseServer'], $config['server']));
-
-            } else {
-                list($host, $port, $weight) = $this->parseServer($config['server'], self::PORT, self::WEIGHT);
-
-                $this->connection->addServer($host, $port, $weight);
-            }
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function decrement(string $key, int $step = 1): ?int {
-        return $this->returnValue($this->connection->decrement($this->key($key), $step));
+    public function __construct(Memcached $memcache) {
+        $this->_memcache = $memcache;
     }
 
     /**
      * {@inheritdoc}
      */
     public function flush(): bool {
-        return $this->connection->flush();
+        return $this->getMemcache()->flush();
     }
 
     /**
      * {@inheritdoc}
      */
     public function get(string $key): mixed {
-        $value = $this->connection->get($this->key($key));
+        $value = $this->getMemcache()->get($key);
 
-        if ($value === false && $this->connection->getResultCode() === Memcached::RES_NOTFOUND) {
-            return null;
+        if ($value === false && $this->getMemcache()->getResultCode() === Memcached::RES_NOTFOUND) {
+            throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
         }
 
         return $value;
     }
 
     /**
-     * {@inheritdoc}
+     * Return the Memcached instance.
+     *
+     * @return \Memcached
      */
-    public function has(string $key): bool {
-        return ($this->get($key) && $this->connection->getResultCode() === Memcached::RES_SUCCESS);
+    public function getMemcache(): Memcached {
+        return $this->_memcache;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function increment(string $key, int $step = 1): ?int {
-        return $this->returnValue($this->connection->increment($this->key($key), $step));
+    public function has(string $key): bool {
+        return (
+            $this->getMemcache()->get($key) &&
+            $this->getMemcache()->getResultCode() === Memcached::RES_SUCCESS
+        );
     }
 
     /**
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        return $this->connection->delete($this->key($key));
+        return $this->getMemcache()->delete($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, mixed $expires = '+1 day'): bool {
-        return $this->connection->set($this->key($key), $value, $this->expires($expires));
+    public function set(string $key, mixed $value, int $expires): bool {
+        return $this->getMemcache()->set($key, $value, $expires);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function stats(): Map<string, mixed> {
-        $servers = $this->connection->getServerList();
-        $stats = $this->connection->getStats();
+    public function stats(): StatsMap {
+        $servers = $this->getMemcache()->getServerList();
+        $stats = $this->getMemcache()->getStats();
         $stats = $stats[$servers[0]['host'] . ':' . $servers[0]['port']];
 
         return Map {

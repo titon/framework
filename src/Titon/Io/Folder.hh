@@ -152,13 +152,22 @@ class Folder extends Node {
             return false;
         }
 
+        $this->flush()->reset();
+
+        return rmdir($this->path());
+    }
+
+    /**
+     * Recursively delete all files and folders within this folder.
+     *
+     * @return $this
+     */
+    public function flush(): this {
         foreach ($this->read(false, true) as $file) {
             $file->delete();
         }
 
-        $this->reset();
-
-        return rmdir($this->path());
+        return $this;
     }
 
     /**

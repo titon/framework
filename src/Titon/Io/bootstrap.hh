@@ -18,6 +18,6 @@ namespace Titon\Io {
     type DomainPathMap = Map<string, PathList>;
     type PathList = Vector<string>;
     type ReaderMap = Map<string, Reader>;
-    type ResourceMap = Map<string, mixed>;
+    type ResourceMap<Tk, Tv> = Map<Tk, Tv>;
     type WriterMap = Map<string, Writer>;
 }

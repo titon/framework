@@ -526,10 +526,10 @@ class Col {
         invariant($resource instanceof KeyedTraversable, 'Resource must be traversable');
 
         foreach ($resource as $key => $value) {
-            if ($value instanceof Vector) {
+            if ($value instanceof Vector || (is_array($value) && $value && Col::isNumeric(array_keys($value)))) {
                 $map[$key] = static::toVector($value);
 
-            } else if ($value instanceof KeyedTraversable) {
+            } else if ($value instanceof Indexish) {
                 $map[$key] = static::toMap($value);
 
             } else {
@@ -560,7 +560,7 @@ class Col {
             if ($value instanceof Map || (is_array($value) && !Col::isNumeric(array_keys($value)))) {
                 $vector[] = static::toMap($value);
 
-            } else if ($value instanceof KeyedTraversable) {
+            } else if ($value instanceof Indexish) {
                 $vector[] = static::toVector($value);
 
             } else {

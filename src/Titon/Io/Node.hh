@@ -187,6 +187,7 @@ abstract class Node {
 
     /**
      * Return the parent directory as a string.
+     * Will always end in a trailing slash.
      *
      * @return string
      */
@@ -416,7 +417,7 @@ abstract class Node {
         }
 
         // Prepend folder
-        $target = $this->dir() . '/' . $name;
+        $target = $this->dir() . $name;
 
         // Don't move if the target exists and overwrite is disabled
         if (file_exists($target)) {

@@ -7,7 +7,6 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Utility\Col;
 
@@ -25,7 +24,7 @@ class IniReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): ResourceMap {
+    public function read<Tk, Tv>(): Map<Tk, Tv> {
         if ($this->exists()) {
             return Col::toMap(parse_ini_file($this->path(), true, INI_SCANNER_NORMAL));
         }

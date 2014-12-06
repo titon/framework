@@ -68,6 +68,18 @@ class XmlElementTest extends TestCase {
         $this->assertEquals('<![CDATA[' . PHP_EOL . 'false' . PHP_EOL . ']]>', $this->object->getValue());
         $this->assertEquals('false', $this->object->getValueWithoutCdata());
         $this->assertEquals(false, $this->object->getBoxedValue());
+
+        $this->object->setValue(0, true);
+
+        $this->assertEquals('<![CDATA[' . PHP_EOL . '0' . PHP_EOL . ']]>', $this->object->getValue());
+        $this->assertEquals('0', $this->object->getValueWithoutCdata());
+        $this->assertEquals(0, $this->object->getBoxedValue());
+
+        $this->object->setValue(null, true);
+
+        $this->assertEquals('<![CDATA[' . PHP_EOL . 'null' . PHP_EOL . ']]>', $this->object->getValue());
+        $this->assertEquals('null', $this->object->getValueWithoutCdata());
+        $this->assertEquals(null, $this->object->getBoxedValue());
     }
 
     public function testGetChild() {
@@ -157,6 +169,11 @@ class XmlElementTest extends TestCase {
 
         $this->assertEquals('<![CDATA[' . PHP_EOL . 'value' . PHP_EOL . ']]>', $this->object->getValue());
         $this->assertEquals('value', $this->object->getValueWithoutCdata());
+
+        $this->object->setValue(0, true);
+
+        $this->assertEquals('<![CDATA[' . PHP_EOL . '0' . PHP_EOL . ']]>', $this->object->getValue());
+        $this->assertEquals('0', $this->object->getValueWithoutCdata());
     }
 
     public function testHasAttribute() {
@@ -347,6 +364,17 @@ class XmlElementTest extends TestCase {
             'root' => Map {
                 '@attributes' => Map {'foo' => 'bar'},
                 '@value' => 'foo'
+            }
+        }, $this->object->toMap());
+    }
+
+    public function testToMapZeroValue() {
+        $this->object->setValue('0');
+
+        $this->assertEquals(Map {
+            'root' => Map {
+                '@attributes' => Map {'foo' => 'bar'},
+                '@value' => 0
             }
         }, $this->object->toMap());
     }

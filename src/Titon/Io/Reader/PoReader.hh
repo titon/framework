@@ -7,7 +7,6 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 
 /**
@@ -22,7 +21,7 @@ class PoReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): ResourceMap {
+    public function read<Tk, Tv>(): Map<Tk, Tv> {
         if ($this->exists()) {
             return $this->_parse();
         }
@@ -33,9 +32,9 @@ class PoReader extends AbstractReader {
     /**
      * Parse out the po contents.
      *
-     * @return \Titon\Io\ResourceMap
+     * @return Map<Tk, Tv>
      */
-    protected function _parse(): ResourceMap {
+    protected function _parse<Tk, Tv>(): Map<Tk, Tv> {
         $lines = file($this->path(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $data = Map {};
         $key = '';
@@ -70,7 +69,7 @@ class PoReader extends AbstractReader {
                     if ($plural) {
                         $value[] = $val;
                     } else {
-                        $value = [$val];
+                        $value = new Vector([$val]);
                         $plural = true;
                     }
 

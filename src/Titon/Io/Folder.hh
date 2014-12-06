@@ -189,10 +189,6 @@ class Folder extends Node {
             return $contents;
         }
 
-        if ($iterator->count() <= 0) {
-            return $contents;
-        }
-
         /** @type \SPLFileInfo $file */
         foreach ($iterator as $file) {
             if ($file->isDir()) {

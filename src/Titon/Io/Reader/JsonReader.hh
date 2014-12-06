@@ -7,7 +7,6 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Utility\Col;
 
@@ -25,7 +24,7 @@ class JsonReader extends AbstractReader {
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): ResourceMap {
+    public function read<Tk, Tv>(): Map<Tk, Tv> {
         if ($this->exists()) {
             return Col::toMap(@json_decode(parent::read(), true));
         }

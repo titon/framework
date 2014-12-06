@@ -28,7 +28,7 @@ interface Reader {
      *
      * @return \Titon\Io\ResourceMap
      */
-    public function read(): ResourceMap;
+    public function read<Tk, Tv>(): Map<Tk, Tv>;
 
     /**
      * Reset the file path.

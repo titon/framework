@@ -11,10 +11,11 @@ use Titon\Common\FactoryAware;
 use Titon\Environment\Exception\MissingHostException;
 use Titon\Environment\Exception\NoHostMatchException;
 use Titon\Event\Emittable;
+use Titon\Event\Event;
 use Titon\Event\Subject;
-use Titon\Utility\Path;
 use Titon\Utility\State\Server as ServerGlobal;
 
+type BootstrapperList = Vector<Bootstrapper>;
 type HostMap = Map<string, Host>;
 
 /**
@@ -30,11 +31,11 @@ class Environment implements Subject {
     use Emittable, FactoryAware;
 
     /**
-     * The Bootstrapper instance.
+     * List of bootstrappers to trigger after a match.
      *
-     * @params \Titon\Environment\Bootstrapper
+     * @params \Titon\Environment\BootstrapperList
      */
-    protected ?Bootstrapper $_bootstrapper;
+    protected BootstrapperList $_bootstrappers = Vector {};
 
     /**
      * Currently active environment.
@@ -58,14 +59,22 @@ class Environment implements Subject {
     protected ?Host $_fallback = null;
 
     /**
-     * Set the bootstrapper.
+     * Set internal events.
+     */
+    public function __construct() {
+        $this->on('env.initialized', inst_meth($this, 'onInitialized'), 1);
+    }
+
+    /**
+     * Add a bootstrapper instance.
      *
      * @param \Titon\Environment\Bootstrapper $bootstrapper
+     * @return $this
      */
-    public function __construct(?Bootstrapper $bootstrapper = null) {
-        if ($bootstrapper) {
-            $this->setBootstrapper($bootstrapper);
-        }
+    public function addBootstrapper(Bootstrapper $bootstrapper): this {
+        $this->_bootstrappers[] = $bootstrapper;
+
+        return $this;
     }
 
     /**
@@ -91,12 +100,12 @@ class Environment implements Subject {
     }
 
     /**
-     * Return the bootstrapper instance.
+     * Return the list of bootstrappers.
      *
-     * @return \Titon\Environment\Bootstrapper
+     * @return \Titon\Environment\BootstrapperList
      */
-    public function getBootstrapper(): ?Bootstrapper {
-        return $this->_bootstrapper;
+    public function getBootstrappers(): BootstrapperList {
+        return $this->_bootstrappers;
     }
 
     /**
@@ -158,11 +167,8 @@ class Environment implements Subject {
 
         // Throw an error if no matches could be found
         } else {
-            throw new NoHostMatchException('No host matched for environment bootstrapping');
+            throw new NoHostMatchException('No environment host matched');
         }
-
-        // Bootstrap environment configuration
-        $this->getBootstrapper()?->bootstrap($current);
 
         $this->emit('env.initialized', [$this, $current]);
     }
@@ -279,15 +285,18 @@ class Environment implements Subject {
     }
 
     /**
-     * Set the bootstrapper instance.
+     * Loop through all the bootstrappers and trigger the bootstrapping process.
+     * This method is automatically called during the `initialized` event.
      *
-     * @param \Titon\Environment\Bootstrapper $bootstrapper
+     * @param \Titon\Event\Event $event
+     * @param \Titon\Environment\Environment $env
+     * @param \Titon\Environment\Host $host
      * @return $this
      */
-    public function setBootstrapper(Bootstrapper $bootstrapper): this {
-        $this->_bootstrapper = $bootstrapper;
-
-        return $this;
+    public function onInitialized(Event $event, Environment $env, Host $host): void {
+        foreach ($this->getBootstrappers() as $bootstrapper) {
+            $bootstrapper->bootstrap($host);
+        }
     }
 
     /**

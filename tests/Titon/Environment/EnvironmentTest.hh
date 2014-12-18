@@ -12,11 +12,22 @@ class EnvironmentTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new EnvironmentStub(new BootstrapperStub());
+        $this->object = new EnvironmentStub();
+        $this->object->addBootstrapper(new BootstrapperStub());
         $this->object->addHost('dev', new Host(Server::DEV, ['dev', '123.0.0.0']));
         $this->object->addHost('prod', new Host(Server::PROD, Vector {'prod', '123.456.0.0'}));
         $this->object->addHost('staging', new Host(Server::STAGING, Vector {'staging', '123.456.789.0'}));
         $this->object->setFallback('dev');
+    }
+
+    public function testBootstrappers() {
+        $this->assertEquals(1, count($this->object->getBootstrappers()));
+
+        $bs = new BootstrapperStub();
+        $this->object->addBootstrapper($bs);
+
+        $this->assertEquals(2, count($this->object->getBootstrappers()));
+        $this->assertEquals($bs, $this->object->getBootstrappers()[1]);
     }
 
     public function testCurrent() {

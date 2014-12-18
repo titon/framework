@@ -552,6 +552,37 @@ class Router implements Subject {
     }
 
     /**
+     * Map a route for a GET request, and another for a POST request.
+     * This supports the POST-REDIRECT-GET (PRG) pattern.
+     *
+     * @param string $key
+     * @param \Titon\Route\Route $route
+     * @return $this
+     */
+    public function prg(string $key, Route $route): this {
+        $action = $route->getAction();
+        $actionSuffix = ucfirst($action['action']);
+
+        // Set GET route
+        $action['action'] = 'get' . $actionSuffix;
+
+        $get = clone $route;
+        $get->setAction($action);
+
+        $this->get($key . '.get', $get);
+
+        // Set POST route
+        $action['action'] = 'post' . $actionSuffix;
+
+        $post = clone $route;
+        $post->setAction($action);
+
+        $this->post($key . '.post', $post);
+
+        return $this;
+    }
+
+    /**
      * Map a route that only responds to a DELETE request.
      *
      * @param string $key

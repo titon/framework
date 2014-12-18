@@ -378,6 +378,33 @@ class RouterTest extends TestCase {
         Router::parseAction('Broken+Route');
     }
 
+    public function testPrgMapping() {
+        $this->object->prg('prg', (new Route('/foo', 'Controller@action'))->addFilter('auth'));
+
+        $routes = $this->object->getRoutes();
+
+        // Keys
+        $this->assertFalse(isset($routes['prg']));
+        $this->assertTrue(isset($routes['prg.get']));
+        $this->assertTrue(isset($routes['prg.post']));
+
+        // Paths
+        $this->assertEquals('/foo', $routes['prg.get']->getPath());
+        $this->assertEquals('/foo', $routes['prg.post']->getPath());
+
+        // Action
+        $this->assertEquals(shape('class' => 'Controller', 'action' => 'getAction'), $routes['prg.get']->getAction());
+        $this->assertEquals(shape('class' => 'Controller', 'action' => 'postAction'), $routes['prg.post']->getAction());
+
+        // Method
+        $this->assertEquals(Vector {'get'}, $routes['prg.get']->getMethods());
+        $this->assertEquals(Vector {'post'}, $routes['prg.post']->getMethods());
+
+        // Filters should be cloned also
+        $this->assertEquals(Vector {'auth'}, $routes['prg.get']->getFilters());
+        $this->assertEquals(Vector {'auth'}, $routes['prg.post']->getFilters());
+    }
+
     public function testResourceMap() {
         $this->assertEquals(Map {
             'list' => 'index',

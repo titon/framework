@@ -7,11 +7,9 @@ class HostTest extends TestCase {
 
     public function testGet() {
         $host = new Host(Server::DEV, ['dev', '123.0.0.0']);
-        $host->setBootstrap(TEMP_DIR . '/dev.php');
 
         $this->assertEquals(Vector {'dev', '123.0.0.0'}, $host->getHostnames());
         $this->assertEquals(Server::DEV, $host->getType());
-        $this->assertEquals(TEMP_DIR . '/dev.php', $host->getBootstrap());
     }
 
     public function testGetSetKey() {

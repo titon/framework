@@ -49,7 +49,7 @@ class CallbackRoute extends Route {
 
         $callback = new ReflectionFunction($this->getCallback());
 
-        return $callback->invokeArgs($this->_getArguments($callback));
+        return $callback->invokeArgs($this->_getArguments($callback)->toArray());
     }
 
     /**

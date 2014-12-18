@@ -428,11 +428,11 @@ class Router implements Subject {
      * @return $this
      */
     public function loadRoutes(): this {
-        if ($item = $this->getStorage()?->getItem('routes')) {
-            if ($item->isHit()) {
-                $this->_routes = unserialize($item->get());
-                $this->_cached = true;
-            }
+        $item = $this->getStorage()?->getItem('routes');
+
+        if ($item !== null && $item->isHit()) {
+            $this->_routes = unserialize($item->get());
+            $this->_cached = true;
         }
 
         return $this;

@@ -11,6 +11,7 @@ use Titon\Cache\Item;
 use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
 use Titon\Event\Emittable;
+use Titon\Event\Event;
 use Titon\Event\Subject;
 use Titon\Route\Exception\InvalidRouteException;
 use Titon\Route\Exception\MissingFilterException;
@@ -151,8 +152,8 @@ class Router implements Subject {
         });
 
         // Set caching events
-        $this->on('route.matching', inst_meth($this, 'loadRoutes'), 1);
-        $this->on('route.matched', inst_meth($this, 'cacheRoutes'), 1);
+        $this->on('route.matching', inst_meth($this, 'doLoadRoutes'), 1);
+        $this->on('route.matched', inst_meth($this, 'doCacheRoutes'), 1);
     }
 
     /**
@@ -182,30 +183,6 @@ class Router implements Subject {
     }
 
     /**
-     * Cache the currently mapped routes.
-     * This method is automatically called during the `matched` event.
-     *
-     * @return $this
-     */
-    public function cacheRoutes(): this {
-        if ($this->isCached()) {
-            return $this;
-        }
-
-        if (($storage = $this->getStorage()) && ($routes = $this->getRoutes())) {
-            // Before caching, make sure all routes are compiled
-            foreach ($routes as $route) {
-                $route->compile();
-            }
-
-            // Compiling before hand should speed up the next request
-            $storage->save(new Item('routes', serialize($routes), '+1 year'));
-        }
-
-        return $this;
-    }
-
-    /**
      * Return the current matched route object.
      *
      * @return \Titon\Route\Route
@@ -223,6 +200,47 @@ class Router implements Subject {
      */
     public function delete(string $key, Route $route): Route {
         return $this->http($key, Vector {'delete'}, $route);
+    }
+
+    /**
+     * Cache the currently mapped routes.
+     * This method is automatically called during the `matched` event.
+     *
+     * @param \Titon\Event\Event $event
+     * @param \Titon\Route\Router $router
+     * @param \Titon\Route\Route $route
+     */
+    public function doCacheRoutes(Event $event, Router $router, Route $route): void {
+        if ($this->isCached()) {
+            return;
+        }
+
+        if (($storage = $this->getStorage()) && ($routes = $this->getRoutes())) {
+            // Before caching, make sure all routes are compiled
+            foreach ($routes as $route) {
+                $route->compile();
+            }
+
+            // Compiling before hand should speed up the next request
+            $storage->save(new Item('routes', serialize($routes), '+1 year'));
+        }
+    }
+
+    /**
+     * Load routes from the cache if they exist.
+     * This method is automatically called during the `matching` event.
+     *
+     * @param \Titon\Event\Event $event
+     * @param \Titon\Route\Router $router
+     * @param string $url
+     */
+    public function doLoadRoutes(Event $event, Router $router, string $url): void {
+        $item = $this->getStorage()?->getItem('routes');
+
+        if ($item !== null && $item->isHit()) {
+            $this->_routes = unserialize($item->get());
+            $this->_cached = true;
+        }
     }
 
     /**
@@ -419,23 +437,6 @@ class Router implements Subject {
      */
     public function isCached(): bool {
         return $this->_cached;
-    }
-
-    /**
-     * Load routes from the cache if they exist.
-     * This method is automatically called during the `matching` event.
-     *
-     * @return $this
-     */
-    public function loadRoutes(): this {
-        $item = $this->getStorage()?->getItem('routes');
-
-        if ($item !== null && $item->isHit()) {
-            $this->_routes = unserialize($item->get());
-            $this->_cached = true;
-        }
-
-        return $this;
     }
 
     /**

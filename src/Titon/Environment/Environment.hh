@@ -17,14 +17,6 @@ use Titon\Utility\State\Server as ServerGlobal;
 
 type HostMap = Map<string, Host>;
 
-enum Server: string {
-    DEV = 'dev';
-    PROD = 'prod';
-    QA = 'qa';
-    STAGING = 'staging';
-    TESTING = 'testing';
-}
-
 /**
  * A hub that allows you to store different environment host configurations,
  * which can be detected and initialized on runtime.
@@ -152,38 +144,27 @@ class Environment implements Subject {
      * @param bool $throwError
      */
     public function initialize(bool $throwError = false): void {
-        $hosts = $this->getHosts();
-
-        if ($hosts->isEmpty()) {
+        if ($this->getHosts()->isEmpty()) {
             return;
         }
 
         $this->emit('env.initializing', [$this]);
 
-        // Match a host to the machine hostname
-        $current = null;
+        // First attempt to match using environment variables
+        $current = $this->matchWithVar();
 
-        foreach ($hosts as $host) {
-            if ($current !== null) {
-                break;
-            }
+        // If that fails, then attempt to match using hostnames
+        $current = $current ?: $this->matchWithHostname();
 
-            foreach ($host->getHostnames() as $name) {
-                if ($this->isMachine($name)) {
-                    $current = $host;
-                    break;
-                }
-            }
-        }
-
+        // Set the host if found
         if ($current) {
             $this->_current = $current;
 
-        // If no environment found, use the fallback
+        // If not found, use the fallback
         } else if ($fallback = $this->getFallback()) {
             $this->_current = $current = $fallback;
 
-        // Throw an error if no fallback defined and no match
+        // Throw an error if no matches could be found
         } else {
             throw new NoHostMatchException('No host matched for environment bootstrapping');
         }
@@ -273,6 +254,36 @@ class Environment implements Subject {
      */
     public function isTesting(): bool {
         return (($current = $this->current()) && $current->isTesting());
+    }
+
+    /**
+     * Attempt to match the environment based on hostname.
+     *
+     * @return \Titon\Environment\Host
+     */
+    public function matchWithHostname(): ?Host {
+        foreach ($this->getHosts() as $host) {
+            foreach ($host->getHostnames() as $name) {
+                if ($this->isMachine($name)) {
+                    return $host;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Attempt to match the environment based on a server environment variable.
+     *
+     * @return \Titon\Environment\Host
+     */
+    public function matchWithVar(): ?Host {
+        try {
+            return $this->getHost((string) getenv('APP_ENV'));
+        } catch (MissingHostException $e) {
+            return null;
+        }
     }
 
     /**

@@ -15,16 +15,16 @@ class EnvironmentTest extends TestCase {
 
         $this->object = new EnvironmentStub();
 
-        $host = new Host(['dev', '123.0.0.0']);
+        $host = new Host(Server::DEV, ['dev', '123.0.0.0']);
         $host->setBootstrap(TEMP_DIR . '/environment/dev.php');
 
         $this->object->addHost('dev', $host);
 
-        $host = new Host(Vector {'prod', '123.456.0.0'}, Server::PROD);
+        $host = new Host(Server::PROD, Vector {'prod', '123.456.0.0'});
         $host->setBootstrap(TEMP_DIR . '/environment/prod.php');
 
         $this->object->addHost('prod', $host);
-        $this->object->addHost('staging', new Host(Vector {'staging', '123.456.789.0'}, Server::STAGING));
+        $this->object->addHost('staging', new Host(Server::STAGING, Vector {'staging', '123.456.789.0'}));
         $this->object->setFallback('dev');
     }
 
@@ -234,7 +234,7 @@ class EnvironmentTest extends TestCase {
     }
 
     public function testIsQA() {
-        $this->object->addHost('qa', new Host(['qa', '123.456.0.666'], Server::QA));
+        $this->object->addHost('qa', new Host(Server::QA, ['qa', '123.456.0.666']));
 
         $_SERVER['HTTP_HOST'] = 'qa';
 
@@ -260,21 +260,21 @@ class EnvironmentTest extends TestCase {
      */
     public function testBootstrapErrorsMissingFile() {
         $env = new Environment(TEMP_DIR);
-        $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
+        $env->addHost('dev-us', new Host(Server::DEV, ['dev', '123.0.0.0']));
         $env->setFallback('dev-us');
         $env->initialize(true);
     }
 
     public function testBootstrapDoesntErrorMissingFile() {
         $env = new Environment(TEMP_DIR);
-        $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
+        $env->addHost('dev-us', new Host(Server::DEV, ['dev', '123.0.0.0']));
         $env->setFallback('dev-us');
         $env->initialize();
     }
 
     public function testAutoBootstrapping() {
         $env = new Environment(TEMP_DIR);
-        $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
+        $env->addHost('dev-us', new Host(Server::DEV, ['dev', '123.0.0.0']));
 
         $this->assertEquals(Path::ds(TEMP_DIR, true) . 'dev-us.php', $env->getHost('dev-us')->getBootstrap());
     }

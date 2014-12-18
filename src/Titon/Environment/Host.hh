@@ -50,10 +50,10 @@ class Host {
     /**
      * Set the required settings.
      *
-     * @param string|array $hostnames
      * @param \Titon\Environment\Server $type
+     * @param string|array|Vector $hostnames
      */
-    public function __construct(mixed $hostnames, Server $type = Server::DEV) {
+    public function __construct(Server $type, mixed $hostnames = Vector {}) {
         $this->_hostnames = Col::toVector($hostnames);
         $this->_type = $type;
     }

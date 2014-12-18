@@ -264,6 +264,7 @@ class EnvironmentTest extends TestCase {
         $env->addHost('dev', new Host(Server::DEV, ['dev', '123.0.0.0']));
 
         $this->assertEquals(Map {}, $env->getVariables());
+        $this->assertEquals('', $env->getVariable('bar'));
 
         $env->initialize();
 
@@ -274,6 +275,7 @@ class EnvironmentTest extends TestCase {
 
     public function testVarLoadingInheritance() {
         $_SERVER['HTTP_HOST'] = 'prod';
+
         $env = new EnvironmentStub(TEMP_DIR . '/environment/');
         $env->addHost('prod', new Host(Server::PROD, Vector {'prod', '123.456.0.0'}));
         $env->initialize();

@@ -19,7 +19,7 @@ type HostMap = Map<string, Host>;
 
 /**
  * A hub that allows you to store different environment host configurations,
- * which can be detected and initialized on runtime.
+ * which can be detected and initialized at runtime.
  *
  * @package Titon\Environment
  * @events
@@ -30,11 +30,11 @@ class Environment implements Subject {
     use Emittable, FactoryAware;
 
     /**
-     * Root path to the bootstrap directory.
+     * The Bootstrapper instance.
      *
-     * @params string
+     * @params \Titon\Environment\Bootstrapper
      */
-    protected string $_bootstrapPath = '';
+    protected ?Bootstrapper $_bootstrapper;
 
     /**
      * Currently active environment.
@@ -58,31 +58,25 @@ class Environment implements Subject {
     protected ?Host $_fallback = null;
 
     /**
-     * Set the bootstrap directory path.
+     * Set the bootstrapper.
      *
-     * @param string $path
+     * @param \Titon\Environment\Bootstrapper $bootstrapper
      */
-    public function __construct(string $path = '') {
-        $this->setBootstrapPath($path);
+    public function __construct(?Bootstrapper $bootstrapper = null) {
+        if ($bootstrapper) {
+            $this->setBootstrapper($bootstrapper);
+        }
     }
 
     /**
      * Add an environment host to the mapping.
-     * Automatically define a bootstrap file if the path has been set.
      *
      * @param string $key
      * @param \Titon\Environment\Host $host
      * @return $this
      */
     public function addHost(string $key, Host $host): this {
-        $host->setKey($key);
-
-        // Auto-set bootstrap path
-        if ($path = $this->getBootstrapPath()) {
-            $host->setBootstrap(Path::ds($path, true) . $key . '.php');
-        }
-
-        $this->_hosts[$key] = $host;
+        $this->_hosts[$key] = $host->setKey($key);
 
         return $this;
     }
@@ -97,12 +91,12 @@ class Environment implements Subject {
     }
 
     /**
-     * Return the bootstrap path.
+     * Return the bootstrapper instance.
      *
-     * @return string
+     * @return \Titon\Environment\Bootstrapper
      */
-    public function getBootstrapPath(): string {
-        return $this->_bootstrapPath;
+    public function getBootstrapper(): ?Bootstrapper {
+        return $this->_bootstrapper;
     }
 
     /**
@@ -139,11 +133,9 @@ class Environment implements Subject {
     }
 
     /**
-     * Initialize the environment by including the configuration.
-     *
-     * @param bool $throwError
+     * Initialize the environment by matching based on server variables or hostnames.
      */
-    public function initialize(bool $throwError = false): void {
+    public function initialize(): void {
         if ($this->getHosts()->isEmpty()) {
             return;
         }
@@ -170,7 +162,7 @@ class Environment implements Subject {
         }
 
         // Bootstrap environment configuration
-        $current->bootstrap($throwError);
+        $this->getBootstrapper()?->bootstrap($current);
 
         $this->emit('env.initialized', [$this, $current]);
     }
@@ -217,7 +209,7 @@ class Environment implements Subject {
      * @return bool
      */
     public function isDevelopment(): bool {
-        return (($current = $this->current()) && $current->isDevelopment());
+        return (bool) $this->current()?->isDevelopment();
     }
 
     /**
@@ -226,7 +218,7 @@ class Environment implements Subject {
      * @return bool
      */
     public function isProduction(): bool {
-        return (($current = $this->current()) && $current->isProduction());
+        return (bool) $this->current()?->isProduction();
     }
 
     /**
@@ -235,7 +227,7 @@ class Environment implements Subject {
      * @return bool
      */
     public function isQA(): bool {
-        return (($current = $this->current()) && $current->isQA());
+        return (bool) $this->current()?->isQA();
     }
 
     /**
@@ -244,7 +236,7 @@ class Environment implements Subject {
      * @return bool
      */
     public function isStaging(): bool {
-        return (($current = $this->current()) && $current->isStaging());
+        return (bool) $this->current()?->isStaging();
     }
 
     /**
@@ -253,7 +245,7 @@ class Environment implements Subject {
      * @return bool
      */
     public function isTesting(): bool {
-        return (($current = $this->current()) && $current->isTesting());
+        return (bool) $this->current()?->isTesting();
     }
 
     /**
@@ -287,13 +279,13 @@ class Environment implements Subject {
     }
 
     /**
-     * Set the bootstrap path directory.
+     * Set the bootstrapper instance.
      *
-     * @param string $path
+     * @param \Titon\Environment\Bootstrapper $bootstrapper
      * @return $this
      */
-    public function setBootstrapPath(string $path): this {
-        $this->_bootstrapPath = $path;
+    public function setBootstrapper(Bootstrapper $bootstrapper): this {
+        $this->_bootstrapper = $bootstrapper;
 
         return $this;
     }

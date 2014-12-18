@@ -223,7 +223,7 @@ class Route implements Serializable {
         $object = Registry::factory($action['class']);
         $method = new ReflectionMethod($object, $action['action']);
 
-        return $method->invokeArgs($object, $this->getActionArguments());
+        return $method->invokeArgs($object, $this->getActionArguments()->toArray());
     }
 
     /**
@@ -478,7 +478,7 @@ class Route implements Serializable {
      *
      * @param mixed $data
      */
-    public function unserialize($data): void { // TODO - type hint
+    public function unserialize($data): void { // TODO - Type hint
         $data = unserialize($data);
 
         $this->_path = $data['path'];

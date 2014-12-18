@@ -49,7 +49,7 @@ class UrlBuilder {
      * @throws \Titon\Route\Exception\MissingTokenException
      */
     public function build(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        $url = $this->cache([__METHOD__, $key, $params], function(UrlBuilder $builder) use ($key, $params) {
+        $url = (string) $this->cache([__METHOD__, $key, $params], function(UrlBuilder $builder) use ($key, $params) {
             $router = $builder->getRouter();
             $route = $router->getRoute($key);
             $base = $router->base();

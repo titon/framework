@@ -13,10 +13,13 @@ use Titon\Environment\Exception\NoHostMatchException;
 use Titon\Event\Emittable;
 use Titon\Event\Event;
 use Titon\Event\Subject;
+use Titon\Utility\Col;
+use Titon\Utility\Path;
 use Titon\Utility\State\Server as ServerGlobal;
 
 type BootstrapperList = Vector<Bootstrapper>;
 type HostMap = Map<string, Host>;
+type VariableMap = Map<string, string>;
 
 /**
  * A hub that allows you to store different environment host configurations,
@@ -59,10 +62,31 @@ class Environment implements Subject {
     protected ?Host $_fallback = null;
 
     /**
-     * Set internal events.
+     * Directory path to the secure variables directory.
+     *
+     * @type string
      */
-    public function __construct() {
-        $this->on('env.initialized', inst_meth($this, 'onInitialized'), 1);
+    protected string $_securePath = '';
+
+    /**
+     * Secure variables loaded on initialization.
+     *
+     * @type \Titon\Environment\VariableMap
+     */
+    protected VariableMap $_variables = Map {};
+
+    /**
+     * Set internal events and the secure variables lookup path.
+     *
+     * @param string $path
+     */
+    public function __construct($path = '') {
+        if ($path) {
+            $this->_securePath = Path::ds($path, true);
+        }
+
+        $this->on('env.initialized', inst_meth($this, 'doLoadSecureVars'), 1);
+        $this->on('env.initialized', inst_meth($this, 'doBootstrap'), 2);
     }
 
     /**
@@ -97,6 +121,47 @@ class Environment implements Subject {
      */
     public function current(): ?Host {
         return $this->_current;
+    }
+
+    /**
+     * Loop through all the bootstrappers and trigger the bootstrapping process.
+     * This method is automatically called during the `initialized` event.
+     *
+     * @param \Titon\Event\Event $event
+     * @param \Titon\Environment\Environment $env
+     * @param \Titon\Environment\Host $host
+     * @return $this
+     */
+    public function doBootstrap(Event $event, Environment $env, Host $host): void {
+        foreach ($this->getBootstrappers() as $bootstrapper) {
+            $bootstrapper->bootstrap($host);
+        }
+    }
+
+    /**
+     * Attempt to load secure variables from the lookup path.
+     * This method is automatically called during the `initialized` event.
+     *
+     * @param \Titon\Event\Event $event
+     * @param \Titon\Environment\Environment $env
+     * @param \Titon\Environment\Host $host
+     * @return $this
+     */
+    public function doLoadSecureVars(Event $event, Environment $env, Host $host): void {
+        $path = $this->_securePath;
+        $variables = [];
+
+        if (!$path) {
+            return;
+        }
+
+        foreach (['.env.php', sprintf('.env.%s.php', $host->getKey())] as $file) {
+            if (file_exists($path . $file)) {
+                $variables = array_merge($variables, include $path . $file);
+            }
+        }
+
+        $this->_variables = Col::toMap($variables);
     }
 
     /**
@@ -139,6 +204,25 @@ class Environment implements Subject {
      */
     public function getHosts(): HostMap {
         return $this->_hosts;
+    }
+
+    /**
+     * Return the value of a secure variable defined by key.
+     *
+     * @param string $key
+     * @return string
+     */
+    public function getVariable(string $key): string {
+        return $this->getVariables()->get($key) ?: '';
+    }
+
+    /**
+     * Return all loaded secure variables.
+     *
+     * @return \Titon\Environment\VariableMap
+     */
+    public function getVariables(): VariableMap {
+        return $this->_variables;
     }
 
     /**
@@ -281,21 +365,6 @@ class Environment implements Subject {
             return $this->getHost((string) getenv('APP_ENV'));
         } catch (MissingHostException $e) {
             return null;
-        }
-    }
-
-    /**
-     * Loop through all the bootstrappers and trigger the bootstrapping process.
-     * This method is automatically called during the `initialized` event.
-     *
-     * @param \Titon\Event\Event $event
-     * @param \Titon\Environment\Environment $env
-     * @param \Titon\Environment\Host $host
-     * @return $this
-     */
-    public function onInitialized(Event $event, Environment $env, Host $host): void {
-        foreach ($this->getBootstrappers() as $bootstrapper) {
-            $bootstrapper->bootstrap($host);
         }
     }
 

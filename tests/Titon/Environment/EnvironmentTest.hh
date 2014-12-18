@@ -101,7 +101,7 @@ class EnvironmentTest extends TestCase {
         $this->assertEquals(3, count($this->object->getHosts()));
     }
 
-    public function testInitializeBootstrapping() {
+    public function testBootstrapping() {
         $_SERVER['HTTP_HOST'] = 'dev';
 
         $this->object->initialize();
@@ -113,7 +113,7 @@ class EnvironmentTest extends TestCase {
         $this->assertEquals('prod', BootstrapperStub::$loaded);
     }
 
-    public function testInitializeBootstrappingFallback() {
+    public function testBootstrappingFallback() {
         $_SERVER['HTTP_HOST'] = 'qa';
 
         $this->object->initialize();
@@ -255,6 +255,33 @@ class EnvironmentTest extends TestCase {
         $this->assertFalse($this->object->isProduction());
         $this->assertFalse($this->object->isQA());
         $this->assertTrue($this->object->isStaging());
+    }
+
+    public function testVarLoading() {
+        $_SERVER['HTTP_HOST'] = 'dev';
+
+        $env = new EnvironmentStub(TEMP_DIR . '/environment/');
+        $env->addHost('dev', new Host(Server::DEV, ['dev', '123.0.0.0']));
+
+        $this->assertEquals(Map {}, $env->getVariables());
+
+        $env->initialize();
+
+        $this->assertEquals(Map {'foo' => 'bar'}, $env->getVariables());
+        $this->assertEquals('bar', $env->getVariable('foo'));
+        $this->assertEquals('', $env->getVariable('bar'));
+    }
+
+    public function testVarLoadingInheritance() {
+        $_SERVER['HTTP_HOST'] = 'prod';
+        $env = new EnvironmentStub(TEMP_DIR . '/environment/');
+        $env->addHost('prod', new Host(Server::PROD, Vector {'prod', '123.456.0.0'}));
+        $env->initialize();
+
+        $this->assertEquals(Map {'foo' => 'bar', 'baz' => 'qux'}, $env->getVariables());
+        $this->assertEquals('bar', $env->getVariable('foo'));
+        $this->assertEquals('qux', $env->getVariable('baz'));
+        $this->assertEquals('', $env->getVariable('bar'));
     }
 
 }

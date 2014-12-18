@@ -10,18 +10,18 @@ namespace Titon\Route;
 use Titon\Common\ArgumentList;
 use Titon\Route\Exception\MissingPatternException;
 use Titon\Route\Exception\NoMatchException;
+use Titon\Route\Mixin\ConditionMixin;
+use Titon\Route\Mixin\FilterMixin;
+use Titon\Route\Mixin\MethodMixin;
+use Titon\Route\Mixin\PatternMixin;
+use Titon\Route\Mixin\SecureMixin;
 use Titon\Utility\Registry;
 use Titon\Utility\State\Server;
 use \ReflectionFunctionAbstract;
 use \ReflectionMethod;
 use \Serializable;
 
-type ConditionCallback = (function(Route): bool);
-type ConditionList = Vector<ConditionCallback>;
-type FilterList = Vector<string>;
-type MethodList = Vector<string>;
 type ParamMap = Map<string, mixed>;
-type PatternMap = Map<string, string>;
 type Token = shape('token' => string, 'optional' => bool);
 type TokenList = Vector<Token>;
 
@@ -32,6 +32,7 @@ type TokenList = Vector<Token>;
  * @package Titon\Route
  */
 class Route implements Serializable {
+    use ConditionMixin, FilterMixin, MethodMixin, PatternMixin, SecureMixin;
 
     /**
      * Pre-defined regex patterns.
@@ -57,27 +58,6 @@ class Route implements Serializable {
     protected string $_compiled = '';
 
     /**
-     * List of conditions to validate against.
-     *
-     * @type \Titon\Route\ConditionList
-     */
-    protected ConditionList $_conditions = Vector {};
-
-    /**
-     * Filters to trigger once the route has been matched.
-     *
-     * @type \Titon\Route\FilterList
-     */
-    protected FilterList $_filters = Vector {};
-
-    /**
-     * The types of acceptable HTTP methods (defaults to all).
-     *
-     * @type \Titon\Route\MethodList
-     */
-    protected MethodList $_methods = Vector {};
-
-    /**
      * Collection of route parameters.
      *
      * @type \Titon\Route\ParamMap
@@ -90,20 +70,6 @@ class Route implements Serializable {
      * @type string
      */
     protected string $_path = '';
-
-    /**
-     * Custom defined regex patterns.
-     *
-     * @type \Titon\Route\PatternMap
-     */
-    protected PatternMap $_patterns = Map {};
-
-    /**
-     * When true, will only match if under HTTPS.
-     *
-     * @type bool
-     */
-    protected bool $_secure = false;
 
     /**
      * A static route that contains no patterns.
@@ -137,115 +103,6 @@ class Route implements Serializable {
     public function __construct(string $path, string $action) {
         $this->_action = Router::parseAction($action);
         $this->append($path);
-    }
-
-    /**
-     * Add a condition callback.
-     *
-     * @param \Titon\Route\ConditionCallback $condition
-     * @return $this
-     */
-    public function addCondition(ConditionCallback $condition): this {
-        $this->_conditions[] = $condition;
-
-        return $this;
-    }
-
-    /**
-     * Add multiple conditions.
-     *
-     * @param \Titon\Route\ConditionList $conditions
-     * @return $this
-     */
-    public function addConditions(ConditionList $conditions): this {
-        foreach ($conditions as $condition) {
-            $this->addCondition($condition);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add a filter by name.
-     *
-     * @param string $filter
-     * @return $this
-     */
-    public function addFilter(string $filter): this {
-        if (!in_array($filter, $this->_filters)) {
-            $this->_filters[] = $filter;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add multiple filters by name.
-     *
-     * @param \Titon\Route\FilterList $filters
-     * @return $this
-     */
-    public function addFilters(FilterList $filters): this {
-        foreach ($filters as $filter) {
-            $this->addFilter($filter);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add an HTTP method to match against.
-     *
-     * @param string $method
-     * @return $this
-     */
-    public function addMethod(string $method): this {
-        if (!in_array($method, $this->_methods)) {
-            $this->_methods[] = strtolower($method);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add multiple HTTP methods to match against.
-     *
-     * @param \Titon\Route\MethodList $methods
-     * @return $this
-     */
-    public function addMethods(MethodList $methods): this {
-        foreach ($methods as $method) {
-            $this->addMethod($method);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add a regex pattern by token name.
-     *
-     * @param string $pattern
-     * @param string $regex
-     * @return $this
-     */
-    public function addPattern(string $pattern, string $regex): this {
-        $this->_patterns[$pattern] = $regex;
-
-        return $this;
-    }
-
-    /**
-     * Add multiple regex patterns.
-     *
-     * @param \Titon\Route\PatternMap $patterns
-     * @return $this
-     */
-    public function addPatterns(PatternMap $patterns): this {
-        foreach ($patterns as $pattern => $regex) {
-            $this->addPattern($pattern, $regex);
-        }
-
-        return $this;
     }
 
     /**
@@ -391,33 +248,6 @@ class Route implements Serializable {
     }
 
     /**
-     * Return the list of conditions.
-     *
-     * @return \Titon\Route\ConditionList
-     */
-    public function getConditions(): ConditionList {
-        return $this->_conditions;
-    }
-
-    /**
-     * Return all filters.
-     *
-     * @return \Titon\Route\FilterList
-     */
-    public function getFilters(): FilterList {
-        return $this->_filters;
-    }
-
-    /**
-     * Return the HTTP method.
-     *
-     * @return \Titon\Route\MethodList
-     */
-    public function getMethods(): MethodList {
-        return $this->_methods;
-    }
-
-    /**
      * Return the custom path.
      *
      * @return string
@@ -443,24 +273,6 @@ class Route implements Serializable {
      */
     public function getParams(): ParamMap {
         return $this->_params;
-    }
-
-    /**
-     * Return all the patterns used for compiling.
-     *
-     * @return \Titon\Route\PatternMap
-     */
-    public function getPatterns(): PatternMap {
-        return $this->_patterns;
-    }
-
-    /**
-     * Return the secure configuration.
-     *
-     * @return bool
-     */
-    public function getSecure(): bool {
-        return $this->_secure;
     }
 
     /**
@@ -518,7 +330,7 @@ class Route implements Serializable {
             return true;
 
         } else if (preg_match('~^' . $this->compile() . '$~i', $url, $matches)) {
-            $this->match(new Vector($matches));
+            $this->match($matches);
 
             return true;
         }
@@ -591,11 +403,10 @@ class Route implements Serializable {
      * Receive a list of matched values and apply it to the current route.
      * These matches will equate to tokens, arguments, and other required values.
      *
-     * @param Vector<string> $matches
+     * @param array<string> $matches
      * @return $this
      */
-    public function match(Vector<string> $matches): this {
-        $matches = $matches->toArray();
+    public function match(array<string> $matches): this {
         $tokens = $this->getTokens();
 
         $this->_url = array_shift($matches);
@@ -626,15 +437,15 @@ class Route implements Serializable {
      */
     public function serialize(): string {
         return serialize(Map {
-            'action' => $this->_action,
-            'compiled' => $this->_compiled,
-            'filters' => $this->_filters,
-            'methods' => $this->_methods,
-            'patterns' => $this->_patterns,
-            'path' => $this->_path,
-            'secure' => $this->_secure,
-            'static' => $this->_static,
-            'tokens' => $this->_tokens
+            'action' => $this->getAction(),
+            'compiled' => $this->compile(),
+            'filters' => $this->getFilters(),
+            'methods' => $this->getMethods(),
+            'patterns' => $this->getPatterns(),
+            'path' => $this->getPath(),
+            'secure' => $this->getSecure(),
+            'static' => $this->getStatic(),
+            'tokens' => $this->getTokens()
         });
     }
 
@@ -646,66 +457,6 @@ class Route implements Serializable {
      */
     public function setAction(Action $action): this {
         $this->_action = $action;
-
-        return $this;
-    }
-
-    /**
-     * Set the list of conditions to validate.
-     *
-     * @param \Titon\Route\ConditionList $conditions
-     * @return $this
-     */
-    public function setConditions(ConditionList $conditions): this {
-        $this->_conditions = $conditions;
-
-        return $this;
-    }
-
-    /**
-     * Set the list of filters to process.
-     *
-     * @param \Titon\Route\FilterList $filters
-     * @return $this
-     */
-    public function setFilters(FilterList $filters): this {
-        $this->_filters = $filters;
-
-        return $this;
-    }
-
-    /**
-     * Set the list of HTTP methods to match against.
-     *
-     * @param \Titon\Route\MethodList $methods
-     * @return $this
-     */
-    public function setMethods(MethodList $methods): this {
-        $this->_methods = $methods->map(fun('strtolower'));
-
-        return $this;
-    }
-
-    /**
-     * Set a mapping of regex patterns to parse URLs with.
-     *
-     * @param \Titon\Route\PatternMap $patterns
-     * @return $this
-     */
-    public function setPatterns(PatternMap $patterns): this {
-        $this->_patterns = $patterns;
-
-        return $this;
-    }
-
-    /**
-     * Set the secure flag.
-     *
-     * @param bool $secure
-     * @return $this
-     */
-    public function setSecure(bool $secure): this {
-        $this->_secure = $secure;
 
         return $this;
     }

@@ -18,6 +18,8 @@ use Titon\Route\Exception\MissingSegmentException;
 use Titon\Route\Exception\MissingRouteException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
+use Titon\Route\Mixin\MethodList;
+use Titon\Route\Group as RouteGroup; // Will fatal without alias
 use Titon\Utility\Registry;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
@@ -25,8 +27,8 @@ use Titon\Utility\State\Server;
 type Action = shape('class' => string, 'action' => string);
 type FilterCallback = (function(Router, Route): void);
 type FilterMap = Map<string, FilterCallback>;
-type GroupCallback = (function(Router): void);
-type GroupList = Vector<Map<string, mixed>>;
+type GroupCallback = (function(Router, Group): void);
+type GroupList = Vector<RouteGroup>;
 type QueryMap = Map<string, mixed>;
 type ResourceMap = Map<string, string>;
 type RouteMap = Map<string, Route>;
@@ -38,7 +40,7 @@ type SegmentMap = Map<string, mixed>;
  *
  * @package Titon\Route
  * @events
- *      route.matching(Router $router, $url)
+ *      route.matching(Router $router, string $url)
  *      route.matched(Router $router, Route $route)
  */
 class Router implements Subject {
@@ -285,6 +287,15 @@ class Router implements Subject {
     }
 
     /**
+     * Return the list of currently active groups.
+     *
+     * @return \Titon\Route\GroupList
+     */
+    public function getGroups(): GroupList {
+        return $this->_groups;
+    }
+
+    /**
      * Return the matcher object.
      *
      * @return \Titon\Route\Matcher
@@ -363,22 +374,15 @@ class Router implements Subject {
      * Group multiple route mappings into a single collection and apply options to all of them.
      * Can apply path prefixes, suffixes, patterns, filters, methods, conditions, and more.
      *
-     * @param Map<string, mixed> $options
      * @param \Titon\Route\GroupCallback $callback
      * @return $this
      */
-    public function group(Map<string, mixed> $options, GroupCallback $callback): this {
-        $this->_groups[] = (Map {
-            'prefix' => '',
-            'suffix' => '',
-            'secure' => false,
-            'patterns' => Map {},
-            'filters' => Vector {},
-            'methods' => Vector {},
-            'conditions' => Vector {}
-        })->setAll($options);
+    public function group(GroupCallback $callback): this {
+        $group = new Group();
 
-        call_user_func($callback, $this);
+        $this->_groups[] = $group;
+
+        call_user_func_array($callback, [$this, $group]);
 
         $this->_groups->pop();
 
@@ -400,11 +404,11 @@ class Router implements Subject {
      * Map a route that only responds to a defined list of HTTP methods.
      *
      * @param string $key
-     * @param Vector<string> $methods
+     * @param \Titon\Route\Mixin\MethodList $methods
      * @param \Titon\Route\Route $route
      * @return \Titon\Route\Route
      */
-    public function http(string $key, Vector<string> $methods, Route $route): Route {
+    public function http(string $key, MethodList $methods, Route $route): Route {
         return $this->map($key, $route->setMethods($methods));
     }
 
@@ -445,38 +449,30 @@ class Router implements Subject {
         $this->_routes[$key] = $route;
 
         // Apply group options
-        foreach ($this->_groups as $group) {
-            $route->setSecure((bool) $group['secure']);
+        foreach ($this->getGroups() as $group) {
+            $route->setSecure($group->getSecure());
 
-            if ($group['prefix'] !== '') {
-                $route->prepend((string) $group['prefix']);
+            if ($prefix = $group->getPrefix()) {
+                $route->prepend($prefix);
             }
 
-            if ($group['suffix'] !== '') {
-                $route->append((string) $group['suffix']);
+            if ($suffix = $group->getSuffix()) {
+                $route->append($suffix);
             }
 
-            if ($patterns = $group['patterns']) {
-                invariant($patterns instanceof Map, 'Group patterns must be a map');
-
+            if ($patterns = $group->getPatterns()) {
                 $route->addPatterns($patterns);
             }
 
-            if ($filters = $group['filters']) {
-                invariant($filters instanceof Vector, 'Group filters must be a vector');
-
+            if ($filters = $group->getFilters()) {
                 $route->addFilters($filters);
             }
 
-            if ($methods = $group['methods']) {
-                invariant($methods instanceof Vector, 'Group methods must be a vector');
-
+            if ($methods = $group->getMethods()) {
                 $route->addMethods($methods);
             }
 
-            if ($conditions = $group['conditions']) {
-                invariant($conditions instanceof Vector, 'Group conditions must be a vector');
-
+            if ($conditions = $group->getConditions()) {
                 $route->addConditions($conditions);
             }
         }

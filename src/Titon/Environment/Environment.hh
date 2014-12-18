@@ -11,23 +11,19 @@ use Titon\Common\FactoryAware;
 use Titon\Environment\Exception\MissingHostException;
 use Titon\Environment\Exception\NoHostMatchException;
 use Titon\Event\Emittable;
+use Titon\Event\Event;
 use Titon\Event\Subject;
+use Titon\Utility\Col;
 use Titon\Utility\Path;
 use Titon\Utility\State\Server as ServerGlobal;
 
+type BootstrapperList = Vector<Bootstrapper>;
 type HostMap = Map<string, Host>;
-
-enum Server: string {
-    DEV = 'dev';
-    PROD = 'prod';
-    QA = 'qa';
-    STAGING = 'staging';
-    TESTING = 'testing';
-}
+type VariableMap = Map<string, string>;
 
 /**
  * A hub that allows you to store different environment host configurations,
- * which can be detected and initialized on runtime.
+ * which can be detected and initialized at runtime.
  *
  * @package Titon\Environment
  * @events
@@ -38,11 +34,11 @@ class Environment implements Subject {
     use Emittable, FactoryAware;
 
     /**
-     * Root path to the bootstrap directory.
+     * List of bootstrappers to trigger after a match.
      *
-     * @params string
+     * @params \Titon\Environment\BootstrapperList
      */
-    protected string $_bootstrapPath = '';
+    protected BootstrapperList $_bootstrappers = Vector {};
 
     /**
      * Currently active environment.
@@ -66,31 +62,54 @@ class Environment implements Subject {
     protected ?Host $_fallback = null;
 
     /**
-     * Set the bootstrap directory path.
+     * Directory path to the secure variables directory.
+     *
+     * @type string
+     */
+    protected string $_securePath = '';
+
+    /**
+     * Secure variables loaded on initialization.
+     *
+     * @type \Titon\Environment\VariableMap
+     */
+    protected VariableMap $_variables = Map {};
+
+    /**
+     * Set internal events and the secure variables lookup path.
      *
      * @param string $path
      */
-    public function __construct(string $path = '') {
-        $this->setBootstrapPath($path);
+    public function __construct($path = '') {
+        if ($path) {
+            $this->_securePath = Path::ds($path, true);
+        }
+
+        $this->on('env.initialized', inst_meth($this, 'doLoadSecureVars'), 1);
+        $this->on('env.initialized', inst_meth($this, 'doBootstrap'), 2);
+    }
+
+    /**
+     * Add a bootstrapper instance.
+     *
+     * @param \Titon\Environment\Bootstrapper $bootstrapper
+     * @return $this
+     */
+    public function addBootstrapper(Bootstrapper $bootstrapper): this {
+        $this->_bootstrappers[] = $bootstrapper;
+
+        return $this;
     }
 
     /**
      * Add an environment host to the mapping.
-     * Automatically define a bootstrap file if the path has been set.
      *
      * @param string $key
      * @param \Titon\Environment\Host $host
      * @return $this
      */
     public function addHost(string $key, Host $host): this {
-        $host->setKey($key);
-
-        // Auto-set bootstrap path
-        if ($path = $this->getBootstrapPath()) {
-            $host->setBootstrap(Path::ds($path, true) . $key . '.php');
-        }
-
-        $this->_hosts[$key] = $host;
+        $this->_hosts[$key] = $host->setKey($key);
 
         return $this;
     }
@@ -105,12 +124,53 @@ class Environment implements Subject {
     }
 
     /**
-     * Return the bootstrap path.
+     * Loop through all the bootstrappers and trigger the bootstrapping process.
+     * This method is automatically called during the `initialized` event.
      *
-     * @return string
+     * @param \Titon\Event\Event $event
+     * @param \Titon\Environment\Environment $env
+     * @param \Titon\Environment\Host $host
+     * @return $this
      */
-    public function getBootstrapPath(): string {
-        return $this->_bootstrapPath;
+    public function doBootstrap(Event $event, Environment $env, Host $host): void {
+        foreach ($this->getBootstrappers() as $bootstrapper) {
+            $bootstrapper->bootstrap($host);
+        }
+    }
+
+    /**
+     * Attempt to load secure variables from the lookup path.
+     * This method is automatically called during the `initialized` event.
+     *
+     * @param \Titon\Event\Event $event
+     * @param \Titon\Environment\Environment $env
+     * @param \Titon\Environment\Host $host
+     * @return $this
+     */
+    public function doLoadSecureVars(Event $event, Environment $env, Host $host): void {
+        $path = $this->_securePath;
+        $variables = [];
+
+        if (!$path) {
+            return;
+        }
+
+        foreach (['.env.php', sprintf('.env.%s.php', $host->getKey())] as $file) {
+            if (file_exists($path . $file)) {
+                $variables = array_merge($variables, include $path . $file);
+            }
+        }
+
+        $this->_variables = Col::toMap($variables);
+    }
+
+    /**
+     * Return the list of bootstrappers.
+     *
+     * @return \Titon\Environment\BootstrapperList
+     */
+    public function getBootstrappers(): BootstrapperList {
+        return $this->_bootstrappers;
     }
 
     /**
@@ -147,49 +207,52 @@ class Environment implements Subject {
     }
 
     /**
-     * Initialize the environment by including the configuration.
+     * Return the value of a secure variable defined by key.
      *
-     * @param bool $throwError
+     * @param string $key
+     * @return string
      */
-    public function initialize(bool $throwError = false): void {
-        $hosts = $this->getHosts();
+    public function getVariable(string $key): string {
+        return $this->getVariables()->get($key) ?: '';
+    }
 
-        if ($hosts->isEmpty()) {
+    /**
+     * Return all loaded secure variables.
+     *
+     * @return \Titon\Environment\VariableMap
+     */
+    public function getVariables(): VariableMap {
+        return $this->_variables;
+    }
+
+    /**
+     * Initialize the environment by matching based on server variables or hostnames.
+     */
+    public function initialize(): void {
+        if ($this->getHosts()->isEmpty()) {
             return;
         }
 
         $this->emit('env.initializing', [$this]);
 
-        // Match a host to the machine hostname
-        $current = null;
+        // First attempt to match using environment variables
+        $current = $this->matchWithVar();
 
-        foreach ($hosts as $host) {
-            if ($current !== null) {
-                break;
-            }
+        // If that fails, then attempt to match using hostnames
+        $current = $current ?: $this->matchWithHostname();
 
-            foreach ($host->getHostnames() as $name) {
-                if ($this->isMachine($name)) {
-                    $current = $host;
-                    break;
-                }
-            }
-        }
-
+        // Set the host if found
         if ($current) {
             $this->_current = $current;
 
-        // If no environment found, use the fallback
+        // If not found, use the fallback
         } else if ($fallback = $this->getFallback()) {
             $this->_current = $current = $fallback;
 
-        // Throw an error if no fallback defined and no match
+        // Throw an error if no matches could be found
         } else {
-            throw new NoHostMatchException('No host matched for environment bootstrapping');
+            throw new NoHostMatchException('No environment host matched');
         }
-
-        // Bootstrap environment configuration
-        $current->bootstrap($throwError);
 
         $this->emit('env.initialized', [$this, $current]);
     }
@@ -236,7 +299,7 @@ class Environment implements Subject {
      * @return bool
      */
     public function isDevelopment(): bool {
-        return (($current = $this->current()) && $current->isDevelopment());
+        return (bool) $this->current()?->isDevelopment();
     }
 
     /**
@@ -245,7 +308,7 @@ class Environment implements Subject {
      * @return bool
      */
     public function isProduction(): bool {
-        return (($current = $this->current()) && $current->isProduction());
+        return (bool) $this->current()?->isProduction();
     }
 
     /**
@@ -254,7 +317,7 @@ class Environment implements Subject {
      * @return bool
      */
     public function isQA(): bool {
-        return (($current = $this->current()) && $current->isQA());
+        return (bool) $this->current()?->isQA();
     }
 
     /**
@@ -263,7 +326,7 @@ class Environment implements Subject {
      * @return bool
      */
     public function isStaging(): bool {
-        return (($current = $this->current()) && $current->isStaging());
+        return (bool) $this->current()?->isStaging();
     }
 
     /**
@@ -272,19 +335,37 @@ class Environment implements Subject {
      * @return bool
      */
     public function isTesting(): bool {
-        return (($current = $this->current()) && $current->isTesting());
+        return (bool) $this->current()?->isTesting();
     }
 
     /**
-     * Set the bootstrap path directory.
+     * Attempt to match the environment based on hostname.
      *
-     * @param string $path
-     * @return $this
+     * @return \Titon\Environment\Host
      */
-    public function setBootstrapPath(string $path): this {
-        $this->_bootstrapPath = $path;
+    public function matchWithHostname(): ?Host {
+        foreach ($this->getHosts() as $host) {
+            foreach ($host->getHostnames() as $name) {
+                if ($this->isMachine($name)) {
+                    return $host;
+                }
+            }
+        }
 
-        return $this;
+        return null;
+    }
+
+    /**
+     * Attempt to match the environment based on a server environment variable.
+     *
+     * @return \Titon\Environment\Host
+     */
+    public function matchWithVar(): ?Host {
+        try {
+            return $this->getHost((string) getenv('APP_ENV'));
+        } catch (MissingHostException $e) {
+            return null;
+        }
     }
 
     /**

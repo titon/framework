@@ -11,6 +11,7 @@ use Titon\Cache\Item;
 use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
 use Titon\Event\Emittable;
+use Titon\Event\Event;
 use Titon\Event\Subject;
 use Titon\Route\Exception\InvalidRouteException;
 use Titon\Route\Exception\MissingFilterException;
@@ -18,6 +19,8 @@ use Titon\Route\Exception\MissingSegmentException;
 use Titon\Route\Exception\MissingRouteException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
+use Titon\Route\Mixin\MethodList;
+use Titon\Route\Group as RouteGroup; // Will fatal without alias
 use Titon\Utility\Registry;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
@@ -25,8 +28,8 @@ use Titon\Utility\State\Server;
 type Action = shape('class' => string, 'action' => string);
 type FilterCallback = (function(Router, Route): void);
 type FilterMap = Map<string, FilterCallback>;
-type GroupCallback = (function(Router): void);
-type GroupList = Vector<Map<string, mixed>>;
+type GroupCallback = (function(Router, Group): void);
+type GroupList = Vector<RouteGroup>;
 type QueryMap = Map<string, mixed>;
 type ResourceMap = Map<string, string>;
 type RouteMap = Map<string, Route>;
@@ -38,7 +41,7 @@ type SegmentMap = Map<string, mixed>;
  *
  * @package Titon\Route
  * @events
- *      route.matching(Router $router, $url)
+ *      route.matching(Router $router, string $url)
  *      route.matched(Router $router, Route $route)
  */
 class Router implements Subject {
@@ -149,8 +152,8 @@ class Router implements Subject {
         });
 
         // Set caching events
-        $this->on('route.matching', inst_meth($this, 'loadRoutes'), 1);
-        $this->on('route.matched', inst_meth($this, 'cacheRoutes'), 1);
+        $this->on('route.matching', inst_meth($this, 'doLoadRoutes'), 1);
+        $this->on('route.matched', inst_meth($this, 'doCacheRoutes'), 1);
     }
 
     /**
@@ -180,30 +183,6 @@ class Router implements Subject {
     }
 
     /**
-     * Cache the currently mapped routes.
-     * This method is automatically called during the `matched` event.
-     *
-     * @return $this
-     */
-    public function cacheRoutes(): this {
-        if ($this->isCached()) {
-            return $this;
-        }
-
-        if (($storage = $this->getStorage()) && ($routes = $this->getRoutes())) {
-            // Before caching, make sure all routes are compiled
-            foreach ($routes as $route) {
-                $route->compile();
-            }
-
-            // Compiling before hand should speed up the next request
-            $storage->save(new Item('routes', serialize($routes), '+1 year'));
-        }
-
-        return $this;
-    }
-
-    /**
      * Return the current matched route object.
      *
      * @return \Titon\Route\Route
@@ -221,6 +200,47 @@ class Router implements Subject {
      */
     public function delete(string $key, Route $route): Route {
         return $this->http($key, Vector {'delete'}, $route);
+    }
+
+    /**
+     * Cache the currently mapped routes.
+     * This method is automatically called during the `matched` event.
+     *
+     * @param \Titon\Event\Event $event
+     * @param \Titon\Route\Router $router
+     * @param \Titon\Route\Route $route
+     */
+    public function doCacheRoutes(Event $event, Router $router, Route $route): void {
+        if ($this->isCached()) {
+            return;
+        }
+
+        if (($storage = $this->getStorage()) && ($routes = $this->getRoutes())) {
+            // Before caching, make sure all routes are compiled
+            foreach ($routes as $route) {
+                $route->compile();
+            }
+
+            // Compiling before hand should speed up the next request
+            $storage->save(new Item('routes', serialize($routes), '+1 year'));
+        }
+    }
+
+    /**
+     * Load routes from the cache if they exist.
+     * This method is automatically called during the `matching` event.
+     *
+     * @param \Titon\Event\Event $event
+     * @param \Titon\Route\Router $router
+     * @param string $url
+     */
+    public function doLoadRoutes(Event $event, Router $router, string $url): void {
+        $item = $this->getStorage()?->getItem('routes');
+
+        if ($item !== null && $item->isHit()) {
+            $this->_routes = unserialize($item->get());
+            $this->_cached = true;
+        }
     }
 
     /**
@@ -282,6 +302,15 @@ class Router implements Subject {
      */
     public function getFilters(): FilterMap {
         return $this->_filters;
+    }
+
+    /**
+     * Return the list of currently active groups.
+     *
+     * @return \Titon\Route\GroupList
+     */
+    public function getGroups(): GroupList {
+        return $this->_groups;
     }
 
     /**
@@ -363,22 +392,15 @@ class Router implements Subject {
      * Group multiple route mappings into a single collection and apply options to all of them.
      * Can apply path prefixes, suffixes, patterns, filters, methods, conditions, and more.
      *
-     * @param Map<string, mixed> $options
      * @param \Titon\Route\GroupCallback $callback
      * @return $this
      */
-    public function group(Map<string, mixed> $options, GroupCallback $callback): this {
-        $this->_groups[] = (Map {
-            'prefix' => '',
-            'suffix' => '',
-            'secure' => false,
-            'patterns' => Map {},
-            'filters' => Vector {},
-            'methods' => Vector {},
-            'conditions' => Vector {}
-        })->setAll($options);
+    public function group(GroupCallback $callback): this {
+        $group = new Group();
 
-        call_user_func($callback, $this);
+        $this->_groups[] = $group;
+
+        call_user_func_array($callback, [$this, $group]);
 
         $this->_groups->pop();
 
@@ -400,11 +422,11 @@ class Router implements Subject {
      * Map a route that only responds to a defined list of HTTP methods.
      *
      * @param string $key
-     * @param Vector<string> $methods
+     * @param \Titon\Route\Mixin\MethodList $methods
      * @param \Titon\Route\Route $route
      * @return \Titon\Route\Route
      */
-    public function http(string $key, Vector<string> $methods, Route $route): Route {
+    public function http(string $key, MethodList $methods, Route $route): Route {
         return $this->map($key, $route->setMethods($methods));
     }
 
@@ -418,23 +440,6 @@ class Router implements Subject {
     }
 
     /**
-     * Load routes from the cache if they exist.
-     * This method is automatically called during the `matching` event.
-     *
-     * @return $this
-     */
-    public function loadRoutes(): this {
-        if ($item = $this->getStorage()?->getItem('routes')) {
-            if ($item->isHit()) {
-                $this->_routes = unserialize($item->get());
-                $this->_cached = true;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * Add a custom defined route object that matches to an internal destination.
      *
      * @param string $key
@@ -445,38 +450,30 @@ class Router implements Subject {
         $this->_routes[$key] = $route;
 
         // Apply group options
-        foreach ($this->_groups as $group) {
-            $route->setSecure((bool) $group['secure']);
+        foreach ($this->getGroups() as $group) {
+            $route->setSecure($group->getSecure());
 
-            if ($group['prefix'] !== '') {
-                $route->prepend((string) $group['prefix']);
+            if ($prefix = $group->getPrefix()) {
+                $route->prepend($prefix);
             }
 
-            if ($group['suffix'] !== '') {
-                $route->append((string) $group['suffix']);
+            if ($suffix = $group->getSuffix()) {
+                $route->append($suffix);
             }
 
-            if ($patterns = $group['patterns']) {
-                invariant($patterns instanceof Map, 'Group patterns must be a map');
-
+            if ($patterns = $group->getPatterns()) {
                 $route->addPatterns($patterns);
             }
 
-            if ($filters = $group['filters']) {
-                invariant($filters instanceof Vector, 'Group filters must be a vector');
-
+            if ($filters = $group->getFilters()) {
                 $route->addFilters($filters);
             }
 
-            if ($methods = $group['methods']) {
-                invariant($methods instanceof Vector, 'Group methods must be a vector');
-
+            if ($methods = $group->getMethods()) {
                 $route->addMethods($methods);
             }
 
-            if ($conditions = $group['conditions']) {
-                invariant($conditions instanceof Vector, 'Group conditions must be a vector');
-
+            if ($conditions = $group->getConditions()) {
                 $route->addConditions($conditions);
             }
         }
@@ -553,6 +550,37 @@ class Router implements Subject {
      */
     public function post(string $key, Route $route): Route {
         return $this->http($key, Vector {'post'}, $route);
+    }
+
+    /**
+     * Map a route for a GET request, and another for a POST request.
+     * This supports the POST-REDIRECT-GET (PRG) pattern.
+     *
+     * @param string $key
+     * @param \Titon\Route\Route $route
+     * @return $this
+     */
+    public function prg(string $key, Route $route): this {
+        $action = $route->getAction();
+        $actionSuffix = ucfirst($action['action']);
+
+        // Set GET route
+        $action['action'] = 'get' . $actionSuffix;
+
+        $get = clone $route;
+        $get->setAction($action);
+
+        $this->get($key . '.get', $get);
+
+        // Set POST route
+        $action['action'] = 'post' . $actionSuffix;
+
+        $post = clone $route;
+        $post->setAction($action);
+
+        $this->post($key . '.post', $post);
+
+        return $this;
     }
 
     /**

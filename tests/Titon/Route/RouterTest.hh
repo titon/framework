@@ -70,7 +70,9 @@ class RouterTest extends TestCase {
 
         // Filtering is passed to routes
         $this->object->map('f1', (new Route('/f1', 'Controller@action'))->addFilter('test2'));
-        $this->object->group(Map {'filters' => Vector {'test'}}, function(Router $router) {
+        $this->object->group(function(Router $router, Group $group) {
+            $group->setFilters(Vector {'test'});
+
             $router->map('f2', new Route('/f2', 'Controller@action'));
         });
         $this->object->map('f3', new Route('/f3', 'Controller@action'));
@@ -98,7 +100,9 @@ class RouterTest extends TestCase {
         });
 
         $router->map('f1', (new Route('/f1', 'Controller@action'))->addFilter('test'));
-        $router->group(Map {'filters' => Vector {'test'}}, function(Router $router) {
+        $router->group(function(Router $router, Group $group) {
+            $group->setFilters(Vector {'test'});
+
             $router->map('f2', new Route('/f2', 'Controller@action'));
         });
         $router->map('f3', new Route('/f3', 'Controller@action'));
@@ -127,7 +131,9 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupPrefixing() {
-        $this->object->group(Map {'prefix' => '/pre/'}, function(Router $router) {
+        $this->object->group(function(Router $router, Group $group) {
+            $group->setPrefix('/pre/');
+
             $router->map('group1', new Route('/group-1', 'Controller@action'));
             $router->map('group2', new Route('/group-2', 'Controller@action'));
         });
@@ -143,7 +149,9 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupSuffixing() {
-        $this->object->group(Map {'suffix' => '/post/'}, function(Router $router) {
+        $this->object->group(function(Router $router, Group $group) {
+            $group->setSuffix('/post/');
+
             $router->map('group1', new Route('/group-1', 'Controller@action'));
             $router->map('group2', new Route('/group-2', 'Controller@action'));
         });
@@ -159,7 +167,9 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupSecure() {
-        $this->object->group(Map {'secure' => true}, function(Router $router) {
+        $this->object->group(function(Router $router, Group $group) {
+            $group->setSecure(true);
+
             $router->map('group1', new Route('/group-1', 'Controller@action'));
             $router->map('group2', new Route('/group-2', 'Controller@action'));
         });
@@ -175,7 +185,10 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupPatterns() {
-        $this->object->group(Map {'prefix' => '<token>', 'patterns' => Map {'token' => '([abcd]+)'}}, function(Router $router) {
+        $this->object->group(function(Router $router, Group $group) {
+            $group->setPrefix('<token>');
+            $group->addPattern('token', '([abcd]+)');
+
             $router->map('group1', new Route('/group-1', 'Controller@action'));
             $router->map('group2', (new Route('/group-2', 'Controller@action'))->addPattern('foo', '(bar|baz)'));
         });
@@ -199,9 +212,9 @@ class RouterTest extends TestCase {
         $cond1 = function() {};
         $cond2 = function() {};
 
-        $this->object->group(Map {
-            'conditions' => Vector {$cond1, $cond2}
-        }, function(Router $router) {
+        $this->object->group(function(Router $router, Group $group) use ($cond1, $cond2) {
+            $group->setConditions(Vector {$cond1, $cond2});
+
             $router->map('group1', new Route('/group-1', 'Controller@action'));
             $router->map('group2', new Route('/group-2', 'Controller@action'));
         });
@@ -217,10 +230,14 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupNesting() {
-        $this->object->group(Map {'prefix' => '/pre/'}, function(Router $router) {
+        $this->object->group(function(Router $router, Group $group1) {
+            $group1->setPrefix('/pre/');
+
             $router->map('group1', new Route('/group-1', 'Controller@action'));
 
-            $router->group(Map {'suffix' => '/post'}, function(Router $router) {
+            $router->group(function(Router $router, Group $group2) {
+                $group2->setSuffix('/post');
+
                 $router->map('group2', new Route('/group-2', 'Controller@action'));
             });
         });
@@ -236,13 +253,19 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupNestingInherits() {
-        $this->object->group(Map {'filters' => Vector {'foo'}, 'methods' => Vector {'get'}}, function(Router $router) {
+        $this->object->group(function(Router $router, Group $group1) {
+            $group1->setFilters(Vector {'foo'})->setMethods(Vector {'get'});
+
             $router->map('group1', new Route('/group-1', 'Controller@action'));
 
-            $router->group(Map {'filters' => Vector {'bar'}}, function(Router $router) {
+            $router->group(function(Router $router, Group $group2) {
+                $group2->setFilters(Vector {'bar'});
+
                 $router->map('group2', new Route('/group-2', 'Controller@action'));
 
-                $router->group(Map {'methods' => Vector {'post'}}, function(Router $router) {
+                $router->group(function(Router $router, Group $group3) {
+                    $group3->setMethods(Vector {'post'});
+
                     $router->map('group3', new Route('/group-3', 'Controller@action'));
                 });
             });
@@ -353,6 +376,33 @@ class RouterTest extends TestCase {
      */
     public function testParseActionInvalidRoute() {
         Router::parseAction('Broken+Route');
+    }
+
+    public function testPrgMapping() {
+        $this->object->prg('prg', (new Route('/foo', 'Controller@action'))->addFilter('auth'));
+
+        $routes = $this->object->getRoutes();
+
+        // Keys
+        $this->assertFalse(isset($routes['prg']));
+        $this->assertTrue(isset($routes['prg.get']));
+        $this->assertTrue(isset($routes['prg.post']));
+
+        // Paths
+        $this->assertEquals('/foo', $routes['prg.get']->getPath());
+        $this->assertEquals('/foo', $routes['prg.post']->getPath());
+
+        // Action
+        $this->assertEquals(shape('class' => 'Controller', 'action' => 'getAction'), $routes['prg.get']->getAction());
+        $this->assertEquals(shape('class' => 'Controller', 'action' => 'postAction'), $routes['prg.post']->getAction());
+
+        // Method
+        $this->assertEquals(Vector {'get'}, $routes['prg.get']->getMethods());
+        $this->assertEquals(Vector {'post'}, $routes['prg.post']->getMethods());
+
+        // Filters should be cloned also
+        $this->assertEquals(Vector {'auth'}, $routes['prg.get']->getFilters());
+        $this->assertEquals(Vector {'auth'}, $routes['prg.post']->getFilters());
     }
 
     public function testResourceMap() {

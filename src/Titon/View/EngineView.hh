@@ -35,10 +35,10 @@ class EngineView extends AbstractView {
      * @param string $ext
      */
     public function __construct(mixed $paths, string $ext = 'tpl') {
-        parent::__construct($paths, $ext);
-
         $this->_engine = new TemplateEngine();
         $this->_engine->setView($this);
+
+        parent::__construct($paths, $ext);
     }
 
     /**
@@ -54,7 +54,7 @@ class EngineView extends AbstractView {
      * {@inheritdoc}
      */
     public function render(string $template, bool $private = false): string {
-        return $this->cache([__METHOD__, $template, $private], function() use ($template, $private) {
+        return (string) $this->cache([__METHOD__, $template, $private], function(EngineView $view) use ($template, $private) {
             $this->emit('view.rendering', [$this, &$template]);
 
             $engine = $this->getEngine();

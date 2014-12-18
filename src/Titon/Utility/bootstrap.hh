@@ -90,7 +90,7 @@ function col_depth<Tv>(Traversable<Tv> $collection): int {
 /**
  * @see Titon\Utility\Col::each()
  */
-function col_each<Tk>(Indexish<Tk, mixed> $collection, (function(Tk, mixed): mixed) $callback, bool $recursive = true): Indexish<Tk, mixed> {
+function col_each<Tk, Tv>(Indexish<Tk, Tv> $collection, (function(Tk, Tv): Tv) $callback, bool $recursive = true): Indexish<Tk, Tv> {
     return Col::each($collection, $callback, $recursive);
 }
 
@@ -111,35 +111,35 @@ function col_exclude<Tk, Tv>(Map<Tk, Tv> $map, Vector<Tk> $keys): Map<Tk, Tv> {
 /**
  * @see Titon\Utility\Col::expand()
  */
-function col_expand<Tk, Tv>(Map<Tk, Tv> $map): Map<string, mixed> {
+function col_expand<Tk, Tv>(Map<Tk, Tv> $map): Map<Tk, Tv> {
     return Col::expand($map);
 }
 
 /**
  * @see Titon\Utility\Col::flatten()
  */
-function col_flatten<Tk, Tv>(Map<Tk, Tv> $map, string $path = ''): Map<string, mixed> {
+function col_flatten<Tk, Tv>(Map<Tk, Tv> $map, string $path = ''): Map<Tk, Tv> {
     return Col::flatten($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::get()
  */
-function col_get<Tk>(Map<Tk, mixed> $map, string $path, mixed $default = null): mixed {
+function col_get<Tk, Tv>(Map<Tk, Tv> $map, string $path, ?Tv $default = null): ?Tv {
     return Col::get($map, $path, $default);
 }
 
 /**
  * @see Titon\Utility\Col::has()
  */
-function col_has<Tk>(Map<Tk, mixed> $map, string $path): bool {
+function col_has<Tk, Tv>(Map<Tk, Tv> $map, string $path): bool {
     return Col::has($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::inject()
  */
-function col_inject<Tk>(Map<Tk, mixed> $map, string $path, mixed $value): Map<Tk, mixed> {
+function col_inject<Tk, Tv>(Map<Tk, Tv> $map, string $path, Tv $value): Map<Tk, Tv> {
     return Col::inject($map, $path, $value);
 }
 
@@ -153,21 +153,21 @@ function col_key_of<Tk, Tv>(Indexish<Tk, Tv> $collection, mixed $match): string 
 /**
  * @see Titon\Utility\Col::pluck()
  */
-function col_pluck<Tk, Tv>(Map<Tk, Tv> $map, string $path): Vector<mixed> {
+function col_pluck<Tk, Tv>(Map<Tk, Tv> $map, string $path): Vector<Tv> {
     return Col::pluck($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::remove()
  */
-function col_remove<Tk>(Map<Tk, mixed> $map, string $path): Map<Tk, mixed> {
+function col_remove<Tk, Tv>(Map<Tk, Tv> $map, string $path): Map<Tk, Tv> {
     return Col::remove($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::set()
  */
-function col_set<Tk>(Map<Tk, mixed> $map, mixed $path, mixed $value = null): Map<Tk, mixed> {
+function col_set<Tk, Tv>(Map<Tk, Tv> $map, mixed $path, ?Tv $value = null): Map<Tk, Tv> {
     return Col::set($map, $path, $value);
 }
 

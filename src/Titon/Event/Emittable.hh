@@ -22,7 +22,7 @@ trait Emittable {
      *
      * @type \Titon\Event\Emitter
      */
-    protected Emitter $_emitter;
+    protected ?Emitter $_emitter;
 
     /**
      * {@inheritdoc}

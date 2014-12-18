@@ -226,7 +226,7 @@ class Format {
             $depth--;
         }
 
-        return Str::insert((string) $options[($diff > 0) ? 'ago' : 'in'], Map {'time' => implode($options['separator'], $output)});
+        return Str::insert((string) $options[($diff > 0) ? 'ago' : 'in'], Map {'time' => implode((string) $options['separator'], $output)});
     }
 
     /**

@@ -84,6 +84,8 @@ abstract class AbstractView implements View, Listener, Subject {
      * @param string $ext
      */
     public function __construct(mixed $paths, string $ext = 'tpl') {
+        $this->__initEmitter();
+
         if ($paths) {
             $this->addPaths(Col::toVector($paths));
         }
@@ -246,7 +248,7 @@ abstract class AbstractView implements View, Listener, Subject {
      * {@inheritdoc}
      */
     public function locateTemplate(string $template, Template $type = Template::OPEN): string {
-        return $this->cache([__METHOD__, $template, $type], function() use ($template, $type) {
+        return (string) $this->cache([__METHOD__, $template, $type], function(AbstractView $view) use ($template, $type) {
             $template = $this->formatPath($template);
             $paths = $this->getPaths();
 

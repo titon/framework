@@ -19,6 +19,8 @@ use Titon\Utility\State\Server;
 use Titon\Utility\State\Session;
 use VirtualFileSystem\FileSystem;
 
+type FixtureMap = Map<string, Fixture>;
+
 /**
  * Extends the PHPUnit TestCase class with more functionality.
  */
@@ -27,9 +29,9 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * List of loaded fixtures.
      *
-     * @type Map<string, Fixture>
+     * @type \Titon\Test\FixtureMap
      */
-    protected Map<string, Fixture> $fixtures = Map {};
+    protected FixtureMap $fixtures = Map {};
 
     /**
      * Virtual file system.
@@ -126,9 +128,9 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * Return all fixtures.
      *
-     * @return Map<string, Fixture>
+     * @return \Titon\Test\FixtureMap
      */
-    public function getFixtures(): Map<string, Fixture> {
+    public function getFixtures(): FixtureMap {
         return $this->fixtures;
     }
 
@@ -195,10 +197,10 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * Assert that two maps are equal, disregarding the order.
      *
-     * @param Map<mixed, mixed> $expected
-     * @param Map<mixed, mixed> $actual
+     * @param Map<Tk, Tv> $expected
+     * @param Map<Tk, Tv> $actual
      */
-    public function assertMapsEqual(Map<mixed, mixed> $expected, Map<mixed, mixed> $actual): void {
+    public function assertMapsEqual<Tk, Tv>(Map<Tk, Tv> $expected, Map<Tk, Tv> $actual): void {
         ksort($actual);
         ksort($expected);
 
@@ -208,10 +210,10 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * Assert that two vectors are equal, disregarding the order.
      *
-     * @param Vector<mixed> $expected
-     * @param Vector<mixed> $actual
+     * @param Vector<Tv> $expected
+     * @param Vector<Tv> $actual
      */
-    public function assertVectorsEqual(Vector<mixed> $expected, Vector<mixed> $actual): void {
+    public function assertVectorsEqual<Tv>(Vector<Tv> $expected, Vector<Tv> $actual): void {
         sort($actual);
         sort($expected);
 

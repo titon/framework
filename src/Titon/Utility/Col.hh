@@ -51,21 +51,23 @@ class Col {
      * Execute a function for each key-value pair in the collection.
      * If recursive is true, will apply the callback to nested collections as well.
      *
-     * @param Indexish<Tk, mixed> $collection
-     * @param (function(Tk, mixed): mixed) $callback
+     * @param Indexish<Tk, Tv> $collection
+     * @param (function(Tk, Tv): Tv) $callback
      * @param bool $recursive
-     * @return Indexish<Tk, mixed>
+     * @return Map<Ta, Tb>
      */
-    public static function each<Tk>(Indexish<Tk, mixed> $collection, (function(Tk, mixed): mixed) $callback, bool $recursive = true): Indexish<Tk, mixed> {
+    public static function each<Tk, Tv, Ta>(Indexish<Tk, Tv> $collection, (function(Tk, Tv): Ta) $callback, bool $recursive = true): Map<Tk, Ta> {
+        $clean = Map {};
+
         foreach ($collection as $key => $value) {
             if ($value instanceof Indexish && $recursive) {
-                $collection[$key] = static::each($value, $callback, $recursive);
+                $clean[$key] = static::each($value, $callback, $recursive);
             } else {
-                $collection[$key] = call_user_func_array($callback, [$key, $value]);
+                $clean[$key] = call_user_func_array($callback, [$key, $value]);
             }
         }
 
-        return $collection;
+        return $clean;
     }
 
     /**
@@ -104,9 +106,9 @@ class Col {
      * Expand a singe-dimension map to a multi-dimensional map, where the values key is a dot notated path.
      *
      * @param Map<Tk, Tv> $map
-     * @return Map<string, mixed>
+     * @return Map<Tk, Tv>
      */
-    public static function expand<Tk, Tv>(Map<Tk, Tv> $map): Map<string, mixed> {
+    public static function expand<Tk, Tv>(Map<Tk, Tv> $map): Map<Tk, Tv> {
         $data = Map {};
 
         foreach ($map as $key => $value) {
@@ -119,11 +121,11 @@ class Col {
     /**
      * Extract the value from a map, depending on the paths given, represented by dot notation.
      *
-     * @param Map<Tk, mixed> $map
+     * @param Map<Tk, Tv> $map
      * @param string $path
-     * @return mixed
+     * @return Tv
      */
-    public static function extract<Tk>(Map<Tk, mixed> $map, string $path): mixed {
+    public static function extract<Tk, Tv>(Map<Tk, Tv> $map, string $path): ?Tv {
         $paths = explode('.', $path);
         $key = array_shift($paths);
 
@@ -153,7 +155,7 @@ class Col {
      * @param string $path
      * @return Map<string, mixed>
      */
-    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $map, string $path = ''): Map<string, mixed> {
+    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $map, string $path = ''): Map<Tk, Tv> {
         if ($path) {
             $path .= '.';
         }
@@ -161,16 +163,16 @@ class Col {
         $data = Map {};
 
         foreach ($map as $key => $value) {
-            $key = (string) $key;
+            $stringKey = $path . (string) $key;
 
             if ($value instanceof Indexish) {
                 if (!$value) {
-                    $data[$path . $key] = null;
+                    $data[$stringKey] = null;
                 } else {
-                    $data = static::merge($data, static::flatten($value, $path . $key));
+                    $data = static::merge($data, static::flatten($value, $stringKey));
                 }
             } else {
-                $data[$path . $key] = $value;
+                $data[$stringKey] = $value;
             }
         }
 
@@ -180,11 +182,12 @@ class Col {
     /**
      * Get a value from a map. If they path doesn't exist, return null, or if the path is empty, return the whole map.
      *
-     * @param Map<Tk, mixed> $map
+     * @param Map<Tk, Tv> $map
      * @param string $path
-     * @return mixed
+     * @param Tv $default
+     * @return Tv
      */
-    public static function get<Tk>(Map<Tk, mixed> $map, string $path, mixed $default = null): mixed {
+    public static function get<Tk, Tv>(Map<Tk, Tv> $map, string $path, ?Tv $default = null): ?Tv {
         if ($path === '') {
             return $map; // Allow whole collection to be returned
         }
@@ -201,11 +204,11 @@ class Col {
     /**
      * Checks to see if a key/value pair exists within a map, determined by the given path.
      *
-     * @param Map<Tk, mixed> $map
+     * @param Map<Tk, Tv> $map
      * @param string $path
      * @return bool
      */
-    public static function has<Tk>(Map<Tk, mixed> $map, string $path): bool {
+    public static function has<Tk, Tv>(Map<Tk, Tv> $map, string $path): bool {
         $paths = explode('.', $path);
         $key = array_shift($paths);
 
@@ -227,12 +230,12 @@ class Col {
     /**
      * Includes the specified key-value pair in the map if the key doesn't already exist.
      *
-     * @param Map<Tk, mixed> $map
+     * @param Map<Tk, Tv> $map
      * @param string $path
-     * @param mixed $value
-     * @return Map<Tk, mixed>
+     * @param Tv $value
+     * @return Map<Tk, Tv>
      */
-    public static function inject<Tk>(Map<Tk, mixed> $map, string $path, mixed $value): Map<Tk, mixed> {
+    public static function inject<Tk, Tv>(Map<Tk, Tv> $map, string $path, Tv $value): Map<Tk, Tv> {
         if (static::has($map, $path)) {
             return $map;
         }
@@ -243,12 +246,12 @@ class Col {
     /**
      * Inserts a value into a map based on the given path.
      *
-     * @param Map<Tk, mixed> $map
+     * @param Map<Tk, Tv> $map
      * @param string $path
-     * @param mixed $value
-     * @return Map<Tk, mixed>
+     * @param Tv $value
+     * @return Map<Tk, Tv>
      */
-    public static function insert<Tk>(Map<Tk, mixed> $map, string $path, mixed $value): Map<Tk, mixed> {
+    public static function insert<Tk, Tv>(Map<Tk, Tv> $map, string $path, Tv $value): Map<Tk, Tv> {
         $paths = explode('.', $path);
         $key = array_shift($paths);
 
@@ -338,11 +341,11 @@ class Col {
      * Merge one map into another. Values from the secondary maps will overwrite the primary map.
      * If two values are maps, they will be merged recursively. If two values are vectors, they will be combined.
      *
-     * @param Map<Tk, mixed> $base
-     * @param Map<Tk, mixed> $merge
-     * @return Map<Tk, mixed>
+     * @param Map<Tk, Tv> $base
+     * @param Map<Tk, Tv> $merge
+     * @return Map<Tk, Tv>
      */
-    public static function merge<Tk>(Map<Tk, mixed> $base, ... $merges): Map<Tk, mixed> { // @todo - Variadic doesn't support type hints
+    public static function merge<Tk, Tv>(Map<Tk, Tv> $base, ...$merges): Map<Tk, Tv> { // @todo - Variadic doesn't support type hints
         foreach ($merges as $merge) {
             if (!$merge instanceof Map) {
                 continue;
@@ -372,9 +375,9 @@ class Col {
      *
      * @param Map<Tk, Tv> $map
      * @param string $path
-     * @return Vector<mixed>
+     * @return Vector<Tv>
      */
-    public static function pluck<Tk, Tv>(Map<Tk, Tv> $map, string $path): Vector<mixed> {
+    public static function pluck<Tk, Tv>(Map<Tk, Tv> $map, string $path): Vector<Tv> {
         $data = Vector {};
 
         foreach ($map as $item) {
@@ -414,11 +417,11 @@ class Col {
     /**
      * Remove an key from a map, determined by the given path.
      *
-     * @param Map<Tk, mixed> $map
+     * @param Map<Tk, Tv> $map
      * @param string $path
-     * @return Map<Tk, mixed>
+     * @return Map<Tk, Tv>
      */
-    public static function remove<Tk>(Map<Tk, mixed> $map, string $path): Map<Tk, mixed> {
+    public static function remove<Tk, Tv>(Map<Tk, Tv> $map, string $path): Map<Tk, Tv> {
         $paths = explode('.', $path);
         $key = array_shift($paths);
 
@@ -447,13 +450,13 @@ class Col {
      *
      * @param Map<Tk, mixed> $map
      * @param Map|string $path
-     * @param mixed $value
-     * @return Map<Tk, mixed>
+     * @param Tv $value
+     * @return Map<Tk, Tv>
      */
-    public static function set<Tk>(Map<Tk, mixed> $map, mixed $path, mixed $value = null): Map<Tk, mixed> {
+    public static function set<Tk, Tv>(Map<Tk, Tv> $map, mixed $path, ?Tv $value = null): Map<Tk, Tv> {
         if ($path instanceof Map) {
             foreach ($path as $key => $value) {
-                $map = static::insert($map, $key, $value);
+                $map = static::insert($map, (string) $key, $value);
             }
         } else {
             $map = static::insert($map, (string) $path, $value);
@@ -514,14 +517,16 @@ class Col {
      * @return Map<Tk, Tv>
      */
     public static function toMap<Tk, Tv>(mixed $resource): Map<Tk, Tv> {
+        $map = Map {};
+
         if ($resource instanceof Mapable) {
             return $resource->toMap();
 
         } else if (!$resource instanceof KeyedTraversable) {
-            return new Map([$resource]);
-        }
+            $map[0] = $resource;
 
-        $map = Map {};
+            return $map;
+        }
 
         invariant($resource instanceof KeyedTraversable, 'Resource must be traversable');
 
@@ -547,14 +552,16 @@ class Col {
      * @return Vector<Tv>
      */
     public static function toVector<Tv>(mixed $resource): Vector<Tv> {
+        $vector = Vector {};
+
         if ($resource instanceof Vectorable) {
             return $resource->toVector();
 
         } else if (!$resource instanceof KeyedTraversable) {
-            return new Vector([$resource]);
-        }
+            $vector[] = $resource;
 
-        $vector = Vector {};
+            return $vector;
+        }
 
         foreach ($resource as $value) {
             if ($value instanceof Map || (is_array($value) && !Col::isNumeric(array_keys($value)))) {

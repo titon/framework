@@ -190,7 +190,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
     /**
      * {@inheritdoc}
      */
-    public function postProcess(Event $event, Controller $controller, string $action, string &$response): void {
+    public function postProcess(Event $event, Controller $controller, string $action, string $response): void {
         return;
     }
 

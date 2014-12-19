@@ -107,7 +107,9 @@ abstract class AbstractController implements Controller, Listener, Subject {
 
         // Trigger action and generate response from view templates
         } else {
+
             // UNSAFE
+            // The action is a variable instead of a literal string.
             $response = call_user_func_array(inst_meth($this, $action), $args);
         }
 

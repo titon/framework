@@ -8,6 +8,7 @@
 namespace Titon\Test;
 
 use Titon\Db\Query;
+use Titon\Db\Repository;
 use \Exception;
 
 /**
@@ -20,21 +21,21 @@ class Fixture {
      *
      * @type string
      */
-    protected $repository;
+    protected string $repository;
 
     /**
      * List of records to insert into the table.
      *
      * @type array
      */
-    protected $records = [];
+    protected array<int, mixed> $records = [];
 
     /**
      * Repository instance.
      *
      * @type \Titon\Db\Repository
      */
-    protected $_repository;
+    protected ?Repository $_repository = null;
 
     /**
      * Create the database table using the table's schema.
@@ -42,7 +43,7 @@ class Fixture {
      * @return bool
      * @throws \Exception
      */
-    public function createTable() {
+    public function createTable(): bool {
         if (!$this->loadRepository()->createTable()) {
             throw new Exception(sprintf('Failed to create database table for %s', get_class($this)));
         }
@@ -55,7 +56,7 @@ class Fixture {
      *
      * @return bool
      */
-    public function dropTable() {
+    public function dropTable(): bool {
         return (bool) $this->loadRepository()->dropTable();
     }
 
@@ -65,7 +66,7 @@ class Fixture {
      * @return \Titon\Db\Repository
      * @throws \Exception
      */
-    public function loadRepository() {
+    public function loadRepository(): Repository {
         if ($this->_repository) {
             return $this->_repository;
         }
@@ -84,7 +85,7 @@ class Fixture {
      *
      * @return bool
      */
-    public function insertRecords() {
+    public function insertRecords(): bool {
         $this->loadRepository()->createMany($this->records);
 
         return true;
@@ -95,7 +96,7 @@ class Fixture {
      *
      * @return bool
      */
-    public function truncateTable() {
+    public function truncateTable(): bool {
         return (bool) $this->loadRepository()->truncate();
     }
 

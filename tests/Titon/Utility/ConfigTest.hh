@@ -3,7 +3,6 @@ namespace Titon\Utility;
 
 use Titon\Io\Reader\PhpReader;
 use Titon\Test\TestCase;
-use VirtualFileSystem\FileSystem;
 
 class ConfigTest extends TestCase {
 
@@ -34,7 +33,7 @@ class ConfigTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
 
         Config::set('app', $this->app);
         Config::set('debug', $this->debug);

@@ -7,7 +7,6 @@ use Titon\Http\Server\Response;
 use Titon\Test\TestCase;
 use Titon\View\Engine\TemplateEngine;
 use Titon\View\EngineView;
-use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\Controller\ControllerStub $object
@@ -17,7 +16,7 @@ class ControllerTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createStructure([
             '/views/' => [
                 'private/' => [

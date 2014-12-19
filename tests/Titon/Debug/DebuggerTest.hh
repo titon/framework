@@ -3,7 +3,6 @@ namespace Titon\Debug;
 
 use Titon\Debug\Exception\FatalErrorException;
 use Titon\Test\TestCase;
-use VirtualFileSystem\FileSystem;
 use \ErrorException;
 
 class DebuggerTest extends TestCase {
@@ -11,7 +10,7 @@ class DebuggerTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createDirectory('/logs/');
 
         Debugger::enable();

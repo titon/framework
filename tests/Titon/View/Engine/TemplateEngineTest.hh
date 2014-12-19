@@ -3,7 +3,6 @@ namespace Titon\View\Engine;
 
 use Titon\View\EngineView;
 use Titon\Test\TestCase;
-use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\View\EngineView $object
@@ -14,7 +13,7 @@ class TemplateEngineTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createStructure([
             '/views/' => [
                 'private/' => [

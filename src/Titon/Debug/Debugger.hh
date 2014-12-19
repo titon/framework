@@ -10,11 +10,14 @@ namespace Titon\Debug;
 use Psr\Log\LoggerInterface;
 use Titon\Debug\Exception\FatalErrorException;
 use Titon\Debug\Exception\InternalErrorException;
+use Titon\Type\Type;
 use Titon\Utility\Sanitize;
 use \Exception;
 use \ErrorException;
 
-newtype ExceptionHandler = (function(Exception): void);
+type Error = shape('error' => string, 'level' => string);
+type ErrorCodeMap = Map<int, string>;
+type ExceptionHandler = (function(Exception): void);
 
 /**
  * Custom system to manage all errors and thrown/uncaught exceptions.
@@ -26,9 +29,9 @@ class Debugger {
     /**
      * Complete list of all internal errors types.
      *
-     * @type Map<int, string>
+     * @type \Titon\Debug\ErrorCodeMap
      */
-    public static Map<int, string> $errorTypes = Map {
+    public static ErrorCodeMap $errorTypes = Map {
         E_ERROR             => 'Error',
         E_WARNING           => 'Warning',
         E_PARSE             => 'Parsing Error',
@@ -50,9 +53,17 @@ class Debugger {
     /**
      * Callback to handle exceptions.
      *
-     * @type ExceptionHandler
+     * @type \Titon\Debug\ExceptionHandler
      */
     protected static ?ExceptionHandler $_handler;
+
+    /**
+     * Has the debugger been initialized?
+     * This stops multiple calls to handler registers.
+     *
+     * @type bool
+     */
+    protected static bool $_initialized = false;
 
     /**
      * Logger instance.
@@ -65,14 +76,21 @@ class Debugger {
      * Initialize the error, exception, and debug handling.
      */
     public static function initialize(): void {
+        if (static::$_initialized) {
+            return;
+        }
+
         ini_set('log_errors', true);
         ini_set('report_memleaks', true);
 
-        set_error_handler([__CLASS__, 'handleError']);
-        register_shutdown_function([__CLASS__, 'handleFatalError']);
+        set_error_handler(class_meth(__CLASS__, 'handleError'));
+        register_shutdown_function(class_meth(__CLASS__, 'handleFatalError'));
+        invariant_callback_register(class_meth(__CLASS__, 'handleInvariant'));
 
         static::setHandler(class_meth(__CLASS__, 'handleException'));
         static::enable(false);
+
+        static::$_initialized = true;
     }
 
     /**
@@ -100,10 +118,10 @@ class Debugger {
             }
 
             $current = [
-                'line' => null,
-                'method' => null,
-                'file' => null,
-                'args' => null
+                'line' => '',
+                'method' => '',
+                'file' => 0,
+                'args' => []
             ];
 
             $current['file'] = array_key_exists('file', $trace) ? $trace['file'] : '[Internal]';
@@ -141,7 +159,8 @@ class Debugger {
             return '';
         }
 
-        $file = $line = null;
+        $file = '';
+        $line = 0;
 
         foreach (debug_backtrace() as $trace) {
             if (array_key_exists('function', $trace) && $trace['function'] === 'debug' && array_key_exists('file', $trace)) {
@@ -176,7 +195,8 @@ class Debugger {
             return '';
         }
 
-        $file = $line = null;
+        $file = '';
+        $line = 0;
 
         foreach (debug_backtrace() as $trace) {
             if (array_key_exists('function', $trace) && $trace['function'] === 'dump' && array_key_exists('file', $trace)) {
@@ -261,7 +281,7 @@ class Debugger {
     /**
      * Return the current exception handler.
      *
-     * @return ExceptionHandler
+     * @return \Titon\Debug\ExceptionHandler
      */
     public static function getHandler(): ?ExceptionHandler {
         return static::$_handler;
@@ -320,7 +340,9 @@ class Debugger {
      */
     public static function handleException(Exception $exception): void {
         static::logException($exception);
+
         echo static::printException($exception);
+
         exit();
     }
 
@@ -344,6 +366,19 @@ class Debugger {
         }
 
         call_user_func($handler, $exception);
+    }
+
+    /**
+     * Handle invariant violations by logging failures.
+     *
+     * @param string $message
+     * @param array $args
+     * @codeCoverageIgnore
+     */
+    public static function handleInvariant(string $message, ...$args): void {
+        if ($logger = static::getLogger()) {
+            $logger->log(Logger::INFO, $message, $args);
+        }
     }
 
     /**
@@ -373,11 +408,10 @@ class Debugger {
      * @uses Titon\Debug\Logger
      *
      * @param int|\Exception $code
-     * @return Map<string, string>
+     * @return \Titon\Debug\Error
      */
-    public static function mapErrorCode(mixed $code): Map<string, string> {
-        $log = Logger::DEBUG;
-        $error = null;
+    public static function mapErrorCode(mixed $code): Error {
+        $error = '';
 
         if ($code instanceof Exception) {
             $class = get_class($code);
@@ -386,43 +420,48 @@ class Debugger {
                 $error = $class;
             }
 
-            $code = $code->getCode();
+            $code = (int) $code->getCode();
+        } else {
+            $code = (int) $code;
         }
 
         if (!$error) {
-            $error = static::getError((int) $code);
+            $error = static::getError($code);
         }
 
-        switch ((int) $code) {
+        switch ($code) {
             case E_ERROR:
             case E_PARSE:
             case E_CORE_ERROR:
             case E_COMPILE_ERROR:
             case E_USER_ERROR:
-                $log = Logger::ERROR;
+                $level = Logger::ERROR;
             break;
             case E_WARNING:
             case E_CORE_WARNING:
             case E_COMPILE_WARNING:
             case E_USER_WARNING:
             case E_RECOVERABLE_ERROR:
-                $log = Logger::WARNING;
+                $level = Logger::WARNING;
             break;
             case E_STRICT:
             case E_DEPRECATED:
             case E_USER_DEPRECATED:
-                $log = Logger::INFO;
+                $level = Logger::INFO;
             break;
             case E_NOTICE:
             case E_USER_NOTICE:
-                $log = Logger::NOTICE;
+                $level = Logger::NOTICE;
+            break;
+            default:
+                $level = Logger::DEBUG;
             break;
         }
 
-        return Map {
+        return shape(
             'error' => $error,
-            'level' => $log
-        };
+            'level' => $level
+        );
     }
 
     /**
@@ -432,13 +471,8 @@ class Debugger {
      * @return string
      */
     public static function parseType(mixed $value): string {
-        if (is_callable($value)) {
-            return 'callable';
-        }
-
-        return strtolower(gettype($value));
+        return Type::is($value);
     }
-
 
     /**
      * Parse a value and return a formatted value.
@@ -514,7 +548,7 @@ class Debugger {
     /**
      * Set the exception handler.
      *
-     * @param ExceptionHandler $callback
+     * @param \Titon\Debug\ExceptionHandler $callback
      */
     public static function setHandler(ExceptionHandler $callback): void {
         static::$_handler = $callback;

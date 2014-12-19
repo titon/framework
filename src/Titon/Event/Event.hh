@@ -51,7 +51,7 @@ class Event {
      *
      * @type \Titon\Event\CallStackList
      */
-    protected CallStackList $_stack;
+    protected CallStackList $_stack = Vector {};
 
     /**
      * The last state before the object was stopped.
@@ -69,14 +69,12 @@ class Event {
     protected int $_time;
 
     /**
-     * Initialize the event and pass information from the Emitter.
+     * Initialize the event.
      *
      * @param string $key
-     * @param \Titon\Event\CallStackList $stack
      */
-    public function __construct(string $key, CallStackList $stack = Vector {}) {
+    public function __construct(string $key) {
         $this->_key = $key;
-        $this->_stack = $stack;
         $this->_time = time();
     }
 
@@ -161,6 +159,18 @@ class Event {
         } else {
             $this->stop();
         }
+
+        return $this;
+    }
+
+    /**
+     * Set the call stack for the current event.
+     *
+     * @param \Titon\Event\CallStackList $stack
+     * @return $this
+     */
+    public function setCallStack(CallStackList $stack): this {
+        $this->_stack = $stack;
 
         return $this;
     }

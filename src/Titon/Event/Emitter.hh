@@ -44,40 +44,57 @@ class Emitter {
      * @param array<mixed> $params
      * @return \Titon\Event\Event
      */
-    public function emit(string $event, array<mixed> $params = []): Event {
-        $object = new Event($event, $this->getCallStack($event));
-        $turnOff = Vector {};
+    public function dispatch(Event $event, array<mixed> $params = []): Event {
+        $key = $event->getKey();
+        $trash = Vector {};
+
+        // Load call stack
+        $event->setCallStack($this->getCallStack($key));
 
         // Add event as the 1st argument
-        array_unshift($params, $object);
+        array_unshift($params, $event);
 
         // Loop through each observer
-        foreach ($this->getSortedObservers($event) as $observer) {
+        foreach ($this->getSortedObservers($key) as $observer) {
             $response = call_user_func_array($observer['callback'], $params);
 
             // If the response is null/void (no return from callback) or true, don't do anything.
             // Else stop propagation and set the response state so that it may be used outside of the emitter.
             if ($response !== null && $response !== true) {
-                $object->stop()->setState($response);
+                $event->stop()->setState($response);
             }
 
+            // Remove events that should only be called once
             if ($observer['once']) {
-                $turnOff[] = $observer['callback'];
+                $trash[] = $observer['callback'];
             }
 
-            if ($object->isStopped()) {
+            if ($event->isStopped()) {
                 break;
             }
 
-            $object->next();
+            $event->next();
         }
 
         // We must do this as you can't remove keys while iterating
-        foreach ($turnOff as $callback) {
-            $this->remove($event, $callback);
+        foreach ($trash as $callback) {
+            $this->remove($key, $callback);
         }
 
-        return $object;
+        return $event;
+    }
+
+    /**
+     * Emit a single event defined by an event name. Can pass an optional list of parameters.
+     *
+     * @uses Titon\Event\Event
+     *
+     * @param string $event
+     * @param array<mixed> $params
+     * @return \Titon\Event\Event
+     */
+    public function emit(string $event, array<mixed> $params = []): Event {
+        return $this->dispatch(new Event($event), $params);
     }
 
     /**

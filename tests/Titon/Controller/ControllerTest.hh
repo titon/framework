@@ -94,13 +94,15 @@ class ControllerTest extends TestCase {
     }
 
     public function testRenderError() {
-        $this->assertEquals('Message', $this->object->renderError(new \Exception('Message')));
-        $this->assertEquals(500, $this->object->getResponse()->getStatusCode());
-
-        $old = error_reporting(0);
-
         $this->assertEquals('404: Not Found', $this->object->renderError(new NotFoundException('Not Found')));
         $this->assertEquals(404, $this->object->getResponse()->getStatusCode());
+    }
+
+    public function testRenderErrorWithReporting() {
+        $old = error_reporting(E_ALL);
+
+        $this->assertEquals('Message', $this->object->renderError(new \Exception('Message')));
+        $this->assertEquals(500, $this->object->getResponse()->getStatusCode());
 
         error_reporting($old);
     }

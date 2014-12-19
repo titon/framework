@@ -22,6 +22,7 @@ class TemplateEngine extends AbstractEngine {
     public function render(string $path, DataMap $variables = Map {}): string {
         $this->_variables = $variables;
 
+        // UNSAFE
         if ($variables) {
             extract($variables->toArray(), EXTR_OVERWRITE);
         }

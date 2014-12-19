@@ -615,11 +615,9 @@ class Response extends Message implements OutgoingResponse {
         $this->sendHeaders();
         $this->sendBody();
 
-        // @codeCoverageIgnoreStart
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
-        // @codeCoverageIgnoreEnd
 
         return $contents;
     }
@@ -648,7 +646,6 @@ class Response extends Message implements OutgoingResponse {
      * Output headers and cookies defined for the current response.
      *
      * @return $this
-     * @codeCoverageIgnore
      */
     public function sendHeaders(): this {
         if (headers_sent()) {

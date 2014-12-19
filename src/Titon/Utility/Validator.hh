@@ -252,13 +252,11 @@ class Validator {
                 array_unshift($arguments, $value);
 
                 // Use G11n if it is available
-                // @codeCoverageIgnoreStart
                 if (class_exists('Titon\G11n\Utility\Validate')) {
                     $class = 'Titon\G11n\Utility\Validate';
                 } else {
                     $class = 'Titon\Utility\Validate';
                 }
-                // @codeCoverageIgnoreEnd
 
                 // UNSAFE
                 if (!call_user_func(class_meth($class, 'hasRule'), $rule)) {

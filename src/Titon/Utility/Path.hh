@@ -216,7 +216,6 @@ class Path {
      *
      * @param string $path
      * @return string
-     * @codeCoverageIgnore
      */
     public static function normalize(string $path): string {
         return realpath($path);

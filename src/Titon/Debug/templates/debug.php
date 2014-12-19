@@ -11,7 +11,7 @@
     <?php foreach ($vars as $var) { ?>
         <div class="debug-output">
             <?php if (isset($dump)) {
-                echo static::_renderTemplate('table', ['value' => $var]);
+                echo Titon\Debug\Debugger::renderTemplate('table', ['value' => $var]);
             } else { ?>
                 <pre><code><?php echo esc(print_r($var, true)); ?></code></pre>
             <?php } ?>

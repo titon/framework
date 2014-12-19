@@ -23,7 +23,7 @@ class PhpWriter extends AbstractWriter {
      */
     public function append($data) {
         if ($this->exists()) {
-            if ($contents = include $this->path()) {
+            if ($contents = include_file($this->path())) {
                 $data = Col::merge($contents, $data);
             }
         }

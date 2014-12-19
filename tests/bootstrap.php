@@ -1,9 +1,17 @@
 <?php
+/**
+ * @copyright   2010-2013, The Titon Project
+ * @license     http://opensource.org/licenses/bsd-license.php
+ * @link        http://titon.io
+ */
 
+// Enable full error reporting
 error_reporting(E_ALL | E_STRICT);
 
+// Set timezone for tests
 date_default_timezone_set('UTC');
 
+// Set testing constants
 if (!defined('TEST_DIR')) {
     define('TEST_DIR', __DIR__);
 }
@@ -20,12 +28,16 @@ if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
 
+// Start autoloader
 if (!file_exists(VENDOR_DIR . '/autoload.php')) {
     exit('Please install Composer in the root folder before running tests!');
 }
 
 $loader = require VENDOR_DIR . '/autoload.php';
 $loader->add('', TEST_DIR);
+
+// Enable the Debugger for testing
+\Titon\Debug\Debugger::initialize();
 
 // Temporary fix until the PHPUnit patch is merged in
 // Issue: https://github.com/sebastianbergmann/phpunit/issues/1389

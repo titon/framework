@@ -19,3 +19,51 @@ namespace Titon\Common {
     type DataMap = Map<string, mixed>;
     type OptionMap = Map<string, mixed>;
 }
+
+/**
+ * --------------------------------------------------------------
+ *  Helper Functions
+ * --------------------------------------------------------------
+ *
+ * Defines global helper functions for common use cases.
+ */
+
+namespace {
+
+    /**
+     * Include a file at a given path and return the response of the include.
+     *
+     * @param string $path
+     * @return string
+     * @throws \RuntimeException
+     */
+    function include_file(string $path): string {
+        if (!file_exists($path)) {
+            throw new RuntimeException(sprintf('File %s does not exist', $path));
+        }
+
+        return include $path;
+    }
+
+    /**
+     * Very low level function for loading a template with optional variables and rendering the result.
+     *
+     * @param string $path
+     * @param array <string, mixed> $variables
+     * @return string
+     * @throws \RuntimeException
+     */
+    function render_template(string $path, array<string, mixed > $variables = []): string {
+        if (!file_exists($path)) {
+            throw new RuntimeException(sprintf('Template %s does not exist', $path));
+        }
+
+        extract($variables, EXTR_OVERWRITE);
+        ob_start();
+
+        include $path;
+
+        return ob_get_clean();
+    }
+
+}

@@ -9,6 +9,12 @@ namespace Titon\Debug;
 
 use Titon\Debug\Exception\MissingBenchmarkException;
 
+type Metric = shape(
+    'running' => bool, 'startTime' => float, 'endTime' => float, 'avgTime' => float,
+    'startMemory' => int, 'endMemory' => int, 'avgMemory' => int, 'peakMemory' => int
+);
+type MetricMap = Map<string, Metric>;
+
 /**
  * Delivers the functionality to start, stop and log benchmarks.
  * Benchmarks store the time difference and memory usage between two blocks during runtime.
@@ -20,43 +26,32 @@ class Benchmark {
     /**
      * User and system initiated benchmarking tests.
      *
-     * @type Map<string, Map<string, num>>
+     * @type \Titon\Debug\MetricMap
      */
-    protected static Map<string, Map<string, num>> $_benchmarks = Map {};
+    protected static MetricMap $_benchmarks = Map {};
 
     /**
      * Return all benchmarks and calculate averages.
      *
-     * @return Map<string, Map<string, num>>
+     * @return \Titon\Debug\MetricMap
      */
-    public static function all(): Map<string, Map<string, num>> {
-        $benchmarks = Map {};
-
-        foreach (static::$_benchmarks as $key => $bm) {
-            $benchmarks[$key] = static::get($key);
-        }
-
-        return $benchmarks;
+    public static function all(): MetricMap {
+        return static::$_benchmarks;
     }
 
     /**
-     * Return a single benchmark by key and calculate averages and memory usage.
+     * Return a single benchmark metric by key.
      *
      * @param string $key
-     * @return Map<string, num>
+     * @return \Titon\Debug\Metric
      * @throws \Titon\Debug\Exception\MissingBenchmarkException
      */
-    public static function get(string $key): Map<string, num> {
+    public static function get(string $key): Metric {
         if (!static::$_benchmarks->contains($key)) {
             throw new MissingBenchmarkException(sprintf('Benchmark %s does not exist', $key));
         }
 
-        $bm = static::$_benchmarks[$key];
-        $bm['avgTime'] = $bm->contains('endTime') ? ($bm['endTime'] - $bm['startTime']) : 0;
-        $bm['avgMemory'] = $bm->contains('endMemory') ? ($bm['endMemory'] - $bm['startMemory']) : 0;
-        $bm['peakMemory'] = (float) memory_get_peak_usage();
-
-        return $bm;
+        return static::$_benchmarks[$key];
     }
 
     /**
@@ -81,22 +76,33 @@ class Benchmark {
      * @param string $key
      */
     public static function start(string $key): void {
-        static::$_benchmarks[$key] = Map {
+        static::$_benchmarks[$key] = shape(
             'startTime' => microtime(true),
+            'endTime' => 0.0,
+            'avgTime' => 0.0,
             'startMemory' => memory_get_usage(true),
-        };
+            'endMemory' => 0,
+            'avgMemory' => 0,
+            'peakMemory' => 0,
+            'running' => true
+        );
     }
 
     /**
-     * Stop the benchmarking process by logging the micro seconds and memory usage.
+     * Stop the benchmarking process by logging the micro seconds, memory usage and calculating averages.
      *
      * @param string $key
      */
     public static function stop(string $key): void {
-        static::$_benchmarks[$key]->setAll(Map {
-            'endTime' => microtime(true),
-            'endMemory' => memory_get_usage(true)
-        });
+        $benchmark = static::get($key);
+        $benchmark['endTime'] = microtime(true);
+        $benchmark['avgTime'] = $benchmark['endTime'] - $benchmark['startTime'];
+        $benchmark['endMemory'] = memory_get_usage(true);
+        $benchmark['avgMemory'] = $benchmark['endMemory'] - $benchmark['startMemory'];
+        $benchmark['peakMemory'] = memory_get_peak_usage();
+        $benchmark['running'] = false;
+
+        static::$_benchmarks[$key] = $benchmark;
     }
 
 }

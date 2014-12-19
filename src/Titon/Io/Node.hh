@@ -151,7 +151,6 @@ abstract class Node {
      * @param string $process
      * @param int $mode
      * @return \Titon\Io\Node
-     * @codeCoverageIgnore
      */
     abstract public function copy(string $target, string $process = self::OVERWRITE, int $mode = 0755): ?Node;
 
@@ -160,7 +159,6 @@ abstract class Node {
      *
      * @param int $mode
      * @return bool
-     * @codeCoverageIgnore
      */
     abstract public function create(int $mode = 0755): bool;
 
@@ -168,7 +166,6 @@ abstract class Node {
      * Remove the file if it exists.
      *
      * @return bool
-     * @codeCoverageIgnore
      */
     abstract public function delete(): bool;
 
@@ -459,7 +456,6 @@ abstract class Node {
      * Return the current file size.
      *
      * @return int
-     * @codeCoverageIgnore
      */
     abstract public function size(): int;
 

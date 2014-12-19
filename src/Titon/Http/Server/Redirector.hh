@@ -78,12 +78,10 @@ class Redirector {
 
         // We should exit early in case we're in a closure
         // Or hooking into some process within the script
-        // @codeCoverageIgnoreStart
         if (static::$exit) {
             $response->send();
             exit();
         }
-        // @codeCoverageIgnoreEnd
 
         return $response;
     }

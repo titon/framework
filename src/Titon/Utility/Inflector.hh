@@ -97,7 +97,6 @@ class Inflector {
      *
      * @param int $number
      * @return string
-     * @codeCoverageIgnore
      */
     public static function ordinal(string $number): string {
         return $number;
@@ -108,7 +107,6 @@ class Inflector {
      *
      * @param string $string
      * @return string
-     * @codeCoverageIgnore
      */
     public static function pluralize(string $string): string {
         return $string;
@@ -131,7 +129,6 @@ class Inflector {
      *
      * @param string $string
      * @return string
-     * @codeCoverageIgnore
      */
     public static function singularize(string $string): string {
         return $string;
@@ -163,7 +160,6 @@ class Inflector {
      *
      * @param string $string
      * @return string
-     * @codeCoverageIgnore
      */
     public static function snakeCase(string $string): string {
         return (string) static::underscore($string);
@@ -198,7 +194,6 @@ class Inflector {
      *
      * @param string $string
      * @return string
-     * @codeCoverageIgnore
      */
     public static function transliterate(string $string): string {
         return $string;

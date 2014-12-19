@@ -49,11 +49,9 @@ class JsonResponse extends Response {
 
         parent::__construct($body, $status);
 
-        // @codeCoverageIgnoreStart
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new MalformedResponseException($this->getErrorMessage());
         }
-        // @codeCoverageIgnoreEnd
 
         $this->setCallback($callback);
     }
@@ -71,7 +69,6 @@ class JsonResponse extends Response {
      * Return an error message for the last occurring JSON error.
      *
      * @return string
-     * @codeCoverageIgnore
      */
     public function getErrorMessage(): string {
         if (function_exists('json_last_error_msg')) {

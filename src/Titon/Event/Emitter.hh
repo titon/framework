@@ -46,37 +46,41 @@ class Emitter {
      */
     public function dispatch(Event $event, array<mixed> $params = []): Event {
         $key = $event->getKey();
-        $trash = Vector {};
 
-        // Load call stack
+        // Set call stack
         $event->setCallStack($this->getCallStack($key));
 
-        // Add event as the 1st argument
+        // Add event as the 1st param
         array_unshift($params, $event);
 
-        // Loop through each observer
-        foreach ($this->getSortedObservers($key) as $observer) {
-            $response = call_user_func_array($observer['callback'], $params);
+        // Group the observers
+        $observers = $this->getSortedObservers($key);
+        $syncObservers = Vector {};
+        $asyncObservers = Vector {};
 
-            // If the response is null/void (no return from callback) or true, don't do anything.
-            // Else stop propagation and set the response state so that it may be used outside of the emitter.
-            if ($response !== null && $response !== true) {
-                $event->stop()->setState($response);
+        foreach ($observers as $observer) {
+            if ($observer['async']) {
+                $asyncObservers[] = $observer;
+            } else {
+                $syncObservers[] = $observer;
             }
+        }
 
-            // Remove events that should only be called once
+        // Notify observers
+        $this->_loopObservers($syncObservers, $event, $params);
+        $this->_loopAsyncObservers($asyncObservers, $event, $params)
+            ->getWaitHandle()->join();
+
+        // Remove all `once` observers
+        // TODO - Only remove observers that ran
+        $trash = Vector {};
+
+        foreach ($observers as $observer) {
             if ($observer['once']) {
                 $trash[] = $observer['callback'];
             }
-
-            if ($event->isStopped()) {
-                break;
-            }
-
-            $event->next();
         }
 
-        // We must do this as you can't remove keys while iterating
         foreach ($trash as $callback) {
             $this->remove($key, $callback);
         }
@@ -108,7 +112,7 @@ class Emitter {
     public function emitMany(mixed $event, array<mixed> $params = []): EventMap {
         $objects = Map {};
 
-        foreach ($this->_resolveEvents($event) as $event) {
+        foreach ($this->_resolveEventKeys($event) as $event) {
             $objects[$event] = $this->emit($event, $params);
         }
 
@@ -303,6 +307,24 @@ class Emitter {
         return $this;
     }
 
+    async protected function _loopAsyncObservers(ObserverList $observers, Event $event, array<mixed> $params): Awaitable<Vector<bool>> {
+        $handles = Vector {};
+
+        foreach ($observers as $observer) {
+            $handles[] = $this->_notifyAsyncObserver($observer, $event, $params);
+        }
+
+        await AwaitAllWaitHandle::fromVector($handles);
+
+        return $handles->map($handle ==> $handle->result());
+    }
+
+    protected function _loopObservers(ObserverList $observers, Event $event, array<mixed> $params): void {
+        foreach ($observers as $observer) {
+            $this->_notifyObserver($observer, $event, $params);
+        }
+    }
+
     /**
      * Parse the options from a listener into an indexed array of object method callbacks.
      *
@@ -338,13 +360,38 @@ class Emitter {
         return $parsed;
     }
 
+    async protected function _notifyAsyncObserver(Observer $observer, Event $event, array<mixed> $params): Awaitable<bool> {
+        return $this->_notifyObserver($observer, $event, $params);
+    }
+
+    protected function _notifyObserver(Observer $observer, Event $event, array<mixed> $params): bool {
+        if ($event->isStopped()) {
+            return false;
+        }
+
+        $response = call_user_func_array($observer['callback'], $params);
+
+        // If the response is null/void (no return from callback) or true, don't do anything.
+        // Else stop propagation and set the response state so that it may be used outside of the emitter.
+        if ($response !== null && $response !== true) {
+            $event->stop()->setState($response);
+        }
+
+        // Go to the next observer
+        if (!$event->isStopped()) {
+            $event->next();
+        }
+
+        return true;
+    }
+
     /**
      * Resolve an event key into multiple events by checking for space delimiters and wildcard matches.
      *
      * @param string|array $events
      * @return Vector<string>
      */
-    protected function _resolveEvents(mixed $events): Vector<string> {
+    protected function _resolveEventKeys(mixed $events): Vector<string> {
         $found = Vector {};
 
         if (!$events instanceof Traversable) {

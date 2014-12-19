@@ -7,21 +7,24 @@ class BenchmarkTest extends TestCase {
 
     public function testBenchmarking() {
         Benchmark::start('test');
-        $this->assertTrue(isset(Benchmark::get('test')['startTime']));
-        $this->assertTrue(isset(Benchmark::get('test')['startMemory']));
-        $this->assertFalse(isset(Benchmark::get('test')['endTime']));
-        $this->assertFalse(isset(Benchmark::get('test')['endMemory']));
+
+        $benchmark = Benchmark::get('test');
+
+        $this->assertGreaterThan(0.0, $benchmark['startTime']);
+        $this->assertGreaterThan(0, $benchmark['startMemory']);
+        $this->assertEquals(0.0, $benchmark['endTime']);
+        $this->assertEquals(0, $benchmark['endMemory']);
+        $this->assertTrue($benchmark['running']);
 
         Benchmark::stop('test');
-        $this->assertTrue(isset(Benchmark::get('test')['endTime']));
-        $this->assertTrue(isset(Benchmark::get('test')['endMemory']));
 
-        $this->assertInstanceOf('HH\Map', Benchmark::get('test'));
+        $benchmark = Benchmark::get('test');
+
+        $this->assertGreaterThan(0.0, $benchmark['endTime']);
+        $this->assertGreaterThan(0, $benchmark['endMemory']);
+        $this->assertFalse($benchmark['running']);
         $this->assertTrue(count(Benchmark::all()) == 1);
-
-        // output
-        $test = Benchmark::get('test');
-        $this->assertEquals(sprintf('[test] %s seconds, %s memory (%s peak)', number_format($test['avgTime'], 4), $test['avgMemory'], $test['peakMemory']), Benchmark::output('test'));
+        $this->assertEquals(sprintf('[test] %s seconds, %s memory (%s peak)', number_format($benchmark['avgTime'], 4), $benchmark['avgMemory'], $benchmark['peakMemory']), Benchmark::output('test'));
     }
 
     /**

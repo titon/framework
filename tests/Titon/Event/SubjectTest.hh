@@ -34,9 +34,9 @@ class SubjectTest extends TestCase {
         $this->object->on('event', $listener);
 
         $this->assertEquals(Vector {
-            shape('callback' => $callback, 'priority' => 100, 'once' => false),
-            shape('callback' => inst_meth($listener, 'noop1'), 'priority' => 101, 'once' => false),
-            shape('callback' => inst_meth($listener, 'noop2'), 'priority' => 45, 'once' => false),
+            shape('callback' => $callback, 'priority' => 100, 'once' => false, 'async' => true),
+            shape('callback' => inst_meth($listener, 'noop1'), 'priority' => 101, 'once' => false, 'async' => true),
+            shape('callback' => inst_meth($listener, 'noop2'), 'priority' => 45, 'once' => false, 'async' => false),
         }, $this->object->getEmitter()->getObservers('event.test1'));
 
         $this->object->off('event.test1', $callback);

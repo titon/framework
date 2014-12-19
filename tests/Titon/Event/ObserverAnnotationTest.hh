@@ -11,15 +11,15 @@ class ObserverAnnotationTest extends TestCase {
         $stub = new ObserverAnnotationStub();
 
         $this->assertEquals(Vector {
-            shape('callback' => inst_meth($stub, 'defaultObserver'), 'priority' => 100, 'once' => false),
+            shape('callback' => inst_meth($stub, 'defaultObserver'), 'priority' => 100, 'once' => false, 'async' => true),
         }, $stub->getEmitter()->getObservers('event.foo'));
 
         $this->assertEquals(Vector {
-            shape('callback' => inst_meth($stub, 'priorityObserver'), 'priority' => 5, 'once' => false),
+            shape('callback' => inst_meth($stub, 'priorityObserver'), 'priority' => 5, 'once' => false, 'async' => false),
         }, $stub->getEmitter()->getObservers('event.bar'));
 
         $this->assertEquals(Vector {
-            shape('callback' => inst_meth($stub, 'onceObserver'), 'priority' => 100, 'once' => true),
+            shape('callback' => inst_meth($stub, 'onceObserver'), 'priority' => 100, 'once' => true, 'async' => true),
         }, $stub->getEmitter()->getObservers('event.baz'));
     }
 

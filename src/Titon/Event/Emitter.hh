@@ -12,7 +12,7 @@ use \Closure;
 type CallStack = shape('priority' => int, 'once' => bool, 'callback' => string, 'time' => int);
 type CallStackList = Vector<CallStack>;
 type EventMap = Map<string, Event>;
-type Observer = shape('priority' => int, 'once' => bool, 'callback' => ObserverCallback);
+type Observer = shape('priority' => int, 'once' => bool, 'callback' => ObserverCallback, 'async' => bool);
 type ObserverList = Vector<Observer>;
 type ObserverContainer = Map<string, ObserverList>;
 type ObserverCallback = (function(...): mixed);
@@ -191,19 +191,19 @@ class Emitter {
      * @return \Titon\Event\ObserverList
      */
     public function getSortedObservers(string $event): ObserverList {
-        if ($obs = $this->getObservers($event)) {
-            usort($obs, function($a, $b) {
+        $observers = $this->getObservers($event);
+
+        if ($observers) {
+            usort($observers, function($a, $b) {
                 if ($a['priority'] == $b['priority']) {
                     return 0;
                 }
 
                 return ($a['priority'] < $b['priority']) ? -1 : 1;
             });
-
-            return $obs;
         }
 
-        return Vector {};
+        return $observers;
     }
 
     /**
@@ -227,7 +227,7 @@ class Emitter {
      * @return $this
      */
     public function register(string $event, ObserverCallback $callback, int $priority = 0, bool $once = false): this {
-        if (!$this->_observers->contains($event)) {
+        if (!$this->hasObservers($event)) {
             $this->_observers[$event] = Vector {};
         }
 
@@ -238,7 +238,8 @@ class Emitter {
         $this->_observers[$event][] = shape(
             'callback' => $callback,
             'priority' => $priority,
-            'once' => $once
+            'once' => $once,
+            'async' => ($priority >= self::DEFAULT_PRIORITY)
         );
 
         return $this;
@@ -313,7 +314,7 @@ class Emitter {
             $options = new Vector([$options]);
         }
 
-        invariant($options instanceof Vector, 'Options must be a vector');
+        invariant($options instanceof Vector, 'Event options must be a vector');
 
         $parsed = Vector {};
 

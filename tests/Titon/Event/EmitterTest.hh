@@ -39,8 +39,8 @@ class EmitterTest extends TestCase {
 
         $this->assertEquals(Vector {}, $this->object->getObservers('event.foobar'));
         $this->assertEquals(Vector {
-            shape('callback' => $ob1, 'priority' => 20, 'once' => false),
-            shape('callback' => $ob2, 'priority' => 15, 'once' => false),
+            shape('callback' => $ob1, 'priority' => 20, 'once' => false, 'async' => false),
+            shape('callback' => $ob2, 'priority' => 15, 'once' => false, 'async' => false),
         }, $this->object->getObservers('event.test'));
     }
 
@@ -83,22 +83,24 @@ class EmitterTest extends TestCase {
 
         $this->assertEquals(Vector {}, $this->object->getObservers('event.foobar'));
         $this->assertEquals(Vector {
-            shape('callback' => $ob1, 'priority' => 20, 'once' => false),
-            shape('callback' => $ob2, 'priority' => 15, 'once' => false),
-            shape('callback' => $ob3, 'priority' => 20, 'once' => false),
+            shape('callback' => $ob1, 'priority' => 20, 'once' => false, 'async' => false),
+            shape('callback' => $ob2, 'priority' => 15, 'once' => false, 'async' => false),
+            shape('callback' => $ob3, 'priority' => 20, 'once' => false, 'async' => false),
         }, $this->object->getObservers('event.test'));
 
         // Sorted
         $this->assertEquals(Vector {
-            shape('callback' => $ob2, 'priority' => 15, 'once' => false),
-            shape('callback' => $ob1, 'priority' => 20, 'once' => false),
-            shape('callback' => $ob3, 'priority' => 20, 'once' => false),
+            shape('callback' => $ob2, 'priority' => 15, 'once' => false, 'async' => false),
+            shape('callback' => $ob1, 'priority' => 20, 'once' => false, 'async' => false),
+            shape('callback' => $ob3, 'priority' => 20, 'once' => false, 'async' => false),
         }, $this->object->getSortedObservers('event.test'));
     }
 
     public function testHasObservers() {
         $this->assertFalse($this->object->hasObservers('event.test'));
+
         $this->object->register('event.test', function(Event $event) { });
+
         $this->assertTrue($this->object->hasObservers('event.test'));
     }
 
@@ -144,15 +146,15 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob2);
 
         $this->assertEquals(Vector {
-            shape('callback' => $ob1, 'priority' => 100, 'once' => false),
-            shape('callback' => $ob2, 'priority' => 101, 'once' => false)
+            shape('callback' => $ob1, 'priority' => 100, 'once' => false, 'async' => true),
+            shape('callback' => $ob2, 'priority' => 101, 'once' => false, 'async' => true)
         }, $this->object->getObservers('event.test'));
 
         // Remove using the instance
         $this->object->remove('event.test', $ob1);
 
         $this->assertEquals(Vector {
-            shape('callback' => $ob2, 'priority' => 101, 'once' => false)
+            shape('callback' => $ob2, 'priority' => 101, 'once' => false, 'async' => true)
         }, $this->object->getObservers('event.test'));
     }
 

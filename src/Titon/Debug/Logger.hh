@@ -1,4 +1,5 @@
-<?hh
+<?hh // partial
+// Because of PSR Log
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php

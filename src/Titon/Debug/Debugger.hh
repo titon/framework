@@ -336,7 +336,6 @@ class Debugger {
      * Handler for catching uncaught exceptions. By default will output a stack trace and stop execution.
      *
      * @param \Exception $exception
-     * @codeCoverageIgnore
      */
     public static function handleException(Exception $exception): void {
         static::logException($exception);
@@ -348,8 +347,6 @@ class Debugger {
 
     /**
      * Handle fatal errors by passing an ErrorException to the custom exception handler.
-     *
-     * @codeCoverageIgnore
      */
     public static function handleFatalError(): void {
         $error = error_get_last();
@@ -373,7 +370,6 @@ class Debugger {
      *
      * @param string $message
      * @param array $args
-     * @codeCoverageIgnore
      */
     public static function handleInvariant(string $message, ...$args): void {
         if ($logger = static::getLogger()) {

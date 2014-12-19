@@ -513,7 +513,6 @@ class Request extends Message implements IncomingRequest {
     public function getUserAgent(bool $explicit = false): mixed {
         $agent = $this->server->get('HTTP_USER_AGENT');
 
-        // @codeCoverageIgnoreStart
         if ($explicit && function_exists('get_browser')) {
             $browser = get_browser($agent, true);
 
@@ -525,7 +524,6 @@ class Request extends Message implements IncomingRequest {
                 'os' => $browser['platform']
             ];
         }
-        // @codeCoverageIgnoreEnd
 
         return $agent;
     }
@@ -543,7 +541,6 @@ class Request extends Message implements IncomingRequest {
      * Returns true if the interface environment is CGI.
      *
      * @return bool
-     * @codeCoverageIgnore
      */
     public function isCGI(): bool {
         return (substr(PHP_SAPI, 0, 3) === 'cgi');
@@ -553,7 +550,6 @@ class Request extends Message implements IncomingRequest {
      * Returns true if the interface environment is CLI (command line).
      *
      * @return bool
-     * @codeCoverageIgnore
      */
     public function isCLI(): bool {
         return (substr(PHP_SAPI, 0, 3) === 'cli');
@@ -590,7 +586,6 @@ class Request extends Message implements IncomingRequest {
      * Returns true if the interface environment is IIS.
      *
      * @return bool
-     * @codeCoverageIgnore
      */
     public function isIIS(): bool {
         return (substr(PHP_SAPI, 0, 5) === 'isapi');

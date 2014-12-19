@@ -91,8 +91,6 @@ trait Instanceable {
 
     /**
      * Disable cloning.
-     *
-     * @codeCoverageIgnore
      */
     private function __clone(): void {}
 

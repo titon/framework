@@ -15,6 +15,9 @@ use Titon\Environment\Environment;
  * Defines global helper functions for common use cases.
  */
 
+/**
+ * @see Titon\Environment\Environment::getVariable()
+ */
 function env(string $key): string {
     return Environment::registry()->getVariable($key);
 }

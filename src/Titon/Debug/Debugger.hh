@@ -143,7 +143,7 @@ class Debugger {
             $backtrace[] = $current;
         }
 
-        return static::_renderTemplate('backtrace', [
+        return static::renderTemplate('backtrace', [
             'backtrace' => array_reverse($backtrace)
         ]);
     }
@@ -170,7 +170,7 @@ class Debugger {
             }
         }
 
-        return static::_renderTemplate('debug', [
+        return static::renderTemplate('debug', [
             'file' => $file,
             'line' => $line,
             'vars' => func_get_args()
@@ -206,7 +206,7 @@ class Debugger {
             }
         }
 
-        return static::_renderTemplate('debug', [
+        return static::renderTemplate('debug', [
             'file' => $file,
             'line' => $line,
             'vars' => func_get_args(),
@@ -536,9 +536,20 @@ class Debugger {
             return '';
         }
 
-        return static::_renderTemplate('error', [
+        return static::renderTemplate('error', [
             'exception' => $exception
         ]);
+    }
+
+    /**
+     * Use a local template for outputting debug and error markup.
+     *
+     * @param string $template
+     * @param array $variables
+     * @return string
+     */
+    public static function renderTemplate(string $template, array<string, mixed> $variables = []): string {
+        return render_template(sprintf('%s/templates/%s.php', __DIR__, $template), $variables);
     }
 
     /**
@@ -559,26 +570,6 @@ class Debugger {
      */
     public static function setLogger(LoggerInterface $logger): void {
         static::$_logger = $logger;
-    }
-
-    /**
-     * Use a local template for outputting debug and error markup.
-     *
-     * @param string $template
-     * @param array $variables
-     * @return string
-     */
-    protected static function _renderTemplate(string $template, array<string, mixed> $variables = []): string {
-        if ($variables) {
-            extract($variables, EXTR_OVERWRITE);
-        }
-
-        ob_start();
-
-        // UNSAFE
-        include sprintf('%s/templates/%s.php', __DIR__, $template);
-
-        return ob_get_clean();
     }
 
 }

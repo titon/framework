@@ -26,7 +26,7 @@ class PhpReader extends AbstractReader {
     public function read(): Map<string, mixed> {
         return $this->cache([__METHOD__, $this->path()], function() {
             if ($this->exists()) {
-                return Col::toMap(include $this->path());
+                return Col::toMap(include_file($this->path()));
             }
 
             throw new ReadErrorException(sprintf('PhpReader failed to parse %s', $this->name()));

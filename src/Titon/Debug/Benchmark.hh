@@ -9,10 +9,7 @@ namespace Titon\Debug;
 
 use Titon\Debug\Exception\MissingBenchmarkException;
 
-type Metric = shape(
-    'running' => bool, 'startTime' => float, 'endTime' => float, 'avgTime' => float,
-    'startMemory' => int, 'endMemory' => int, 'avgMemory' => int, 'peakMemory' => int
-);
+type Metric = shape('running' => bool, 'startTime' => float, 'endTime' => float, 'avgTime' => float, 'startMemory' => int, 'endMemory' => int, 'avgMemory' => int, 'peakMemory' => int);
 type MetricMap = Map<string, Metric>;
 
 /**
@@ -47,11 +44,21 @@ class Benchmark {
      * @throws \Titon\Debug\Exception\MissingBenchmarkException
      */
     public static function get(string $key): Metric {
-        if (!static::$_benchmarks->contains($key)) {
+        if (!static::has($key)) {
             throw new MissingBenchmarkException(sprintf('Benchmark %s does not exist', $key));
         }
 
         return static::$_benchmarks[$key];
+    }
+
+    /**
+     * Return true if a metric exists by key.
+     *
+     * @param string $key
+     * @return bool
+     */
+    public static function has(string $key): bool {
+        return static::$_benchmarks->contains($key);
     }
 
     /**

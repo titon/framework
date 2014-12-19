@@ -157,7 +157,7 @@ class Environment implements Subject {
 
         foreach (['.env.php', sprintf('.env.%s.php', $host->getKey())] as $file) {
             if (file_exists($path . $file)) {
-                $variables = array_merge($variables, include $path . $file);
+                $variables = array_merge($variables, include_file($path . $file));
             }
         }
 

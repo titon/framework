@@ -30,7 +30,7 @@
                     <td colspan="2">
                         <ol>
                             <?php foreach ($trace['args'] as $arg) { ?>
-                                <li><?php echo static::parseValue($arg, true); ?></li>
+                                <li><?php echo Titon\Debug\Debugger::parseValue($arg, true); ?></li>
                             <?php } ?>
                         </ol>
                     </td>

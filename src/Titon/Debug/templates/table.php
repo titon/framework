@@ -1,4 +1,8 @@
-<?php if ($value instanceof Traversable || is_object($value)) {
+<?php
+
+use Titon\Debug\Debugger;
+
+if ($value instanceof Traversable || is_object($value)) {
 
     // Empty data set
     if (!$value) { ?>
@@ -11,8 +15,8 @@
 
             <tr>
                 <td><span class="debug-type type-object"><?php echo $key; ?></span></td>
-                <td><?php echo static::parseType($var); ?></td>
-                <td><?php echo static::_renderTemplate('table', ['value' => $var]); ?></td>
+                <td><?php echo Debugger::parseType($var); ?></td>
+                <td><?php echo Debugger::renderTemplate('table', ['value' => $var]); ?></td>
             </tr>
 
         <?php }
@@ -34,5 +38,5 @@
     </table>
 
 <?php } else {
-    echo static::parseValue($value, true);
+    echo Debugger::parseValue($value, true);
 } ?>

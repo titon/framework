@@ -36,6 +36,9 @@ class Type {
         } else if ($data instanceof Pair) {
             return 'pair';
 
+        } else if (is_callable($data)) {
+            return 'callable';
+
         } else if (is_object($data)) {
             return 'object';
         }

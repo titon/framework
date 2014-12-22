@@ -9,10 +9,8 @@ namespace Titon\Event;
 
 use \Closure;
 
-type CallStack = shape('priority' => int, 'once' => bool, 'callback' => string, 'time' => int);
-type CallStackList = Vector<CallStack>;
+type CallStackList = Vector<string>;
 type EventMap = Map<string, Event>;
-type Observer = shape('priority' => int, 'once' => bool, 'callback' => ObserverCallback, 'async' => bool);
 type ObserverList = Vector<Observer>;
 type ObserverContainer = Map<string, ObserverList>;
 type ObserverCallback = (function(...): mixed);
@@ -35,12 +33,10 @@ class Emitter {
     protected ObserverContainer $_observers = Map {};
 
     /**
-     * Notify all sorted observers by priority about an event.
+     * Notify all synchronous and asynchronous observers, sorted by priority, about an event.
      * A list of parameters can be defined that will be passed to each observer.
      *
-     * @uses Titon\Event\Event
-     *
-     * @param string $event
+     * @param \Titon\Event\Event $event
      * @param array<mixed> $params
      * @return \Titon\Event\Event
      */
@@ -59,7 +55,7 @@ class Emitter {
         $asyncObservers = Vector {};
 
         foreach ($observers as $observer) {
-            if ($observer['async']) {
+            if ($observer->isAsync()) {
                 $asyncObservers[] = $observer;
             } else {
                 $syncObservers[] = $observer;
@@ -72,12 +68,11 @@ class Emitter {
             ->getWaitHandle()->join();
 
         // Remove all `once` observers
-        // TODO - Only remove observers that ran
         $trash = Vector {};
 
         foreach ($observers as $observer) {
-            if ($observer['once']) {
-                $trash[] = $observer['callback'];
+            if ($observer->isOnce() && $observer->hasExecuted()) {
+                $trash[] = $observer->getCallback();
             }
         }
 
@@ -144,22 +139,8 @@ class Emitter {
     public function getCallStack(string $event): CallStackList {
         $stack = Vector {};
 
-        if ($this->hasObservers($event)) {
-            foreach ($this->getSortedObservers($event) as $observer) {
-                $method = '{closure}';
-
-                // Use `is_callable()` to fetch the callable name
-                if (!$observer['callback'] instanceof Closure) {
-                    is_callable($observer['callback'], true, $method);
-                }
-
-                $stack[] = shape(
-                    'priority' => $observer['priority'],
-                    'once' => $observer['once'],
-                    'callback' => $method,
-                    'time' => 0
-                );
-            }
+        foreach ($this->getSortedObservers($event) as $observer) {
+            $stack[] = $observer->getCaller();
         }
 
         return $stack;
@@ -198,12 +179,12 @@ class Emitter {
         $observers = $this->getObservers($event);
 
         if ($observers) {
-            usort($observers, function($a, $b) {
-                if ($a['priority'] == $b['priority']) {
+            usort($observers, function(Observer $a, Observer $b): int {
+                if ($a->getPriority() == $b->getPriority()) {
                     return 0;
                 }
 
-                return ($a['priority'] < $b['priority']) ? -1 : 1;
+                return ($a->getPriority() < $b->getPriority()) ? -1 : 1;
             });
         }
 
@@ -239,12 +220,7 @@ class Emitter {
             $priority = count($this->_observers[$event]) + self::DEFAULT_PRIORITY;
         }
 
-        $this->_observers[$event][] = shape(
-            'callback' => $callback,
-            'priority' => $priority,
-            'once' => $once,
-            'async' => ($priority >= self::DEFAULT_PRIORITY)
-        );
+        $this->_observers[$event][] = new Observer($callback, $priority, $once);
 
         return $this;
     }
@@ -259,6 +235,7 @@ class Emitter {
         foreach ($listener->registerEvents() as $event => $options) {
             foreach ($this->_parseOptions($options) as $opt) {
                 // UNSAFE
+                // Since inst_meth() accepts literal strings and we are passing variables
                 $this->register($event, inst_meth($listener, (string) $opt['method']), (int) $opt['priority'], (bool) $opt['once']);
             }
         }
@@ -277,7 +254,7 @@ class Emitter {
         $indices = Vector {};
 
         foreach ($this->getObservers($event) as $i => $observer) {
-            if ($observer['callback'] === $callback) {
+            if ($observer->getCallback() === $callback) {
                 $indices[] = $i;
             }
         }
@@ -300,6 +277,7 @@ class Emitter {
         foreach ($listener->registerEvents() as $event => $options) {
             foreach ($this->_parseOptions($options) as $opt) {
                 // UNSAFE
+                // Since inst_meth() accepts literal strings and we are passing variables
                 $this->remove($event, inst_meth($listener, (string) $opt['method']));
             }
         }
@@ -369,7 +347,11 @@ class Emitter {
             return false;
         }
 
-        $response = call_user_func_array($observer['callback'], $params);
+        if ($observer->isAsync()) {
+            $response = $observer->asyncExecute($params);
+        } else {
+            $response = $observer->execute($params);
+        }
 
         // If the response is null/void (no return from callback) or true, don't do anything.
         // Else stop propagation and set the response state so that it may be used outside of the emitter.
@@ -378,9 +360,7 @@ class Emitter {
         }
 
         // Go to the next observer
-        if (!$event->isStopped()) {
-            $event->next();
-        }
+        $event->next();
 
         return true;
     }

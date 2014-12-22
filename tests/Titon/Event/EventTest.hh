@@ -16,17 +16,17 @@ class EventTest extends TestCase {
         $this->time = time();
         $this->object = new Event('event.test.key');
         $this->object->setCallStack(Vector {
-            shape('callback' => 'ClassName::method3', 'priority' => 10, 'once' => false, 'time' => 0),
-            shape('callback' => 'ClassName::method1', 'priority' => 100, 'once' => false, 'time' => 0),
-            shape('callback' => 'ClassName::method2', 'priority' => 110, 'once' => false, 'time' => 0)
+            'ClassName::method3',
+            'ClassName::method1',
+            'ClassName::method2'
         });
     }
 
     public function testGetCallStack() {
         $this->assertEquals(Vector {
-            shape('callback' => 'ClassName::method3', 'priority' => 10, 'once' => false, 'time' => 0),
-            shape('callback' => 'ClassName::method1', 'priority' => 100, 'once' => false, 'time' => 0),
-            shape('callback' => 'ClassName::method2', 'priority' => 110, 'once' => false, 'time' => 0)
+            'ClassName::method3',
+            'ClassName::method1',
+            'ClassName::method2'
         }, $this->object->getCallStack());
     }
 
@@ -36,7 +36,7 @@ class EventTest extends TestCase {
         $this->object->next();
         $this->assertEquals(1, $this->object->getIndex());
 
-        $this->object->next();
+        $this->object->next()->stop();
         $this->object->next();
         $this->object->next();
         $this->object->next();

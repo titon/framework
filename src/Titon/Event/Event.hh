@@ -33,14 +33,14 @@ class Event {
     protected string $_key;
 
     /**
-     * The current index in the call stack.
+     * The current count of how many observers have been notified.
      *
      * @type int
      */
     protected int $_index = 0;
 
     /**
-     * Has the event stopped? This will cancel upcoming listeners.
+     * Has the event stopped? This will cancel upcoming observers.
      *
      * @type bool
      */
@@ -98,7 +98,7 @@ class Event {
     }
 
     /**
-     * Return the current index in the call stack.
+     * Return the current notify count.
      *
      * @return int
      */
@@ -143,21 +143,13 @@ class Event {
     }
 
     /**
-     * Jump to the next call stack.
-     * If next reaches the end, stop the event.
+     * Increase the notify counter if the event has not stopped.
      *
      * @return $this
      */
     public function next(): this {
-        $index = $this->_index;
-        $nextIndex = $index + 1;
-
-        if ($this->_stack->containsKey($nextIndex)) {
-            $this->_stack[$index]['time'] = time();
-            $this->_index = $nextIndex;
-
-        } else {
-            $this->stop();
+        if (!$this->isStopped()) {
+            $this->_index++;
         }
 
         return $this;

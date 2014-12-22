@@ -39,8 +39,8 @@ class EmitterTest extends TestCase {
 
         $this->assertEquals(Vector {}, $this->object->getObservers('event.foobar'));
         $this->assertEquals(Vector {
-            shape('callback' => $ob1, 'priority' => 20, 'once' => false, 'async' => false),
-            shape('callback' => $ob2, 'priority' => 15, 'once' => false, 'async' => false),
+            new Observer($ob1, 20, false),
+            new Observer($ob2, 15, false),
         }, $this->object->getObservers('event.test'));
     }
 
@@ -51,15 +51,15 @@ class EmitterTest extends TestCase {
         $ob4 = [new ListenerStub(), 'noop3'];
 
         $this->object->register('event.test', $ob1, 20);
-        $this->object->register('event.test', $ob2, 15);
+        $this->object->register('event.test', $ob2, 25);
         $this->object->register('event.test', $ob3, 5);
         $this->object->register('event.test', $ob4, 75);
 
         $this->assertEquals(Vector {
-            shape('priority' => 5, 'callback' => '{closure}', 'once' => false, 'time' => 0),
-            shape('priority' => 15, 'callback' => 'Titon\Event\ListenerStub::noop2', 'once' => false, 'time' => 0),
-            shape('priority' => 20, 'callback' => '{closure}', 'once' => false, 'time' => 0),
-            shape('priority' => 75, 'callback' => 'Titon\Event\ListenerStub::noop3', 'once' => false, 'time' => 0)
+            '{closure}',
+            '{closure}',
+            'Titon\Event\ListenerStub::noop2',
+            'Titon\Event\ListenerStub::noop3'
         }, $this->object->getCallStack('event.test'));
     }
 
@@ -83,16 +83,16 @@ class EmitterTest extends TestCase {
 
         $this->assertEquals(Vector {}, $this->object->getObservers('event.foobar'));
         $this->assertEquals(Vector {
-            shape('callback' => $ob1, 'priority' => 20, 'once' => false, 'async' => false),
-            shape('callback' => $ob2, 'priority' => 15, 'once' => false, 'async' => false),
-            shape('callback' => $ob3, 'priority' => 20, 'once' => false, 'async' => false),
+            new Observer($ob1, 20, false),
+            new Observer($ob2, 15, false),
+            new Observer($ob3, 20, false),
         }, $this->object->getObservers('event.test'));
 
         // Sorted
         $this->assertEquals(Vector {
-            shape('callback' => $ob2, 'priority' => 15, 'once' => false, 'async' => false),
-            shape('callback' => $ob1, 'priority' => 20, 'once' => false, 'async' => false),
-            shape('callback' => $ob3, 'priority' => 20, 'once' => false, 'async' => false),
+            new Observer($ob2, 15, false),
+            new Observer($ob1, 20, false),
+            new Observer($ob3, 20, false),
         }, $this->object->getSortedObservers('event.test'));
     }
 
@@ -146,15 +146,15 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob2);
 
         $this->assertEquals(Vector {
-            shape('callback' => $ob1, 'priority' => 100, 'once' => false, 'async' => true),
-            shape('callback' => $ob2, 'priority' => 101, 'once' => false, 'async' => true)
+            new Observer($ob1, 100, false),
+            new Observer($ob2, 101, false)
         }, $this->object->getObservers('event.test'));
 
         // Remove using the instance
         $this->object->remove('event.test', $ob1);
 
         $this->assertEquals(Vector {
-            shape('callback' => $ob2, 'priority' => 101, 'once' => false, 'async' => true)
+            new Observer($ob2, 101, false)
         }, $this->object->getObservers('event.test'));
     }
 
@@ -164,8 +164,8 @@ class EmitterTest extends TestCase {
         $this->object->registerListener($listener);
 
         $this->assertEquals(Vector {
-            shape('callback' => 'Titon\Event\ListenerStub::noop2', 'priority' => 45, 'once' => false, 'time' => 0),
-            shape('callback' => 'Titon\Event\ListenerStub::noop1', 'priority' => 100, 'once' => false, 'time' => 0),
+            'Titon\Event\ListenerStub::noop2',
+            'Titon\Event\ListenerStub::noop1'
         }, $this->object->getCallStack('event.test1'));
 
         // Remove using the instance
@@ -192,6 +192,7 @@ class EmitterTest extends TestCase {
 
     public function testEmitNoObservers() {
         $event = $this->object->emit('fake.event');
+
         $this->assertInstanceOf('Titon\Event\Event', $event);
         $this->assertEquals(Vector {}, $event->getCallStack());
     }

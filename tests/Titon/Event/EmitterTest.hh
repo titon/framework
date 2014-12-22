@@ -316,7 +316,7 @@ class ListenerStub implements Listener {
     }
 
     async public function asyncNoop1(Event $e, &$list): Awaitable<mixed> {
-        await SleepWaitHandle::create(rand(500, 1000) * 1000);
+        await SleepWaitHandle::create(rand(100, 1000) * 1000);
 
         $list[] = 1;
 
@@ -331,6 +331,8 @@ class ListenerStub implements Listener {
     }
 
     async public function asyncNoop3(Event $e, &$list): Awaitable<mixed> {
+        await SleepWaitHandle::create(rand(1, 500) * 1000);
+
         $list[] = 3;
 
         return true;

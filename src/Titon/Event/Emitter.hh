@@ -48,7 +48,7 @@ class Emitter {
         array_unshift($params, $event);
 
         // Group the observers
-        $observers = $this->getSortedObservers($key);
+        $observers = $this->getSortedObservers($key)->toVector(); // Clone so we can remove later
         $syncObservers = Vector {};
         $asyncObservers = Vector {};
 
@@ -62,19 +62,16 @@ class Emitter {
 
         // Notify observers
         $this->_loopObservers($syncObservers, $event, $params);
-        $this->_loopAsyncObservers($asyncObservers, $event, $params)->getWaitHandle()->join();
 
-        // Remove all `once` observers
-        $trash = Vector {};
-
-        foreach ($observers as $observer) {
-            if ($observer->isOnce() && $observer->hasExecuted()) {
-                $trash[] = $observer->getCallback();
-            }
+        if (!$event->isStopped()) {
+            $this->_loopObserversAsync($asyncObservers, $event, $params)->getWaitHandle()->join();
         }
 
-        foreach ($trash as $callback) {
-            $this->remove($key, $callback);
+        // Remove all `once` observers
+        foreach ($observers as $observer) {
+            if ($observer->isOnce() && $observer->hasExecuted()) {
+                $this->remove($key, $observer->getCallback());
+            }
         }
 
         return $event;
@@ -283,23 +280,20 @@ class Emitter {
     }
 
     /**
-     * Loop over a list of async observers and execute them in parallel using an await handler.
+     * Handle the response of an executed observer callback.
+     * If the response is null, void (no return from callback), or true, don't do anything.
+     * Else stop propagation and set the response state so that it may be used outside of the emitter.
      *
-     * @param \Titon\Event\ObserverList $observers
      * @param \Titon\Event\Event $event
-     * @param array<mixed> $params
-     * @return Awaitable<Vector<bool>>
+     * @param mixed $response
      */
-    async protected function _loopAsyncObservers(ObserverList $observers, Event $event, array<mixed> $params): Awaitable<Vector<bool>> {
-        $handles = Vector {};
-
-        foreach ($observers as $observer) {
-            $handles[] = $this->_notifyAsyncObserver($observer, $event, $params);
+    protected function _handleResponse(Event $event, mixed $response): void {
+        if ($response !== null && $response !== true) {
+            $event->stop()->setState($response);
         }
 
-        await AwaitAllWaitHandle::fromVector($handles);
-
-        return $handles->map($handle ==> $handle->result());
+        // Increase notification count
+        $event->next();
     }
 
     /**
@@ -313,7 +307,31 @@ class Emitter {
     protected function _loopObservers(ObserverList $observers, Event $event, array<mixed> $params): bool {
         foreach ($observers as $observer) {
             $this->_notifyObserver($observer, $event, $params);
+
+            if ($event->isStopped()) {
+                break;
+            }
         }
+
+        return true;
+    }
+
+    /**
+     * Loop over a list of async observers and execute them in parallel using an await handler.
+     *
+     * @param \Titon\Event\ObserverList $observers
+     * @param \Titon\Event\Event $event
+     * @param array<mixed> $params
+     * @return Awaitable<bool>
+     */
+    async protected function _loopObserversAsync(ObserverList $observers, Event $event, array<mixed> $params): Awaitable<bool> {
+        $handles = Vector {};
+
+        foreach ($observers as $observer) {
+            $handles[] = $this->_notifyObserverAsync($observer, $event, $params);
+        }
+
+        await AwaitAllWaitHandle::fromVector($handles);
 
         return true;
     }
@@ -354,18 +372,6 @@ class Emitter {
     }
 
     /**
-     * Asynchronously notify the observer.
-     *
-     * @param \Titon\Event\Observer $observer
-     * @param \Titon\Event\Event $event
-     * @param array<mixed> $params
-     * @return bool
-     */
-    async protected function _notifyAsyncObserver(Observer $observer, Event $event, array<mixed> $params): Awaitable<bool> {
-        return $this->_notifyObserver($observer, $event, $params);
-    }
-
-    /**
      * Notify the observer by executing the callback with the defined params.
      * Can optionally stop the event and set a state based on the callbacks response.
      *
@@ -379,21 +385,29 @@ class Emitter {
             return false;
         }
 
-        // Execute the callback either async or non-async
-        if ($observer->isAsync()) {
-            $response = $observer->asyncExecute($params)->join();
-        } else {
-            $response = $observer->execute($params);
+        // Execute the callback
+        $this->_handleResponse($event, $observer->execute($params));
+
+        return true;
+    }
+
+    /**
+     * Asynchronously notify the observer.
+     *
+     * @param \Titon\Event\Observer $observer
+     * @param \Titon\Event\Event $event
+     * @param array<mixed> $params
+     * @return bool
+     */
+    async protected function _notifyObserverAsync(Observer $observer, Event $event, array<mixed> $params): Awaitable<bool> {
+        if ($event->isStopped()) {
+            return false;
         }
 
-        // If the response is null/void (no return from callback) or true, don't do anything.
-        // Else stop propagation and set the response state so that it may be used outside of the emitter.
-        if ($response !== null && $response !== true) {
-            $event->stop()->setState($response);
-        }
+        // Execute the callback and wait for the response
+        $response = await $observer->asyncExecute($params);
 
-        // Go to the next observer
-        $event->next();
+        $this->_handleResponse($event, $response);
 
         return true;
     }

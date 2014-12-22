@@ -80,7 +80,7 @@ class Observer {
      * @return Awaitable<mixed>
      */
     async public function asyncExecute(array<mixed> $params): Awaitable<mixed> {
-        return $this->execute($params)->join(); // Join since the callback has the async property
+        return await $this->execute($params);
     }
 
     /**

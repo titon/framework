@@ -104,6 +104,19 @@ class EmitterTest extends TestCase {
         $this->assertTrue($this->object->hasObservers('event.test'));
     }
 
+    public function testAsyncGetObservers() {
+        $stub = new ListenerStub();
+
+        $this->object->register('event.test', [$stub, 'noop1']);
+        $this->object->register('event.test', [$stub, 'asyncNoop1']);
+
+        $observers = $this->object->getObservers('event.test');
+
+        $this->assertEquals(2, count($observers));
+        $this->assertFalse($observers[0]->isAsync());
+        $this->assertTrue($observers[1]->isAsync());
+    }
+
     public function testExit() {
         $n = 0;
         $ob1 = function(Event $event, &$i) { $i++; };
@@ -260,6 +273,25 @@ class EmitterTest extends TestCase {
         $this->assertEquals(5, count($events));
     }
 
+    public function testEmitAsyncs() {
+        $stub = new ListenerStub();
+        $list = [];
+
+        $this->object->register('event.test', [$stub, 'asyncNoop1']);
+        $this->object->register('event.test', [$stub, 'asyncNoop2']);
+        $this->object->register('event.test', [$stub, 'asyncNoop3']);
+        $this->object->register('event.test', [$stub, 'asyncNoop1']);
+        $this->object->register('event.test', [$stub, 'asyncNoop2']);
+        $this->object->register('event.test', [$stub, 'asyncNoop3']);
+
+        $this->assertEquals(6, count($this->object->getObservers('event.test')));
+
+        $this->object->emit('event.test', [&$list]);
+
+        $this->assertEquals(6, count($list));
+        $this->assertNotEquals([1, 2, 3, 1, 2, 3], $list);
+    }
+
 }
 
 class ListenerStub implements Listener {
@@ -281,6 +313,27 @@ class ListenerStub implements Listener {
 
     public function noop3(Event $e, $object1, $object2): void {
         $object2->foo = 'bar';
+    }
+
+    async public function asyncNoop1(Event $e, &$list): Awaitable<mixed> {
+        await SleepWaitHandle::create(rand(500, 1000) * 1000);
+
+        $list[] = 1;
+
+        return true;
+    }
+    async public function asyncNoop2(Event $e, &$list): Awaitable<mixed> {
+        await SleepWaitHandle::create(rand(100, 500) * 1000);
+
+        $list[] = 2;
+
+        return true;
+    }
+
+    async public function asyncNoop3(Event $e, &$list): Awaitable<mixed> {
+        $list[] = 3;
+
+        return true;
     }
 
 }

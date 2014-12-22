@@ -7,8 +7,6 @@
 
 namespace Titon\Event;
 
-use \Closure;
-
 type CallStackList = Vector<string>;
 type EventMap = Map<string, Event>;
 type ObserverList = Vector<Observer>;
@@ -64,8 +62,7 @@ class Emitter {
 
         // Notify observers
         $this->_loopObservers($syncObservers, $event, $params);
-        $this->_loopAsyncObservers($asyncObservers, $event, $params)
-            ->getWaitHandle()->join();
+        $this->_loopAsyncObservers($asyncObservers, $event, $params)->getWaitHandle()->join();
 
         // Remove all `once` observers
         $trash = Vector {};
@@ -285,6 +282,14 @@ class Emitter {
         return $this;
     }
 
+    /**
+     * Loop over a list of async observers and execute them in parallel using an await handler.
+     *
+     * @param \Titon\Event\ObserverList $observers
+     * @param \Titon\Event\Event $event
+     * @param array<mixed> $params
+     * @return Awaitable<Vector<bool>>
+     */
     async protected function _loopAsyncObservers(ObserverList $observers, Event $event, array<mixed> $params): Awaitable<Vector<bool>> {
         $handles = Vector {};
 
@@ -297,10 +302,20 @@ class Emitter {
         return $handles->map($handle ==> $handle->result());
     }
 
-    protected function _loopObservers(ObserverList $observers, Event $event, array<mixed> $params): void {
+    /**
+     * Loop over a list of observers and notify them for the defined event, with the defined params.
+     *
+     * @param \Titon\Event\ObserverList $observers
+     * @param \Titon\Event\Event $event
+     * @param array<mixed> $params
+     * @return bool
+     */
+    protected function _loopObservers(ObserverList $observers, Event $event, array<mixed> $params): bool {
         foreach ($observers as $observer) {
             $this->_notifyObserver($observer, $event, $params);
         }
+
+        return true;
     }
 
     /**
@@ -338,17 +353,35 @@ class Emitter {
         return $parsed;
     }
 
+    /**
+     * Asynchronously notify the observer.
+     *
+     * @param \Titon\Event\Observer $observer
+     * @param \Titon\Event\Event $event
+     * @param array<mixed> $params
+     * @return bool
+     */
     async protected function _notifyAsyncObserver(Observer $observer, Event $event, array<mixed> $params): Awaitable<bool> {
         return $this->_notifyObserver($observer, $event, $params);
     }
 
+    /**
+     * Notify the observer by executing the callback with the defined params.
+     * Can optionally stop the event and set a state based on the callbacks response.
+     *
+     * @param \Titon\Event\Observer $observer
+     * @param \Titon\Event\Event $event
+     * @param array<mixed> $params
+     * @return bool
+     */
     protected function _notifyObserver(Observer $observer, Event $event, array<mixed> $params): bool {
         if ($event->isStopped()) {
             return false;
         }
 
+        // Execute the callback either async or non-async
         if ($observer->isAsync()) {
-            $response = $observer->asyncExecute($params);
+            $response = $observer->asyncExecute($params)->join();
         } else {
             $response = $observer->execute($params);
         }
@@ -368,7 +401,7 @@ class Emitter {
     /**
      * Resolve an event key into multiple events by checking for space delimiters and wildcard matches.
      *
-     * @param string|array $events
+     * @param mixed $events
      * @return Vector<string>
      */
     protected function _resolveEventKeys(mixed $events): Vector<string> {

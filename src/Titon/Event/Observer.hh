@@ -81,8 +81,10 @@ class Observer {
      * @param \Titon\Event\ParamList $params
      * @return Awaitable<mixed>
      */
-    async public function asyncExecute(ParamList $params): Awaitable<mixed> {
-        return await $this->execute($params);
+    public async function asyncExecute(ParamList $params): Awaitable<mixed> {
+        $this->_executed = true;
+
+        return await call_user_func_array($this->getCallback(), $params);
     }
 
     /**

@@ -319,7 +319,7 @@ class Emitter {
      * @param \Titon\Event\ParamList $params
      * @return bool
      */
-    async protected function _notifyObserverAsync(Observer $observer, Event $event, ParamList $params): Awaitable<bool> {
+    protected async function _notifyObserverAsync(Observer $observer, Event $event, ParamList $params): Awaitable<bool> {
         if ($event->isStopped()) {
             return false;
         }
@@ -357,7 +357,7 @@ class Emitter {
      * @param \Titon\Event\ParamList $params
      * @return Awaitable<bool>
      */
-    async protected function _notifyObserversAsync(ObserverList $observers, Event $event, ParamList $params): Awaitable<bool> {
+    protected async function _notifyObserversAsync(ObserverList $observers, Event $event, ParamList $params): Awaitable<bool> {
         if ($event->isStopped()) {
             return false; // Exit early if non-async stopped propagation
         }
@@ -399,11 +399,7 @@ class Emitter {
                 $settings['method'] = $option;
 
             } else if ($option instanceof Map) {
-                foreach (array_keys($settings) as $key) {
-                    if ($option->contains($key)) {
-                        $settings[$key] = $option[$key];
-                    }
-                }
+                $settings = array_merge($settings, $option->toArray());
             }
 
             $parsed[] = $settings;

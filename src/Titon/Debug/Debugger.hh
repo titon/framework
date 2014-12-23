@@ -100,7 +100,7 @@ class Debugger {
      * @return string
      */
     public static function backtrace(?Exception $exception = null): string {
-        if (error_reporting() <= 0) {
+        if (static::isOff()) {
             return '';
         }
 
@@ -155,7 +155,7 @@ class Debugger {
      * @return string
      */
     public static function debug(): string {
-        if (error_reporting() <= 0) {
+        if (static::isOff()) {
             return '';
         }
 
@@ -191,7 +191,7 @@ class Debugger {
      * @return string
      */
     public static function dump(): string {
-        if (error_reporting() <= 0) {
+        if (static::isOff()) {
             return '';
         }
 
@@ -239,7 +239,7 @@ class Debugger {
      * @return string
      */
     public static function export(mixed $var, bool $short = true): string {
-        if (error_reporting() <= 0) {
+        if (static::isOff()) {
             return '';
         }
 
@@ -323,7 +323,7 @@ class Debugger {
         }
 
         // Log error in production
-        if (error_reporting() <= 0) {
+        if (static::isOff()) {
             static::logException($exception);
 
         // Output error in development
@@ -356,7 +356,7 @@ class Debugger {
             return;
         }
 
-        if (error_reporting() > 0) {
+        if (static::isOn()) {
             $exception = new FatalErrorException($error['message'], E_ERROR, 1, $error['file'], $error['line']);
         } else {
             $exception = new InternalErrorException($error['message'], E_ERROR, 1, $error['file'], $error['line']);
@@ -375,6 +375,24 @@ class Debugger {
         if ($logger = static::getLogger()) {
             $logger->log(Logger::INFO, $message, $args);
         }
+    }
+
+    /**
+     * Return true if error reporting is enabled.
+     *
+     * @return bool
+     */
+    public static function isOn(): bool {
+        return (error_reporting() > 0);
+    }
+
+    /**
+     * Return true if error reporting is disabled.
+     *
+     * @return bool
+     */
+    public static function isOff(): bool {
+        return (error_reporting() <= 0);
     }
 
     /**
@@ -532,7 +550,7 @@ class Debugger {
      * @return string
      */
     public static function printException(Exception $exception): string {
-        if (error_reporting() <= 0) {
+        if (static::isOff()) {
             return '';
         }
 

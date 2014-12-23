@@ -214,26 +214,19 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * @uses Titon\Http\Http
      */
     public function renderError(Exception $exception): string {
-        $template = 'error';
-        $status = 500;
+        $template = (error_reporting() <= 0) ? 'http' : 'error';
+        $status = ($exception instanceof HttpException) ? $exception->getCode() : 500;
         $view = $this->getView();
 
-        if (error_reporting() <= 0) {
-            $template = 'http';
-        }
-
-        if ($exception instanceof HttpException) {
-            $status = $exception->getCode();
-        }
-
-        $this->emit('controller.error', [$this, $exception]);
-
+        // Set the response status code
         $this->getResponse()?->statusCode($status);
 
         // If no view, exit with a generic message
         if (!$view) {
             return 'Internal server error.';
         }
+
+        $this->emit('controller.error', [$this, $exception]);
 
         return $view
             ->setVariables(Map {

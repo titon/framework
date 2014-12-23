@@ -3,8 +3,8 @@
 from argparse import ArgumentParser
 import os
 
-parser = ArgumentParser(description='Run the Hack strict mode linter.')
-parser.add_argument('-p', '--path', dest='path', default='', help='Path to a folder to lint.')
+parser = ArgumentParser(description='Run the Hack strict mode type checker.')
+parser.add_argument('-p', '--path', dest='path', default='', help='Path to a folder to check.')
 
 args = parser.parse_args()
 
@@ -20,7 +20,7 @@ os.chdir(os.path.abspath(path))
 config = open('.hhconfig', 'w+')
 config.close()
 
-# Run the linter
+# Run the checker
 os.system('hh_client restart')
 os.system('hh_client')
 

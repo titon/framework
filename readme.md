@@ -46,9 +46,9 @@ The following packages are planned for future releases.
 * Mail
 * Queue
 
-### Linted Packages ###
+### Type Checked Packages ###
 
-The following packages have been linted against Hack's type checker.
+The following packages have been type checked against Hack's strict type checker.
 They will still fail the checker with unbound errors, or mixed type warnings,
 but there's nothing we can do until HHVM and Hack are patched.
 
@@ -67,7 +67,7 @@ but there's nothing we can do until HHVM and Hack are patched.
 ## Requirements ##
 
 Titon is built on the powerful [Hack language](http://hacklang.org/) and requires [HHVM 3.4.0+](http://hhvm.com/) 
-and [Composer](http://getcomposer.org) for its autoloader.
+as well as [Composer](http://getcomposer.org) for its autoloader.
 
 ## Usage ##
 
@@ -107,13 +107,13 @@ For the most part, Titon strives to be strict mode only. This can be very challe
 it couldn't be easier. Simply run the following command to check for strict issues.
 
 ```bash
-/vagrant/bin/lint-hack
+/vagrant/bin/type-check
 ```
 
 Or type check a specific folder.
 
 ```bash
-/vagrant/bin/lint-hack --path=Titon/Utility
+/vagrant/bin/type-check --path=Titon/Utility
 ```
 
 When filtering down by path, multiple errors will still arise like "Was expecting a class", "Unbound name",

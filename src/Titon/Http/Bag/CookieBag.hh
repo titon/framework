@@ -9,6 +9,7 @@ namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
 use Titon\Http\Cookie;
+use Titon\Utility\State\GlobalMap;
 
 /**
  * Bag for interacting with cookies.
@@ -20,12 +21,16 @@ class CookieBag extends AbstractBag<string, Cookie> {
     /**
      * Instantiate a new Cookie class for every cookie in the map.
      *
-     * @param Map<string, string> $data
+     * @param \Titon\Utility\State\GlobalMap $data
      */
-    public function __construct(Map<string, string> $data = Map {}) {
+    public function __construct(GlobalMap $data) {
+        $map = Map {};
+
         foreach ($data as $key => $value) {
-            $this->set($key, new Cookie($key, $value));
+            $map[$key] = new Cookie($key, (string) $value);
         }
+
+        parent::__construct($map);
     }
 
 }

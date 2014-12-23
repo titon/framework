@@ -245,6 +245,8 @@ class AssetHelper extends AbstractHelper {
         /** @var \Titon\View\Helper\HtmlHelper $html */
         $html = $this->getHelper('html');
 
+        invariant($html instanceof HtmlHelper, 'Must be an instance of HtmlHelper');
+
         if ($scripts->contains($location)) {
             $groupedScripts = $scripts[$location];
             ksort($groupedScripts);
@@ -271,6 +273,8 @@ class AssetHelper extends AbstractHelper {
 
         /** @var \Titon\View\Helper\HtmlHelper $html */
         $html = $this->getHelper('html');
+
+        invariant($html instanceof HtmlHelper, 'Must be an instance of HtmlHelper');
 
         if ($stylesheets) {
             ksort($stylesheets);

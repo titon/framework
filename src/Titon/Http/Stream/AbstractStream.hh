@@ -142,7 +142,7 @@ abstract class AbstractStream implements StreamableInterface {
      * @return string
      */
     public function getMode(): string {
-        return $this->_cache['mode'];
+        return (string) $this->_cache['mode'];
     }
 
     /**
@@ -188,14 +188,14 @@ abstract class AbstractStream implements StreamableInterface {
      * @return bool
      */
     public function isLocal(): bool {
-        return $this->_cache['local'];
+        return (bool) $this->_cache['local'];
     }
 
     /**
      * {@inheritdoc}
      */
     public function isReadable(): bool {
-        return $this->_cache['readable'];
+        return (bool) $this->_cache['readable'];
     }
 
     /**
@@ -211,14 +211,14 @@ abstract class AbstractStream implements StreamableInterface {
      * {@inheritdoc}
      */
     public function isSeekable(): bool {
-        return $this->_cache['seekable'];
+        return (bool) $this->_cache['seekable'];
     }
 
     /**
      * {@inheritdoc}
      */
     public function isWritable(): bool {
-        return $this->_cache['writable'];
+        return (bool) $this->_cache['writable'];
     }
 
     /**

@@ -246,11 +246,11 @@ abstract class AbstractView implements View, Listener, Subject {
      * {@inheritdoc}
      */
     public function locateTemplate(string $template, Template $type = Template::OPEN): string {
-        return $this->cache([__METHOD__, $template, $type], function() use ($template, $type) {
-            $template = $this->formatPath($template);
-            $paths = $this->getPaths();
+        return (string) $this->cache([__METHOD__, $template, $type], function(AbstractView $view) use ($template, $type) {
+            $template = $view->formatPath($template);
+            $paths = $view->getPaths();
 
-            $this->emit('view.locating', [&$template, $type, &$paths]);
+            $view->emit('view.locating', [&$template, $type, &$paths]);
 
             // Prepend parent path
             switch ($type) {
@@ -273,8 +273,8 @@ abstract class AbstractView implements View, Listener, Subject {
 
             // Generate a list of locale appended templates
             $templates = Vector {};
-            $locales = $this->getLocales();
-            $ext = $this->getExtension();
+            $locales = $view->getLocales();
+            $ext = $view->getExtension();
 
             if ($locales) {
                 foreach ($locales as $locale) {
@@ -304,7 +304,7 @@ abstract class AbstractView implements View, Listener, Subject {
                 throw new MissingTemplateException(sprintf('View template `%s` does not exist', $template));
             }
 
-            $this->emit('view.located', [&$absPath, $type]);
+            $view->emit('view.located', [&$absPath, $type]);
 
             return $absPath;
         });

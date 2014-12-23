@@ -24,7 +24,7 @@ class Message implements MessageInterface {
      *
      * @var \Titon\Http\Bag\HeaderBag
      */
-    public HeaderBag $headers;
+    public HeaderBag<string, array<string>> $headers;
 
     /**
      * The request or response body.

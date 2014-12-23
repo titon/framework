@@ -45,21 +45,21 @@ interface Controller {
      *
      * @return \Psr\Http\Message\IncomingRequestInterface
      */
-    public function getRequest(): IncomingRequestInterface;
+    public function getRequest(): ?IncomingRequestInterface;
 
     /**
      * Return the response object.
      *
      * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function getResponse(): OutgoingResponseInterface;
+    public function getResponse(): ?OutgoingResponseInterface;
 
     /**
      * Return the view object.
      *
      * @return \Titon\View\View
      */
-    public function getView(): View;
+    public function getView(): ?View;
 
     /**
      * Method to be called when an action is missing.

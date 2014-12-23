@@ -295,7 +295,7 @@ class Response extends Message implements OutgoingResponse {
         }
 
         if (!is_numeric($length)) {
-            $length = Number::bytesFrom($length);
+            $length = Number::bytesFrom((string) $length);
         }
 
         return $this->setHeader('Content-Length', $length);

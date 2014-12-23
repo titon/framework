@@ -161,7 +161,7 @@ class Format {
             'time' => time()
         })->setAll($options);
 
-        $messages = Col::merge(Map {
+        $messages = (Map {
             'seconds'   => Map {0 => '{count}s', 1 => '{count} second', 2 => '{count} seconds'},
             'minutes'   => Map {0 => '{count}m', 1 => '{count} minute', 2 => '{count} minutes'},
             'hours'     => Map {0 => '{count}h', 1 => '{count} hour', 2 => '{count} hours'},
@@ -169,7 +169,7 @@ class Format {
             'weeks'     => Map {0 => '{count}w', 1 => '{count} week', 2 => '{count} weeks'},
             'months'    => Map {0 => '{count}m', 1 => '{count} month', 2 => '{count} months'},
             'years'     => Map {0 => '{count}y', 1 => '{count} year', 2 => '{count} years'}
-        }, $messages);
+        })->setAll($messages);
 
         $diff = Time::difference($options['time'], Time::toUnix($time));
 
@@ -226,7 +226,7 @@ class Format {
             $depth--;
         }
 
-        return Str::insert((string) $options[($diff > 0) ? 'ago' : 'in'], Map {'time' => implode($options['separator'], $output)});
+        return Str::insert((string) $options[($diff > 0) ? 'ago' : 'in'], Map {'time' => implode((string) $options['separator'], $output)});
     }
 
     /**

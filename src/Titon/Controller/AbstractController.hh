@@ -192,7 +192,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
     /**
      * {@inheritdoc}
      */
-    public function postProcess(Event $event, Controller $controller, string $action, string &$response): void {
+    public function postProcess(Event $event, Controller $controller, string $action, string $response): void {
         return;
     }
 
@@ -228,7 +228,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
 
         $this->emit('controller.error', [$this, $exception]);
 
-        $this->getResponse()->statusCode($status);
+        $this->getResponse()?->statusCode($status);
 
         // If no view, exit with a generic message
         if (!$view) {
@@ -241,7 +241,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
                 'error' => $exception,
                 'code' => $status,
                 'message' => $exception->getMessage(),
-                'url' => $this->getRequest()->getUrl()
+                'url' => $this->getRequest()?->getUrl() ?: ''
             })
             ->render('errors/' . $template, true);
     }

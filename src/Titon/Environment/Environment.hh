@@ -80,7 +80,7 @@ class Environment implements Subject {
      *
      * @param string $path
      */
-    public function __construct($path = '') {
+    public function __construct(string $path = '') {
         if ($path) {
             $this->_securePath = Path::ds($path, true);
         }

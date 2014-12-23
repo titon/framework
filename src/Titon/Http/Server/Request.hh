@@ -136,7 +136,7 @@ class Request extends Message implements IncomingRequest {
                 continue;
             }
 
-            $headers[$key] = explode(',', $value);
+            $headers[$key] = explode(',', (string) $value);
         }
 
         $this->headers->add($headers);
@@ -291,7 +291,7 @@ class Request extends Message implements IncomingRequest {
         }
 
         foreach ($headers as $header) {
-            if ($ip = $this->server->get($header)) {
+            if ($ip = (string) $this->server->get($header)) {
                 if (strpos($ip, ',') !== false) {
                     $ip = trim(explode(',', $ip)[0]);
                 }
@@ -359,7 +359,7 @@ class Request extends Message implements IncomingRequest {
             }
         }
 
-        return preg_replace('/:\d+$/', '', trim(strtolower($host)));
+        return preg_replace('/:\d+$/', '', trim(strtolower((string) $host)));
     }
 
     /**
@@ -385,7 +385,7 @@ class Request extends Message implements IncomingRequest {
      * {@inheritdoc}
      */
     public function getProtocolVersion(): string {
-        return $this->server->get('SERVER_PROTOCOL', '1.1');
+        return (string) $this->server->get('SERVER_PROTOCOL', '1.1');
     }
 
     /**
@@ -405,7 +405,7 @@ class Request extends Message implements IncomingRequest {
             }
         }
 
-        if ($host = $this->server->get('HTTP_HOST')) {
+        if ($host = (string) $this->server->get('HTTP_HOST')) {
             if (strpos($host, ':') !== false) {
                 return (int) explode(':', $host)[1];
             }
@@ -435,7 +435,7 @@ class Request extends Message implements IncomingRequest {
             return '/';
         }
 
-        $host = $this->server->get('HTTP_HOST');
+        $host = (string) $this->server->get('HTTP_HOST');
 
         if (strpos($referrer, $host) !== false) {
             $referrer = str_replace($this->getScheme() . '://' . $host, '', $referrer);
@@ -457,7 +457,7 @@ class Request extends Message implements IncomingRequest {
      * @return string
      */
     public function getServerIP(): string {
-        return $this->server->get('SERVER_ADDR');
+        return (string) $this->server->get('SERVER_ADDR');
     }
 
     /**
@@ -479,15 +479,15 @@ class Request extends Message implements IncomingRequest {
 
             // Proper URL defined by the web server
             if ($path = $server->get('PATH_INFO')) {
-                $url = $path;
+                $url = (string) $path;
 
             // Strip off the query string if it exists
             } else if ($path = $server->get('REQUEST_URI')) {
-                $url = explode('?', $path)[0];
+                $url = explode('?', (string) $path)[0];
 
             // Remove the base folder and index file
             } else if ($path = $server->get('PHP_SELF')) {
-                $url = str_replace($script, '', $path);
+                $url = str_replace($script, '', (string) $path);
             }
 
             if ($base !== '/' && $base !== '\\') {

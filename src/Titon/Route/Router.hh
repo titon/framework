@@ -629,6 +629,9 @@ class Router implements Subject {
 
             /** @var \Titon\Route\Route $newRoute */
             $newRoute = Registry::factory($class, Vector {$newPath, static::buildAction($newAction)}, false);
+
+            invariant($newRoute instanceof Route, 'Must be a Route');
+
             $newRoute->setStatic($route->getStatic());
             $newRoute->setSecure($route->getSecure());
             $newRoute->setFilters($route->getFilters());

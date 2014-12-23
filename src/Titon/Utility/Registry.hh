@@ -8,11 +8,12 @@
 namespace Titon\Utility;
 
 use Titon\Common\Macroable;
+use Titon\Common\ArgumentList;
 use Titon\Utility\Exception\InvalidObjectException;
 use Titon\Utility\Exception\MissingObjectException;
 use \ReflectionClass;
 
-type RegistryCallback = (function(): mixed);
+type RegistryCallback<T> = (function(): T);
 type RegistryMap = Map<string, mixed>;
 
 /**
@@ -49,9 +50,9 @@ class Registry {
      * @param string $key
      * @param array $params
      * @param bool $store
-     * @return object
+     * @return T
      */
-    public static function factory(string $key, Vector<mixed> $params = Vector {}, bool $store = true): mixed {
+    public static function factory<T>(string $key, ArgumentList $params = Vector {}, bool $store = true): T {
         if (static::has($key)) {
             return static::get($key);
         }
@@ -78,16 +79,16 @@ class Registry {
      * Return the object assigned to the given key.
      *
      * @param string $key
-     * @return object
+     * @return T
      * @throws \Titon\Utility\Exception\MissingObjectException
      */
-    public static function get(string $key): mixed {
+    public static function get<T>(string $key): T {
         if (static::has($key)) {
             $object = static::$_registered[$key];
 
             if (is_callable($object)) {
-                invariant(is_callable($object), 'Object is callable');
-
+                // UNSAFE
+                // Because you can't invariant() a callable
                 $object = static::set(call_user_func($object), $key);
             }
 
@@ -122,7 +123,7 @@ class Registry {
      * @param string $key
      * @param \Titon\Utility\RegistryCallback $callback
      */
-    public static function register(string $key, RegistryCallback $callback): void {
+    public static function register<T>(string $key, RegistryCallback<T> $callback): void {
         static::set($callback, $key);
     }
 
@@ -138,12 +139,12 @@ class Registry {
     /**
      * Store an object into registry.
      *
-     * @param object $object
+     * @param T $object
      * @param string $key
-     * @return object
+     * @return T
      * @throws \Titon\Utility\Exception\InvalidObjectException
      */
-    public static function set(mixed $object, string $key = ''): mixed {
+    public static function set<T>(T $object, string $key = ''): T {
         if (!is_object($object)) {
             throw new InvalidObjectException('The object to register must be instantiated');
         }

@@ -10,6 +10,8 @@ namespace Titon\Event;
 use Titon\Common\DataMap;
 use Titon\Utility\Col;
 
+type CallStackList = Vector<string>;
+
 /**
  * An object representing the current event being dispatched.
  * The event can be stopped at any time during the cycle.

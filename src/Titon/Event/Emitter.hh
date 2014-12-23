@@ -7,7 +7,6 @@
 
 namespace Titon\Event;
 
-type CallStackList = Vector<string>;
 type EventMap = Map<string, Event>;
 type ObserverList = Vector<Observer>;
 type ObserverContainer = Map<string, ObserverList>;

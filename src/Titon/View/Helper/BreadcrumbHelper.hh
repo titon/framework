@@ -93,6 +93,8 @@ class BreadcrumbHelper extends AbstractHelper {
         /** @var \Titon\View\Helper\HtmlHelper $html */
         $html = $this->getHelper('html');
 
+        invariant($html instanceof HtmlHelper, 'Must be an instance of HtmlHelper');
+
         foreach ($this->getBreadcrumbs() as $crumb) {
             $trail[] = $html->anchor($crumb['title'], $crumb['url'], $crumb['attributes']->setAll($attributes));
         }
@@ -158,6 +160,8 @@ class BreadcrumbHelper extends AbstractHelper {
         /** @var \Titon\View\Helper\HtmlHelper $html */
         $html = $this->getHelper('html');
 
+        invariant($html instanceof HtmlHelper, 'Must be an instance of HtmlHelper');
+
         if ($count) {
             if ($depth && $count > $depth) {
                 $title = array_slice($crumbs, -$depth);
@@ -167,7 +171,7 @@ class BreadcrumbHelper extends AbstractHelper {
                 $title = $crumbs;
             }
 
-        } else if ($pageTitle = $html->title($options['separator'])) {
+        } else if ($pageTitle = $html->title((string) $options['separator'])) {
             $title[] = $pageTitle;
         }
 

@@ -12,6 +12,6 @@ namespace Titon\Utility\Exception;
  *
  * @package Titon\Utility\Exception
  */
-class InvalidCreditCardException extends \UnexpectedValueException {
+class InvalidCreditCardException extends \OutOfBoundsException {
 
 }

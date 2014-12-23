@@ -7,6 +7,7 @@
 
 namespace Titon\Http;
 
+use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Utility\Crypt;
 use Titon\Utility\Time;
 
@@ -249,7 +250,7 @@ class Cookie {
      */
     public function setName(string $name): this {
         if (preg_match('/[=,;\s\013\014]/', $name)) {
-            throw new \InvalidArgumentException(sprintf('The cookie name %s contains invalid characters', $name));
+            throw new InvalidArgumentException(sprintf('The cookie name %s contains invalid characters', $name));
         }
 
         $this->_name = $name;

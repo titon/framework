@@ -12,6 +12,6 @@ namespace Titon\View\Exception;
  *
  * @package Titon\View\Exception
  */
-class MissingHelperException extends \OutOfRangeException {
+class MissingHelperException extends \OutOfBoundsException {
 
 }

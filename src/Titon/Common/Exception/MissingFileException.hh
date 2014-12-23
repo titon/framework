@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Io\Exception;
+namespace Titon\Common\Exception;
 
 /**
  * Exception thrown when a file does not exist.

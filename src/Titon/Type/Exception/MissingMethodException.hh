@@ -12,6 +12,6 @@ namespace Titon\Type\Exception;
  *
  * @package Titon\Type\Exception
  */
-class MissingMethodException extends \OutOfRangeException {
+class MissingMethodException extends \BadMethodCallException {
 
 }

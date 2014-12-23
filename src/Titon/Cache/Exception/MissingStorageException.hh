@@ -12,6 +12,6 @@ namespace Titon\Cache\Exception;
  *
  * @package Titon\Cache\Exception
  */
-class MissingStorageException extends \OutOfRangeException {
+class MissingStorageException extends \OutOfBoundsException {
 
 }

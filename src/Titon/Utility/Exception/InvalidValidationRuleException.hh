@@ -12,6 +12,6 @@ namespace Titon\Utility\Exception;
  *
  * @package Titon\Utility\Exception
  */
-class InvalidValidationRuleException extends \UnexpectedValueException {
+class InvalidValidationRuleException extends \LogicException {
 
 }

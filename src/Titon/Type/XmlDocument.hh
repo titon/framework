@@ -7,7 +7,7 @@
 
 namespace Titon\Type;
 
-use Titon\Type\Exception\MissingFileException;
+use Titon\Common\Exception\MissingFileException;
 use Titon\Utility\Col;
 use \SimpleXMLElement;
 
@@ -100,7 +100,7 @@ class XmlDocument {
      *
      * @param string $path
      * @return \Titon\Type\XmlElement
-     * @throws \Titon\Type\Exception\MissingFileException
+     * @throws \Titon\Common\Exception\MissingFileException
      */
     public static function fromFile(string $path): XmlElement {
         if (file_exists($path)) {

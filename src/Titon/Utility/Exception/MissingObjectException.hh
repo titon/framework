@@ -12,6 +12,6 @@ namespace Titon\Utility\Exception;
  *
  * @package Titon\Common\Exception
  */
-class MissingObjectException extends \OutOfRangeException {
+class MissingObjectException extends \OutOfBoundsException {
 
 }

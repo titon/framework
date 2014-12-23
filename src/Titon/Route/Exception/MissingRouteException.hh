@@ -12,6 +12,6 @@ namespace Titon\Route\Exception;
  *
  * @package Titon\Route\Exception
  */
-class MissingRouteException extends \OutOfRangeException {
+class MissingRouteException extends \OutOfBoundsException {
 
 }

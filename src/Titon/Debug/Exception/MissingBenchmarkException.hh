@@ -12,6 +12,6 @@ namespace Titon\Debug\Exception;
  *
  * @package Titon\Debug\Exception
  */
-class MissingBenchmarkException extends \OutOfRangeException {
+class MissingBenchmarkException extends \OutOfBoundsException {
 
 }

@@ -9,6 +9,7 @@
 namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamableInterface;
+use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Common\FactoryAware;
 use Titon\Http\Cookie;
 use Titon\Http\Message;
@@ -154,7 +155,7 @@ class Response extends Message implements OutgoingResponse {
      * @param bool $proxy
      * @param Map<string, mixed> $options
      * @return $this
-     * @throws \InvalidArgumentException
+     * @throws \Titon\Common\Exception\InvalidArgumentException
      */
     public function cache(string $directive, mixed $expires = '+24 hours', bool $proxy = true, Map<string, mixed> $options = Map {}): this {
         $expires = Time::toUnix($expires);
@@ -184,7 +185,7 @@ class Response extends Message implements OutgoingResponse {
                 }
             }
         } else {
-            throw new \InvalidArgumentException(sprintf('Invalid cache directive %s', $directive));
+            throw new InvalidArgumentException(sprintf('Invalid cache directive %s', $directive));
         }
 
         return $this->expires($expires)->cacheControl($control->setAll($options));
@@ -241,11 +242,11 @@ class Response extends Message implements OutgoingResponse {
      * @param string $file
      * @param string $type
      * @return $this
-     * @throws \InvalidArgumentException
+     * @throws \Titon\Common\Exception\InvalidArgumentException
      */
     public function contentDisposition(string $file, string $type = 'attachment'): this {
         if ($type !== 'attachment' && $type !== 'inline') {
-            throw new \InvalidArgumentException('Disposition type must be either "attachment" or "inline"');
+            throw new InvalidArgumentException('Disposition type must be either "attachment" or "inline"');
         }
 
         return $this->setHeader('Content-Disposition', sprintf('%s; filename="%s"', $type, $file));

@@ -13,7 +13,7 @@ use Titon\Common\FactoryAware;
 use Titon\Event\Emittable;
 use Titon\Event\Event;
 use Titon\Event\Subject;
-use Titon\Route\Exception\InvalidRouteException;
+use Titon\Route\Exception\InvalidRouteActionException;
 use Titon\Route\Exception\MissingFilterException;
 use Titon\Route\Exception\MissingSegmentException;
 use Titon\Route\Exception\MissingRouteException;
@@ -526,7 +526,7 @@ class Router implements Subject {
      *
      * @param string $action
      * @return \Titon\Route\Action
-     * @throws \Titon\Route\Exception\InvalidRouteException
+     * @throws \Titon\Route\Exception\InvalidRouteActionException
      */
     public static function parseAction(string $action): Action {
         $matches = [];
@@ -538,7 +538,7 @@ class Router implements Subject {
             );
         }
 
-        throw new InvalidRouteException(sprintf('Invalid @ action routing format for %s', $action));
+        throw new InvalidRouteActionException(sprintf('Invalid @ action routing format for %s', $action));
     }
 
     /**

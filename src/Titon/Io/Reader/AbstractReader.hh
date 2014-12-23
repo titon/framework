@@ -8,9 +8,9 @@
 namespace Titon\Io\Reader;
 
 use Titon\Common\Cacheable;
+use Titon\Common\Exception\MissingFileException;
 use Titon\Io\File;
 use Titon\Io\Reader;
-use Titon\Io\Exception\MissingFileException;
 
 /**
  * Abstract class for readers that also provides file access.
@@ -24,7 +24,7 @@ abstract class AbstractReader extends File implements Reader {
      * Set the path during construction.
      *
      * @param string $path
-     * @throws \Titon\Io\Exception\MissingFileException
+     * @throws \Titon\Common\Exception\MissingFileException
      */
     public function __construct(string $path = '') {
         if ($path) {

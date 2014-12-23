@@ -8,10 +8,10 @@
 namespace Titon\Route\Exception;
 
 /**
- * Exception thrown when an invalid type of filter is being used.
+ * Exception thrown when a route cannot be parsed or built.
  *
  * @package Titon\Route\Exception
  */
-class InvalidFilterException extends \InvalidArgumentException {
+class InvalidRouteActionException extends \OutOfBoundsException {
 
 }

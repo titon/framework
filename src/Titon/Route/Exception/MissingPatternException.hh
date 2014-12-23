@@ -12,6 +12,6 @@ namespace Titon\Route\Exception;
  *
  * @package Titon\Route\Exception
  */
-class MissingPatternException extends \RuntimeException {
+class MissingPatternException extends \DomainException {
 
 }

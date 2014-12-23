@@ -8,7 +8,7 @@
 namespace Titon\Utility;
 
 use Titon\Common\DataMap;
-use Titon\Utility\Exception\InvalidArgumentException;
+use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Utility\Exception\InvalidValidationRuleException;
 use \Indexish;
 use \ReflectionClass;
@@ -129,7 +129,7 @@ class Validator {
      * @param string $message
      * @param \Titon\Utility\RuleOptionList $options
      * @return $this
-     * @throws \Titon\Utility\Exception\InvalidArgumentException
+     * @throws \Titon\Common\Exception\InvalidArgumentException
      */
     public function addRule(string $field, string $rule, string $message, RuleOptionList $options = Vector{}): this {
         if (!$this->_fields->contains($field)) {

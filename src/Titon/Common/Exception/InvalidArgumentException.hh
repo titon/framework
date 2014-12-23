@@ -5,13 +5,13 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Utility\Exception;
+namespace Titon\Common\Exception;
 
 /**
- * Exception thrown for an invalid argument type.
+ * Exception thrown for an invalid argument.
  *
  * @package Titon\Utility\Exception
  */
-class InvalidTypeException extends \InvalidArgumentException {
+class InvalidArgumentException extends \InvalidArgumentException {
 
 }

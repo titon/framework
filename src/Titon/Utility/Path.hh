@@ -8,7 +8,7 @@
 namespace Titon\Utility;
 
 use Titon\Common\Macroable;
-use Titon\Utility\Exception\InvalidArgumentException;
+use Titon\Common\Exception\InvalidArgumentException;
 
 /**
  * Provides convenience functions for inflecting notation paths, namespace paths and file system paths.
@@ -238,7 +238,7 @@ class Path {
      * @param string $from
      * @param string $to
      * @return string
-     * @throws \Titon\Utility\Exception\InvalidArgumentException
+     * @throws \Titon\Common\Exception\InvalidArgumentException
      */
     public static function relativeTo(string $from, string $to): string {
         if (static::isRelative($from) || static::isRelative($to)) {

@@ -29,6 +29,7 @@ namespace Titon\Common {
  */
 
 namespace {
+    use Titon\Common\Exception\MissingFileException;
 
     /**
      * Include a file at a given path and return the response of the include.
@@ -39,7 +40,7 @@ namespace {
      */
     function include_file<Tk, Tv>(string $path): array<Tk, Tv> {
         if (!file_exists($path)) {
-            throw new RuntimeException(sprintf('File %s does not exist', $path));
+            throw new MissingFileException(sprintf('File %s does not exist', $path));
         }
 
         return include $path;
@@ -55,7 +56,7 @@ namespace {
      */
     function render_template<Tv>(string $path, array<string, Tv> $variables = []): string {
         if (!file_exists($path)) {
-            throw new RuntimeException(sprintf('Template %s does not exist', $path));
+            throw new MissingFileException(sprintf('Template %s does not exist', $path));
         }
 
         extract($variables, EXTR_OVERWRITE);

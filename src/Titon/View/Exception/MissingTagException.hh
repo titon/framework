@@ -12,6 +12,6 @@ namespace Titon\View\Exception;
  *
  * @package Titon\View\Exception
  */
-class MissingTagException extends \OutOfRangeException {
+class MissingTagException extends \OutOfBoundsException {
 
 }

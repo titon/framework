@@ -12,6 +12,6 @@ namespace Titon\Http\Exception;
  *
  * @package Titon\Http\Exception
  */
-class InvalidExtensionException extends \OutOfRangeException {
+class InvalidExtensionException extends \OutOfBoundsException {
 
 }

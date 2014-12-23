@@ -7,9 +7,8 @@
 
 namespace Titon\Io;
 
+use Titon\Common\Exception\MissingFileException;
 use Titon\Io\Exception\ExistingFileException;
-use Titon\Io\Exception\InvalidPathException;
-use Titon\Io\Exception\MissingFileException;
 use Titon\Utility\Path;
 
 /**
@@ -246,7 +245,7 @@ abstract class Node {
      *
      * @param string $path
      * @return \Titon\Io\Node
-     * @throws \Titon\Io\Exception\MissingFileException
+     * @throws \Titon\Common\Exception\MissingFileException
      */
     public static function load(string $path): Node {
         if (!file_exists($path)) {

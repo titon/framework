@@ -5,6 +5,10 @@ use Titon\Debug\Exception\FatalErrorException;
 use Titon\Test\TestCase;
 use \ErrorException;
 
+/**
+ * @property callable $errorHandler
+ * @property callable $exceptionHandler
+ */
 class DebuggerTest extends TestCase {
 
     protected function setUp() {
@@ -15,6 +19,17 @@ class DebuggerTest extends TestCase {
 
         Debugger::enable();
         Debugger::setLogger(new Logger($this->vfs->path('/logs/')));
+
+        $this->errorHandler = set_error_handler(class_meth('Titon\Debug\Debugger', 'handleError'));
+        $this->exceptionHandler = set_exception_handler(class_meth('Titon\Debug\Debugger', 'handleException'));
+    }
+
+    protected function tearDown() {
+        parent::tearDown();
+
+        // Reset back to old handlers
+        set_error_handler($this->errorHandler);
+        set_exception_handler($this->exceptionHandler);
     }
 
     public function testBacktrace() {

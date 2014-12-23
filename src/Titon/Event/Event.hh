@@ -33,14 +33,14 @@ class Event {
     protected string $_key;
 
     /**
-     * The current index in the call stack.
+     * The current count of how many observers have been notified.
      *
      * @type int
      */
     protected int $_index = 0;
 
     /**
-     * Has the event stopped? This will cancel upcoming listeners.
+     * Has the event stopped? This will cancel upcoming observers.
      *
      * @type bool
      */
@@ -51,7 +51,7 @@ class Event {
      *
      * @type \Titon\Event\CallStackList
      */
-    protected CallStackList $_stack;
+    protected CallStackList $_stack = Vector {};
 
     /**
      * The last state before the object was stopped.
@@ -69,14 +69,12 @@ class Event {
     protected int $_time;
 
     /**
-     * Initialize the event and pass information from the Emitter.
+     * Initialize the event.
      *
      * @param string $key
-     * @param \Titon\Event\CallStackList $stack
      */
-    public function __construct(string $key, CallStackList $stack = Vector {}) {
+    public function __construct(string $key) {
         $this->_key = $key;
-        $this->_stack = $stack;
         $this->_time = time();
     }
 
@@ -100,7 +98,7 @@ class Event {
     }
 
     /**
-     * Return the current index in the call stack.
+     * Return the current notify count.
      *
      * @return int
      */
@@ -145,22 +143,26 @@ class Event {
     }
 
     /**
-     * Jump to the next call stack.
-     * If next reaches the end, stop the event.
+     * Increase the notify counter if the event has not stopped.
      *
      * @return $this
      */
     public function next(): this {
-        $index = $this->_index;
-        $nextIndex = $index + 1;
-
-        if ($this->_stack->containsKey($nextIndex)) {
-            $this->_stack[$index]['time'] = time();
-            $this->_index = $nextIndex;
-
-        } else {
-            $this->stop();
+        if (!$this->isStopped()) {
+            $this->_index++;
         }
+
+        return $this;
+    }
+
+    /**
+     * Set the call stack for the current event.
+     *
+     * @param \Titon\Event\CallStackList $stack
+     * @return $this
+     */
+    public function setCallStack(CallStackList $stack): this {
+        $this->_stack = $stack;
 
         return $this;
     }

@@ -5,8 +5,7 @@
  * @link        http://titon.io
  */
 
-// Enable full error reporting
-error_reporting(E_ALL | E_STRICT);
+use Titon\Debug\Debugger;
 
 // Set timezone for tests
 date_default_timezone_set('UTC');
@@ -37,7 +36,7 @@ $loader = require VENDOR_DIR . '/autoload.php';
 $loader->add('', TEST_DIR);
 
 // Enable the Debugger for testing
-\Titon\Debug\Debugger::initialize();
+Debugger::enable();
 
 // Temporary fix until the PHPUnit patch is merged in
 // Issue: https://github.com/sebastianbergmann/phpunit/issues/1389

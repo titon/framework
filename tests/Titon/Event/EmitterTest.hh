@@ -39,8 +39,8 @@ class EmitterTest extends TestCase {
 
         $this->assertEquals(Vector {}, $this->object->getObservers('event.foobar'));
         $this->assertEquals(Vector {
-            shape('callback' => $ob1, 'priority' => 20, 'once' => false),
-            shape('callback' => $ob2, 'priority' => 15, 'once' => false),
+            new Observer($ob1, 20, false),
+            new Observer($ob2, 15, false),
         }, $this->object->getObservers('event.test'));
     }
 
@@ -51,15 +51,15 @@ class EmitterTest extends TestCase {
         $ob4 = [new ListenerStub(), 'noop3'];
 
         $this->object->register('event.test', $ob1, 20);
-        $this->object->register('event.test', $ob2, 15);
+        $this->object->register('event.test', $ob2, 25);
         $this->object->register('event.test', $ob3, 5);
         $this->object->register('event.test', $ob4, 75);
 
         $this->assertEquals(Vector {
-            shape('priority' => 5, 'callback' => '{closure}', 'once' => false, 'time' => 0),
-            shape('priority' => 15, 'callback' => 'Titon\Event\ListenerStub::noop2', 'once' => false, 'time' => 0),
-            shape('priority' => 20, 'callback' => '{closure}', 'once' => false, 'time' => 0),
-            shape('priority' => 75, 'callback' => 'Titon\Event\ListenerStub::noop3', 'once' => false, 'time' => 0)
+            '{closure}',
+            '{closure}',
+            'Titon\Event\ListenerStub::noop2',
+            'Titon\Event\ListenerStub::noop3'
         }, $this->object->getCallStack('event.test'));
     }
 
@@ -83,23 +83,38 @@ class EmitterTest extends TestCase {
 
         $this->assertEquals(Vector {}, $this->object->getObservers('event.foobar'));
         $this->assertEquals(Vector {
-            shape('callback' => $ob1, 'priority' => 20, 'once' => false),
-            shape('callback' => $ob2, 'priority' => 15, 'once' => false),
-            shape('callback' => $ob3, 'priority' => 20, 'once' => false),
+            new Observer($ob1, 20, false),
+            new Observer($ob2, 15, false),
+            new Observer($ob3, 20, false),
         }, $this->object->getObservers('event.test'));
 
         // Sorted
         $this->assertEquals(Vector {
-            shape('callback' => $ob2, 'priority' => 15, 'once' => false),
-            shape('callback' => $ob1, 'priority' => 20, 'once' => false),
-            shape('callback' => $ob3, 'priority' => 20, 'once' => false),
+            new Observer($ob2, 15, false),
+            new Observer($ob1, 20, false),
+            new Observer($ob3, 20, false),
         }, $this->object->getSortedObservers('event.test'));
     }
 
     public function testHasObservers() {
         $this->assertFalse($this->object->hasObservers('event.test'));
+
         $this->object->register('event.test', function(Event $event) { });
+
         $this->assertTrue($this->object->hasObservers('event.test'));
+    }
+
+    public function testAsyncGetObservers() {
+        $stub = new ListenerStub();
+
+        $this->object->register('event.test', [$stub, 'noop1']);
+        $this->object->register('event.test', [$stub, 'asyncNoop1']);
+
+        $observers = $this->object->getObservers('event.test');
+
+        $this->assertEquals(2, count($observers));
+        $this->assertFalse($observers[0]->isAsync());
+        $this->assertTrue($observers[1]->isAsync());
     }
 
     public function testExit() {
@@ -130,7 +145,7 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob3);
         $this->object->register('event.test', $ob4);
 
-        $event = $this->object->emit('event.test');
+        $event = $this->object->emit('event.test', []);
 
         $this->assertEquals(4, $event->getData('key'));
         $this->assertEquals(Map {'key' => 4}, $event->getData());
@@ -144,15 +159,15 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob2);
 
         $this->assertEquals(Vector {
-            shape('callback' => $ob1, 'priority' => 100, 'once' => false),
-            shape('callback' => $ob2, 'priority' => 101, 'once' => false)
+            new Observer($ob1, 100, false),
+            new Observer($ob2, 101, false)
         }, $this->object->getObservers('event.test'));
 
         // Remove using the instance
         $this->object->remove('event.test', $ob1);
 
         $this->assertEquals(Vector {
-            shape('callback' => $ob2, 'priority' => 101, 'once' => false)
+            new Observer($ob2, 101, false)
         }, $this->object->getObservers('event.test'));
     }
 
@@ -162,8 +177,8 @@ class EmitterTest extends TestCase {
         $this->object->registerListener($listener);
 
         $this->assertEquals(Vector {
-            shape('callback' => 'Titon\Event\ListenerStub::noop2', 'priority' => 45, 'once' => false, 'time' => 0),
-            shape('callback' => 'Titon\Event\ListenerStub::noop1', 'priority' => 100, 'once' => false, 'time' => 0),
+            'Titon\Event\ListenerStub::noop2',
+            'Titon\Event\ListenerStub::noop1'
         }, $this->object->getCallStack('event.test1'));
 
         // Remove using the instance
@@ -183,13 +198,15 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob2);
         $this->object->register('event.test', [$ob3, 'noop3']);
 
-        $event = $this->object->emit('event.test');
+        $event = $this->object->emit('event.test', []);
+
         $this->assertTrue($event->isStopped());
         $this->assertEquals(1, $event->getIndex());
     }
 
     public function testEmitNoObservers() {
-        $event = $this->object->emit('fake.event');
+        $event = $this->object->emit('fake.event', []);
+
         $this->assertInstanceOf('Titon\Event\Event', $event);
         $this->assertEquals(Vector {}, $event->getCallStack());
     }
@@ -225,7 +242,7 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob3);
         $this->object->register('event.test', $ob4);
 
-        $event = $this->object->emit('event.test');
+        $event = $this->object->emit('event.test', []);
 
         $this->assertEquals(3, $count);
         $this->assertEquals(['foo' => 'bar'], $event->getState());
@@ -240,7 +257,8 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob2);
         $this->object->registerListener($ob3);
 
-        $events = $this->object->emitMany('event.test event.test1');
+        $events = $this->object->emitMany('event.test event.test1', []);
+
         $this->assertEquals(2, count($events));
     }
 
@@ -253,8 +271,27 @@ class EmitterTest extends TestCase {
         $this->object->register('event.cb2', $ob2);
         $this->object->registerListener($ob3);
 
-        $events = $this->object->emitMany('event.*');
+        $events = $this->object->emitMany('event.*', []);
         $this->assertEquals(5, count($events));
+    }
+
+    public function testEmitAsyncs() {
+        $stub = new ListenerStub();
+        $list = [];
+
+        $this->object->register('event.test', [$stub, 'asyncNoop1']);
+        $this->object->register('event.test', [$stub, 'asyncNoop2']);
+        $this->object->register('event.test', [$stub, 'asyncNoop3']);
+        $this->object->register('event.test', [$stub, 'asyncNoop1']);
+        $this->object->register('event.test', [$stub, 'asyncNoop2']);
+        $this->object->register('event.test', [$stub, 'asyncNoop3']);
+
+        $this->assertEquals(6, count($this->object->getObservers('event.test')));
+
+        $this->object->emit('event.test', [&$list]);
+
+        $this->assertEquals(6, count($list));
+        $this->assertNotEquals([1, 2, 3, 1, 2, 3], $list);
     }
 
 }
@@ -278,6 +315,29 @@ class ListenerStub implements Listener {
 
     public function noop3(Event $e, $object1, $object2): void {
         $object2->foo = 'bar';
+    }
+
+    async public function asyncNoop1(Event $e, &$list): Awaitable<mixed> {
+        await SleepWaitHandle::create(rand(100, 1000) * 1000);
+
+        $list[] = 1;
+
+        return true;
+    }
+    async public function asyncNoop2(Event $e, &$list): Awaitable<mixed> {
+        await SleepWaitHandle::create(rand(100, 500) * 1000);
+
+        $list[] = 2;
+
+        return true;
+    }
+
+    async public function asyncNoop3(Event $e, &$list): Awaitable<mixed> {
+        await SleepWaitHandle::create(rand(1, 500) * 1000);
+
+        $list[] = 3;
+
+        return true;
     }
 
 }

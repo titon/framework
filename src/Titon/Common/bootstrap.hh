@@ -34,10 +34,10 @@ namespace {
      * Include a file at a given path and return the response of the include.
      *
      * @param string $path
-     * @return string
+     * @return array<Tk, Tv>
      * @throws \RuntimeException
      */
-    function include_file(string $path): string {
+    function include_file<Tk, Tv>(string $path): array<Tk, Tv> {
         if (!file_exists($path)) {
             throw new RuntimeException(sprintf('File %s does not exist', $path));
         }
@@ -49,11 +49,11 @@ namespace {
      * Very low level function for loading a template with optional variables and rendering the result.
      *
      * @param string $path
-     * @param array <string, mixed> $variables
+     * @param array <string, Tv> $variables
      * @return string
      * @throws \RuntimeException
      */
-    function render_template(string $path, array<string, mixed > $variables = []): string {
+    function render_template<Tv>(string $path, array<string, Tv> $variables = []): string {
         if (!file_exists($path)) {
             throw new RuntimeException(sprintf('Template %s does not exist', $path));
         }

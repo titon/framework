@@ -8,6 +8,7 @@
 namespace Titon\Event;
 
 type ListenerMap = Map<string, mixed>;
+type ListenerOption = shape('method' => string, 'priority' => int, 'once' => bool);
 
 /**
  * The Listener interface defines groups of observers to register for events.

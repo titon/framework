@@ -93,9 +93,13 @@ class ControllerTest extends TestCase {
         $this->assertEquals(Vector {}, $this->object->getActionArguments('noAction'));
     }
 
-    public function testRenderError() {
+    public function testRenderErrorWithNoReporting() {
+        $old = error_reporting(0);
+
         $this->assertEquals('404: Not Found', $this->object->renderError(new NotFoundException('Not Found')));
         $this->assertEquals(404, $this->object->getResponse()->getStatusCode());
+
+        error_reporting($old);
     }
 
     public function testRenderErrorWithReporting() {

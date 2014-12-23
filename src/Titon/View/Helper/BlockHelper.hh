@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -23,14 +23,14 @@ class BlockHelper extends AbstractHelper {
     /**
      * List of unclosed blocks.
      *
-     * @type \Titon\View\Helper\ActiveBlockList
+     * @var \Titon\View\Helper\ActiveBlockList
      */
     protected ActiveBlockList $_active = Vector {};
 
     /**
      * List of captured output.
      *
-     * @type \Titon\View\Helper\BlockMap
+     * @var \Titon\View\Helper\BlockMap
      */
     protected BlockMap $_blocks = Map {};
 

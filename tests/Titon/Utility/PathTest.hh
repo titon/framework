@@ -98,7 +98,7 @@ class PathTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Utility\Exception\InvalidArgumentException
+     * @expectedException \Titon\Common\Exception\InvalidArgumentException
      */
     public function testRelativeToErrorsOnAbsolute() {
         Path::relativeTo('/abs', '../rel');

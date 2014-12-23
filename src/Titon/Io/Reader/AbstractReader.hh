@@ -1,15 +1,15 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
 
 namespace Titon\Io\Reader;
 
+use Titon\Common\Exception\MissingFileException;
 use Titon\Io\File;
 use Titon\Io\Reader;
-use Titon\Io\Exception\MissingFileException;
 
 /**
  * Abstract class for readers that also provides file access.
@@ -23,7 +23,7 @@ abstract class AbstractReader extends File implements Reader {
      * The path is optional as we don't want to create the file under some situations.
      *
      * @param string $path
-     * @throws \Titon\Io\Exception\MissingFileException
+     * @throws \Titon\Common\Exception\MissingFileException
      */
     public function __construct(string $path = '') {
         if ($path) {

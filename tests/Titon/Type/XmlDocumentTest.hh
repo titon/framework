@@ -111,7 +111,7 @@ class XmlDocumentTest extends TestCase {
 
 XML;
 
-        $this->assertEquals($xml, XmlDocument::fromMap('unit', $map)->toString());
+        $this->assertEquals($this->nl($xml), XmlDocument::fromMap('unit', $map)->toString());
     }
 
     public function testFromMapWithAttributes() {
@@ -204,7 +204,7 @@ XML;
 
 XML;
 
-        $this->assertEquals($xml, XmlDocument::fromMap('unit', $map)->toString());
+        $this->assertEquals($this->nl($xml), XmlDocument::fromMap('unit', $map)->toString());
     }
 
     public function testFromMapWithCdata() {
@@ -228,7 +228,7 @@ foobar
 
 XML;
 
-        $this->assertEquals($xml, XmlDocument::fromMap('root', $map)->toString());
+        $this->assertEquals($this->nl($xml), XmlDocument::fromMap('root', $map)->toString());
     }
 
     public function testFromFile() {
@@ -297,11 +297,11 @@ XML;
         $path = TEMP_DIR . '/type/barbarian.xml';
         $xml = XmlDocument::fromFile($path);
 
-        $this->assertEquals(file_get_contents($path), $xml->toString());
+        $this->assertEquals($this->nl(file_get_contents($path)), $xml->toString());
     }
 
     /**
-     * @expectedException \Titon\Type\Exception\MissingFileException
+     * @expectedException \Titon\Common\Exception\MissingFileException
      */
     public function testFromFileMissingFile() {
         XmlDocument::fromFile(TEMP_DIR . '/type/barbarian-missing.xml');
@@ -323,7 +323,7 @@ XML;
 
 XML;
 
-        $this->assertEquals($xml, XmlDocument::fromVector('armors', 'armor', $list)->toString());
+        $this->assertEquals($this->nl($xml), XmlDocument::fromVector('armors', 'armor', $list)->toString());
     }
 
     public function testFromVectorWithAttributes() {
@@ -349,7 +349,7 @@ XML;
 
 XML;
 
-        $this->assertEquals($xml, XmlDocument::fromVector('armors', 'armor', $list)->toString());
+        $this->assertEquals($this->nl($xml), XmlDocument::fromVector('armors', 'armor', $list)->toString());
     }
 
 }

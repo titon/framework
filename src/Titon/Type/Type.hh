@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -35,6 +35,9 @@ class Type {
 
         } else if ($data instanceof Pair) {
             return 'pair';
+
+        } else if (is_callable($data)) {
+            return 'callable';
 
         } else if (is_object($data)) {
             return 'object';

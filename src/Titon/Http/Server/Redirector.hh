@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -23,7 +23,7 @@ class Redirector {
     /**
      * Whether to exit() or return when redirecting.
      *
-     * @type bool
+     * @var bool
      */
     public static bool $exit = true;
 
@@ -78,12 +78,10 @@ class Redirector {
 
         // We should exit early in case we're in a closure
         // Or hooking into some process within the script
-        // @codeCoverageIgnoreStart
         if (static::$exit) {
             $response->send();
             exit();
         }
-        // @codeCoverageIgnoreEnd
 
         return $response;
     }

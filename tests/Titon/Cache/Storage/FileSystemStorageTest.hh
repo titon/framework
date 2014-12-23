@@ -1,17 +1,12 @@
 <?php
 namespace Titon\Cache\Storage;
 
-use VirtualFileSystem\FileSystem;
-
-/**
- * @property \VirtualFileSystem\FileSystem $vfs
- */
 class FileSystemStorageTest extends AbstractStorageTest {
 
     protected function setUp() {
         $this->markTestSkipped('Requires the io package');
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createDirectory('/cache/');
 
         $this->object = new FileSystemStorage($this->vfs->path('/cache/'));

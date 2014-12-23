@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -25,7 +25,7 @@ class UrlBuilder {
     /**
      * Router instance.
      *
-     * @type \Titon\Route\Router
+     * @var \Titon\Route\Router
      */
     protected Router $_router;
 
@@ -49,7 +49,7 @@ class UrlBuilder {
      * @throws \Titon\Route\Exception\MissingTokenException
      */
     public function build(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        $url = $this->cache([__METHOD__, $key, $params], function(UrlBuilder $builder) use ($key, $params) {
+        $url = (string) $this->cache([__METHOD__, $key, $params], function(UrlBuilder $builder) use ($key, $params) {
             $router = $builder->getRouter();
             $route = $router->getRoute($key);
             $base = $router->base();
@@ -116,7 +116,7 @@ class UrlBuilder {
      * @return string
      */
     public function url(): string {
-        return $this->cache(__METHOD__, function(UrlBuilder $builder) {
+        return (string) $this->cache(__METHOD__, function(UrlBuilder $builder) {
             $router = $builder->getRouter();
             $segments = $router->getSegments();
             $base = $router->base();

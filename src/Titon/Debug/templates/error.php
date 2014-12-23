@@ -1,6 +1,6 @@
 <div class="titon-debug titon-error">
     <?php
-    $backtrace = static::backtrace($exception);
+    $backtrace = backtrace($exception);
     $class = get_class($exception); ?>
 
     <div class="debug-head">

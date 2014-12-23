@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -31,21 +31,21 @@ abstract class AbstractHelper implements Helper {
     /**
      * Automatic escaping.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_escape = true;
 
     /**
      * Mapping of HTML tags.
      *
-     * @type \Titon\View\Helper\TagMap
+     * @var \Titon\View\Helper\TagMap
      */
     protected TagMap $_tags = Map {};
 
     /**
      * View object.
      *
-     * @type \Titon\View\View
+     * @var \Titon\View\View
      */
     protected ?View $_view;
 
@@ -122,7 +122,11 @@ abstract class AbstractHelper implements Helper {
             return $view->getHelper($name);
         }
 
-        return Registry::factory(sprintf('Titon\View\Helper\%sHelper', ucfirst(str_replace('Helper', '', $name))));
+        $helper = Registry::factory(sprintf('Titon\View\Helper\%sHelper', ucfirst(str_replace('Helper', '', $name))));
+
+        invariant($helper instanceof Helper, 'Must be a Helper');
+
+        return $helper;
     }
 
     /**

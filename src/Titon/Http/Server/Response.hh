@@ -1,7 +1,7 @@
 <?hh // partial
 // Because of PSR HTTP Message
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -9,6 +9,7 @@
 namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamableInterface;
+use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Common\FactoryAware;
 use Titon\Http\Cookie;
 use Titon\Http\Message;
@@ -35,28 +36,28 @@ class Response extends Message implements OutgoingResponse {
     /**
      * Will return the response as a string instead of sending output.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_debug = false;
 
     /**
      * Will add a Content-MD5 header based on the body.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_md5 = false;
 
     /**
      * The HTTP protocol version.
      *
-     * @type string
+     * @var string
      */
     protected string $_protocolVersion = '1.1';
 
     /**
      * HTTP status code to output.
      *
-     * @type int
+     * @var int
      */
     protected int $_status = Http::OK;
 
@@ -154,7 +155,7 @@ class Response extends Message implements OutgoingResponse {
      * @param bool $proxy
      * @param Map<string, mixed> $options
      * @return $this
-     * @throws \InvalidArgumentException
+     * @throws \Titon\Common\Exception\InvalidArgumentException
      */
     public function cache(string $directive, mixed $expires = '+24 hours', bool $proxy = true, Map<string, mixed> $options = Map {}): this {
         $expires = Time::toUnix($expires);
@@ -184,7 +185,7 @@ class Response extends Message implements OutgoingResponse {
                 }
             }
         } else {
-            throw new \InvalidArgumentException(sprintf('Invalid cache directive %s', $directive));
+            throw new InvalidArgumentException(sprintf('Invalid cache directive %s', $directive));
         }
 
         return $this->expires($expires)->cacheControl($control->setAll($options));
@@ -241,11 +242,11 @@ class Response extends Message implements OutgoingResponse {
      * @param string $file
      * @param string $type
      * @return $this
-     * @throws \InvalidArgumentException
+     * @throws \Titon\Common\Exception\InvalidArgumentException
      */
     public function contentDisposition(string $file, string $type = 'attachment'): this {
         if ($type !== 'attachment' && $type !== 'inline') {
-            throw new \InvalidArgumentException('Disposition type must be either "attachment" or "inline"');
+            throw new InvalidArgumentException('Disposition type must be either "attachment" or "inline"');
         }
 
         return $this->setHeader('Content-Disposition', sprintf('%s; filename="%s"', $type, $file));
@@ -295,7 +296,7 @@ class Response extends Message implements OutgoingResponse {
         }
 
         if (!is_numeric($length)) {
-            $length = Number::bytesFrom($length);
+            $length = Number::bytesFrom((string) $length);
         }
 
         return $this->setHeader('Content-Length', $length);
@@ -615,11 +616,9 @@ class Response extends Message implements OutgoingResponse {
         $this->sendHeaders();
         $this->sendBody();
 
-        // @codeCoverageIgnoreStart
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
-        // @codeCoverageIgnoreEnd
 
         return $contents;
     }
@@ -648,7 +647,6 @@ class Response extends Message implements OutgoingResponse {
      * Output headers and cookies defined for the current response.
      *
      * @return $this
-     * @codeCoverageIgnore
      */
     public function sendHeaders(): this {
         if (headers_sent()) {

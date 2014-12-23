@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -23,7 +23,7 @@ class CallbackRoute extends Route {
     /**
      * The callback to execute during dispatch.
      *
-     * @type \Titon\Route\RouteCallback
+     * @var \Titon\Route\RouteCallback
      */
     protected RouteCallback $_callback;
 
@@ -49,7 +49,7 @@ class CallbackRoute extends Route {
 
         $callback = new ReflectionFunction($this->getCallback());
 
-        return $callback->invokeArgs($this->_getArguments($callback));
+        return $callback->invokeArgs($this->_getArguments($callback)->toArray());
     }
 
     /**

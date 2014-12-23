@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -8,7 +8,7 @@
 namespace Titon\Utility;
 
 use Titon\Common\DataMap;
-use Titon\Utility\Exception\InvalidArgumentException;
+use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Utility\Exception\InvalidValidationRuleException;
 use \Indexish;
 use \ReflectionClass;
@@ -31,35 +31,35 @@ class Validator {
     /**
      * Data to validate against.
      *
-     * @type \Titon\Common\DataMap
+     * @var \Titon\Common\DataMap
      */
     protected DataMap $_data = Map {};
 
     /**
      * Errors gathered during validation.
      *
-     * @type \Titon\Utility\ErrorMap
+     * @var \Titon\Utility\ErrorMap
      */
     protected ErrorMap $_errors = Map {};
 
     /**
      * Mapping of fields and titles.
      *
-     * @type \Titon\Utility\FieldMap
+     * @var \Titon\Utility\FieldMap
      */
     protected FieldMap $_fields = Map {};
 
     /**
      * Fallback mapping of error messages.
      *
-     * @type \Titon\Utility\MessageMap
+     * @var \Titon\Utility\MessageMap
      */
     protected MessageMap $_messages = Map {};
 
     /**
      * Mapping of fields and validation rules.
      *
-     * @type \Titon\Utility\RuleContainer
+     * @var \Titon\Utility\RuleContainer
      */
     protected RuleContainer $_rules = Map {};
 
@@ -129,7 +129,7 @@ class Validator {
      * @param string $message
      * @param \Titon\Utility\RuleOptionList $options
      * @return $this
-     * @throws \Titon\Utility\Exception\InvalidArgumentException
+     * @throws \Titon\Common\Exception\InvalidArgumentException
      */
     public function addRule(string $field, string $rule, string $message, RuleOptionList $options = Vector{}): this {
         if (!$this->_fields->contains($field)) {
@@ -252,13 +252,11 @@ class Validator {
                 array_unshift($arguments, $value);
 
                 // Use G11n if it is available
-                // @codeCoverageIgnoreStart
                 if (class_exists('Titon\G11n\Utility\Validate')) {
                     $class = 'Titon\G11n\Utility\Validate';
                 } else {
                     $class = 'Titon\Utility\Validate';
                 }
-                // @codeCoverageIgnoreEnd
 
                 // UNSAFE
                 if (!call_user_func(class_meth($class, 'hasRule'), $rule)) {
@@ -306,7 +304,7 @@ class Validator {
     public static function makeFromShorthand(DataMap $data = Map {}, Map<string, mixed> $fields = Map {}): Validator {
         $class = new ReflectionClass(static::class);
 
-        /** @type \Titon\Utility\Validator $obj */
+        /** @var \Titon\Utility\Validator $obj */
         $obj = $class->newInstanceArgs([$data]);
 
         foreach ($fields as $field => $options) {

@@ -1,30 +1,31 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
 
 namespace Titon\Common;
 
+use Titon\Common\ArgumentList;
 use \ReflectionClass;
 
-type InstanceContainer = Map<string, InstanceMap>;
-type InstanceMap = Map<string, mixed>;
+type InstanceContainer<T> = Map<string, InstanceMap<T>>;
+type InstanceMap<T> = Map<string, T>;
 
 /**
  * The Instanceable trait provides a low-level multiton interface for classes.
  *
  * @package Titon\Common
  */
-trait Instanceable {
+trait Instanceable<T> {
 
     /**
      * Collection of class instances.
      *
-     * @type \Titon\Common\InstanceContainer
+     * @var \Titon\Common\InstanceContainer
      */
-    protected static InstanceContainer $_instances = Map {};
+    protected static InstanceContainer<T> $_instances = Map {};
 
     /**
      * Return a count of all active instances.
@@ -46,20 +47,20 @@ trait Instanceable {
      * Return an object instance else instantiate a new one.
      *
      * @param string $key
-     * @param array<mixed> $params
+     * @param \Titon\Common\ArgumentList $params
      * @return $this
      */
-    public static function getInstance(string $key = 'default', array<mixed> $params = []): mixed {
+    public static function getInstance(string $key = 'default', ArgumentList $params = Vector {}): T {
         $instances = static::getInstances();
 
         if ($instances->contains($key)) {
-            return $instances->get($key);
+            return $instances[$key];
         }
 
         $reflection = new ReflectionClass(static::class);
-        $object = $reflection->newInstanceArgs($params);
+        $object = $reflection->newInstanceArgs($params->toArray());
 
-        $instances->set($key, $object);
+        $instances[$key] = $object;
 
         return $object;
     }
@@ -67,9 +68,9 @@ trait Instanceable {
     /**
      * Return all instances for a class.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Common\InstanceMap
      */
-    public static function getInstances(): InstanceMap {
+    public static function getInstances(): InstanceMap<T> {
         $instances = static::$_instances;
         $class = static::class;
 
@@ -91,8 +92,6 @@ trait Instanceable {
 
     /**
      * Disable cloning.
-     *
-     * @codeCoverageIgnore
      */
     private function __clone(): void {}
 

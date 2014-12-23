@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -25,7 +25,7 @@ class Inflector {
      * @return string
      */
     public static function camelCase(string $string): string {
-        return static::cache([__METHOD__, $string], function() use ($string) {
+        return (string) static::cache([__METHOD__, $string], function() use ($string) {
             return str_replace(' ', '', mb_convert_case(str_replace(['_', '-'], ' ', preg_replace('/[^-_a-z0-9\s]+/i', '', $string)), MB_CASE_TITLE));
         });
     }
@@ -37,7 +37,7 @@ class Inflector {
      * @return string
      */
     public static function className(string $string): string {
-        return static::cache([__METHOD__, $string], function() use ($string) {
+        return (string) static::cache([__METHOD__, $string], function() use ($string) {
             return Inflector::camelCase(Inflector::singularize($string));
         });
     }
@@ -75,7 +75,7 @@ class Inflector {
      * @return string
      */
     public static function hyphenate(string $string): string {
-        return static::cache([__METHOD__, $string], function() use ($string) {
+        return (string) static::cache([__METHOD__, $string], function() use ($string) {
             return str_replace(' ', '-', preg_replace('/\s{2,}+/', ' ', $string));
         });
     }
@@ -87,7 +87,7 @@ class Inflector {
      * @return string
      */
     public static function normalCase(string $string): string {
-        return static::cache([__METHOD__, $string], function() use ($string) {
+        return (string) static::cache([__METHOD__, $string], function() use ($string) {
             return ucfirst(mb_strtolower(str_replace('_', ' ', $string)));
         });
     }
@@ -97,7 +97,6 @@ class Inflector {
      *
      * @param int $number
      * @return string
-     * @codeCoverageIgnore
      */
     public static function ordinal(string $number): string {
         return $number;
@@ -108,7 +107,6 @@ class Inflector {
      *
      * @param string $string
      * @return string
-     * @codeCoverageIgnore
      */
     public static function pluralize(string $string): string {
         return $string;
@@ -121,7 +119,7 @@ class Inflector {
      * @return string
      */
     public static function route(string $string): string {
-        return static::cache([__METHOD__, $string], function() use ($string) {
+        return (string) static::cache([__METHOD__, $string], function() use ($string) {
             return mb_strtolower(Inflector::hyphenate(str_replace('_', '-', preg_replace('/[^-_a-z0-9\s\.]+/i', '', $string))));
         });
     }
@@ -131,7 +129,6 @@ class Inflector {
      *
      * @param string $string
      * @return string
-     * @codeCoverageIgnore
      */
     public static function singularize(string $string): string {
         return $string;
@@ -144,7 +141,7 @@ class Inflector {
      * @return string
      */
     public static function slug(string $string): string {
-        return static::cache([__METHOD__, $string], function() use ($string) {
+        return (string) static::cache([__METHOD__, $string], function() use ($string) {
             // Revert entities
             $string = html_entity_decode($string, ENT_QUOTES, 'UTF-8');
 
@@ -163,10 +160,9 @@ class Inflector {
      *
      * @param string $string
      * @return string
-     * @codeCoverageIgnore
      */
     public static function snakeCase(string $string): string {
-        return static::underscore($string);
+        return (string) static::underscore($string);
     }
 
     /**
@@ -176,7 +172,7 @@ class Inflector {
      * @return string
      */
     public static function tableName(string $string): string {
-        return static::cache([__METHOD__, $string], function() use ($string) {
+        return (string) static::cache([__METHOD__, $string], function() use ($string) {
             return lcfirst(Inflector::camelCase(Inflector::pluralize($string)));
         });
     }
@@ -188,7 +184,7 @@ class Inflector {
      * @return string
      */
     public static function titleCase(string $string): string {
-        return static::cache([__METHOD__, $string], function() use ($string) {
+        return (string) static::cache([__METHOD__, $string], function() use ($string) {
             return mb_convert_case(str_replace('_', ' ', $string), MB_CASE_TITLE);
         });
     }
@@ -198,7 +194,6 @@ class Inflector {
      *
      * @param string $string
      * @return string
-     * @codeCoverageIgnore
      */
     public static function transliterate(string $string): string {
         return $string;
@@ -211,7 +206,7 @@ class Inflector {
      * @return string
      */
     public static function underscore(string $string): string {
-        return static::cache([__METHOD__, $string], function() use ($string) {
+        return (string) static::cache([__METHOD__, $string], function() use ($string) {
             return trim(mb_strtolower(str_replace('__', '_', preg_replace('/([A-Z]{1})/', '_$1', preg_replace('/[^_a-z0-9]+/i', '', preg_replace('/[\s]+/', '_', $string))))), '_');
         });
     }

@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -8,7 +8,9 @@
 namespace Titon\Test;
 
 use Titon\Db\Query;
-use \Exception;
+use Titon\Db\Repository;
+use Titon\Utility\Registry;
+use \RuntimeException;
 
 /**
  * Allows fixtures to setup database records through the db layer.
@@ -18,23 +20,23 @@ class Fixture {
     /**
      * Fully qualified repository class to use.
      *
-     * @type string
+     * @var string
      */
-    protected $repository;
+    protected string $className = '';
 
     /**
      * List of records to insert into the table.
      *
-     * @type array
+     * @var array
      */
-    protected $records = [];
+    protected array<mixed> $records = [];
 
     /**
      * Repository instance.
      *
-     * @type \Titon\Db\Repository
+     * @var \Titon\Db\Repository
      */
-    protected $_repository;
+    protected ?Repository $_repository = null;
 
     /**
      * Create the database table using the table's schema.
@@ -42,9 +44,9 @@ class Fixture {
      * @return bool
      * @throws \Exception
      */
-    public function createTable() {
+    public function createTable(): bool {
         if (!$this->loadRepository()->createTable()) {
-            throw new Exception(sprintf('Failed to create database table for %s', get_class($this)));
+            throw new RuntimeException(sprintf('Failed to create database table for %s', static::class));
         }
 
         return true;
@@ -55,7 +57,7 @@ class Fixture {
      *
      * @return bool
      */
-    public function dropTable() {
+    public function dropTable(): bool {
         return (bool) $this->loadRepository()->dropTable();
     }
 
@@ -65,18 +67,20 @@ class Fixture {
      * @return \Titon\Db\Repository
      * @throws \Exception
      */
-    public function loadRepository() {
+    public function loadRepository(): Repository {
         if ($this->_repository) {
             return $this->_repository;
         }
 
-        if (!$this->repository) {
-            throw new Exception(sprintf('Repository for %s has not been defined', get_class($this)));
+        if (!$this->className) {
+            throw new RuntimeException(sprintf('Repository for %s has not been defined', static::class));
         }
 
-        $name = $this->repository;
+        $repository = Registry::factory($this->className, Vector {}, false);
 
-        return $this->_repository = new $name();
+        invariant($repository instanceof Repository, 'Must be a Repository');
+
+        return $this->_repository = $repository;
     }
 
     /**
@@ -84,7 +88,7 @@ class Fixture {
      *
      * @return bool
      */
-    public function insertRecords() {
+    public function insertRecords(): bool {
         $this->loadRepository()->createMany($this->records);
 
         return true;
@@ -95,7 +99,7 @@ class Fixture {
      *
      * @return bool
      */
-    public function truncateTable() {
+    public function truncateTable(): bool {
         return (bool) $this->loadRepository()->truncate();
     }
 

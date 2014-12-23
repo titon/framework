@@ -1,14 +1,14 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
 
 namespace Titon\Io;
 
+use Titon\Common\Exception\MissingFileException;
 use Titon\Io\Exception\ExistingFileException;
-use Titon\Io\Exception\MissingFileException;
 use Titon\Utility\Path;
 
 /**
@@ -25,14 +25,14 @@ abstract class Node {
     /**
      * Parent folder.
      *
-     * @type \Titon\Io\Folder
+     * @var \Titon\Io\Folder
      */
     protected ?Folder $_parent;
 
     /**
      * Current path.
      *
-     * @type string
+     * @var string
      */
     protected string $_path = '';
 
@@ -150,7 +150,6 @@ abstract class Node {
      * @param string $process
      * @param int $mode
      * @return \Titon\Io\Node
-     * @codeCoverageIgnore
      */
     abstract public function copy(string $target, string $process = self::OVERWRITE, int $mode = 0755): ?Node;
 
@@ -159,7 +158,6 @@ abstract class Node {
      *
      * @param int $mode
      * @return bool
-     * @codeCoverageIgnore
      */
     abstract public function create(int $mode = 0755): bool;
 
@@ -167,7 +165,6 @@ abstract class Node {
      * Remove the file if it exists.
      *
      * @return bool
-     * @codeCoverageIgnore
      */
     abstract public function delete(): bool;
 
@@ -249,7 +246,7 @@ abstract class Node {
      *
      * @param string $path
      * @return \Titon\Io\Node
-     * @throws \Titon\Io\Exception\MissingFileException
+     * @throws \Titon\Common\Exception\MissingFileException
      */
     public static function load(string $path): Node {
         if (!file_exists($path)) {
@@ -459,7 +456,6 @@ abstract class Node {
      * Return the current file size.
      *
      * @return int
-     * @codeCoverageIgnore
      */
     abstract public function size(): int;
 

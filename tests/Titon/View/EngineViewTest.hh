@@ -3,7 +3,6 @@ namespace Titon\View;
 
 use Titon\Cache\Storage\MemoryStorage;
 use Titon\Test\TestCase;
-use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\View\EngineView $object
@@ -13,7 +12,7 @@ class EngineViewTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createStructure([
             '/views/' => [
                 'fallback/' => [

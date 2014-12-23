@@ -3,31 +3,33 @@ namespace Titon\Debug;
 
 use Titon\Debug\Exception\FatalErrorException;
 use Titon\Test\TestCase;
-use VirtualFileSystem\FileSystem;
 use \ErrorException;
 
 /**
- * @runTestsInSeparateProcesses
+ * @property callable $errorHandler
+ * @property callable $exceptionHandler
  */
 class DebuggerTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createDirectory('/logs/');
 
-        Debugger::initialize();
         Debugger::enable();
         Debugger::setLogger(new Logger($this->vfs->path('/logs/')));
+
+        $this->errorHandler = set_error_handler(class_meth('Titon\Debug\Debugger', 'handleError'));
+        $this->exceptionHandler = set_exception_handler(class_meth('Titon\Debug\Debugger', 'handleException'));
     }
 
     protected function tearDown() {
         parent::tearDown();
 
-        // Restore or it breaks tests in other packages
-        restore_exception_handler();
-        restore_error_handler();
+        // Reset back to old handlers
+        set_error_handler($this->errorHandler);
+        set_exception_handler($this->exceptionHandler);
     }
 
     public function testBacktrace() {
@@ -67,21 +69,6 @@ class DebuggerTest extends TestCase {
 
         Debugger::disable();
         $this->assertEquals('', Debugger::dump(1));
-    }
-
-    public function testPrintException() {
-        $e = new \Exception('Foobar');
-
-        $this->assertRegExp('/^<div class="titon-debug titon-error">/', Debugger::printException($e));
-
-        ob_start();
-        \inspect($e);
-        $actual = ob_get_clean();
-
-        $this->assertRegExp('/^<div class="titon-debug titon-error">/', $actual);
-
-        Debugger::disable();
-        $this->assertEquals('', Debugger::printException($e));
     }
 
     public function testExport() {
@@ -146,24 +133,36 @@ class DebuggerTest extends TestCase {
         $this->assertFileExists($this->vfs->path('/logs/warning-' . date('Y-m-d') . '.log'));
     }
 
+    /**
+     * @expectedException \HH\InvariantException
+     */
+    public function testHandleInvariant() {
+        $this->assertFileNotExists($this->vfs->path('/logs/info-' . date('Y-m-d') . '.log'));
+
+        invariant_violation('Something failed!', 'foo', 'bar');
+
+        $this->assertFileExists($this->vfs->path('/logs/info-' . date('Y-m-d') . '.log'));
+    }
+
     public function testLogException() {
         $date = date('Y-m-d');
 
         $this->assertFileNotExists($this->vfs->path('/logs/error-' . $date . '.log'));
-        Debugger::logException(new ErrorException('Message', E_ERROR));
-        $this->assertFileExists($this->vfs->path('/logs/error-' . $date . '.log'));
-
         $this->assertFileNotExists($this->vfs->path('/logs/notice-' . $date . '.log'));
+
+        Debugger::logException(new ErrorException('Message', E_ERROR));
         Debugger::logException(new ErrorException('Message', E_USER_NOTICE));
+
+        $this->assertFileExists($this->vfs->path('/logs/error-' . $date . '.log'));
         $this->assertFileExists($this->vfs->path('/logs/notice-' . $date . '.log'));
     }
 
     public function testMapErrorCode() {
-        $this->assertEquals(Map {'error' => 'User Error', 'level' => 'error'}, Debugger::mapErrorCode(E_USER_ERROR));
-        $this->assertEquals(Map {'error' => 'Core Warning', 'level' => 'warning'}, Debugger::mapErrorCode(E_CORE_WARNING));
-        $this->assertEquals(Map {'error' => 'InvalidArgumentException', 'level' => 'debug'}, Debugger::mapErrorCode(new \InvalidArgumentException()));
-        $this->assertEquals(Map {'error' => 'Titon\Debug\Exception\FatalErrorException', 'level' => 'error'}, Debugger::mapErrorCode(new FatalErrorException('Message', E_ERROR)));
-        $this->assertEquals(Map {'error' => 'Strict Notice', 'level' => 'info'}, Debugger::mapErrorCode(new ErrorException('Message', E_STRICT)));
+        $this->assertEquals(shape('error' => 'User Error', 'level' => 'error'), Debugger::mapErrorCode(E_USER_ERROR));
+        $this->assertEquals(shape('error' => 'Core Warning', 'level' => 'warning'), Debugger::mapErrorCode(E_CORE_WARNING));
+        $this->assertEquals(shape('error' => 'InvalidArgumentException', 'level' => 'debug'), Debugger::mapErrorCode(new \InvalidArgumentException()));
+        $this->assertEquals(shape('error' => 'Titon\Debug\Exception\FatalErrorException', 'level' => 'error'), Debugger::mapErrorCode(new FatalErrorException('Message', E_ERROR)));
+        $this->assertEquals(shape('error' => 'Strict Notice', 'level' => 'info'), Debugger::mapErrorCode(new ErrorException('Message', E_STRICT)));
     }
 
     public function testParseType() {
@@ -182,7 +181,7 @@ class DebuggerTest extends TestCase {
         $this->assertEquals('null', Debugger::parseValue(null));
         $this->assertEquals('{Titon\Debug\Debugger}', Debugger::parseValue(new Debugger()));
         $this->assertEquals('"string"', Debugger::parseValue('string'));
-        $this->assertEquals('"' . htmlentities('<b>string</b>') . '"', Debugger::parseValue('<b>string</b>'));
+        $this->assertEquals('"&lt;b&gt;string&lt;/b&gt;"', Debugger::parseValue('<b>string</b>'));
         $this->assertEquals('[]', Debugger::parseValue([]));
         $this->assertEquals('[123, "foo", null, true]', Debugger::parseValue([123, 'foo', null, true]));
         $this->assertEquals("[...]", Debugger::parseValue([123, 'foo', null, true], false, 3));
@@ -190,6 +189,21 @@ class DebuggerTest extends TestCase {
         $f = fopen('php://input', 'r');
         $this->assertEquals('stream', Debugger::parseValue($f));
         fclose($f);
+    }
+
+    public function testPrintException() {
+        $e = new \Exception('Foobar');
+
+        $this->assertRegExp('/^<div class="titon-debug titon-error">/', Debugger::printException($e));
+
+        ob_start();
+        \inspect($e);
+        $actual = ob_get_clean();
+
+        $this->assertRegExp('/^<div class="titon-debug titon-error">/', $actual);
+
+        Debugger::disable();
+        $this->assertEquals('', Debugger::printException($e));
     }
 
     public function testSetHandler() {

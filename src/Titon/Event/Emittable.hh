@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -20,21 +20,21 @@ trait Emittable {
     /**
      * Emitter object.
      *
-     * @type \Titon\Event\Emitter
+     * @var \Titon\Event\Emitter
      */
-    protected Emitter $_emitter;
+    protected ?Emitter $_emitter;
 
     /**
-     * {@inheritdoc}
+     * @see \Titon\Event\Emitter::emit()
      */
-    public function emit(string $event, array<mixed> $params = []): Event {
+    public function emit(string $event, ParamList $params): Event {
         return $this->getEmitter()->emit($event, $params);
     }
 
     /**
-     * {@inheritdoc}
+     * @see \Titon\Event\Emitter::emit()
      */
-    public function emitMany(mixed $event, array<mixed> $params = []): EventMap {
+    public function emitMany(mixed $event, ParamList $params): EventMap {
         return $this->getEmitter()->emitMany($event, $params);
     }
 
@@ -45,21 +45,21 @@ trait Emittable {
      */
     public function getEmitter(): Emitter {
         if (!$this->_emitter) {
-            $this->setEmitter(new Emitter());
+            $this->_emitter = new Emitter();
         }
 
         return $this->_emitter;
     }
 
     /**
-     * {@inheritdoc}
+     * @see \Titon\Event\Subject::once()
      */
     public function once(string $event, mixed $callback, int $priority = 0): this {
         return $this->on($event, $callback, $priority, true);
     }
 
     /**
-     * {@inheritdoc}
+     * @see \Titon\Event\Subject::once()
      */
     public function on(string $event, mixed $callback, int $priority = 0, bool $once = false): this {
         if ($callback instanceof Listener) {
@@ -77,7 +77,7 @@ trait Emittable {
     }
 
     /**
-     * {@inheritdoc}
+     * @see \Titon\Event\Subject::once()
      */
     public function off(string $event, mixed $callback): this {
         if ($callback instanceof Listener) {

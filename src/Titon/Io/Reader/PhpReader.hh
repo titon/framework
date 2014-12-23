@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -25,7 +25,7 @@ class PhpReader extends AbstractReader {
      */
     public function read<Tk, Tv>(): Map<Tk, Tv> {
         if ($this->exists()) {
-            return Col::toMap(include $this->path());
+            return Col::toMap(include_file($this->path()));
         }
 
         throw new ReadErrorException(sprintf('PhpReader failed to parse %s', $this->path()));

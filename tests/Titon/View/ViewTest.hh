@@ -6,7 +6,6 @@ use Titon\Utility\Config;
 use Titon\View\Helper\HtmlHelper;
 use Titon\View\Helper\FormHelper;
 use Titon\Test\TestCase;
-use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\View\View $object
@@ -16,7 +15,7 @@ class ViewTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createStructure([
             '/views/' => [
                 'fallback/' => [

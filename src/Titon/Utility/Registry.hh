@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -8,12 +8,13 @@
 namespace Titon\Utility;
 
 use Titon\Common\Macroable;
+use Titon\Common\ArgumentList;
 use Titon\Utility\Exception\InvalidObjectException;
 use Titon\Utility\Exception\MissingObjectException;
 use \ReflectionClass;
 
-type RegistryCallback = (function(): mixed);
-type RegistryMap = Map<string, mixed>;
+type RegistryCallback<T> = (function(): T);
+type RegistryMap<T> = Map<string, T>;
 
 /**
  * The Registry acts a central hub where any part of the application can access a single instance of a stored object.
@@ -21,23 +22,23 @@ type RegistryMap = Map<string, mixed>;
  *
  * @package Titon\Utility
  */
-class Registry {
+class Registry<T> {
     use Macroable;
 
     /**
      * Objects that have been registered into memory. The array index is represented by the namespace convention,
      * where as the array value would be the matching instantiated object.
      *
-     * @type \Titon\Utility\RegistryMap
+     * @var \Titon\Utility\RegistryMap
      */
-    protected static RegistryMap $_registered = Map {};
+    protected static RegistryMap<T> $_registered = Map {};
 
     /**
      * Return all registered objects.
      *
      * @return \Titon\Utility\RegistryMap
      */
-    public static function all(): RegistryMap {
+    public static function all(): RegistryMap<T> {
         return static::$_registered;
     }
 
@@ -49,9 +50,9 @@ class Registry {
      * @param string $key
      * @param array $params
      * @param bool $store
-     * @return object
+     * @return T
      */
-    public static function factory(string $key, Vector<mixed> $params = Vector {}, bool $store = true): mixed {
+    public static function factory(string $key, ArgumentList $params = Vector {}, bool $store = true): T {
         if (static::has($key)) {
             return static::get($key);
         }
@@ -78,16 +79,16 @@ class Registry {
      * Return the object assigned to the given key.
      *
      * @param string $key
-     * @return object
+     * @return T
      * @throws \Titon\Utility\Exception\MissingObjectException
      */
-    public static function get(string $key): mixed {
+    public static function get(string $key): T {
         if (static::has($key)) {
             $object = static::$_registered[$key];
 
             if (is_callable($object)) {
-                invariant(is_callable($object), 'Object is callable');
-
+                // UNSAFE
+                // Because you can't invariant() a callable
                 $object = static::set(call_user_func($object), $key);
             }
 
@@ -122,8 +123,10 @@ class Registry {
      * @param string $key
      * @param \Titon\Utility\RegistryCallback $callback
      */
-    public static function register(string $key, RegistryCallback $callback): void {
-        static::set($callback, $key);
+    public static function register(string $key, RegistryCallback<T> $callback): void {
+        // UNSAFE
+        // Since the property value is T while the callback is RegistryCallback<T>
+        static::$_registered[$key] = $callback;
     }
 
     /**
@@ -138,12 +141,12 @@ class Registry {
     /**
      * Store an object into registry.
      *
-     * @param object $object
+     * @param T $object
      * @param string $key
-     * @return object
+     * @return T
      * @throws \Titon\Utility\Exception\InvalidObjectException
      */
-    public static function set(mixed $object, string $key = ''): mixed {
+    public static function set(T $object, string $key = ''): T {
         if (!is_object($object)) {
             throw new InvalidObjectException('The object to register must be instantiated');
         }

@@ -58,5 +58,5 @@ class InstanceableTest extends TestCase {
 }
 
 class InstanceableStub {
-    use Instanceable;
+    use Instanceable<InstanceableStub>;
 }

@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -189,7 +189,7 @@ class Folder extends Node {
             return $contents;
         }
 
-        /** @type \SPLFileInfo $file */
+        /** @var \SPLFileInfo $file */
         foreach ($iterator as $file) {
             if ($file->isDir()) {
                 $contents[] = new Folder($file->getPathname());
@@ -241,7 +241,7 @@ class Folder extends Node {
             return $contents;
         }
 
-        /** @type \SPLFileInfo $file */
+        /** @var \SPLFileInfo $file */
         foreach ($iterator as $file) {
             if ($file->isDir()) {
                 $contents[] = new Folder($file->getPathname());

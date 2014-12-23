@@ -26,28 +26,6 @@ class ColTest extends TestCase {
         }));
     }
 
-    public function testEachMapRecursive() {
-        $this->assertEquals(Map {
-            1 => 'FOO',
-            2 => 123,
-            3 => 'BAR',
-            4 => Map {
-                1 => 'BAZ',
-                2 => 456
-            }
-        }, Col::each(Map {
-            1 => 'foo',
-            2 => 123,
-            3 => 'bar',
-            4 => Map {
-                1 => 'baz',
-                2 => 456
-            }
-        }, function($key, $value) {
-            return is_string($value) ? strtoupper($value) : $value;
-        }));
-    }
-
     public function testEachVector() {
         $this->assertEquals(Vector {
             'FOO',
@@ -57,28 +35,6 @@ class ColTest extends TestCase {
             'foo',
             123,
             'bar'
-        }, function($key, $value) {
-            return is_string($value) ? strtoupper($value) : $value;
-        }));
-    }
-
-    public function testEachVectorRecursive() {
-        $this->assertEquals(Vector {
-            'FOO',
-            123,
-            'BAR',
-            Vector {
-                'BAZ',
-                456
-            }
-        }, Col::each(Vector {
-            'foo',
-            123,
-            'bar',
-            Vector {
-                'baz',
-                456
-            }
         }, function($key, $value) {
             return is_string($value) ? strtoupper($value) : $value;
         }));

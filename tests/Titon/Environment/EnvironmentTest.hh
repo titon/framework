@@ -2,7 +2,6 @@
 namespace Titon\Environment;
 
 use Titon\Test\TestCase;
-use Titon\Utility\Path;
 use Titon\Utility\State\Server as ServerGlobal;
 
 /**
@@ -14,18 +13,21 @@ class EnvironmentTest extends TestCase {
         parent::setUp();
 
         $this->object = new EnvironmentStub();
-
-        $host = new Host(['dev', '123.0.0.0']);
-        $host->setBootstrap(TEMP_DIR . '/environment/dev.php');
-
-        $this->object->addHost('dev', $host);
-
-        $host = new Host(Vector {'prod', '123.456.0.0'}, Server::PROD);
-        $host->setBootstrap(TEMP_DIR . '/environment/prod.php');
-
-        $this->object->addHost('prod', $host);
-        $this->object->addHost('staging', new Host(Vector {'staging', '123.456.789.0'}, Server::STAGING));
+        $this->object->addBootstrapper(new BootstrapperStub());
+        $this->object->addHost('dev', new Host(Server::DEV, ['dev', '123.0.0.0']));
+        $this->object->addHost('prod', new Host(Server::PROD, Vector {'prod', '123.456.0.0'}));
+        $this->object->addHost('staging', new Host(Server::STAGING, Vector {'staging', '123.456.789.0'}));
         $this->object->setFallback('dev');
+    }
+
+    public function testBootstrappers() {
+        $this->assertEquals(1, count($this->object->getBootstrappers()));
+
+        $bs = new BootstrapperStub();
+        $this->object->addBootstrapper($bs);
+
+        $this->assertEquals(2, count($this->object->getBootstrappers()));
+        $this->assertEquals($bs, $this->object->getBootstrappers()[1]);
     }
 
     public function testCurrent() {
@@ -99,23 +101,23 @@ class EnvironmentTest extends TestCase {
         $this->assertEquals(3, count($this->object->getHosts()));
     }
 
-    public function testInitialize() {
+    public function testBootstrapping() {
         $_SERVER['HTTP_HOST'] = 'dev';
 
         $this->object->initialize();
-        $this->assertEquals('dev', EnvironmentStub::$bootstrapTester);
+        $this->assertEquals('dev', BootstrapperStub::$loaded);
 
         $_SERVER['HTTP_HOST'] = 'prod';
 
         $this->object->initialize();
-        $this->assertEquals('prod', EnvironmentStub::$bootstrapTester);
+        $this->assertEquals('prod', BootstrapperStub::$loaded);
+    }
 
-        // Should be falsey values since staging doesn't exist
-        $_SERVER['HTTP_HOST'] = 'staging';
-        EnvironmentStub::$bootstrapTester = '';
+    public function testBootstrappingFallback() {
+        $_SERVER['HTTP_HOST'] = 'qa';
 
         $this->object->initialize();
-        $this->assertEquals('', EnvironmentStub::$bootstrapTester);
+        $this->assertEquals('dev', BootstrapperStub::$loaded); // Since dev is the fallback
     }
 
     public function testInitializeNoHosts() {
@@ -234,7 +236,7 @@ class EnvironmentTest extends TestCase {
     }
 
     public function testIsQA() {
-        $this->object->addHost('qa', new Host(['qa', '123.456.0.666'], Server::QA));
+        $this->object->addHost('qa', new Host(Server::QA, ['qa', '123.456.0.666']));
 
         $_SERVER['HTTP_HOST'] = 'qa';
 
@@ -255,35 +257,38 @@ class EnvironmentTest extends TestCase {
         $this->assertTrue($this->object->isStaging());
     }
 
-    /**
-     * @expectedException \Titon\Environment\Exception\MissingBootstrapException
-     */
-    public function testBootstrapErrorsMissingFile() {
-        $env = new Environment(TEMP_DIR);
-        $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
-        $env->setFallback('dev-us');
-        $env->initialize(true);
-    }
+    public function testVarLoading() {
+        $_SERVER['HTTP_HOST'] = 'dev';
 
-    public function testBootstrapDoesntErrorMissingFile() {
-        $env = new Environment(TEMP_DIR);
-        $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
-        $env->setFallback('dev-us');
+        $env = new EnvironmentStub(TEMP_DIR . '/environment/');
+        $env->addHost('dev', new Host(Server::DEV, ['dev', '123.0.0.0']));
+
+        $this->assertEquals(Map {}, $env->getVariables());
+        $this->assertEquals('', $env->getVariable('bar'));
+
         $env->initialize();
+
+        $this->assertEquals(Map {'foo' => 'bar'}, $env->getVariables());
+        $this->assertEquals('bar', $env->getVariable('foo'));
+        $this->assertEquals('', $env->getVariable('bar'));
     }
 
-    public function testAutoBootstrapping() {
-        $env = new Environment(TEMP_DIR);
-        $env->addHost('dev-us', new Host(['dev', '123.0.0.0']));
+    public function testVarLoadingInheritance() {
+        $_SERVER['HTTP_HOST'] = 'prod';
 
-        $this->assertEquals(Path::ds(TEMP_DIR, true) . 'dev-us.php', $env->getHost('dev-us')->getBootstrap());
+        $env = new EnvironmentStub(TEMP_DIR . '/environment/');
+        $env->addHost('prod', new Host(Server::PROD, Vector {'prod', '123.456.0.0'}));
+        $env->initialize();
+
+        $this->assertEquals(Map {'foo' => 'bar', 'baz' => 'qux'}, $env->getVariables());
+        $this->assertEquals('bar', $env->getVariable('foo'));
+        $this->assertEquals('qux', $env->getVariable('baz'));
+        $this->assertEquals('', $env->getVariable('bar'));
     }
 
 }
 
 class EnvironmentStub extends Environment {
-
-    public static string $bootstrapTester = '';
 
     // Use host/IP for testing
     public function isMachine(string $name): bool {
@@ -297,6 +302,16 @@ class EnvironmentStub extends Environment {
         }
 
         return (bool) preg_match('/^' . preg_quote($name, '/') . '/i', $host);
+    }
+
+}
+
+class BootstrapperStub implements Bootstrapper {
+
+    public static string $loaded = '';
+
+    public function bootstrap(Host $host) {
+        static::$loaded = $host->getKey();
     }
 
 }

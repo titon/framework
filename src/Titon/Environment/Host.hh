@@ -1,13 +1,12 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
 
 namespace Titon\Environment;
 
-use Titon\Environment\Exception\MissingBootstrapException;
 use Titon\Utility\Col;
 
 type HostnameList = Vector<string>;
@@ -20,72 +19,35 @@ type HostnameList = Vector<string>;
 class Host {
 
     /**
-     * Path to configuration file.
-     *
-     * @type string
-     */
-    protected string $_bootstrap = '';
-
-    /**
      * List of hostnames.
      *
-     * @type \Titon\Environment\HostnameList
+     * @var \Titon\Environment\HostnameList
      */
     protected HostnameList $_hostnames;
 
     /**
      * Unique identifier.
      *
-     * @type string
+     * @var string
      */
     protected string $_key = '';
 
     /**
      * Type of environment.
      *
-     * @type \Titon\Environment\Server
+     * @var \Titon\Environment\Server
      */
     protected Server $_type;
 
     /**
      * Set the required settings.
      *
-     * @param string|array $hostnames
      * @param \Titon\Environment\Server $type
+     * @param string|array|Vector $hostnames
      */
-    public function __construct(mixed $hostnames, Server $type = Server::DEV) {
+    public function __construct(Server $type, mixed $hostnames = Vector {}) {
         $this->_hostnames = Col::toVector($hostnames);
         $this->_type = $type;
-    }
-
-    /**
-     * Bootstrap the current host by including the configuration file if it exists.
-     *
-     * @param bool $throwError
-     */
-    public function bootstrap(bool $throwError = false): void {
-        $bootstrap = $this->getBootstrap();
-
-        if (!$bootstrap) {
-            return;
-        }
-
-        if (file_exists($bootstrap)) {
-            // UNSAFE
-            include $bootstrap;
-
-        } else if ($throwError) {
-            throw new MissingBootstrapException(sprintf('Environment bootstrap for %s does not exist', $this->getKey()));
-        }
-    }
-
-    /**
-     * Return the bootstrap path.
-     *
-     * @return string
-     */
-    public function getBootstrap(): string {
-        return $this->_bootstrap;
     }
 
     /**
@@ -158,18 +120,6 @@ class Host {
      */
     public function isTesting(): bool {
         return ($this->getType() === Server::TESTING);
-    }
-
-    /**
-     * Set the bootstrap file path.
-     *
-     * @param string $path
-     * @return $this
-     */
-    public function setBootstrap(string $path): this {
-        $this->_bootstrap = $path;
-
-        return $this;
     }
 
     /**

@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -9,6 +9,8 @@ namespace Titon\Event;
 
 use Titon\Common\DataMap;
 use Titon\Utility\Col;
+
+type CallStackList = Vector<string>;
 
 /**
  * An object representing the current event being dispatched.
@@ -21,62 +23,60 @@ class Event {
     /**
      * Data to persist between observers.
      *
-     * @type \Titon\Common\DataMap
+     * @var \Titon\Common\DataMap
      */
     protected DataMap $_data = Map {};
 
     /**
      * The event key.
      *
-     * @type string
+     * @var string
      */
     protected string $_key;
 
     /**
-     * The current index in the call stack.
+     * The current count of how many observers have been notified.
      *
-     * @type int
+     * @var int
      */
     protected int $_index = 0;
 
     /**
-     * Has the event stopped? This will cancel upcoming listeners.
+     * Has the event stopped? This will cancel upcoming observers.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_stopped = false;
 
     /**
      * The call stack in order of priority.
      *
-     * @type \Titon\Event\CallStackList
+     * @var \Titon\Event\CallStackList
      */
-    protected CallStackList $_stack;
+    protected CallStackList $_stack = Vector {};
 
     /**
      * The last state before the object was stopped.
      * This value is automatically set by the emitter using the callback response.
      *
-     * @type mixed
+     * @var mixed
      */
     protected mixed $_state = true;
 
     /**
      * The timestamp of when the event started.
      *
-     * @type int
+     * @var int
      */
     protected int $_time;
 
     /**
-     * Initialize the event and pass information from the Emitter.
+     * Initialize the event.
      *
      * @param string $key
-     * @param \Titon\Event\CallStackList $stack
      */
-    public function __construct(string $key, CallStackList $stack = Vector {}) {
+    public function __construct(string $key) {
         $this->_key = $key;
-        $this->_stack = $stack;
         $this->_time = time();
     }
 
@@ -100,7 +100,7 @@ class Event {
     }
 
     /**
-     * Return the current index in the call stack.
+     * Return the current notify count.
      *
      * @return int
      */
@@ -145,22 +145,26 @@ class Event {
     }
 
     /**
-     * Jump to the next call stack.
-     * If next reaches the end, stop the event.
+     * Increase the notify counter if the event has not stopped.
      *
      * @return $this
      */
     public function next(): this {
-        $index = $this->_index;
-        $nextIndex = $index + 1;
-
-        if ($this->_stack->containsKey($nextIndex)) {
-            $this->_stack[$index]['time'] = time();
-            $this->_index = $nextIndex;
-
-        } else {
-            $this->stop();
+        if (!$this->isStopped()) {
+            $this->_index++;
         }
+
+        return $this;
+    }
+
+    /**
+     * Set the call stack for the current event.
+     *
+     * @param \Titon\Event\CallStackList $stack
+     * @return $this
+     */
+    public function setCallStack(CallStackList $stack): this {
+        $this->_stack = $stack;
 
         return $this;
     }

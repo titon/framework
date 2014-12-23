@@ -15,29 +15,17 @@ namespace Titon\Event;
 interface Subject {
 
     /**
-     * Notify all sorted observers by priority about an event.
-     * A list of parameters can be defined that will be passed to each observer.
-     *
-     * @uses Titon\Event\Event
-     *
-     * @param string $event
-     * @param array<mixed> $params
-     * @return \Titon\Event\Event
+     * @see \Titon\Event\Emitter::emit()
      */
-    public function emit(string $event, array<mixed> $params = []): Event;
+    public function emit(string $event, ParamList $params = []): Event;
 
     /**
-     * Emit multiple events at once by passing a list of event names, or event names separated by a space.
-     * If a `*` is provided in the key, a wildcard match will occur.
-     *
-     * @param mixed $event
-     * @param array<mixed> $params
-     * @return \Titon\Event\EventMap
+     * @see \Titon\Event\Emitter::emitMany()
      */
-    public function emitMany(mixed $event, array<mixed> $params = []): EventMap;
+    public function emitMany(mixed $event, ParamList $params = []): EventMap;
 
     /**
-     * Register an event callback or listener to only trigger once and then remove itself from the observer list.
+     * Register an observer or listener to only trigger once and then remove itself from the list.
      *
      * @param string $event
      * @param mixed $callback
@@ -47,7 +35,7 @@ interface Subject {
     public function once(string $event, mixed $callback, int $priority = 0): this;
 
     /**
-     * Register an event callback or a listener.
+     * Register an observer or a listener.
      *
      * @param string $event
      * @param mixed $callback
@@ -59,7 +47,7 @@ interface Subject {
     public function on(string $event, mixed $callback, int $priority = 0, bool $once = false): this;
 
     /**
-     * Remove an event callback or a listener.
+     * Remove an observer or a listener.
      *
      * @param string $event
      * @param mixed $callback

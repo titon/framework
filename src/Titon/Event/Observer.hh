@@ -11,6 +11,8 @@ use \Closure;
 use \ReflectionFunction;
 use \ReflectionMethod;
 
+type ParamList = array<mixed>;
+
 /**
  * The Observer class represents a single callback in the event stack.
  * It will be executed anytime an event is triggered that the observer is registered for.
@@ -76,20 +78,20 @@ class Observer {
     /**
      * Asynchronously execute the callback and return the response.
      *
-     * @param array<mixed> $params
+     * @param \Titon\Event\ParamList $params
      * @return Awaitable<mixed>
      */
-    async public function asyncExecute(array<mixed> $params): Awaitable<mixed> {
+    async public function asyncExecute(ParamList $params): Awaitable<mixed> {
         return await $this->execute($params);
     }
 
     /**
      * Execute the callback and return the response.
      *
-     * @param array<mixed> $params
+     * @param \Titon\Event\ParamList $params
      * @return mixed
      */
-    public function execute(array<mixed> $params): mixed {
+    public function execute(ParamList $params): mixed {
         $this->_executed = true;
 
         return call_user_func_array($this->getCallback(), $params);

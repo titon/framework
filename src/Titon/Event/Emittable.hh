@@ -25,16 +25,16 @@ trait Emittable {
     protected Emitter $_emitter;
 
     /**
-     * {@inheritdoc}
+     * @see \Titon\Event\Emitter::emit()
      */
-    public function emit(string $event, array<mixed> $params = []): Event {
+    public function emit(string $event, ParamList $params = []): Event {
         return $this->getEmitter()->emit($event, $params);
     }
 
     /**
-     * {@inheritdoc}
+     * @see \Titon\Event\Emitter::emit()
      */
-    public function emitMany(mixed $event, array<mixed> $params = []): EventMap {
+    public function emitMany(mixed $event, ParamList $params = []): EventMap {
         return $this->getEmitter()->emitMany($event, $params);
     }
 
@@ -52,14 +52,14 @@ trait Emittable {
     }
 
     /**
-     * {@inheritdoc}
+     * @see \Titon\Event\Subject::once()
      */
     public function once(string $event, mixed $callback, int $priority = 0): this {
         return $this->on($event, $callback, $priority, true);
     }
 
     /**
-     * {@inheritdoc}
+     * @see \Titon\Event\Subject::once()
      */
     public function on(string $event, mixed $callback, int $priority = 0, bool $once = false): this {
         if ($callback instanceof Listener) {
@@ -77,7 +77,7 @@ trait Emittable {
     }
 
     /**
-     * {@inheritdoc}
+     * @see \Titon\Event\Subject::once()
      */
     public function off(string $event, mixed $callback): this {
         if ($callback instanceof Listener) {

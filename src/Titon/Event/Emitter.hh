@@ -35,10 +35,10 @@ class Emitter {
      * A list of parameters can be defined that will be passed to each observer.
      *
      * @param \Titon\Event\Event $event
-     * @param array<mixed> $params
+     * @param \Titon\Event\ParamList $params
      * @return \Titon\Event\Event
      */
-    public function dispatch(Event $event, array<mixed> $params = []): Event {
+    public function dispatch(Event $event, ParamList $params = []): Event {
         $key = $event->getKey();
 
         // Set call stack
@@ -80,10 +80,10 @@ class Emitter {
      * @uses Titon\Event\Event
      *
      * @param string $event
-     * @param array<mixed> $params
+     * @param \Titon\Event\ParamList $params
      * @return \Titon\Event\Event
      */
-    public function emit(string $event, array<mixed> $params = []): Event {
+    public function emit(string $event, ParamList $params = []): Event {
         return $this->dispatch(new Event($event), $params);
     }
 
@@ -92,10 +92,10 @@ class Emitter {
      * If a `*` is provided in the key, a wildcard match will occur.
      *
      * @param mixed $event
-     * @param array<mixed> $params
+     * @param \Titon\Event\ParamList $params
      * @return \Titon\Event\EventMap
      */
-    public function emitMany(mixed $event, array<mixed> $params = []): EventMap {
+    public function emitMany(mixed $event, ParamList $params = []): EventMap {
         $objects = Map {};
 
         foreach ($this->_resolveEventKeys($event) as $event) {
@@ -301,10 +301,10 @@ class Emitter {
      *
      * @param \Titon\Event\Observer $observer
      * @param \Titon\Event\Event $event
-     * @param array<mixed> $params
+     * @param \Titon\Event\ParamList $params
      * @return bool
      */
-    protected function _notifyObserver(Observer $observer, Event $event, array<mixed> $params): bool {
+    protected function _notifyObserver(Observer $observer, Event $event, ParamList $params): bool {
         if ($event->isStopped()) {
             return false;
         }
@@ -317,10 +317,10 @@ class Emitter {
      *
      * @param \Titon\Event\Observer $observer
      * @param \Titon\Event\Event $event
-     * @param array<mixed> $params
+     * @param \Titon\Event\ParamList $params
      * @return bool
      */
-    async protected function _notifyObserverAsync(Observer $observer, Event $event, array<mixed> $params): Awaitable<bool> {
+    async protected function _notifyObserverAsync(Observer $observer, Event $event, ParamList $params): Awaitable<bool> {
         if ($event->isStopped()) {
             return false;
         }
@@ -335,10 +335,10 @@ class Emitter {
      *
      * @param \Titon\Event\ObserverList $observers
      * @param \Titon\Event\Event $event
-     * @param array<mixed> $params
+     * @param \Titon\Event\ParamList $params
      * @return bool
      */
-    protected function _notifyObservers(ObserverList $observers, Event $event, array<mixed> $params): bool {
+    protected function _notifyObservers(ObserverList $observers, Event $event, ParamList $params): bool {
         foreach ($observers as $observer) {
             $this->_notifyObserver($observer, $event, $params);
 
@@ -355,10 +355,10 @@ class Emitter {
      *
      * @param \Titon\Event\ObserverList $observers
      * @param \Titon\Event\Event $event
-     * @param array<mixed> $params
+     * @param \Titon\Event\ParamList $params
      * @return Awaitable<bool>
      */
-    async protected function _notifyObserversAsync(ObserverList $observers, Event $event, array<mixed> $params): Awaitable<bool> {
+    async protected function _notifyObserversAsync(ObserverList $observers, Event $event, ParamList $params): Awaitable<bool> {
         if ($event->isStopped()) {
             return false; // Exit early if non-async stopped propagation
         }

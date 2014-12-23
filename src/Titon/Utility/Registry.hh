@@ -28,7 +28,7 @@ class Registry {
      * Objects that have been registered into memory. The array index is represented by the namespace convention,
      * where as the array value would be the matching instantiated object.
      *
-     * @type \Titon\Utility\RegistryMap
+     * @var \Titon\Utility\RegistryMap
      */
     protected static RegistryMap $_registered = Map {};
 

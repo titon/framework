@@ -22,7 +22,7 @@ trait Instanceable {
     /**
      * Collection of class instances.
      *
-     * @type \Titon\Common\InstanceContainer
+     * @var \Titon\Common\InstanceContainer
      */
     protected static InstanceContainer $_instances = Map {};
 

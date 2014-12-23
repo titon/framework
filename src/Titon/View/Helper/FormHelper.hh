@@ -30,18 +30,18 @@ class FormHelper extends AbstractHelper {
     /**
      * Whether to render in 24-hour or 12-hour format.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_24hour = true;
 
     /**
      * Mapping of datetime formats.
      *
-     * @type \Titon\View\Helper\TimeFormatMap {
-     *      @type string $dayFormat     Format to display days in
-     *      @type string $monthFormat   Format to display months in
-     *      @type string $yearFormat    Format to display years in
-     *      @type string $24hour        Display all times in 24 hour formats
+     * @var \Titon\View\Helper\TimeFormatMap {
+     *      @var string $dayFormat     Format to display days in
+     *      @var string $monthFormat   Format to display months in
+     *      @var string $yearFormat    Format to display years in
+     *      @var string $24hour        Display all times in 24 hour formats
      * }
      */
     protected TimeFormatMap $_formats = Map {
@@ -53,21 +53,21 @@ class FormHelper extends AbstractHelper {
     /**
      * Number of forms generated for the current request.
      *
-     * @type int
+     * @var int
      */
     protected int $_forms = 0;
 
     /**
      * The model currently being used to generate a form.
      *
-     * @type \Titon\Model\Model
+     * @var \Titon\Model\Model
      */
     protected ?Model $_model;
 
     /**
      * A list of all HTML tags used within the current helper.
      *
-     * @type \Titon\View\Helper\TagMap
+     * @var \Titon\View\Helper\TagMap
      */
     protected TagMap $_tags = Map {
         'input'             => '<input{attr}>',
@@ -130,7 +130,7 @@ class FormHelper extends AbstractHelper {
      * @param string $name
      * @param string $value
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type string $default   The checkbox to be selected by default
+     *      @var string $default   The checkbox to be selected by default
      * }
      * @return string
      */
@@ -150,7 +150,7 @@ class FormHelper extends AbstractHelper {
      * @param string $name
      * @param Vector<string> $options
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type string $default   The checkbox to be selected by default
+     *      @var string $default   The checkbox to be selected by default
      * }
      * @return Vector<string>
      */
@@ -216,8 +216,8 @@ class FormHelper extends AbstractHelper {
      *
      * @param string $name
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type string $dayFormat How the day should be formatted
-     *      @type int $defaultDay   The default selected day
+     *      @var string $dayFormat How the day should be formatted
+     *      @var int $defaultDay   The default selected day
      * }
      * @return string
      */
@@ -436,7 +436,7 @@ class FormHelper extends AbstractHelper {
      *
      * @param string $name
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type int $defaultHour  The default selected hour
+     *      @var int $defaultHour  The default selected hour
      * }
      * @return string
      */
@@ -574,7 +574,7 @@ class FormHelper extends AbstractHelper {
      *
      * @param string $name
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type string $defaultMeridiem   The default selected meridiem
+     *      @var string $defaultMeridiem   The default selected meridiem
      * }
      * @return string
      */
@@ -591,7 +591,7 @@ class FormHelper extends AbstractHelper {
      *
      * @param string $name
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type int $defaultMinute    The default selected minute
+     *      @var int $defaultMinute    The default selected minute
      * }
      * @return string
      */
@@ -628,8 +628,8 @@ class FormHelper extends AbstractHelper {
      *
      * @param string $name
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type string $monthFormat   Format the month names in the dropdown
-     *      @type int $defaultMonth     The default selected month
+     *      @var string $monthFormat   Format the month names in the dropdown
+     *      @var int $defaultMonth     The default selected month
      * }
      * @return string
      */
@@ -802,7 +802,7 @@ class FormHelper extends AbstractHelper {
      * @param string $name
      * @param Vector<string> $options
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type string default    The radio to be selected by default
+     *      @var string default    The radio to be selected by default
      * }
      * @return Vector<string>
      */
@@ -844,7 +844,7 @@ class FormHelper extends AbstractHelper {
      *
      * @param string $name
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type int $defaultSecond    The default selected second
+     *      @var int $defaultSecond    The default selected second
      * }
      * @return string
      */
@@ -868,9 +868,9 @@ class FormHelper extends AbstractHelper {
      * @param string $name
      * @param \Titon\View\Helper\SelectOptionMap $options
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type mixed $default    The option to be selected by default
-     *      @type string $empty     Display an empty option at the top of the list
-     *      @type bool $multiple    Set to true to allow multiple selection
+     *      @var mixed $default    The option to be selected by default
+     *      @var string $empty     Display an empty option at the top of the list
+     *      @var bool $multiple    Set to true to allow multiple selection
      * }
      * @return string
      */
@@ -1054,11 +1054,11 @@ class FormHelper extends AbstractHelper {
      *
      * @param string $name
      * @param \Titon\View\Helper\AttributeMap $attributes {
-     *      @type int $startYear        The year to start the range
-     *      @type int $endYear          The year to end the range
-     *      @type bool $reverseYear     Should the years be in reverse order
-     *      @type string $yearFormat    How the year should be formatted
-     *      @type int $defaultYear      The default selected year
+     *      @var int $startYear        The year to start the range
+     *      @var int $endYear          The year to end the range
+     *      @var bool $reverseYear     Should the years be in reverse order
+     *      @var string $yearFormat    How the year should be formatted
+     *      @var int $defaultYear      The default selected year
      * }
      * @return string
      */

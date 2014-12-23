@@ -36,42 +36,42 @@ abstract class AbstractView implements View, Listener, Subject {
     /**
      * Variable data for templates.
      *
-     * @type \Titon\Common\DataMap
+     * @var \Titon\Common\DataMap
      */
     protected DataMap $_data = Map {};
 
     /**
      * The extension used for templates.
      *
-     * @type string
+     * @var string
      */
     protected string $_extension = 'tpl';
 
     /**
      * List of helpers.
      *
-     * @type \Titon\View\HelperMap
+     * @var \Titon\View\HelperMap
      */
     protected HelperMap $_helpers = Map {};
 
     /**
      * List of locales to use during template locating.
      *
-     * @type \Titon\View\LocaleList
+     * @var \Titon\View\LocaleList
      */
     protected LocaleList $_locales = Vector {};
 
     /**
      * List of lookup paths.
      *
-     * @type \Titon\View\PathList
+     * @var \Titon\View\PathList
      */
     protected PathList $_paths = Vector {};
 
     /**
      * Storage engine.
      *
-     * @type \Titon\Cache\Storage
+     * @var \Titon\Cache\Storage
      */
     protected ?Storage $_storage;
 

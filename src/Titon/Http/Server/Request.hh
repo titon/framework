@@ -39,63 +39,63 @@ class Request extends Message implements IncomingRequest {
     /**
      * Custom attributes for the request.
      *
-     * @type \Titon\Http\Bag\ParameterBag
+     * @var \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $attributes;
 
     /**
      * COOKIE data for the request.
      *
-     * @type \Titon\Http\Bag\CookieBag
+     * @var \Titon\Http\Bag\CookieBag
      */
     public CookieBag $cookies;
 
     /**
      * FILES data for the request.
      *
-     * @type \Titon\Http\Bag\ParameterBag
+     * @var \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $files;
 
     /**
      * POST data for the request.
      *
-     * @type \Titon\Http\Bag\ParameterBag
+     * @var \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $post;
 
     /**
      * GET data for the request.
      *
-     * @type \Titon\Http\Bag\ParameterBag
+     * @var \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $query;
 
     /**
      * SERVER environment variables.
      *
-     * @type \Titon\Http\Bag\ParameterBag
+     * @var \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $server;
 
     /**
      * The current type of request method.
      *
-     * @type string
+     * @var string
      */
     protected string $_method = '';
 
     /**
      * When enabled, will use applicable HTTP headers set by proxies.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_trustProxies = true;
 
     /**
      * The current URL for the request.
      *
-     * @type string
+     * @var string
      */
     protected string $_url = '';
 

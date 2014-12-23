@@ -28,7 +28,7 @@ class MemcacheStorage extends AbstractStorage {
     /**
      * The third-party class instance.
      *
-     * @type \Memcached
+     * @var \Memcached
      */
     protected Memcached $_memcache;
 

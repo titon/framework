@@ -21,7 +21,7 @@ trait Mutable<Tk, Tv> {
     /**
      * Mapped data.
      *
-     * @type Map<Tk, Tv>
+     * @var Map<Tk, Tv>
      */
     protected Map<Tk, Tv> $_data = Map {};
 

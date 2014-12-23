@@ -21,7 +21,7 @@ class XmlReader extends AbstractReader {
     /**
      * Allow for format overrides.
      *
-     * @type int
+     * @var int
      */
     public static int $format = Converter::XML_MERGE;
 

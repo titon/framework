@@ -20,7 +20,7 @@ class XmlWriter extends AbstractWriter {
     /**
      * Allow for format overrides.
      *
-     * @type int
+     * @var int
      */
     public static $format = Converter::XML_MERGE;
 

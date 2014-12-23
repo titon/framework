@@ -26,14 +26,14 @@ abstract class Node {
     /**
      * Parent folder.
      *
-     * @type \Titon\Io\Folder
+     * @var \Titon\Io\Folder
      */
     protected ?Folder $_parent;
 
     /**
      * Current path.
      *
-     * @type string
+     * @var string
      */
     protected string $_path = '';
 

@@ -22,7 +22,7 @@ abstract class AbstractAction implements Action {
     /**
      * Controller object.
      *
-     * @type \Titon\Controller\Controller
+     * @var \Titon\Controller\Controller
      */
     protected Controller $_controller;
 

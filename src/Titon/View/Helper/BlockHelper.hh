@@ -23,14 +23,14 @@ class BlockHelper extends AbstractHelper {
     /**
      * List of unclosed blocks.
      *
-     * @type \Titon\View\Helper\ActiveBlockList
+     * @var \Titon\View\Helper\ActiveBlockList
      */
     protected ActiveBlockList $_active = Vector {};
 
     /**
      * List of captured output.
      *
-     * @type \Titon\View\Helper\BlockMap
+     * @var \Titon\View\Helper\BlockMap
      */
     protected BlockMap $_blocks = Map {};
 

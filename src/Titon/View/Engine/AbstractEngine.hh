@@ -25,35 +25,35 @@ abstract class AbstractEngine implements Engine {
     /**
      * Current parsed template.
      *
-     * @type string
+     * @var string
      */
     protected string $_content = '';
 
     /**
      * Name of the layout template to wrap content with.
      *
-     * @type string
+     * @var string
      */
     protected string $_layout = 'default';
 
     /**
      * Variables currently bound to the engine.
      *
-     * @type \Titon\Common\DataMap
+     * @var \Titon\Common\DataMap
      */
     protected DataMap $_variables = Map {};
 
     /**
      * View instance.
      *
-     * @type \Titon\View\View
+     * @var \Titon\View\View
      */
     protected ?View $_view;
 
     /**
      * List of wrappers to wrap templates with.
      *
-     * @type \Titon\View\WrapperList
+     * @var \Titon\View\WrapperList
      */
     protected WrapperList $_wrapper = Vector {};
 

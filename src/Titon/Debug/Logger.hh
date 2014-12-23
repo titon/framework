@@ -38,7 +38,7 @@ class Logger extends AbstractLogger {
     /**
      * Directory to store log files.
      *
-     * @type string
+     * @var string
      */
     protected string $_directory;
 

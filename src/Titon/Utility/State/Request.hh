@@ -22,14 +22,14 @@ abstract class Request {
     /**
      * Super global data collection.
      *
-     * @type Map<string, \Titon\Utility\State\GlobalMap>
+     * @var Map<string, \Titon\Utility\State\GlobalMap>
      */
     protected static Map<string, GlobalMap> $_data = Map {};
 
     /**
      * Has the super global data been initialized?
      *
-     * @type Map<string, bool>
+     * @var Map<string, bool>
      */
     protected static Map<string, bool> $_loaded = Map {};
 

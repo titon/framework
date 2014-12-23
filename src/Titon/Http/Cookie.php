@@ -20,49 +20,49 @@ class Cookie {
     /**
      * What domain the cookie should be usable on.
      *
-     * @type string
+     * @var string
      */
     protected string $_domain = '';
 
     /**
      * The unix timestamp until the cookie expires.
      *
-     * @type int
+     * @var int
      */
     protected int $_expires = 0;
 
     /**
      * Should the cookie only be accessible through PHP and not the Javascript layer.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_httpOnly = true;
 
     /**
      * Name of the cookie.
      *
-     * @type string
+     * @var string
      */
     protected string $_name = '';
 
     /**
      * Which path should the cookie only be accessible to.
      *
-     * @type string
+     * @var string
      */
     protected string $_path = '/';
 
     /**
      * Should the cookie only be usable across an HTTPS connection.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_secure = false;
 
     /**
      * The cookie value.
      *
-     * @type string
+     * @var string
      */
     protected string $_value = '';
 

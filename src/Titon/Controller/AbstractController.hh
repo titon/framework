@@ -45,7 +45,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
     /**
      * The currently dispatched action.
      *
-     * @type string
+     * @var string
      */
     protected string $_action = 'index';
 
@@ -53,14 +53,14 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * A mapping of actions that have been dispatched,
      * to a list of arguments used to make the call.
      *
-     * @type \Titon\Controller\ActionMap
+     * @var \Titon\Controller\ActionMap
      */
     protected ActionMap $_arguments = Map {};
 
     /**
      * View instance.
      *
-     * @type \Titon\View\View
+     * @var \Titon\View\View
      */
     protected ?View $_view;
 

@@ -80,7 +80,7 @@ class Http {
     /**
      * List of acceptable header types.
      *
-     * @type \Titon\Http\HeaderList
+     * @var \Titon\Http\HeaderList
      */
     protected static HeaderList $_headerTypes = Vector {
         'Accept',
@@ -147,7 +147,7 @@ class Http {
     /**
      * List of possible method types.
      *
-     * @type \Titon\Http\MethodList
+     * @var \Titon\Http\MethodList
      */
     protected static MethodList $_methodTypes = Vector {
         'GET',
@@ -163,7 +163,7 @@ class Http {
     /**
      * List of all available response status codes.
      *
-     * @type \Titon\Http\StatusCodeMap
+     * @var \Titon\Http\StatusCodeMap
      */
     protected static StatusCodeMap $_statusCodes = Map {
         100 => 'Continue',

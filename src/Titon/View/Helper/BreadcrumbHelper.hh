@@ -23,7 +23,7 @@ class BreadcrumbHelper extends AbstractHelper {
     /**
      * A list of all breadcrumbs in the trail, with the title, url and attributes.
      *
-     * @type ArrayList<Breadcrumb>
+     * @var ArrayList<Breadcrumb>
      */
     protected ArrayList<Breadcrumb> $_breadcrumbs;
 
@@ -90,7 +90,7 @@ class BreadcrumbHelper extends AbstractHelper {
     public function generate(AttributeMap $attributes = Map {}): Vector<string> {
         $trail = Vector {};
 
-        /** @type \Titon\View\Helper\HtmlHelper $html */
+        /** @var \Titon\View\Helper\HtmlHelper $html */
         $html = $this->getHelper('html');
 
         foreach ($this->getBreadcrumbs() as $crumb) {
@@ -155,7 +155,7 @@ class BreadcrumbHelper extends AbstractHelper {
         $depth = (int) $options['depth'];
         $title = [];
 
-        /** @type \Titon\View\Helper\HtmlHelper $html */
+        /** @var \Titon\View\Helper\HtmlHelper $html */
         $html = $this->getHelper('html');
 
         if ($count) {

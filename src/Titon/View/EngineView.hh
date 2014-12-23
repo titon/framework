@@ -24,7 +24,7 @@ class EngineView extends AbstractView {
     /**
      * Template rendering engine.
      *
-     * @type \Titon\View\Engine
+     * @var \Titon\View\Engine
      */
     protected Engine $_engine;
 

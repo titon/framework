@@ -19,21 +19,21 @@ class Fixture {
     /**
      * Fully qualified repository class to use.
      *
-     * @type string
+     * @var string
      */
     protected string $repository;
 
     /**
      * List of records to insert into the table.
      *
-     * @type array
+     * @var array
      */
     protected array<int, mixed> $records = [];
 
     /**
      * Repository instance.
      *
-     * @type \Titon\Db\Repository
+     * @var \Titon\Db\Repository
      */
     protected ?Repository $_repository = null;
 

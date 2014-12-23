@@ -21,21 +21,21 @@ class Host {
     /**
      * List of hostnames.
      *
-     * @type \Titon\Environment\HostnameList
+     * @var \Titon\Environment\HostnameList
      */
     protected HostnameList $_hostnames;
 
     /**
      * Unique identifier.
      *
-     * @type string
+     * @var string
      */
     protected string $_key = '';
 
     /**
      * Type of environment.
      *
-     * @type \Titon\Environment\Server
+     * @var \Titon\Environment\Server
      */
     protected Server $_type;
 

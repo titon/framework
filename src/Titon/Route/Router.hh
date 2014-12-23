@@ -50,42 +50,42 @@ class Router implements Subject {
     /**
      * Base folder structure if the application was placed within a directory.
      *
-     * @type string
+     * @var string
      */
     protected string $_base = '/';
 
     /**
      * Have routes been loaded in from the cache?
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_cached = false;
 
     /**
      * The matched route object.
      *
-     * @type \Titon\Route\Route
+     * @var \Titon\Route\Route
      */
     protected ?Route $_current;
 
     /**
      * List of filters to trigger for specific routes during a match.
      *
-     * @type \Titon\Route\FilterMap
+     * @var \Titon\Route\FilterMap
      */
     protected FilterMap $_filters = Map {};
 
     /**
      * List of currently open groups (and their options) in the stack.
      *
-     * @type \Titon\Route\GroupList
+     * @var \Titon\Route\GroupList
      */
     protected GroupList $_groups = Vector {};
 
     /**
      * The class to use for route matching.
      *
-     * @type \Titon\Route\Matcher
+     * @var \Titon\Route\Matcher
      */
     protected Matcher $_matcher;
 
@@ -93,12 +93,12 @@ class Router implements Subject {
      * Mapping of CRUD actions to URL path parts for REST resources.
      * These mappings will be used when creating resource() routes.
      *
-     * @type \Titon\Route\ResourceMap {
-     *      @type string $list      - GET /resource - List resources
-     *      @type string $create    - POST /resource - Create resource
-     *      @type string $read      - GET /resource/{id} - Read resource
-     *      @type string $update    - PUT /resource/{id} - Update resource
-     *      @type string $delete    - DELETE /resource/{id} - Delete resource
+     * @var \Titon\Route\ResourceMap {
+     *      @var string $list      - GET /resource - List resources
+     *      @var string $create    - POST /resource - Create resource
+     *      @var string $read      - GET /resource/{id} - Read resource
+     *      @var string $update    - PUT /resource/{id} - Update resource
+     *      @var string $delete    - DELETE /resource/{id} - Delete resource
      * }
      */
     protected ResourceMap $_resourceMap = Map {
@@ -112,21 +112,21 @@ class Router implements Subject {
     /**
      * Manually defined aesthetic routes that re-route internally.
      *
-     * @type \Titon\Route\RouteMap
+     * @var \Titon\Route\RouteMap
      */
     protected RouteMap $_routes = Map {};
 
     /**
      * The current URL broken up into multiple segments: protocol, host, route, query, base
      *
-     * @type \Titon\Route\SegmentMap
+     * @var \Titon\Route\SegmentMap
      */
     protected SegmentMap $_segments = Map {};
 
     /**
      * Storage engine instance.
      *
-     * @type \Titon\Cache\Storage
+     * @var \Titon\Cache\Storage
      */
     protected ?Storage $_storage;
 
@@ -627,7 +627,7 @@ class Router implements Subject {
                 $newPath .= '/{id}';
             }
 
-            /** @type \Titon\Route\Route $newRoute */
+            /** @var \Titon\Route\Route $newRoute */
             $newRoute = Registry::factory($class, Vector {$newPath, static::buildAction($newAction)}, false);
             $newRoute->setStatic($route->getStatic());
             $newRoute->setSecure($route->getSecure());

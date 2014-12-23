@@ -35,28 +35,28 @@ class Response extends Message implements OutgoingResponse {
     /**
      * Will return the response as a string instead of sending output.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_debug = false;
 
     /**
      * Will add a Content-MD5 header based on the body.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_md5 = false;
 
     /**
      * The HTTP protocol version.
      *
-     * @type string
+     * @var string
      */
     protected string $_protocolVersion = '1.1';
 
     /**
      * HTTP status code to output.
      *
-     * @type int
+     * @var int
      */
     protected int $_status = Http::OK;
 

@@ -22,14 +22,14 @@ class Message implements MessageInterface {
     /**
      * Headers to include in the request or response.
      *
-     * @type \Titon\Http\Bag\HeaderBag
+     * @var \Titon\Http\Bag\HeaderBag
      */
     public HeaderBag $headers;
 
     /**
      * The request or response body.
      *
-     * @type \Psr\Http\Message\StreamableInterface
+     * @var \Psr\Http\Message\StreamableInterface
      */
     protected ?StreamableInterface $_body = null;
 

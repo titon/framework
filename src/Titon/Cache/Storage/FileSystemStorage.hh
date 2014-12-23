@@ -30,14 +30,14 @@ class FileSystemStorage extends AbstractStorage {
      * List of cached file objects for the current request.
      * Does not include files that already exist.
      *
-     * @type \Titon\Cache\FileMap
+     * @var \Titon\Cache\FileMap
      */
     protected FileMap $_files = Map {};
 
     /**
      * Folder object for the cache folder.
      *
-     * @type \Titon\Io\Folder
+     * @var \Titon\Io\Folder
      */
     protected Folder $_folder;
 

@@ -25,7 +25,7 @@ class UrlBuilder {
     /**
      * Router instance.
      *
-     * @type \Titon\Route\Router
+     * @var \Titon\Route\Router
      */
     protected Router $_router;
 

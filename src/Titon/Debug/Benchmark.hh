@@ -23,7 +23,7 @@ class Benchmark {
     /**
      * User and system initiated benchmarking tests.
      *
-     * @type \Titon\Debug\MetricMap
+     * @var \Titon\Debug\MetricMap
      */
     protected static MetricMap $_benchmarks = Map {};
 

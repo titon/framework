@@ -23,7 +23,7 @@ class JsonResponse extends Response {
     /**
      * JSONP callback function.
      *
-     * @type string
+     * @var string
      */
     protected string $_callback = '';
 

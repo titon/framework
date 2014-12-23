@@ -19,7 +19,7 @@ trait IncomingRequestAware {
     /**
      * Request object.
      *
-     * @type \Psr\Http\Message\IncomingRequestInterface
+     * @var \Psr\Http\Message\IncomingRequestInterface
      */
     protected ?IncomingRequestInterface $_request;
 

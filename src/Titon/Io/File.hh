@@ -23,14 +23,14 @@ class File extends Node {
     /**
      * Resource handle.
      *
-     * @type resource
+     * @var resource
      */
     protected ?resource $_handle;
 
     /**
      * Current read / write mode.
      *
-     * @type string
+     * @var string
      */
     protected string $_mode = '';
 

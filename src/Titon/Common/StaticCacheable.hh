@@ -18,7 +18,7 @@ trait StaticCacheable {
     /**
      * Cached items indexed by key.
      *
-     * @type \Titon\Common\CacheMap
+     * @var \Titon\Common\CacheMap
      */
     protected static CacheMap $_cache = Map {};
 

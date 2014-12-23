@@ -43,35 +43,35 @@ class Environment implements Subject {
     /**
      * Currently active environment.
      *
-     * @type \Titon\Environment\Host
+     * @var \Titon\Environment\Host
      */
     protected ?Host $_current = null;
 
     /**
      * List of all environments.
      *
-     * @type \Titon\Environment\HostMap
+     * @var \Titon\Environment\HostMap
      */
     protected HostMap $_hosts = Map {};
 
     /**
      * The fallback environment.
      *
-     * @type \Titon\Environment\Host
+     * @var \Titon\Environment\Host
      */
     protected ?Host $_fallback = null;
 
     /**
      * Directory path to the secure variables directory.
      *
-     * @type string
+     * @var string
      */
     protected string $_securePath = '';
 
     /**
      * Secure variables loaded on initialization.
      *
-     * @type \Titon\Environment\VariableMap
+     * @var \Titon\Environment\VariableMap
      */
     protected VariableMap $_variables = Map {};
 

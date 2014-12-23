@@ -19,7 +19,7 @@ trait MethodMixin {
     /**
      * The types of acceptable HTTP methods (defaults to all).
      *
-     * @type \Titon\Route\Mixin\MethodList
+     * @var \Titon\Route\Mixin\MethodList
      */
     protected MethodList $_methods = Vector {};
 

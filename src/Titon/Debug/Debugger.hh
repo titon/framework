@@ -29,7 +29,7 @@ class Debugger {
     /**
      * Complete list of all internal errors types.
      *
-     * @type \Titon\Debug\ErrorCodeMap
+     * @var \Titon\Debug\ErrorCodeMap
      */
     public static ErrorCodeMap $errorTypes = Map {
         E_ERROR             => 'Error',
@@ -53,7 +53,7 @@ class Debugger {
     /**
      * Callback to handle exceptions.
      *
-     * @type \Titon\Debug\ExceptionHandler
+     * @var \Titon\Debug\ExceptionHandler
      */
     protected static ?ExceptionHandler $_handler;
 
@@ -61,14 +61,14 @@ class Debugger {
      * Has the debugger been initialized?
      * This stops multiple calls to handler registers.
      *
-     * @type bool
+     * @var bool
      */
     protected static bool $_initialized = false;
 
     /**
      * Logger instance.
      *
-     * @type \Psr\Log\LoggerInterface
+     * @var \Psr\Log\LoggerInterface
      */
     protected static ?LoggerInterface $_logger;
 

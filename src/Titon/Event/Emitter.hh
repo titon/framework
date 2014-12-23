@@ -26,7 +26,7 @@ class Emitter {
     /**
      * Registered observers per event.
      *
-     * @type \Titon\Event\ObserverContainer
+     * @var \Titon\Event\ObserverContainer
      */
     protected ObserverContainer $_observers = Map {};
 

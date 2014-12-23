@@ -21,14 +21,14 @@ abstract class AbstractStream implements StreamableInterface {
     /**
      * Cached meta data.
      *
-     * @type \Titon\Common\CacheMap
+     * @var \Titon\Common\CacheMap
      */
     protected CacheMap $_cache = Map {};
 
     /**
      * The stream resource.
      *
-     * @type resource
+     * @var resource
      */
     protected ?resource $_stream;
 

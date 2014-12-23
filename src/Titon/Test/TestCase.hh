@@ -29,7 +29,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * List of loaded fixtures.
      *
-     * @type \Titon\Test\FixtureMap
+     * @var \Titon\Test\FixtureMap
      */
     protected FixtureMap $_fixtures = Map {};
 
@@ -150,7 +150,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
         foreach ($fixtures as $fixture) {
             $className = sprintf('Titon\Test\Fixture\%sFixture', $fixture);
 
-            /** @type \Titon\Test\Fixture $object */
+            /** @var \Titon\Test\Fixture $object */
             $object = new $className();
             $object->createTable();
             $object->insertRecords();

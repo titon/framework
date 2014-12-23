@@ -17,7 +17,7 @@ trait StorageAware {
     /**
      * Storage engine instance.
      *
-     * @type \Titon\Cache\Storage
+     * @var \Titon\Cache\Storage
      */
     protected ?Storage $_storage;
 

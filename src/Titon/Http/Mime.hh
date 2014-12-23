@@ -34,7 +34,7 @@ class Mime {
     /**
      * List of all mime types.
      *
-     * @type \Titon\Http\MimeMap
+     * @var \Titon\Http\MimeMap
      */
     protected static MimeMap $_types = Map {
         '3dml' => 'text/vnd.in3d.3dml',

@@ -28,7 +28,7 @@ class RedisStorage extends AbstractStorage {
     /**
      * The third-party class instance.
      *
-     * @type \Redis
+     * @var \Redis
      */
     protected Redis $_redis;
 

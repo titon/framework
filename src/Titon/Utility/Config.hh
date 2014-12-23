@@ -25,7 +25,7 @@ class Config {
     /**
      * Current loaded configuration.
      *
-     * @type \Titon\Utility\ConfigMap
+     * @var \Titon\Utility\ConfigMap
      */
     protected static ConfigMap $_config = Map {};
 

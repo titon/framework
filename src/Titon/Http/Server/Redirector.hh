@@ -23,7 +23,7 @@ class Redirector {
     /**
      * Whether to exit() or return when redirecting.
      *
-     * @type bool
+     * @var bool
      */
     public static bool $exit = true;
 

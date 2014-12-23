@@ -24,35 +24,35 @@ class Observer {
     /**
      * Is the callback asynchronous?
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_async = false;
 
     /**
      * The callback to execute.
      *
-     * @type \Titon\Event\ObserverCallback
+     * @var \Titon\Event\ObserverCallback
      */
     protected ObserverCallback $_callback;
 
     /**
      * Has the callback been executed.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_executed = false;
 
     /**
      * Should the callback be executed one time only?
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_once;
 
     /**
      * The priority order for the observer.
      *
-     * @type int
+     * @var int
      */
     protected int $_priority;
 

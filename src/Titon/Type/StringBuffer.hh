@@ -23,7 +23,7 @@ class StringBuffer implements Serializable {
     /**
      * Raw string value.
      *
-     * @type string
+     * @var string
      */
     protected string $_value = '';
 

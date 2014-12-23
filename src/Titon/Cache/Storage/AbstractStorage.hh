@@ -27,7 +27,7 @@ abstract class AbstractStorage implements Storage {
     /**
      * List of cache items to be committed.
      *
-     * @type \Titon\Cache\ItemList
+     * @var \Titon\Cache\ItemList
      */
     protected ItemList $_deferred = Vector {};
 

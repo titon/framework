@@ -152,9 +152,9 @@ class Str {
      * @param string $string
      * @param \Titon\Common\DataMap $data
      * @param \Titon\Common\OptionMap $options {
-     *      @type string $before    Opening variable delimiter
-     *      @type string $after     Closing variable delimiter
-     *      @type bool $escape      Escape the string
+     *      @var string $before    Opening variable delimiter
+     *      @var string $after     Closing variable delimiter
+     *      @var bool $escape      Escape the string
      * }
      * @return string
      */
@@ -276,12 +276,12 @@ class Str {
      * @param string $string
      * @param int $limit
      * @param \Titon\Common\OptionMap $options {
-     *      @type bool $html        True to preserve HTML tags
-     *      @type bool $word        True to preserve trailing words
-     *      @type string $suffix    Will be appended to the end of the output
-     *      @type string $prefix    Will be appended to the beginning of the out output
-     *      @type string $open      The opening tag (defaults to < HTML)
-     *      @type string $close     The closing tag (defaults to > HTML)
+     *      @var bool $html        True to preserve HTML tags
+     *      @var bool $word        True to preserve trailing words
+     *      @var string $suffix    Will be appended to the end of the output
+     *      @var string $prefix    Will be appended to the beginning of the out output
+     *      @var string $open      The opening tag (defaults to < HTML)
+     *      @var string $close     The closing tag (defaults to > HTML)
      * }
      * @return string
      */

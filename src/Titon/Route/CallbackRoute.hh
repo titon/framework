@@ -23,7 +23,7 @@ class CallbackRoute extends Route {
     /**
      * The callback to execute during dispatch.
      *
-     * @type \Titon\Route\RouteCallback
+     * @var \Titon\Route\RouteCallback
      */
     protected RouteCallback $_callback;
 

@@ -17,7 +17,7 @@ trait SecureMixin {
     /**
      * When true, will only match if under HTTPS.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_secure = false;
 

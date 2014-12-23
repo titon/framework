@@ -25,14 +25,14 @@ class Group {
     /**
      * Prefix to prepend to all route paths.
      *
-     * @type string
+     * @var string
      */
     protected string $_prefix = '';
 
     /**
      * Suffix to append to all route paths.
      *
-     * @type string
+     * @var string
      */
     protected string $_suffix = '';
 

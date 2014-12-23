@@ -31,35 +31,35 @@ class Validator {
     /**
      * Data to validate against.
      *
-     * @type \Titon\Common\DataMap
+     * @var \Titon\Common\DataMap
      */
     protected DataMap $_data = Map {};
 
     /**
      * Errors gathered during validation.
      *
-     * @type \Titon\Utility\ErrorMap
+     * @var \Titon\Utility\ErrorMap
      */
     protected ErrorMap $_errors = Map {};
 
     /**
      * Mapping of fields and titles.
      *
-     * @type \Titon\Utility\FieldMap
+     * @var \Titon\Utility\FieldMap
      */
     protected FieldMap $_fields = Map {};
 
     /**
      * Fallback mapping of error messages.
      *
-     * @type \Titon\Utility\MessageMap
+     * @var \Titon\Utility\MessageMap
      */
     protected MessageMap $_messages = Map {};
 
     /**
      * Mapping of fields and validation rules.
      *
-     * @type \Titon\Utility\RuleContainer
+     * @var \Titon\Utility\RuleContainer
      */
     protected RuleContainer $_rules = Map {};
 
@@ -304,7 +304,7 @@ class Validator {
     public static function makeFromShorthand(DataMap $data = Map {}, Map<string, mixed> $fields = Map {}): Validator {
         $class = new ReflectionClass(static::class);
 
-        /** @type \Titon\Utility\Validator $obj */
+        /** @var \Titon\Utility\Validator $obj */
         $obj = $class->newInstanceArgs([$data]);
 
         foreach ($fields as $field => $options) {

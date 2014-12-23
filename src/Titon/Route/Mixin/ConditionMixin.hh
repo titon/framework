@@ -22,7 +22,7 @@ trait ConditionMixin {
     /**
      * List of conditions to validate against.
      *
-     * @type \Titon\Route\Mixin\ConditionList
+     * @var \Titon\Route\Mixin\ConditionList
      */
     protected ConditionList $_conditions = Vector {};
 

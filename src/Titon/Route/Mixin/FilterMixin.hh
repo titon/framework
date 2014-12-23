@@ -19,7 +19,7 @@ trait FilterMixin {
     /**
      * Filters to trigger once the route has been matched.
      *
-     * @type \Titon\Route\Mixin\FilterList
+     * @var \Titon\Route\Mixin\FilterList
      */
     protected FilterList $_filters = Vector {};
 

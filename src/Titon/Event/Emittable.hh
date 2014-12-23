@@ -20,7 +20,7 @@ trait Emittable {
     /**
      * Emitter object.
      *
-     * @type \Titon\Event\Emitter
+     * @var \Titon\Event\Emitter
      */
     protected Emitter $_emitter;
 

@@ -25,7 +25,7 @@ class DownloadResponse extends Response {
     /**
      * Path to the file.
      *
-     * @type string
+     * @var string
      */
     protected string $_path = '';
 

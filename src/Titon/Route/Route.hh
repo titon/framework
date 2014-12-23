@@ -46,49 +46,49 @@ class Route implements Serializable {
     /**
      * The action to execute if this route is matched.
      *
-     * @type \Titon\Route\Action
+     * @var \Titon\Route\Action
      */
     protected Action $_action;
 
     /**
      * The compiled regex pattern.
      *
-     * @type string
+     * @var string
      */
     protected string $_compiled = '';
 
     /**
      * Collection of route parameters.
      *
-     * @type \Titon\Route\ParamMap
+     * @var \Titon\Route\ParamMap
      */
     protected ParamMap $_params = Map {};
 
     /**
      * The path to match.
      *
-     * @type string
+     * @var string
      */
     protected string $_path = '';
 
     /**
      * A static route that contains no patterns.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_static = false;
 
     /**
      * Custom defined tokens.
      *
-     * @type \Titon\Route\TokenList
+     * @var \Titon\Route\TokenList
      */
     protected TokenList $_tokens = Vector {};
 
     /**
      * The corresponding URL when a match is found.
      *
-     * @type string
+     * @var string
      */
     protected string $_url = '';
 

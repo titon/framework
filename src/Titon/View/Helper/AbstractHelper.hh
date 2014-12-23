@@ -31,21 +31,21 @@ abstract class AbstractHelper implements Helper {
     /**
      * Automatic escaping.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_escape = true;
 
     /**
      * Mapping of HTML tags.
      *
-     * @type \Titon\View\Helper\TagMap
+     * @var \Titon\View\Helper\TagMap
      */
     protected TagMap $_tags = Map {};
 
     /**
      * View object.
      *
-     * @type \Titon\View\View
+     * @var \Titon\View\View
      */
     protected ?View $_view;
 

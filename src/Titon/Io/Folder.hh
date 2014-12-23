@@ -193,7 +193,7 @@ class Folder extends Node {
             return $contents;
         }
 
-        /** @type \SPLFileInfo $file */
+        /** @var \SPLFileInfo $file */
         foreach ($iterator as $file) {
             if ($file->isDir()) {
                 $contents[] = new Folder($file->getPathname());
@@ -245,7 +245,7 @@ class Folder extends Node {
             return $contents;
         }
 
-        /** @type \SPLFileInfo $file */
+        /** @var \SPLFileInfo $file */
         foreach ($iterator as $file) {
             if ($file->isDir()) {
                 $contents[] = new Folder($file->getPathname());

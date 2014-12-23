@@ -19,7 +19,7 @@ trait OutgoingResponseAware {
     /**
      * Response object.
      *
-     * @type \Psr\Http\Message\OutgoingResponseInterface
+     * @var \Psr\Http\Message\OutgoingResponseInterface
      */
     protected ?OutgoingResponseInterface $_response;
 

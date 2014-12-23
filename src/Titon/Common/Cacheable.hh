@@ -18,14 +18,14 @@ trait Cacheable {
     /**
      * Cached items indexed by key.
      *
-     * @type \Titon\Common\CacheMap
+     * @var \Titon\Common\CacheMap
      */
     protected CacheMap $_cache = Map {};
 
     /**
      * Is cache on or off?
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_cacheEnabled = true;
 

@@ -25,7 +25,7 @@ class Cache {
     /**
      * Storage engines.
      *
-     * @type \Titon\Cache\StorageMap
+     * @var \Titon\Cache\StorageMap
      */
     protected StorageMap $_storage = Map {};
 

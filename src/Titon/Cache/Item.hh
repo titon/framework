@@ -21,21 +21,21 @@ class Item {
     /**
      * The timestamp of when the item expires.
      *
-     * @type \DateTime
+     * @var \DateTime
      */
     protected ?DateTime $_expires;
 
     /**
      * The unique cache key.
      *
-     * @type string
+     * @var string
      */
     protected string $_key = '';
 
     /**
      * The items value to be saved.
      *
-     * @type mixed
+     * @var mixed
      */
     protected mixed $_value = '';
 

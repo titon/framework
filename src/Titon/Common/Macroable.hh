@@ -23,7 +23,7 @@ trait Macroable {
     /**
      * Custom methods to magically call through the static context.
      *
-     * @type \Titon\Common\MacroContainer
+     * @var \Titon\Common\MacroContainer
      */
     protected static MacroContainer $_macros = Map {};
 

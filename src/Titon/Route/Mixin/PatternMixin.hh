@@ -19,7 +19,7 @@ trait PatternMixin {
     /**
      * Custom defined regex patterns.
      *
-     * @type \Titon\Route\Mixin\PatternMap
+     * @var \Titon\Route\Mixin\PatternMap
      */
     protected PatternMap $_patterns = Map {};
 

@@ -3,7 +3,6 @@ namespace Titon\Debug;
 
 use Titon\Test\TestCase;
 use Titon\Utility\State\Server;
-use VirtualFileSystem\FileSystem;
 use \DateTime;
 
 class LoggerTest extends TestCase {
@@ -11,7 +10,7 @@ class LoggerTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createDirectory('/logs/');
     }
 

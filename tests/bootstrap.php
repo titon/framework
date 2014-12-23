@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -47,23 +47,4 @@ $suiteContents = file_get_contents($suitePath);
 if (strpos($suiteContents, 'basename(basename') === false) {
     file_put_contents($suitePath, str_replace('basename($filename, \'.php\')', 'basename(basename($filename, \'.hh\'), \'.php\')', $suiteContents));
     clearstatcache(true, $suitePath);
-}
-
-// Temporary fix until the PHPUnit patch is merged in
-// Issue: https://github.com/sebastianbergmann/phpunit/issues/1308
-// Patch: https://github.com/sebastianbergmann/phpunit/commit/42f3bd57dc5892d707ff0c4027e66f3424ae5b00
-$statePath = __DIR__ . '/../vendor/phpunit/phpunit/src/Util/GlobalState.php';
-$stateContents = file_get_contents($statePath);
-
-if (strpos($suiteContents, 'vfs') === false) {
-    $replacement = <<<'CODE'
-if (preg_match('/^(vfs|phpvfs[a-z0-9]+):/', $file)) {
-                continue;
-            }
-
-            if (!$blacklist->isBlacklisted($file) && is_file($file)) {
-CODE;
-
-    file_put_contents($statePath, str_replace('if (!$blacklist->isBlacklisted($file) && is_file($file)) {', $replacement, $stateContents));
-    clearstatcache(true, $statePath);
 }

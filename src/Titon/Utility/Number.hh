@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -106,14 +106,14 @@ class Number {
      *
      * @param int|float $number
      * @param \Titon\Common\OptionMap $options {
-     *      @type string $thousands Character used for thousands place
-     *      @type string $decimals  Character used for decimal
-     *      @type int $places       Decimal (cent) limit
-     *      @type string $code      Currency code with replaceable hash
-     *      @type string $dollar    Dollar sign with replaceable hash
-     *      @type string $cents     Cent sign with replaceable hash
-     *      @type string $use       Whether to use dollar or code for formatting
-     *      @type string $negative  Negative sign with replaceable hash
+     *      @var string $thousands Character used for thousands place
+     *      @var string $decimals  Character used for decimal
+     *      @var int $places       Decimal (cent) limit
+     *      @var string $code      Currency code with replaceable hash
+     *      @var string $dollar    Dollar sign with replaceable hash
+     *      @var string $cents     Cent sign with replaceable hash
+     *      @var string $use       Whether to use dollar or code for formatting
+     *      @var string $negative  Negative sign with replaceable hash
      * }
      * @return string
      */
@@ -256,9 +256,9 @@ class Number {
      *
      * @param int|float $number
      * @param \Titon\Common\OptionMap $options {
-     *      @type string $thousands Character used for thousands place
-     *      @type string $decimals  Character used for decimal
-     *      @type int $places       Decimal (cent) limit
+     *      @var string $thousands Character used for thousands place
+     *      @var string $decimals  Character used for decimal
+     *      @var int $places       Decimal (cent) limit
      * }
      * @return string
      */

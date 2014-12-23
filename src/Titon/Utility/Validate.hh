@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -8,7 +8,7 @@
 namespace Titon\Utility;
 
 use Titon\Common\Macroable;
-use Titon\Utility\Exception\InvalidArgumentException;
+use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Utility\Exception\InvalidCreditCardException;
 use \Indexish;
 
@@ -108,7 +108,7 @@ class Validate {
      * @param int $check
      * @param string $mode
      * @return bool
-     * @throws \Titon\Utility\Exception\InvalidArgumentException
+     * @throws \Titon\Common\Exception\InvalidArgumentException
      */
     public static function comparison(int $input, int $check, string $mode): bool {
         switch (strtolower($mode)) {

@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -23,7 +23,7 @@ class BreadcrumbHelper extends AbstractHelper {
     /**
      * A list of all breadcrumbs in the trail, with the title, url and attributes.
      *
-     * @type ArrayList<Breadcrumb>
+     * @var ArrayList<Breadcrumb>
      */
     protected ArrayList<Breadcrumb> $_breadcrumbs;
 
@@ -90,8 +90,10 @@ class BreadcrumbHelper extends AbstractHelper {
     public function generate(AttributeMap $attributes = Map {}): Vector<string> {
         $trail = Vector {};
 
-        /** @type \Titon\View\Helper\HtmlHelper $html */
+        /** @var \Titon\View\Helper\HtmlHelper $html */
         $html = $this->getHelper('html');
+
+        invariant($html instanceof HtmlHelper, 'Must be an instance of HtmlHelper');
 
         foreach ($this->getBreadcrumbs() as $crumb) {
             $trail[] = $html->anchor($crumb['title'], $crumb['url'], $crumb['attributes']->setAll($attributes));
@@ -155,8 +157,10 @@ class BreadcrumbHelper extends AbstractHelper {
         $depth = (int) $options['depth'];
         $title = [];
 
-        /** @type \Titon\View\Helper\HtmlHelper $html */
+        /** @var \Titon\View\Helper\HtmlHelper $html */
         $html = $this->getHelper('html');
+
+        invariant($html instanceof HtmlHelper, 'Must be an instance of HtmlHelper');
 
         if ($count) {
             if ($depth && $count > $depth) {
@@ -167,7 +171,7 @@ class BreadcrumbHelper extends AbstractHelper {
                 $title = $crumbs;
             }
 
-        } else if ($pageTitle = $html->title($options['separator'])) {
+        } else if ($pageTitle = $html->title((string) $options['separator'])) {
             $title[] = $pageTitle;
         }
 

@@ -5,7 +5,6 @@ use Titon\Http\Http;
 use Titon\Http\Stream\MemoryStream;
 use Titon\Test\TestCase;
 use Titon\Utility\Format;
-use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\Http\Server\Response $object
@@ -227,7 +226,7 @@ class ResponseTest extends TestCase {
     }
 
     public function testDownload() {
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createFile('/download.txt');
 
         $this->assertInstanceOf('Titon\Http\Server\DownloadResponse', Response::download($this->vfs->path('/download.txt')));

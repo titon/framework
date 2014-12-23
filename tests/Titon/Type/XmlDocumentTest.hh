@@ -299,7 +299,7 @@ XML;
     }
 
     /**
-     * @expectedException \Titon\Type\Exception\MissingFileException
+     * @expectedException \Titon\Common\Exception\MissingFileException
      */
     public function testFromFileMissingFile() {
         XmlDocument::fromFile(TEMP_DIR . '/type/barbarian-missing.xml');

@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -30,14 +30,14 @@ class FileSystemStorage extends AbstractStorage {
      * List of cached file objects for the current request.
      * Does not include files that already exist.
      *
-     * @type \Titon\Cache\FileMap
+     * @var \Titon\Cache\FileMap
      */
     protected FileMap $_files = Map {};
 
     /**
      * Folder object for the cache folder.
      *
-     * @type \Titon\Io\Folder
+     * @var \Titon\Io\Folder
      */
     protected Folder $_folder;
 

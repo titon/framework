@@ -1,7 +1,7 @@
 <?hh // partial
 // Because of PSR HTTP Message
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -22,14 +22,14 @@ class Message implements MessageInterface {
     /**
      * Headers to include in the request or response.
      *
-     * @type \Titon\Http\Bag\HeaderBag
+     * @var \Titon\Http\Bag\HeaderBag
      */
-    public HeaderBag $headers;
+    public HeaderBag<string, array<string>> $headers;
 
     /**
      * The request or response body.
      *
-     * @type \Psr\Http\Message\StreamableInterface
+     * @var \Psr\Http\Message\StreamableInterface
      */
     protected ?StreamableInterface $_body = null;
 

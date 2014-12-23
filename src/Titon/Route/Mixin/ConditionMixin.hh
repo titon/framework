@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -22,7 +22,7 @@ trait ConditionMixin {
     /**
      * List of conditions to validate against.
      *
-     * @type \Titon\Route\Mixin\ConditionList
+     * @var \Titon\Route\Mixin\ConditionList
      */
     protected ConditionList $_conditions = Vector {};
 

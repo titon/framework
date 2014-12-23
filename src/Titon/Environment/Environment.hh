@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -43,35 +43,35 @@ class Environment implements Subject {
     /**
      * Currently active environment.
      *
-     * @type \Titon\Environment\Host
+     * @var \Titon\Environment\Host
      */
     protected ?Host $_current = null;
 
     /**
      * List of all environments.
      *
-     * @type \Titon\Environment\HostMap
+     * @var \Titon\Environment\HostMap
      */
     protected HostMap $_hosts = Map {};
 
     /**
      * The fallback environment.
      *
-     * @type \Titon\Environment\Host
+     * @var \Titon\Environment\Host
      */
     protected ?Host $_fallback = null;
 
     /**
      * Directory path to the secure variables directory.
      *
-     * @type string
+     * @var string
      */
     protected string $_securePath = '';
 
     /**
      * Secure variables loaded on initialization.
      *
-     * @type \Titon\Environment\VariableMap
+     * @var \Titon\Environment\VariableMap
      */
     protected VariableMap $_variables = Map {};
 
@@ -80,7 +80,7 @@ class Environment implements Subject {
      *
      * @param string $path
      */
-    public function __construct($path = '') {
+    public function __construct(string $path = '') {
         if ($path) {
             $this->_securePath = Path::ds($path, true);
         }

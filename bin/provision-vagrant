@@ -5,7 +5,7 @@ sudo apt-get update
 sudo apt-get -y upgrade
 
 # Install packages
-sudo apt-get -y install git curl vim
+sudo apt-get -y install git curl vim python3
 
 # Install HHVM
 wget -O - http://dl.hhvm.com/conf/hhvm.gpg.key | sudo apt-key add -

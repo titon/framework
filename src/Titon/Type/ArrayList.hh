@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -55,7 +55,7 @@ class ArrayList<Tv> implements
     /**
      * Methods on the Vector collection that should be chainable through ArrayList.
      *
-     * @type Vector<string>
+     * @var Vector<string>
      */
     protected Vector<string> $_chainable = Vector {
         'add', 'addAll', 'clear', 'removeKey',
@@ -65,7 +65,7 @@ class ArrayList<Tv> implements
     /**
      * Methods on the Vector collection that should return a new ArrayList instance.
      *
-     * @type Vector<string>
+     * @var Vector<string>
      */
     protected Vector<string> $_immutable = Vector {
         'filter', 'filterWithKey', 'map', 'mapWithKey',
@@ -75,7 +75,7 @@ class ArrayList<Tv> implements
     /**
      * Raw internal Vector used for list management.
      *
-     * @type Vector<Tv>
+     * @var Vector<Tv>
      */
     protected Vector<Tv> $_value = Vector {};
 

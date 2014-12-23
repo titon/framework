@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -45,7 +45,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
     /**
      * The currently dispatched action.
      *
-     * @type string
+     * @var string
      */
     protected string $_action = 'index';
 
@@ -53,14 +53,14 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * A mapping of actions that have been dispatched,
      * to a list of arguments used to make the call.
      *
-     * @type \Titon\Controller\ActionMap
+     * @var \Titon\Controller\ActionMap
      */
     protected ActionMap $_arguments = Map {};
 
     /**
      * View instance.
      *
-     * @type \Titon\View\View
+     * @var \Titon\View\View
      */
     protected ?View $_view;
 
@@ -107,7 +107,9 @@ abstract class AbstractController implements Controller, Listener, Subject {
 
         // Trigger action and generate response from view templates
         } else {
+
             // UNSAFE
+            // The action is a variable instead of a literal string.
             $response = call_user_func_array(inst_meth($this, $action), $args);
         }
 
@@ -190,7 +192,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
     /**
      * {@inheritdoc}
      */
-    public function postProcess(Event $event, Controller $controller, string $action, string &$response): void {
+    public function postProcess(Event $event, Controller $controller, string $action, string $response): void {
         return;
     }
 
@@ -212,26 +214,19 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * @uses Titon\Http\Http
      */
     public function renderError(Exception $exception): string {
-        $template = 'error';
-        $status = 500;
+        $template = (error_reporting() <= 0) ? 'http' : 'error';
+        $status = ($exception instanceof HttpException) ? $exception->getCode() : 500;
         $view = $this->getView();
 
-        if (error_reporting() <= 0) {
-            $template = 'http';
-        }
-
-        if ($exception instanceof HttpException) {
-            $status = $exception->getCode();
-        }
-
-        $this->emit('controller.error', [$this, $exception]);
-
-        $this->getResponse()->statusCode($status);
+        // Set the response status code
+        $this->getResponse()?->statusCode($status);
 
         // If no view, exit with a generic message
         if (!$view) {
             return 'Internal server error.';
         }
+
+        $this->emit('controller.error', [$this, $exception]);
 
         return $view
             ->setVariables(Map {
@@ -239,7 +234,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
                 'error' => $exception,
                 'code' => $status,
                 'message' => $exception->getMessage(),
-                'url' => $this->getRequest()->getUrl()
+                'url' => $this->getRequest()?->getUrl() ?: ''
             })
             ->render('errors/' . $template, true);
     }

@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -24,35 +24,35 @@ class Observer {
     /**
      * Is the callback asynchronous?
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_async = false;
 
     /**
      * The callback to execute.
      *
-     * @type \Titon\Event\ObserverCallback
+     * @var \Titon\Event\ObserverCallback
      */
     protected ObserverCallback $_callback;
 
     /**
      * Has the callback been executed.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_executed = false;
 
     /**
      * Should the callback be executed one time only?
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_once;
 
     /**
      * The priority order for the observer.
      *
-     * @type int
+     * @var int
      */
     protected int $_priority;
 
@@ -81,8 +81,10 @@ class Observer {
      * @param \Titon\Event\ParamList $params
      * @return Awaitable<mixed>
      */
-    async public function asyncExecute(ParamList $params): Awaitable<mixed> {
-        return await $this->execute($params);
+    public async function asyncExecute(ParamList $params): Awaitable<mixed> {
+        $this->_executed = true;
+
+        return await call_user_func_array($this->getCallback(), $params);
     }
 
     /**

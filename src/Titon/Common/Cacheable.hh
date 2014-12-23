@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -18,14 +18,14 @@ trait Cacheable {
     /**
      * Cached items indexed by key.
      *
-     * @type \Titon\Common\CacheMap
+     * @var \Titon\Common\CacheMap
      */
     protected CacheMap $_cache = Map {};
 
     /**
      * Is cache on or off?
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_cacheEnabled = true;
 
@@ -43,10 +43,10 @@ trait Cacheable {
      * If the value happens to be a closure, evaluate the closure and save the result.
      *
      * @param mixed $key
-     * @param (function(mixed): mixed) $callback
+     * @param (function(T): mixed) $callback
      * @return mixed
      */
-    public function cache(mixed $key, (function(mixed): mixed) $callback): mixed {
+    public function cache<T>(mixed $key, (function(T): mixed) $callback): mixed {
         $key = $this->createCacheKey($key);
 
         if ($cache = $this->getCache($key)) {

@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -20,9 +20,9 @@ trait Emittable {
     /**
      * Emitter object.
      *
-     * @type \Titon\Event\Emitter
+     * @var \Titon\Event\Emitter
      */
-    protected Emitter $_emitter;
+    protected ?Emitter $_emitter;
 
     /**
      * @see \Titon\Event\Emitter::emit()
@@ -45,7 +45,7 @@ trait Emittable {
      */
     public function getEmitter(): Emitter {
         if (!$this->_emitter) {
-            $this->setEmitter(new Emitter());
+            $this->_emitter = new Emitter();
         }
 
         return $this->_emitter;

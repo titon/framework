@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -19,7 +19,7 @@ trait FilterMixin {
     /**
      * Filters to trigger once the route has been matched.
      *
-     * @type \Titon\Route\Mixin\FilterList
+     * @var \Titon\Route\Mixin\FilterList
      */
     protected FilterList $_filters = Vector {};
 

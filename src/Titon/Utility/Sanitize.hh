@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -34,9 +34,9 @@ class Sanitize {
      *
      * @param string $value
      * @param \Titon\Common\OptionMap $options {
-     *      @type string $encoding  Character encoding set; defaults to UTF-8
-     *      @type int $flags        Encoding flags; defaults to ENT_QUOTES
-     *      @type bool $double      Will double escape existing entities
+     *      @var string $encoding  Character encoding set; defaults to UTF-8
+     *      @var int $flags        Encoding flags; defaults to ENT_QUOTES
+     *      @var bool $double      Will double escape existing entities
      * }
      * @return string
      */
@@ -65,8 +65,8 @@ class Sanitize {
      *
      * @param string $value
      * @param \Titon\Common\OptionMap $options {
-     *      @type bool $strip       Will remove HTML tags
-     *      @type string $whitelist List of tags to not strip
+     *      @var bool $strip       Will remove HTML tags
+     *      @var string $whitelist List of tags to not strip
      * }
      * @return string
      */
@@ -99,11 +99,11 @@ class Sanitize {
      *
      * @param string $value
      * @param \Titon\Common\OptionMap $options {
-     *      @type bool $cr      Will remove carriage returns \r
-     *      @type bool $lf      Will remove line feeds \n
-     *      @type bool $crlf    Will remove CRLF \r\n
-     *      @type bool $trim    Will remove whitespace and newlines around the edges
-     *      @type int $limit    The start limit to remove extraneous characters
+     *      @var bool $cr      Will remove carriage returns \r
+     *      @var bool $lf      Will remove line feeds \n
+     *      @var bool $crlf    Will remove CRLF \r\n
+     *      @var bool $trim    Will remove whitespace and newlines around the edges
+     *      @var int $limit    The start limit to remove extraneous characters
      * }
      * @return string
      */
@@ -160,11 +160,11 @@ class Sanitize {
      *
      * @param string $value
      * @param \Titon\Common\OptionMap $options {
-     *      @type bool $space   Will remove white space
-     *      @type bool $tab     Will remove tabs
-     *      @type bool $strip   Will remove non-standard white space character
-     *      @type bool $trim    Will remove whitespace and newlines around the edges
-     *      @type int $limit    The start limit to remove extraneous characters
+     *      @var bool $space   Will remove white space
+     *      @var bool $tab     Will remove tabs
+     *      @var bool $strip   Will remove non-standard white space character
+     *      @var bool $trim    Will remove whitespace and newlines around the edges
+     *      @var int $limit    The start limit to remove extraneous characters
      * }
      * @return string
      */
@@ -211,7 +211,7 @@ class Sanitize {
      *
      * @param string $value
      * @param \Titon\Common\OptionMap $options {
-     *      @type bool $strip   Remove HTML tags
+     *      @var bool $strip   Remove HTML tags
      * }
      * @return string
      */

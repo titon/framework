@@ -38,7 +38,7 @@ class Emitter {
      * @param \Titon\Event\ParamList $params
      * @return \Titon\Event\Event
      */
-    public function dispatch(Event $event, ParamList $params = []): Event {
+    public function dispatch(Event $event, ParamList $params): Event {
         $key = $event->getKey();
 
         // Set call stack
@@ -83,7 +83,7 @@ class Emitter {
      * @param \Titon\Event\ParamList $params
      * @return \Titon\Event\Event
      */
-    public function emit(string $event, ParamList $params = []): Event {
+    public function emit(string $event, ParamList $params): Event {
         return $this->dispatch(new Event($event), $params);
     }
 
@@ -95,7 +95,7 @@ class Emitter {
      * @param \Titon\Event\ParamList $params
      * @return \Titon\Event\EventMap
      */
-    public function emitMany(mixed $event, ParamList $params = []): EventMap {
+    public function emitMany(mixed $event, ParamList $params): EventMap {
         $objects = Map {};
 
         foreach ($this->_resolveEventKeys($event) as $event) {

@@ -21,6 +21,12 @@ class ObserverAnnotationTest extends TestCase {
         $this->assertEquals(Vector {
             new Observer(inst_meth($stub, 'onceObserver'), 100, true),
         }, $stub->getEmitter()->getObservers('event.baz'));
+
+        $this->assertEquals(Vector {
+            new Observer(inst_meth($stub, 'asyncObserver'), 100, false),
+        }, $stub->getEmitter()->getObservers('event.qux'));
+
+        $this->assertTrue($stub->getEmitter()->getObservers('event.qux')[0]->isAsync());
     }
 
 }
@@ -33,12 +39,15 @@ class ObserverAnnotationStub implements Annotator, Subject {
     }
 
     <<Observer('event.foo')>>
-    public function defaultObserver(Event $event) {}
+    public function defaultObserver(Event $event): void {}
 
     <<Observer('event.bar', 5)>>
-    public function priorityObserver(Event $event) {}
+    public function priorityObserver(Event $event): void {}
 
     <<Observer('event.baz', 0, true)>>
-    public function onceObserver(Event $event) {}
+    public function onceObserver(Event $event): void {}
+
+    <<Observer('event.qux')>>
+    async public function asyncObserver(Event $event): Awaitable {}
 
 }

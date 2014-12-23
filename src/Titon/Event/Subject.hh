@@ -17,12 +17,12 @@ interface Subject {
     /**
      * @see \Titon\Event\Emitter::emit()
      */
-    public function emit(string $event, ParamList $params = []): Event;
+    public function emit(string $event, ParamList $params): Event;
 
     /**
      * @see \Titon\Event\Emitter::emitMany()
      */
-    public function emitMany(mixed $event, ParamList $params = []): EventMap;
+    public function emitMany(mixed $event, ParamList $params): EventMap;
 
     /**
      * Register an observer or listener to only trigger once and then remove itself from the list.

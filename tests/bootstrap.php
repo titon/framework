@@ -36,7 +36,6 @@ $loader = require VENDOR_DIR . '/autoload.php';
 $loader->add('', TEST_DIR);
 
 // Enable the Debugger for testing
-Debugger::initialize();
 Debugger::enable();
 
 // Temporary fix until the PHPUnit patch is merged in

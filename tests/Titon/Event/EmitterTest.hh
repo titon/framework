@@ -145,7 +145,7 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob3);
         $this->object->register('event.test', $ob4);
 
-        $event = $this->object->emit('event.test');
+        $event = $this->object->emit('event.test', []);
 
         $this->assertEquals(4, $event->getData('key'));
         $this->assertEquals(Map {'key' => 4}, $event->getData());
@@ -198,13 +198,14 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob2);
         $this->object->register('event.test', [$ob3, 'noop3']);
 
-        $event = $this->object->emit('event.test');
+        $event = $this->object->emit('event.test', []);
+
         $this->assertTrue($event->isStopped());
         $this->assertEquals(1, $event->getIndex());
     }
 
     public function testEmitNoObservers() {
-        $event = $this->object->emit('fake.event');
+        $event = $this->object->emit('fake.event', []);
 
         $this->assertInstanceOf('Titon\Event\Event', $event);
         $this->assertEquals(Vector {}, $event->getCallStack());
@@ -241,7 +242,7 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob3);
         $this->object->register('event.test', $ob4);
 
-        $event = $this->object->emit('event.test');
+        $event = $this->object->emit('event.test', []);
 
         $this->assertEquals(3, $count);
         $this->assertEquals(['foo' => 'bar'], $event->getState());
@@ -256,7 +257,8 @@ class EmitterTest extends TestCase {
         $this->object->register('event.test', $ob2);
         $this->object->registerListener($ob3);
 
-        $events = $this->object->emitMany('event.test event.test1');
+        $events = $this->object->emitMany('event.test event.test1', []);
+
         $this->assertEquals(2, count($events));
     }
 
@@ -269,7 +271,7 @@ class EmitterTest extends TestCase {
         $this->object->register('event.cb2', $ob2);
         $this->object->registerListener($ob3);
 
-        $events = $this->object->emitMany('event.*');
+        $events = $this->object->emitMany('event.*', []);
         $this->assertEquals(5, count($events));
     }
 

@@ -27,14 +27,14 @@ trait Emittable {
     /**
      * @see \Titon\Event\Emitter::emit()
      */
-    public function emit(string $event, ParamList $params = []): Event {
+    public function emit(string $event, ParamList $params): Event {
         return $this->getEmitter()->emit($event, $params);
     }
 
     /**
      * @see \Titon\Event\Emitter::emit()
      */
-    public function emitMany(mixed $event, ParamList $params = []): EventMap {
+    public function emitMany(mixed $event, ParamList $params): EventMap {
         return $this->getEmitter()->emitMany($event, $params);
     }
 

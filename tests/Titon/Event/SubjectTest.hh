@@ -15,11 +15,11 @@ class SubjectTest extends TestCase {
     }
 
     public function testEmit() {
-        $this->assertInstanceOf('Titon\Event\Event', $this->object->emit('event.test'));
+        $this->assertInstanceOf('Titon\Event\Event', $this->object->emit('event.test', []));
     }
 
     public function testEmitMany() {
-        $events = $this->object->emitMany('event.foo event.bar');
+        $events = $this->object->emitMany('event.foo event.bar', []);
 
         $this->assertEquals(2, count($events));
         $this->assertInstanceOf('Titon\Event\Event', $events['event.foo']);
@@ -56,8 +56,8 @@ class SubjectTest extends TestCase {
         $this->object->on('event.test', $ob3, 5, true);
         $this->object->on('event.test', $ob4, 75);
 
-        $this->assertEquals(4, count($this->object->emit('event.test')->getCallStack()));
-        $this->assertEquals(2, count($this->object->emit('event.test')->getCallStack()));
+        $this->assertEquals(4, count($this->object->emit('event.test', [])->getCallStack()));
+        $this->assertEquals(2, count($this->object->emit('event.test', [])->getCallStack()));
     }
 
 }

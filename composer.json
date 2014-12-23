@@ -18,7 +18,7 @@
         "ext-fileinfo": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "*",
+        "phpunit/phpunit": "~4.4.0",
         "mockery/mockery": "*",
         "php-vfs/php-vfs": "*",
         "psr/log": "*",

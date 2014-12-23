@@ -112,7 +112,7 @@ class Col {
         $data = Map {};
 
         foreach ($map as $key => $value) {
-            $data = static::insert($data, (string) $key, $value);
+            $data = static::insert($data, $key, $value);
         }
 
         return $data;
@@ -122,11 +122,11 @@ class Col {
      * Extract the value from a map, depending on the paths given, represented by dot notation.
      *
      * @param Map<Tk, Tv> $map
-     * @param string $path
+     * @param Tk $path
      * @return Tv
      */
-    public static function extract<Tk, Tv>(Map<Tk, Tv> $map, string $path): ?Tv {
-        $paths = explode('.', $path);
+    public static function extract<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): ?Tv {
+        $paths = explode('.', (string) $path);
         $key = array_shift($paths);
 
         // Index does not exist
@@ -152,11 +152,13 @@ class Col {
      * Flatten a multi-dimensional map by returning the values with their keys representing their previous pathing.
      *
      * @param Indexish<Tk, Tv> $map
-     * @param string $path
-     * @return Map<string, mixed>
+     * @param Tk $path
+     * @return Map<Tk, Tv>
      */
-    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $map, string $path = ''): Map<Tk, Tv> {
-        if ($path) {
+    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $map, ?Tk $path = null): Map<Tk, Tv> {
+        if ($path === null) {
+            $path = '';
+        } else if ($path) {
             $path .= '.';
         }
 
@@ -183,11 +185,11 @@ class Col {
      * Get a value from a map. If they path doesn't exist, return null, or if the path is empty, return the whole map.
      *
      * @param Map<Tk, Tv> $map
-     * @param string $path
+     * @param Tk $path
      * @param Tv $default
      * @return Tv
      */
-    public static function get<Tk, Tv>(Map<Tk, Tv> $map, string $path, ?Tv $default = null): ?Tv {
+    public static function get<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, ?Tv $default = null): ?Tv {
         if ($path === '') {
             return $map; // Allow whole collection to be returned
         }
@@ -205,11 +207,11 @@ class Col {
      * Checks to see if a key/value pair exists within a map, determined by the given path.
      *
      * @param Map<Tk, Tv> $map
-     * @param string $path
+     * @param Tk $path
      * @return bool
      */
-    public static function has<Tk, Tv>(Map<Tk, Tv> $map, string $path): bool {
-        $paths = explode('.', $path);
+    public static function has<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): bool {
+        $paths = explode('.', (string) $path);
         $key = array_shift($paths);
 
         // Index does not exist
@@ -231,11 +233,11 @@ class Col {
      * Includes the specified key-value pair in the map if the key doesn't already exist.
      *
      * @param Map<Tk, Tv> $map
-     * @param string $path
+     * @param Tk $path
      * @param Tv $value
      * @return Map<Tk, Tv>
      */
-    public static function inject<Tk, Tv>(Map<Tk, Tv> $map, string $path, Tv $value): Map<Tk, Tv> {
+    public static function inject<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, Tv $value): Map<Tk, Tv> {
         if (static::has($map, $path)) {
             return $map;
         }
@@ -247,12 +249,12 @@ class Col {
      * Inserts a value into a map based on the given path.
      *
      * @param Map<Tk, Tv> $map
-     * @param string $path
+     * @param Tk $path
      * @param Tv $value
      * @return Map<Tk, Tv>
      */
-    public static function insert<Tk, Tv>(Map<Tk, Tv> $map, string $path, Tv $value): Map<Tk, Tv> {
-        $paths = explode('.', $path);
+    public static function insert<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, Tv $value): Map<Tk, Tv> {
+        $paths = explode('.', (string) $path);
         $key = array_shift($paths);
 
         // In the last path so set the value
@@ -286,7 +288,7 @@ class Col {
      * @return bool
      */
     public static function isAlpha<Tk, Tv>(Indexish<Tk, Tv> $collection, bool $strict = true): bool {
-        return static::every($collection, function($key, $value): bool use ($strict) {
+        return static::every($collection, ($key, $value) ==> {
             if (!is_string($value)) {
                 return false;
             }
@@ -308,19 +310,17 @@ class Col {
      * @return bool
      */
     public static function isNumeric<Tk, Tv>(Indexish<Tk, Tv> $collection): bool {
-        return static::every($collection, function($key, $value): bool {
-            return is_numeric($value);
-        });
+        return static::every($collection, ($key, $value) ==> is_numeric($value) );
     }
 
     /**
      * Returns the key of the specified value. Will recursively search if the first pass doesn't match.
      *
      * @param Indexish<Tk, Tv> $collection
-     * @param mixed $match
+     * @param Ta $match
      * @return string
      */
-    public static function keyOf<Tk, Tv>(Indexish<Tk, Tv> $collection, mixed $match): string {
+    public static function keyOf<Tk, Tv, Ta>(Indexish<Tk, Tv> $collection, Ta $match): string {
         $return = '';
 
         foreach ($collection as $key => $value) {
@@ -341,11 +341,12 @@ class Col {
      * Merge one map into another. Values from the secondary maps will overwrite the primary map.
      * If two values are maps, they will be merged recursively. If two values are vectors, they will be combined.
      *
-     * @param Map<Tk, Tv> $base
-     * @param Map<Tk, Tv> $merge
+     * @param Map<Tk, Tv> $merges
      * @return Map<Tk, Tv>
      */
-    public static function merge<Tk, Tv>(Map<Tk, Tv> $base, ...$merges): Map<Tk, Tv> { // @todo - Variadic doesn't support type hints
+    public static function merge<Tk, Tv>(...$merges): Map<Tk, Tv> { // @todo - Variadic doesn't support type hints
+        $base = Map {};
+
         foreach ($merges as $merge) {
             if (!$merge instanceof Map) {
                 continue;
@@ -374,10 +375,10 @@ class Col {
      * Pluck a value out of a map and return an vector of the plucked values.
      *
      * @param Map<Tk, Tv> $map
-     * @param string $path
+     * @param Tk $path
      * @return Vector<Tv>
      */
-    public static function pluck<Tk, Tv>(Map<Tk, Tv> $map, string $path): Vector<Tv> {
+    public static function pluck<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): Vector<Tv> {
         $data = Vector {};
 
         foreach ($map as $item) {
@@ -418,11 +419,11 @@ class Col {
      * Remove an key from a map, determined by the given path.
      *
      * @param Map<Tk, Tv> $map
-     * @param string $path
+     * @param Tk $path
      * @return Map<Tk, Tv>
      */
-    public static function remove<Tk, Tv>(Map<Tk, Tv> $map, string $path): Map<Tk, Tv> {
-        $paths = explode('.', $path);
+    public static function remove<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): Map<Tk, Tv> {
+        $paths = explode('.', (string) $path);
         $key = array_shift($paths);
 
         // In the last path so remove the value
@@ -448,12 +449,12 @@ class Col {
     /**
      * Set a value into a map. If $paths is a map, loop over each item and insert the value.
      *
-     * @param Map<Tk, mixed> $map
-     * @param Map|string $path
+     * @param Map<Tk, Tv> $map
+     * @param Tk $path
      * @param Tv $value
      * @return Map<Tk, Tv>
      */
-    public static function set<Tk, Tv>(Map<Tk, Tv> $map, mixed $path, ?Tv $value = null): Map<Tk, Tv> {
+    public static function set<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, ?Tv $value = null): Map<Tk, Tv> {
         if ($path instanceof Map) {
             foreach ($path as $key => $value) {
                 $map = static::insert($map, (string) $key, $value);
@@ -534,7 +535,7 @@ class Col {
             if ($value instanceof Vector) {
                 $map[$key] = static::toVector($value);
 
-            } else if ($value instanceof KeyedTraversable) {
+            } else if ($value instanceof Indexish) {
                 $map[$key] = static::toMap($value);
 
             } else {
@@ -567,7 +568,7 @@ class Col {
             if ($value instanceof Map || (is_array($value) && !Col::isNumeric(array_keys($value)))) {
                 $vector[] = static::toMap($value);
 
-            } else if ($value instanceof KeyedTraversable) {
+            } else if ($value instanceof Vector || is_array($value)) {
                 $vector[] = static::toVector($value);
 
             } else {
@@ -577,6 +578,5 @@ class Col {
 
         return $vector;
     }
-
 
 }

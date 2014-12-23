@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -8,7 +8,6 @@
 namespace Titon\Http;
 
 use Titon\Http\Exception\InvalidExtensionException;
-use Titon\Common\StaticCacheable;
 
 type MimeMap = Map<string, string>;
 
@@ -18,7 +17,6 @@ type MimeMap = Map<string, string>;
  * @package Titon\Http
  */
 class Mime {
-    use StaticCacheable;
 
     /**
      * Top level types.
@@ -34,7 +32,7 @@ class Mime {
     /**
      * List of all mime types.
      *
-     * @type \Titon\Http\MimeMap
+     * @var \Titon\Http\MimeMap
      */
     protected static MimeMap $_types = Map {
         '3dml' => 'text/vnd.in3d.3dml',
@@ -961,18 +959,17 @@ class Mime {
      * @param string $type
      * @return \Titon\Http\MimeMap
      */
+    <<__Memoize>>
     public static function getAllByType(string $type): MimeMap {
-        return static::cache([__METHOD__, $type], function() use ($type) {
-            $clean = Map {};
+        $clean = Map {};
 
-            foreach (static::getAll() as $ext => $mimeType) {
-                if (strpos($mimeType, $type) === 0) {
-                    $clean[$ext] = $mimeType;
-                }
+        foreach (static::getAll() as $ext => $mimeType) {
+            if (strpos($mimeType, $type) === 0) {
+                $clean[$ext] = $mimeType;
             }
+        }
 
-            return $clean;
-        });
+        return $clean;
     }
 
     /**
@@ -981,18 +978,17 @@ class Mime {
      * @param string $type
      * @return Vector<string>
      */
+    <<__Memoize>>
     public static function getExtByType(string $type): Vector<string> {
-        return static::cache([__METHOD__, $type], function() use ($type) {
-            $clean = Vector {};
+        $clean = Vector {};
 
-            foreach (static::getAll() as $ext => $mimeType) {
-                if ($mimeType === $type) {
-                    $clean[] = $ext;
-                }
+        foreach (static::getAll() as $ext => $mimeType) {
+            if ($mimeType === $type) {
+                $clean[] = $ext;
             }
+        }
 
-            return $clean;
-        });
+        return $clean;
     }
 
     /**

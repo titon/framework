@@ -1,7 +1,7 @@
 <?hh // partial
 // Because of PSR HTTP Message
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -21,14 +21,14 @@ abstract class AbstractStream implements StreamableInterface {
     /**
      * Cached meta data.
      *
-     * @type \Titon\Common\CacheMap
+     * @var \Titon\Common\CacheMap
      */
     protected CacheMap $_cache = Map {};
 
     /**
      * The stream resource.
      *
-     * @type resource
+     * @var resource
      */
     protected ?resource $_stream;
 
@@ -142,7 +142,7 @@ abstract class AbstractStream implements StreamableInterface {
      * @return string
      */
     public function getMode(): string {
-        return $this->_cache['mode'];
+        return (string) $this->_cache['mode'];
     }
 
     /**
@@ -188,14 +188,14 @@ abstract class AbstractStream implements StreamableInterface {
      * @return bool
      */
     public function isLocal(): bool {
-        return $this->_cache['local'];
+        return (bool) $this->_cache['local'];
     }
 
     /**
      * {@inheritdoc}
      */
     public function isReadable(): bool {
-        return $this->_cache['readable'];
+        return (bool) $this->_cache['readable'];
     }
 
     /**
@@ -211,14 +211,14 @@ abstract class AbstractStream implements StreamableInterface {
      * {@inheritdoc}
      */
     public function isSeekable(): bool {
-        return $this->_cache['seekable'];
+        return (bool) $this->_cache['seekable'];
     }
 
     /**
      * {@inheritdoc}
      */
     public function isWritable(): bool {
-        return $this->_cache['writable'];
+        return (bool) $this->_cache['writable'];
     }
 
     /**

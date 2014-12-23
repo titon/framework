@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -30,14 +30,14 @@ abstract class AbstractBundle implements Bundle {
     /**
      * Resource locations.
      *
-     * @type Map<string, Vector<string>>
+     * @var Map<string, Vector<string>>
      */
     protected Map<string, Vector<string>> $_paths = Map {};
 
     /**
      * File readers.
      *
-     * @type Map<string, Reader>
+     * @var Map<string, Reader>
      */
     protected Map<string, Reader> $_readers = Map {};
 

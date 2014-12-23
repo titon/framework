@@ -9,7 +9,7 @@
                     <?php echo $i + 1; ?>:
                 </td>
                 <td class="trace-method">
-                    <?php if (isset($trace['args'])) { ?>
+                    <?php if (array_key_exists('args', $trace)) { ?>
                         <a href="javascript:;" onclick="return toggleArgs(<?php echo $rand; ?>, <?php echo $i; ?>);" class="debug-method"><?php echo $trace['method']; ?></a>
                     <?php } else { ?>
                         <span class="debug-method"><?php echo $trace['method']; ?></span>
@@ -23,7 +23,7 @@
                 </td>
             </tr>
 
-            <?php if (isset($trace['args'])) { ?>
+            <?php if (array_key_exists('args', $trace)) { ?>
 
                 <tr id="titon-args-<?php echo $rand; ?>-<?php echo $i; ?>" class="trace-args" style="display: none">
                     <td> </td>

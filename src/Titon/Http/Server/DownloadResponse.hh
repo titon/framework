@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -25,7 +25,7 @@ class DownloadResponse extends Response {
     /**
      * Path to the file.
      *
-     * @type string
+     * @var string
      */
     protected string $_path = '';
 

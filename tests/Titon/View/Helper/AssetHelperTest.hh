@@ -3,7 +3,6 @@ namespace Titon\View\Helper;
 
 use Titon\Test\TestCase;
 use Titon\View\EngineView;
-use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\View\Helper\AssetHelper $object
@@ -13,7 +12,7 @@ class AssetHelperTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createDirectory('/css/');
         $this->vfs->createFile('/css/test.css');
 

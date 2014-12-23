@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -25,28 +25,28 @@ class AssetHelper extends AbstractHelper {
     /**
      * Provides asset timestamping for cache busting.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_timestamping = true;
 
     /**
      * A list of JavaScript files to include in the current page.
      *
-     * @type \Titon\View\Helper\ScriptMap
+     * @var \Titon\View\Helper\ScriptMap
      */
     protected ScriptMap $_scripts = Map {};
 
     /**
      * A list of CSS stylesheets to include in the current page.
      *
-     * @type \Titon\View\Helper\StyleSheetMap
+     * @var \Titon\View\Helper\StyleSheetMap
      */
     protected StyleSheetMap $_stylesheets = Map {};
 
     /**
      * Path to the webroot where assets reside.
      *
-     * @type string
+     * @var string
      */
     protected string $_webroot = '';
 
@@ -242,10 +242,10 @@ class AssetHelper extends AbstractHelper {
         $scripts = $this->getScripts();
         $output = '';
 
-        /** @type \Titon\View\Helper\HtmlHelper $html */
+        /** @var \Titon\View\Helper\HtmlHelper $html */
         $html = $this->getHelper('html');
 
-        invariant($html instanceof HtmlHelper, 'Must be an HtmlHelper');
+        invariant($html instanceof HtmlHelper, 'Must be an instance of HtmlHelper');
 
         if ($scripts->contains($location)) {
             $groupedScripts = $scripts[$location];
@@ -271,10 +271,10 @@ class AssetHelper extends AbstractHelper {
         $stylesheets = $this->getStyleSheets();
         $output = '';
 
-        /** @type \Titon\View\Helper\HtmlHelper $html */
+        /** @var \Titon\View\Helper\HtmlHelper $html */
         $html = $this->getHelper('html');
 
-        invariant($html instanceof HtmlHelper, 'Must be an HtmlHelper');
+        invariant($html instanceof HtmlHelper, 'Must be an instance of HtmlHelper');
 
         if ($stylesheets) {
             ksort($stylesheets);

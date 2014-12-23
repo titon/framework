@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -8,6 +8,7 @@
 namespace Titon\Event;
 
 type ListenerMap = Map<string, mixed>;
+type ListenerOption = shape('method' => string, 'priority' => int, 'once' => bool);
 
 /**
  * The Listener interface defines groups of observers to register for events.

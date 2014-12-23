@@ -7,7 +7,6 @@ use Titon\Http\Server\Response;
 use Titon\Test\TestCase;
 use Titon\View\Engine\TemplateEngine;
 use Titon\View\EngineView;
-use VirtualFileSystem\FileSystem;
 
 /**
  * @property \Titon\Controller\ControllerStub $object
@@ -17,7 +16,7 @@ class ControllerTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createStructure([
             '/views/' => [
                 'private/' => [
@@ -93,9 +92,13 @@ class ControllerTest extends TestCase {
         $this->assertEquals(Vector {}, $this->object->getActionArguments('noAction'));
     }
 
-    public function testRenderError() {
+    public function testRenderErrorWithNoReporting() {
+        $old = error_reporting(0);
+
         $this->assertEquals('404: Not Found', $this->object->renderError(new NotFoundException('Not Found')));
         $this->assertEquals(404, $this->object->getResponse()->getStatusCode());
+
+        error_reporting($old);
     }
 
     public function testRenderErrorWithReporting() {

@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -10,7 +10,7 @@ namespace Titon\Test;
 use Titon\Db\Query;
 use Titon\Db\Repository;
 use Titon\Utility\Registry;
-use \Exception;
+use \RuntimeException;
 
 /**
  * Allows fixtures to setup database records through the db layer.
@@ -20,23 +20,23 @@ class Fixture {
     /**
      * Fully qualified repository class to use.
      *
-     * @type string
+     * @var string
      */
-    protected string $repository;
+    protected string $className = '';
 
     /**
      * List of records to insert into the table.
      *
-     * @type array
+     * @var array
      */
     protected array<mixed> $records = [];
 
     /**
      * Repository instance.
      *
-     * @type \Titon\Db\Repository
+     * @var \Titon\Db\Repository
      */
-    protected ?Repository $_repository;
+    protected ?Repository $_repository = null;
 
     /**
      * Create the database table using the table's schema.
@@ -46,7 +46,7 @@ class Fixture {
      */
     public function createTable(): bool {
         if (!$this->loadRepository()->createTable()) {
-            throw new Exception(sprintf('Failed to create database table for %s', get_class($this)));
+            throw new RuntimeException(sprintf('Failed to create database table for %s', static::class));
         }
 
         return true;
@@ -72,15 +72,15 @@ class Fixture {
             return $this->_repository;
         }
 
-        if (!$this->repository) {
-            throw new Exception(sprintf('Repository for %s has not been defined', get_class($this)));
+        if (!$this->className) {
+            throw new RuntimeException(sprintf('Repository for %s has not been defined', static::class));
         }
 
-        $class = Registry::factory($this->repository);
+        $repository = Registry::factory($this->className, Vector {}, false);
 
-        invariant($class instanceof Repository, 'Must be a Repository');
+        invariant($repository instanceof Repository, 'Must be a Repository');
 
-        return $this->_repository = $class;
+        return $this->_repository = $repository;
     }
 
     /**

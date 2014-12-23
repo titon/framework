@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -22,7 +22,7 @@ trait Instanceable {
     /**
      * Collection of class instances.
      *
-     * @type \Titon\Common\InstanceContainer
+     * @var \Titon\Common\InstanceContainer
      */
     protected static InstanceContainer $_instances = Map {};
 

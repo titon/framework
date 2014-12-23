@@ -1,7 +1,7 @@
 <?hh // partial
 // Because of PSR HTTP Message
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -39,63 +39,63 @@ class Request extends Message implements IncomingRequest {
     /**
      * Custom attributes for the request.
      *
-     * @type \Titon\Http\Bag\ParameterBag
+     * @var \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $attributes;
 
     /**
      * COOKIE data for the request.
      *
-     * @type \Titon\Http\Bag\CookieBag
+     * @var \Titon\Http\Bag\CookieBag
      */
     public CookieBag $cookies;
 
     /**
      * FILES data for the request.
      *
-     * @type \Titon\Http\Bag\ParameterBag
+     * @var \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $files;
 
     /**
      * POST data for the request.
      *
-     * @type \Titon\Http\Bag\ParameterBag
+     * @var \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $post;
 
     /**
      * GET data for the request.
      *
-     * @type \Titon\Http\Bag\ParameterBag
+     * @var \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $query;
 
     /**
      * SERVER environment variables.
      *
-     * @type \Titon\Http\Bag\ParameterBag
+     * @var \Titon\Http\Bag\ParameterBag
      */
     public ParameterBag $server;
 
     /**
      * The current type of request method.
      *
-     * @type string
+     * @var string
      */
     protected string $_method = '';
 
     /**
      * When enabled, will use applicable HTTP headers set by proxies.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_trustProxies = true;
 
     /**
      * The current URL for the request.
      *
-     * @type string
+     * @var string
      */
     protected string $_url = '';
 
@@ -136,7 +136,7 @@ class Request extends Message implements IncomingRequest {
                 continue;
             }
 
-            $headers[$key] = explode(',', $value);
+            $headers[$key] = explode(',', (string) $value);
         }
 
         $this->headers->add($headers);
@@ -291,7 +291,7 @@ class Request extends Message implements IncomingRequest {
         }
 
         foreach ($headers as $header) {
-            if ($ip = $this->server->get($header)) {
+            if ($ip = (string) $this->server->get($header)) {
                 if (strpos($ip, ',') !== false) {
                     $ip = trim(explode(',', $ip)[0]);
                 }
@@ -359,7 +359,7 @@ class Request extends Message implements IncomingRequest {
             }
         }
 
-        return preg_replace('/:\d+$/', '', trim(strtolower($host)));
+        return preg_replace('/:\d+$/', '', trim(strtolower((string) $host)));
     }
 
     /**
@@ -385,7 +385,7 @@ class Request extends Message implements IncomingRequest {
      * {@inheritdoc}
      */
     public function getProtocolVersion(): string {
-        return $this->server->get('SERVER_PROTOCOL', '1.1');
+        return (string) $this->server->get('SERVER_PROTOCOL', '1.1');
     }
 
     /**
@@ -405,7 +405,7 @@ class Request extends Message implements IncomingRequest {
             }
         }
 
-        if ($host = $this->server->get('HTTP_HOST')) {
+        if ($host = (string) $this->server->get('HTTP_HOST')) {
             if (strpos($host, ':') !== false) {
                 return (int) explode(':', $host)[1];
             }
@@ -435,7 +435,7 @@ class Request extends Message implements IncomingRequest {
             return '/';
         }
 
-        $host = $this->server->get('HTTP_HOST');
+        $host = (string) $this->server->get('HTTP_HOST');
 
         if (strpos($referrer, $host) !== false) {
             $referrer = str_replace($this->getScheme() . '://' . $host, '', $referrer);
@@ -457,7 +457,7 @@ class Request extends Message implements IncomingRequest {
      * @return string
      */
     public function getServerIP(): string {
-        return $this->server->get('SERVER_ADDR');
+        return (string) $this->server->get('SERVER_ADDR');
     }
 
     /**
@@ -479,15 +479,15 @@ class Request extends Message implements IncomingRequest {
 
             // Proper URL defined by the web server
             if ($path = $server->get('PATH_INFO')) {
-                $url = $path;
+                $url = (string) $path;
 
             // Strip off the query string if it exists
             } else if ($path = $server->get('REQUEST_URI')) {
-                $url = explode('?', $path)[0];
+                $url = explode('?', (string) $path)[0];
 
             // Remove the base folder and index file
             } else if ($path = $server->get('PHP_SELF')) {
-                $url = str_replace($script, '', $path);
+                $url = str_replace($script, '', (string) $path);
             }
 
             if ($base !== '/' && $base !== '\\') {

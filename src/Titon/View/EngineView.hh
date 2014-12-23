@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -24,7 +24,7 @@ class EngineView extends AbstractView {
     /**
      * Template rendering engine.
      *
-     * @type \Titon\View\Engine
+     * @var \Titon\View\Engine
      */
     protected Engine $_engine;
 
@@ -55,27 +55,27 @@ class EngineView extends AbstractView {
      */
     public function render(string $template, bool $private = false): string {
         return (string) $this->cache([__METHOD__, $template, $private], function(EngineView $view) use ($template, $private) {
-            $this->emit('view.rendering', [$this, &$template]);
+            $view->emit('view.rendering', [$view, &$template]);
 
-            $engine = $this->getEngine();
+            $engine = $view->getEngine();
             $type = $private ? Template::CLOSED : Template::OPEN;
 
             // Render template
-            $this->renderLoop($template, $type);
+            $view->renderLoop($template, $type);
 
             // Apply wrappers
             foreach ($engine->getWrappers() as $wrapper) {
-                $this->renderLoop($wrapper, Template::WRAPPER);
+                $view->renderLoop($wrapper, Template::WRAPPER);
             }
 
             // Apply layout
             if ($layout = $engine->getLayout()) {
-                $this->renderLoop($layout, Template::LAYOUT);
+                $view->renderLoop($layout, Template::LAYOUT);
             }
 
             $response = $engine->getContent();
 
-            $this->emit('view.rendered', [$this, &$response]);
+            $view->emit('view.rendered', [$view, &$response]);
 
             return $response;
         });
@@ -121,9 +121,11 @@ class EngineView extends AbstractView {
             return $this->getEngine()->render($path, $variables);
         };
 
-        return ($storage = $this->getStorage())
-            ? $storage->store(md5($path), $callback, $expires)
-            : call_user_func($callback);
+        if ($storage = $this->getStorage()) {
+            return (string) $storage->store(md5($path), $callback, $expires);
+        }
+
+        return (string) call_user_func($callback);
     }
 
     /**

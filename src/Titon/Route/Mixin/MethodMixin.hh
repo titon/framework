@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -19,7 +19,7 @@ trait MethodMixin {
     /**
      * The types of acceptable HTTP methods (defaults to all).
      *
-     * @type \Titon\Route\Mixin\MethodList
+     * @var \Titon\Route\Mixin\MethodList
      */
     protected MethodList $_methods = Vector {};
 

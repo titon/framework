@@ -4,14 +4,13 @@ namespace Titon\Http\Server;
 use Titon\Http\Http;
 use Titon\Test\TestCase;
 use Titon\Utility\State\Server;
-use VirtualFileSystem\FileSystem;
 
 class DownloadResponseTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->vfs->createDirectory('/http/');
         $this->vfs->createFile('/http/download.txt', 'This will be downloaded! Let\'s fluff this file with even more data to increase the file size.');
     }

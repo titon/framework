@@ -1,12 +1,13 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
 
 namespace Titon\Http;
 
+use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Utility\Crypt;
 use Titon\Utility\Time;
 
@@ -20,49 +21,49 @@ class Cookie {
     /**
      * What domain the cookie should be usable on.
      *
-     * @type string
+     * @var string
      */
     protected string $_domain = '';
 
     /**
      * The unix timestamp until the cookie expires.
      *
-     * @type int
+     * @var int
      */
     protected int $_expires = 0;
 
     /**
      * Should the cookie only be accessible through PHP and not the Javascript layer.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_httpOnly = true;
 
     /**
      * Name of the cookie.
      *
-     * @type string
+     * @var string
      */
     protected string $_name = '';
 
     /**
      * Which path should the cookie only be accessible to.
      *
-     * @type string
+     * @var string
      */
     protected string $_path = '/';
 
     /**
      * Should the cookie only be usable across an HTTPS connection.
      *
-     * @type bool
+     * @var bool
      */
     protected bool $_secure = false;
 
     /**
      * The cookie value.
      *
-     * @type string
+     * @var string
      */
     protected string $_value = '';
 
@@ -249,7 +250,7 @@ class Cookie {
      */
     public function setName(string $name): this {
         if (preg_match('/[=,;\s\013\014]/', $name)) {
-            throw new \InvalidArgumentException(sprintf('The cookie name %s contains invalid characters', $name));
+            throw new InvalidArgumentException(sprintf('The cookie name %s contains invalid characters', $name));
         }
 
         $this->_name = $name;

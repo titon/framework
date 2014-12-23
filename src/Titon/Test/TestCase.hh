@@ -1,6 +1,7 @@
-<?hh
+<?hh // partial
+// Because it extends a non-strict PHP file.
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -29,9 +30,9 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * List of loaded fixtures.
      *
-     * @type \Titon\Test\FixtureMap
+     * @var \Titon\Test\FixtureMap
      */
-    protected FixtureMap $fixtures = Map {};
+    protected FixtureMap $_fixtures = Map {};
 
     /**
      * Virtual file system.
@@ -66,6 +67,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
             'HTTPS' => 'off'
         ]);
 
+        // Initialize globals
         Cookie::initialize($_COOKIE);
         Env::initialize($_ENV);
         Files::initialize($_FILES);
@@ -83,9 +85,9 @@ class TestCase extends \PHPUnit_Framework_TestCase {
         parent::tearDown();
 
         $this->unloadFixtures();
+        $this->destroyVFS();
 
-        unset($this->vfs);
-
+        // Flush static helpers
         Config::flush();
         Registry::flush();
     }
@@ -118,8 +120,8 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @throws \Exception
      */
     public function getFixture(string $name): Fixture {
-        if ($this->fixtures->contains($name)) {
-            return $this->fixtures->get($name);
+        if ($this->getFixtures()->contains($name)) {
+            return $this->_fixtures[$name];
         }
 
         throw new \Exception(sprintf('Fixture %s does not exist', $name));
@@ -131,7 +133,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @return \Titon\Test\FixtureMap
      */
     public function getFixtures(): FixtureMap {
-        return $this->fixtures;
+        return $this->_fixtures;
     }
 
     /**
@@ -149,12 +151,12 @@ class TestCase extends \PHPUnit_Framework_TestCase {
         foreach ($fixtures as $fixture) {
             $className = sprintf('Titon\Test\Fixture\%sFixture', $fixture);
 
-            /** @type \Titon\Test\Fixture $object */
+            /** @var \Titon\Test\Fixture $object */
             $object = new $className();
             $object->createTable();
             $object->insertRecords();
 
-            $this->fixtures[$fixture] = $object;
+            $this->_fixtures[$fixture] = $object;
         }
 
         return $this;
@@ -166,11 +168,31 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @return $this
      */
     public function unloadFixtures(): this {
-        foreach ($this->fixtures as $name => $fixture) {
+        foreach ($this->getFixtures() as $name => $fixture) {
             $fixture->dropTable();
-
-            unset($this->fixtures[$name]);
         }
+
+        $this->getFixtures()->clear();
+
+        return $this;
+    }
+
+    /**
+     * Instantiate a new virtual file system.
+     *
+     * @return \VirtualFileSystem\FileSystem
+     */
+    public function setupVFS(): FileSystem {
+        return $this->vfs = new FileSystem();
+    }
+
+    /**
+     * Destroy the virtual file system.
+     *
+     * @return $this
+     */
+    public function destroyVFS(): this {
+        $this->vfs = null;
 
         return $this;
     }
@@ -178,11 +200,11 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * Assert that two array values are equal, disregarding the order.
      *
-     * @param array $expected
-     * @param array $actual
+     * @param array<Tk, Tv> $expected
+     * @param array<Tk, Tv> $actual
      * @param bool $key
      */
-    public function assertArraysEqual(array $expected, array $actual, bool $key = false): void {
+    public function assertArraysEqual<Tk, Tv>(array<Tk, Tv> $expected, array<Tk, Tv> $actual, bool $key = false): void {
         if ($key) {
             ksort($actual);
             ksort($expected);

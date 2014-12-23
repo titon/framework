@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -36,42 +36,42 @@ abstract class AbstractView implements View, Listener, Subject {
     /**
      * Variable data for templates.
      *
-     * @type \Titon\Common\DataMap
+     * @var \Titon\Common\DataMap
      */
     protected DataMap $_data = Map {};
 
     /**
      * The extension used for templates.
      *
-     * @type string
+     * @var string
      */
     protected string $_extension = 'tpl';
 
     /**
      * List of helpers.
      *
-     * @type \Titon\View\HelperMap
+     * @var \Titon\View\HelperMap
      */
     protected HelperMap $_helpers = Map {};
 
     /**
      * List of locales to use during template locating.
      *
-     * @type \Titon\View\LocaleList
+     * @var \Titon\View\LocaleList
      */
     protected LocaleList $_locales = Vector {};
 
     /**
      * List of lookup paths.
      *
-     * @type \Titon\View\PathList
+     * @var \Titon\View\PathList
      */
     protected PathList $_paths = Vector {};
 
     /**
      * Storage engine.
      *
-     * @type \Titon\Cache\Storage
+     * @var \Titon\Cache\Storage
      */
     protected ?Storage $_storage;
 
@@ -84,8 +84,6 @@ abstract class AbstractView implements View, Listener, Subject {
      * @param string $ext
      */
     public function __construct(mixed $paths, string $ext = 'tpl') {
-        $this->__initEmitter();
-
         if ($paths) {
             $this->addPaths(Col::toVector($paths));
         }
@@ -249,10 +247,10 @@ abstract class AbstractView implements View, Listener, Subject {
      */
     public function locateTemplate(string $template, Template $type = Template::OPEN): string {
         return (string) $this->cache([__METHOD__, $template, $type], function(AbstractView $view) use ($template, $type) {
-            $template = $this->formatPath($template);
-            $paths = $this->getPaths();
+            $template = $view->formatPath($template);
+            $paths = $view->getPaths();
 
-            $this->emit('view.locating', [&$template, $type, &$paths]);
+            $view->emit('view.locating', [&$template, $type, &$paths]);
 
             // Prepend parent path
             switch ($type) {
@@ -275,8 +273,8 @@ abstract class AbstractView implements View, Listener, Subject {
 
             // Generate a list of locale appended templates
             $templates = Vector {};
-            $locales = $this->getLocales();
-            $ext = $this->getExtension();
+            $locales = $view->getLocales();
+            $ext = $view->getExtension();
 
             if ($locales) {
                 foreach ($locales as $locale) {
@@ -306,7 +304,7 @@ abstract class AbstractView implements View, Listener, Subject {
                 throw new MissingTemplateException(sprintf('View template `%s` does not exist', $template));
             }
 
-            $this->emit('view.located', [&$absPath, $type]);
+            $view->emit('view.located', [&$absPath, $type]);
 
             return $absPath;
         });

@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -19,7 +19,7 @@ trait OutgoingResponseAware {
     /**
      * Response object.
      *
-     * @type \Psr\Http\Message\OutgoingResponseInterface
+     * @var \Psr\Http\Message\OutgoingResponseInterface
      */
     protected ?OutgoingResponseInterface $_response;
 

@@ -1,6 +1,6 @@
 <?hh // strict
 /**
- * @copyright   2010-2013, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */
@@ -26,21 +26,21 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Map of attributes for this element.
      *
-     * @type \Titon\Type\XmlAttributes
+     * @var \Titon\Type\XmlAttributes
      */
     protected XmlAttributes $_attributes = Map {};
 
     /**
      * List of children within this element.
      *
-     * @type \Titon\Type\XmlElementList
+     * @var \Titon\Type\XmlElementList
      */
     protected XmlElementList $_children = Vector {};
 
     /**
      * Map of attributes for document declaration (opening XML tag).
      *
-     * @type \Titon\Type\XmlAttributes
+     * @var \Titon\Type\XmlAttributes
      */
     protected XmlAttributes $_declaration = Map {
         'version' => '1.0',
@@ -50,28 +50,28 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Name of this element.
      *
-     * @type string
+     * @var string
      */
     protected string $_name = '';
 
     /**
      * Map of namespaces for this element.
      *
-     * @type \Titon\Type\XmlNamespaces
+     * @var \Titon\Type\XmlNamespaces
      */
     protected XmlNamespaces $_namespaces = Map {};
 
     /**
      * The parent element this child belongs to.
      *
-     * @type \Titon\Type\XmlElement
+     * @var \Titon\Type\XmlElement
      */
     protected ?XmlElement $_parent = null;
 
     /**
      * The value within the element. Is override by children.
      *
-     * @type string
+     * @var string
      */
     protected string $_value = '';
 

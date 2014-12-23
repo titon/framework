@@ -1,6 +1,7 @@
-<?hh // strict
+<?hh // partial
+// Because of `include`.
 /**
- * @copyright   2010-2014, The Titon Project
+ * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
  * @link        http://titon.io
  */

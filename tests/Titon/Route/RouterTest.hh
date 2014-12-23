@@ -372,7 +372,7 @@ class RouterTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Route\Exception\InvalidRouteException
+     * @expectedException \Titon\Route\Exception\InvalidRouteActionException
      */
     public function testParseActionInvalidRoute() {
         Router::parseAction('Broken+Route');

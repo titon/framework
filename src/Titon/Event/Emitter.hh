@@ -61,11 +61,8 @@ class Emitter {
         }
 
         // Notify observers
-        $this->_loopObservers($syncObservers, $event, $params);
-
-        if (!$event->isStopped()) {
-            $this->_loopObserversAsync($asyncObservers, $event, $params)->getWaitHandle()->join();
-        }
+        $this->_notifyObservers($syncObservers, $event, $params);
+        $this->_notifyObserversAsync($asyncObservers, $event, $params)->getWaitHandle()->join();
 
         // Remove all `once` observers
         foreach ($observers as $observer) {
@@ -230,7 +227,7 @@ class Emitter {
             foreach ($this->_parseOptions($options) as $opt) {
                 // UNSAFE
                 // Since inst_meth() accepts literal strings and we are passing variables
-                $this->register($event, inst_meth($listener, (string) $opt['method']), (int) $opt['priority'], (bool) $opt['once']);
+                $this->register($event, inst_meth($listener, $opt['method']), $opt['priority'], $opt['once']);
             }
         }
 
@@ -272,7 +269,7 @@ class Emitter {
             foreach ($this->_parseOptions($options) as $opt) {
                 // UNSAFE
                 // Since inst_meth() accepts literal strings and we are passing variables
-                $this->remove($event, inst_meth($listener, (string) $opt['method']));
+                $this->remove($event, inst_meth($listener, $opt['method']));
             }
         }
 
@@ -286,14 +283,51 @@ class Emitter {
      *
      * @param \Titon\Event\Event $event
      * @param mixed $response
+     * @return bool
      */
-    protected function _handleResponse(Event $event, mixed $response): void {
+    protected function _handleResponse(Event $event, mixed $response): bool {
         if ($response !== null && $response !== true) {
             $event->stop()->setState($response);
+        } else {
+            $event->next();
         }
 
-        // Increase notification count
-        $event->next();
+        return true;
+    }
+
+    /**
+     * Notify the observer by executing the callback with the defined params.
+     * Can optionally stop the event and set a state based on the callbacks response.
+     *
+     * @param \Titon\Event\Observer $observer
+     * @param \Titon\Event\Event $event
+     * @param array<mixed> $params
+     * @return bool
+     */
+    protected function _notifyObserver(Observer $observer, Event $event, array<mixed> $params): bool {
+        if ($event->isStopped()) {
+            return false;
+        }
+
+        return $this->_handleResponse($event, $observer->execute($params));
+    }
+
+    /**
+     * Asynchronously notify the observer.
+     *
+     * @param \Titon\Event\Observer $observer
+     * @param \Titon\Event\Event $event
+     * @param array<mixed> $params
+     * @return bool
+     */
+    async protected function _notifyObserverAsync(Observer $observer, Event $event, array<mixed> $params): Awaitable<bool> {
+        if ($event->isStopped()) {
+            return false;
+        }
+
+        $response = await $observer->asyncExecute($params);
+
+        return $this->_handleResponse($event, $response);
     }
 
     /**
@@ -304,7 +338,7 @@ class Emitter {
      * @param array<mixed> $params
      * @return bool
      */
-    protected function _loopObservers(ObserverList $observers, Event $event, array<mixed> $params): bool {
+    protected function _notifyObservers(ObserverList $observers, Event $event, array<mixed> $params): bool {
         foreach ($observers as $observer) {
             $this->_notifyObserver($observer, $event, $params);
 
@@ -324,7 +358,11 @@ class Emitter {
      * @param array<mixed> $params
      * @return Awaitable<bool>
      */
-    async protected function _loopObserversAsync(ObserverList $observers, Event $event, array<mixed> $params): Awaitable<bool> {
+    async protected function _notifyObserversAsync(ObserverList $observers, Event $event, array<mixed> $params): Awaitable<bool> {
+        if ($event->isStopped()) {
+            return false; // Exit early if non-async stopped propagation
+        }
+
         $handles = Vector {};
 
         foreach ($observers as $observer) {
@@ -340,9 +378,9 @@ class Emitter {
      * Parse the options from a listener into an indexed array of object method callbacks.
      *
      * @param array|string $options
-     * @return Vector<Map<string, mixed>>
+     * @return Vector<ListenerOption>
      */
-    protected function _parseOptions(mixed $options): Vector<Map<string, mixed>> {
+    protected function _parseOptions(mixed $options): Vector<ListenerOption> {
         if (!$options instanceof Vector) {
             $options = new Vector([$options]);
         }
@@ -352,64 +390,27 @@ class Emitter {
         $parsed = Vector {};
 
         foreach ($options as $option) {
-            $settings = Map {
+            $settings = shape(
                 'method' => '',
                 'priority' => 0,
                 'once' => false
-            };
+            );
 
             if (is_string($option)) {
                 $settings['method'] = $option;
 
             } else if ($option instanceof Map) {
-                $settings->setAll($option);
+                foreach (array_keys($settings) as $key) {
+                    if ($option->contains($key)) {
+                        $settings[$key] = $option[$key];
+                    }
+                }
             }
 
             $parsed[] = $settings;
         }
 
         return $parsed;
-    }
-
-    /**
-     * Notify the observer by executing the callback with the defined params.
-     * Can optionally stop the event and set a state based on the callbacks response.
-     *
-     * @param \Titon\Event\Observer $observer
-     * @param \Titon\Event\Event $event
-     * @param array<mixed> $params
-     * @return bool
-     */
-    protected function _notifyObserver(Observer $observer, Event $event, array<mixed> $params): bool {
-        if ($event->isStopped()) {
-            return false;
-        }
-
-        // Execute the callback
-        $this->_handleResponse($event, $observer->execute($params));
-
-        return true;
-    }
-
-    /**
-     * Asynchronously notify the observer.
-     *
-     * @param \Titon\Event\Observer $observer
-     * @param \Titon\Event\Event $event
-     * @param array<mixed> $params
-     * @return bool
-     */
-    async protected function _notifyObserverAsync(Observer $observer, Event $event, array<mixed> $params): Awaitable<bool> {
-        if ($event->isStopped()) {
-            return false;
-        }
-
-        // Execute the callback and wait for the response
-        $response = await $observer->asyncExecute($params);
-
-        $this->_handleResponse($event, $response);
-
-        return true;
     }
 
     /**

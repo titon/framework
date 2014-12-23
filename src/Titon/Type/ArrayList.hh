@@ -241,12 +241,12 @@ class ArrayList<Tv> implements
      *
      * @uses Titon\Utility\Col
      *
-     * @param (function(int, Tv): mixed) $callback
+     * @param (function(int, Tv): Tv) $callback
      * @param bool $recursive
      * @return \Titon\Type\ArrayList<Tv>
      */
-    public function each((function(int, Tv): mixed) $callback, bool $recursive = true): ArrayList<Tv> {
-        return new static(Col::each($this->value(), $callback, $recursive));
+    public function each((function(int, Tv): Tv) $callback): ArrayList<Tv> {
+        return new static(Col::each($this->value(), $callback));
     }
 
     /**

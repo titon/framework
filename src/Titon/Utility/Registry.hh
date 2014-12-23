@@ -14,7 +14,7 @@ use Titon\Utility\Exception\MissingObjectException;
 use \ReflectionClass;
 
 type RegistryCallback<T> = (function(): T);
-type RegistryMap = Map<string, mixed>;
+type RegistryMap<T> = Map<string, T>;
 
 /**
  * The Registry acts a central hub where any part of the application can access a single instance of a stored object.
@@ -22,7 +22,7 @@ type RegistryMap = Map<string, mixed>;
  *
  * @package Titon\Utility
  */
-class Registry {
+class Registry<T> {
     use Macroable;
 
     /**
@@ -31,14 +31,14 @@ class Registry {
      *
      * @var \Titon\Utility\RegistryMap
      */
-    protected static RegistryMap $_registered = Map {};
+    protected static RegistryMap<T> $_registered = Map {};
 
     /**
      * Return all registered objects.
      *
      * @return \Titon\Utility\RegistryMap
      */
-    public static function all(): RegistryMap {
+    public static function all(): RegistryMap<T> {
         return static::$_registered;
     }
 
@@ -52,7 +52,7 @@ class Registry {
      * @param bool $store
      * @return T
      */
-    public static function factory<T>(string $key, ArgumentList $params = Vector {}, bool $store = true): T {
+    public static function factory(string $key, ArgumentList $params = Vector {}, bool $store = true): T {
         if (static::has($key)) {
             return static::get($key);
         }
@@ -82,7 +82,7 @@ class Registry {
      * @return T
      * @throws \Titon\Utility\Exception\MissingObjectException
      */
-    public static function get<T>(string $key): T {
+    public static function get(string $key): T {
         if (static::has($key)) {
             $object = static::$_registered[$key];
 
@@ -123,8 +123,10 @@ class Registry {
      * @param string $key
      * @param \Titon\Utility\RegistryCallback $callback
      */
-    public static function register<T>(string $key, RegistryCallback<T> $callback): void {
-        static::set($callback, $key);
+    public static function register(string $key, RegistryCallback<T> $callback): void {
+        // UNSAFE
+        // Since the property value is T while the callback is RegistryCallback<T>
+        static::$_registered[$key] = $callback;
     }
 
     /**
@@ -144,7 +146,7 @@ class Registry {
      * @return T
      * @throws \Titon\Utility\Exception\InvalidObjectException
      */
-    public static function set<T>(T $object, string $key = ''): T {
+    public static function set(T $object, string $key = ''): T {
         if (!is_object($object)) {
             throw new InvalidObjectException('The object to register must be instantiated');
         }

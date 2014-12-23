@@ -90,8 +90,8 @@ function col_depth<Tv>(Traversable<Tv> $collection): int {
 /**
  * @see Titon\Utility\Col::each()
  */
-function col_each<Tk, Tv>(Indexish<Tk, Tv> $collection, (function(Tk, Tv): Tv) $callback, bool $recursive = true): Indexish<Tk, Tv> {
-    return Col::each($collection, $callback, $recursive);
+function col_each<Tk, Tv>(Indexish<Tk, Tv> $collection, (function(Tk, Tv): Tv) $callback): Indexish<Tk, Tv> {
+    return Col::each($collection, $callback);
 }
 
 /**
@@ -125,49 +125,49 @@ function col_flatten<Tk, Tv>(Map<Tk, Tv> $map, string $path = ''): Map<Tk, Tv> {
 /**
  * @see Titon\Utility\Col::get()
  */
-function col_get<Tk, Tv>(Map<Tk, Tv> $map, string $path, ?Tv $default = null): ?Tv {
+function col_get<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, ?Tv $default = null): ?Tv {
     return Col::get($map, $path, $default);
 }
 
 /**
  * @see Titon\Utility\Col::has()
  */
-function col_has<Tk, Tv>(Map<Tk, Tv> $map, string $path): bool {
+function col_has<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): bool {
     return Col::has($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::inject()
  */
-function col_inject<Tk, Tv>(Map<Tk, Tv> $map, string $path, Tv $value): Map<Tk, Tv> {
+function col_inject<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, Tv $value): Map<Tk, Tv> {
     return Col::inject($map, $path, $value);
 }
 
 /**
  * @see Titon\Utility\Col::keyOf()
  */
-function col_key_of<Tk, Tv>(Indexish<Tk, Tv> $collection, mixed $match): string {
+function col_key_of<Tk, Tv, Tm>(Indexish<Tk, Tv> $collection, Tm $match): string {
     return Col::keyOf($collection, $match);
 }
 
 /**
  * @see Titon\Utility\Col::pluck()
  */
-function col_pluck<Tk, Tv>(Map<Tk, Tv> $map, string $path): Vector<Tv> {
+function col_pluck<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): Vector<Tv> {
     return Col::pluck($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::remove()
  */
-function col_remove<Tk, Tv>(Map<Tk, Tv> $map, string $path): Map<Tk, Tv> {
+function col_remove<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): Map<Tk, Tv> {
     return Col::remove($map, $path);
 }
 
 /**
  * @see Titon\Utility\Col::set()
  */
-function col_set<Tk, Tv>(Map<Tk, Tv> $map, mixed $path, ?Tv $value = null): Map<Tk, Tv> {
+function col_set<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, ?Tv $value = null): Map<Tk, Tv> {
     return Col::set($map, $path, $value);
 }
 
@@ -244,21 +244,21 @@ function str_truncate(string $string, int $limit = 25, Map<string, mixed> $optio
 /**
  * @see Titon\Utility\Col::toArray()
  */
-function to_array<Tk, Tv>(mixed $data): array<Tk, Tv> {
+function to_array<Tk, Tv, Tr>(Tr $data): array<Tk, Tv> {
     return Col::toArray($data);
 }
 
 /**
  * @see Titon\Utility\Col::toMap()
  */
-function to_map<Tk, Tv>(mixed $data): Map<Tk, Tv> {
+function to_map<Tk, Tv, Tr>(Tr $data): Map<Tk, Tv> {
     return Col::toMap($data);
 }
 
 /**
  * @see Titon\Utility\Col::toVector()
  */
-function to_vector<Tv>(mixed $data): Vector<Tv> {
+function to_vector<Tv, Tr>(Tr $data): Vector<Tv> {
     return Col::toVector($data);
 }
 

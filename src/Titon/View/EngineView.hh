@@ -35,10 +35,10 @@ class EngineView extends AbstractView {
      * @param string $ext
      */
     public function __construct(mixed $paths, string $ext = 'tpl') {
+        parent::__construct($paths, $ext);
+
         $this->_engine = new TemplateEngine();
         $this->_engine->setView($this);
-
-        parent::__construct($paths, $ext);
     }
 
     /**

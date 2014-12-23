@@ -226,12 +226,11 @@ class HashMap<Tk, Tv> implements
      *
      * @uses Titon\Utility\Col
      *
-     * @param (function(Tk, Tv): mixed) $callback
-     * @param bool $recursive
+     * @param (function(Tk, Tv): Tv) $callback
      * @return \Titon\Type\HashMap<Tk, Tv>
      */
-    public function each((function(Tk, Tv): mixed) $callback, bool $recursive = true): HashMap<Tk, Tv> {
-        return new static(Col::each($this->value(), $callback, $recursive));
+    public function each((function(Tk, Tv): Tv) $callback): HashMap<Tk, Tv> {
+        return new static(Col::each($this->value(), $callback));
     }
 
     /**

@@ -11,6 +11,7 @@ use Titon\Common\Macroable;
 use Titon\Type\Contract\Arrayable;
 use Titon\Type\Contract\Mapable;
 use Titon\Type\Contract\Vectorable;
+use \HH\Traversable;
 use \Indexish;
 
 /**
@@ -49,25 +50,17 @@ class Col {
 
     /**
      * Execute a function for each key-value pair in the collection.
-     * If recursive is true, will apply the callback to nested collections as well.
      *
      * @param Indexish<Tk, Tv> $collection
      * @param (function(Tk, Tv): Tv) $callback
-     * @param bool $recursive
-     * @return Map<Ta, Tb>
+     * @return Indexish<Tk, Tv>
      */
-    public static function each<Tk, Tv, Ta>(Indexish<Tk, Tv> $collection, (function(Tk, Tv): Ta) $callback, bool $recursive = true): Map<Tk, Ta> {
-        $clean = Map {};
-
+    public static function each<Tk, Tv>(Indexish<Tk, Tv> $collection, (function(Tk, Tv): Tv) $callback): Indexish<Tk, Tv> {
         foreach ($collection as $key => $value) {
-            if ($value instanceof Indexish && $recursive) {
-                $clean[$key] = static::each($value, $callback, $recursive);
-            } else {
-                $clean[$key] = call_user_func_array($callback, [$key, $value]);
-            }
+            $collection[$key] = call_user_func_array($callback, [$key, $value]);
         }
 
-        return $clean;
+        return $collection;
     }
 
     /**
@@ -126,7 +119,7 @@ class Col {
      * @return Tv
      */
     public static function extract<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): ?Tv {
-        $paths = explode('.', (string) $path);
+        $paths = explode('.', $path);
         $key = array_shift($paths);
 
         // Index does not exist
@@ -152,13 +145,11 @@ class Col {
      * Flatten a multi-dimensional map by returning the values with their keys representing their previous pathing.
      *
      * @param Indexish<Tk, Tv> $map
-     * @param Tk $path
+     * @param string $path
      * @return Map<Tk, Tv>
      */
-    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $map, ?Tk $path = null): Map<Tk, Tv> {
-        if ($path === null) {
-            $path = '';
-        } else if ($path) {
+    public static function flatten<Tk, Tv>(Indexish<Tk, Tv> $map, string $path = ''): Map<Tk, Tv> {
+        if ($path) {
             $path .= '.';
         }
 
@@ -168,7 +159,7 @@ class Col {
             $stringKey = $path . (string) $key;
 
             if ($value instanceof Indexish) {
-                if (!$value) {
+                if (count($value) <= 0) {
                     $data[$stringKey] = null;
                 } else {
                     $data = static::merge($data, static::flatten($value, $stringKey));
@@ -190,7 +181,7 @@ class Col {
      * @return Tv
      */
     public static function get<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, ?Tv $default = null): ?Tv {
-        if ($path === '') {
+        if (!$path) {
             return $map; // Allow whole collection to be returned
         }
 
@@ -211,7 +202,7 @@ class Col {
      * @return bool
      */
     public static function has<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): bool {
-        $paths = explode('.', (string) $path);
+        $paths = explode('.', $path);
         $key = array_shift($paths);
 
         // Index does not exist
@@ -254,7 +245,7 @@ class Col {
      * @return Map<Tk, Tv>
      */
     public static function insert<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, Tv $value): Map<Tk, Tv> {
-        $paths = explode('.', (string) $path);
+        $paths = explode('.', $path);
         $key = array_shift($paths);
 
         // In the last path so set the value
@@ -317,10 +308,10 @@ class Col {
      * Returns the key of the specified value. Will recursively search if the first pass doesn't match.
      *
      * @param Indexish<Tk, Tv> $collection
-     * @param Ta $match
+     * @param Tm $match
      * @return string
      */
-    public static function keyOf<Tk, Tv, Ta>(Indexish<Tk, Tv> $collection, Ta $match): string {
+    public static function keyOf<Tk, Tv, Tm>(Indexish<Tk, Tv> $collection, Tm $match): string {
         $return = '';
 
         foreach ($collection as $key => $value) {
@@ -348,7 +339,7 @@ class Col {
         $base = Map {};
 
         foreach ($merges as $merge) {
-            if (!$merge instanceof Map) {
+            if (!$merge instanceof Indexish) {
                 continue;
             }
 
@@ -356,11 +347,11 @@ class Col {
                 if ($base->contains($key)) {
                     $current = $base[$key];
 
-                    if ($value instanceof Map && $current instanceof Map) {
-                        $value = static::merge($current, $value);
-
-                    } else if ($value instanceof Vector && $current instanceof Vector) {
+                    if ($value instanceof Vector && $current instanceof Vector) {
                         $value = $current->addAll($value);
+
+                    } else if ($value instanceof Indexish && $current instanceof Indexish) {
+                        $value = static::merge($current, $value); // Map and array
                     }
                 }
 
@@ -423,7 +414,7 @@ class Col {
      * @return Map<Tk, Tv>
      */
     public static function remove<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): Map<Tk, Tv> {
-        $paths = explode('.', (string) $path);
+        $paths = explode('.', $path);
         $key = array_shift($paths);
 
         // In the last path so remove the value
@@ -457,10 +448,10 @@ class Col {
     public static function set<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, ?Tv $value = null): Map<Tk, Tv> {
         if ($path instanceof Map) {
             foreach ($path as $key => $value) {
-                $map = static::insert($map, (string) $key, $value);
+                $map = static::insert($map, $key, $value);
             }
         } else {
-            $map = static::insert($map, (string) $path, $value);
+            $map = static::insert($map, $path, $value);
         }
 
         return $map;
@@ -486,10 +477,10 @@ class Col {
     /**
      * Recursively convert a resource into an array.
      *
-     * @param mixed $resource
+     * @param Tr $resource
      * @return array<Tk, Tv>
      */
-    public static function toArray<Tk, Tv>(mixed $resource): array<Tk, Tv> {
+    public static function toArray<Tk, Tv, Tr>(Tr $resource): array<Tk, Tv> {
         if ($resource instanceof Arrayable) {
             return $resource->toArray();
         }
@@ -514,22 +505,23 @@ class Col {
     /**
      * Recursively convert a resource into a map.
      *
-     * @param mixed $resource
+     * @param Tr $resource
      * @return Map<Tk, Tv>
      */
-    public static function toMap<Tk, Tv>(mixed $resource): Map<Tk, Tv> {
-        $map = Map {};
+    public static function toMap<Tk, Tv, Tr>(Tr $resource): Map<Tk, Tv> {
 
         if ($resource instanceof Mapable) {
             return $resource->toMap();
 
         } else if (!$resource instanceof KeyedTraversable) {
-            $map[0] = $resource;
+            $map = new Map([$resource]);
 
             return $map;
         }
 
         invariant($resource instanceof KeyedTraversable, 'Resource must be traversable');
+
+        $map = Map {};
 
         foreach ($resource as $key => $value) {
             if ($value instanceof Vector) {
@@ -549,10 +541,10 @@ class Col {
     /**
      * Recursively convert a resource into a vector.
      *
-     * @param mixed $resource
+     * @param Tr $resource
      * @return Vector<Tv>
      */
-    public static function toVector<Tv>(mixed $resource): Vector<Tv> {
+    public static function toVector<Tv, Tr>(Tr $resource): Vector<Tv> {
         $vector = Vector {};
 
         if ($resource instanceof Vectorable) {

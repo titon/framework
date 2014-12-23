@@ -232,8 +232,8 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     /**
      * Assert that two vectors are equal, disregarding the order.
      *
-     * @param Vector<mixed> $expected
-     * @param Vector<mixed> $actual
+     * @param Vector<Tv> $expected
+     * @param Vector<Tv> $actual
      */
     public function assertVectorsEqual<Tv>(Vector<Tv> $expected, Vector<Tv> $actual): void {
         sort($actual);

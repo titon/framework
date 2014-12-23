@@ -16,7 +16,6 @@ type Breadcrumb = shape('title' => string, 'url' => string, 'attributes' => Attr
  * The BreadcrumbHelper is primarily used for adding and generating breadcrumb lists.
  *
  * @package Titon\View\Helper
- * @property \Titon\View\Helper\HtmlHelper $html
  */
 class BreadcrumbHelper extends AbstractHelper {
 

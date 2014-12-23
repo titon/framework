@@ -36,7 +36,7 @@ namespace {
      *
      * @param string $path
      * @return array<Tk, Tv>
-     * @throws \RuntimeException
+     * @throws \Titon\Common\Exception\MissingFileException
      */
     function include_file<Tk, Tv>(string $path): array<Tk, Tv> {
         if (!file_exists($path)) {
@@ -52,7 +52,7 @@ namespace {
      * @param string $path
      * @param array <string, Tv> $variables
      * @return string
-     * @throws \RuntimeException
+     * @throws \Titon\Common\Exception\MissingFileException
      */
     function render_template<Tv>(string $path, array<string, Tv> $variables = []): string {
         if (!file_exists($path)) {

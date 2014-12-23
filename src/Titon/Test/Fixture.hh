@@ -46,7 +46,7 @@ class Fixture {
      */
     public function createTable(): bool {
         if (!$this->loadRepository()->createTable()) {
-            throw new RuntimeException(sprintf('Failed to create database table for %s', get_class($this)));
+            throw new RuntimeException(sprintf('Failed to create database table for %s', static::class));
         }
 
         return true;

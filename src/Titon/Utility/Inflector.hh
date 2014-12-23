@@ -162,7 +162,7 @@ class Inflector {
      * @return string
      */
     public static function snakeCase(string $string): string {
-        return static::underscore($string);
+        return (string) static::underscore($string);
     }
 
     /**

@@ -16,8 +16,10 @@ use Titon\Io\Folder;
 use Titon\Io\PathList;
 use Titon\Io\ReaderMap;
 use Titon\Io\Reader;
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\MissingDomainException;
 use Titon\Io\Exception\MissingReaderException;
+use Titon\Utility\Col;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 
@@ -86,10 +88,10 @@ abstract class AbstractBundle implements Bundle {
      * {@inheritdoc}
      */
     public function getContents(string $domain): PathList {
-        return $this->cache([__METHOD__, $domain], function() use ($domain) {
+        $list = $this->cache([__METHOD__, $domain], (AbstractBundle $bundle) ==> {
             $contents = Vector {};
 
-            foreach ($this->getDomainPaths($domain) as $path) {
+            foreach ($bundle->getDomainPaths($domain) as $path) {
                 $folder = new Folder($path);
 
                 foreach ($folder->read() as $file) {
@@ -101,6 +103,10 @@ abstract class AbstractBundle implements Bundle {
 
             return $contents;
         });
+
+        invariant($list instanceof Vector, 'Bundle path list must be a vector');
+
+        return $list;
     }
 
     /**
@@ -148,24 +154,28 @@ abstract class AbstractBundle implements Bundle {
     public function loadResource(string $domain, string $resource): ResourceMap {
         if ($this->getReaders()->isEmpty()) {
             throw new MissingReaderException('A Reader must be loaded to read Bundle resources');
-
-        } else if ($cache = $this->getCache([__METHOD__, $resource])) {
-            return $cache;
         }
 
-        $contents = Map {};
+        $resource = $this->cache([__METHOD__, $domain, $resource], (AbstractBundle $bundle) ==> {
+            $contents = Map {};
+            $readers = $bundle->getReaders();
 
-        foreach ($this->getDomainPaths($domain) as $path) {
-            foreach ($this->getReaders() as $ext => $reader) {
-                $reader->reset($path . Inflector::fileName($resource, $ext, false));
+            foreach ($bundle->getDomainPaths($domain) as $path) {
+                foreach ($readers as $ext => $reader) {
+                    $resourcePath = $path . Inflector::fileName($resource, $ext, false);
 
-                if ($reader->exists()) {
-                    $contents = Col::merge($contents, $reader->readResource());
+                    if (file_exists($resourcePath)) {
+                        $contents = Col::merge($contents, $reader->reset($resourcePath)->readResource());
+                    }
                 }
             }
-        }
 
-        return $this->setCache([__METHOD__, $resource], $contents);
+            return $contents;
+        });
+
+        invariant($resource instanceof Map, 'Bundle resource must be a map');
+
+        return $resource;
     }
 
 }

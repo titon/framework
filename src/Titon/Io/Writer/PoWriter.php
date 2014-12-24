@@ -7,9 +7,8 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Common\Config;
 use Titon\Io\ResourceMap;
-use Titon\Utility\Col;
+use Titon\Utility\Config;
 
 /**
  * A file writer that generates PO files.
@@ -54,8 +53,14 @@ class PoWriter extends AbstractWriter {
             'Plural-Forms' => 'nplurals=2; plural=0;'
         };
 
+        // Inherit comments
         if ($data->contains('_comments')) {
-            $comments = $comments->setAll($data['_comments']);
+            $customComments = $data['_comments'];
+
+            invariant($customComments instanceof Map, 'Po comments must be a map');
+
+            $comments = $comments->setAll($customComments);
+
             $data->remove('_comments');
         }
 

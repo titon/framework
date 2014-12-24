@@ -368,7 +368,7 @@ class Emitter {
             $handles[] = $this->_notifyObserverAsync($observer, $event, $params);
         }
 
-        await AwaitAllWaitHandle::fromVector($handles);
+        await GenVectorWaitHandle::create($handles);
 
         return true;
     }

@@ -24,7 +24,7 @@ class Message implements MessageInterface {
      *
      * @var \Titon\Http\Bag\HeaderBag
      */
-    public HeaderBag<string, array<string>> $headers;
+    public HeaderBag $headers;
 
     /**
      * The request or response body.
@@ -58,13 +58,7 @@ class Message implements MessageInterface {
      * {@inheritdoc}
      */
     public function getHeaderAsArray($key): array<string> {
-        if ($value = $this->headers->get($key)) {
-            invariant(is_array($value), 'Headers must be an array.');
-
-            return $value;
-        }
-
-        return [];
+        return $this->headers->get($key) ?: [];
     }
 
     /**

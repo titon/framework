@@ -30,7 +30,7 @@ class XmlWriter extends AbstractWriter {
      * @uses Titon\Type\XmlDocument
      */
     public function writeResource(ResourceMap $data): bool {
-        return $this->write(XmlDocument::fromMap($data)->toString());
+        return $this->write(XmlDocument::fromMap('root', $data)->toString());
     }
 
 }

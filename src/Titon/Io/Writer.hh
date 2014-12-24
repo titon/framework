@@ -7,7 +7,7 @@
 
 namespace Titon\Io;
 
-use Titon\Io\ResourceMap;
+type WriterMap = Map<string, Writer>;
 
 /**
  * Interface for writing file resources.

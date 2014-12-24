@@ -7,6 +7,10 @@
 
 namespace Titon\Io;
 
+type DomainList = Vector<string>;
+type DomainPathMap = Map<string, PathList>;
+type PathList = Vector<string>;
+
 /**
  * Interface for the resource bundles library.
  *

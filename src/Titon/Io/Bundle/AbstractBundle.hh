@@ -140,6 +140,7 @@ abstract class AbstractBundle implements Bundle {
     /**
      * {@inheritdoc}
      *
+     * @uses Titon\Utility\Col
      * @uses Titon\Utility\Inflector
      *
      * @throws \Titon\Io\Exception\MissingReaderException
@@ -156,12 +157,10 @@ abstract class AbstractBundle implements Bundle {
 
         foreach ($this->getDomainPaths($domain) as $path) {
             foreach ($this->getReaders() as $ext => $reader) {
-                $path = $path . Inflector::fileName($resource, $ext, false);
+                $reader->reset($path . Inflector::fileName($resource, $ext, false));
 
-                if (file_exists($path)) {
-                    if ($data = $reader->reset($path)->readResource()) {
-                        $contents = Col::merge($contents, $data);
-                    }
+                if ($reader->exists()) {
+                    $contents = Col::merge($contents, $reader->readResource());
                 }
             }
         }

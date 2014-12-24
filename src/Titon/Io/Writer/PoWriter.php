@@ -55,7 +55,7 @@ class PoWriter extends AbstractWriter {
         };
 
         if ($data->contains('_comments')) {
-            $comments = Col::merge($comments, $data['_comments']);
+            $comments = $comments->setAll($data['_comments']);
             $data->remove('_comments');
         }
 

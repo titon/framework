@@ -11,7 +11,7 @@ use Titon\Test\TestCase;
 
 class YamlReaderTest extends TestCase {
 
-    public function testRead() {
+    public function testReadResource() {
         if (!extension_loaded('yaml')) {
             $this->markTestSkipped('YAML extension must be installed to use the YamlReader');
         }
@@ -31,7 +31,7 @@ class YamlReaderTest extends TestCase {
                 'two' => false,
             },
             'list' => Vector {'foo', 'bar'},
-        }, $reader->read());
+        }, $reader->readResource());
     }
 
 }

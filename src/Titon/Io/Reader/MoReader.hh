@@ -7,6 +7,7 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 
 /**
@@ -18,15 +19,22 @@ class MoReader extends AbstractReader {
 
     /**
      * {@inheritdoc}
+     */
+    public function getResourceExt(): string {
+        return 'mo';
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read<Tk, Tv>(): Map<Tk, Tv> {
+    public function readResource(): ResourceMap {
         if ($this->exists()) {
             return ($data = $this->_unpack()) ? $data : Map {};
         }
 
-        throw new ReadErrorException(sprintf('MoReader failed to parse %s', $this->path()));
+        throw new ReadErrorException(sprintf('MoReader failed to parse %s', $this->getPath()));
     }
 
     /**
@@ -35,7 +43,7 @@ class MoReader extends AbstractReader {
      * @return \Titon\Io\ResourceMap
      */
     protected function _unpack(): ?ResourceMap {
-        $file = fopen($this->path(), 'rb');
+        $file = fopen($this->getPath(), 'rb');
         $header = fread($file, 28);
 
         if (strlen($header) != 28) {

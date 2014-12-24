@@ -81,9 +81,10 @@ abstract class Node {
      * Change the group of the file.
      *
      * @param int $group
+     * @param bool $recursive
      * @return bool
      */
-    public function chgrp(int $group): bool {
+    public function chgrp(int $group, bool $recursive = false): bool {
         if (!$this->exists()) {
             return false;
         }
@@ -103,9 +104,10 @@ abstract class Node {
      * Change the permissions mode of the file.
      *
      * @param int $mode
+     * @param bool $recursive
      * @return bool
      */
-    public function chmod(int $mode): bool {
+    public function chmod(int $mode, bool $recursive = false): bool {
         if (!$this->exists()) {
             return false;
         }
@@ -119,9 +121,10 @@ abstract class Node {
      * Change the owner of the file.
      *
      * @param int $user
+     * @param bool $recursive
      * @return bool
      */
-    public function chown(int $user): bool {
+    public function chown(int $user, bool $recursive = false): bool {
         if (!$this->exists()) {
             return false;
         }

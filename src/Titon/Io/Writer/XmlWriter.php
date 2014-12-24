@@ -19,11 +19,18 @@ class XmlWriter extends AbstractWriter {
 
     /**
      * {@inheritdoc}
+     */
+    public function getResourceExt(): string {
+        return 'xml';
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @uses Titon\Type\XmlDocument
      */
-    public function write(ResourceMap $data) {
-        return parent::write(XmlDocument::fromMap($data)->toString());
+    public function writeResource(ResourceMap $data): bool {
+        return $this->write(XmlDocument::fromMap($data)->toString());
     }
 
 }

@@ -7,8 +7,8 @@
 
 namespace Titon\Io\Writer;
 
+use Titon\Common\Exception\MissingExtensionException;
 use Titon\Io\ResourceMap;
-use Titon\Io\Exception\MissingExtensionException;
 use Titon\Utility\Col;
 
 /**
@@ -20,17 +20,24 @@ class YamlWriter extends AbstractWriter {
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Titon\Io\Exception\MissingExtensionException
      */
-    public function write(ResourceMap $data) {
+    public function getResourceExt(): string {
+        return 'yaml';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws \Titon\Common\Exception\MissingExtensionException
+     */
+    public function writeResource(ResourceMap $data): bool {
         if (!extension_loaded('yaml')) {
             throw new MissingExtensionException('YAML extension must be installed to use the YamlWriter');
         }
 
         $data = yaml_emit(Col::toArray($data), YAML_UTF8_ENCODING);
 
-        return parent::write($data);
+        return $this->write($data);
     }
 
 }

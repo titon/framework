@@ -11,7 +11,7 @@ use Titon\Test\TestCase;
 
 class PoReaderTest extends TestCase {
 
-    public function testRead() {
+    public function testReadResource() {
         $reader = new PoReader(TEMP_DIR . '/io/po.po');
 
         $this->assertMapsEqual(Map {
@@ -20,7 +20,7 @@ class PoReaderTest extends TestCase {
             'multiline' => "Multiline message\nMore message here\nAnd more message again",
             'plurals' => Vector {'plural', 'plurals'},
             'This is a string without a value' => ''
-        }, $reader->read());
+        }, $reader->readResource());
     }
 
 }

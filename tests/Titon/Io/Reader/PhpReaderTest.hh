@@ -11,7 +11,7 @@ use Titon\Test\TestCase;
 
 class PhpReaderTest extends TestCase {
 
-    public function testRead() {
+    public function testReadResource() {
         $reader = new PhpReader(TEMP_DIR . '/io/php.php');
 
         $this->assertMapsEqual(Map {
@@ -29,7 +29,7 @@ class PhpReaderTest extends TestCase {
             'map-empty' => Map {},
             'list' => Vector {1, 2, 3},
             'list-empty' => Map {} // Empty arrays are turned into maps
-        }, $reader->read());
+        }, $reader->readResource());
     }
 
 }

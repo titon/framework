@@ -34,7 +34,7 @@ class FolderTest extends TestCase {
      * @expectedException \Titon\Io\Exception\InvalidPathException
      */
     public function testConstructThrowsNotFolderException() {
-        new File(TEMP_DIR . '/bootstrap.php');
+        new Folder(TEST_DIR . '/bootstrap.php');
     }
 
     public function testAccessTime() {

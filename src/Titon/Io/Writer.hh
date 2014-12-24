@@ -21,7 +21,14 @@ interface Writer {
      *
      * @return string
      */
-    public function path(): string;
+    public function getPath(): string;
+
+    /**
+     * Return the extension for the type of writer.
+     *
+     * @return string
+     */
+    public function getResourceExt(): string;
 
     /**
      * Reset the file path.
@@ -32,11 +39,11 @@ interface Writer {
     public function reset(string $path = ''): this;
 
     /**
-     * Truncate source file and write data to it.
+     * Truncate the resource file and write data to it.
      *
      * @param \Titon\Io\ResourceMap $data
      * @return bool
      */
-    public function write(ResourceMap $data): bool;
+    public function writeResource(ResourceMap $data): bool;
 
 }

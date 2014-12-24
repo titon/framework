@@ -7,6 +7,8 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Common\Exception\MissingExtensionException;
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Utility\Col;
 
@@ -20,22 +22,29 @@ class YamlReader extends AbstractReader {
 
     /**
      * {@inheritdoc}
+     */
+    public function getResourceExt(): string {
+        return 'yaml';
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @uses Titon\Utility\Col
      *
-     * @throws \Titon\Io\Exception\MissingExtensionException
+     * @throws \Titon\Common\Exception\MissingExtensionException
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read<Tk, Tv>(): Map<Tk, Tv> {
+    public function readResource(): ResourceMap {
         if (!extension_loaded('yaml')) {
             throw new MissingExtensionException('YAML extension must be installed to use the YamlReader');
         }
 
         if ($this->exists()) {
-            return Col::toMap(yaml_parse_file($this->path()));
+            return Col::toMap(yaml_parse_file($this->getPath()))->toMap();
         }
 
-        throw new ReadErrorException(sprintf('YamlReader failed to parse %s', $this->path()));
+        throw new ReadErrorException(sprintf('YamlReader failed to parse %s', $this->getPath()));
     }
 
 }

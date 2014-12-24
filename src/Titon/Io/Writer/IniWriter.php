@@ -19,8 +19,15 @@ class IniWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      */
-    public function write(ResourceMap $data) {
-        return parent::write($this->_process($data));
+    public function getResourceExt(): string {
+        return 'ini';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function writeResource(ResourceMap $data): bool {
+        return $this->write($this->_process($data));
     }
 
     /**

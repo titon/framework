@@ -19,8 +19,15 @@ class JsonWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      */
-    public function write(ResourceMap $data) {
-        return parent::write(json_encode($data, JSON_PRETTY_PRINT));
+    public function getResourceExt(): string {
+        return 'json';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function writeResource(ResourceMap $data): bool {
+        return $this->write(json_encode($data, JSON_PRETTY_PRINT));
     }
 
 }

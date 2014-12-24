@@ -32,7 +32,7 @@ class NodeTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Io\Exception\MissingFileException
+     * @expectedException \Titon\Common\Exception\MissingFileException
      */
     public function testLoadMissingTarget() {
         Node::load($this->vfs->path('missing'));

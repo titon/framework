@@ -7,6 +7,7 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Utility\Col;
 
@@ -19,17 +20,24 @@ class IniReader extends AbstractReader {
 
     /**
      * {@inheritdoc}
+     */
+    public function getResourceExt(): string {
+        return 'ini';
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @uses Titon\Utility\Col
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read<Tk, Tv>(): Map<Tk, Tv> {
+    public function readResource(): ResourceMap {
         if ($this->exists()) {
-            return Col::toMap(parse_ini_file($this->path(), true, INI_SCANNER_NORMAL));
+            return Col::toMap(parse_ini_file($this->getPath(), true, INI_SCANNER_NORMAL));
         }
 
-        throw new ReadErrorException(sprintf('IniReader failed to parse %s', $this->path()));
+        throw new ReadErrorException(sprintf('IniReader failed to parse %s', $this->getPath()));
     }
 
 }

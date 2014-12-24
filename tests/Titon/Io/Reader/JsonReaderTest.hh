@@ -11,7 +11,7 @@ use Titon\Test\TestCase;
 
 class JsonReaderTest extends TestCase {
 
-    public function testRead() {
+    public function testReadResource() {
         $reader = new JsonReader(TEMP_DIR . '/io/json.json');
 
         $this->assertMapsEqual(Map {
@@ -29,7 +29,7 @@ class JsonReaderTest extends TestCase {
             'map-empty' => Map {},
             'list' => Vector {1, 2, 3},
             'list-empty' => Map {} // Empty arrays are turned into maps
-        }, $reader->read());
+        }, $reader->readResource());
     }
 
 }

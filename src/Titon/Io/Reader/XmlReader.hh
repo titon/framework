@@ -7,6 +7,7 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Type\XmlDocument;
 
@@ -20,15 +21,22 @@ class XmlReader extends AbstractReader {
 
     /**
      * {@inheritdoc}
+     */
+    public function getResourceExt(): string {
+        return 'xml';
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read<Tk, Tv>(): Map<Tk, Tv> {
+    public function readResource(): ResourceMap {
         if ($this->exists()) {
-            return XmlDocument::fromFile($this->path())->toMap(false);
+            return XmlDocument::fromFile($this->getPath())->toMap(false)->toMap();
         }
 
-        throw new ReadErrorException(sprintf('XmlReader failed to parse %s', $this->path()));
+        throw new ReadErrorException(sprintf('XmlReader failed to parse %s', $this->getPath()));
     }
 
 }

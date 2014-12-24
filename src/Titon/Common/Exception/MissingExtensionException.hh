@@ -5,12 +5,12 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Cache\Exception;
+namespace Titon\Common\Exception;
 
 /**
  * Exception thrown when a PHP extension is missing.
  *
- * @package Titon\Cache\Exception
+ * @package Titon\Io\Exception
  */
 class MissingExtensionException extends \RuntimeException {
 

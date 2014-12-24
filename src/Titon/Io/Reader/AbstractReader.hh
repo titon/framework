@@ -26,13 +26,18 @@ abstract class AbstractReader extends File implements Reader {
      * @throws \Titon\Common\Exception\MissingFileException
      */
     public function __construct(string $path = '') {
-        if ($path) {
-            if (!file_exists($path)) {
-                throw new MissingFileException(sprintf('File %s does not exist', $path));
-            }
-
-            parent::__construct($path);
+        if ($path && !file_exists($path)) {
+            throw new MissingFileException(sprintf('File %s does not exist', $path));
         }
+
+        parent::__construct($path);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPath(): string {
+        return $this->path();
     }
 
 }

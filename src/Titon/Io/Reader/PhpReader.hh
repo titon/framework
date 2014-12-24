@@ -7,6 +7,7 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Utility\Col;
 
@@ -20,15 +21,22 @@ class PhpReader extends AbstractReader {
 
     /**
      * {@inheritdoc}
+     */
+    public function getResourceExt(): string {
+        return 'php';
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read<Tk, Tv>(): Map<Tk, Tv> {
+    public function readResource(): ResourceMap {
         if ($this->exists()) {
-            return Col::toMap(include_file($this->path()));
+            return Col::toMap(include_file($this->getPath()))->toMap();
         }
 
-        throw new ReadErrorException(sprintf('PhpReader failed to parse %s', $this->path()));
+        throw new ReadErrorException(sprintf('PhpReader failed to parse %s', $this->getPath()));
     }
 
 }

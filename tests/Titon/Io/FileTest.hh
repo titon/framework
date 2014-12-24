@@ -4,15 +4,16 @@ namespace Titon\Io;
 use Titon\Test\TestCase;
 use VirtualFileSystem\FileSystem;
 
+/**
+ * @property \Titon\Io\File $object
+ * @property \Titon\Io\File $temp
+ */
 class FileTest extends TestCase {
-
-    /** @type \Titon\Io\File */
-    protected $temp;
 
     protected function setUp() {
         parent::setUp();
 
-        $this->vfs = new FileSystem();
+        $this->setupVFS();
         $this->object = new File($this->vfs->path('file/base'), true, 0777);
         $this->temp = new File($this->vfs->path('file/temp'), false);
     }
@@ -119,11 +120,11 @@ class FileTest extends TestCase {
     }
 
     public function testSize() {
-        $this->assertEquals(123, $this->object->size());
+        $this->assertTrue($this->object->write('foobar'));
+        $this->assertEquals(6, $this->object->size());
         $this->assertEquals(0, $this->temp->size());
 
-        $this->object->write('You must weigh a ton.');
-
+        $this->assertTrue($this->object->write('You must weigh a ton.'));
         $this->assertEquals(21, $this->object->size());
     }
 

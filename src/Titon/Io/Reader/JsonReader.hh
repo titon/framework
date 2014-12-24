@@ -7,6 +7,7 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Utility\Col;
 
@@ -19,17 +20,24 @@ class JsonReader extends AbstractReader {
 
     /**
      * {@inheritdoc}
+     */
+    public function getResourceExt(): string {
+        return 'json';
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @uses Titon\Utility\Col
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read<Tk, Tv>(): Map<Tk, Tv> {
+    public function readResource(): ResourceMap {
         if ($this->exists()) {
-            return Col::toMap(@json_decode(parent::read(), true));
+            return Col::toMap(@json_decode($this->read(), true))->toMap();
         }
 
-        throw new ReadErrorException(sprintf('JsonReader failed to parse %s', $this->path()));
+        throw new ReadErrorException(sprintf('JsonReader failed to parse %s', $this->getPath()));
     }
 
 }

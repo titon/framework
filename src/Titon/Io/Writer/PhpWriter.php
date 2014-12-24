@@ -19,8 +19,15 @@ class PhpWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      */
-    public function write(ResourceMap $data) {
-        return parent::write(sprintf('<?php return %s;', var_export($data, true)));
+    public function getResourceExt(): string {
+        return 'php';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function writeResource(ResourceMap $data): bool {
+        return $this->write(sprintf('<?php return %s;', var_export($data, true)));
     }
 
 }

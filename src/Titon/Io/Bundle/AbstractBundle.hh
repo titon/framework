@@ -11,6 +11,7 @@ use Titon\Common\Cacheable;
 use Titon\Io\Bundle;
 use Titon\Io\DomainList;
 use Titon\Io\DomainPathMap;
+use Titon\Io\File;
 use Titon\Io\Folder;
 use Titon\Io\PathList;
 use Titon\Io\ReaderMap;
@@ -76,10 +77,7 @@ abstract class AbstractBundle implements Bundle {
      * @uses Titon\Utility\Path
      */
     public function addReader(Reader $reader): this {
-        $type = Path::className(get_class($reader));
-        $type = str_replace('reader', '', strtolower($type));
-
-        $this->_readers[$type] = $reader;
+        $this->_readers[$reader->getResourceExt()] = $reader;
 
         return $this;
     }
@@ -95,7 +93,7 @@ abstract class AbstractBundle implements Bundle {
                 $folder = new Folder($path);
 
                 foreach ($folder->read() as $file) {
-                    if ($file->isFile()) {
+                    if ($file instanceof File) {
                         $contents[] = $file->path();
                     }
                 }
@@ -161,7 +159,7 @@ abstract class AbstractBundle implements Bundle {
                 $path = $path . Inflector::fileName($resource, $ext, false);
 
                 if (file_exists($path)) {
-                    if ($data = $reader->reset($path)->read()) {
+                    if ($data = $reader->reset($path)->readResource()) {
                         $contents = Col::merge($contents, $data);
                     }
                 }

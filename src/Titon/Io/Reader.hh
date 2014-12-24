@@ -21,14 +21,21 @@ interface Reader {
      *
      * @return string
      */
-    public function path(): string;
+    public function getPath(): string;
 
     /**
-     * Read the file contents.
+     * Return the extension for the type of reader.
+     *
+     * @return string
+     */
+    public function getResourceExt(): string;
+
+    /**
+     * Read the contents of the resource file.
      *
      * @return \Titon\Io\ResourceMap
      */
-    public function read<Tk, Tv>(): Map<Tk, Tv>;
+    public function readResource(): ResourceMap;
 
     /**
      * Reset the file path.

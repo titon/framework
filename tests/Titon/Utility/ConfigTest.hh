@@ -151,7 +151,7 @@ CFG;
             'number' => '1234567890',
             'string' => 'abcdefg',
             'vector' => Map {},
-            'array' => Map {0 => 1, 1 => 2, 2 => 3},
+            'array' => Vector {1, 2, 3},
             'false' => false,
             'true' => true,
             'null' => null,

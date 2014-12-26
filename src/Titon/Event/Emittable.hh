@@ -67,6 +67,7 @@ trait Emittable {
 
         } else if (is_callable($callback)) {
             // UNSAFE
+            // Impossible to validate the callable
             $this->getEmitter()->register($event, $callback, $priority, $once);
 
         } else {
@@ -85,6 +86,7 @@ trait Emittable {
 
         } else if (is_callable($callback)) {
             // UNSAFE
+            // Impossible to validate the callable
             $this->getEmitter()->remove($event, $callback);
 
         } else {

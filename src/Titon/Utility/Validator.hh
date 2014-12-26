@@ -259,6 +259,7 @@ class Validator {
                 }
 
                 // UNSAFE
+                // Since class_meth() accepts literal strings and we are passing variables
                 if (!call_user_func(class_meth($class, 'hasRule'), $rule)) {
                     throw new InvalidValidationRuleException(sprintf('Validation rule %s does not exist', $rule));
                 }
@@ -284,6 +285,7 @@ class Validator {
                 }
 
                 // UNSAFE
+                // Since class_meth() accepts literal strings and we are passing variables
                 if (!call_user_func_array(class_meth($class, $rule), $arguments)) {
                     $this->addError($field, $message);
                     break;

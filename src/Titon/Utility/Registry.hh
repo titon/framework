@@ -125,7 +125,7 @@ class Registry<T> {
      */
     public static function register(string $key, RegistryCallback<T> $callback): void {
         // UNSAFE
-        // Since the property value is T while the callback is RegistryCallback<T>
+        // Since the property generics is T while the callback is RegistryCallback<T>
         static::$_registered[$key] = $callback;
     }
 

@@ -181,19 +181,19 @@ class RequestTest extends TestCase {
     }
 
     public function testAccepts() {
-        $this->object->headers->set('Accept', 'text/xml,application/xml;q=0.9,application/xhtml+xml,text/html,text/plain,image/png');
+        $this->object->headers->set('Accept', ['text/xml,application/xml;q=0.9,application/xhtml+xml,text/html,text/plain,image/png']);
 
         $this->assertEquals(shape('value' =>'text/html', 'quality' => 1), $this->object->accepts('html'));
         $this->assertEquals(shape('value' =>'application/xhtml+xml', 'quality' => 1), $this->object->accepts('xhtml'));
         $this->assertEquals(shape('value' =>'application/xml', 'quality' => 0.9), $this->object->accepts('xml'));
         $this->assertEquals(null, $this->object->accepts('json'));
 
-        $this->object->headers->set('Accept', 'application/json,*/*');
+        $this->object->headers->set('Accept', ['application/json,*/*']);
 
         $this->assertEquals(shape('value' =>'application/json', 'quality' => 1), $this->object->accepts('json'));
         $this->assertEquals(shape('value' =>'*/*', 'quality' => 1), $this->object->accepts('html')); // */*
 
-        $this->object->headers->set('Accept', 'text/*');
+        $this->object->headers->set('Accept', ['text/*']);
 
         $this->assertEquals(shape('value' =>'text/*', 'quality' => 1), $this->object->accepts('text/html'));
         $this->assertEquals(shape('value' =>'text/*', 'quality' => 1), $this->object->accepts(['text/xml', 'application/json']));
@@ -201,25 +201,25 @@ class RequestTest extends TestCase {
     }
 
     public function testAcceptsCharset() {
-        $this->object->headers->set('Accept-Charset', 'UTF-8');
+        $this->object->headers->set('Accept-Charset', ['UTF-8']);
 
         $this->assertEquals(shape('value' =>'utf-8', 'quality' => 1), $this->object->acceptsCharset('utf-8'));
         $this->assertEquals(null, $this->object->acceptsCharset('iso-8859-1'));
 
-        $this->object->headers->set('Accept-Charset', 'ISO-8859-1');
+        $this->object->headers->set('Accept-Charset', ['ISO-8859-1']);
 
         $this->assertEquals(shape('value' =>'iso-8859-1', 'quality' => 1), $this->object->acceptsCharset('iso-8859-1'));
     }
 
     public function testAcceptsEncoding() {
-        $this->object->headers->set('Accept-Encoding', 'compress;q=0.5, gzip;q=1.0');
+        $this->object->headers->set('Accept-Encoding', ['compress;q=0.5, gzip;q=1.0']);
 
         $this->assertEquals(shape('value' =>'gzip', 'quality' => 1), $this->object->acceptsEncoding('gzip'));
         $this->assertEquals(null, $this->object->acceptsEncoding('identity'));
     }
 
     public function testAcceptsLanguage() {
-        $this->object->headers->set('Accept-Language', 'en-us,en;q=0.8,fr-fr;q=0.5,fr;q=0.3');
+        $this->object->headers->set('Accept-Language', ['en-us,en;q=0.8,fr-fr;q=0.5,fr;q=0.3']);
 
         $this->assertEquals(shape('value' =>'en-us', 'quality' => 1), $this->object->acceptsLanguage('en-US'));
         $this->assertEquals(shape('value' =>'en', 'quality' => 0.8), $this->object->acceptsLanguage('en'));
@@ -308,8 +308,7 @@ class RequestTest extends TestCase {
 
     public function testGetHeader() {
         $this->assertEquals('', $this->object->getHeader('Accept-Charset'));
-        $this->object->headers->set('Accept-Charset', 'utf-8');
-        $this->object->headers->set('Accept-Charset', 'utf-16', true);
+        $this->object->headers->set('Accept-Charset', ['utf-8', 'utf-16']);
 
         $this->assertEquals('utf-8, utf-16', $this->object->getHeader('Accept-Charset'));
         $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeaderAsArray('Accept-Charset'));
@@ -482,7 +481,7 @@ class RequestTest extends TestCase {
     public function testHasHeader() {
         $this->assertFalse($this->object->hasHeader('Accept-Charset'));
 
-        $this->object->headers->set('Accept-Charset', 'utf-8');
+        $this->object->headers->set('Accept-Charset', ['utf-8']);
         $this->assertTrue($this->object->hasHeader('Accept-Charset'));
     }
 

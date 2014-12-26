@@ -22,15 +22,4 @@ class HeaderBagTest extends TestCase {
         $this->assertEquals('WWW-Authenticate', $this->object->key('WwW_Authenticate'));
     }
 
-    public function testSetWillAddToOrOverride() {
-        $this->object->set('foo', 'bar');
-        $this->assertEquals(['bar'], $this->object->get('foo'));
-
-        $this->object->set('foo', 'baz', true);
-        $this->assertEquals(['bar', 'baz'], $this->object->get('foo'));
-
-        $this->object->set('foo', 'qux');
-        $this->assertEquals(['qux'], $this->object->get('foo'));
-    }
-
 }

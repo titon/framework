@@ -42,8 +42,6 @@ class PoWriter extends AbstractWriter {
     protected function _process(ResourceMap $data): string {
         $comments = Map {
             'Project-Id-Version' => 'Titon',
-            'POT-Creation-Date' => date('Y-m-d H:iO'),
-            'PO-Revision-Date' => date('Y-m-d H:iO'),
             'Last-Translator' => '',
             'Language-Team' => '',
             'Language' => Config::get('Titon.locale.current'),
@@ -71,7 +69,7 @@ class PoWriter extends AbstractWriter {
         $output .= 'msgstr ""' . PHP_EOL;
 
         foreach ($comments as $key => $value) {
-            $output .= sprintf('"%s: %s\n"', $key, $value) . PHP_EOL;
+            $output .= sprintf('"%s: %s"', $key, $value) . PHP_EOL;
         }
 
         // Output values
@@ -103,12 +101,12 @@ class PoWriter extends AbstractWriter {
             $output .= sprintf('msgid_plural "%s"', $key) . PHP_EOL;
 
             foreach ($value as $i => $v) {
-                $output .= sprintf('msgstr[%s] "%s"', $i, $v) . PHP_EOL;
+                $output .= sprintf('msgstr[%d] "%s"', $i, $v) . PHP_EOL;
             }
 
         // Single or multi-line
         } else {
-            $value = explode("\n", str_replace("\r", '', $value));
+            $value = explode("\n", str_replace("\r", '', (string) $value));
 
             foreach ($value as $i => $v) {
                 if ($i == 0) {

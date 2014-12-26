@@ -254,7 +254,7 @@ class Debugger {
                 $replace[] = '),';
                 $replace[] = "\n)";
                 $with[] = '[';
-                $with[] = ']';
+                $with[] = '],';
                 $with[] = "\n]";
             }
 

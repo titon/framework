@@ -62,8 +62,6 @@ class IniWriter extends AbstractWriter {
             foreach ($settings as $k => $v) {
                 $output .= $this->_processLine($k, $v);
             }
-
-            $output .= PHP_EOL;
         }
 
         return $output;

@@ -7,7 +7,9 @@
 
 namespace Titon\Io\Writer;
 
+use Titon\Debug\Debugger;
 use Titon\Io\ResourceMap;
+use Titon\Utility\Col;
 
 /**
  * A file writer that generates PHP files.
@@ -27,7 +29,15 @@ class PhpWriter extends AbstractWriter {
      * {@inheritdoc}
      */
     public function writeResource(ResourceMap $data): bool {
-        return $this->write(sprintf('<?php return %s;', var_export($data, true)));
+        $data = Col::toArray($data);
+
+        if (class_exists('Titon\Debug\Debugger')) {
+            $export = Debugger::export($data, true);
+        } else {
+            $export = var_export($data, true);
+        }
+
+        return $this->write(sprintf('<?php return %s;', $export));
     }
 
 }

@@ -306,7 +306,7 @@ class FolderTest extends TestCase {
     }
 
     public function testFind() {
-        $this->markTestSkipped('Either the GlobIterator is broken, or it doesn\'t work on the VFS.');
+        $this->markTestSkipped('Either the GlobIterator is broken, or it doesn\'t work on the VFS');
 
         $this->vfs->createStructure([
             'base/find' => [

@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Type;
+namespace Titon\Type\Xml;
 
 use Titon\Common\Exception\MissingFileException;
 use Titon\Utility\Col;
@@ -14,12 +14,12 @@ use \SimpleXMLElement;
 type XmlMap = Map<string, mixed>;
 
 /**
- * The XmlDocument class provides helper methods for XML parsing and building as well as static methods
- * for generating XmlElement trees based on maps and raw XML files.
+ * The Document class provides helper methods for XML parsing and building as well as static methods
+ * for generating Element trees based on maps and raw XML files.
  *
  * @package Titon\Type
  */
-class XmlDocument {
+class Document {
 
     /**
      * Box a value by type casting it from a string to a scalar.
@@ -81,13 +81,13 @@ class XmlDocument {
     }
 
     /**
-     * Depending on the type of data, return an XmlElement tree.
+     * Depending on the type of data, return an Element tree.
      *
      * @param mixed $data
      * @param string $root
-     * @return \Titon\Type\XmlElement
+     * @return \Titon\Type\Xml\Element
      */
-    public static function from(mixed $data, string $root = 'root'): XmlElement {
+    public static function from(mixed $data, string $root = 'root'): Element {
         if ($data instanceof Map) {
             return static::fromMap($root, $data);
 
@@ -102,13 +102,13 @@ class XmlDocument {
     }
 
     /**
-     * Load an XML file from the file system and transform it into an XmlElement tree.
+     * Load an XML file from the file system and transform it into an Element tree.
      *
      * @param string $path
-     * @return \Titon\Type\XmlElement
+     * @return \Titon\Type\Xml\Element
      * @throws \Titon\Common\Exception\MissingFileException
      */
-    public static function fromFile(string $path): XmlElement {
+    public static function fromFile(string $path): Element {
         if (file_exists($path)) {
             return static::fromString(file_get_contents($path));
         }
@@ -117,14 +117,14 @@ class XmlDocument {
     }
 
     /**
-     * Transform a structure consisting of maps and vectors into an XmlElement tree.
+     * Transform a structure consisting of maps and vectors into an Element tree.
      *
      * @param string $root
      * @param \Titon\Type\XmlMap $map
-     * @return \Titon\Type\XmlElement
+     * @return \Titon\Type\Xml\Element
      */
-    public static function fromMap(string $root, XmlMap $map): XmlElement {
-        $root = new XmlElement($root);
+    public static function fromMap(string $root, XmlMap $map): Element {
+        $root = new Element($root);
 
         static::_addAttributes($root, $map);
 
@@ -136,25 +136,25 @@ class XmlDocument {
     }
 
     /**
-     * Transform a string representation of an XML document into an XmlElement tree.
+     * Transform a string representation of an XML document into an Element tree.
      *
      * @param string $string
-     * @return \Titon\Type\XmlElement
+     * @return \Titon\Type\Xml\Element
      */
-    public static function fromString(string $string): XmlElement {
+    public static function fromString(string $string): Element {
         return static::_convertSimpleXml(simplexml_load_string($string));
     }
 
     /**
-     * Transform a list of items into an XmlElement tree.
+     * Transform a list of items into an Element tree.
      *
      * @param string $root
      * @param string $item
      * @param Vector<Tv> $list
-     * @return \Titon\Type\XmlElement
+     * @return \Titon\Type\Xml\Element
      */
-    public static function fromVector<Tv>(string $root, string $item, Vector<Tv> $list): XmlElement {
-        $root = new XmlElement($root);
+    public static function fromVector<Tv>(string $root, string $item, Vector<Tv> $list): Element {
+        $root = new Element($root);
 
         static::_createElement($root, $item, $list);
 
@@ -164,10 +164,10 @@ class XmlDocument {
     /**
      * Add attributes to an element if the special `@attributes` map exists.
      *
-     * @param \Titon\Type\XmlElement $element
+     * @param \Titon\Type\Xml\Element $element
      * @param \Titon\Type\XmlMap $map
      */
-    protected static function _addAttributes(XmlElement $element, XmlMap $map): void {
+    protected static function _addAttributes(Element $element, XmlMap $map): void {
         if ($map->contains('@attributes')) {
             $attributes = $map->get('@attributes');
 
@@ -186,11 +186,11 @@ class XmlDocument {
      *  - If a vector is provided, it is a list of elements with the same name.
      *  - If a scalar value is provided, it is a literal element with a value.
      *
-     * @param \Titon\Type\XmlElement $parent
+     * @param \Titon\Type\Xml\Element $parent
      * @param string $key
      * @param mixed $value
      */
-    protected static function _createElement(XmlElement $parent, string $key, mixed $value): void {
+    protected static function _createElement(Element $parent, string $key, mixed $value): void {
 
         // One of two things:
         // An element that contains other children
@@ -199,7 +199,7 @@ class XmlDocument {
 
             // An element with a value
             if ($value->contains('@value')) {
-                $child = new XmlElement($key);
+                $child = new Element($key);
                 $child->setValue($value['@value'], (bool) $value->get('@cdata'));
 
                 // Add attributes to the child
@@ -220,18 +220,18 @@ class XmlDocument {
 
         // Child element with a value
         } else {
-            $parent->addChild( (new XmlElement($key))->setValue($value) );
+            $parent->addChild( (new Element($key))->setValue($value) );
         }
     }
 
     /**
-     * Converts a SimpleXmlElement tree into an XmlElement tree.
+     * Converts a SimpleXmlElement tree into an Element tree.
      *
      * @param \SimpleXMLElement $xml
-     * @return \Titon\Type\XmlElement
+     * @return \Titon\Type\Xml\Element
      */
-    protected static function _convertSimpleXml(SimpleXMLElement $xml): XmlElement {
-        $element = new XmlElement($xml->getName());
+    protected static function _convertSimpleXml(SimpleXMLElement $xml): Element {
+        $element = new Element($xml->getName());
 
         // Set attributes
         if ($attributes = $xml->attributes()) {

@@ -5,44 +5,44 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Type;
+namespace Titon\Type\Xml;
 
 use Titon\Utility\Sanitize;
 use \IteratorAggregate;
 use \Countable;
 
-type XmlAttributes = Map<string, string>;
-type XmlElementList = Vector<XmlElement>;
-type XmlNamespaces = Map<string, string>;
+type AttributeMap = Map<string, string>;
+type ElementList = Vector<Element>;
+type NamespaceMap = Map<string, string>;
 
 /**
- * The XmlElement class represents a single element (or node) with an XML document tree.
+ * The Element class represents a single element (or node) with an XML document tree.
  * It has support for attributes, children (nested elements), and an optional value.
  *
  * @package Titon\Type
  */
-class XmlElement implements IteratorAggregate<XmlElement>, Countable {
+class Element implements IteratorAggregate<Element>, Countable {
 
     /**
      * Map of attributes for this element.
      *
-     * @var \Titon\Type\XmlAttributes
+     * @var \Titon\Type\Xml\AttributeMap
      */
-    protected XmlAttributes $_attributes = Map {};
+    protected AttributeMap $_attributes = Map {};
 
     /**
      * List of children within this element.
      *
-     * @var \Titon\Type\XmlElementList
+     * @var \Titon\Type\Xml\ElementList
      */
-    protected XmlElementList $_children = Vector {};
+    protected ElementList $_children = Vector {};
 
     /**
      * Map of attributes for document declaration (opening XML tag).
      *
-     * @var \Titon\Type\XmlAttributes
+     * @var \Titon\Type\Xml\AttributeMap
      */
-    protected XmlAttributes $_declaration = Map {
+    protected AttributeMap $_declaration = Map {
         'version' => '1.0',
         'encoding' => 'UTF-8'
     };
@@ -57,16 +57,16 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Map of namespaces for this element.
      *
-     * @var \Titon\Type\XmlNamespaces
+     * @var \Titon\Type\Xml\NamespaceMap
      */
-    protected XmlNamespaces $_namespaces = Map {};
+    protected NamespaceMap $_namespaces = Map {};
 
     /**
      * The parent element this child belongs to.
      *
-     * @var \Titon\Type\XmlElement
+     * @var \Titon\Type\Xml\Element
      */
-    protected ?XmlElement $_parent = null;
+    protected ?Element $_parent = null;
 
     /**
      * The value within the element. Is override by children.
@@ -79,10 +79,10 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
      * Create a new element and optionally set attributes.
      *
      * @param string $name
-     * @param \Titon\Type\XmlAttributes $attributes
+     * @param \Titon\Type\Xml\AttributeMap $attributes
      * @param string $namespace
      */
-    public function __construct(string $name, XmlAttributes $attributes = Map {}, string $namespace = '') {
+    public function __construct(string $name, AttributeMap $attributes = Map {}, string $namespace = '') {
         $this->setName($name, $namespace);
         $this->setAttributes($attributes);
     }
@@ -99,10 +99,10 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Add a child to this element.
      *
-     * @param \Titon\Type\XmlElement $child
+     * @param \Titon\Type\Xml\Element $child
      * @return $this
      */
-    public function addChild(XmlElement $child): this {
+    public function addChild(Element $child): this {
         $child->setParent($this);
 
         $this->_children[] = $child;
@@ -113,10 +113,10 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Add multiple children to this element.
      *
-     * @param \Titon\Type\XmlElementList $children
+     * @param \Titon\Type\Xml\ElementList $children
      * @return $this
      */
-    public function addChildren(XmlElementList $children): this {
+    public function addChildren(ElementList $children): this {
         foreach ($children as $child) {
             $this->addChild($child);
         }
@@ -136,14 +136,14 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Format attributes for use in an XML document.
      *
-     * @param \Titon\Type\XmlAttributes $attributes
+     * @param \Titon\Type\Xml\AttributeMap $attributes
      * @return string
      */
-    public function formatAttributes(XmlAttributes $attributes): string {
+    public function formatAttributes(AttributeMap $attributes): string {
         $xml = '';
 
         foreach ($attributes as $key => $value) {
-            $xml .= sprintf(' %s="%s"', XmlDocument::formatName($key), Sanitize::escape($value));
+            $xml .= sprintf(' %s="%s"', Document::formatName($key), Sanitize::escape($value));
         }
 
         return $xml;
@@ -152,10 +152,10 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Format namespaces as attributes for use in an XML document.
      *
-     * @param \Titon\Type\XmlNamespaces $namespaces
+     * @param \Titon\Type\Xml\NamespaceMap $namespaces
      * @return string
      */
-    public function formatNamespaces(XmlNamespaces $namespaces): string {
+    public function formatNamespaces(NamespaceMap $namespaces): string {
         $xml = '';
 
         foreach ($namespaces as $key => $value) {
@@ -178,9 +178,9 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Return all attributes.
      *
-     * @return \Titon\Type\XmlAttributes
+     * @return \Titon\Type\Xml\AttributeMap
      */
-    public function getAttributes(): XmlAttributes {
+    public function getAttributes(): AttributeMap {
         return $this->_attributes;
     }
 
@@ -190,16 +190,16 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
      * @return mixed
      */
     public function getBoxedValue(): mixed {
-        return XmlDocument::box($this->getValueWithoutCdata());
+        return Document::box($this->getValueWithoutCdata());
     }
 
     /**
      * Returns the first child that matches the defined name.
      *
      * @param string $name
-     * @return \Titon\Type\XmlElement
+     * @return \Titon\Type\Xml\Element
      */
-    public function getChild(string $name): ?XmlElement {
+    public function getChild(string $name): ?Element {
         foreach ($this->getChildren() as $child) {
             if ($child->getName() === $name) {
                 return $child;
@@ -212,36 +212,36 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Return a list of children.
      *
-     * @return \Titon\Type\XmlElementList
+     * @return \Titon\Type\Xml\ElementList
      */
-    public function getChildren(): XmlElementList {
+    public function getChildren(): ElementList {
         return $this->_children;
     }
 
     /**
      * Return a list of children with the defined name.
      *
-     * @return \Titon\Type\XmlElementList
+     * @return \Titon\Type\Xml\ElementList
      */
-    public function getChildrenByName(string $name): XmlElementList {
+    public function getChildrenByName(string $name): ElementList {
         return $this->getChildren()->filter( $item ==> $item->getName() === $name );
     }
 
     /**
      * Return the opening declaration attributes.
      *
-     * @return \Titon\Type\XmlAttributes
+     * @return \Titon\Type\Xml\AttributeMap
      */
-    public function getDeclaration(): XmlAttributes {
+    public function getDeclaration(): AttributeMap {
         return $this->_declaration;
     }
 
     /**
      * Return an iterator.
      *
-     * @return Iterator<XmlElement>
+     * @return Iterator<Element>
      */
-    public function getIterator(): Iterator<XmlElement> {
+    public function getIterator(): Iterator<Element> {
         return $this->getChildren()->getIterator();
     }
 
@@ -267,9 +267,9 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Return all namespaces.
      *
-     * @return \Titon\Type\XmlNamespaces
+     * @return \Titon\Type\Xml\NamespaceMap
      */
-    public function getNamespaces(): XmlNamespaces {
+    public function getNamespaces(): NamespaceMap {
         return $this->_namespaces;
     }
 
@@ -277,9 +277,9 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
      * Return all attributes for a specific namespace.
      *
      * @param string $namespace
-     * @return \Titon\Type\XmlAttributes
+     * @return \Titon\Type\Xml\AttributeMap
      */
-    public function getNamespaceAttributes(string $namespace): XmlAttributes {
+    public function getNamespaceAttributes(string $namespace): AttributeMap {
         return $this->getAttributes()->filterWithKey( ($key, $value) ==> strpos($key, $namespace . ':') === 0 );
     }
 
@@ -287,18 +287,18 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
      * Return all children for a specific namespace.
      *
      * @param string $namespace
-     * @return \Titon\Type\XmlElementList
+     * @return \Titon\Type\Xml\ElementList
      */
-    public function getNamespaceChildren(string $namespace): XmlElementList {
+    public function getNamespaceChildren(string $namespace): ElementList {
         return $this->getChildren()->filter( $item ==> strpos($item->getName(), $namespace . ':') === 0 );
     }
 
     /**
      * Return the parent element or null if it does not exist.
      *
-     * @return \Titon\Type\XmlElement
+     * @return \Titon\Type\Xml\Element
      */
-    public function getParent(): ?XmlElement {
+    public function getParent(): ?Element {
         return $this->_parent;
     }
 
@@ -406,7 +406,7 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
             $key = $namespace . ':' . $key;
         }
 
-        $this->_attributes[$key] = XmlDocument::unbox($value);
+        $this->_attributes[$key] = Document::unbox($value);
 
         return $this;
     }
@@ -414,10 +414,10 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Set multiple attributes.
      *
-     * @param \Titon\Type\XmlAttributes $attributes
+     * @param \Titon\Type\Xml\AttributeMap $attributes
      * @return $this
      */
-    public function setAttributes(XmlAttributes $attributes): this {
+    public function setAttributes(AttributeMap $attributes): this {
         foreach ($attributes as $key => $value) {
             $this->setAttribute($key, $value);
         }
@@ -430,10 +430,10 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
      *
      * @param string $version
      * @param string $encoding
-     * @param \Titon\Type\XmlAttributes $attributes
+     * @param \Titon\Type\Xml\AttributeMap $attributes
      * @return $this
      */
-    public function setDeclaration(string $version = '1.0', string $encoding = 'UTF-8', XmlAttributes $attributes = Map {}): this {
+    public function setDeclaration(string $version = '1.0', string $encoding = 'UTF-8', AttributeMap $attributes = Map {}): this {
         $attributes['version'] = $version;
         $attributes['encoding'] = $encoding;
 
@@ -451,7 +451,7 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
      * @return $this
      */
     public function setName(string $name, string $namespace = ''): this {
-        $name = XmlDocument::formatName($name);
+        $name = Document::formatName($name);
 
         if ($namespace) {
             $name = $namespace . ':' . $name;
@@ -478,10 +478,10 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Set multiple namespaces.
      *
-     * @param \Titon\Type\XmlNamespaces $namespaces
+     * @param \Titon\Type\Xml\NamespaceMap $namespaces
      * @return $this
      */
-    public function setNamespaces(XmlNamespaces $namespaces): this {
+    public function setNamespaces(NamespaceMap $namespaces): this {
         foreach ($namespaces as $key => $value) {
             $this->setNamespace($key, $value);
         }
@@ -492,10 +492,10 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Set the parent element.
      *
-     * @param \Titon\Type\XmlElement $element
+     * @param \Titon\Type\Xml\Element $element
      * @return $this
      */
-    public function setParent(XmlElement $element): this {
+    public function setParent(Element $element): this {
         $this->_parent = $element;
 
         return $this;
@@ -509,7 +509,7 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
      * @return $this
      */
     public function setValue(mixed $value, bool $cdata = false): this {
-        $value = XmlDocument::unbox($value);
+        $value = Document::unbox($value);
 
         if ($cdata) {
             $value = '<![CDATA[' . PHP_EOL . $value . PHP_EOL . ']]>';

@@ -8,6 +8,7 @@
 namespace Titon\Cache\Storage;
 
 use Titon\Cache\Exception\MissingItemException;
+use Titon\Io\Exception\InvalidPathException;
 use Titon\Io\File;
 use Titon\Io\Folder;
 
@@ -47,6 +48,10 @@ class FileSystemStorage extends AbstractStorage {
      * @param string $path
      */
     public function __construct(string $path) {
+        if (!$path) {
+            throw new InvalidPathException(sprintf('Cache directory %s does not exist', $path));
+        }
+
         $this->_folder = new Folder($path, true);
     }
 
@@ -152,7 +157,10 @@ class FileSystemStorage extends AbstractStorage {
     protected function _splitCache(string $cache): FileCache {
         list($expires, $data) = explode("\n", $cache, 2);
 
-        return shape('expires' => (int) $expires, 'data' => $data);
+        return shape(
+            'expires' => (int) $expires,
+            'data' => $data
+        );
     }
 
 }

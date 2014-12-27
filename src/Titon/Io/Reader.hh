@@ -7,8 +7,10 @@
 
 namespace Titon\Io;
 
+type ReaderMap = Map<string, Reader>;
+
 /**
- * Interface for the file readers library.
+ * Interface for reading file resources.
  *
  * @package Titon\Io
  */
@@ -19,14 +21,21 @@ interface Reader {
      *
      * @return string
      */
-    public function path(): string;
+    public function getPath(): string;
 
     /**
-     * Read the file contents.
+     * Return the extension for the type of reader.
      *
-     * @return Map<string, mixed>
+     * @return string
      */
-    public function read(): Map<string, mixed>;
+    public function getResourceExt(): string;
+
+    /**
+     * Read the contents of the resource file.
+     *
+     * @return \Titon\Io\ResourceMap
+     */
+    public function readResource(): ResourceMap;
 
     /**
      * Reset the file path.

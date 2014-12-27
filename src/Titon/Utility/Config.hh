@@ -102,7 +102,7 @@ class Config {
      * @param \Titon\Io\Reader $reader
      */
     public static function load(string $key, Reader $reader): void {
-        static::$_config[$key] = $reader->read();
+        static::$_config[$key] = $reader->readResource();
     }
 
     /**

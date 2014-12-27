@@ -489,13 +489,18 @@ class Col {
 
         if ($resource instanceof Indexish) {
             foreach ($resource as $key => $value) {
-                if ($value instanceof Indexish) {
+                if ($value instanceof Vector) {
+                    $array[$key] = $value->toArray();
+
+                } else if ($value instanceof Indexish) {
                     $array[$key] = static::toArray($value);
+
                 } else {
                     $array[$key] = $value;
                 }
             }
-        } else {
+
+        } else if ($resource) {
             $array[] = $resource;
         }
 
@@ -524,7 +529,7 @@ class Col {
         $map = Map {};
 
         foreach ($resource as $key => $value) {
-            if ($value instanceof Vector) {
+            if ($value instanceof Vector || (is_array($value) && $value && Col::isNumeric(array_keys($value)))) {
                 $map[$key] = static::toVector($value);
 
             } else if ($value instanceof Indexish) {

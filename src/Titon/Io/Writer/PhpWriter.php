@@ -7,6 +7,8 @@
 
 namespace Titon\Io\Writer;
 
+use Titon\Debug\Debugger;
+use Titon\Io\ResourceMap;
 use Titon\Utility\Col;
 
 /**
@@ -18,24 +20,24 @@ class PhpWriter extends AbstractWriter {
 
     /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Utility\Hash
      */
-    public function append($data) {
-        if ($this->exists()) {
-            if ($contents = include_file($this->path())) {
-                $data = Col::merge($contents, $data);
-            }
-        }
-
-        return $this->write($data);
+    public function getResourceExt(): string {
+        return 'php';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($data) {
-        return parent::write(sprintf('<?hh // strict return %s;', var_export($data, true)));
+    public function writeResource(ResourceMap $data): bool {
+        $data = Col::toArray($data);
+
+        if (class_exists('Titon\Debug\Debugger')) {
+            $export = Debugger::export($data, true);
+        } else {
+            $export = var_export($data, true);
+        }
+
+        return $this->write(sprintf('<?php return %s;', $export));
     }
 
 }

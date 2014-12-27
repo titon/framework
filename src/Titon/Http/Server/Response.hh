@@ -95,7 +95,10 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function addHeader($key, $value): this {
-        $this->headers->set($key, $value, true);
+        $values = $this->getHeaderAsArray($key);
+        $values[] = $value;
+
+        $this->headers->set($key, $values);
 
         return $this;
     }
@@ -695,6 +698,10 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function setHeader($key, $value): this {
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+
         $this->headers->set($key, $value);
 
         return $this;

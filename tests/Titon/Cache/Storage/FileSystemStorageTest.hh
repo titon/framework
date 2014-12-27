@@ -4,8 +4,6 @@ namespace Titon\Cache\Storage;
 class FileSystemStorageTest extends AbstractStorageTest {
 
     protected function setUp() {
-        $this->markTestSkipped('Requires the io package');
-
         $this->setupVFS();
         $this->vfs->createDirectory('/cache/');
 
@@ -14,24 +12,29 @@ class FileSystemStorageTest extends AbstractStorageTest {
         parent::setUp();
     }
 
+    /**
+     * @expectedException \Titon\Io\Exception\InvalidPathException
+     */
     public function testExceptionThrownMissingDir() {
         new FileSystemStorage('');
     }
 
     public function testFlush() {
-        $this->assertFileExists(TEMP_DIR . '/User.getById.1337.cache');
+        $this->assertFileExists($this->vfs->path('/cache/foo.cache'));
+
         $this->object->flush();
-        $this->assertFileNotExists(TEMP_DIR . '/User.getById.1337.cache');
+
+        $this->assertFileNotExists($this->vfs->path('/cache/foo.cache'));
     }
 
     public function testRemove() {
-        $this->assertTrue($this->object->has('User::getById-1337'));
-        $this->assertFileExists(TEMP_DIR . '/User.getById.1337.cache');
+        $this->assertTrue($this->object->has('foo'));
+        $this->assertFileExists($this->vfs->path('/cache/foo.cache'));
 
-        $this->object->remove('User::getById-1337');
+        $this->object->remove('foo');
 
-        $this->assertFalse($this->object->has('User::getById-1337'));
-        $this->assertFileNotExists(TEMP_DIR . '/User.getById.1337.cache');
+        $this->assertFalse($this->object->has('foo'));
+        $this->assertFileNotExists($this->vfs->path('/cache/foo.cache'));
     }
 
 }

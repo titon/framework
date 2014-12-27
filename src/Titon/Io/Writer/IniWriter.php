@@ -7,7 +7,7 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Utility\Col;
+use Titon\Io\ResourceMap;
 
 /**
  * A file writer that generates INI files.
@@ -18,38 +18,32 @@ class IniWriter extends AbstractWriter {
 
     /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Utility\Hash
      */
-    public function append($data) {
-        if ($contents = $this->read()) {
-            $data = Col::merge(parse_ini_string($contents, true), $data);
-        }
-
-        return $this->write($data);
+    public function getResourceExt(): string {
+        return 'ini';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($data) {
-        return parent::write($this->_process($data));
+    public function writeResource(ResourceMap $data): bool {
+        return $this->write($this->_process($data));
     }
 
     /**
      * Process a multi-dimensional array into an INI format.
      *
-     * @param string|array $data
+     * @param \Titon\Io\ResourceMap $data
      * @return string
      */
-    protected function _process($data) {
-        $sections = [];
-        $settings = [];
+    protected function _process(ResourceMap $data): string {
+        $sections = Map {};
+        $settings = Map {};
         $output = '';
 
         // Parse out the sections and settings
-        foreach ((array) $data as $key => $value) {
-            if (is_array($value) && !isset($value[0])) {
+        foreach ($data as $key => $value) {
+            if ($value instanceof Map) {
                 $sections[$key] = $value;
             } else {
                 $settings[$key] = $value;
@@ -57,24 +51,16 @@ class IniWriter extends AbstractWriter {
         }
 
         // Write settings first
-        if ($settings) {
-            foreach ($settings as $key => $value) {
-                $output .= $this->_processLine($key, $value);
-            }
+        foreach ($settings as $key => $value) {
+            $output .= $this->_processLine($key, $value);
         }
 
         // And then sections
-        if ($sections) {
-            foreach ($sections as $key => $value) {
-                $output .= PHP_EOL . sprintf('[%s]', $key) . PHP_EOL;
+        foreach ($sections as $key => $settings) {
+            $output .= PHP_EOL . sprintf('[%s]', $key) . PHP_EOL;
 
-                if ($value) {
-                    foreach ($value as $k => $v) {
-                        $output .= $this->_processLine($k, $v);
-                    }
-
-                    $output .= PHP_EOL;
-                }
+            foreach ($settings as $k => $v) {
+                $output .= $this->_processLine($k, $v);
             }
         }
 
@@ -88,10 +74,10 @@ class IniWriter extends AbstractWriter {
      * @param mixed $value
      * @return string
      */
-    protected function _processLine($key, $value) {
+    protected function _processLine(string $key, mixed $value): string {
         $output = '';
 
-        if (is_array($value)) {
+        if ($value instanceof Vector) {
             foreach ($value as $v) {
                 $output .= sprintf('%s[] = %s', $key, $this->_getValue($v)) . PHP_EOL;
             }
@@ -106,17 +92,17 @@ class IniWriter extends AbstractWriter {
      * Type cast an INI value to the standard.
      *
      * @param mixed $value
-     * @return bool|int|string
+     * @return string
      */
-    protected function _getValue($value) {
+    protected function _getValue(mixed $value): string {
         if (is_numeric($value)) {
-            return $value;
+            return (string) $value;
 
         } else if ($value === true || in_array($value, ['on', 'yes', 'true'])) {
-            return true;
+            return '1';
 
         } else if ($value === false || in_array($value, ['off', 'no', 'false'])) {
-            return false;
+            return '0';
         }
 
         return sprintf('"%s"', $value);

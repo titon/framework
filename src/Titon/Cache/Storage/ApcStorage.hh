@@ -8,8 +8,8 @@
 namespace Titon\Cache\Storage;
 
 use Titon\Cache\Exception\MissingItemException;
-use Titon\Cache\Exception\MissingExtensionException;
 use Titon\Cache\StatsMap;
+use Titon\Common\Exception\MissingExtensionException;
 
 /**
  * A storage engine that uses the APC extension for a cache store; requires pecl/apc.
@@ -24,7 +24,7 @@ class ApcStorage extends AbstractStorage {
     /**
      * Validate that APC is installed.
      *
-     * @throws \Titon\Cache\Exception\MissingExtensionException
+     * @throws \Titon\Common\Exception\MissingExtensionException
      */
     public function __construct() {
         if (!extension_loaded('apc')) {

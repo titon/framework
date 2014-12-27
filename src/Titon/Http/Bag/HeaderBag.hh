@@ -17,30 +17,30 @@ use Titon\Utility\Inflector;
  *
  * @package Titon\Http\Bag
  */
-class HeaderBag<Tk, Tv> extends AbstractBag<Tk, Tv> {
+class HeaderBag extends AbstractBag<string, array<string>> {
 
     /**
      * {@inheritdoc}
      */
-    public function get(Tk $key, ?Tv $default = null): ?Tv {
+    public function get(string $key, ?array<string> $default = []): ?array<string> {
         return parent::get($this->key($key), $default);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function has(Tk $key): bool {
+    public function has(string $key): bool {
         return parent::has($this->key($key));
     }
 
     /**
      * Convert keys to the correct title case format.
      *
-     * @param Tk $key
-     * @return Tk
+     * @param string $key
+     * @return string
      */
-    public function key(Tk $key): Tk {
-        $key = str_replace([' ', '-', '_'], '-', Inflector::titleCase((string) $key));
+    public function key(string $key): string {
+        $key = str_replace([' ', '-', '_'], '-', Inflector::titleCase($key));
 
         // Special cases
         if ($key === 'Etag') {
@@ -55,25 +55,15 @@ class HeaderBag<Tk, Tv> extends AbstractBag<Tk, Tv> {
     /**
      * {@inheritdoc}
      */
-    public function remove(Tk $key): this {
+    public function remove(string $key): this {
         return parent::remove($this->key($key));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set(Tk $key, Tv $value, bool $add = false): this {
-        if (!$add) {
-            return parent::set($this->key($key), Col::toArray($value));
-        }
-
-        $list = $this->get($key, []);
-
-        invariant(is_array($list), 'Value must be an array');
-
-        $list[] = $value;
-
-        return parent::set($this->key($key), $list);
+    public function set(string $key, array<string> $value): this {
+        return parent::set($this->key($key), $value);
     }
 
 }

@@ -13,16 +13,7 @@ with external PHP code bases and libraries.
 
 Looking for more information? Find us in [#titon](http://webchat.freenode.net/?channels=titon) on FreeNode.
 
-### Current State ###
-
-A handful of packages have already been ported over from their old PHP codebase to Hack.
-However, they have not been linted against Hack's strict type checker yet.
-
-The following packages are still in the porting process.
-
-* IO
-
-The following packages have yet to be ported over.
+### Unported Packages ###
 
 * [db](https://github.com/titon/db)
 * [db-mysql](https://github.com/titon/db-mysql)
@@ -34,8 +25,6 @@ The following packages have yet to be ported over.
 * [g11n](https://github.com/titon/g11n)
 
 ### Upcoming Packages ###
-
-The following packages are planned for future releases.
 
 * Auth
 * ACL
@@ -59,6 +48,7 @@ but there's nothing we can do until HHVM and Hack are patched.
 * Environment
 * Event
 * HTTP
+* Io
 * Route
 * Type
 * Utility

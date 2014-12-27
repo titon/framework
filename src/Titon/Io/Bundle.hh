@@ -7,10 +7,12 @@
 
 namespace Titon\Io;
 
-use Titon\Io\Reader;
+type DomainList = Vector<string>;
+type DomainPathMap = Map<string, PathList>;
+type PathList = Vector<string>;
 
 /**
- * Interface for the bundles library.
+ * Interface for the resource bundles library.
  *
  * @package Titon\Io
  */
@@ -29,10 +31,10 @@ interface Bundle {
      * Add multiple resource paths.
      *
      * @param string $domain
-     * @param Vector<string> $paths
+     * @param \Titon\Io\PathList $paths
      * @return $this
      */
-    public function addPaths(string $domain, Vector<string> $paths): this;
+    public function addPaths(string $domain, PathList $paths): this;
 
     /**
      * Add a file reader to use for resource parsing.
@@ -43,41 +45,41 @@ interface Bundle {
     public function addReader(Reader $reader): this;
 
     /**
-     * Return a list of all files within all resource locations.
+     * Return a list of all files within a specific domain.
      *
      * @param string $domain
-     * @return array
+     * @return \Titon\Io\PathList
      */
-    public function getContents(string $domain): Vector<string>;
+    public function getContents(string $domain): PathList;
 
     /**
      * Return a list of all domain keys.
      *
-     * @return Vector<string>
+     * @return \Titon\Io\DomainList
      */
-    public function getDomains(): Vector<string>;
+    public function getDomains(): DomainList;
 
     /**
      * Return all resource paths for a single domain.
      *
      * @param string $domain
-     * @return Vector<string>
+     * @return \Titon\Io\PathList
      */
-    public function getDomainPaths(string $domain): Vector<string>;
+    public function getDomainPaths(string $domain): PathList;
 
     /**
      * Return all resource paths for all domains.
      *
-     * @return Map<string, Vector<string>>
+     * @return \Titon\Io\DomainPathMap
      */
-    public function getPaths(): Map<string, Vector<string>>;
+    public function getPaths(): DomainPathMap;
 
     /**
      * Return all loaded Readers.
      *
-     * @return Map<string, Reader>
+     * @return \Titon\Io\ReaderMap
      */
-    public function getReaders(): Map<string, Reader>;
+    public function getReaders(): ReaderMap;
 
     /**
      * Parse the contents of every file that matches the resource name.
@@ -87,8 +89,8 @@ interface Bundle {
      *
      * @param string $domain
      * @param string $resource
-     * @return Vector<mixed>
+     * @return \Titon\Io\ResourceMap
      */
-    public function loadResource(string $domain, string $resource): Vector<mixed>;
+    public function loadResource(string $domain, string $resource): ResourceMap;
 
 }

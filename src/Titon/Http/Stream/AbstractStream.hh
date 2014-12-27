@@ -150,6 +150,8 @@ abstract class AbstractStream implements StreamableInterface {
      */
     public function getSize(): int {
         if ($this->isLocal()) {
+            // UNSAFE
+            // HHVM only has the 1st argument
             clearstatcache(true, $this->_cache['uri']);
         }
 

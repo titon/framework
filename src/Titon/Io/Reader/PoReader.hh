@@ -7,6 +7,7 @@
 
 namespace Titon\Io\Reader;
 
+use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 
 /**
@@ -18,30 +19,36 @@ class PoReader extends AbstractReader {
 
     /**
      * {@inheritdoc}
+     */
+    public function getResourceExt(): string {
+        return 'po';
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @throws \Titon\Io\Exception\ReadErrorException
      */
-    public function read(): Map<string, mixed> {
-        return $this->cache([__METHOD__, $this->path()], function() {
-            if ($this->exists()) {
-                return $this->_parse();
-            }
+    public function readResource(): ResourceMap {
+        if ($this->exists()) {
+            return $this->_parse();
+        }
 
-            throw new ReadErrorException(sprintf('PoReader failed to parse %s', $this->name()));
-        });
+        throw new ReadErrorException(sprintf('PoReader failed to parse %s', $this->getPath()));
     }
 
     /**
      * Parse out the po contents.
      *
-     * @return Map<string, mixed>
+     * @return \Titon\Io\ResourceMap
      */
-    protected function _parse(): Map<string, mixed> {
-        $lines = file($this->path(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    protected function _parse(): ResourceMap {
+        $lines = file($this->getPath(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $data = Map {};
         $key = '';
         $value = '';
-        $plural = false;
+        $plurals = Vector {};
+        $isPlural = false;
 
         foreach ($lines as $line) {
             // Comment or empty line
@@ -54,38 +61,42 @@ class PoReader extends AbstractReader {
 
             // Key
             } else if (mb_strpos($line, 'msgid') === 0) {
+
                 // Save the previous value
                 if ($key !== '') {
-                    $data[$key] = $value;
+                    if ($plurals) {
+                        $data[$key] = $plurals;
+                    } else {
+                        $data[$key] = $value;
+                    }
+
                     $value = '';
+                    $plurals = Vector {};
                 }
 
                 $key = static::dequote($line);
 
             // Message
             } else if (mb_strpos($line, 'msgstr') === 0) {
+
                 // msgstr[n]
                 if ($line[6] === '[') {
-                    $val = static::dequote($line);
-
-                    if ($plural) {
-                        $value[] = $val;
-                    } else {
-                        $value = [$val];
-                        $plural = true;
-                    }
+                    $plurals[] = static::dequote($line);
 
                 // msgstr
                 } else {
                     $value = static::dequote($line);
-                    $plural = false;
                 }
             }
         }
 
         // Grab the last value
         if ($key !== '') {
-            $data[$key] = $value;
+            if ($plurals) {
+                $data[$key] = $plurals;
+            } else {
+                $data[$key] = $value;
+            }
         }
 
         return $data;

@@ -108,7 +108,7 @@ trait Mutable<Tk, Tv> {
      * @return Tv
      */
     public function get(Tk $key, ?Tv $default = null): ?Tv {
-        $value = Col::get($this->all(), (string) $key);
+        $value = Col::get($this->all(), $key);
 
         if ($value === null) {
             return $default;
@@ -135,7 +135,7 @@ trait Mutable<Tk, Tv> {
      * @return bool
      */
     public function has(Tk $key): bool {
-        return Col::has($this->all(), (string) $key);
+        return Col::has($this->all(), $key);
     }
 
     /**
@@ -156,7 +156,7 @@ trait Mutable<Tk, Tv> {
      * @return $this
      */
     public function remove(Tk $key): this {
-        Col::remove($this->all(), (string) $key);
+        Col::remove($this->all(), $key);
 
         return $this;
     }
@@ -171,7 +171,7 @@ trait Mutable<Tk, Tv> {
      * @return $this
      */
     public function set(Tk $key, Tv $value): this {
-        Col::set($this->all(), (string) $key, $value);
+        Col::set($this->all(), $key, $value);
 
         return $this;
     }

@@ -22,11 +22,7 @@ class RequestTest extends TestCase {
         $this->assertEquals(Map {
             'foo' => 123,
             'bar' => 'abc',
-            'list' => Map {
-                0 => 1,
-                1 => 2,
-                2 => 3
-            },
+            'list' => Vector {1, 2, 3},
             'map' => Map {
                 'a' => 'A',
                 'b' => 'B',
@@ -36,11 +32,7 @@ class RequestTest extends TestCase {
 
         $this->assertEquals(123, Request::get('foo'));
         $this->assertEquals('A', Request::get('map.a'));
-        $this->assertEquals(Map {
-            0 => 1,
-            1 => 2,
-            2 => 3
-        }, Request::get('list'));
+        $this->assertEquals(Vector {1, 2, 3}, Request::get('list'));
 
         $this->assertTrue(Request::has('bar'));
         $this->assertTrue(Request::has('map.b'));

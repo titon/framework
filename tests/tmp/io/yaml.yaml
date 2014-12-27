@@ -1,0 +1,13 @@
+integer: 1234567890
+number: 1234567890
+string: abcdefg
+true: true
+false: false
+null: null
+zero: 0
+map:
+  one: true
+  two: false
+list:
+  - foo
+  - bar

@@ -105,6 +105,7 @@ class ArrayList<Tv> implements
             if (in_array($method, $this->_chainable)) {
 
                 // UNSAFE
+                // Since inst_meth() accepts literal strings and we are passing variables
                 call_user_func_array(inst_meth($vector, $method), $args);
 
                 return $this;
@@ -116,6 +117,7 @@ class ArrayList<Tv> implements
                 $clonedList = $vector->toVector();
 
                 // UNSAFE
+                // Since inst_meth() accepts literal strings and we are passing variables
                 $mutatedList = call_user_func_array(inst_meth($clonedList, $method), $args);
 
                 // Some methods return void/null (reverse, etc) so use the cloned list

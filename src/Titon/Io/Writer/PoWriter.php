@@ -7,9 +7,8 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Common\Config;
-use Titon\Io\Writer\AbstractWriter;
-use Titon\Utility\Hash;
+use Titon\Io\ResourceMap;
+use Titon\Utility\Config;
 
 /**
  * A file writer that generates PO files.
@@ -21,24 +20,15 @@ class PoWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      */
-    public function append($data) {
-        unset($data['_comments']);
-        $output = (string) $this->read();
-
-        if ($data) {
-            foreach ((array) $data as $key => $value) {
-                $output .= $this->_processLine($key, $value);
-            }
-        }
-
-        return parent::write($output);
+    public function getResourceExt(): string {
+        return 'po';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($data) {
-        return parent::write($this->_process($data));
+    public function writeResource(ResourceMap $data): bool {
+        return $this->write($this->_process($data));
     }
 
     /**
@@ -46,14 +36,12 @@ class PoWriter extends AbstractWriter {
      *
      * @uses Titon\Common\Config
      *
-     * @param string|array $data
+     * @param \Titon\Io\ResourceMap $data
      * @return string
      */
-    protected function _process($data) {
-        $comments = [
+    protected function _process(ResourceMap $data): string {
+        $comments = Map {
             'Project-Id-Version' => 'Titon',
-            'POT-Creation-Date' => date('Y-m-d H:iO'),
-            'PO-Revision-Date' => date('Y-m-d H:iO'),
             'Last-Translator' => '',
             'Language-Team' => '',
             'Language' => Config::get('Titon.locale.current'),
@@ -61,30 +49,32 @@ class PoWriter extends AbstractWriter {
             'Content-Type' => 'text/plain; charset=' . Config::encoding(),
             'Content-Transfer-Encoding' => '8bit',
             'Plural-Forms' => 'nplurals=2; plural=0;'
-        ];
+        };
 
-        if (isset($data['_comments'])) {
-            $comments = $data['_comments'] + $comments;
-            unset($data['_comments']);
+        // Inherit comments
+        if ($data->contains('_comments')) {
+            $customComments = $data['_comments'];
+
+            invariant($customComments instanceof Map, 'Po comments must be a map');
+
+            $comments = $comments->setAll($customComments);
+
+            $data->remove('_comments');
         }
 
         $output = '';
 
         // Output comments first
-        if ($comments) {
-            $output .= 'msgid ""' . PHP_EOL;
-            $output .= 'msgstr ""' . PHP_EOL;
+        $output .= 'msgid ""' . PHP_EOL;
+        $output .= 'msgstr ""' . PHP_EOL;
 
-            foreach ($comments as $key => $value) {
-                $output .= sprintf('"%s: %s\n"', $key, $value) . PHP_EOL;
-            }
+        foreach ($comments as $key => $value) {
+            $output .= sprintf('"%s: %s"', $key, $value) . PHP_EOL;
         }
 
         // Output values
-        if ($data) {
-            foreach ($data as $key => $value) {
-                $output .= $this->_processLine($key, $value);
-            }
+        foreach ($data as $key => $value) {
+            $output .= $this->_processLine($key, $value);
         }
 
         return $output;
@@ -97,7 +87,7 @@ class PoWriter extends AbstractWriter {
      * @param mixed $value
      * @return string
      */
-    protected function _processLine($key, $value) {
+    protected function _processLine(string $key, mixed $value): string {
         if (is_numeric($key)) {
             $key = $value;
             $value = '';
@@ -107,16 +97,16 @@ class PoWriter extends AbstractWriter {
         $output .= sprintf('msgid "%s"', $key) . PHP_EOL;
 
         // Plurals
-        if (is_array($value)) {
+        if ($value instanceof Vector) {
             $output .= sprintf('msgid_plural "%s"', $key) . PHP_EOL;
 
             foreach ($value as $i => $v) {
-                $output .= sprintf('msgstr[%s] "%s"', $i, $v) . PHP_EOL;
+                $output .= sprintf('msgstr[%d] "%s"', $i, $v) . PHP_EOL;
             }
 
         // Single or multi-line
         } else {
-            $value = explode("\n", str_replace("\r", '', $value));
+            $value = explode("\n", str_replace("\r", '', (string) $value));
 
             foreach ($value as $i => $v) {
                 if ($i == 0) {

@@ -7,10 +7,8 @@
 
 namespace Titon\Io;
 
-use Titon\Io\Exception\DisabledMethodException;
 use Titon\Io\Exception\ExistingFileException;
 use Titon\Io\Exception\InvalidPathException;
-use Titon\Io\Folder;
 
 /**
  * Provides an object interface for interacting with a file on the file system.
@@ -71,9 +69,9 @@ class File extends Node {
      *
      * @throws \Titon\Io\Exception\ExistingFileException
      */
-    public function copy(string $target, string $process = self::OVERWRITE, int $mode = 0755): bool {
+    public function copy(string $target, string $process = self::OVERWRITE, int $mode = 0755): ?File {
         if (!$this->exists()) {
-            return false;
+            return null;
         }
 
         if (file_exists($target) && $process !== self::OVERWRITE) {
@@ -84,10 +82,10 @@ class File extends Node {
             $file = new File($target);
             $file->chmod($mode);
 
-            return true;
+            return $file;
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -95,6 +93,10 @@ class File extends Node {
      */
     public function create(int $mode = 0755): bool {
         $folder = $this->parent();
+
+        if (!$folder) {
+            return false;
+        }
 
         if (!$folder->exists()) {
             $folder->create();

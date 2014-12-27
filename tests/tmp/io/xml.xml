@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <integer type="integer">1234567890</integer>
+    <number>1234567890</number>
+    <string key="value">abcdefg</string>
+    <false type="boolean">false</false>
+    <true type="boolean">true</true>
+    <zero type="integer">0</zero>
+    <null type="null">null</null>
+    <map type="map">
+        <one type="boolean">true</one>
+        <two type="boolean">false</two>
+    </map>
+    <map-empty/>
+    <list type="list">
+        <child>Foo</child>
+        <child>Bar</child>
+    </list>
+    <list-empty></list-empty>
+    <cdata><![CDATA[
+Testing
+]]></cdata>
+</config>

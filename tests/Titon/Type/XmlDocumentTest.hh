@@ -12,6 +12,7 @@ class XmlDocumentTest extends TestCase {
         $this->assertSame(true, XmlDocument::box('true'));
         $this->assertSame(false, XmlDocument::box('false'));
         $this->assertSame('foo', XmlDocument::box('foo'));
+        $this->assertSame(null, XmlDocument::box('null'));
     }
 
     public function testUnbox() {
@@ -21,6 +22,7 @@ class XmlDocumentTest extends TestCase {
         $this->assertSame('true', XmlDocument::unbox(true));
         $this->assertSame('false', XmlDocument::unbox('false'));
         $this->assertSame('foo', XmlDocument::unbox('foo'));
+        $this->assertSame('null', XmlDocument::unbox(null));
     }
 
     public function testFormatName() {

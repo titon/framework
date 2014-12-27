@@ -523,9 +523,10 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
     /**
      * Return the element as a nested map structure.
      *
+     * @param bool $includeRoot
      * @return \Titon\Type\XmlMap
      */
-    public function toMap(): XmlMap {
+    public function toMap(bool $includeRoot = true): XmlMap {
         $map = Map {};
 
         if ($this->hasAttributes()) {
@@ -561,7 +562,7 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
             $map['@value'] = $this->getBoxedValue();
         }
 
-        if ($this->isRoot()) {
+        if ($includeRoot && $this->isRoot()) {
             return Map {$this->getName() => $map};
         }
 
@@ -596,7 +597,7 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
         );
 
         // No children or value so self close
-        if (!$this->hasChildren() && !$this->getValue()) {
+        if (!$this->hasChildren() && $this->getValue() === '') {
             return $xml . '/>' . PHP_EOL;
         } else {
             $xml .= '>';

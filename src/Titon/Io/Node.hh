@@ -11,6 +11,8 @@ use Titon\Common\Exception\MissingFileException;
 use Titon\Io\Exception\ExistingFileException;
 use Titon\Utility\Path;
 
+type ResourceMap = Map<string, mixed>;
+
 /**
  * Shared functionality between file and folder objects.
  *
@@ -81,9 +83,10 @@ abstract class Node {
      * Change the group of the file.
      *
      * @param int $group
+     * @param bool $recursive
      * @return bool
      */
-    public function chgrp(int $group): bool {
+    public function chgrp(int $group, bool $recursive = false): bool {
         if (!$this->exists()) {
             return false;
         }
@@ -103,9 +106,10 @@ abstract class Node {
      * Change the permissions mode of the file.
      *
      * @param int $mode
+     * @param bool $recursive
      * @return bool
      */
-    public function chmod(int $mode): bool {
+    public function chmod(int $mode, bool $recursive = false): bool {
         if (!$this->exists()) {
             return false;
         }
@@ -119,9 +123,10 @@ abstract class Node {
      * Change the owner of the file.
      *
      * @param int $user
+     * @param bool $recursive
      * @return bool
      */
-    public function chown(int $user): bool {
+    public function chown(int $user, bool $recursive = false): bool {
         if (!$this->exists()) {
             return false;
         }
@@ -184,11 +189,12 @@ abstract class Node {
 
     /**
      * Return the parent directory as a string.
+     * Will always end in a trailing slash.
      *
      * @return string
      */
     public function dir(): string {
-        return dirname($this->path());
+        return dirname($this->path()) . '/';
     }
 
     /**
@@ -249,7 +255,7 @@ abstract class Node {
      */
     public static function load(string $path): Node {
         if (!file_exists($path)) {
-            throw new MissingFileException(sprintf('No file or folder found at path: %s', $path));
+            throw new MissingFileException(sprintf('No file or folder found at  %s', $path));
         }
 
         if (is_dir($path)) {
@@ -413,7 +419,7 @@ abstract class Node {
         }
 
         // Prepend folder
-        $target = $this->dir() . '/' . $name;
+        $target = $this->dir() . $name;
 
         // Don't move if the target exists and overwrite is disabled
         if (file_exists($target)) {

@@ -109,7 +109,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
         } else {
 
             // UNSAFE
-            // The action is a variable instead of a literal string.
+            // Since inst_meth() accepts literal strings and we are passing variables
             $response = call_user_func_array(inst_meth($this, $action), $args);
         }
 
@@ -260,6 +260,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
         $action->setController($this);
 
         // UNSAFE
+        // Since inst_meth() accepts literal strings and we are passing variables
         return call_user_func_array(inst_meth($action, strtolower($this->getRequest()->getMethod())), $this->getCurrentArguments());
     }
 

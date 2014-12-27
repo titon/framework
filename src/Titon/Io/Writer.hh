@@ -7,27 +7,28 @@
 
 namespace Titon\Io;
 
+type WriterMap = Map<string, Writer>;
+
 /**
- * Interface for the file writers library.
+ * Interface for writing file resources.
  *
  * @package Titon\Io
  */
 interface Writer {
 
     /**
-     * Append data to the end of a file.
-     *
-     * @param string $data
-     * @return bool
-     */
-    public function append(string $data): bool;
-
-    /**
      * Return the current path.
      *
      * @return string
      */
-    public function path(): string;
+    public function getPath(): string;
+
+    /**
+     * Return the extension for the type of writer.
+     *
+     * @return string
+     */
+    public function getResourceExt(): string;
 
     /**
      * Reset the file path.
@@ -38,11 +39,11 @@ interface Writer {
     public function reset(string $path = ''): this;
 
     /**
-     * Truncate source file and write data to it.
+     * Truncate the resource file and write data to it.
      *
-     * @param string $data
+     * @param \Titon\Io\ResourceMap $data
      * @return bool
      */
-    public function write(string $data): bool;
+    public function writeResource(ResourceMap $data): bool;
 
 }

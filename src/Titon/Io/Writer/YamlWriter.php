@@ -7,7 +7,8 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Io\Exception\MissingExtensionException;
+use Titon\Common\Exception\MissingExtensionException;
+use Titon\Io\ResourceMap;
 use Titon\Utility\Col;
 
 /**
@@ -19,38 +20,22 @@ class YamlWriter extends AbstractWriter {
 
     /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Utility\Hash
-     *
-     * @throws \Titon\Io\Exception\MissingExtensionException
      */
-    public function append($data) {
-        if (!extension_loaded('yaml')) {
-            throw new MissingExtensionException('YAML PECL extension must be installed to use the YamlWriter');
-        }
-
-        if ($contents = $this->read()) {
-            $data = Col::merge(yaml_parse($contents), $data);
-        }
-
-        return $this->write($data);
+    public function getResourceExt(): string {
+        return 'yaml';
     }
 
     /**
      * {@inheritdoc}
      *
-     * @throws \Titon\Io\Exception\MissingExtensionException
+     * @throws \Titon\Common\Exception\MissingExtensionException
      */
-    public function write($data) {
+    public function writeResource(ResourceMap $data): bool {
         if (!extension_loaded('yaml')) {
-            throw new MissingExtensionException('YAML PECL extension must be installed to use the YamlWriter');
+            throw new MissingExtensionException('YAML extension must be installed to use the YamlWriter');
         }
 
-        if (is_array($data)) {
-            $data = yaml_emit($data, YAML_UTF8_ENCODING);
-        }
-
-        return parent::write($data);
+        return $this->write(yaml_emit(Col::toArray($data), YAML_UTF8_ENCODING));
     }
 
 }

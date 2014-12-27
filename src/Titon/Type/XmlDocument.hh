@@ -38,6 +38,9 @@ class XmlDocument {
 
         } else if ($value === 'true' || $value === 'false') {
             return ($value === 'true');
+
+        } else if ($value === 'null') {
+            return null;
         }
 
         return (string) $value;
@@ -52,6 +55,9 @@ class XmlDocument {
     public static function unbox(mixed $value): string {
         if (is_bool($value)) {
             return $value ? 'true' : 'false';
+
+        } else if ($value === null) {
+            return 'null';
         }
 
         return (string) $value;
@@ -242,9 +248,7 @@ class XmlDocument {
         }
 
         // Set value
-        if ($value = trim((string) $xml)) {
-            $element->setValue($value);
-        }
+        $element->setValue(trim((string) $xml));
 
         // Add children
         foreach ($xml->children() as $child) {

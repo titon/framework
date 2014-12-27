@@ -7,8 +7,8 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Utility\Col;
-use Titon\Utility\Converter;
+use Titon\Io\ResourceMap;
+use Titon\Type\XmlDocument;
 
 /**
  * A file writer that generates XML files.
@@ -18,33 +18,19 @@ use Titon\Utility\Converter;
 class XmlWriter extends AbstractWriter {
 
     /**
-     * Allow for format overrides.
-     *
-     * @var int
-     */
-    public static $format = Converter::XML_MERGE;
-
-    /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Utility\Hash
-     * @uses Titon\Utility\Col
      */
-    public function append($data) {
-        if ($contents = $this->read()) {
-            $data = Col::merge(Converter::xmlToArray(simplexml_load_string($contents), self::$format), $data);
-        }
-
-        return $this->write($data);
+    public function getResourceExt(): string {
+        return 'xml';
     }
 
     /**
      * {@inheritdoc}
      *
-     * @uses Titon\Utility\Col
+     * @uses Titon\Type\XmlDocument
      */
-    public function write($data) {
-        return parent::write(Converter::toXml($data));
+    public function writeResource(ResourceMap $data, string $root = 'root'): bool {
+        return $this->write(XmlDocument::fromMap($root, $data)->toString());
     }
 
 }

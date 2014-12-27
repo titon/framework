@@ -7,7 +7,7 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Utility\Col;
+use Titon\Io\ResourceMap;
 
 /**
  * A file writer that generates JSON files.
@@ -18,22 +18,16 @@ class JsonWriter extends AbstractWriter {
 
     /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Utility\Hash
      */
-    public function append($data) {
-        if ($contents = $this->read()) {
-            $data = Col::merge(json_decode($contents, true), $data);
-        }
-
-        return $this->write($data);
+    public function getResourceExt(): string {
+        return 'json';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($data) {
-        return parent::write(json_encode($data, JSON_PRETTY_PRINT));
+    public function writeResource(ResourceMap $data): bool {
+        return $this->write(json_encode($data, JSON_PRETTY_PRINT));
     }
 
 }

@@ -17,4 +17,11 @@ use Titon\Io\Writer;
  */
 abstract class AbstractWriter extends File implements Writer {
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getPath(): string {
+        return $this->path();
+    }
+
 }

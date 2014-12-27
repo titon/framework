@@ -13,7 +13,7 @@ with external PHP code bases and libraries.
 
 Looking for more information? Find us in [#titon](http://webchat.freenode.net/?channels=titon) on FreeNode.
 
-### Unported Packages ###
+#### Unported Packages ####
 
 * [db](https://github.com/titon/db)
 * [db-mysql](https://github.com/titon/db-mysql)
@@ -24,7 +24,7 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 * [mvc](https://github.com/titon/mvc)
 * [g11n](https://github.com/titon/g11n)
 
-### Upcoming Packages ###
+#### Upcoming Packages ####
 
 * Auth
 * ACL
@@ -35,7 +35,7 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 * Mail
 * Queue
 
-### Type Checked Packages ###
+#### Type Checked Packages ####
 
 The following packages have been type checked against Hack's strict type checker.
 They will still fail the checker with unbound errors, or mixed type warnings,
@@ -53,6 +53,38 @@ but there's nothing we can do until HHVM and Hack are patched.
 * Type
 * Utility
 * View
+
+## Roadmap ##
+
+Upcoming features and release plan.
+
+* December
+    * Alpha release
+* January
+    * Context package - Dependency containers and service locators
+* February
+    * Kernel package - Application foundation
+    * MVC package - Model-view-controller application
+* March
+    * G11N package - Internationalization and localization
+* April - May
+    * DB package - Database abstraction layer
+* June
+    * Model package - Object relational mapper and active record for DB entities
+    * Beta release
+* July
+    * Session package - Custom session handler
+* August
+    * Queue package - Queue, job, and worker services
+* September
+    * Mail package - Emailing layer
+* October
+    * Auth package - Authentication and authorization
+* November
+    * ACL package - Access control lists
+* December
+    * ADR package - Action-domain-responder application
+    * 0.1.0 release
 
 ## Requirements ##
 
@@ -91,7 +123,7 @@ Or filter tests based on class or method name.
 /vagrant/bin/run-tests --filter=methodName
 ```
 
-### Hack Strict Mode ###
+#### Hack Strict Mode ####
 
 For the most part, Titon strives to be strict mode only. This can be very challenging, but with Hack's built-in type checker,
 it couldn't be easier. Simply run the following command to check for strict issues.

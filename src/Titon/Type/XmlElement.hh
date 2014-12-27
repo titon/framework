@@ -597,7 +597,7 @@ class XmlElement implements IteratorAggregate<XmlElement>, Countable {
         );
 
         // No children or value so self close
-        if (!$this->hasChildren() && !$this->getValue()) {
+        if (!$this->hasChildren() && $this->getValue() === '') {
             return $xml . '/>' . PHP_EOL;
         } else {
             $xml .= '>';

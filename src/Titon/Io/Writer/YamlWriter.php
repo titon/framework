@@ -35,9 +35,7 @@ class YamlWriter extends AbstractWriter {
             throw new MissingExtensionException('YAML extension must be installed to use the YamlWriter');
         }
 
-        $data = yaml_emit(Col::toArray($data), YAML_UTF8_ENCODING);
-
-        return $this->write($data);
+        return $this->write(yaml_emit(Col::toArray($data), YAML_UTF8_ENCODING));
     }
 
 }

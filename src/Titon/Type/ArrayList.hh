@@ -182,9 +182,7 @@ class ArrayList<Tv> implements
      * @return \Titon\Type\ArrayList<Tv>
      */
     public function clean(): ArrayList<Tv> {
-        return $this->filter(function(Tv $value) {
-            return ($value || $value === 0 || $value === '0' || $value === 0.0);
-        });
+        return $this->filter( (Tv $value) ==> ($value || $value === 0 || $value === '0' || $value === 0.0) );
     }
 
     /**

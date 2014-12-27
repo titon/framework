@@ -169,7 +169,7 @@ class Emitter {
         $observers = $this->getObservers($event);
 
         if ($observers) {
-            usort($observers, function(Observer $a, Observer $b): int {
+            usort($observers, (Observer $a, Observer $b) ==> {
                 if ($a->getPriority() == $b->getPriority()) {
                     return 0;
                 }

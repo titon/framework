@@ -252,9 +252,7 @@ class Folder extends Node {
         }
 
         if ($sort) {
-            usort($contents, function(Node $a, Node $b) {
-                return strcmp($a->path(), $b->path());
-            });
+            usort($contents, (Node $a, Node $b) ==> strcmp($a->path(), $b->path()) );
         }
 
         return $contents;

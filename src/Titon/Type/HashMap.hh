@@ -167,9 +167,7 @@ class HashMap<Tk, Tv> implements
      * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function clean(): HashMap<Tk, Tv> {
-        return $this->filter(function(Tv $value) {
-            return ($value || $value === 0 || $value === '0' || $value === 0.0);
-        });
+        return $this->filter( (Tv $value) ==> ($value || $value === 0 || $value === '0' || $value === 0.0) );
     }
 
     /**

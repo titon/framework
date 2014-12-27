@@ -116,7 +116,7 @@ class UrlBuilder {
      * @return string
      */
     public function url(): string {
-        return (string) $this->cache(__METHOD__, function(UrlBuilder $builder) {
+        return (string) $this->cache(__METHOD__, (UrlBuilder $builder) ==> {
             $router = $builder->getRouter();
             $segments = $router->getSegments();
             $base = $router->base();

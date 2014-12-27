@@ -5,28 +5,28 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Utility;
+namespace Titon\Common\Validator;
 
 use Titon\Common\DataMap;
 use Titon\Common\Exception\InvalidArgumentException;
-use Titon\Utility\Exception\InvalidValidationRuleException;
+use Titon\Common\Exception\InvalidValidationRuleException;
+use Titon\Common\Validator;
+use Titon\Common\Validator\ErrorMap;
+use Titon\Common\Validator\FieldMap;
+use Titon\Common\Validator\MessageMap;
+use Titon\Common\Validator\Rule;
+use Titon\Common\Validator\RuleContainer;
+use Titon\Common\Validator\RuleOptionList;
+use Titon\Utility\Str;
 use \Indexish;
 use \ReflectionClass;
 
-type ErrorMap = Map<string, string>;
-type FieldMap = Map<string, string>;
-type MessageMap = Map<string, string>;
-type Rule = shape('rule' => string, 'message' => string, 'options' => RuleOptionList);
-type RuleContainer = Map<string, RuleMap>;
-type RuleMap = Map<string, Rule>;
-type RuleOptionList = Vector<mixed>;
-
 /**
- * The Validator allows for quick validation against a defined set of rules and fields.
+ * Defines shared functionality for validators.
  *
- * @package Titon\Utility
+ * @package Titon\Common\Validator
  */
-class Validator {
+abstract class AbstractValidator implements Validator {
 
     /**
      * Data to validate against.
@@ -38,28 +38,28 @@ class Validator {
     /**
      * Errors gathered during validation.
      *
-     * @var \Titon\Utility\ErrorMap
+     * @var \Titon\Common\Validator\ErrorMap
      */
     protected ErrorMap $_errors = Map {};
 
     /**
      * Mapping of fields and titles.
      *
-     * @var \Titon\Utility\FieldMap
+     * @var \Titon\Common\Validator\FieldMap
      */
     protected FieldMap $_fields = Map {};
 
     /**
      * Fallback mapping of error messages.
      *
-     * @var \Titon\Utility\MessageMap
+     * @var \Titon\Common\Validator\MessageMap
      */
     protected MessageMap $_messages = Map {};
 
     /**
      * Mapping of fields and validation rules.
      *
-     * @var \Titon\Utility\RuleContainer
+     * @var \Titon\Common\Validator\RuleContainer
      */
     protected RuleContainer $_rules = Map {};
 
@@ -73,11 +73,7 @@ class Validator {
     }
 
     /**
-     * Mark a field has an error.
-     *
-     * @param string $field
-     * @param string $message
-     * @return $this
+     * {@inheritdoc}
      */
     public function addError(string $field, string $message): this {
         $this->_errors[$field] = $message;
@@ -86,20 +82,11 @@ class Validator {
     }
 
     /**
-     * Add a field to be used in validation. Can optionally apply an array of validation rules.
-     *
-     * @param string $field
-     * @param string $title
-     * @param Map<string, mixed> $rules
-     * @return $this
+     * {@inheritdoc}
      */
-    public function addField(string $field, string $title, Map<string, Vector<mixed>> $rules = Map {}): this {
+    public function addField(string $field, string $title, Map<string, RuleOptionList> $rules = Map {}): this {
         $this->_fields[$field] = $title;
 
-        /**
-         * 0 => rule
-         * rule => [opt, ...]
-         */
         if (!$rules->isEmpty()) {
             foreach ($rules as $rule => $options) {
                 $this->addRule($field, $rule, '', $options);
@@ -110,10 +97,7 @@ class Validator {
     }
 
     /**
-     * Add messages to the list.
-     *
-     * @param \Titon\Utility\MessageMap $messages
-     * @return $this
+     * {@inheritdoc}
      */
     public function addMessages(MessageMap $messages): this {
         $this->_messages->setAll($messages);
@@ -122,13 +106,8 @@ class Validator {
     }
 
     /**
-     * Add a validation rule to a field. Can supply an optional error message and options.
+     * {@inheritdoc}
      *
-     * @param string $field
-     * @param string $rule
-     * @param string $message
-     * @param \Titon\Utility\RuleOptionList $options
-     * @return $this
      * @throws \Titon\Common\Exception\InvalidArgumentException
      */
     public function addRule(string $field, string $rule, string $message, RuleOptionList $options = Vector{}): this {
@@ -156,54 +135,42 @@ class Validator {
     }
 
     /**
-     * Return the currently set data.
-     *
-     * @return \Titon\Common\DataMap
+     * {@inheritdoc}
      */
     public function getData(): DataMap {
         return $this->_data;
     }
 
     /**
-     * Return the errors.
-     *
-     * @return \Titon\Utility\ErrorMap
+     * {@inheritdoc}
      */
     public function getErrors(): ErrorMap {
         return $this->_errors;
     }
 
     /**
-     * Return the fields.
-     *
-     * @return \Titon\Utility\FieldMap
+     * {@inheritdoc}
      */
     public function getFields(): FieldMap {
         return $this->_fields;
     }
 
     /**
-     * Return the messages.
-     *
-     * @return \Titon\Utility\MessageMap
+     * {@inheritdoc}
      */
     public function getMessages(): MessageMap {
         return $this->_messages;
     }
 
     /**
-     * Return the rules.
-     *
-     * @return \Titon\Utility\RuleContainer
+     * {@inheritdoc}
      */
     public function getRules(): RuleContainer {
         return $this->_rules;
     }
 
     /**
-     * Reset all dynamic properties.
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function reset(): this {
         $this->_data->clear();
@@ -213,10 +180,7 @@ class Validator {
     }
 
     /**
-     * Set the data to validate against.
-     *
-     * @param \Titon\Common\DataMap $data
-     * @return $this
+     * {@inheritdoc}
      */
     public function setData(DataMap $data): this {
         $this->_data = $data;
@@ -225,10 +189,7 @@ class Validator {
     }
 
     /**
-     * Validate the data against the rules schema. Return true if all fields passed validation.
-     *
-     * @return bool
-     * @throws \Titon\Utility\Exception\InvalidValidationRuleException
+     * {@inheritdoc}
      */
     public function validate(): bool {
         if (!$this->_data) {
@@ -248,7 +209,7 @@ class Validator {
 
             foreach ($rules as $rule => $params) {
                 $options = $params['options'];
-                $arguments = $options->toVector(); // Clone another vector or else message params are out of order
+                $arguments = $options->toArray();
                 array_unshift($arguments, $value);
 
                 // Use G11n if it is available
@@ -258,8 +219,6 @@ class Validator {
                     $class = 'Titon\Utility\Validate';
                 }
 
-                // UNSAFE
-                // Since class_meth() accepts literal strings and we are passing variables
                 if (!call_user_func(class_meth($class, 'hasRule'), $rule)) {
                     throw new InvalidValidationRuleException(sprintf('Validation rule %s does not exist', $rule));
                 }
@@ -284,8 +243,6 @@ class Validator {
                     throw new InvalidValidationRuleException(sprintf('Error message for rule %s does not exist', $rule));
                 }
 
-                // UNSAFE
-                // Since class_meth() accepts literal strings and we are passing variables
                 if (!call_user_func_array(class_meth($class, $rule), $arguments)) {
                     $this->addError($field, $message);
                     break;
@@ -306,7 +263,7 @@ class Validator {
     public static function makeFromShorthand(DataMap $data = Map {}, Map<string, mixed> $fields = Map {}): Validator {
         $class = new ReflectionClass(static::class);
 
-        /** @var \Titon\Utility\Validator $obj */
+        /** @var \Titon\Common\Validator $obj */
         $obj = $class->newInstanceArgs([$data]);
 
         foreach ($fields as $field => $options) {
@@ -355,7 +312,7 @@ class Validator {
      * Split a shorthand rule into multiple parts.
      *
      * @param string $shorthand
-     * @return Rule
+     * @return \Titon\Common\Validator\Rule
      */
     public static function splitShorthand(string $shorthand): Rule {
         $rule = '';

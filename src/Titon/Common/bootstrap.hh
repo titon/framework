@@ -20,6 +20,16 @@ namespace Titon\Common {
     type OptionMap = Map<string, mixed>;
 }
 
+namespace Titon\Common\Validator {
+    type ErrorMap = Map<string, string>;
+    type FieldMap = Map<string, string>;
+    type MessageMap = Map<string, string>;
+    type Rule = shape('rule' => string, 'message' => string, 'options' => RuleOptionList);
+    type RuleContainer = Map<string, RuleMap>;
+    type RuleMap = Map<string, Rule>;
+    type RuleOptionList = Vector<mixed>;
+}
+
 /**
  * --------------------------------------------------------------
  *  Helper Functions

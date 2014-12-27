@@ -5,7 +5,7 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Utility\Exception;
+namespace Titon\Common\Exception;
 
 /**
  * Exception thrown for an invalid validation rule.

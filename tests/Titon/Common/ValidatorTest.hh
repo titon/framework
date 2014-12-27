@@ -1,17 +1,19 @@
 <?hh
-namespace Titon\Utility;
+namespace Titon\Common;
 
+use Titon\Common\Validator\CoreValidator;
 use Titon\Test\TestCase;
+use Titon\Utility\Validate;
 
 /**
- * @property \Titon\Utility\Validator $object
+ * @property \Titon\Common\Validator\CoreValidator $object
  */
 class ValidatorTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new Validator(Map {
+        $this->object = new CoreValidator(Map {
             'username' => 'miles',
             'email' => 'miles@titon' // invalid
         });
@@ -166,7 +168,7 @@ class ValidatorTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Utility\Exception\InvalidValidationRuleException
+     * @expectedException \Titon\Common\Exception\InvalidValidationRuleException
      */
     public function testMessagesErrorOnMissing() {
         $this->object
@@ -244,7 +246,7 @@ class ValidatorTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Utility\Exception\InvalidValidationRuleException
+     * @expectedException \Titon\Common\Exception\InvalidValidationRuleException
      */
     public function testValidateMissingRule() {
         $this->object
@@ -256,7 +258,7 @@ class ValidatorTest extends TestCase {
 
     public function testMakeFromShorthand() {
         // simple rule
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => 'alphaNumeric',
             'field2' => 123 // ignored
         });
@@ -272,7 +274,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // simple 2 rules
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => 'alphaNumeric|boolean'
         });
 
@@ -292,7 +294,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // simple 2 rules with options
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => 'between:5,10|equal:7'
         });
 
@@ -312,7 +314,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // split 2 rules
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => Vector {'between:5,10', 'equal:7'}
         });
 
@@ -332,7 +334,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // nested 2 rules
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => Map {
                 'title' => 'Field',
                 'rules' => 'between:5,10|equal:7'
@@ -355,7 +357,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // nested split 2 rules
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => Map {
                 'title' => 'Field',
                 'rules' => Vector {'between:5,10', 'equal:7'}
@@ -378,7 +380,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // advanced multiple rules
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => Map {
                 'rules' => Vector {
                     'phone::Invalid phone number',

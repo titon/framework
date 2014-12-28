@@ -483,25 +483,22 @@ class Col {
     public static function toArray<Tk, Tv, Tr>(Tr $resource): array<Tk, Tv> {
         if ($resource instanceof Arrayable) {
             return $resource->toArray();
+
+        } else if (!$resource instanceof Indexish) {
+            return [$resource];
         }
+
+        invariant($resource instanceof Indexish, 'Resource must be traversable');
 
         $array = [];
 
-        if ($resource instanceof Indexish) {
-            foreach ($resource as $key => $value) {
-                if ($value instanceof Vector) {
-                    $array[$key] = $value->toArray();
+        foreach ($resource as $key => $value) {
+            if ($value instanceof Indexish) {
+                $array[$key] = static::toArray($value);
 
-                } else if ($value instanceof Indexish) {
-                    $array[$key] = static::toArray($value);
-
-                } else {
-                    $array[$key] = $value;
-                }
+            } else {
+                $array[$key] = $value;
             }
-
-        } else if ($resource) {
-            $array[] = $resource;
         }
 
         return $array;
@@ -514,17 +511,16 @@ class Col {
      * @return Map<Tk, Tv>
      */
     public static function toMap<Tk, Tv, Tr>(Tr $resource): Map<Tk, Tv> {
-
         if ($resource instanceof Mapable) {
             return $resource->toMap();
 
-        } else if (!$resource instanceof KeyedTraversable) {
+        } else if (!$resource instanceof Indexish) {
             $map = new Map([$resource]);
 
             return $map;
         }
 
-        invariant($resource instanceof KeyedTraversable, 'Resource must be traversable');
+        invariant($resource instanceof Indexish, 'Resource must be traversable');
 
         $map = Map {};
 
@@ -550,22 +546,24 @@ class Col {
      * @return Vector<Tv>
      */
     public static function toVector<Tv, Tr>(Tr $resource): Vector<Tv> {
-        $vector = Vector {};
-
         if ($resource instanceof Vectorable) {
             return $resource->toVector();
 
-        } else if (!$resource instanceof KeyedTraversable) {
-            $vector[] = $resource;
+        } else if (!$resource instanceof Indexish) {
+            $vector = new Vector([$resource]);
 
             return $vector;
         }
+
+        invariant($resource instanceof Indexish, 'Resource must be traversable');
+
+        $vector = Vector {};
 
         foreach ($resource as $value) {
             if ($value instanceof Map || (is_array($value) && !Col::isNumeric(array_keys($value)))) {
                 $vector[] = static::toMap($value);
 
-            } else if ($value instanceof Vector || is_array($value)) {
+            } else if ($value instanceof Indexish) {
                 $vector[] = static::toVector($value);
 
             } else {

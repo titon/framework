@@ -29,7 +29,7 @@ trait ObserverAnnotation {
         foreach ($this->getAnnotatedMethods() as $method) {
             if ($annotation = $this->getMethodAnnotation($method, 'Observer')) {
                 // UNSAFE
-                // Since inst_meth() accepts literal strings and we are passing variables
+                // Since inst_meth() requires literal strings and we are passing variables
                 $this->on((string) $annotation[0], inst_meth($this, $method), (int) $annotation->get(1) ?: 0, (bool) $annotation->get(2) ?: false);
             }
         }

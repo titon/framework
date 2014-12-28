@@ -101,7 +101,7 @@ class HashMap<Tk, Tv> implements
             if (in_array($method, $this->_chainable)) {
 
                 // UNSAFE
-                // Since inst_meth() accepts literal strings and we are passing variables
+                // Since inst_meth() requires literal strings and we are passing variables
                 call_user_func_array(inst_meth($map, $method), $args);
 
                 return $this;
@@ -113,7 +113,7 @@ class HashMap<Tk, Tv> implements
                 $clonedList = $map->toMap();
 
                 // UNSAFE
-                // Since inst_meth() accepts literal strings and we are passing variables
+                // Since inst_meth() requires literal strings and we are passing variables
                 $mutatedList = call_user_func_array(inst_meth($clonedList, $method), $args);
 
                 // Some methods return void/null so use the cloned list

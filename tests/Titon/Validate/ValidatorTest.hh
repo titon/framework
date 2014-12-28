@@ -1,12 +1,10 @@
 <?hh
-namespace Titon\Common;
+namespace Titon\Validate;
 
-use Titon\Common\Validator\CoreValidator;
 use Titon\Test\TestCase;
-use Titon\Utility\Validate;
 
 /**
- * @property \Titon\Common\Validator\CoreValidator $object
+ * @property \Titon\Validate\CoreValidator $object
  */
 class ValidatorTest extends TestCase {
 
@@ -69,7 +67,7 @@ class ValidatorTest extends TestCase {
             'phone' => Vector {},
             'email' => Vector {},
             'ext' => Vector {Vector {'txt', 'pdf'}},
-            'ip' => Vector {Validate::IPV4}
+            'ip' => Vector {Constraint::IPV4}
         });
 
         $this->assertEquals(Map {
@@ -104,7 +102,7 @@ class ValidatorTest extends TestCase {
                 'ip' => shape(
                     'rule' => 'ip',
                     'message' => 'Please provide an IPv4',
-                    'options' => Vector {Validate::IPV4}
+                    'options' => Vector {Constraint::IPV4}
                 )
             }
         }, $this->object->getRules());
@@ -168,7 +166,7 @@ class ValidatorTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Common\Exception\InvalidValidationRuleException
+     * @expectedException \Titon\Validate\Exception\MissingMessageException
      */
     public function testMessagesErrorOnMissing() {
         $this->object
@@ -246,7 +244,7 @@ class ValidatorTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Common\Exception\InvalidValidationRuleException
+     * @expectedException \Titon\Validate\Exception\MissingConstraintException
      */
     public function testValidateMissingRule() {
         $this->object
@@ -386,7 +384,7 @@ class ValidatorTest extends TestCase {
                     'phone::Invalid phone number',
                     'email::Please provide an email',
                     'ext:txt:Valid extensions are txt, pdf',
-                    'ip:' . Validate::IPV4 . ':Please provide an IPv4'
+                    'ip:' . Constraint::IPV4 . ':Please provide an IPv4'
                 }
             }
         });
@@ -411,7 +409,7 @@ class ValidatorTest extends TestCase {
                 'ip' => shape(
                     'rule' => 'ip',
                     'message' => 'Please provide an IPv4',
-                    'options' => Vector {Validate::IPV4}
+                    'options' => Vector {Constraint::IPV4}
                 )
             }
         }, $obj->getRules());

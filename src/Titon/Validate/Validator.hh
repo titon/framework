@@ -5,14 +5,19 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common;
+namespace Titon\Validate;
 
 use Titon\Common\DataMap;
-use Titon\Common\Validator\ErrorMap;
-use Titon\Common\Validator\FieldMap;
-use Titon\Common\Validator\MessageMap;
-use Titon\Common\Validator\RuleContainer;
-use Titon\Common\Validator\RuleOptionList;
+
+type ConstraintCallback = (function(mixed): bool);
+type ConstraintMap = Map<string, ConstraintCallback>;
+type ErrorMap = Map<string, string>;
+type FieldMap = Map<string, string>;
+type MessageMap = Map<string, string>;
+type Rule = shape('rule' => string, 'message' => string, 'options' => OptionList);
+type RuleContainer = Map<string, RuleMap>;
+type RuleMap = Map<string, Rule>;
+type OptionList = Vector<mixed>;
 
 /**
  * The Validator allows for quick validation against a defined set of rules and fields.
@@ -20,6 +25,23 @@ use Titon\Common\Validator\RuleOptionList;
  * @package Titon\Common
  */
 interface Validator {
+
+    /**
+     * Add a custom constraint.
+     *
+     * @param string $key
+     * @param \Titon\Validate\ConstraintCallback $callback
+     * @return $this
+     */
+    public function addConstraint(string $key, ConstraintCallback $callback): this;
+
+    /**
+     * Load a mapping of constraints defined in a provider.
+     *
+     * @param \Titon\Validate\ConstraintProvider $provider
+     * @return $this
+     */
+    public function addConstraintProvider(ConstraintProvider $provider): this;
 
     /**
      * Mark a field has an error.
@@ -35,15 +57,15 @@ interface Validator {
      *
      * @param string $field
      * @param string $title
-     * @param Map<string, RuleOptionList> $rules
+     * @param Map<string, OptionList> $rules
      * @return $this
      */
-    public function addField(string $field, string $title, Map<string, RuleOptionList> $rules = Map {}): this;
+    public function addField(string $field, string $title, Map<string, OptionList> $rules = Map {}): this;
 
     /**
      * Add messages to the list.
      *
-     * @param \Titon\Common\Validator\MessageMap $messages
+     * @param \Titon\Validate\MessageMap $messages
      * @return $this
      */
     public function addMessages(MessageMap $messages): this;
@@ -54,10 +76,17 @@ interface Validator {
      * @param string $field
      * @param string $rule
      * @param string $message
-     * @param \Titon\Common\Validator\RuleOptionList $options
+     * @param \Titon\Validate\OptionList $options
      * @return $this
      */
-    public function addRule(string $field, string $rule, string $message, RuleOptionList $options = Vector{}): this;
+    public function addRule(string $field, string $rule, string $message, OptionList $options = Vector{}): this;
+
+    /**
+     * Return a map of constraint callbacks with the key being the rule name.
+     *
+     * @return \Titon\Validate\ConstraintMap
+     */
+    public function getConstraints(): ConstraintMap;
 
     /**
      * Return the currently set data.
@@ -69,28 +98,28 @@ interface Validator {
     /**
      * Return the errors.
      *
-     * @return \Titon\Common\Validator\ErrorMap
+     * @return \Titon\Validate\ErrorMap
      */
     public function getErrors(): ErrorMap;
 
     /**
      * Return the fields.
      *
-     * @return \Titon\Common\Validator\FieldMap
+     * @return \Titon\Validate\FieldMap
      */
     public function getFields(): FieldMap;
 
     /**
      * Return the messages.
      *
-     * @return \Titon\Common\Validator\MessageMap
+     * @return \Titon\Validate\MessageMap
      */
     public function getMessages(): MessageMap;
 
     /**
      * Return the rules.
      *
-     * @return \Titon\Common\Validator\RuleContainer
+     * @return \Titon\Validate\RuleContainer
      */
     public function getRules(): RuleContainer;
 

@@ -154,6 +154,33 @@ abstract class AbstractValidator implements Validator {
     }
 
     /**
+     * Format an error message by inserting tokens for the current field, rule, and rule options.
+     *
+     * @param string $field
+     * @param \Titon\Validate\Rule $rule
+     * @return string
+     * @throws \Titon\Validate\Exception\MissingMessageException
+     */
+    public function formatMessage(string $field, Rule $rule): string {
+        $message = $rule['message'] ?: $this->getMessages()->get($rule['rule']);
+
+        if (!$message) {
+            throw new MissingMessageException(sprintf('Error message for rule %s does not exist', $rule['rule']));
+        }
+
+        $tokens = Map {
+            'field' => $field,
+            'title' => $this->getFields()->get($field)
+        };
+
+        foreach ($rule['options'] as $i => $option) {
+            $tokens[(string) $i] = ($option instanceof Indexish) ? implode(', ', $option) : $option;
+        }
+
+        return Str::insert($message, $tokens);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getConstraints(): ConstraintMap {
@@ -218,16 +245,13 @@ abstract class AbstractValidator implements Validator {
      * {@inheritdoc}
      *
      * @throws \Titon\Validate\Exception\MissingConstraintException
-     * @throws \Titon\Validate\Exception\MissingMessageException
      */
     public function validate(): bool {
         if (!$this->_data) {
             return false;
         }
 
-        $fields = $this->getFields();
         $fieldRules = $this->getRules();
-        $messages = $this->getMessages();
         $constraints = $this->getConstraints();
 
         foreach ($this->getData() as $field => $value) {
@@ -242,34 +266,14 @@ abstract class AbstractValidator implements Validator {
                     throw new MissingConstraintException(sprintf('Validation constraint %s does not exist', $rule));
                 }
 
-                $options = $params['options'];
-                $arguments = $options->toArray();
+                $arguments = $params['options']->toArray();
 
                 // Add the input to validate as the 1st argument
                 array_unshift($arguments, $value);
 
-                // Prepare messages
-                $message = $params['message'] ?: $messages->get($rule);
-
-                if (!$message) {
-                    throw new MissingMessageException(sprintf('Error message for rule %s does not exist', $rule));
-                }
-
                 // Execute the constraint
                 if (!call_user_func_array($constraints[$rule], $arguments)) {
-
-                    // Replace tokens
-                    $message = Str::insert($message, Map {
-                        'field' => $field,
-                        'title' => $fields[$field]
-                    });
-
-                    // Replace options
-                    $message = Str::insert($message, $options->toMap()->map(
-                        ($value) ==> ($value instanceof Indexish) ? implode(', ', $value) : $value
-                    ));
-
-                    $this->addError($field, $message);
+                    $this->addError($field, $this->formatMessage($field, $params));
                 }
             }
         }

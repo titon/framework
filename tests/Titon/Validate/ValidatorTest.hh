@@ -165,15 +165,25 @@ class ValidatorTest extends TestCase {
         }, $this->object->getErrors());
     }
 
+    public function testFormatMessage() {
+        $this->object
+            ->addField('username', 'Username');
+
+        $this->assertEquals('Field username is required', $this->object->formatMessage('username', shape('rule' => 'foobar', 'message' => 'Field {field} is required', 'options' => Vector {})));
+        $this->assertEquals('Field Username is required', $this->object->formatMessage('username', shape('rule' => 'foobar', 'message' => 'Field {title} is required', 'options' => Vector {})));
+        $this->assertEquals('Field is foobar', $this->object->formatMessage('username', shape('rule' => 'foobar', 'message' => 'Field is {0}{1}', 'options' => Vector {'foo', 'bar'})));
+        $this->assertEquals('Only a, b is required', $this->object->formatMessage('username', shape('rule' => 'foobar', 'message' => 'Only {0} is required', 'options' => Vector {['a', 'b']})));
+    }
+
     /**
      * @expectedException \Titon\Validate\Exception\MissingMessageException
      */
-    public function testMessagesErrorOnMissing() {
+    public function testFormatMessageErrorOnMissing() {
         $this->object
             ->addField('username', 'Username')
                 ->addRule('username', 'notEmpty', '');
 
-        $this->object->validate();
+        $this->object->formatMessage('username', shape('rule' => 'notEmpty', 'message' => '', 'options' => Vector {}));
     }
 
     public function testReset() {

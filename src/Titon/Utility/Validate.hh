@@ -301,7 +301,7 @@ class Validate {
      * @param bool $dns
      * @return bool
      */
-    public static function email(string $input, bool $dns = true): bool {
+    public static function email(string $input, bool $dns = false): bool {
         $result = (bool) filter_var($input, FILTER_VALIDATE_EMAIL);
 
         if (!$result) {

@@ -63,6 +63,8 @@ Upcoming features and release plan.
     * Alpha release
 * January
     * Context package - Dependency containers and service locators
+    * Add a `Debug\Dumper` class that supports HTML and CLI
+    * Add a `Type\Yaml` class for parsing YAML documents
 * February
     * Kernel package - Application foundation
     * MVC package - Model-view-controller application

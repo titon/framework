@@ -10,7 +10,7 @@ namespace Titon\Validate;
 use Titon\Utility\Validate;
 
 /**
- * Default provider of constraints, which are inherited from the Validate class.
+ * Default provider of constraints, which are inherited from the utility Validate class.
  *
  * @package Titon\Validate
  */

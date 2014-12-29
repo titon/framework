@@ -16,7 +16,7 @@ class DownloadResponseTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Http\Exception\InvalidFileException
+     * @expectedException \Titon\Common\Exception\MissingFileException
      */
     public function testMissingFileErrors() {
         new DownloadResponse($this->vfs->path('/http/download-missing.txt'));

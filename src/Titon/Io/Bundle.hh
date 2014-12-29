@@ -10,6 +10,8 @@ namespace Titon\Io;
 type DomainList = Vector<string>;
 type DomainPathMap = Map<string, PathList>;
 type PathList = Vector<string>;
+type ReaderMap = Map<string, Reader>;
+type WriterMap = Map<string, Writer>;
 
 /**
  * Interface for the resource bundles library.

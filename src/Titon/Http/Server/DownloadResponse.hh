@@ -7,6 +7,7 @@
 
 namespace Titon\Http\Server;
 
+use Titon\Common\Exception\MissingFileException;
 use Titon\Http\Exception\InvalidExtensionException;
 use Titon\Http\Exception\InvalidFileException;
 use Titon\Http\Exception\MalformedRequestException;
@@ -34,13 +35,14 @@ class DownloadResponse extends Response {
      *
      * @param string $path
      * @param int $status
+     * @throws \Titon\Common\Exception\MissingFileException
      * @throws \Titon\Http\Exception\InvalidFileException
      */
     public function __construct(string $path, int $status = Http::OK) {
         parent::__construct(null, $status);
 
         if (!file_exists($path)) {
-            throw new InvalidFileException(sprintf('File %s does not exist', basename($path)));
+            throw new MissingFileException(sprintf('File %s does not exist', basename($path)));
 
         } else if (!is_readable($path)) {
             throw new InvalidFileException(sprintf('File %s is not readable', basename($path)));

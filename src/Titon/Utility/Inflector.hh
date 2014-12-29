@@ -43,23 +43,18 @@ class Inflector {
     }
 
     /**
-     * Inflect a word for a filename. Studly cased and capitalized.
+     * Inflect a word for a filename. Remove an extension if it exists, and add a new extension.
      *
      * @param string $string
      * @param string $ext
-     * @param bool $capitalize
      * @return string
      */
-    public static function fileName(string $string, string $ext = 'php', bool $capitalize = true): string {
+    public static function fileName(string $string, string $ext = 'php'): string {
         if (mb_strpos($string, '.') !== false) {
             $string = mb_substr($string, 0, mb_strrpos($string, '.'));
         }
 
-        $path = static::camelCase($string);
-
-        if (!$capitalize) {
-            $path = lcfirst($path);
-        }
+        $path = static::hyphenate($string);
 
         if (mb_substr($path, -(mb_strlen($ext) + 1)) !== '.' . $ext) {
             $path .= '.' . $ext;

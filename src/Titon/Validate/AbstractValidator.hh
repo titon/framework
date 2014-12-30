@@ -246,8 +246,10 @@ abstract class AbstractValidator implements Validator {
      *
      * @throws \Titon\Validate\Exception\MissingConstraintException
      */
-    public function validate(): bool {
-        if (!$this->_data) {
+    public function validate(DataMap $data = Map {}): bool {
+        if ($data) {
+            $this->setData($data);
+        } else if (!$this->_data) {
             return false;
         }
 

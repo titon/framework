@@ -17,16 +17,16 @@ interface Action {
     /**
      * Method that is executed for a DELETE request.
      *
-     * @return string
+     * @return mixed
      */
-    public function delete(): string;
+    public function delete(): mixed;
 
     /**
      * Method that is executed for a GET request.
      *
-     * @return string
+     * @return mixed
      */
-    public function get(): string;
+    public function get(): mixed;
 
     /**
      * Return the controller.
@@ -46,15 +46,15 @@ interface Action {
     /**
      * Method that is executed for a POST request.
      *
-     * @return string
+     * @return mixed
      */
-    public function post(): string;
+    public function post(): mixed;
 
     /**
      * Method that is executed for a PUT request.
      *
-     * @return string
+     * @return mixed
      */
-    public function put(): string;
+    public function put(): mixed;
 
 }

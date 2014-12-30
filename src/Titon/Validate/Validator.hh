@@ -141,8 +141,9 @@ interface Validator {
     /**
      * Validate the data against the rules schema. Return true if all fields passed validation.
      *
+     * @param \Titon\Common\DataMap $data
      * @return bool
      */
-    public function validate(): bool;
+    public function validate(DataMap $data = Map {}): bool;
 
 }

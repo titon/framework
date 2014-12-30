@@ -48,7 +48,7 @@ class DownloadResponseTest extends TestCase {
             'Content-Disposition' => ['attachment; filename="download.txt"'],
             'Accept-Ranges' => ['bytes'],
             'Content-Transfer-Encoding' => ['binary'],
-            'Content-Length' => [123],
+            'Content-Length' => [93],
         ], $response->getHeaders());
 
         $this->assertEquals('This will be downloaded! Let\'s fluff this file with even more data to increase the file size.', $body);
@@ -73,7 +73,7 @@ class DownloadResponseTest extends TestCase {
             'Content-Disposition' => ['attachment; filename="download"'],
             'Accept-Ranges' => ['bytes'],
             'Content-Transfer-Encoding' => ['binary'],
-            'Content-Length' => [123],
+            'Content-Length' => [93],
         ], $response->getHeaders());
 
         $this->assertEquals('This will be downloaded! Let\'s fluff this file with even more data to increase the file size.', $body);
@@ -98,7 +98,7 @@ class DownloadResponseTest extends TestCase {
             'Content-Transfer-Encoding' => ['binary'],
             'Last-Modified' => [gmdate(Http::DATE_FORMAT, filemtime($this->vfs->path('/http/download.txt')))],
             'ETag' => ['"3cefcf43cb525cb668db0cb67cccc41a8f90a727"'],
-            'Content-Length' => [123],
+            'Content-Length' => [93],
         ], $response->getHeaders());
 
         $this->assertEquals('This will be downloaded! Let\'s fluff this file with even more data to increase the file size.', $body);
@@ -117,7 +117,7 @@ class DownloadResponseTest extends TestCase {
 
         $this->assertEquals(206, $response->getStatusCode());
         $this->assertEquals(6, $response->getHeader('Content-Length'));
-        $this->assertEquals('bytes 0-5/123', $response->getHeader('Content-Range'));
+        $this->assertEquals('bytes 0-5/93', $response->getHeader('Content-Range'));
     }
 
     public function testInvalidFileRange() {
@@ -150,7 +150,7 @@ class DownloadResponseTest extends TestCase {
 
         $this->assertEquals(206, $response->getStatusCode());
         $this->assertEquals(20, $response->getHeader('Content-Length'));
-        $this->assertEquals('bytes 0-19/123', $response->getHeader('Content-Range'));
+        $this->assertEquals('bytes 0-19/93', $response->getHeader('Content-Range'));
 
         // No starting range
         $response->getRequest()->headers->set('Range', ['bytes=-35']);
@@ -158,15 +158,15 @@ class DownloadResponseTest extends TestCase {
 
         $this->assertEquals(206, $response->getStatusCode());
         $this->assertEquals(36, $response->getHeader('Content-Length'));
-        $this->assertEquals('bytes 0-35/123', $response->getHeader('Content-Range'));
+        $this->assertEquals('bytes 0-35/93', $response->getHeader('Content-Range'));
 
         // No ending range
         $response->getRequest()->headers->set('Range', ['bytes=45-']);
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
-        $this->assertEquals(78, $response->getHeader('Content-Length'));
-        $this->assertEquals('bytes 45-122/123', $response->getHeader('Content-Range'));
+        $this->assertEquals(48, $response->getHeader('Content-Length'));
+        $this->assertEquals('bytes 45-92/93', $response->getHeader('Content-Range'));
 
         // Valid ending range
         $response->getRequest()->headers->set('Range', ['bytes=33-92']);
@@ -174,15 +174,15 @@ class DownloadResponseTest extends TestCase {
 
         $this->assertEquals(206, $response->getStatusCode());
         $this->assertEquals(60, $response->getHeader('Content-Length'));
-        $this->assertEquals('bytes 33-92/123', $response->getHeader('Content-Range'));
+        $this->assertEquals('bytes 33-92/93', $response->getHeader('Content-Range'));
 
         // No ranges at all
         $response->getRequest()->headers->set('Range', ['bytes=-']);
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
-        $this->assertEquals(123, $response->getHeader('Content-Length'));
-        $this->assertEquals('bytes 0-122/123', $response->getHeader('Content-Range'));
+        $this->assertEquals(93, $response->getHeader('Content-Length'));
+        $this->assertEquals('bytes 0-92/93', $response->getHeader('Content-Range'));
 
         // Invalid ranges
         $response->getRequest()->headers->set('Range', ['bytes=100-0']);

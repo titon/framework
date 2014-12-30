@@ -5,8 +5,6 @@
  * @link        http://titon.io
  */
 
-use Titon\Debug\Debugger;
-
 // Set timezone for tests
 date_default_timezone_set('UTC');
 
@@ -32,11 +30,10 @@ if (!file_exists(VENDOR_DIR . '/autoload.php')) {
     exit('Please install Composer in the root folder before running tests!');
 }
 
-$loader = require VENDOR_DIR . '/autoload.php';
-$loader->add('', TEST_DIR);
+require VENDOR_DIR . '/autoload.php';
 
 // Enable the Debugger for testing
-Debugger::enable();
+Titon\Debug\Debugger::enable();
 
 // Temporary fix until the PHPUnit patch is merged in
 // Issue: https://github.com/sebastianbergmann/phpunit/issues/1389

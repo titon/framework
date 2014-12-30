@@ -4,13 +4,17 @@
     "description": "The cache package provides a data caching layer that supports multiple storage engines.",
     "keywords": ["titon", "cache", "storage", "apc", "memcache", "filesystem", "io", "redis", "memory"],
     "homepage": "http://titon.io",
-    "license": "BSD-3",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Miles Johnson",
             "homepage": "http://milesj.me"
         }
     ],
+    "support": {
+        "irc": "irc://irc.freenode.org/titon",
+        "source": "https://github.com/titon/cache"
+    },
     "require": {
         "hhvm": ">=3.4.0",
         "titon/core": "*"

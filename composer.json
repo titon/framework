@@ -12,10 +12,7 @@
         }
     ],
     "require": {
-        "ext-mbstring": "*",
-        "ext-mcrypt": "*",
-        "ext-simplexml": "*",
-        "ext-fileinfo": "*"
+        "titon/core": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.4.0",

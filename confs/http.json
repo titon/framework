@@ -1,0 +1,25 @@
+{
+    "name": "titon/http",
+    "type": "library",
+    "description": "The HTTP package provides classes for interacting with cookies, headers, the request, and the response.",
+    "keywords": ["titon", "http", "request", "response", "cookie", "session", "header", "message", "mime", "net"],
+    "homepage": "http://titon.io",
+    "license": "BSD-3",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "require": {
+        "hhvm": ">=3.4.0",
+        "ext-mbstring": "*",
+        "titon/core": "*",
+        "psr/http-message": "~0.5.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Titon\\Http": "src/"
+        }
+    }
+}

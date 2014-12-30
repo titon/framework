@@ -63,16 +63,16 @@
         },
         {
             "name": "php-vfs/php-vfs",
-            "version": "v1.2.1",
+            "version": "v1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thornag/php-vfs.git",
-                "reference": "b657d11293bfb854d22b4ad657dc8a3012456fe7"
+                "reference": "3ff334d76a69c3359716c81e0ea0c38d058ae974"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thornag/php-vfs/zipball/b657d11293bfb854d22b4ad657dc8a3012456fe7",
-                "reference": "b657d11293bfb854d22b4ad657dc8a3012456fe7",
+                "url": "https://api.github.com/repos/thornag/php-vfs/zipball/3ff334d76a69c3359716c81e0ea0c38d058ae974",
+                "reference": "3ff334d76a69c3359716c81e0ea0c38d058ae974",
                 "shasum": ""
             },
             "require": {
@@ -109,7 +109,7 @@
                 "unit",
                 "virtual"
             ],
-            "time": "2014-09-13 13:21:21"
+            "time": "2014-12-26 07:23:14"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -360,16 +360,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.4.0",
+            "version": "4.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "bbe7bcb83b6ec1a9eaabbe1b70d4795027c53ee0"
+                "reference": "6a5e49a86ce5e33b8d0657abe145057fc513543a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/bbe7bcb83b6ec1a9eaabbe1b70d4795027c53ee0",
-                "reference": "bbe7bcb83b6ec1a9eaabbe1b70d4795027c53ee0",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6a5e49a86ce5e33b8d0657abe145057fc513543a",
+                "reference": "6a5e49a86ce5e33b8d0657abe145057fc513543a",
                 "shasum": ""
             },
             "require": {
@@ -427,7 +427,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-12-05 06:49:03"
+            "time": "2014-12-28 07:57:05"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

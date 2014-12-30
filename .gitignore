@@ -1,5 +1,5 @@
-.idea
-.vagrant
+.idea/
+.vagrant/
 .DS_Store
 vendor/
 composer.phar

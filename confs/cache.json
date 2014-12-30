@@ -1,0 +1,30 @@
+{
+    "name": "titon/cache",
+    "type": "library",
+    "description": "The cache package provides a data caching layer that supports multiple storage engines.",
+    "keywords": ["titon", "cache", "storage", "apc", "memcache", "filesystem", "io", "redis", "memory"],
+    "homepage": "http://titon.io",
+    "license": "BSD-3",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "require": {
+        "hhvm": ">=3.4.0",
+        "titon/core": "*"
+    },
+    "suggest": {
+        "ext-apc": "Cache data using APC",
+        "ext-redis": "Cache data using Redis",
+        "ext-memcached": "Cache data using Memcache",
+        "titon/io": "Cache data to the filesystem using the IO package",
+        "titon/db": "Cache data to a database using the DB package"
+    },
+    "autoload": {
+        "psr-0": {
+            "Titon\\Cache": "src/"
+        }
+    }
+}

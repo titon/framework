@@ -93,7 +93,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
         $this->_arguments[$action] = $args;
 
         // Convert dashed actions to camel case
-        if (mb_strpos($action, '-') !== false) {
+        if (strpos($action, '-') !== false) {
             $action = lcfirst(Inflector::camelCase($action));
         }
 

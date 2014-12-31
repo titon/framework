@@ -6,130 +6,142 @@ import os, sys, shutil, time
 parser = ArgumentParser(description='Split the project into multiple packages and push to git.')
 #parser.add_argument('-p', '--path', dest='path', default='', help='Path to a folder to check.')
 
-# Important directories
+# Set directories
 TARGET_DIR = '/home/vagrant/packages/'
 SOURCE_DIR = '/vagrant/src/Titon/'
 CONFIG_DIR = '/vagrant/confs/'
 
-# Helper functions
-def config_name(name):
-    """
-    Return the valid configuration name for the package.
-    """
+# Define class
+class PackageSplitter:
+    def config_name(self, name):
+        """
+        Return the valid configuration name for the package.
+        """
 
-    if name == 'Common' or name == 'Type' or name == 'Utility':
-        return 'core'
-    elif name == 'Environment':
-        return 'env'
-    else:
-        return name.lower()
-
-def init_git(name, dst):
-    """
-    Either clone or update the git repository at the destination.
-    """
-
-    if not os.path.exists(dst):
-        print('- Cloning git repository')
-
-        if (os.system('git clone git@github.com:titon/{0}.git {1}'.format(name, dst)) == 0):
-            print('- Cloned to ' + dst)
+        if name == 'Common' or name == 'Type' or name == 'Utility':
+            return 'core'
+        elif name == 'Environment':
+            return 'env'
         else:
-            print('- Failed to clone repository')
-            sys.exit()
-    else:
-        print('- Updating git repository')
+            return name.lower()
 
-        os.system('git pull origin master')
+    def init_git(self, name, dst):
+        """
+        Either clone or update the git repository at the destination.
+        """
 
-def copy_composer(name, dst):
-    """
-    Copy the composer.json file from the config folder to the destination.
-    """
+        if not os.path.exists(dst):
+            print('- Cloning git repository')
 
-    print('- Copying composer.json')
-
-    shutil.copy(CONFIG_DIR + 'composer/' + name + '.json', dst)
-
-def copy_readme(name, dst):
-    """
-    Copy the readme file from the config folder to the destination.
-    """
-
-    print('- Copying readme')
-
-    shutil.copy(CONFIG_DIR + 'readme/' + name + '.md', dst)
-
-def copy_license(dst):
-    """
-    Copy the license from the root to the destination.
-    """
-
-    print('- Copying license')
-
-    shutil.copy('/vagrant/license.md', dst)
-
-def copy_source(src, dst):
-    """
-    Recursively copy the source files to the destination.
-    """
-
-    print('- Copying source folder ' + src.replace('/vagrant/src/Titon/', '').strip('/'))
-
-    if not os.path.exists(dst):
-        os.makedirs(dst)
-
-    for file in os.listdir(src):
-        if os.path.isdir(src + file):
-            copy_source(src + file + '/', dst + file + '/')
+            if (os.system('git clone git@github.com:titon/{0}.git {1}'.format(name, dst)) == 0):
+                print('- Cloned to ' + dst)
+            else:
+                print('- Failed to clone repository')
+                sys.exit()
         else:
-            shutil.copy(src + file, dst + file)
+            print('- Updating git repository')
 
-# Split the project into packages
-print('Splitting packages...')
-print()
+            #os.system('cd ' + dst + '; git pull origin master')
 
-# Loop over all source packages and copy files
-for packageName in os.listdir(SOURCE_DIR):
-    if packageName == 'Test':
-        continue
+    def copy_composer(self, name, dst):
+        """
+        Copy the composer.json file from the config folder to the destination.
+        """
 
-    packageDir = SOURCE_DIR + packageName + '/'
-    configName = config_name(packageName)
-    repoDir = TARGET_DIR + configName + '/'
+        print('- Copying composer.json')
 
-    print(packageName)
+        shutil.copy(CONFIG_DIR + 'composer/' + name + '.json', dst)
 
-    # Clone or pdate the repo
-    init_git(configName, repoDir)
+    def copy_readme(self, name, dst):
+        """
+        Copy the readme file from the config folder to the destination.
+        """
 
-    # Copy the composer config
-    copy_composer(configName, repoDir + 'composer.json')
+        print('- Copying readme')
 
-    # Copy the readme
-    copy_readme(configName, repoDir + 'readme.md')
+        shutil.copy(CONFIG_DIR + 'readme/' + name + '.md', dst)
 
-    # Copy license
-    copy_license(repoDir + 'license.md')
+    def copy_license(self, dst):
+        """
+        Copy the license from the root to the destination.
+        """
 
-    # Copy the source folder
-    copy_source(packageDir, repoDir + 'src/Titon/' + packageName + '/')
+        print('- Copying license')
 
-    print()
+        shutil.copy('/vagrant/license.md', dst)
 
-# Push the changes to git
-print('Pushing packages...')
-print()
+    def copy_source(self, src, dst):
+        """
+        Recursively copy the source files to the destination.
+        """
 
-# Loop over repositories and push to git if there are changes
-for repoName in os.listdir(TARGET_DIR):
-    repoDir = TARGET_DIR + repoName + '/'
+        print('- Copying source folder ' + src.replace('/vagrant/src/Titon/', '').strip('/'))
 
-    print(repoName)
+        if not os.path.exists(dst):
+            os.makedirs(dst)
 
-    os.chdir(repoDir)
-    os.system('git add -A')
-    os.system('git commit -m "Automated package split - ' + time.strftime("%Y/%m/%d")  + '"')
-    os.system('git push origin master')
+        for file in os.listdir(src):
+            if os.path.isdir(src + file):
+                self.copy_source(src + file + '/', dst + file + '/')
+            else:
+                shutil.copy(src + file, dst + file)
 
-    print()
+    def split_packages(self):
+        """
+        Split the project into packages.
+        """
+
+        print('Splitting packages...')
+        print()
+
+        for packageName in os.listdir(SOURCE_DIR):
+            if packageName == 'Test':
+                continue
+
+            packageDir = SOURCE_DIR + packageName + '/'
+            configName = self.config_name(packageName)
+            repoDir = TARGET_DIR + configName + '/'
+
+            print(packageName)
+
+            # Clone or pdate the repo
+            self.init_git(configName, repoDir)
+
+            # Copy the composer config
+            self.copy_composer(configName, repoDir + 'composer.json')
+
+            # Copy the readme
+            self.copy_readme(configName, repoDir + 'readme.md')
+
+            # Copy license
+            self.copy_license(repoDir + 'license.md')
+
+            # Copy the source folder
+            self.copy_source(packageDir, repoDir + 'src/Titon/' + packageName + '/')
+
+            print()
+
+    def push_packages(self):
+        """
+        Push the changes to the git repositories.
+        """
+
+        print('Pushing packages...')
+        print()
+
+        for repoName in os.listdir(TARGET_DIR):
+            repoDir = TARGET_DIR + repoName + '/'
+
+            print(repoName)
+
+            os.chdir(repoDir)
+            os.system('git add -A')
+            os.system('git commit -m "Automated package split - ' + time.strftime("%Y/%m/%d")  + '"')
+            os.system('git push origin master')
+
+            print()
+
+# Run process
+packager = PackageSplitter()
+packager.split_packages()
+packager.push_packages()

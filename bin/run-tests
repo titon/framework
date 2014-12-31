@@ -1,6 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from argparse import ArgumentParser
+from colorama import init, Fore
+
 import os
 
 parser = ArgumentParser(description='Run the Titon test suite.')
@@ -9,6 +11,7 @@ parser.add_argument('-f', '--filter', dest='filter', help='Filter tests using a 
 parser.add_argument('-d', '--debug', dest='debug', help='Debug tests by stopping on failures.', action='store_true')
 
 args = parser.parse_args()
+init()
 
 # Build command to run
 command = 'hhvm /vagrant/vendor/phpunit/phpunit/phpunit --configuration /vagrant/phpunit.xml --test-suffix=Test.hh'
@@ -22,6 +25,6 @@ if args.debug:
 command += ' /vagrant/tests/' + args.path
 
 # Run command
-print('Running command: ' + command + "\n")
+print Fore.GREEN + 'Running command: ' + command + '\n' + Fore.RESET
 
 os.system(command)

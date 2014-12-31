@@ -1,10 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from argparse import ArgumentParser
+from gittle import Gittle
+from colorama import init, Fore
+
 import os, sys, shutil, time
 
 parser = ArgumentParser(description='Split the project into multiple packages and push to git.')
-#parser.add_argument('-p', '--path', dest='path', default='', help='Path to a folder to check.')
+parser.add_argument('-p', '--push', dest='push', help='Commit and push changes to the repository.', action='store_true')
+parser.add_argument('-u', '--pull', dest='pull', help='Update the repository if it already exists.', action='store_true')
+parser.add_argument('-t', '--tag', dest='tag', default='', help='Tag the commit.')
+
+args = parser.parse_args()
+init()
 
 # Set directories
 TARGET_DIR = '/home/vagrant/packages/'
@@ -25,30 +33,41 @@ class PackageSplitter:
         else:
             return name.lower()
 
+    def repo_url(self, name):
+        """
+        Return the SSH URL for the git repository.
+        """
+
+        return 'git@github.com:titon/{0}.git'.format(name)
+
     def init_git(self, name, dst):
         """
         Either clone or update the git repository at the destination.
         """
 
+        repoUrl = self.repo_url(name)
+
         if not os.path.exists(dst):
-            print('- Cloning git repository')
+            print '\tCloning git repository'
 
-            if (os.system('git clone git@github.com:titon/{0}.git {1}'.format(name, dst)) == 0):
-                print('- Cloned to ' + dst)
+            if Gittle.clone(repoUrl, dst):
+                print '\tCloned to ' + dst
             else:
-                print('- Failed to clone repository')
+                print Fore.RED + '\tFailed to clone repository' + Fore.RESET
                 sys.exit()
-        else:
-            print('- Updating git repository')
 
-            #os.system('cd ' + dst + '; git pull origin master')
+        elif args.pull:
+            print '\tUpdating git repository'
+
+            repo = Gittle(dst, origin_uri=repoUrl)
+            repo.pull()
 
     def copy_composer(self, name, dst):
         """
         Copy the composer.json file from the config folder to the destination.
         """
 
-        print('- Copying composer.json')
+        print '\tCopying composer.json'
 
         shutil.copy(CONFIG_DIR + 'composer/' + name + '.json', dst)
 
@@ -57,7 +76,7 @@ class PackageSplitter:
         Copy the readme file from the config folder to the destination.
         """
 
-        print('- Copying readme')
+        print '\tCopying readme'
 
         shutil.copy(CONFIG_DIR + 'readme/' + name + '.md', dst)
 
@@ -66,7 +85,7 @@ class PackageSplitter:
         Copy the license from the root to the destination.
         """
 
-        print('- Copying license')
+        print '\tCopying license'
 
         shutil.copy('/vagrant/license.md', dst)
 
@@ -75,7 +94,7 @@ class PackageSplitter:
         Recursively copy the source files to the destination.
         """
 
-        print('- Copying source folder ' + src.replace('/vagrant/src/Titon/', '').strip('/'))
+        print '\tCopying source folder ' + src.replace('/vagrant/src/Titon/', '').strip('/')
 
         if not os.path.exists(dst):
             os.makedirs(dst)
@@ -91,8 +110,7 @@ class PackageSplitter:
         Split the project into packages.
         """
 
-        print('Splitting packages...')
-        print()
+        print Fore.GREEN + 'Splitting packages...'
 
         for packageName in os.listdir(SOURCE_DIR):
             if packageName == 'Test':
@@ -102,7 +120,7 @@ class PackageSplitter:
             configName = self.config_name(packageName)
             repoDir = TARGET_DIR + configName + '/'
 
-            print(packageName)
+            print Fore.YELLOW + '\n' + packageName + Fore.RESET
 
             # Clone or pdate the repo
             self.init_git(configName, repoDir)
@@ -119,27 +137,45 @@ class PackageSplitter:
             # Copy the source folder
             self.copy_source(packageDir, repoDir + 'src/Titon/' + packageName + '/')
 
-            print()
-
     def push_packages(self):
         """
-        Push the changes to the git repositories.
+        Push all changes to the git repositories.
         """
 
-        print('Pushing packages...')
-        print()
+        if not args.push:
+            return
+
+        print Fore.GREEN + '\nPushing packages...'
 
         for repoName in os.listdir(TARGET_DIR):
             repoDir = TARGET_DIR + repoName + '/'
 
-            print(repoName)
+            print Fore.YELLOW + '\n' + repoName.capitalize() + Fore.RESET
 
-            os.chdir(repoDir)
-            os.system('git add -A')
-            os.system('git commit -m "Automated package split - ' + time.strftime("%Y/%m/%d")  + '"')
-            os.system('git push origin master')
+            repo = Gittle(repoDir, origin_uri=self.repo_url(repoName))
 
-            print()
+            # Add new files
+            untracked = len(repo.untracked_files)
+
+            if untracked > 0:
+                print '\tAdding {0} new files'.format(untracked)
+
+                repo.stage(repo.untracked_files)
+
+            # Update modified files
+            modified = len(repo.modified_unstaged_files)
+
+            if modified > 0:
+                print '\tUpdating {0} modified files'.format(modified)
+
+                repo.stage(repo.modified_unstaged_files)
+
+            # Commit the changes
+            if len(repo.tracked_files) > 0:
+                print '\tPushing changes'
+
+                repo.commit(message='Automated package split - ' + time.strftime("%Y/%m/%d"))
+                repo.push()
 
 # Run process
 packager = PackageSplitter()

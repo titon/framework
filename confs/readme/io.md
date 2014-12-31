@@ -18,10 +18,10 @@ All readers and writers extend the `File` class for full functionality.
 
 ```hack
 $xml = new Titon\Io\Reader\XmlReader('/path/to/file.xml');
-$data = $xml->read();
+$data = $xml->readResource();
 
 $ini = new Titon\Io\Writer\IniWriter('/path/to/file.ini');
-$ini->write($data);
+$ini->writeResource($data);
 ```
 
 A `Bundle` can be used to manage resources and files from multiple locations.

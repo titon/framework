@@ -16,6 +16,11 @@
         "source": "https://github.com/titon/framework"
     },
     "require": {
+        "hhvm": ">=3.4.0",
+        "ext-mcrypt": "*",
+        "ext-mbstring": "*",
+        "ext-fileinfo": "*",
+        "ext-simplexml": "*",
         "psr/log": "~1.0.0",
         "psr/http-message": "~0.5.0"
     },

@@ -1,8 +1,10 @@
 # Titon Framework #
-[![Build Status](https://travis-ci.org/titon/framework.png)](https://travis-ci.org/titon/framework)
-[![Latest Stable Version](https://poser.pugx.org/titon/framework/version.svg)](https://packagist.org/packages/titon/framework)
-[![Total Downloads](https://poser.pugx.org/titon/framework/downloads.svg)](https://packagist.org/packages/titon/framework)
-[![License](https://poser.pugx.org/titon/framework/license.svg)](https://packagist.org/packages/titon/framework)
+[![Project Titon](https://img.shields.io/badge/project-titon-82667d.svg?style=flat)](http://titon.io)
+[![Build Status](https://img.shields.io/travis/titon/framework.svg?style=flat)](https://travis-ci.org/titon/framework)
+[![HHVM](https://img.shields.io/hhvm/titon/framework.svg?style=flat)](https://github.com/titon/framework)
+[![Latest Version](https://img.shields.io/packagist/v/titon/framework.svg?style=flat)](https://packagist.org/packages/titon/framework)
+[![Total Downloads](https://img.shields.io/packagist/dm/titon/framework.svg?style=flat)](https://packagist.org/packages/titon/framework)
+[![License](https://img.shields.io/packagist/l/titon/framework.svg?style=flat)](https://github.com/titon/framework/blob/master/license.md)
 
 ## What is Titon? ##
 
@@ -34,26 +36,6 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 * ADR
 * Mail
 * Queue
-
-#### Type Checked Packages ####
-
-The following packages have been type checked against Hack's strict type checker.
-They will still fail the checker with unbound errors, or mixed type warnings,
-but there's nothing we can do until HHVM and Hack are patched.
-
-* Cache
-* Common
-* Controller
-* Debug
-* Environment
-* Event
-* HTTP
-* Io
-* Route
-* Type
-* Utility
-* Validate
-* View
 
 ## Roadmap ##
 

@@ -35,9 +35,9 @@ type ActionMap = Map<string, ArgumentList>;
  *
  * @package Titon\Controller
  * @events
- *      controller.processing(Controller $con, string $action, array<mixed> $args)
+ *      controller.processing(Controller $con, string $action, Vector<mixed> $args)
  *      controller.processed(Controller $con, string $action, string $response)
- *      controller.error(Controller $con, Exception $exc)
+ *      controller.error(Controller $con, Exception $e)
  */
 abstract class AbstractController implements Controller, Listener, Subject {
     use Emittable, IncomingRequestAware, OutgoingResponseAware;

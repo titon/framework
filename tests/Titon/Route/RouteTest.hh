@@ -56,10 +56,10 @@ class RouteTest extends TestCase {
         $module = new Route('/{module}', 'Controller@action');
         $root = (new Route('/', 'Controller@action'))->setStatic(true);
 
-        $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([a-z0-9\_\-\+]+)\/([a-z0-9\_\-\+]+)\.([a-z0-9\_\-\+]+)\/?', $moduleControllerActionExt->compile());
-        $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([a-z0-9\_\-\+]+)\/([a-z0-9\_\-\+]+)\/?', $moduleControllerAction->compile());
-        $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([a-z0-9\_\-\+]+)\/?', $moduleController->compile());
-        $this->assertEquals('\/([a-z0-9\_\-\+]+)\/?', $module->compile());
+        $this->assertEquals('\/([a-z0-9\_\-\.]+)\/([a-z0-9\_\-\.]+)\/([a-z0-9\_\-\.]+)\.([a-z0-9\_\-\.]+)\/?', $moduleControllerActionExt->compile());
+        $this->assertEquals('\/([a-z0-9\_\-\.]+)\/([a-z0-9\_\-\.]+)\/([a-z0-9\_\-\.]+)\/?', $moduleControllerAction->compile());
+        $this->assertEquals('\/([a-z0-9\_\-\.]+)\/([a-z0-9\_\-\.]+)\/?', $moduleController->compile());
+        $this->assertEquals('\/([a-z0-9\_\-\.]+)\/?', $module->compile());
         $this->assertEquals('\/', $root->compile());
 
         $multi = new Route('{alpha}/[numeric]/(wildcard)/', 'Controller@action');
@@ -74,9 +74,9 @@ class RouteTest extends TestCase {
             'locale' => '([a-z]{2}(?:-[a-z]{2})?)'
         });
 
-        $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([0-9\.]+)\/([^\/]+)\/?', $multi->compile());
-        $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([a-z]{2}(?:-[a-z]{2})?)\/?', $patterns->compile());
-        $this->assertEquals('\/([a-z]{2}(?:-[a-z]{2})?)\/([a-z0-9\_\-\+]+)\/([^\/]+)\/([0-9\.]+)\/([a-z0-9\_\-\+]+)\/?', $allTypes->compile());
+        $this->assertEquals('\/([a-z0-9\_\-\.]+)\/([0-9\.]+)\/([^\/]+)\/?', $multi->compile());
+        $this->assertEquals('\/([a-z0-9\_\-\.]+)\/([a-z]{2}(?:-[a-z]{2})?)\/?', $patterns->compile());
+        $this->assertEquals('\/([a-z]{2}(?:-[a-z]{2})?)\/([a-z0-9\_\-\.]+)\/([^\/]+)\/([0-9\.]+)\/([a-z0-9\_\-\.]+)\/?', $allTypes->compile());
     }
 
     /**
@@ -225,7 +225,7 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/foo'));
         $this->assertTrue($route->isMatch('/foo-bar'));
         $this->assertTrue($route->isMatch('/foo_bar'));
-        $this->assertTrue($route->isMatch('/foo+bar'));
+        $this->assertTrue($route->isMatch('/foo.bar'));
         $this->assertFalse($route->isMatch('/foo123'));
     }
 
@@ -236,10 +236,10 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/foo'));
         $this->assertTrue($route->isMatch('/foo-bar'));
         $this->assertTrue($route->isMatch('/foo_bar'));
-        $this->assertTrue($route->isMatch('/foo+bar'));
+        $this->assertTrue($route->isMatch('/foo.bar'));
         $this->assertTrue($route->isMatch('/foo123'));
         $this->assertTrue($route->isMatch('/foo-123'));
-        $this->assertFalse($route->isMatch('/foo.123'));
+        $this->assertFalse($route->isMatch('/foo+123'));
     }
 
     public function testIsMatchNumericPattern() {
@@ -260,6 +260,7 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/foo-bar'));
         $this->assertTrue($route->isMatch('/foo_bar'));
         $this->assertTrue($route->isMatch('/foo+bar'));
+        $this->assertTrue($route->isMatch('/foo.bar'));
         $this->assertTrue($route->isMatch('/foo123'));
         $this->assertTrue($route->isMatch('/foo-123'));
         $this->assertTrue($route->isMatch('/foo.123'));
@@ -418,10 +419,10 @@ class RouteTest extends TestCase {
 
     public function testTokens() {
         $route = new Route('/{string}', 'Controller@action');
-        $this->assertEquals('\/([a-z0-9\_\-\+]+)\/?', $route->compile());
+        $this->assertEquals('\/([a-z0-9\_\-\.]+)\/?', $route->compile());
 
         $route = new Route('/{string?}', 'Controller@action');
-        $this->assertEquals('(?:\/([a-z0-9\_\-\+]+))?\/?', $route->compile());
+        $this->assertEquals('(?:\/([a-z0-9\_\-\.]+))?\/?', $route->compile());
 
         $route = new Route('/[int]', 'Controller@action');
         $this->assertEquals('\/([0-9\.]+)\/?', $route->compile());
@@ -452,13 +453,13 @@ class RouteTest extends TestCase {
         $this->assertEquals(Map {'regex' => '([a-z0-9\w\s\d\-]+)'}, $route->getPatterns());
 
         $route = new Route('/{string}/[int]', 'Controller@action');
-        $this->assertEquals('\/([a-z0-9\_\-\+]+)\/([0-9\.]+)\/?', $route->compile());
+        $this->assertEquals('\/([a-z0-9\_\-\.]+)\/([0-9\.]+)\/?', $route->compile());
 
         $route = new Route('/(wild)/{string}/[int?]', 'Controller@action');
-        $this->assertEquals('\/([^\/]+)\/([a-z0-9\_\-\+]+)(?:\/([0-9\.]+))?\/?', $route->compile());
+        $this->assertEquals('\/([^\/]+)\/([a-z0-9\_\-\.]+)(?:\/([0-9\.]+))?\/?', $route->compile());
 
         $route = new Route('/(wild)/{string}/<regex:([a-z]\-[A-Z])>/[int?]', 'Controller@action');
-        $this->assertEquals('\/([^\/]+)\/([a-z0-9\_\-\+]+)\/([a-z]\-[A-Z])(?:\/([0-9\.]+))?\/?', $route->compile());
+        $this->assertEquals('\/([^\/]+)\/([a-z0-9\_\-\.]+)\/([a-z]\-[A-Z])(?:\/([0-9\.]+))?\/?', $route->compile());
     }
 
     public function testSerialize() {
@@ -471,7 +472,7 @@ class RouteTest extends TestCase {
 
         $serialized = serialize($route);
 
-        $this->assertEquals('C:17:"Titon\Route\Route":685:{K:6:"HH\Map":9:{s:6:"action";a:2:{s:5:"class";s:10:"Controller";s:6:"action";s:6:"action";}s:8:"compiled";s:79:"\/([a-z0-9\_\-\+]+)\/([a-z0-9\_\-\+]+)\/([a-z0-9\_\-\+]+)\.([a-z0-9\_\-\+]+)\/?";s:7:"filters";V:9:"HH\Vector":1:{s:3:"foo";}s:7:"methods";V:9:"HH\Vector":1:{s:4:"post";}s:8:"patterns";K:6:"HH\Map":1:{s:6:"locale";s:24:"([a-z]{2}(?:-[a-z]{2})?)";}s:4:"path";s:37:"/{module}/{controller}/{action}.{ext}";s:6:"secure";b:1;s:6:"static";b:0;s:6:"tokens";V:9:"HH\Vector":4:{a:2:{s:5:"token";s:6:"module";s:8:"optional";b:0;}a:2:{s:5:"token";s:10:"controller";s:8:"optional";b:0;}a:2:{s:5:"token";s:6:"action";s:8:"optional";b:0;}a:2:{s:5:"token";s:3:"ext";s:8:"optional";b:0;}}}}', $serialized);
+        $this->assertEquals('C:17:"Titon\Route\Route":685:{K:6:"HH\Map":9:{s:6:"action";a:2:{s:5:"class";s:10:"Controller";s:6:"action";s:6:"action";}s:8:"compiled";s:79:"\/([a-z0-9\_\-\.]+)\/([a-z0-9\_\-\.]+)\/([a-z0-9\_\-\.]+)\.([a-z0-9\_\-\.]+)\/?";s:7:"filters";V:9:"HH\Vector":1:{s:3:"foo";}s:7:"methods";V:9:"HH\Vector":1:{s:4:"post";}s:8:"patterns";K:6:"HH\Map":1:{s:6:"locale";s:24:"([a-z]{2}(?:-[a-z]{2})?)";}s:4:"path";s:37:"/{module}/{controller}/{action}.{ext}";s:6:"secure";b:1;s:6:"static";b:0;s:6:"tokens";V:9:"HH\Vector":4:{a:2:{s:5:"token";s:6:"module";s:8:"optional";b:0;}a:2:{s:5:"token";s:10:"controller";s:8:"optional";b:0;}a:2:{s:5:"token";s:6:"action";s:8:"optional";b:0;}a:2:{s:5:"token";s:3:"ext";s:8:"optional";b:0;}}}}', $serialized);
         $this->assertEquals($route, unserialize($serialized));
     }
 

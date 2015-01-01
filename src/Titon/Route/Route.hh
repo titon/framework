@@ -37,8 +37,8 @@ class Route implements Serializable {
     /**
      * Pre-defined regex patterns.
      */
-    const string ALPHA = '([a-z\_\-\+]+)';
-    const string ALNUM = '([a-z0-9\_\-\+]+)';
+    const string ALPHA = '([a-z\_\-\.]+)';
+    const string ALNUM = '([a-z0-9\_\-\.]+)';
     const string NUMERIC = '([0-9\.]+)';
     const string WILDCARD = '([^\/]+)';
     const string LOCALE = '([a-z]{2}(?:-[a-z]{2})?)';

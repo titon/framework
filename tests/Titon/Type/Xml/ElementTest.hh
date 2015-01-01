@@ -1,17 +1,17 @@
 <?hh
-namespace Titon\Type;
+namespace Titon\Type\Xml;
 
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Type\XmlElement $object
+ * @property \Titon\Type\Xml\Element $object
  */
 class XmlElementTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new XmlElement('root', Map {'foo' => 'bar'});
+        $this->object = new Element('root', Map {'foo' => 'bar'});
     }
 
     public function testConstruct() {
@@ -20,8 +20,8 @@ class XmlElementTest extends TestCase {
     }
 
     public function testAddChild() {
-        $boy = new XmlElement('boy');
-        $girl = new XmlElement('girl');
+        $boy = new Element('boy');
+        $girl = new Element('girl');
 
         $this->assertEquals(Vector {}, $this->object->getChildren());
 
@@ -32,8 +32,8 @@ class XmlElementTest extends TestCase {
     }
 
     public function testAddChildren() {
-        $boy = new XmlElement('boy');
-        $girl = new XmlElement('girl');
+        $boy = new Element('boy');
+        $girl = new Element('girl');
 
         $this->assertEquals(Vector {}, $this->object->getChildren());
 
@@ -43,8 +43,8 @@ class XmlElementTest extends TestCase {
     }
 
     public function testCount() {
-        $boy = new XmlElement('boy');
-        $girl = new XmlElement('girl');
+        $boy = new Element('boy');
+        $girl = new Element('girl');
 
         $this->assertEquals(0, $this->object->count());
 
@@ -83,9 +83,9 @@ class XmlElementTest extends TestCase {
     }
 
     public function testGetChild() {
-        $boy1 = new XmlElement('boy');
-        $boy2 = new XmlElement('boy');
-        $girl = new XmlElement('girl');
+        $boy1 = new Element('boy');
+        $boy2 = new Element('boy');
+        $girl = new Element('girl');
 
         $this->object->addChildren(Vector {$boy1, $boy2, $girl});
 
@@ -95,9 +95,9 @@ class XmlElementTest extends TestCase {
     }
 
     public function testGetChildrenByName() {
-        $boy1 = new XmlElement('boy');
-        $boy2 = new XmlElement('boy');
-        $girl = new XmlElement('girl');
+        $boy1 = new Element('boy');
+        $boy2 = new Element('boy');
+        $girl = new Element('girl');
 
         $this->object->addChildren(Vector {$boy1, $boy2, $girl});
 
@@ -146,8 +146,8 @@ class XmlElementTest extends TestCase {
     }
 
     public function testGetNamespaceChildren() {
-        $boy = new XmlElement('boy');
-        $girl = new XmlElement('ns:girl');
+        $boy = new Element('boy');
+        $girl = new Element('ns:girl');
 
         $this->object->addChildren(Vector {$boy, $girl});
 
@@ -156,7 +156,7 @@ class XmlElementTest extends TestCase {
     }
 
     public function testGetParent() {
-        $child = new XmlElement('child');
+        $child = new Element('child');
 
         $this->object->addChild($child);
 
@@ -182,7 +182,7 @@ class XmlElementTest extends TestCase {
     }
 
     public function testHasAttributes() {
-        $child = new XmlElement('child');
+        $child = new Element('child');
 
         $this->assertFalse($child->hasAttributes());
 
@@ -192,11 +192,11 @@ class XmlElementTest extends TestCase {
     }
 
     public function testHasChildren() {
-        $child = new XmlElement('child');
+        $child = new Element('child');
 
         $this->assertFalse($child->hasChildren());
 
-        $child->addChild(new XmlElement('grandchild'));
+        $child->addChild(new Element('grandchild'));
 
         $this->assertTrue($child->hasChildren());
     }
@@ -218,7 +218,7 @@ class XmlElementTest extends TestCase {
     }
 
     public function testIsChild() {
-        $child = new XmlElement('child');
+        $child = new Element('child');
 
         $this->object->addChild($child);
 
@@ -227,7 +227,7 @@ class XmlElementTest extends TestCase {
     }
 
     public function testIsRoot() {
-        $child = new XmlElement('child');
+        $child = new Element('child');
 
         $this->object->addChild($child);
 
@@ -236,8 +236,8 @@ class XmlElementTest extends TestCase {
     }
 
     public function testIterator() {
-        $boy = new XmlElement('boy');
-        $girl = new XmlElement('girl');
+        $boy = new Element('boy');
+        $girl = new Element('girl');
         $names = [];
 
         $this->object->addChildren(Vector {$boy, $girl});
@@ -383,8 +383,8 @@ class XmlElementTest extends TestCase {
         $this->object->setValue('foo');
 
         $this->object->addChildren(Vector {
-            new XmlElement('boy'),
-            new XmlElement('girl')
+            new Element('boy'),
+            new Element('girl')
         });
 
         $this->assertEquals(Map {
@@ -398,10 +398,10 @@ class XmlElementTest extends TestCase {
 
     public function testToMapChildrenWithSameName() {
         $this->object->addChildren(Vector {
-            new XmlElement('boy', Map {'a' => 1}),
-            new XmlElement('boy', Map {'b' => 2}),
-            (new XmlElement('boy'))->setValue('3'),
-            new XmlElement('girl')
+            new Element('boy', Map {'a' => 1}),
+            new Element('boy', Map {'b' => 2}),
+            (new Element('boy'))->setValue('3'),
+            new Element('girl')
         });
 
         $this->assertEquals(Map {
@@ -418,7 +418,7 @@ class XmlElementTest extends TestCase {
     }
 
     public function testToString() {
-        $xml = new XmlElement('root');
+        $xml = new Element('root');
 
         $this->assertEquals(
             '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
@@ -427,7 +427,7 @@ class XmlElementTest extends TestCase {
     }
 
     public function testToStringValue() {
-        $xml = new XmlElement('root');
+        $xml = new Element('root');
         $xml->setValue('foo');
 
         $this->assertEquals(
@@ -437,7 +437,7 @@ class XmlElementTest extends TestCase {
     }
 
     public function testToStringAttributes() {
-        $xml = new XmlElement('root', Map {'foo' => 'bar'});
+        $xml = new Element('root', Map {'foo' => 'bar'});
 
         $this->assertEquals(
             '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
@@ -446,7 +446,7 @@ class XmlElementTest extends TestCase {
     }
 
     public function testToStringAttributesWithQuotes() {
-        $xml = new XmlElement('root', Map {'single' => "quo'tes", 'double' => 'quo"tes'});
+        $xml = new Element('root', Map {'single' => "quo'tes", 'double' => 'quo"tes'});
 
         $this->assertEquals(
             '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
@@ -455,7 +455,7 @@ class XmlElementTest extends TestCase {
     }
 
     public function testToStringAttributesAndValue() {
-        $xml = new XmlElement('root', Map {'foo' => 'bar'});
+        $xml = new Element('root', Map {'foo' => 'bar'});
         $xml->setValue('baz');
 
         $this->assertEquals(
@@ -465,11 +465,11 @@ class XmlElementTest extends TestCase {
     }
 
     public function testToStringChildren() {
-        $xml = new XmlElement('root');
+        $xml = new Element('root');
         $xml->setValue('Will not be to stringed.');
 
-        $boy = new XmlElement('boy', Map {'age' => 15});
-        $girl = (new XmlElement('girl'))->setValue('Mary');
+        $boy = new Element('boy', Map {'age' => 15});
+        $girl = (new Element('girl'))->setValue('Mary');
 
         $xml->addChildren(Vector {$boy, $girl});
 
@@ -483,11 +483,11 @@ class XmlElementTest extends TestCase {
     }
 
     public function testToStringChildrenNoIndent() {
-        $xml = new XmlElement('root');
+        $xml = new Element('root');
         $xml->setValue('Will not be to stringed.');
 
-        $boy = new XmlElement('boy', Map {'age' => 15});
-        $girl = (new XmlElement('girl'))->setValue('Mary');
+        $boy = new Element('boy', Map {'age' => 15});
+        $girl = (new Element('girl'))->setValue('Mary');
 
         $xml->addChildren(Vector {$boy, $girl});
 
@@ -501,11 +501,11 @@ class XmlElementTest extends TestCase {
     }
 
     public function testToStringNamespaces() {
-        $xml = new XmlElement('n:root');
+        $xml = new Element('n:root');
         $xml->setNamespace('n', 'http://domain.com/url');
 
-        $boy = new XmlElement('n:boy');
-        $girl = new XmlElement('n:girl');
+        $boy = new Element('n:boy');
+        $girl = new Element('n:girl');
 
         $xml->addChildren(Vector {$boy, $girl});
 
@@ -519,7 +519,7 @@ class XmlElementTest extends TestCase {
     }
 
     public function testToStringDeclaration() {
-        $xml = new XmlElement('root');
+        $xml = new Element('root');
         $xml->setDeclaration('1.1', 'UTF-16', Map {'standalone' => 'yes'});
 
         $this->assertEquals(

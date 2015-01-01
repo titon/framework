@@ -5,28 +5,29 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Utility;
+namespace Titon\Validate;
 
 use Titon\Common\DataMap;
 use Titon\Common\Exception\InvalidArgumentException;
-use Titon\Utility\Exception\InvalidValidationRuleException;
+use Titon\Validate\Exception\MissingConstraintException;
+use Titon\Validate\Exception\MissingMessageException;
+use Titon\Utility\Str;
 use \Indexish;
 use \ReflectionClass;
 
-type ErrorMap = Map<string, string>;
-type FieldMap = Map<string, string>;
-type MessageMap = Map<string, string>;
-type Rule = shape('rule' => string, 'message' => string, 'options' => RuleOptionList);
-type RuleContainer = Map<string, RuleMap>;
-type RuleMap = Map<string, Rule>;
-type RuleOptionList = Vector<mixed>;
-
 /**
- * The Validator allows for quick validation against a defined set of rules and fields.
+ * Defines shared functionality for validators.
  *
- * @package Titon\Utility
+ * @package Titon\Validate
  */
-class Validator {
+abstract class AbstractValidator implements Validator {
+
+    /**
+     * Constraint callbacks mapped by rule name.
+     *
+     * @var \Titon\Validate\ConstraintMap
+     */
+    protected ConstraintMap $_constraints = Map {};
 
     /**
      * Data to validate against.
@@ -38,28 +39,28 @@ class Validator {
     /**
      * Errors gathered during validation.
      *
-     * @var \Titon\Utility\ErrorMap
+     * @var \Titon\Validate\ErrorMap
      */
     protected ErrorMap $_errors = Map {};
 
     /**
      * Mapping of fields and titles.
      *
-     * @var \Titon\Utility\FieldMap
+     * @var \Titon\Validate\FieldMap
      */
     protected FieldMap $_fields = Map {};
 
     /**
      * Fallback mapping of error messages.
      *
-     * @var \Titon\Utility\MessageMap
+     * @var \Titon\Validate\MessageMap
      */
     protected MessageMap $_messages = Map {};
 
     /**
      * Mapping of fields and validation rules.
      *
-     * @var \Titon\Utility\RuleContainer
+     * @var \Titon\Validate\RuleContainer
      */
     protected RuleContainer $_rules = Map {};
 
@@ -73,11 +74,25 @@ class Validator {
     }
 
     /**
-     * Mark a field has an error.
-     *
-     * @param string $field
-     * @param string $message
-     * @return $this
+     * {@inheritdoc}
+     */
+    public function addConstraint(string $key, ConstraintCallback $callback): this {
+        $this->_constraints[$key] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addConstraintProvider(ConstraintProvider $provider): this {
+        $this->_constraints->setAll($provider->getConstraints());
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function addError(string $field, string $message): this {
         $this->_errors[$field] = $message;
@@ -86,20 +101,11 @@ class Validator {
     }
 
     /**
-     * Add a field to be used in validation. Can optionally apply an array of validation rules.
-     *
-     * @param string $field
-     * @param string $title
-     * @param Map<string, mixed> $rules
-     * @return $this
+     * {@inheritdoc}
      */
-    public function addField(string $field, string $title, Map<string, Vector<mixed>> $rules = Map {}): this {
+    public function addField(string $field, string $title, Map<string, OptionList> $rules = Map {}): this {
         $this->_fields[$field] = $title;
 
-        /**
-         * 0 => rule
-         * rule => [opt, ...]
-         */
         if (!$rules->isEmpty()) {
             foreach ($rules as $rule => $options) {
                 $this->addRule($field, $rule, '', $options);
@@ -110,10 +116,7 @@ class Validator {
     }
 
     /**
-     * Add messages to the list.
-     *
-     * @param \Titon\Utility\MessageMap $messages
-     * @return $this
+     * {@inheritdoc}
      */
     public function addMessages(MessageMap $messages): this {
         $this->_messages->setAll($messages);
@@ -122,16 +125,11 @@ class Validator {
     }
 
     /**
-     * Add a validation rule to a field. Can supply an optional error message and options.
+     * {@inheritdoc}
      *
-     * @param string $field
-     * @param string $rule
-     * @param string $message
-     * @param \Titon\Utility\RuleOptionList $options
-     * @return $this
      * @throws \Titon\Common\Exception\InvalidArgumentException
      */
-    public function addRule(string $field, string $rule, string $message, RuleOptionList $options = Vector{}): this {
+    public function addRule(string $field, string $rule, string $message, OptionList $options = Vector{}): this {
         if (!$this->_fields->contains($field)) {
             throw new InvalidArgumentException(sprintf('Field %s does not exist', $field));
         }
@@ -156,54 +154,76 @@ class Validator {
     }
 
     /**
-     * Return the currently set data.
+     * Format an error message by inserting tokens for the current field, rule, and rule options.
      *
-     * @return \Titon\Common\DataMap
+     * @param string $field
+     * @param \Titon\Validate\Rule $rule
+     * @return string
+     * @throws \Titon\Validate\Exception\MissingMessageException
+     */
+    public function formatMessage(string $field, Rule $rule): string {
+        $message = $rule['message'] ?: $this->getMessages()->get($rule['rule']);
+
+        if (!$message) {
+            throw new MissingMessageException(sprintf('Error message for rule %s does not exist', $rule['rule']));
+        }
+
+        $tokens = Map {
+            'field' => $field,
+            'title' => $this->getFields()->get($field)
+        };
+
+        foreach ($rule['options'] as $i => $option) {
+            $tokens[(string) $i] = ($option instanceof Indexish) ? implode(', ', $option) : $option;
+        }
+
+        return Str::insert($message, $tokens);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConstraints(): ConstraintMap {
+        return $this->_constraints;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getData(): DataMap {
         return $this->_data;
     }
 
     /**
-     * Return the errors.
-     *
-     * @return \Titon\Utility\ErrorMap
+     * {@inheritdoc}
      */
     public function getErrors(): ErrorMap {
         return $this->_errors;
     }
 
     /**
-     * Return the fields.
-     *
-     * @return \Titon\Utility\FieldMap
+     * {@inheritdoc}
      */
     public function getFields(): FieldMap {
         return $this->_fields;
     }
 
     /**
-     * Return the messages.
-     *
-     * @return \Titon\Utility\MessageMap
+     * {@inheritdoc}
      */
     public function getMessages(): MessageMap {
         return $this->_messages;
     }
 
     /**
-     * Return the rules.
-     *
-     * @return \Titon\Utility\RuleContainer
+     * {@inheritdoc}
      */
     public function getRules(): RuleContainer {
         return $this->_rules;
     }
 
     /**
-     * Reset all dynamic properties.
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function reset(): this {
         $this->_data->clear();
@@ -213,10 +233,7 @@ class Validator {
     }
 
     /**
-     * Set the data to validate against.
-     *
-     * @param \Titon\Common\DataMap $data
-     * @return $this
+     * {@inheritdoc}
      */
     public function setData(DataMap $data): this {
         $this->_data = $data;
@@ -225,19 +242,19 @@ class Validator {
     }
 
     /**
-     * Validate the data against the rules schema. Return true if all fields passed validation.
+     * {@inheritdoc}
      *
-     * @return bool
-     * @throws \Titon\Utility\Exception\InvalidValidationRuleException
+     * @throws \Titon\Validate\Exception\MissingConstraintException
      */
-    public function validate(): bool {
-        if (!$this->_data) {
+    public function validate(DataMap $data = Map {}): bool {
+        if ($data) {
+            $this->setData($data);
+        } else if (!$this->_data) {
             return false;
         }
 
-        $fields = $this->getFields();
         $fieldRules = $this->getRules();
-        $messages = $this->getMessages();
+        $constraints = $this->getConstraints();
 
         foreach ($this->getData() as $field => $value) {
             if (!$fieldRules->contains($field)) {
@@ -247,48 +264,18 @@ class Validator {
             $rules = $fieldRules[$field];
 
             foreach ($rules as $rule => $params) {
-                $options = $params['options'];
-                $arguments = $options->toVector(); // Clone another vector or else message params are out of order
+                if (!$constraints->contains($rule)) {
+                    throw new MissingConstraintException(sprintf('Validation constraint %s does not exist', $rule));
+                }
+
+                $arguments = $params['options']->toArray();
+
+                // Add the input to validate as the 1st argument
                 array_unshift($arguments, $value);
 
-                // Use G11n if it is available
-                if (class_exists('Titon\G11n\Utility\Validate')) {
-                    $class = 'Titon\G11n\Utility\Validate';
-                } else {
-                    $class = 'Titon\Utility\Validate';
-                }
-
-                // UNSAFE
-                // Since class_meth() accepts literal strings and we are passing variables
-                if (!call_user_func(class_meth($class, 'hasRule'), $rule)) {
-                    throw new InvalidValidationRuleException(sprintf('Validation rule %s does not exist', $rule));
-                }
-
-                // Prepare messages
-                $message = $params['message'];
-
-                if (!$message && $messages->contains($rule)) {
-                    $message = $messages[$rule];
-                }
-
-                if ($message) {
-                    $params = Map {
-                        'field' => $field,
-                        'title' => $fields[$field]
-                    };
-
-                    $params->setAll($options->toMap()->map($value ==> ($value instanceof Indexish) ? implode(', ', $value) : $value));
-
-                    $message = Str::insert($message, $params);
-                } else {
-                    throw new InvalidValidationRuleException(sprintf('Error message for rule %s does not exist', $rule));
-                }
-
-                // UNSAFE
-                // Since class_meth() accepts literal strings and we are passing variables
-                if (!call_user_func_array(class_meth($class, $rule), $arguments)) {
-                    $this->addError($field, $message);
-                    break;
+                // Execute the constraint
+                if (!call_user_func_array($constraints[$rule], $arguments)) {
+                    $this->addError($field, $this->formatMessage($field, $params));
                 }
             }
         }
@@ -306,7 +293,7 @@ class Validator {
     public static function makeFromShorthand(DataMap $data = Map {}, Map<string, mixed> $fields = Map {}): Validator {
         $class = new ReflectionClass(static::class);
 
-        /** @var \Titon\Utility\Validator $obj */
+        /** @var \Titon\Validate\Validator $obj */
         $obj = $class->newInstanceArgs([$data]);
 
         foreach ($fields as $field => $options) {
@@ -355,7 +342,7 @@ class Validator {
      * Split a shorthand rule into multiple parts.
      *
      * @param string $shorthand
-     * @return Rule
+     * @return \Titon\Validate\Rule
      */
     public static function splitShorthand(string $shorthand): Rule {
         $rule = '';

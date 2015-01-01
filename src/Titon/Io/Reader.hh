@@ -7,8 +7,6 @@
 
 namespace Titon\Io;
 
-type ReaderMap = Map<string, Reader>;
-
 /**
  * Interface for reading file resources.
  *

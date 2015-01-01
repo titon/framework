@@ -552,10 +552,51 @@ class ColTest extends TestCase {
         $this->assertEquals(['foo'], Col::toArray('foo'));
     }
 
+    public function testToArrayRecursive() {
+        $actual = Map {
+            'foo' => 'bar',
+            'array' => Vector {1, 2, 3},
+            'keyed-array' => Map {'a' => 1, 'b' => 2, 'c' => 3},
+            'vector' => Vector {'a', 'b', 'c'},
+            'map' => Map {'a' => 1, 'b' => 2, 'c' => 3},
+            'indexed-map' => Map {1 => 'a', 2 => 'b', 3 => 'c'},
+            'nested' => Map {
+                'array' => Vector {4, 5, 6},
+                'nested-array' => Vector {
+                    Map {},
+                    Vector {}
+                },
+                'integer' => 123456,
+                'boolean' => true
+            }
+        };
+
+        $expected = [
+            'foo' => 'bar',
+            'array' => [1, 2, 3],
+            'keyed-array' => ['a' => 1, 'b' => 2, 'c' => 3],
+            'vector' => ['a', 'b', 'c'],
+            'map' => ['a' => 1, 'b' => 2, 'c' => 3],
+            'indexed-map' => [1 => 'a', 2 => 'b', 3 => 'c'],
+            'nested' => [
+                'array' => [4, 5, 6],
+                'nested-array' => [
+                    [],
+                    []
+                ],
+                'integer' => 123456,
+                'boolean' => true
+            ]
+        ];
+
+        $this->assertEquals($expected, Col::toArray($actual));
+    }
+
     public function testToMap() {
         $this->assertEquals(Map {}, Col::toMap(Vector {}));
         $this->assertEquals(Map {0 => 'foo'}, Col::toMap(Vector {'foo'}));
         $this->assertEquals(Map {}, Col::toMap([]));
+        $this->assertEquals(Map {'foo' => 'bar'}, Col::toMap(['foo' => 'bar']));
         $this->assertEquals(Map {0 => 'foo'}, Col::toMap(['foo']));
         $this->assertEquals(Map {0 => 'foo'}, Col::toMap('foo'));
         $this->assertEquals(Map {0 => 123}, Col::toMap(123));
@@ -564,17 +605,43 @@ class ColTest extends TestCase {
     }
 
     public function testToMapRecursive() {
-        $this->assertEquals(Map {
-            'depth' => 1,
-            'two' => Map {
-                'depth' => 2
+        $actual = [
+            'foo' => 'bar',
+            'array' => [1, 2, 3],
+            'keyed-array' => ['a' => 1, 'b' => 2, 'c' => 3],
+            'vector' => Vector {'a', 'b', 'c'},
+            'map' => Map {'a' => 1, 'b' => 2, 'c' => 3},
+            'indexed-map' => Map {1 => 'a', 2 => 'b', 3 => 'c'},
+            'nested' => Map {
+                'array' => [4, 5, 6],
+                'nested-array' => [
+                    Map {},
+                    Vector {}
+                ],
+                'integer' => 123456,
+                'boolean' => true
             }
-        }, Col::toMap([
-            'depth' => 1,
-            'two' => [
-                'depth' => 2
-            ]
-        ]));
+        ];
+
+        $expected = Map {
+            'foo' => 'bar',
+            'array' => Vector {1, 2, 3},
+            'keyed-array' => Map {'a' => 1, 'b' => 2, 'c' => 3},
+            'vector' => Vector {'a', 'b', 'c'},
+            'map' => Map {'a' => 1, 'b' => 2, 'c' => 3},
+            'indexed-map' => Map {1 => 'a', 2 => 'b', 3 => 'c'},
+            'nested' => Map {
+                'array' => Vector {4, 5, 6},
+                'nested-array' => Vector {
+                    Map {},
+                    Vector {}
+                },
+                'integer' => 123456,
+                'boolean' => true
+            }
+        };
+
+        $this->assertEquals($expected, Col::toMap($actual));
     }
 
     public function testToVector() {
@@ -589,13 +656,43 @@ class ColTest extends TestCase {
     }
 
     public function testToVectorRecursive() {
-        $this->assertEquals(Vector {
-            'one',
-            Vector {'two'}
-        }, Col::toVector([
-            'one',
-            ['two']
-        ]));
+        $actual = [
+            'foo' => 'bar',
+            'array' => [1, 2, 3],
+            'keyed-array' => ['a' => 1, 'b' => 2, 'c' => 3],
+            'vector' => Vector {'a', 'b', 'c'},
+            'map' => Map {'a' => 1, 'b' => 2, 'c' => 3},
+            'indexed-map' => Map {1 => 'a', 2 => 'b', 3 => 'c'},
+            'nested' => Map {
+            'array' => [4, 5, 6],
+                'nested-array' => [
+                Map {},
+                    Vector {}
+                ],
+                'integer' => 123456,
+                'boolean' => true
+            }
+        ];
+
+        $expected = Vector {
+            'bar',
+            Vector {1, 2, 3},
+            Map {'a' => 1, 'b' => 2, 'c' => 3},
+            Vector {'a', 'b', 'c'},
+            Map {'a' => 1, 'b' => 2, 'c' => 3},
+            Map {1 => 'a', 2 => 'b', 3 => 'c'},
+            Map {
+                'array' => Vector {4, 5, 6},
+                'nested-array' => Vector {
+                    Map {},
+                    Vector {}
+                },
+                'integer' => 123456,
+                'boolean' => true
+            }
+        };
+
+        $this->assertEquals($expected, Col::toVector($actual));
     }
 
 }

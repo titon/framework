@@ -13,6 +13,7 @@ use Titon\Type\Contract\Mapable;
 use Titon\Type\Contract\Vectorable;
 use Titon\Type\Contract\Xmlable;
 use Titon\Type\Exception\MissingMethodException;
+use Titon\Type\Xml\Document;
 use Titon\Utility\Col;
 use \ArrayAccess;
 use \Countable;
@@ -105,7 +106,7 @@ class ArrayList<Tv> implements
             if (in_array($method, $this->_chainable)) {
 
                 // UNSAFE
-                // Since inst_meth() accepts literal strings and we are passing variables
+                // Since inst_meth() requires literal strings and we are passing variables
                 call_user_func_array(inst_meth($vector, $method), $args);
 
                 return $this;
@@ -117,7 +118,7 @@ class ArrayList<Tv> implements
                 $clonedList = $vector->toVector();
 
                 // UNSAFE
-                // Since inst_meth() accepts literal strings and we are passing variables
+                // Since inst_meth() requires literal strings and we are passing variables
                 $mutatedList = call_user_func_array(inst_meth($clonedList, $method), $args);
 
                 // Some methods return void/null (reverse, etc) so use the cloned list
@@ -182,9 +183,7 @@ class ArrayList<Tv> implements
      * @return \Titon\Type\ArrayList<Tv>
      */
     public function clean(): ArrayList<Tv> {
-        return $this->filter(function(Tv $value) {
-            return ($value || $value === 0 || $value === '0' || $value === 0.0);
-        });
+        return $this->filter( (Tv $value) ==> ($value || $value === 0 || $value === '0' || $value === 0.0) );
     }
 
     /**
@@ -538,7 +537,7 @@ class ArrayList<Tv> implements
      * @return string
      */
     public function toXml(string $root = 'items', string $item = 'item'): string {
-        return XmlDocument::fromVector($root, $item, $this->value())->toString();
+        return Document::fromVector($root, $item, $this->value())->toString();
     }
 
     /**

@@ -7,7 +7,7 @@
 
 namespace Titon\Common;
 
-use \Titon\Utility\Exception\UnsupportedMethodException;
+use Titon\Utility\Exception\UnsupportedMethodException;
 
 type MacroCallback = (function(): mixed);
 type MacroContainer = Map<string, MacroMap>;

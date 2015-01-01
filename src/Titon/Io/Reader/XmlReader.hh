@@ -9,7 +9,7 @@ namespace Titon\Io\Reader;
 
 use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
-use Titon\Type\XmlDocument;
+use Titon\Type\Xml\Document;
 
 /**
  * A reader that loads its configuration from an XML file.
@@ -33,7 +33,7 @@ class XmlReader extends AbstractReader {
      */
     public function readResource(): ResourceMap {
         if ($this->exists()) {
-            return XmlDocument::fromFile($this->getPath())->toMap(false)->toMap();
+            return Document::fromFile($this->getPath())->toMap(false)->toMap();
         }
 
         throw new ReadErrorException(sprintf('XmlReader failed to parse %s', $this->getPath()));

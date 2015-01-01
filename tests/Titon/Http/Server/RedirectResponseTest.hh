@@ -21,7 +21,7 @@ class RedirectResponseTest extends TestCase {
             'Status-Code' => ['302 Found']
         ], $response->getHeaders());
 
-        $this->assertEquals('<!DOCTYPE html>
+        $this->assertEquals($this->nl('<!DOCTYPE html>
             <html>
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -29,7 +29,7 @@ class RedirectResponseTest extends TestCase {
                 <title>Redirecting to /new/url</title>
             </head>
             <body></body>
-            </html>', $body);
+            </html>'), $body);
     }
 
     /**

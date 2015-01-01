@@ -20,9 +20,4 @@ class CookieBagTest extends TestCase {
         }, $bag->all());
     }
 
-    public function testThatNonCookieClassesCannotBeSet() {
-        $bag = new CookieBag(Map {});
-        $bag->set('foo', 'bar'); // todo
-    }
-
 }

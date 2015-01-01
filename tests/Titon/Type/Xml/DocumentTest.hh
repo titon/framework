@@ -1,39 +1,39 @@
 <?hh
-namespace Titon\Type;
+namespace Titon\Type\Xml;
 
 use Titon\Test\TestCase;
 
-class XmlDocumentTest extends TestCase {
+class DocumentTest extends TestCase {
 
     public function testBox() {
-        $this->assertSame(123.45, XmlDocument::box('123.45'));
-        $this->assertSame(123.45, XmlDocument::box('123.45'));
-        $this->assertSame(123, XmlDocument::box('123'));
-        $this->assertSame(true, XmlDocument::box('true'));
-        $this->assertSame(false, XmlDocument::box('false'));
-        $this->assertSame('foo', XmlDocument::box('foo'));
-        $this->assertSame(null, XmlDocument::box('null'));
+        $this->assertSame(123.45, Document::box('123.45'));
+        $this->assertSame(123.45, Document::box('123.45'));
+        $this->assertSame(123, Document::box('123'));
+        $this->assertSame(true, Document::box('true'));
+        $this->assertSame(false, Document::box('false'));
+        $this->assertSame('foo', Document::box('foo'));
+        $this->assertSame(null, Document::box('null'));
     }
 
     public function testUnbox() {
-        $this->assertSame('123.45', XmlDocument::unbox('123.45'));
-        $this->assertSame('123.45', XmlDocument::unbox(123.45));
-        $this->assertSame('123', XmlDocument::unbox('123'));
-        $this->assertSame('true', XmlDocument::unbox(true));
-        $this->assertSame('false', XmlDocument::unbox('false'));
-        $this->assertSame('foo', XmlDocument::unbox('foo'));
-        $this->assertSame('null', XmlDocument::unbox(null));
+        $this->assertSame('123.45', Document::unbox('123.45'));
+        $this->assertSame('123.45', Document::unbox(123.45));
+        $this->assertSame('123', Document::unbox('123'));
+        $this->assertSame('true', Document::unbox(true));
+        $this->assertSame('false', Document::unbox('false'));
+        $this->assertSame('foo', Document::unbox('foo'));
+        $this->assertSame('null', Document::unbox(null));
     }
 
     public function testFormatName() {
-        $this->assertEquals('foo', XmlDocument::formatName('foo'));
-        $this->assertEquals('foobar', XmlDocument::formatName('foo bar'));
-        $this->assertEquals('ns:foo', XmlDocument::formatName('ns:foo'));
-        $this->assertEquals('foo-bar', XmlDocument::formatName('foo-bar'));
-        $this->assertEquals('foo.bar', XmlDocument::formatName('foo.bar'));
-        $this->assertEquals('_123', XmlDocument::formatName('123'));
-        $this->assertEquals('_.foo', XmlDocument::formatName('.foo'));
-        $this->assertEquals('_-foo', XmlDocument::formatName('-foo'));
+        $this->assertEquals('foo', Document::formatName('foo'));
+        $this->assertEquals('foobar', Document::formatName('foo bar'));
+        $this->assertEquals('ns:foo', Document::formatName('ns:foo'));
+        $this->assertEquals('foo-bar', Document::formatName('foo-bar'));
+        $this->assertEquals('foo.bar', Document::formatName('foo.bar'));
+        $this->assertEquals('_123', Document::formatName('123'));
+        $this->assertEquals('_.foo', Document::formatName('.foo'));
+        $this->assertEquals('_-foo', Document::formatName('-foo'));
     }
 
     public function testFromMap() {
@@ -111,7 +111,7 @@ class XmlDocumentTest extends TestCase {
 
 XML;
 
-        $this->assertEquals($this->nl($xml), XmlDocument::fromMap('unit', $map)->toString());
+        $this->assertEquals($this->nl($xml), Document::fromMap('unit', $map)->toString());
     }
 
     public function testFromMapWithAttributes() {
@@ -204,7 +204,7 @@ XML;
 
 XML;
 
-        $this->assertEquals($this->nl($xml), XmlDocument::fromMap('unit', $map)->toString());
+        $this->assertEquals($this->nl($xml), Document::fromMap('unit', $map)->toString());
     }
 
     public function testFromMapWithCdata() {
@@ -228,63 +228,63 @@ foobar
 
 XML;
 
-        $this->assertEquals($this->nl($xml), XmlDocument::fromMap('root', $map)->toString());
+        $this->assertEquals($this->nl($xml), Document::fromMap('root', $map)->toString());
     }
 
     public function testFromFile() {
-        $xml = XmlDocument::fromFile(TEMP_DIR . '/type/barbarian.xml');
+        $xml = Document::fromFile(TEMP_DIR . '/type/barbarian.xml');
 
-        $expected = new XmlElement('unit');
+        $expected = new Element('unit');
 
-        $name = (new XmlElement('name'))->setValue('Barbarian');
-        $life = (new XmlElement('life', Map {'max' => 150}))->setValue('50');
-        $mana = (new XmlElement('mana', Map {'max' => 250}))->setValue('100');
-        $stamina = (new XmlElement('stamina'))->setValue('15');
-        $vitality = (new XmlElement('vitality'))->setValue('20');
-        $dexterity = new XmlElement('dexterity', Map {'evade' => '5%', 'block' => '10%'});
-        $agility = new XmlElement('agility', Map {'turnRate' => '1.25', 'acceleration' => '5'});
-        $armors = new XmlElement('armors', Map {'items' => 6});
+        $name = (new Element('name'))->setValue('Barbarian');
+        $life = (new Element('life', Map {'max' => 150}))->setValue('50');
+        $mana = (new Element('mana', Map {'max' => 250}))->setValue('100');
+        $stamina = (new Element('stamina'))->setValue('15');
+        $vitality = (new Element('vitality'))->setValue('20');
+        $dexterity = new Element('dexterity', Map {'evade' => '5%', 'block' => '10%'});
+        $agility = new Element('agility', Map {'turnRate' => '1.25', 'acceleration' => '5'});
+        $armors = new Element('armors', Map {'items' => 6});
 
-            $armor1 = (new XmlElement('armor', Map {'defense' => 15}))->setValue('Helmet');
-            $armor2 = (new XmlElement('armor', Map {'defense' => 25}))->setValue('Shoulder Plates');
-            $armor3 = (new XmlElement('armor', Map {'defense' => 50}))->setValue('Breast Plate');
-            $armor4 = (new XmlElement('armor', Map {'defense' => 10}))->setValue('Greaves');
-            $armor5 = (new XmlElement('armor', Map {'defense' => 10}))->setValue('Gloves');
-            $armor6 = (new XmlElement('armor', Map {'defense' => 25}))->setValue('Shield');
+            $armor1 = (new Element('armor', Map {'defense' => 15}))->setValue('Helmet');
+            $armor2 = (new Element('armor', Map {'defense' => 25}))->setValue('Shoulder Plates');
+            $armor3 = (new Element('armor', Map {'defense' => 50}))->setValue('Breast Plate');
+            $armor4 = (new Element('armor', Map {'defense' => 10}))->setValue('Greaves');
+            $armor5 = (new Element('armor', Map {'defense' => 10}))->setValue('Gloves');
+            $armor6 = (new Element('armor', Map {'defense' => 25}))->setValue('Shield');
 
             $armors->addChildren(Vector {$armor1, $armor2, $armor3, $armor4, $armor5, $armor6});
 
-        $weapons = new XmlElement('weapons', Map {'items' => 6});
+        $weapons = new Element('weapons', Map {'items' => 6});
 
-            $sword1 = (new XmlElement('sword', Map {'damage' => 25}))->setValue('Broadsword');
-            $sword2 = (new XmlElement('sword', Map {'damage' => 30}))->setValue('Longsword');
-            $axe1 = (new XmlElement('axe', Map {'damage' => 20}))->setValue('Heavy Axe');
-            $axe2 = (new XmlElement('axe', Map {'damage' => 25}))->setValue('Double-edged Axe');
-            $polearm = (new XmlElement('polearm', Map {'damage' => 50, 'range' => 3, 'speed' => 'slow'}))->setValue('Polearm');
-            $mace = (new XmlElement('mace', Map {'damage' => 15, 'speed' => 'fast'}))->setValue('Mace');
+            $sword1 = (new Element('sword', Map {'damage' => 25}))->setValue('Broadsword');
+            $sword2 = (new Element('sword', Map {'damage' => 30}))->setValue('Longsword');
+            $axe1 = (new Element('axe', Map {'damage' => 20}))->setValue('Heavy Axe');
+            $axe2 = (new Element('axe', Map {'damage' => 25}))->setValue('Double-edged Axe');
+            $polearm = (new Element('polearm', Map {'damage' => 50, 'range' => 3, 'speed' => 'slow'}))->setValue('Polearm');
+            $mace = (new Element('mace', Map {'damage' => 15, 'speed' => 'fast'}))->setValue('Mace');
 
             $weapons->addChildren(Vector {$sword1, $sword2, $axe1, $axe2, $polearm, $mace});
 
-        $items = new XmlElement('items');
+        $items = new Element('items');
 
-            $potions = new XmlElement('potions');
+            $potions = new Element('potions');
 
-                $potion1 = (new XmlElement('potion'))->setValue('Health Potion');
-                $potion2 = (new XmlElement('potion'))->setValue('Mana Potion');
+                $potion1 = (new Element('potion'))->setValue('Health Potion');
+                $potion2 = (new Element('potion'))->setValue('Mana Potion');
 
                 $potions->addChildren(Vector {$potion1, $potion2});
 
-            $keys = new XmlElement('keys');
+            $keys = new Element('keys');
 
-                $key1 = (new XmlElement('chestKey'))->setValue('Chest Key');
-                $key2 = (new XmlElement('bossKey'))->setValue('Boss Key');
+                $key1 = (new Element('chestKey'))->setValue('Chest Key');
+                $key2 = (new Element('bossKey'))->setValue('Boss Key');
 
                 $keys->addChildren(Vector {$key1, $key2});
 
-            $food1 = (new XmlElement('food'))->setValue('Fruit');
-            $food2 = (new XmlElement('food'))->setValue('Bread');
-            $food3 = (new XmlElement('food'))->setValue('Vegetables');
-            $scrap = (new XmlElement('scrap', Map {'count' => 25}))->setValue('Scrap');
+            $food1 = (new Element('food'))->setValue('Fruit');
+            $food2 = (new Element('food'))->setValue('Bread');
+            $food3 = (new Element('food'))->setValue('Vegetables');
+            $scrap = (new Element('scrap', Map {'count' => 25}))->setValue('Scrap');
 
             $items->addChildren(Vector {$potions, $keys, $food1, $food2, $food3, $scrap});
 
@@ -295,7 +295,7 @@ XML;
 
     public function testFromFileStringComparison() {
         $path = TEMP_DIR . '/type/barbarian.xml';
-        $xml = XmlDocument::fromFile($path);
+        $xml = Document::fromFile($path);
 
         $this->assertEquals($this->nl(file_get_contents($path)), $xml->toString());
     }
@@ -304,7 +304,7 @@ XML;
      * @expectedException \Titon\Common\Exception\MissingFileException
      */
     public function testFromFileMissingFile() {
-        XmlDocument::fromFile(TEMP_DIR . '/type/barbarian-missing.xml');
+        Document::fromFile(TEMP_DIR . '/type/barbarian-missing.xml');
     }
 
     public function testFromVector() {
@@ -323,7 +323,7 @@ XML;
 
 XML;
 
-        $this->assertEquals($this->nl($xml), XmlDocument::fromVector('armors', 'armor', $list)->toString());
+        $this->assertEquals($this->nl($xml), Document::fromVector('armors', 'armor', $list)->toString());
     }
 
     public function testFromVectorWithAttributes() {
@@ -349,7 +349,7 @@ XML;
 
 XML;
 
-        $this->assertEquals($this->nl($xml), XmlDocument::fromVector('armors', 'armor', $list)->toString());
+        $this->assertEquals($this->nl($xml), Document::fromVector('armors', 'armor', $list)->toString());
     }
 
 }

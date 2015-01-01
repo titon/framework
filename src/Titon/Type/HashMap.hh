@@ -13,6 +13,7 @@ use Titon\Type\Contract\Mapable;
 use Titon\Type\Contract\Vectorable;
 use Titon\Type\Contract\Xmlable;
 use Titon\Type\Exception\MissingMethodException;
+use Titon\Type\Xml\Document;
 use Titon\Utility\Col;
 use \ArrayAccess;
 use \Countable;
@@ -100,7 +101,7 @@ class HashMap<Tk, Tv> implements
             if (in_array($method, $this->_chainable)) {
 
                 // UNSAFE
-                // Since inst_meth() accepts literal strings and we are passing variables
+                // Since inst_meth() requires literal strings and we are passing variables
                 call_user_func_array(inst_meth($map, $method), $args);
 
                 return $this;
@@ -112,7 +113,7 @@ class HashMap<Tk, Tv> implements
                 $clonedList = $map->toMap();
 
                 // UNSAFE
-                // Since inst_meth() accepts literal strings and we are passing variables
+                // Since inst_meth() requires literal strings and we are passing variables
                 $mutatedList = call_user_func_array(inst_meth($clonedList, $method), $args);
 
                 // Some methods return void/null so use the cloned list
@@ -167,9 +168,7 @@ class HashMap<Tk, Tv> implements
      * @return \Titon\Type\HashMap<Tk, Tv>
      */
     public function clean(): HashMap<Tk, Tv> {
-        return $this->filter(function(Tv $value) {
-            return ($value || $value === 0 || $value === '0' || $value === 0.0);
-        });
+        return $this->filter( (Tv $value) ==> ($value || $value === 0 || $value === '0' || $value === 0.0) );
     }
 
     /**
@@ -593,7 +592,7 @@ class HashMap<Tk, Tv> implements
     public function toXml(string $root = 'document'): string {
         // UNSAFE
         // The HashMap value is Map<Tk, Tv> while the XmlMap is Map<string, mixed>.
-        return XmlDocument::fromMap($root, $this->value())->toString();
+        return Document::fromMap($root, $this->value())->toString();
     }
 
     /**

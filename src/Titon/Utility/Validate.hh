@@ -301,7 +301,7 @@ class Validate {
      * @param bool $dns
      * @return bool
      */
-    public static function email(string $input, bool $dns = true): bool {
+    public static function email(string $input, bool $dns = false): bool {
         $result = (bool) filter_var($input, FILTER_VALIDATE_EMAIL);
 
         if (!$result) {
@@ -378,16 +378,6 @@ class Validate {
      */
     public static function file(mixed $input): bool {
         return (is_array($input) && array_key_exists('tmp_name', $input) && $input['error'] == 0);
-    }
-
-    /**
-     * Check if a rule exists either as a class method or custom macro.
-     *
-     * @param string $method
-     * @return bool
-     */
-    public static function hasRule(string $method): bool {
-        return (method_exists(static::class, $method) || static::hasMacro($method));
     }
 
     /**

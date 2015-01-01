@@ -1,17 +1,17 @@
 <?hh
-namespace Titon\Utility;
+namespace Titon\Validate;
 
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Utility\Validator $object
+ * @property \Titon\Validate\CoreValidator $object
  */
 class ValidatorTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new Validator(Map {
+        $this->object = new CoreValidator(Map {
             'username' => 'miles',
             'email' => 'miles@titon' // invalid
         });
@@ -67,7 +67,7 @@ class ValidatorTest extends TestCase {
             'phone' => Vector {},
             'email' => Vector {},
             'ext' => Vector {Vector {'txt', 'pdf'}},
-            'ip' => Vector {Validate::IPV4}
+            'ip' => Vector {Constraint::IPV4}
         });
 
         $this->assertEquals(Map {
@@ -102,7 +102,7 @@ class ValidatorTest extends TestCase {
                 'ip' => shape(
                     'rule' => 'ip',
                     'message' => 'Please provide an IPv4',
-                    'options' => Vector {Validate::IPV4}
+                    'options' => Vector {Constraint::IPV4}
                 )
             }
         }, $this->object->getRules());
@@ -165,15 +165,25 @@ class ValidatorTest extends TestCase {
         }, $this->object->getErrors());
     }
 
+    public function testFormatMessage() {
+        $this->object
+            ->addField('username', 'Username');
+
+        $this->assertEquals('Field username is required', $this->object->formatMessage('username', shape('rule' => 'foobar', 'message' => 'Field {field} is required', 'options' => Vector {})));
+        $this->assertEquals('Field Username is required', $this->object->formatMessage('username', shape('rule' => 'foobar', 'message' => 'Field {title} is required', 'options' => Vector {})));
+        $this->assertEquals('Field is foobar', $this->object->formatMessage('username', shape('rule' => 'foobar', 'message' => 'Field is {0}{1}', 'options' => Vector {'foo', 'bar'})));
+        $this->assertEquals('Only a, b is required', $this->object->formatMessage('username', shape('rule' => 'foobar', 'message' => 'Only {0} is required', 'options' => Vector {['a', 'b']})));
+    }
+
     /**
-     * @expectedException \Titon\Utility\Exception\InvalidValidationRuleException
+     * @expectedException \Titon\Validate\Exception\MissingMessageException
      */
-    public function testMessagesErrorOnMissing() {
+    public function testFormatMessageErrorOnMissing() {
         $this->object
             ->addField('username', 'Username')
                 ->addRule('username', 'notEmpty', '');
 
-        $this->object->validate();
+        $this->object->formatMessage('username', shape('rule' => 'notEmpty', 'message' => '', 'options' => Vector {}));
     }
 
     public function testReset() {
@@ -244,7 +254,7 @@ class ValidatorTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Utility\Exception\InvalidValidationRuleException
+     * @expectedException \Titon\Validate\Exception\MissingConstraintException
      */
     public function testValidateMissingRule() {
         $this->object
@@ -256,7 +266,7 @@ class ValidatorTest extends TestCase {
 
     public function testMakeFromShorthand() {
         // simple rule
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => 'alphaNumeric',
             'field2' => 123 // ignored
         });
@@ -272,7 +282,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // simple 2 rules
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => 'alphaNumeric|boolean'
         });
 
@@ -292,7 +302,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // simple 2 rules with options
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => 'between:5,10|equal:7'
         });
 
@@ -312,7 +322,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // split 2 rules
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => Vector {'between:5,10', 'equal:7'}
         });
 
@@ -332,7 +342,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // nested 2 rules
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => Map {
                 'title' => 'Field',
                 'rules' => 'between:5,10|equal:7'
@@ -355,7 +365,7 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // nested split 2 rules
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => Map {
                 'title' => 'Field',
                 'rules' => Vector {'between:5,10', 'equal:7'}
@@ -378,13 +388,13 @@ class ValidatorTest extends TestCase {
         }, $obj->getRules());
 
         // advanced multiple rules
-        $obj = Validator::makeFromShorthand(Map {}, Map {
+        $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => Map {
                 'rules' => Vector {
                     'phone::Invalid phone number',
                     'email::Please provide an email',
                     'ext:txt:Valid extensions are txt, pdf',
-                    'ip:' . Validate::IPV4 . ':Please provide an IPv4'
+                    'ip:' . Constraint::IPV4 . ':Please provide an IPv4'
                 }
             }
         });
@@ -409,7 +419,7 @@ class ValidatorTest extends TestCase {
                 'ip' => shape(
                     'rule' => 'ip',
                     'message' => 'Please provide an IPv4',
-                    'options' => Vector {Validate::IPV4}
+                    'options' => Vector {Constraint::IPV4}
                 )
             }
         }, $obj->getRules());

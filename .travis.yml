@@ -12,18 +12,11 @@ services:
   - redis-server
 
 script:
-  #- mkdir -p build/logs
   - vendor/bin/phpunit
-  #--coverage-clover build/logs/clover.xml
 
 before_script:
-  #- mysql -e 'CREATE DATABASE titon_test;'
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
-
-after_script:
-  #- mysql -e 'DROP DATABASE titon_test;'
-  #- php vendor/bin/coveralls -v
 
 notifications:
   email: false

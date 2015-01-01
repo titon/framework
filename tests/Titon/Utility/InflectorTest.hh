@@ -16,31 +16,24 @@ class InflectorTest extends TestCase {
         }
     }
 
-    public function testFilename() {
-        $this->assertEquals('CamelCase.php', Inflector::fileName('camel Case'));
-        $this->assertEquals('StudlyCase.php', Inflector::fileName('StuDly CaSe'));
-        $this->assertEquals('TitleCase.php', Inflector::fileName('Title Case'));
-        $this->assertEquals('NormalCase.php', Inflector::fileName('Normal case'));
-        $this->assertEquals('Lowercase.php', Inflector::fileName('lowercase'));
-        $this->assertEquals('Uppercase.php', Inflector::fileName('UPPERCASE'));
-        $this->assertEquals('UnderScore.php', Inflector::fileName('under_score'));
-        $this->assertEquals('DashEs.php', Inflector::fileName('dash-es'));
-        $this->assertEquals('123Numbers.php', Inflector::fileName('123 numbers'));
-        $this->assertEquals('WithExt.php', Inflector::fileName('with EXT.xml'));
-        $this->assertEquals('LotsOfWhiteSpace.php', Inflector::fileName('lots  of     white space'));
+    public function testFileName() {
+        $this->assertEquals('camel-Case.php', Inflector::fileName('camel Case'));
+        $this->assertEquals('StuDly-CaSe.php', Inflector::fileName('StuDly CaSe'));
+        $this->assertEquals('Title-Case.php', Inflector::fileName('Title Case'));
+        $this->assertEquals('Normal-case.php', Inflector::fileName('Normal case'));
+        $this->assertEquals('lowercase.php', Inflector::fileName('lowercase'));
+        $this->assertEquals('UPPERCASE.php', Inflector::fileName('UPPERCASE'));
+        $this->assertEquals('under_score.php', Inflector::fileName('under_score'));
+        $this->assertEquals('dash-es.php', Inflector::fileName('dash-es'));
+        $this->assertEquals('123-numbers.php', Inflector::fileName('123 numbers'));
+        $this->assertEquals('with-EXT.php', Inflector::fileName('with EXT.xml'));
+        $this->assertEquals('lots-of-white-space.php', Inflector::fileName('lots  of     white space'));
+    }
 
-        // Alternate extension and lowercase first character
-        $this->assertEquals('camelCase.xml', Inflector::fileName('camel Case', 'xml', false));
-        $this->assertEquals('studlyCase.xml', Inflector::fileName('StuDly CaSe', 'xml', false));
-        $this->assertEquals('titleCase.xml', Inflector::fileName('Title Case', 'xml', false));
-        $this->assertEquals('normalCase.xml', Inflector::fileName('Normal case', 'xml', false));
-        $this->assertEquals('lowercase.xml', Inflector::fileName('lowercase', 'xml', false));
-        $this->assertEquals('uppercase.xml', Inflector::fileName('UPPERCASE', 'xml', false));
-        $this->assertEquals('underScore.xml', Inflector::fileName('under_score', 'xml', false));
-        $this->assertEquals('dashEs.xml', Inflector::fileName('dash-es', 'xml', false));
-        $this->assertEquals('123Numbers.xml', Inflector::fileName('123 numbers', 'xml', false));
-        $this->assertEquals('withExt.xml', Inflector::fileName('with EXT.xml', 'xml', false));
-        $this->assertEquals('lotsOfWhiteSpace.xml', Inflector::fileName('lots  of     white space', 'xml', false));
+    public function testFileNameReplaceExt() {
+        $this->assertEquals('foo.xml', Inflector::fileName('foo.php', 'xml'));
+        $this->assertEquals('foo.bar.xml', Inflector::fileName('foo.bar.php', 'xml'));
+        $this->assertEquals('foo.bar.xml', Inflector::fileName('foo.bar.xml', 'xml'));
     }
 
     public function testClassName() {

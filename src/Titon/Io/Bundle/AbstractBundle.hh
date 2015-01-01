@@ -7,15 +7,14 @@
 
 namespace Titon\Io\Bundle;
 
-use Titon\Common\Cacheable;
 use Titon\Io\Bundle;
 use Titon\Io\DomainList;
 use Titon\Io\DomainPathMap;
 use Titon\Io\File;
 use Titon\Io\Folder;
 use Titon\Io\PathList;
-use Titon\Io\ReaderMap;
 use Titon\Io\Reader;
+use Titon\Io\ReaderMap;
 use Titon\Io\ResourceMap;
 use Titon\Io\Exception\MissingDomainException;
 use Titon\Io\Exception\MissingReaderException;
@@ -24,14 +23,13 @@ use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 
 /**
- * Abstract class that handles the loading of Readers and file locations.
- * The bundle can then search for a resource by name by cycling through each location
+ * Abstract class that handles the loading of Readers and managing of lookup paths.
+ * The bundle can then search for a resource by name by cycling through each lookup path
  * and parsing out the files contents.
  *
  * @package Titon\Io\Bundle
  */
 abstract class AbstractBundle implements Bundle {
-    use Cacheable;
 
     /**
      * Resource locations.
@@ -88,25 +86,19 @@ abstract class AbstractBundle implements Bundle {
      * {@inheritdoc}
      */
     public function getContents(string $domain): PathList {
-        $list = $this->cache([__METHOD__, $domain], (AbstractBundle $bundle) ==> {
-            $contents = Vector {};
+        $contents = Vector {};
 
-            foreach ($bundle->getDomainPaths($domain) as $path) {
-                $folder = new Folder($path);
+        foreach ($this->getDomainPaths($domain) as $path) {
+            $folder = new Folder($path);
 
-                foreach ($folder->read() as $file) {
-                    if ($file instanceof File) {
-                        $contents[] = $file->path();
-                    }
+            foreach ($folder->read() as $file) {
+                if ($file instanceof File) {
+                    $contents[] = $file->path();
                 }
             }
+        }
 
-            return $contents;
-        });
-
-        invariant($list instanceof Vector, 'Bundle path list must be a vector');
-
-        return $list;
+        return $contents;
     }
 
     /**
@@ -153,29 +145,23 @@ abstract class AbstractBundle implements Bundle {
      */
     public function loadResource(string $domain, string $resource): ResourceMap {
         if ($this->getReaders()->isEmpty()) {
-            throw new MissingReaderException('A Reader must be loaded to read Bundle resources');
+            throw new MissingReaderException('A Reader must be loaded to read bundle resources');
         }
 
-        $resource = $this->cache([__METHOD__, $domain, $resource], (AbstractBundle $bundle) ==> {
-            $contents = Map {};
-            $readers = $bundle->getReaders();
+        $contents = Map {};
+        $readers = $this->getReaders();
 
-            foreach ($bundle->getDomainPaths($domain) as $path) {
-                foreach ($readers as $ext => $reader) {
-                    $resourcePath = $path . Inflector::fileName($resource, $ext, false);
+        foreach ($this->getDomainPaths($domain) as $path) {
+            foreach ($readers as $ext => $reader) {
+                $resourcePath = $path . Inflector::fileName($resource, $ext);
 
-                    if (file_exists($resourcePath)) {
-                        $contents = Col::merge($contents, $reader->reset($resourcePath)->readResource());
-                    }
+                if (file_exists($resourcePath)) {
+                    $contents = Col::merge($contents, $reader->reset($resourcePath)->readResource());
                 }
             }
+        }
 
-            return $contents;
-        });
-
-        invariant($resource instanceof Map, 'Bundle resource must be a map');
-
-        return $resource;
+        return $contents;
     }
 
 }

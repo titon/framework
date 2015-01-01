@@ -317,14 +317,15 @@ class ListenerStub implements Listener {
         $object2->foo = 'bar';
     }
 
-    async public function asyncNoop1(Event $e, &$list): Awaitable<mixed> {
+    public async function asyncNoop1(Event $e, &$list): Awaitable<mixed> {
         await SleepWaitHandle::create(rand(100, 1000) * 1000);
 
         $list[] = 1;
 
         return true;
     }
-    async public function asyncNoop2(Event $e, &$list): Awaitable<mixed> {
+
+    public async function asyncNoop2(Event $e, &$list): Awaitable<mixed> {
         await SleepWaitHandle::create(rand(100, 500) * 1000);
 
         $list[] = 2;
@@ -332,7 +333,7 @@ class ListenerStub implements Listener {
         return true;
     }
 
-    async public function asyncNoop3(Event $e, &$list): Awaitable<mixed> {
+    public async function asyncNoop3(Event $e, &$list): Awaitable<mixed> {
         await SleepWaitHandle::create(rand(1, 500) * 1000);
 
         $list[] = 3;

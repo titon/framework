@@ -1,8 +1,8 @@
 {
     "name": "titon/framework",
     "type": "library",
-    "description": "",
-    "keywords": [],
+    "description": "Collection of packages that make up the Titon framework.",
+    "keywords": ["titon", "framework"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
     "authors": [
@@ -11,18 +11,22 @@
             "homepage": "http://milesj.me"
         }
     ],
+    "support": {
+        "irc": "irc://irc.freenode.org/titon",
+        "source": "https://github.com/titon/framework"
+    },
     "require": {
-        "ext-mbstring": "*",
+        "hhvm": ">=3.4.0",
         "ext-mcrypt": "*",
+        "ext-mbstring": "*",
+        "ext-fileinfo": "*",
         "ext-simplexml": "*",
-        "ext-fileinfo": "*"
+        "psr/log": "~1.0.0",
+        "psr/http-message": "~0.5.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.4.0",
-        "mockery/mockery": "*",
-        "php-vfs/php-vfs": "*",
-        "psr/log": "*",
-        "psr/http-message": "*"
+        "php-vfs/php-vfs": "~1.2.0"
     },
     "autoload": {
         "psr-0": { "": "src/" },
@@ -33,5 +37,8 @@
             "src/Titon/Route/bootstrap.hh",
             "src/Titon/Utility/bootstrap.hh"
         ]
+    },
+    "autoload-dev": {
+        "psr-0": { "": "tests/" }
     }
 }

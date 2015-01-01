@@ -169,7 +169,7 @@ class Emitter {
         $observers = $this->getObservers($event);
 
         if ($observers) {
-            usort($observers, function(Observer $a, Observer $b): int {
+            usort($observers, (Observer $a, Observer $b) ==> {
                 if ($a->getPriority() == $b->getPriority()) {
                     return 0;
                 }
@@ -225,7 +225,7 @@ class Emitter {
         foreach ($listener->registerEvents() as $event => $options) {
             foreach ($this->_parseOptions($options) as $opt) {
                 // UNSAFE
-                // Since inst_meth() accepts literal strings and we are passing variables
+                // Since inst_meth() requires literal strings and we are passing variables
                 $this->register($event, inst_meth($listener, $opt['method']), $opt['priority'], $opt['once']);
             }
         }
@@ -267,7 +267,7 @@ class Emitter {
         foreach ($listener->registerEvents() as $event => $options) {
             foreach ($this->_parseOptions($options) as $opt) {
                 // UNSAFE
-                // Since inst_meth() accepts literal strings and we are passing variables
+                // Since inst_meth() requires literal strings and we are passing variables
                 $this->remove($event, inst_meth($listener, $opt['method']));
             }
         }

@@ -1,0 +1,34 @@
+{
+    "name": "titon/route",
+    "type": "library",
+    "description": "The route package adds support for dynamic route handling and mapping.",
+    "keywords": ["titon", "route", "router", "map", "url", "filter", "grouping", "builder"],
+    "homepage": "http://titon.io",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "support": {
+        "irc": "irc://irc.freenode.org/titon",
+        "source": "https://github.com/titon/route"
+    },
+    "require": {
+        "hhvm": ">=3.4.0",
+        "titon/core": "*",
+        "titon/event": "*"
+    },
+    "suggest": {
+        "titon/cache": "Cache route lookups using the Cache package"
+    },
+    "autoload": {
+        "psr-0": {
+            "Titon\\Route": "src/"
+        },
+        "files": [
+            "src/Titon/Route/bootstrap.hh"
+        ]
+    }
+}

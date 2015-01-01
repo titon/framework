@@ -35,9 +35,9 @@ type ActionMap = Map<string, ArgumentList>;
  *
  * @package Titon\Controller
  * @events
- *      controller.processing(Controller $con, string $action, array<mixed> $args)
+ *      controller.processing(Controller $con, string $action, Vector<mixed> $args)
  *      controller.processed(Controller $con, string $action, string $response)
- *      controller.error(Controller $con, Exception $exc)
+ *      controller.error(Controller $con, Exception $e)
  */
 abstract class AbstractController implements Controller, Listener, Subject {
     use Emittable, IncomingRequestAware, OutgoingResponseAware;
@@ -93,7 +93,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
         $this->_arguments[$action] = $args;
 
         // Convert dashed actions to camel case
-        if (mb_strpos($action, '-') !== false) {
+        if (strpos($action, '-') !== false) {
             $action = lcfirst(Inflector::camelCase($action));
         }
 
@@ -109,7 +109,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
         } else {
 
             // UNSAFE
-            // Since inst_meth() accepts literal strings and we are passing variables
+            // Since inst_meth() requires literal strings and we are passing variables
             $response = call_user_func_array(inst_meth($this, $action), $args);
         }
 
@@ -260,7 +260,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
         $action->setController($this);
 
         // UNSAFE
-        // Since inst_meth() accepts literal strings and we are passing variables
+        // Since inst_meth() requires literal strings and we are passing variables
         return call_user_func_array(inst_meth($action, strtolower($this->getRequest()->getMethod())), $this->getCurrentArguments());
     }
 

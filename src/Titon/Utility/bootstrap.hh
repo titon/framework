@@ -272,8 +272,8 @@ function camel_case(string $string): string {
 /**
  * @see Titon\Utility\Inflector::fileName()
  */
-function file_name(string $string): string {
-    return Inflector::fileName($string);
+function file_name(string $string, string $ext = 'php'): string {
+    return Inflector::fileName($string, $ext);
 }
 
 /**

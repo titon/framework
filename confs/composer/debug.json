@@ -1,0 +1,31 @@
+{
+    "name": "titon/debug",
+    "type": "library",
+    "description": "The debug package provides debugging, advanced error and exception handling, log management, and benchmarking.",
+    "keywords": ["titon", "debug", "log", "error", "exception", "handler", "benchmark"],
+    "homepage": "http://titon.io",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "support": {
+        "irc": "irc://irc.freenode.org/titon",
+        "source": "https://github.com/titon/debug"
+    },
+    "require": {
+        "hhvm": ">=3.4.0",
+        "titon/core": "*",
+        "psr/log": "~1.0.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Titon\\Debug": "src/"
+        },
+        "files": [
+            "src/Titon/Debug/bootstrap.hh"
+        ]
+    }
+}

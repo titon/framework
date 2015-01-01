@@ -154,6 +154,7 @@ class Router implements Subject {
         // Set caching events
         $this->on('route.matching', inst_meth($this, 'doLoadRoutes'), 1);
         $this->on('route.matched', inst_meth($this, 'doCacheRoutes'), 1);
+        $this->on('route.matched', inst_meth($this, 'doRunFilters'), 2);
     }
 
     /**
@@ -223,6 +224,19 @@ class Router implements Subject {
 
             // Compiling before hand should speed up the next request
             $storage->save(new Item('routes', serialize($routes), '+1 year'));
+        }
+    }
+
+    /**
+     * Loop through and execute for every filter defined in the matched route.
+     *
+     * @param \Titon\Event\Event $event
+     * @param \Titon\Route\Router $router
+     * @param \Titon\Route\Route $route
+     */
+    public function doRunFilters(Event $event, Router $router, Route $route): void {
+        foreach ($route->getFilters() as $filter) {
+            call_user_func_array($this->getFilter($filter), [$router, $route]);
         }
     }
 
@@ -491,7 +505,6 @@ class Router implements Subject {
     public function match(string $url): Route {
         $this->emit('route.matching', [$this, $url]);
 
-        // Match a route
         $match = $this->getMatcher()->match($url, $this->getRoutes());
 
         if (!$match) {
@@ -499,11 +512,6 @@ class Router implements Subject {
         }
 
         $this->_current = $match;
-
-        // Trigger filters
-        foreach ($match->getFilters() as $filter) {
-            call_user_func_array($this->getFilter($filter), [$this, $match]);
-        }
 
         $this->emit('route.matched', [$this, $match]);
 

@@ -1,12 +1,15 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from argparse import ArgumentParser
+from colorama import init, Fore
+
 import os
 
 parser = ArgumentParser(description='Run the Hack strict mode type checker.')
 parser.add_argument('-p', '--path', dest='path', default='', help='Path to a folder to check.')
 
 args = parser.parse_args()
+init()
 
 # Go to the defined path
 path = '/vagrant/src/'
@@ -21,8 +24,9 @@ config = open('.hhconfig', 'w+')
 config.close()
 
 # Run the checker
-os.system('hh_client restart')
-os.system('hh_client')
+print Fore.GREEN + 'Running type checker...\n' + Fore.RESET
+
+os.system('hh_client check')
 
 # Delete the .hhconfig file
 os.remove('.hhconfig')

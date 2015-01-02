@@ -174,7 +174,12 @@ class PackageSplitter:
             if len(repo.tracked_files) > 0:
                 print '\tPushing changes'
 
-                repo.commit(message='Automated package split - ' + time.strftime("%Y/%m/%d"))
+                if args.tag:
+                    repo.commit(message=args.tag)
+                    repo.create_tag(args.tag, "master")
+                else:
+                    repo.commit(message='Automated package split - ' + time.strftime("%Y/%m/%d"))
+
                 repo.push()
 
 # Run process

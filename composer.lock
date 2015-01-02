@@ -148,16 +148,16 @@
         },
         {
             "name": "php-vfs/php-vfs",
-            "version": "v1.2.2",
+            "version": "v1.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thornag/php-vfs.git",
-                "reference": "3ff334d76a69c3359716c81e0ea0c38d058ae974"
+                "reference": "a810948f42de7d0c16027e04529354c7f87678fe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thornag/php-vfs/zipball/3ff334d76a69c3359716c81e0ea0c38d058ae974",
-                "reference": "3ff334d76a69c3359716c81e0ea0c38d058ae974",
+                "url": "https://api.github.com/repos/thornag/php-vfs/zipball/a810948f42de7d0c16027e04529354c7f87678fe",
+                "reference": "a810948f42de7d0c16027e04529354c7f87678fe",
                 "shasum": ""
             },
             "require": {
@@ -194,7 +194,7 @@
                 "unit",
                 "virtual"
             ],
-            "time": "2014-12-26 07:23:14"
+            "time": "2014-12-30 12:10:01"
         },
         {
             "name": "phpunit/php-code-coverage",

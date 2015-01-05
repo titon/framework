@@ -8,6 +8,7 @@
 namespace Titon\Common;
 
 use Titon\Common\ArgumentList;
+use Titon\Common\Exception\MissingAnnotationException;
 use \ReflectionClass;
 use \ReflectionMethod;
 
@@ -40,7 +41,13 @@ trait Annotateable {
      * {@inheritdoc}
      */
     public function getClassAnnotation(string $name): ArgumentList {
-        return $this->getClassAnnotations()->get($name) ?: Vector {};
+        $annotations = $this->getClassAnnotations();
+
+        if ($annotations->contains($name)) {
+            return $annotations[$name];
+        }
+
+        throw new MissingAnnotationException(sprintf('Class annotation %s does not exist', $name));
     }
 
     /**
@@ -55,7 +62,13 @@ trait Annotateable {
      * {@inheritdoc}
      */
     public function getMethodAnnotation(string $method, string $name): ArgumentList {
-        return $this->getMethodAnnotations($method)->get($name) ?: Vector {};
+        $annotations = $this->getMethodAnnotations($method);
+
+        if ($annotations->contains($name)) {
+            return $annotations[$name];
+        }
+
+        throw new MissingAnnotationException(sprintf('Method %s annotation %s does not exist', $method, $name));
     }
 
     /**

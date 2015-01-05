@@ -11,7 +11,7 @@ use Titon\Utility\Col;
 
 /**
  * The Mutable trait allows for a set of data to be read and written to.
- * It also provides methods for array access, iteration, and counting.
+ * It also provides methods for iteration and counting.
  * This trait is useful when an object should represent a set of data or an entity.
  *
  * @package Titon\Common
@@ -108,13 +108,7 @@ trait Mutable<Tk, Tv> {
      * @return Tv
      */
     public function get(Tk $key, ?Tv $default = null): ?Tv {
-        $value = Col::get($this->all(), $key);
-
-        if ($value === null) {
-            return $default;
-        }
-
-        return $value;
+        return Col::get($this->all(), $key, $default);
     }
 
     /**

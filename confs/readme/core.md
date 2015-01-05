@@ -5,7 +5,7 @@ The core package is a combination of the common, type, and utility packages.
 #### Common ####
 
 Provides interfaces, traits, and abstract implementations for common patterns used within other packages. 
-Some of the functionality found in this package are annotations, in-memory caching, singleton and multiton support, 
+Some of the functionality found in this package are annotations, runtime caching, instantiation and factory support, 
 mutable APIs, and much more.
 
 #### Type ####

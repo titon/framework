@@ -7,7 +7,6 @@
 
 namespace Titon\Common;
 
-use Titon\Common\ArgumentList;
 use \ReflectionClass;
 
 type InstanceContainer<T> = Map<string, InstanceMap<T>>;
@@ -47,22 +46,17 @@ trait Instanceable<T> {
      * Return an object instance else instantiate a new one.
      *
      * @param string $key
-     * @param \Titon\Common\ArgumentList $params
+     * @param array<mixed> $args
      * @return $this
      */
-    public static function getInstance(string $key = 'default', ArgumentList $params = Vector {}): T {
+    public static function getInstance(string $key = 'default', ...$args): T {
         $instances = static::getInstances();
 
         if ($instances->contains($key)) {
             return $instances[$key];
         }
 
-        $reflection = new ReflectionClass(static::class);
-        $object = $reflection->newInstanceArgs($params->toArray());
-
-        $instances[$key] = $object;
-
-        return $object;
+        return $instances[$key] = (new ReflectionClass(static::class))->newInstanceArgs($args);
     }
 
     /**

@@ -8,10 +8,10 @@
 namespace Titon\Common\Exception;
 
 /**
- * Exception thrown when a PHP extension is missing.
+ * Exception thrown when an annotation by name does not exist.
  *
  * @package Titon\Common\Exception
  */
-class MissingExtensionException extends \RuntimeException {
+class MissingAnnotationException extends \OutOfBoundsException {
 
 }

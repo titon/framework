@@ -10,7 +10,7 @@ namespace Titon\Common\Exception;
 /**
  * Exception thrown when a file does not exist.
  *
- * @package Titon\Io\Exception
+ * @package Titon\Common\Exception
  */
 class MissingFileException extends \RuntimeException {
 

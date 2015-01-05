@@ -9,7 +9,7 @@ namespace Titon\Common;
 
 use Titon\Utility\Exception\UnsupportedMethodException;
 
-type MacroCallback = (function(): mixed);
+type MacroCallback = (function(...): mixed);
 type MacroContainer = Map<string, MacroMap>;
 type MacroMap = Map<string, MacroCallback>;
 

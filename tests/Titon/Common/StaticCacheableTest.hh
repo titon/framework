@@ -38,6 +38,26 @@ class StaticCacheableTest extends TestCase {
             return 'Titon\Common\StaticCacheableStub';
         });
         $this->assertEquals('Titon\Common\StaticCacheableStub', StaticCacheableStub::getCache('class'));
+
+        StaticCacheableStub::cache('false', function() {
+            return false;
+        });
+        $this->assertEquals(false, StaticCacheableStub::getCache('false'));
+
+        StaticCacheableStub::cache('null', function() {
+            return null;
+        });
+        $this->assertEquals(null, StaticCacheableStub::getCache('null'));
+
+        StaticCacheableStub::cache('zero', function() {
+            return 0;
+        });
+        $this->assertEquals(0, StaticCacheableStub::getCache('zero'));
+
+        StaticCacheableStub::cache('array', function() {
+            return [];
+        });
+        $this->assertEquals([], StaticCacheableStub::getCache('array'));
     }
 
     public function testCreateCacheKey() {

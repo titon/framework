@@ -1,4 +1,4 @@
-# Instantiation Patterns #
+# Instantiation #
 
 There are many ways to instantiate a class besides the standard `new` declaration. The first being the factory pattern, 
 the second being a class registry, and the third being a multiton pattern.

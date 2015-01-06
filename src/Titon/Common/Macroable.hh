@@ -7,7 +7,7 @@
 
 namespace Titon\Common;
 
-use Titon\Utility\Exception\UnsupportedMethodException;
+use Titon\Common\Exception\MissingMacroException;
 
 type MacroCallback = (function(...): mixed);
 type MacroContainer = Map<string, MacroMap>;
@@ -40,7 +40,7 @@ trait Macroable {
             return call_user_func_array(static::getMacros()->get($key), $args);
         }
 
-        throw new UnsupportedMethodException(sprintf('Macro %s has not been defined for %s', $key, static::class));
+        throw new MissingMacroException(sprintf('Macro %s has not been defined for %s', $key, static::class));
     }
 
     /**

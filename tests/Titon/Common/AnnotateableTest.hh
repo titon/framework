@@ -15,21 +15,25 @@ class AnnotateableTest extends TestCase {
     }
 
     public function testGetAnnotatedMethods() {
-        $this->assertVectorsEqual(Vector {
-            'method',
-            'getMethodAnnotations',
-            'getMethodAnnotations$memoize_impl', // Hack
-            'getAnnotatedMethods',
-            'getAnnotatedMethods$memoize_impl', // Hack
-            'getClassAnnotations',
-            'getClassAnnotations$memoize_impl', // Hack
+        $this->assertEquals(Map {
+            'method' => Map {
+                'Baz' => Vector{
+                    Map {'a' => 1}
+                }
+            }
         }, $this->object->getAnnotatedMethods());
     }
 
     public function testGetClassAnnotation() {
         $this->assertEquals(Vector {}, $this->object->getClassAnnotation('Foo'));
         $this->assertEquals(Vector {'abc', 123}, $this->object->getClassAnnotation('Bar'));
-        $this->assertEquals(Vector {}, $this->object->getClassAnnotation('Baz'));
+    }
+
+    /**
+     * @expectedException \Titon\Common\Exception\MissingAnnotationException
+     */
+    public function testGetClassAnnotationThrowsMissingError() {
+        $this->object->getClassAnnotation('Baz');
     }
 
     public function testGetClassAnnotations() {
@@ -40,9 +44,14 @@ class AnnotateableTest extends TestCase {
     }
 
     public function testGetMethodAnnotation() {
-        $this->assertEquals(Vector {}, $this->object->getMethodAnnotation('method', 'Foo'));
-        $this->assertEquals(Vector {}, $this->object->getMethodAnnotation('method', 'Bar'));
         $this->assertEquals(Vector {Map {'a' => 1}}, $this->object->getMethodAnnotation('method', 'Baz'));
+    }
+
+    /**
+     * @expectedException \Titon\Common\Exception\MissingAnnotationException
+     */
+    public function testGetMethodAnnotationThrowsMissingError() {
+        $this->object->getMethodAnnotation('method', 'Foo');
     }
 
     public function testGetMethodAnnotations() {

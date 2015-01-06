@@ -42,8 +42,8 @@ trait StaticCacheable {
     public static function cache(mixed $key, (function(): mixed) $callback): mixed {
         $key = static::createCacheKey($key);
 
-        if ($cache = static::getCache($key)) {
-            return $cache;
+        if (static::hasCache($key)) {
+            return static::getCache($key);
         }
 
         return static::setCache($key, call_user_func($callback));
@@ -77,7 +77,7 @@ trait StaticCacheable {
      * Empty the cache.
      */
     public static function flushCache(): void {
-        static::$_cache->clear();
+        static::allCache()->clear();
     }
 
     /**
@@ -87,13 +87,7 @@ trait StaticCacheable {
      * @return mixed
      */
     public static function getCache(mixed $key): mixed {
-        $key = static::createCacheKey($key);
-
-        if (static::hasCache($key)) {
-            return static::$_cache->get($key);
-        }
-
-        return null;
+        return static::allCache()->get(static::createCacheKey($key));
     }
 
     /**
@@ -103,7 +97,7 @@ trait StaticCacheable {
      * @return bool
      */
     public static function hasCache(mixed $key): bool {
-        return static::$_cache->contains(static::createCacheKey($key));
+        return static::allCache()->contains(static::createCacheKey($key));
     }
 
     /**
@@ -112,7 +106,7 @@ trait StaticCacheable {
      * @param mixed $key
      */
     public static function removeCache(mixed $key): void {
-        static::$_cache->remove(static::createCacheKey($key));
+        static::allCache()->remove(static::createCacheKey($key));
     }
 
     /**
@@ -125,7 +119,7 @@ trait StaticCacheable {
      * @return mixed
      */
     public static function setCache(mixed $key, mixed $value): mixed {
-        static::$_cache->set(static::createCacheKey($key), $value);
+        static::allCache()->set(static::createCacheKey($key), $value);
 
         return $value;
     }

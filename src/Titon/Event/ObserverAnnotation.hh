@@ -26,11 +26,13 @@ trait ObserverAnnotation {
      *      <<Observer($event[, $priority[, $once]])>>
      */
     private function __wireObserverAnnotations(): void {
-        foreach ($this->getAnnotatedMethods() as $method) {
-            if ($annotation = $this->getMethodAnnotation($method, 'Observer')) {
-                // UNSAFE
-                // Since inst_meth() requires literal strings and we are passing variables
-                $this->on((string) $annotation[0], inst_meth($this, $method), (int) $annotation->get(1) ?: 0, (bool) $annotation->get(2) ?: false);
+        foreach ($this->getAnnotatedMethods() as $method => $annotations) {
+            foreach ($annotations as $name => $annotation) {
+                if ($name === 'Observer') {
+                    // UNSAFE
+                    // Since inst_meth() requires literal strings and we are passing variables
+                    $this->on((string) $annotation[0], inst_meth($this, $method), (int) $annotation->get(1) ?: 0, (bool) $annotation->get(2) ?: false);
+                }
             }
         }
     }

@@ -3,7 +3,7 @@
 There are a few traits found in the common package that cannot be grouped with the other guides, but are helpful 
 nonetheless.
 
-### Mutable<`Tk`, `Tv`> ###
+## Mutable<`Tk`, `Tv`> ##
 
 The `Mutable` trait allows for data to be read and written to from within the class layer. 
 The data is represented as a `Map<Tk, Tv>` with generics that should be defined when inheriting the trait.
@@ -19,7 +19,7 @@ $foo->set('key', 123);
 $foo->get('key'); // 123
 ```
 
-The trait also supports a dot-notated key in all its mutator methods.
+The trait also supports a dot-notated key in all its key based methods.
 
 ```hack
 $foo->set('parent.child', 456);
@@ -85,7 +85,7 @@ The following methods are available when inheriting the trait.
     </tbody>
 </table>
 
-### Stringable ###
+## Stringable ##
 
 The `Stringable` trait provides a very basic `toString()` implementation that simply returns the class name and namespace. 
 

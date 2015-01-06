@@ -24,13 +24,13 @@ trait Annotateable {
      * {@inheritdoc}
      */
     <<__Memoize>>
-    public function getAnnotatedMethods(): Vector<string> {
+    public function getAnnotatedMethods(): Map<string, AnnotationMap> {
         $reflection = new ReflectionClass($this);
-        $methods = Vector {};
+        $methods = Map {};
 
         foreach ($reflection->getMethods() as $method) {
-            if ($this->getMethodAnnotations($method->getName())) {
-                $methods[] = $method->getName();
+            if ($annotations = $this->getMethodAnnotations($method->getName())) {
+                $methods[$method->getName()] = $annotations;
             }
         }
 
@@ -89,6 +89,10 @@ trait Annotateable {
         $annotations = Map {};
 
         foreach ($attributes as $name => $values) {
+            if (mb_substr($name, 0, 2) === '__') {
+                continue; // Ignore built-ins
+            }
+
             $arguments = Vector {};
 
             foreach ($values as $value) {

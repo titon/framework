@@ -40,8 +40,8 @@ inherited from the `Titon\Common\Annotator` interface.
     </thead>
     <tbody>
         <tr>
-            <td>getAnnotatedMethods(): Vector&lt;string&gt;</td>
-            <td>Return a list of method names that have annotations.</td>
+            <td>getAnnotatedMethods(): Map&lt;string, Titon\Common\AnnotationMap&gt;</td>
+            <td>Return a map of methods that have annotations.</td>
         </tr>
         <tr>
             <td>getClassAnnotation(string $name): Titon\Common\ArgumentList</td>

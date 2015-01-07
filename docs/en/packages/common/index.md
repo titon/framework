@@ -1,8 +1,21 @@
 # Common Package #
 
 The common package is a collection of interfaces, traits, and abstract implementations for common patterns and use cases.
-Some of the functionality found in this package are annotations, memoization, instantiation and factory support, 
-mutable APIs, and much more.
+Some of the functionality found in this package are annotations, memoization, instantiation, mutable APIs, and much more.
+
+### Requirements ###
+
+* Multibyte extension
+
+### Installation ###
+
+This package can be installed with Composer using the core package.
+
+```shell
+composer require titon/core:*
+```
+
+### Helpers ###
 
 * [Global Functions](functions.md)
 * [Type Aliases](types.md)

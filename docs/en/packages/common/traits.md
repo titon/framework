@@ -26,6 +26,8 @@ $foo->set('parent.child', 456);
 $foo->all(); // Map {'parent' => Map {'child' => 456}}
 ```
 
+### Methods ###
+
 The following methods are available when inheriting the trait.
 
 <table class="table is-striped">

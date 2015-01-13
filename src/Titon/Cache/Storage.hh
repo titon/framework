@@ -22,8 +22,8 @@ interface Storage {
     const string HITS = 'hits';
     const string MISSES = 'misses';
     const string UPTIME = 'uptime';
-    const string MEMORY_USAGE = 'memoryUsage';
-    const string MEMORY_AVAILABLE = 'memoryAvailable';
+    const string MEMORY_USAGE = 'memory.usage';
+    const string MEMORY_AVAILABLE = 'memory.available';
 
     /**
      * Deletes all items in the pool.

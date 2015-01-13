@@ -12,8 +12,8 @@ use Titon\Io\Exception\InvalidPathException;
 use Titon\Io\File;
 use Titon\Io\Folder;
 
-type FileCache = shape('expires' => int, 'data' => string);
-type FileMap = Map<string, File>;
+newtype FileCache = shape('expires' => int, 'data' => string);
+newtype FileMap = Map<string, File>;
 
 /**
  * A storage engine that uses the servers local filesystem to store its cached items.
@@ -49,7 +49,7 @@ class FileSystemStorage extends AbstractStorage {
      */
     public function __construct(string $path) {
         if (!$path) {
-            throw new InvalidPathException(sprintf('Cache directory %s does not exist', $path));
+            throw new InvalidPathException('Cache directory is required');
         }
 
         $this->_folder = new Folder($path, true);

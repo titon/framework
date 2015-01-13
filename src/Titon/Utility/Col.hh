@@ -8,9 +8,9 @@
 namespace Titon\Utility;
 
 use Titon\Common\Macroable;
-use Titon\Type\Contract\Arrayable;
-use Titon\Type\Contract\Mapable;
-use Titon\Type\Contract\Vectorable;
+use Titon\Common\Arrayable;
+use Titon\Common\Mapable;
+use Titon\Common\Vectorable;
 use \HH\Traversable;
 use \Indexish;
 

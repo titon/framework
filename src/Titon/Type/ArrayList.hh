@@ -7,11 +7,11 @@
 
 namespace Titon\Type;
 
-use Titon\Type\Contract\Arrayable;
-use Titon\Type\Contract\Jsonable;
-use Titon\Type\Contract\Mapable;
-use Titon\Type\Contract\Vectorable;
-use Titon\Type\Contract\Xmlable;
+use Titon\Common\Arrayable;
+use Titon\Common\Jsonable;
+use Titon\Common\Mapable;
+use Titon\Common\Vectorable;
+use Titon\Common\Xmlable;
 use Titon\Type\Exception\MissingMethodException;
 use Titon\Type\Xml\Document;
 use Titon\Utility\Col;

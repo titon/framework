@@ -5,12 +5,12 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Type\Contract;
+namespace Titon\Common;
 
 /**
  * Interface for enabling to map support.
  *
- * @package Titon\Type\Contract
+ * @package Titon\Common
  */
 interface Mapable<Tk, Tv> {
 

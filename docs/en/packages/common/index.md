@@ -18,8 +18,9 @@ composer require titon/core:*
 ### Helpers ###
 
 * [Global Functions](functions.md)
-* [Type Aliases](types.md)
+* [Interfaces](interfaces.md)
 * [Traits](traits.md)
+* [Type Aliases](types.md)
 
 ### Guides ###
 

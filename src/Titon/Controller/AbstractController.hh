@@ -18,6 +18,7 @@ use Titon\Http\Exception\HttpException;
 use Titon\Http\Http;
 use Titon\Http\IncomingRequestAware;
 use Titon\Http\OutgoingResponseAware;
+use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 use Titon\View\View;
@@ -78,9 +79,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * @return string
      */
     public function buildViewPath(string $action): string {
-        $prepare = function(string $path): string {
-            return trim(str_replace(['_', 'controller'], ['-', ''], Inflector::underscore($path)), '-');
-        };
+        $prepare = ($path) ==> trim(str_replace(['_', 'controller'], ['-', ''], Inflector::underscore($path)), '-');
 
         return sprintf('%s/%s', $prepare(Path::className(static::class)), $prepare($action));
     }
@@ -179,7 +178,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * @throws \Titon\Controller\Exception\InvalidActionException
      */
     public function missingAction(): string {
-        throw new InvalidActionException(sprintf('Your action %s does not exist. Supply your own missingAction() method to customize this error or view.', $this->getCurrentAction()));
+        throw new InvalidActionException(sprintf('Your action %s does not exist. Supply your own `missingAction()` method to customize this error or view.', $this->getCurrentAction()));
     }
 
     /**
@@ -216,20 +215,12 @@ abstract class AbstractController implements Controller, Listener, Subject {
     public function renderError(Exception $exception): string {
         $template = (error_reporting() <= 0) ? 'http' : 'error';
         $status = ($exception instanceof HttpException) ? $exception->getCode() : 500;
-        $view = $this->getView();
-
-        // Set the response status code
-        $this->getResponse()?->statusCode($status);
-
-        // If no view, exit with a generic message
-        if (!$view) {
-            return 'Internal server error.';
-        }
 
         $this->emit('controller.error', [$this, $exception]);
 
-        return $view
-            ->setVariables(Map {
+        // Render the view
+        $output = $this->getView()
+            ?->setVariables(Map {
                 'pageTitle' => Http::getStatusCode($status),
                 'error' => $exception,
                 'code' => $status,
@@ -237,20 +228,33 @@ abstract class AbstractController implements Controller, Listener, Subject {
                 'url' => $this->getRequest()?->getUrl() ?: ''
             })
             ->render('errors/' . $template, true);
+
+        if (!$output) {
+            $output = 'Internal server error.';
+        }
+
+        // Set the response status code and body
+        if ($response = $this->getResponse()) {
+            $response
+                ->setStatus($status)
+                ->setBody(new MemoryStream($output));
+        }
+
+        return (string) $output;
     }
 
     /**
      * {@inheritdoc}
      */
     public function renderView(): string {
-        $view = $this->getView();
+        $output = $this->getView()?->render($this->buildViewPath($this->getCurrentAction()));
 
-        // If no view, return nothing
-        if (!$view) {
-            return '';
+        // Set the response body
+        if ($output && ($response = $this->getResponse())) {
+            $response->setBody(new MemoryStream($output));
         }
 
-        return $view->render($this->buildViewPath($this->getCurrentAction()));
+        return (string) $output;
     }
 
     /**

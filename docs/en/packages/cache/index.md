@@ -1,6 +1,6 @@
 # Cache Package #
 
-The cache package provides a data caching layer that supports popular storage engines like Memcache, APC, Redis,
+The Cache package provides a data caching layer that supports popular cache engines like Memcache, APC, Redis,
 and the local file system, with features like prefixing and deferred saves.
 
 ### Requirements ###
@@ -19,6 +19,6 @@ composer require titon/cache:*
 
 ### Documentation ###
 
-* [Caching](usage.md)
+* [Caching](caching.md)
 * [Storage Engines](storages.md)
 * [Type Aliases](types.md)

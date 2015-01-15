@@ -1,6 +1,6 @@
 # Traits #
 
-There are a few traits found in the common package that cannot be grouped with the other guides, but are helpful 
+There are a few traits found in the Common package that cannot be grouped with the other guides, but are helpful 
 nonetheless.
 
 ## Mutable<`Tk`, `Tv`> ##

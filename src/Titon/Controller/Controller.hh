@@ -70,6 +70,7 @@ interface Controller {
 
     /**
      * Render the view template for an error/exception.
+     * This will automatically set the body of the response.
      *
      * @param \Exception $exception
      * @return string
@@ -78,6 +79,7 @@ interface Controller {
 
     /**
      * Render the view templates and return the output.
+     * This will automatically set the body of the response.
      *
      * @return string
      */

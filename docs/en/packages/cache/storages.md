@@ -54,7 +54,7 @@ $redis = new Titon\Cache\Storage\RedisStorage(new Redis());
 ## Creating An Engine ##
 
 When creating a storage engine, the custom class must extend the `Titon\Cache\Storage\AbstractStorage` class, 
-or implement the `Titon\Cache\Storage` interface. We suggest using the abstract class as it defines a lot of 
+or implement the `Titon\Cache\Storage` interface. We suggest using the abstract class as it defines a handful of 
 default functionality.
 
 When extending the abstract class, the following methods will need to be defined. 
@@ -73,5 +73,5 @@ class ExampleStorage extends Titon\Cache\Storage\AbstractStorage {
 
 <div class="notice is-warning">
     The <code>get()</code> method must throw a <code>Titon\Cache\Exception\MissingItemException</code> 
-    when an item does not exist in the cache, or an error occurred.
+    when an item does not exist in the cache, or when an error occurs.
 </div>

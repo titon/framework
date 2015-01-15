@@ -1,6 +1,6 @@
 # Type Aliases #
 
-The following type aliases are available in the cache package.
+The following type aliases are available in the Cache package.
 
 <table class="table is-striped">
     <thead>

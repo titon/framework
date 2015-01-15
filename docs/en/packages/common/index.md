@@ -1,6 +1,6 @@
 # Common Package #
 
-The common package is a collection of interfaces, traits, and abstract implementations for common patterns and use cases.
+The Common package is a collection of interfaces, traits, and abstract implementations for common patterns and use cases.
 Some of the functionality found in this package are annotations, memoization, instantiation, mutability, and much more.
 
 ### Requirements ###

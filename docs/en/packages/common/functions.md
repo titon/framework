@@ -1,6 +1,6 @@
 # Global Functions #
 
-The common package provides a few global functions that solve scenarios that do not pass Hack's strict mode.
+The Common package provides a few global functions that solve scenarios that do not pass Hack's strict mode.
 
 ### include_file(`string $path`): `array<Tk, Tv>` ###
 

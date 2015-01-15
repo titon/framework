@@ -100,6 +100,7 @@ else it is set using the value from the defined callback.
 $storage->store('foo', () ==> {
     // Expensive calculation
 }, '+1 hour');
+```
 
 ## Retrieving Items ##
 

@@ -1,6 +1,6 @@
 # Type Aliases #
 
-The common package comes bundled type aliases that are used throughout the entire framework. 
+The Common package comes bundled with type aliases that are used throughout the entire framework. 
 Each alias has a specific use case that should be followed accordingly.
 
 <table class="table is-striped">

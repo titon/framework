@@ -10,9 +10,6 @@ namespace Titon\Controller;
 use Titon\Common\ArgumentList;
 use Titon\Controller\Exception\InvalidActionException;
 use Titon\Event\Emittable;
-use Titon\Event\Event;
-use Titon\Event\Listener;
-use Titon\Event\ListenerMap;
 use Titon\Event\Subject;
 use Titon\Http\Exception\HttpException;
 use Titon\Http\Http;
@@ -40,7 +37,7 @@ type ActionMap = Map<string, ArgumentList>;
  *      controller.processed(Controller $con, string $action, string $response)
  *      controller.error(Controller $con, Exception $e)
  */
-abstract class AbstractController implements Controller, Listener, Subject {
+abstract class AbstractController implements Controller, Subject {
     use Emittable, IncomingRequestAware, OutgoingResponseAware;
 
     /**
@@ -64,13 +61,6 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * @var \Titon\View\View
      */
     protected ?View $_view;
-
-    /**
-     * Initialize events.
-     */
-    public function __construct() {
-        $this->on('controller', $this);
-    }
 
     /**
      * Return a probable path to a view template that matches the current controller and action.
@@ -166,45 +156,12 @@ abstract class AbstractController implements Controller, Listener, Subject {
     }
 
     /**
-     * Empty initializer method.
-     */
-    public function initialize(): void {
-        return;
-    }
-
-    /**
      * {@inheritdoc}
      *
      * @throws \Titon\Controller\Exception\InvalidActionException
      */
     public function missingAction(): string {
         throw new InvalidActionException(sprintf('Your action %s does not exist. Supply your own `missingAction()` method to customize this error or view.', $this->getCurrentAction()));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function preProcess(Event $event, Controller $controller, string $action, ArgumentList $args): void {
-        return;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function postProcess(Event $event, Controller $controller, string $action, string $response): void {
-        return;
-    }
-
-    /**
-     * Register the events to listen to.
-     *
-     * @return \Titon\Event\ListenerMap
-     */
-    public function registerEvents(): ListenerMap {
-        return Map {
-            'controller.processing' => Map {'method' => 'preProcess', 'priority' => 1},
-            'controller.processed' => Map {'method' => 'postProcess', 'priority' => 1}
-        };
     }
 
     /**

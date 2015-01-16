@@ -2,10 +2,9 @@
 
 A controller acts as the median between the request and response within the dispatch cycle.
 It splits up its responsibility into multiple actions, where each action deals with specific business logic.
-The logical data is retrieved from a [Model](../model/index.md) (database or logic entity) or from the request (POST, GET).
 
-All controllers should extend from the `Titon\Controller\AbstractController` base class, 
-or from the `Titon\Controller\Controller` interface.
+All controllers should extend from the `Titon\Controller\AbstractController` base class 
+or implement the `Titon\Controller\Controller` interface.
 
 ```hack
 class ExampleController extends Titon\Controller\AbstractController {
@@ -32,9 +31,9 @@ $controller->setResponse(Titon\Http\Server\Response::factory());
 
 ## Creating Actions ##
 
-An action handles the processing of a request is represented by a method in the controller. 
+An action handles the processing of a request and is represented by a method in a controller. 
 The action can do anything it needs to -- query the database, load configuration, process forms, call APIs, 
-render templates -- but it always return a response. 
+render templates -- but it should always return a response. 
 
 ```hack
 class ExampleController extends Titon\Controller\AbstractController {
@@ -44,12 +43,17 @@ class ExampleController extends Titon\Controller\AbstractController {
 }
 ```
 
+<div class="notice is-info">
+    An action should always return <code>mixed</code> or <code>void</code>.
+</div>
+
 ### Returning A Response ###
 
 There are many ways to set the response, most of which require custom implementations outside of the controller, 
 but we'll get to that in a moment.
 
-The first option is by returning a string, which is usually reserved for any text or HTML.
+The first option is by returning a string, which is usually reserved for any text or HTML. 
+The string will need to be set in the response outside of the controller.
 
 ```hack
 public function foo(): mixed {
@@ -57,11 +61,19 @@ public function foo(): mixed {
 }
 ```
 
-The second option is to set the body of the response into the response object directly. 
-This approach follows the [HTTP Message spec](https://github.com/php-fig/http-message) and requires a stream.
+To simplify this, we can use the `renderView()` method. More information can be found on this below.
 
 ```hack
-public function bar(): mixed {
+public function foo(): mixed {
+    return $this->renderView();
+}
+```
+
+The second option is to set the body of the response into the response object directly. 
+This approach follows the [HTTP Message specification](https://github.com/php-fig/http-message) and requires a stream.
+
+```hack
+public function bar(): void {
     $this->getResponse()
         ->setBody(new Titon\Http\Stream\MemoryStream('Hello world'));
 }
@@ -83,16 +95,16 @@ Jump the the [actions documentation](actions.md) for more information on using t
 
 ## Dispatching Actions ##
 
-Once an action has been determined, either through a router, or through some other means, it must be dispatched from the controller. 
-The method can be dispatched using the `dispatchTo()` method. An optional list of arguments can be passed as the 2nd argument.
+Once an action has been determined, either through a router, or through some other means, it must be dispatched from a controller. 
+The method can be dispatched to using the `dispatchTo()` method. The action name can either be in camel case or dashed format, 
+and an optional list of arguments can be passed as the 2nd argument.
 
 ```hack
 $controller->dispatchTo('action-name');
 $controller->dispatchTo('action-name', Vector {'foo', 'bar'});
 ```
 
-The previous example will dispatch and execute the `actionName()` method on the controller. 
-The action name can either be in camel case or dashed format.
+The previous example will dispatch and execute the `actionName()` method on the controller.
 
 ```hack
 class ExampleController extends Titon\Controller\AbstractController {
@@ -102,7 +114,7 @@ class ExampleController extends Titon\Controller\AbstractController {
 }
 ```
 
-If you need to forward one action to another action, use the `forwardTo()` method. 
+If you need to forward one action to another, use the `forwardTo()` method. 
 
 ```hack
 class ExampleController extends Titon\Controller\AbstractController {
@@ -143,22 +155,25 @@ $response = $controller->getResponse();
 try {
     $output = $controller->dispatchTo('action-name', $args);
     
-    // Replace the response with a new one
-    if ($output instanceof Psr\Http\Message\OutgoingResponseInterface) {
-        $response = $output;
-        
-    // Output is a string, so use it directly
-    } else if (is_string($output) && $output) {
-        $response->setBody(new Titon\Http\Stream\MemoryStream($output));
-        
-    // Either no output, or something we don't want to support, so render a view automatically
-    } else if (!$response->getBody()) {
-        $response->renderView();
+    if (!$response->getBody()) {
+    
+        // Replace the response with a new one
+        if ($output instanceof Psr\Http\Message\OutgoingResponseInterface) {
+            $response = $output;
+            
+        // Output is a string, so use it directly
+        } else if (is_string($output) && $output) {
+            $response->setBody(new Titon\Http\Stream\MemoryStream($output));
+            
+        // Either no output, or something we don't want to support, so render a view automatically
+        } else {
+            $controller->renderView();
+        }
     }
     
 // An exception was thrown at some point, so lets render an error
 } catch (Exception $e) {
-    $response->renderError($e);
+    $controller->renderError($e);
 }
 
 // Output the response to the browser
@@ -169,7 +184,7 @@ $response->send();
 ## Template Rendering ##
 
 The Controller package has built-in template rendering support through the [View package](../view/index.md). 
-However, nothing is stopping you from using a third-party template renderer.
+However, nothing is stopping you from using a third-party templating engine.
 
 To begin, simply set the view into the controller.
 
@@ -201,8 +216,9 @@ public function action(): mixed {
 
 ### Rendering Errors ###
 
-Similar to rendering views, rendering errors make use of the `renderError()` method, which accepts an `Exception` as its only argument. 
+Similar to rendering views, rendering errors is handled through the `renderError()` method, which accepts an `Exception` as its only argument. 
 If error reporting is enabled, then the private `/errors/error` template is rendered, else the private `/errors/http` template is. 
+
 The template is passed the following variables: `$pageTitle` (status reason), `$error` (the exception), `$code` (exception or status code),
 `$message`, and `$url`.
 

@@ -9,7 +9,8 @@ namespace Titon\Debug;
 
 use Titon\Debug\Exception\MissingBenchmarkException;
 
-type Metric = shape('running' => bool, 'startTime' => float, 'endTime' => float, 'avgTime' => float, 'startMemory' => int, 'endMemory' => int, 'avgMemory' => int, 'peakMemory' => int);
+type Metric = shape('running' => bool, 'time.start' => float, 'time.stop' => float, 'time.avg' => float,
+    'memory.start' => int, 'memory.stop' => int, 'memory.avg' => int, 'memory.peak' => int);
 type MetricMap = Map<string, Metric>;
 
 /**
@@ -72,9 +73,9 @@ class Benchmark {
 
         return sprintf('[%s] %s seconds, %s memory (%s peak)',
             $key,
-            number_format($benchmark['avgTime'], 4),
-            $benchmark['avgMemory'],
-            $benchmark['peakMemory']);
+            number_format($benchmark['time.avg'], 4),
+            $benchmark['memory.avg'],
+            $benchmark['memory.peak']);
     }
 
     /**
@@ -84,13 +85,13 @@ class Benchmark {
      */
     public static function start(string $key): void {
         static::$_benchmarks[$key] = shape(
-            'startTime' => microtime(true),
-            'endTime' => 0.0,
-            'avgTime' => 0.0,
-            'startMemory' => memory_get_usage(true),
-            'endMemory' => 0,
-            'avgMemory' => 0,
-            'peakMemory' => 0,
+            'time.start' => microtime(true),
+            'time.stop' => 0.0,
+            'time.avg' => 0.0,
+            'memory.start' => memory_get_usage(true),
+            'memory.stop' => 0,
+            'memory.avg' => 0,
+            'memory.peak' => 0,
             'running' => true
         );
     }
@@ -102,11 +103,11 @@ class Benchmark {
      */
     public static function stop(string $key): void {
         $benchmark = static::get($key);
-        $benchmark['endTime'] = microtime(true);
-        $benchmark['avgTime'] = $benchmark['endTime'] - $benchmark['startTime'];
-        $benchmark['endMemory'] = memory_get_usage(true);
-        $benchmark['avgMemory'] = $benchmark['endMemory'] - $benchmark['startMemory'];
-        $benchmark['peakMemory'] = memory_get_peak_usage();
+        $benchmark['time.stop'] = microtime(true);
+        $benchmark['time.avg'] = $benchmark['time.stop'] - $benchmark['time.start'];
+        $benchmark['memory.stop'] = memory_get_usage(true);
+        $benchmark['memory.avg'] = $benchmark['memory.stop'] - $benchmark['memory.start'];
+        $benchmark['memory.peak'] = memory_get_peak_usage();
         $benchmark['running'] = false;
 
         static::$_benchmarks[$key] = $benchmark;

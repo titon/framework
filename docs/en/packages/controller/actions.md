@@ -17,7 +17,7 @@ class ExampleAction extends Titon\Controller\Action\AbstractAction {
 ## Mapping Requests ##
 
 The `Action` interface defines 4 methods that map to HTTP methods, they are `get()`, `post()`, `put()`, and `delete()`. 
-The type of action method executed will be determined by the HTTP method using in the request.
+The type of action method executed will be determined by the HTTP method used in the request.
 
 A typical CRUD (create, read, update, delete) action would be implemented like so.
 
@@ -50,14 +50,16 @@ To execute an action object, call the `runAction()` method within a controller m
 Action classes will still require an action method within a controller.
 
 ```hack
-public function actionName(): mixed {
-    return $this->runAction(new CrudAction());
+class ExampleController extends Titon\Controller\AbstractController {
+    public function actionName(): mixed {
+        return $this->runAction(new CrudAction());
+    }
 }
 ```
 
 ## Accessing The Controller ##
 
-The parent controller in which the action was ran can be accessed at `getController()`. 
+The parent controller in which the action was ran can be accessed with `getController()`. 
 This is helpful in accessing methods, properties, or data that is required by the action, 
 like the request and response objects.
 

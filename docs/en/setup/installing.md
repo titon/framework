@@ -10,10 +10,16 @@ The following system dependencies are required.
 * [Composer](https://getcomposer.org/)
 * Multibyte extension
 
+### Using Nexus ###
+
+We suggest using [Nexus](nexus.md), an all-in-one Vagrant development environment. 
+It's an official Titon project that provides up-to-date support for Hack and HHVM development.
+
+If you prefer not to use Nexus, continue reading, else jump down to the installation chapter.
+
 ### Installing Vagrant ###
 
-We suggest using [Vagrant](https://www.vagrantup.com/) for local development. 
-You can install Vagrant by downloading one of their official installers.
+You can install [Vagrant](https://www.vagrantup.com/) by downloading one of their official installers.
 
 ### Installing HHVM ###
 
@@ -51,7 +57,7 @@ brew install composer
 
 #### Other ####
 
-If using Linux, or the previous suggestions weren't helpful, download Composer manually via cURL. 
+If using Linux, or the previous suggestions didn't work, download Composer manually via cURL. 
 
 ```shell
 curl -sS https://getcomposer.org/installer | php

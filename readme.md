@@ -1,4 +1,12 @@
-# Titon Framework #
+```
+ ______  ______   ______   __    __   ______   __    __   ______   ______   __  __    
+/\  ___\/\  __ \ /\  __ \ /\ '-./  \ /\  ___\ /\ \ __\ \ /\  __ \ /\  __ \ /\ \/ /_   
+\ \  __\\ \  __< \ \  __ \\ \ \._/\ \\ \  __\ \ \ \| \\ \\ \ \/\ \\ \  __< \ \  _  \  
+ \ \_\/  \ \_\ \_\\ \_\ \_\\ \_\/\ \_\\ \_____\\ \__/_.__\\ \_____\\ \_\ \_\\ \_\ \_\ 
+  \/_/    \/_/\/_/ \/_/\/_/ \/_/  \/_/ \/_____/ \/_/  \/_/ \/_____/ \/_/\/_/ \/_/\/_/ 
+```
+
+# Framework #
 [![Project Titon](https://img.shields.io/badge/project-titon-82667d.svg?style=flat)](http://titon.io)
 [![Build Status](https://img.shields.io/travis/titon/framework.svg?style=flat)](https://travis-ci.org/titon/framework)
 [![HHVM](https://img.shields.io/hhvm/titon/framework.svg?style=flat)](https://github.com/titon/framework)
@@ -41,33 +49,33 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 
 Upcoming features and release plan.
 
-* December
-    * Alpha release
 * January
+    * Documentation
+* February
     * Context package - Dependency containers and service locators
     * Add a `Debug\Dumper` class that supports HTML and CLI
     * Add a `Type\Yaml` class for parsing YAML documents
-* February
+* March
     * Kernel package - Application foundation
     * MVC package - Model-view-controller application
-* March
-    * G11N package - Internationalization and localization
 * April - May
-    * DB package - Database abstraction layer
+    * G11N package - Internationalization and localization
 * June
+    * DB package - Database abstraction layer
+* July
     * Model package - Object relational mapper and active record for DB entities
     * Beta release
-* July
-    * Session package - Custom session handler
 * August
-    * Queue package - Queue, job, and worker services
+    * Session package - Custom session handler
 * September
-    * Mail package - Emailing layer
+    * Queue package - Queue, job, and worker services
 * October
-    * Auth package - Authentication and authorization
+    * Mail package - Emailing layer
 * November
-    * ACL package - Access control lists
+    * Auth package - Authentication and authorization
 * December
+    * ACL package - Access control lists
+* January
     * ADR package - Action-domain-responder application
     * 0.1.0 release
 

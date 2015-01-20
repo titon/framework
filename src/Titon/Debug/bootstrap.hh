@@ -16,10 +16,10 @@ use Titon\Debug\Debugger;
  */
 
 /**
- * @see Titon\Debug\Debugger::printException()
+ * @see Titon\Debug\Debugger::inspect()
  */
 function inspect(Exception $e): void {
-    echo Debugger::printException($e);
+    echo Debugger::inspect($e);
 }
 
 /**

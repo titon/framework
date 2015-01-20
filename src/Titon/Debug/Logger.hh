@@ -86,7 +86,7 @@ class Logger extends AbstractLogger {
      */
     public function log($level, $message, array<string, mixed> $context = []): bool { // No type hints as it inherits from PSR
         return (bool) file_put_contents(
-            sprintf('%s/%s-%s.log', $this->getDirectory(), $level, date('Y-m-d')),
+            sprintf('%s%s-%s.log', $this->getDirectory(), $level, date('Y-m-d')),
             static::createMessage($level, $message, $context),
             FILE_APPEND);
     }

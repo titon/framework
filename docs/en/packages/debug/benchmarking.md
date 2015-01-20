@@ -42,6 +42,6 @@ The `Metric` is a [Hack shape](http://docs.hhvm.com/manual/en/hack.shapes.php) w
 
 To print the `Metric` in a human readable format, use `output()`.
  
- ```hack
- $output = Titon\Debug\Benchmark::output('foo'); // [foo] 1.2 seconds, 45217 memory (56200 peak)
- ```
+```hack
+$output = Titon\Debug\Benchmark::output('foo'); // [foo] 1.2 seconds, 45217 memory (56200 peak)
+```

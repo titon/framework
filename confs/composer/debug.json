@@ -20,6 +20,9 @@
         "titon/core": "*",
         "psr/log": "~1.0.0"
     },
+    "suggest": {
+        "monolog/monolog": "Integrate advanced logging with Monolog"
+    },
     "autoload": {
         "psr-0": {
             "Titon\\Debug": "src/"

@@ -227,6 +227,8 @@ class Environment implements Subject {
 
     /**
      * Initialize the environment by matching based on server variables or hostnames.
+     *
+     * @throws \Titon\Environment\Exception\NoHostMatchException
      */
     public function initialize(): void {
         if ($this->getHosts()->isEmpty()) {

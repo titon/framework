@@ -86,40 +86,39 @@ invariant($foo instanceof Bar, 'Value must be a Bar'); // Will be logged
 
 ## Dumping Variables ##
 
-There are 5 global functions available that aide in the debugging of variables. Each function will parse and output 
+There are 5 methods available that aide in the debugging of variables. Each method will parse and output 
 a value into a human-readable HTML-ready format -- which allows for beautiful styling and functionality within browsers.
 
-The `debug()` and `dump()` functions can be used for easily outputting a variables value. 
-These functions are rather similar to `print_r()` or `var_export()` but allow for multiple arguments to be passed.
+The `debug()` and `dump()` methods can be used for easily outputting a variables value. 
+These methods are rather similar to `print_r()` or `var_export()` but allow for multiple arguments to be passed.
 
 ```hack
-debug($foo);
-dump($bar, $baz);
+Debugger::debug($foo);
+Debugger::dump($bar, $baz);
 ```
 
-The `backtrace()` function will output a collapsible stack trace as an HTML table.
-If an exception is passed to the function, the exception's stack trace will be used.
+The `backtrace()` method will output a collapsible stack trace as an HTML table.
+If an exception is passed to the method, the exception's stack trace will be used.
 
 ```hack
-backtrace(); // Uses debug_backtrace()
-backtrace($exception); // Uses $exception->getTrace()
+Debugger::backtrace(); // Uses debug_backtrace()
+Debugger::backtrace($exception); // Uses $exception->getTrace()
 ```
 
-The `inspect()` function works similar to `backtrace()` but will also output the class name, file path, line number, 
-error message, and stack trace. This is the go to function for debugging exceptions.
+The `inspect()` method works similar to `backtrace()` but will also output the class name, file path, line number, 
+error message, and stack trace. This is the go to method for debugging exceptions.
 
 ```hack
-inspect($exception);
+Debugger::inspect($exception);
 ```
 
-And finally, the `export()` function can be used for outputting a variable in a PHP valid format, similar to `var_export()`.
+And finally, the `export()` method can be used for outputting a variable in a PHP valid format, similar to `var_export()`.
 
 ```hack
-export($foo);
+Debugger::export($foo);
 ```
 
-All of these global functions will echo their content instead of returning. To grab the return, 
-use their equivalent method found on the `Debugger` class.
+Each of these methods have an [equivalent global function](functions.md).
 
 ## Logging ##
 

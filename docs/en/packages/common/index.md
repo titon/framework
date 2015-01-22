@@ -19,10 +19,10 @@ composer require titon/core:*
 
 * [Annotations](annotations.md)
 * [Bags](bags.md)
-* [Global Functions](functions.md)
 * [Instantiation](instantiation.md)
 * [Interfaces](interfaces.md)
 * [Macros](macros.md)
 * [Memoization](memoization.md)
 * [Traits](traits.md)
+* [Global Functions](functions.md)
 * [Type Aliases](types.md)

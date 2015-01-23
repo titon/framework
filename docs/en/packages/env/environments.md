@@ -1,11 +1,11 @@
 # Environment Detection #
 
 It is usually good practice to have different sets of configuration for different types of environments. 
-The `Titon\Environment\Environment` can be used for managing hosts (different environments), 
+The `Titon\Environment\Environment` class can be used for managing hosts (different environments), 
 bootstrappers (configuration loading), secure variables, and the core of its functionality, 
 matching and detection.
 
-To being, instantiate a new `Environment` using the `registry()` method, which will persist the instance 
+To begin, instantiate a new `Environment` using the `registry()` method, which will persist the instance 
 throughout the application.
 
 ```hack
@@ -68,7 +68,7 @@ the first pattern attempts to match a hosts unique key against the `APP_ENV` env
 If no matches are found, then the second pattern attempts to match the machines hostname (using `gethostname()`)
 against the list of hostnames defined in each host.
 
-To start the detection process, call `initialize()`.
+To start the matching process, call `initialize()`.
 
 ```hack
 $env->initialize();

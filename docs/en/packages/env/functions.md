@@ -11,5 +11,5 @@ $key = env('API_KEY');
 ```
 
 <div class="notice is-info">
-    Using this function requires the `Titon\Environment\Environment` class to be loaded in registry.
+    Using this function requires the <code>Titon\Environment\Environment</code> class to be loaded in registry.
 </div>

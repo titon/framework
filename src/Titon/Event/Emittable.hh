@@ -54,21 +54,21 @@ trait Emittable {
     /**
      * @see \Titon\Event\Subject::once()
      */
-    public function once(string $event, mixed $callback, int $priority = 0): this {
+    public function once(string $event, mixed $callback, int $priority = Emitter::AUTO_PRIORITY): this {
         return $this->on($event, $callback, $priority, true);
     }
 
     /**
      * @see \Titon\Event\Subject::once()
      */
-    public function on(string $event, mixed $callback, int $priority = 0, bool $once = false): this {
+    public function on(string $event, mixed $callback, int $priority = Emitter::AUTO_PRIORITY, bool $once = false): this {
         if ($callback instanceof Listener) {
-            $this->getEmitter()->registerListener($callback);
+            $this->getEmitter()->subscribeListener($callback);
 
         } else if (is_callable($callback)) {
             // UNSAFE
             // Impossible to validate the callable
-            $this->getEmitter()->register($event, $callback, $priority, $once);
+            $this->getEmitter()->subscribe($event, $callback, $priority, $once);
 
         } else {
             throw new InvalidObserverException('Observer must be a callable or a Listener');

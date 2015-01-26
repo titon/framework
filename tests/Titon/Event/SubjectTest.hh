@@ -46,18 +46,25 @@ class SubjectTest extends TestCase {
     }
 
     public function testOnce() {
-        $ob1 = function(Event $event) { };
-        $ob2 = [new ListenerStub(), 'noop2'];
-        $ob3 = function(Event $event) { };
-        $ob4 = [new ListenerStub(), 'noop1'];
+        $count = 0;
+
+        $ob1 = function(Event $event, &$c) { $c++; };
+        $ob2 = [new ListenerStub(), 'counter'];
+        $ob3 = function(Event $event, &$c) { $c++; };
+        $ob4 = [new ListenerStub(), 'counter'];
 
         $this->object->once('event.test', $ob1, 20);
         $this->object->on('event.test', $ob2, 15);
         $this->object->on('event.test', $ob3, 5, true);
         $this->object->on('event.test', $ob4, 75);
 
-        $this->assertEquals(4, count($this->object->emit('event.test', [])->getCallStack()));
-        $this->assertEquals(2, count($this->object->emit('event.test', [])->getCallStack()));
+        $this->object->emit('event.test', [&$count]);
+
+        $this->assertEquals(4, $count);
+
+        $this->object->emit('event.test', [&$count]);
+
+        $this->assertEquals(6, $count);
     }
 
 }

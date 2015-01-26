@@ -317,6 +317,10 @@ class ListenerStub implements Listener {
         $object2->foo = 'bar';
     }
 
+    public function counter(Event $e, &$count): void {
+        $count++;
+    }
+
     public async function asyncNoop1(Event $e, &$list): Awaitable<mixed> {
         await SleepWaitHandle::create(rand(100, 1000) * 1000);
 

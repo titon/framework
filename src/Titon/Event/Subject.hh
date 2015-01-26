@@ -32,7 +32,7 @@ interface Subject {
      * @param int $priority
      * @return $this
      */
-    public function once(string $event, mixed $callback, int $priority = 0): this;
+    public function once(string $event, mixed $callback, int $priority = Emitter::AUTO_PRIORITY): this;
 
     /**
      * Register an observer or a listener.
@@ -44,7 +44,7 @@ interface Subject {
      * @return $this
      * @throws \Titon\Event\Exception\InvalidObserverException
      */
-    public function on(string $event, mixed $callback, int $priority = 0, bool $once = false): this;
+    public function on(string $event, mixed $callback, int $priority = Emitter::AUTO_PRIORITY, bool $once = false): this;
 
     /**
      * Remove an observer or a listener.

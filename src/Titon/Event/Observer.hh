@@ -15,7 +15,7 @@ type ParamList = array<mixed>;
 
 /**
  * The Observer class represents a single callback in the event stack.
- * It will be executed anytime an event is triggered that the observer is registered for.
+ * It will be executed anytime an event is triggered that the observer is subscribed for.
  *
  * @package Titon\Event
  */

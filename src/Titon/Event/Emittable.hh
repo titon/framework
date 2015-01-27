@@ -63,7 +63,7 @@ trait Emittable {
      */
     public function on(string $event, mixed $callback, int $priority = Emitter::AUTO_PRIORITY, bool $once = false): this {
         if ($callback instanceof Listener) {
-            $this->getEmitter()->subscribeListener($callback);
+            $this->getEmitter()->listen($callback);
 
         } else if (is_callable($callback)) {
             // UNSAFE
@@ -82,12 +82,12 @@ trait Emittable {
      */
     public function off(string $event, mixed $callback): this {
         if ($callback instanceof Listener) {
-            $this->getEmitter()->removeListener($callback);
+            $this->getEmitter()->unlisten($callback);
 
         } else if (is_callable($callback)) {
             // UNSAFE
             // Impossible to validate the callable
-            $this->getEmitter()->remove($event, $callback);
+            $this->getEmitter()->unsubscribe($event, $callback);
 
         } else {
             throw new InvalidObserverException('Observer must be a callable or a Listener');

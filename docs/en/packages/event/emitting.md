@@ -1,16 +1,29 @@
 # Event Dispatching #
 
+Event driven programming is a paradigm in which certain parts of an application are notified when a specific action occurs. 
+The `Titon\Event\Emitter` class handles this scenario by managing a list of observers to notify about an event (the action), 
+and the actual process of emitting the event (also known as dispatching).
+
+Every instance of `Emitter` manages their own unique list of observers and events. To provide a global event dispatching 
+system, a single instance of the `Emitter` should be used, either through a singleton, or a container.
+
+```hack
+$emitter = new Titon\Event\Emitter();
+```
+
+Emitters can also be used on the class level by utilizing [subjects](subjects.md).
+
 ## Observers ##
 
 An observer in the context of this package is a callable that subscribes to an event
 and is notified when that event is dispatched. There are multiple forms that an observer can take -- 
-either with a closure, a callable via `inst_meth()` or `class_meth()`, or through a [listener](listeners.md).
+either with a closure/lambda, a callable via `inst_meth()` or `class_meth()`, or through a [listener](listeners.md).
 
 An observer's declaration must conform to the `Titon\Event\ObserverCallback` [type alias](types.md), 
 with the 1st argument always being an instance of `Titon\Event\Event`.
 
 For a better understanding of observer declarations, here are a few examples. 
-The first, with a closure in lambda form.
+The first, with in lambda form.
 
 ```hack
 $observer = ($event) ==> {
@@ -39,7 +52,7 @@ class ExampleListener implements Titon\Event\Listener {
         // ...
     }
     
-    public function subscribeEvents(): Titon\Event\ListenerMap {
+    public function subscribeToEvents(): Titon\Event\ListenerMap {
         return Map {'init' => 'foo'};
     }
 }
@@ -64,7 +77,7 @@ class ExampleClass {
 ## Subscribing To Events ##
 
 Now that we have a better understanding of observers, we can now subscribe observers to an event, via a unique key. 
-This can be accomplished using the `subscribe()` and `subscribeListener()` methods. The `subscribe()` method 
+This can be accomplished using the `subscribe()` and `listen()` methods. The `subscribe()` method 
 requires a unique event key and a callable.
 
 ```hack
@@ -72,18 +85,18 @@ $emitter->subscribe('init', ($event) ==> {});
 $emitter->subscribe('load', inst_meth($class, 'method'));
 ```
 
-The `subscribeListener()` method on the other hand simply requires an instance of an object that implements the 
+The `listen()` method on the other hand simply requires an instance of an object that implements the 
 `Titon\Event\Listener` interface.
 
 ```hack
-$emitter->subscribeListener(new ExampleListener());
+$emitter->listen(new ExampleListener());
 ```
 
 ### Priority Queue ###
 
 Observers aren't notified in the order that they are defined, but in the order of priority. Priority can be defined 
 by passing an integer to the 3rd argument of `subscribe()`. If the priority is omitted, the priority will default 
-to 100 + the number of current observers. A priority level below 100 should is reserved for internal and 
+to 100 + the number of current observers. A priority level below 100 is reserved for internal and 
 critical observers that must be notified before all others.
 
 ```hack
@@ -103,22 +116,22 @@ $emitter->subscribe('init', $callback, Emitter::AUTO_PRIORITY, true);
 
 ### Unsubscribing ###
 
-To unsubscribe an observer, the original callback must be passed to `remove()`, or the listener object to 
-`removeListener()`.
+To remove an observer from an event, the original callable must be passed to `unsubscribe()`, or the listener object to 
+`unlisten()`.
 
 ```hack
-$emitter->remove('init', $callback);
-$emitter->removeListener($listener);
+$emitter->unsubscribe('init', $callback);
+$emitter->unlisten($listener);
 ```
 
 ## Dispatching Events ##
 
-Once observers have been subscribed, all that's left to do is notify them, which can be done using the `emit()` method. 
+Once subscriptions are in place, all that's left to do is notify them, which can be done using the `emit()` method. 
 The `emit()` method accepts a unique key, which is the name of the event to dispatch, and an optional array of arguments 
 to pass to each observer.
 
 ```hack
-$emitter->emit('init');
+$event = $emitter->emit('init');
 ```
 
 When arguments are defined, they can be accessed as arguments within the observer.
@@ -128,7 +141,7 @@ $observer = ($event, $foo, $bar) ==> {
     // ...
 };
 
-$emitter->emit('init', [$foo, $bar]);
+$event = $emitter->emit('init', [$foo, $bar]);
 ```
 
 Arguments also support passing by reference.
@@ -138,8 +151,10 @@ $observer = ($event, $foo, &$bar) ==> {
     // ...
 };
 
-$emitter->emit('init', [$foo, &$bar]);
+$event = $emitter->emit('init', [$foo, &$bar]);
 ```
+
+The response of this method will be an instance of `Titon\Event\Event` -- the same instance passed to each observer.
 
 ### Multiple Dispatch ###
 
@@ -151,9 +166,9 @@ $emitter->emitMany('foo bar', $params);
 $emitter->emitMany(['foo', 'bar'], $params);
 ```
 
-When using this approach, each unique key will create a new `Event` object, but any params will be shared.
+When using this approach, each unique key will create a new `Event` object, but any arguments will be shared.
 
-The response will also be a mapping of `Event` objects by unique key, instead of a single object.
+The response of this method will be a mapping of `Event` objects by unique key, instead of a single object.
 
 ### Wildcard Events ###
 
@@ -165,6 +180,15 @@ $emitter->emit('foo.*', $params);
 ```
 
 The previous example will notify any event that begins with `foo.`, like `foo.bar`, `foo.baz`, etc.
+
+### Custom Event Objects ###
+
+Every time `emit()` is called, a `Titon\Event\Event` object is automatically created. To use a custom `Event` object, 
+the `dispatch()` method can be used.
+
+```hack
+$event = $emitter->dispatch(new ExampleEvent('user.registered'), $params);
+```
 
 ## Persisting Data ##
 
@@ -195,19 +219,15 @@ observers from being notified. This can be triggered from the event object.
 
 ```hack
 $observer = ($event) ==> {
-    // Observer conditions failed; interrupt
-    
     $event->stop();
 };
 ```
 
 Secondly, by returning a non-true/null/void from the observer callback, a stop will occur. 
-Using this return format will also set the state. Jump to the next section for more information.
+Using this return format will also set the state. Jump to the next section for more information on states.
 
 ```hack
 $observer = ($event) ==> {
-    // Observer conditions failed; interrupt
-    
     return false;
 };
 ```

@@ -186,8 +186,8 @@ class EnvironmentTest extends TestCase {
 
         $env = new Environment();
 
-        $this->assertTrue($env->isMachine('vagrant-ubuntu-trusty-64'));
-        $this->assertTrue($env->isMachine('vagrant-ubuntu-*'));
+        $this->assertTrue($env->isMachine('titon'));
+        $this->assertTrue($env->isMachine('tit*'));
     }
 
     public function testIsLocalhost() {

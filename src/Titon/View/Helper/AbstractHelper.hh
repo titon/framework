@@ -177,7 +177,7 @@ abstract class AbstractHelper implements Helper {
     /**
      * {@inheritdoc}
      */
-    public function registerEvents(): ListenerMap {
+    public function subscribeToEvents(): ListenerMap {
         return Map {
             'view.rendering' => 'preRender',
             'view.rendered' => 'postRender',

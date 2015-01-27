@@ -25,7 +25,7 @@ interface Subject {
     public function emitMany(mixed $event, ParamList $params): EventMap;
 
     /**
-     * Register an observer or listener to only trigger once and then remove itself from the list.
+     * Register an observer or listener to only trigger once.
      *
      * @param string $event
      * @param mixed $callback

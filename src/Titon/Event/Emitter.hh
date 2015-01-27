@@ -187,7 +187,25 @@ class Emitter {
     }
 
     /**
-     * Register a callback (observer) for an event.
+     * Subscribe multiple observers to multiple events through a listener object.
+     *
+     * @param \Titon\Event\Listener $listener
+     * @return $this
+     */
+    public function listen(Listener $listener): this {
+        foreach ($listener->subscribeToEvents() as $event => $options) {
+            foreach ($this->_parseOptions($options) as $opt) {
+                // UNSAFE
+                // Since inst_meth() requires literal strings and we are passing variables
+                $this->subscribe($event, inst_meth($listener, $opt['method']), $opt['priority'], $opt['once']);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Subscribe a callback (observer) to an event.
      * A priority can be defined to change the order of execution.
      *
      * @param string $event
@@ -211,17 +229,17 @@ class Emitter {
     }
 
     /**
-     * Register multiple events that are provided from a listener object.
+     * Remove multiple observers from multiple events through a listener object.
      *
      * @param \Titon\Event\Listener $listener
      * @return $this
      */
-    public function subscribeListener(Listener $listener): this {
-        foreach ($listener->subscribeEvents() as $event => $options) {
+    public function unlisten(Listener $listener): this {
+        foreach ($listener->subscribeToEvents() as $event => $options) {
             foreach ($this->_parseOptions($options) as $opt) {
                 // UNSAFE
                 // Since inst_meth() requires literal strings and we are passing variables
-                $this->subscribe($event, inst_meth($listener, $opt['method']), $opt['priority'], $opt['once']);
+                $this->unsubscribe($event, inst_meth($listener, $opt['method']));
             }
         }
 
@@ -229,13 +247,13 @@ class Emitter {
     }
 
     /**
-     * Remove a callback from an event.
+     * Remove an observer from an event.
      *
      * @param string $event
      * @param \Titon\Event\ObserverCallback $callback
      * @return $this
      */
-    public function remove(string $event, ObserverCallback $callback): this {
+    public function unsubscribe(string $event, ObserverCallback $callback): this {
         $indices = Vector {};
 
         foreach ($this->getObservers($event) as $i => $observer) {
@@ -247,24 +265,6 @@ class Emitter {
         // We must do this as you can't remove keys while iterating
         foreach ($indices as $i) {
             $this->_observers[$event]->removeKey($i);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Remove multiple callbacks from an event from a listener object.
-     *
-     * @param \Titon\Event\Listener $listener
-     * @return $this
-     */
-    public function removeListener(Listener $listener): this {
-        foreach ($listener->subscribeEvents() as $event => $options) {
-            foreach ($this->_parseOptions($options) as $opt) {
-                // UNSAFE
-                // Since inst_meth() requires literal strings and we are passing variables
-                $this->remove($event, inst_meth($listener, $opt['method']));
-            }
         }
 
         return $this;

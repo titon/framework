@@ -337,7 +337,7 @@ abstract class AbstractView implements View, Listener, Subject {
      *
      * @return \Titon\Event\ListenerMap
      */
-    public function registerEvents(): ListenerMap {
+    public function subscribeToEvents(): ListenerMap {
         return Map {
             'view.rendering' => Map {'method' => 'preRender', 'priority' => 1},
             'view.rendered' => Map {'method' => 'postRender', 'priority' => 1}

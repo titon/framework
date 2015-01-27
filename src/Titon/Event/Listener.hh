@@ -23,6 +23,6 @@ interface Listener {
      *
      * @return \Titon\Event\ListenerMap
      */
-    public function subscribeEvents(): ListenerMap;
+    public function subscribeToEvents(): ListenerMap;
 
 }

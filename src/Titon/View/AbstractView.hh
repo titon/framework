@@ -13,8 +13,6 @@ use Titon\Common\FactoryAware;
 use Titon\Common\DataMap;
 use Titon\Event\Emittable;
 use Titon\Event\Event;
-use Titon\Event\Listener;
-use Titon\Event\ListenerMap;
 use Titon\Event\Subject;
 use Titon\Utility\Config;
 use Titon\Utility\Col;
@@ -30,7 +28,7 @@ use Titon\View\Helper;
  *
  * @package Titon\View\View
  */
-abstract class AbstractView implements View, Listener, Subject {
+abstract class AbstractView implements View, Subject {
     use Cacheable, Emittable, FactoryAware;
 
     /**
@@ -99,8 +97,6 @@ abstract class AbstractView implements View, Listener, Subject {
         if ($ext) {
             $this->setExtension($ext);
         }
-
-        $this->on('view', $this);
     }
 
     /**
@@ -112,7 +108,7 @@ abstract class AbstractView implements View, Listener, Subject {
         $this->_helpers[$key] = $helper;
 
         if ($helper instanceof Listener) {
-            $this->on('view', $helper);
+            $this->on($helper);
         }
 
         $this->setVariable($key, $helper);
@@ -308,40 +304,6 @@ abstract class AbstractView implements View, Listener, Subject {
 
             return $absPath;
         });
-    }
-
-    /**
-     * Triggered before all templates are rendered in render().
-     *
-     * @param \Titon\Event\Event $event
-     * @param \Titon\View\View $view
-     * @param string $template
-     */
-    public function preRender(Event $event, View $view, string $template): void {
-        return;
-    }
-
-    /**
-     * Triggered after all templates are rendered in render().
-     *
-     * @param \Titon\Event\Event $event
-     * @param \Titon\View\View $view
-     * @param string $response
-     */
-    public function postRender(Event $event, View $view, string $response): void {
-        return;
-    }
-
-    /**
-     * Register the events to listen to.
-     *
-     * @return \Titon\Event\ListenerMap
-     */
-    public function subscribeToEvents(): ListenerMap {
-        return Map {
-            'view.rendering' => Map {'method' => 'preRender', 'priority' => 1},
-            'view.rendered' => Map {'method' => 'postRender', 'priority' => 1}
-        };
     }
 
     /**

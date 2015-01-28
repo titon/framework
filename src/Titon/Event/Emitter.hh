@@ -7,12 +7,6 @@
 
 namespace Titon\Event;
 
-type CallStackList = Vector<string>;
-type EventMap = Map<string, Event>;
-type ObserverList = Vector<Observer>;
-type ObserverContainer = Map<string, ObserverList>;
-type ObserverCallback = (function(...): mixed);
-
 /**
  * The Emitter manages the subscribing and removing of observers (and listeners).
  * An emitted event will cycle through and trigger all observers.

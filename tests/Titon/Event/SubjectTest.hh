@@ -31,7 +31,7 @@ class SubjectTest extends TestCase {
         $listener = new ListenerStub();
 
         $this->object->on('event.test1', $callback);
-        $this->object->on('event', $listener);
+        $this->object->on($listener);
 
         $this->assertEquals(Vector {
             new Observer($callback, 100, false),
@@ -40,7 +40,7 @@ class SubjectTest extends TestCase {
         }, $this->object->getEmitter()->getObservers('event.test1'));
 
         $this->object->off('event.test1', $callback);
-        $this->object->off('event', $listener);
+        $this->object->off($listener);
 
         $this->assertEquals(Vector {}, $this->object->getEmitter()->getObservers('event.test1'));
     }

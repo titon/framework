@@ -25,35 +25,50 @@ interface Subject {
     public function emitMany(mixed $event, ParamList $params): EventMap;
 
     /**
+     * Return the emitter. If no emitter exists, automatically create one.
+     *
+     * @return \Titon\Event\Emitter
+     */
+    public function getEmitter(): Emitter;
+
+    /**
      * Register an observer or listener to only trigger once.
      *
      * @param string $event
-     * @param mixed $callback
+     * @param \Titon\Event\ObserverCallback $callback
      * @param int $priority
      * @return $this
      */
-    public function once(string $event, mixed $callback, int $priority = Emitter::AUTO_PRIORITY): this;
+    public function once(string $event, ObserverCallback $callback, int $priority = Emitter::AUTO_PRIORITY): this;
 
     /**
      * Register an observer or a listener.
      *
-     * @param string $event
-     * @param mixed $callback
+     * @param mixed $event
+     * @param \Titon\Event\ObserverCallback $callback
      * @param int $priority
      * @param bool $once
      * @return $this
      * @throws \Titon\Event\Exception\InvalidObserverException
      */
-    public function on(string $event, mixed $callback, int $priority = Emitter::AUTO_PRIORITY, bool $once = false): this;
+    public function on(mixed $event, ?ObserverCallback $callback = null, int $priority = Emitter::AUTO_PRIORITY, bool $once = false): this;
 
     /**
      * Remove an observer or a listener.
      *
-     * @param string $event
-     * @param mixed $callback
+     * @param mixed $event
+     * @param \Titon\Event\ObserverCallback $callback
      * @return $this
      * @throws \Titon\Event\Exception\InvalidObserverException
      */
-    public function off(string $event, mixed $callback): this;
+    public function off(mixed $event, ?ObserverCallback $callback = null): this;
+
+    /**
+     * Set an emitter.
+     *
+     * @param \Titon\Event\Emitter $emitter
+     * @return $this
+     */
+    public function setEmitter(Emitter $emitter): this;
 
 }

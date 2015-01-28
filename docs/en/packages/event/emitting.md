@@ -13,6 +13,14 @@ $emitter = new Titon\Event\Emitter();
 
 Emitters can also be used on the class level by utilizing [subjects](subjects.md).
 
+## Events ##
+
+An event is referenced as one of two things -- either an instance of `Titon\Event\Event` with its own unique name, 
+or the name of a key used for dispatching. The key will always correlate to an event name.
+
+Both variations of the event will be used interchangeably in the documentation going forward, 
+so be weary of this while reading.
+
 ## Observers ##
 
 An observer in the context of this package is a callable that subscribes to an event
@@ -162,21 +170,21 @@ Multiple events can be dispatched using `emitMany()` and providing an array of e
 or a string of space separated event keys.
 
 ```hack
-$emitter->emitMany('foo bar', $params);
-$emitter->emitMany(['foo', 'bar'], $params);
+$events = $emitter->emitMany('foo bar', $params);
+$events = $emitter->emitMany(['foo', 'bar'], $params);
 ```
 
 When using this approach, each unique key will create a new `Event` object, but any arguments will be shared.
 
 The response of this method will be a mapping of `Event` objects by unique key, instead of a single object.
 
-### Wildcard Events ###
+#### Wildcard Events ####
 
 To make multiple dispatching easier, a wildcard can be used using `*`. This wildcard will match any alpha-numeric 
 character, a dash, or underscore.
 
 ```hack
-$emitter->emit('foo.*', $params);
+$events = $emitter->emitMany('foo.*', $params);
 ```
 
 The previous example will notify any event that begins with `foo.`, like `foo.bar`, `foo.baz`, etc.
@@ -187,7 +195,7 @@ Every time `emit()` is called, a `Titon\Event\Event` object is automatically cre
 the `dispatch()` method can be used.
 
 ```hack
-$event = $emitter->dispatch(new ExampleEvent('user.registered'), $params);
+$event = $emitter->dispatch(new ExampleEvent('saved'), $params);
 ```
 
 ## Persisting Data ##

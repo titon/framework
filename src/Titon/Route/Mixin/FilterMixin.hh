@@ -7,8 +7,6 @@
 
 namespace Titon\Route\Mixin;
 
-type FilterList = Vector<string>;
-
 /**
  * Provides functionality for filters.
  *

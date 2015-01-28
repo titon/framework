@@ -7,8 +7,6 @@
 
 namespace Titon\Route\Mixin;
 
-type MethodList = Vector<string>;
-
 /**
  * Provides functionality for HTTP methods.
  *

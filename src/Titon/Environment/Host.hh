@@ -9,8 +9,6 @@ namespace Titon\Environment;
 
 use Titon\Utility\Col;
 
-type HostnameList = Vector<string>;
-
 /**
  * A Host represents a shared configuration for a collection of hostnames.
  *

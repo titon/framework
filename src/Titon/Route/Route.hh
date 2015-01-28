@@ -21,10 +21,6 @@ use \ReflectionFunctionAbstract;
 use \ReflectionMethod;
 use \Serializable;
 
-type ParamMap = Map<string, mixed>;
-type Token = shape('token' => string, 'optional' => bool);
-type TokenList = Vector<Token>;
-
 /**
  * Represents the skeleton for an individual route. A route is paired with a tokenized path that is matched and converted to a
  * routeable URL. Routes support filters, patterns, conditional matching, and more.

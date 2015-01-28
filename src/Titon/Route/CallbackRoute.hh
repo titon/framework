@@ -10,7 +10,7 @@ namespace Titon\Route;
 use Titon\Route\Exception\NoMatchException;
 use \ReflectionFunction;
 
-type RouteCallback = (function(...): mixed);
+newtype RouteCallback = (function(...): mixed);
 
 /**
  * The CallbackRoute works in a similar fashion to the default Route with the only difference being

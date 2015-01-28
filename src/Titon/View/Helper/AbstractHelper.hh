@@ -17,9 +17,6 @@ use Titon\View\Exception\MissingTagException;
 use Titon\View\Helper;
 use Titon\View\View;
 
-type AttributeMap = Map<string, mixed>;
-type TagMap = Map<string, string>;
-
 /**
  * The Helper class acts as the base for all children helpers to extend.
  * Defines methods and properties for HTML tags and attribute generation.

@@ -7,11 +7,6 @@
 
 namespace Titon\Route\Mixin;
 
-use Titon\Route\Route;
-
-type ConditionCallback = (function(Route): bool);
-type ConditionList = Vector<ConditionCallback>;
-
 /**
  * Provides functionality for conditionals.
  *

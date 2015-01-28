@@ -10,8 +10,6 @@ namespace Titon\View\Helper;
 use Titon\Common\OptionMap;
 use Titon\Type\ArrayList;
 
-type Breadcrumb = shape('title' => string, 'url' => string, 'attributes' => AttributeMap);
-
 /**
  * The BreadcrumbHelper is primarily used for adding and generating breadcrumb lists.
  *

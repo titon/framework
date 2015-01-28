@@ -7,8 +7,6 @@
 
 namespace Titon\Common;
 
-type AnnotationMap = Map<string, ArgumentList>;
-
 /**
  * The Annotator interface defines an easy access layer to annotations (also known as attributes)
  * defined on the current class and its methods.

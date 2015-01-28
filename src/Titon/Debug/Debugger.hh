@@ -15,10 +15,6 @@ use Titon\Utility\Sanitize;
 use \Exception;
 use \ErrorException;
 
-type Error = shape('error' => string, 'level' => string);
-type ErrorCodeMap = Map<int, string>;
-type ExceptionHandler = (function(Exception): void);
-
 /**
  * Custom system to manage all errors and thrown/uncaught exceptions.
  *

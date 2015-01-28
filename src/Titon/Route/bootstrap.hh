@@ -5,10 +5,38 @@
  * @link        http://titon.io
  */
 
-use Titon\Route\ParamMap;
-use Titon\Route\QueryMap;
-use Titon\Route\Router;
-use Titon\Route\UrlBuilder;
+/**
+ * --------------------------------------------------------------
+ *  Type Aliases
+ * --------------------------------------------------------------
+ *
+ * Defines type aliases that are used by the route package.
+ */
+
+namespace Titon\Route {
+    type Action = shape('class' => string, 'action' => string);
+    type FilterCallback = (function(Router, Route): void);
+    type FilterMap = Map<string, FilterCallback>;
+    type GroupCallback = (function(Router, Group): void);
+    type GroupList = Vector<RouteGroup>;
+    type ParamMap = Map<string, mixed>;
+    type QueryMap = Map<string, mixed>;
+    type ResourceMap = Map<string, string>;
+    type RouteMap = Map<string, Route>;
+    type SegmentMap = Map<string, mixed>;
+    type Token = shape('token' => string, 'optional' => bool);
+    type TokenList = Vector<Token>;
+}
+
+namespace Titon\Route\Mixin {
+    use Titon\Route\Route;
+
+    type ConditionCallback = (function(Route): bool);
+    type ConditionList = Vector<ConditionCallback>;
+    type FilterList = Vector<string>;
+    type MethodList = Vector<string>;
+    type PatternMap = Map<string, string>;
+}
 
 /**
  * --------------------------------------------------------------
@@ -18,24 +46,31 @@ use Titon\Route\UrlBuilder;
  * Defines global helper functions for common use cases.
  */
 
-/**
- * @see Titon\Route\UrlBuilder::build()
- */
-function link_to(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-    $router = Router::registry();
+namespace {
+    use Titon\Route\ParamMap;
+    use Titon\Route\QueryMap;
+    use Titon\Route\Router;
+    use Titon\Route\UrlBuilder;
 
-    invariant($router instanceof Router, 'Must be a Router');
+    /**
+     * @see Titon\Route\UrlBuilder::build()
+     */
+    function link_to(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
+        $router = Router::registry();
 
-    return UrlBuilder::registry($router)->build($key, $params, $query);
-}
+        invariant($router instanceof Router, 'Must be a Router');
 
-/**
- * @see Titon\Route\UrlBuilder::url()
- */
-function url(): string {
-    $router = Router::registry();
+        return UrlBuilder::registry($router)->build($key, $params, $query);
+    }
 
-    invariant($router instanceof Router, 'Must be a Router');
+    /**
+     * @see Titon\Route\UrlBuilder::url()
+     */
+    function url(): string {
+        $router = Router::registry();
 
-    return UrlBuilder::registry($router)->url();
+        invariant($router instanceof Router, 'Must be a Router');
+
+        return UrlBuilder::registry($router)->url();
+    }
 }

@@ -17,10 +17,6 @@ use Titon\Utility\Col;
 use Titon\Utility\Path;
 use Titon\Utility\State\Server as ServerGlobal;
 
-type BootstrapperList = Vector<Bootstrapper>;
-type HostMap = Map<string, Host>;
-type VariableMap = Map<string, string>;
-
 /**
  * A hub that allows you to store different environment host configurations,
  * which can be detected and initialized at runtime.

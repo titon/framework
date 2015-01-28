@@ -11,10 +11,6 @@ use Titon\Utility\Sanitize;
 use \IteratorAggregate;
 use \Countable;
 
-type AttributeMap = Map<string, string>;
-type ElementList = Vector<Element>;
-type NamespaceMap = Map<string, string>;
-
 /**
  * The Element class represents a single element (or node) with an XML document tree.
  * It has support for attributes, children (nested elements), and an optional value.

@@ -11,8 +11,6 @@ use Titon\Cache\Exception\MissingStorageException;
 use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
 
-type StorageMap = Map<string, Storage>;
-
 /**
  * Provides a very basic interface for caching individual sets of data. Multiple storage engines can be setup
  * to support different caching mechanisms: Memcache, APC, XCache, Memory, FileSystem, etc.

@@ -9,16 +9,6 @@ namespace Titon\Validate;
 
 use Titon\Common\DataMap;
 
-type ConstraintCallback = (function(mixed): bool);
-type ConstraintMap = Map<string, ConstraintCallback>;
-type ErrorMap = Map<string, string>;
-type FieldMap = Map<string, string>;
-type MessageMap = Map<string, string>;
-type Rule = shape('rule' => string, 'message' => string, 'options' => OptionList);
-type RuleContainer = Map<string, RuleMap>;
-type RuleMap = Map<string, Rule>;
-type OptionList = Vector<mixed>;
-
 /**
  * The Validator allows for quick validation against a defined set of rules and fields.
  *

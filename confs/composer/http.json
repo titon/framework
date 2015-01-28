@@ -24,6 +24,9 @@
     "autoload": {
         "psr-0": {
             "Titon\\Http": "src/"
-        }
+        },
+        "files": [
+            "src/Titon/Http/bootstrap.hh"
+        ]
     }
 }

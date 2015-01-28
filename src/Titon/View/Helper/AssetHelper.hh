@@ -10,10 +10,6 @@ namespace Titon\View\Helper;
 use Titon\Utility\Path;
 use Titon\View\Exception\InvalidWebrootException;
 
-type Asset = shape('path' => string, 'env' => string, 'attributes' => AttributeMap);
-type ScriptMap = Map<string, Map<int, Asset>>;
-type StyleSheetMap = Map<int, Asset>;
-
 /**
  * The AssetHelper aids in the process of including external stylesheets and scripts.
  *

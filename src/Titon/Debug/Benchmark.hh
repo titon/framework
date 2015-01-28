@@ -9,10 +9,6 @@ namespace Titon\Debug;
 
 use Titon\Debug\Exception\MissingBenchmarkException;
 
-type Metric = shape('running' => bool, 'time.start' => float, 'time.stop' => float, 'time.avg' => float,
-    'memory.start' => int, 'memory.stop' => int, 'memory.avg' => int, 'memory.peak' => int);
-type MetricMap = Map<string, Metric>;
-
 /**
  * Delivers the functionality to start, stop and log benchmarks.
  * Benchmarks store the time difference and memory usage between two blocks during runtime.

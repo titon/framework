@@ -9,9 +9,6 @@ namespace Titon\View\Helper;
 
 use Titon\View\Exception\ActiveBlockException;
 
-type ActiveBlockList = Vector<string>;
-type BlockMap = Map<string, string>;
-
 /**
  * The BlockHelper can be used to capture output within the view layer and render at a later time.
  * Blocks can be created by triggering a start and stop, and all contents in between will be captured.

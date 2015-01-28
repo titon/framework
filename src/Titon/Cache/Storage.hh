@@ -7,11 +7,6 @@
 
 namespace Titon\Cache;
 
-type CacheCallback = (function(): mixed);
-type ItemList = Vector<Item>;
-type ItemMap = Map<string, Item>;
-type StatsMap = Map<string, mixed>;
-
 /**
  * Interface for the storage containers library.
  *

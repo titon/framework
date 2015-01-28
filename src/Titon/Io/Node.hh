@@ -11,8 +11,6 @@ use Titon\Common\Exception\MissingFileException;
 use Titon\Io\Exception\ExistingFileException;
 use Titon\Utility\Path;
 
-type ResourceMap = Map<string, mixed>;
-
 /**
  * Shared functionality between file and folder objects.
  *

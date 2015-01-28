@@ -9,10 +9,6 @@ namespace Titon\Common;
 
 use Titon\Common\Exception\MissingMacroException;
 
-type MacroCallback = (function(...): mixed);
-type MacroContainer = Map<string, MacroMap>;
-type MacroMap = Map<string, MacroCallback>;
-
 /**
  * Provides a mechanism at runtime for defining static methods that can be triggered during __callStatic().
  *

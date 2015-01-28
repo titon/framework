@@ -9,9 +9,6 @@ namespace Titon\Common;
 
 use \ReflectionClass;
 
-type InstanceContainer<T> = Map<string, InstanceMap<T>>;
-type InstanceMap<T> = Map<string, T>;
-
 /**
  * The Instanceable trait provides a low-level multiton interface for classes.
  *

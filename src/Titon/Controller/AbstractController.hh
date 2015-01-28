@@ -21,8 +21,6 @@ use Titon\Utility\Path;
 use Titon\View\View;
 use \Exception;
 
-type ActionMap = Map<string, ArgumentList>;
-
 /**
  * The Controller (MVC) acts as the median between the request and response within the dispatch cycle.
  * It splits up its responsibility into multiple Actions, where each Action deals with specific business logic.

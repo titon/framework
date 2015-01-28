@@ -25,16 +25,6 @@ use Titon\Utility\Registry;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
 
-type Action = shape('class' => string, 'action' => string);
-type FilterCallback = (function(Router, Route): void);
-type FilterMap = Map<string, FilterCallback>;
-type GroupCallback = (function(Router, Group): void);
-type GroupList = Vector<RouteGroup>;
-type QueryMap = Map<string, mixed>;
-type ResourceMap = Map<string, string>;
-type RouteMap = Map<string, Route>;
-type SegmentMap = Map<string, mixed>;
-
 /**
  * The Router is tasked with the management of routes and filters, at which some point a route is matched against
  * a URL based on the current environment settings.

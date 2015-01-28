@@ -11,8 +11,8 @@ use Titon\Common\DataMap;
 use Titon\View\Exception\MissingViewException;
 use Titon\View\View;
 use Titon\View\Engine;
+use Titon\View\Engine\WrapperList;
 use Titon\View\Template;
-use Titon\View\WrapperList;
 
 /**
  * Defines shared functionality for view engines.

@@ -28,6 +28,9 @@
     "autoload": {
         "psr-0": {
             "Titon\\Controller": "src/"
-        }
+        },
+        "files": [
+            "src/Titon/Controller/bootstrap.hh"
+        ]
     }
 }

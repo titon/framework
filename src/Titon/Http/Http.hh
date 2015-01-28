@@ -9,10 +9,6 @@ namespace Titon\Http;
 
 use Titon\Http\Exception\InvalidStatusException;
 
-type HeaderList = Vector<string>;
-type MethodList = Vector<string>;
-type StatusCodeMap = Map<int, string>;
-
 /**
  * HTTP related constants and static variables.
  *

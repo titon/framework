@@ -25,7 +25,7 @@ trait ObserverAnnotation {
      *
      *      <<Observer($event[, $priority[, $once]])>>
      */
-    private function __wireObserverAnnotations(): void {
+    private function wireObserverAnnotations(): void {
         foreach ($this->getAnnotatedMethods() as $method => $annotations) {
             foreach ($annotations as $name => $annotation) {
                 if ($name === 'Observer') {

@@ -7,8 +7,6 @@
 
 namespace Titon\Route\Mixin;
 
-type PatternMap = Map<string, string>;
-
 /**
  * Provides functionality for regex patterns.
  *

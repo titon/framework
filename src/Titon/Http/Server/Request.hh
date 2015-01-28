@@ -24,7 +24,7 @@ use Titon\Utility\State\GlobalMap;
 use Titon\Utility\State\Post;
 use Titon\Utility\State\Server;
 
-type AcceptHeader = shape('value' => string, 'quality' => float);
+newtype AcceptHeader = shape('value' => string, 'quality' => float);
 
 /**
  * The Request object is the primary source of data and state management for the environment.

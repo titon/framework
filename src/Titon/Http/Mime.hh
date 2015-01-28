@@ -9,8 +9,6 @@ namespace Titon\Http;
 
 use Titon\Http\Exception\InvalidExtensionException;
 
-type MimeMap = Map<string, string>;
-
 /**
  * MIME type related constants and static variables.
  *

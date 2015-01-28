@@ -16,8 +16,8 @@ use Titon\Utility\State\Files;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Post;
 
-type SelectOptionMap = Map<string, string>;
-type TimeFormatMap = Map<string, string>;
+newtype SelectOptionMap = Map<string, string>;
+newtype TimeFormatMap = Map<string, string>;
 
 /**
  * The FormHelper is used for HTML form creation. Data is passed to the associated input fields

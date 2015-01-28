@@ -11,8 +11,6 @@ use Titon\Common\Exception\MissingFileException;
 use Titon\Utility\Col;
 use \SimpleXMLElement;
 
-type XmlMap = Map<string, mixed>;
-
 /**
  * The Document class provides helper methods for XML parsing and building as well as static methods
  * for generating Element trees based on maps and raw XML files.

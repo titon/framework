@@ -9,8 +9,6 @@ namespace Titon\Utility\State;
 
 use Titon\Utility\Col;
 
-type GlobalMap = Map<string, mixed>;
-
 /**
  * The Request class acts as a static immutable wrapper for the $REQUEST super global.
  * The class also acts a base for all other super globals to inherit from.

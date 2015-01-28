@@ -10,8 +10,6 @@ namespace Titon\Utility;
 use Titon\Common\Macroable;
 use Titon\Io\Reader;
 
-type ConfigMap = Map<string, mixed>;
-
 /**
  * Stores the current configuration options for the application.
  * Configuration can be loaded from multiple sources including environment, bootstraps and internal system classes.

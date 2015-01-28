@@ -13,9 +13,6 @@ use Titon\Utility\Exception\InvalidObjectException;
 use Titon\Utility\Exception\MissingObjectException;
 use \ReflectionClass;
 
-type RegistryCallback<T> = (function(): T);
-type RegistryMap<T> = Map<string, T>;
-
 /**
  * The Registry acts a central hub where any part of the application can access a single instance of a stored object.
  * It registers all objects into the class to store in memory and be re-usable later at any given time.

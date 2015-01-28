@@ -27,7 +27,7 @@ trait RouteAnnotation {
      *
      *      <<Route($path[, $methods[, $filters]])>>
      */
-    private function __wireRouteAnnotations(): void {
+    private function wireRouteAnnotations(): void {
         $router = Router::registry();
         $class = static::class;
         $key = strtolower(Path::className($class));

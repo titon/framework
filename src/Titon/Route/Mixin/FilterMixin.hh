@@ -21,7 +21,7 @@ trait FilterMixin {
      *
      * @var \Titon\Route\Mixin\FilterList
      */
-    protected FilterList $_filters = Vector {};
+    protected FilterList $filters = Vector {};
 
     /**
      * Add a filter by name.
@@ -30,8 +30,8 @@ trait FilterMixin {
      * @return $this
      */
     public function addFilter(string $filter): this {
-        if (!in_array($filter, $this->_filters)) {
-            $this->_filters[] = $filter;
+        if (!in_array($filter, $this->filters)) {
+            $this->filters[] = $filter;
         }
 
         return $this;
@@ -57,7 +57,7 @@ trait FilterMixin {
      * @return \Titon\Route\Mixin\FilterList
      */
     public function getFilters(): FilterList {
-        return $this->_filters;
+        return $this->filters;
     }
 
     /**
@@ -67,7 +67,7 @@ trait FilterMixin {
      * @return $this
      */
     public function setFilters(FilterList $filters): this {
-        $this->_filters = $filters;
+        $this->filters = $filters;
 
         return $this;
     }

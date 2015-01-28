@@ -27,7 +27,7 @@ class Config {
      *
      * @var \Titon\Utility\ConfigMap
      */
-    protected static ConfigMap $_config = Map {};
+    protected static ConfigMap $config = Map {};
 
     /**
      * Add a value to a key. If the value is not a vector, make it one.
@@ -48,7 +48,7 @@ class Config {
      * @return \Titon\Utility\ConfigMap
      */
     public static function all(): ConfigMap {
-        return static::$_config;
+        return static::$config;
     }
 
     /**
@@ -64,7 +64,7 @@ class Config {
      * Flush configuration by removing all settings.
      */
     public static function flush(): void {
-        static::$_config->clear();
+        static::$config->clear();
     }
 
     /**
@@ -75,7 +75,7 @@ class Config {
      * @return mixed
      */
     public static function get(string $key, mixed $default = null): mixed {
-        $value = Col::get(static::$_config, $key);
+        $value = Col::get(static::$config, $key);
 
         if ($value === null) {
             return $default;
@@ -91,7 +91,7 @@ class Config {
      * @return bool
      */
     public static function has(string $key): bool {
-        return Col::has(static::$_config, $key);
+        return Col::has(static::$config, $key);
     }
 
     /**
@@ -102,7 +102,7 @@ class Config {
      * @param \Titon\Io\Reader $reader
      */
     public static function load(string $key, Reader $reader): void {
-        static::$_config[$key] = $reader->readResource();
+        static::$config[$key] = $reader->readResource();
     }
 
     /**
@@ -120,7 +120,7 @@ class Config {
      * @param string $key
      */
     public static function remove(string $key): void {
-        Col::remove(static::$_config, $key);
+        Col::remove(static::$config, $key);
     }
 
     /**
@@ -139,7 +139,7 @@ class Config {
      * @param mixed $value
      */
     public static function set(string $key, mixed $value): void {
-        Col::set(static::$_config, $key, $value);
+        Col::set(static::$config, $key, $value);
     }
 
 }

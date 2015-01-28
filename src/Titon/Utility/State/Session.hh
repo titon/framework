@@ -8,7 +8,7 @@
 namespace Titon\Utility\State;
 
 /**
- * The Session class acts as a static immutable wrapper for the $_SESSION super global.
+ * The Session class acts as a static immutable wrapper for the $SESSION super global.
  *
  * @package Titon\Utility\State
  */

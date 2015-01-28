@@ -33,21 +33,21 @@ abstract class AbstractHelper implements Helper {
      *
      * @var bool
      */
-    protected bool $_escape = true;
+    protected bool $escape = true;
 
     /**
      * Mapping of HTML tags.
      *
      * @var \Titon\View\Helper\TagMap
      */
-    protected TagMap $_tags = Map {};
+    protected TagMap $tags = Map {};
 
     /**
      * View object.
      *
      * @var \Titon\View\View
      */
-    protected ?View $_view;
+    protected ?View $view;
 
     /**
      * Parses an array of attributes to the HTML equivalent.
@@ -111,7 +111,7 @@ abstract class AbstractHelper implements Helper {
      * @return bool
      */
     public function getEscaping(): bool {
-        return $this->_escape;
+        return $this->escape;
     }
 
     /**
@@ -138,7 +138,7 @@ abstract class AbstractHelper implements Helper {
      */
     public function getTag(string $tag): string {
         if ($this->getTags()->contains($tag)) {
-            return $this->_tags[$tag];
+            return $this->tags[$tag];
         }
 
         throw new MissingTagException(sprintf('Tag %s does not exist', $tag));
@@ -150,14 +150,14 @@ abstract class AbstractHelper implements Helper {
      * @return \Titon\View\Helper\TagMap
      */
     public function getTags(): TagMap {
-        return $this->_tags;
+        return $this->tags;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getView(): ?View {
-        return $this->_view;
+        return $this->view;
     }
 
     /**
@@ -191,7 +191,7 @@ abstract class AbstractHelper implements Helper {
      * @return $this
      */
     public function setEscaping(bool $escape): this {
-        $this->_escape = $escape;
+        $this->escape = $escape;
 
         return $this;
     }
@@ -200,7 +200,7 @@ abstract class AbstractHelper implements Helper {
      * {@inheritdoc}
      */
     public function setView(View $view): this {
-        $this->_view = $view;
+        $this->view = $view;
 
         return $this;
     }

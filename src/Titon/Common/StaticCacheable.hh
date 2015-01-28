@@ -20,7 +20,7 @@ trait StaticCacheable {
      *
      * @var \Titon\Common\CacheMap
      */
-    protected static CacheMap $_cache = Map {};
+    protected static CacheMap $cache = Map {};
 
     /**
      * Return all the current cached items.
@@ -28,7 +28,7 @@ trait StaticCacheable {
      * @return \Titon\Common\CacheMap
      */
     public static function allCache(): CacheMap {
-        return static::$_cache;
+        return static::$cache;
     }
 
     /**

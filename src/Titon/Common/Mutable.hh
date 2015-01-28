@@ -23,7 +23,7 @@ trait Mutable<Tk, Tv> {
      *
      * @var Map<Tk, Tv>
      */
-    protected Map<Tk, Tv> $_data = Map {};
+    protected Map<Tk, Tv> $data = Map {};
 
     /**
      * Magic method for get().
@@ -84,7 +84,7 @@ trait Mutable<Tk, Tv> {
      * @return Map<Tk, Tv>
      */
     public function all(): Map<Tk, Tv> {
-        return $this->_data;
+        return $this->data;
     }
 
     /**

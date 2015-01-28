@@ -28,7 +28,7 @@ class PoWriter extends AbstractWriter {
      * {@inheritdoc}
      */
     public function writeResource(ResourceMap $data): bool {
-        return $this->write($this->_process($data));
+        return $this->write($this->process($data));
     }
 
     /**
@@ -39,7 +39,7 @@ class PoWriter extends AbstractWriter {
      * @param \Titon\Io\ResourceMap $data
      * @return string
      */
-    protected function _process(ResourceMap $data): string {
+    protected function process(ResourceMap $data): string {
         $comments = Map {
             'Project-Id-Version' => 'Titon',
             'Last-Translator' => '',
@@ -74,7 +74,7 @@ class PoWriter extends AbstractWriter {
 
         // Output values
         foreach ($data as $key => $value) {
-            $output .= $this->_processLine($key, $value);
+            $output .= $this->processLine($key, $value);
         }
 
         return $output;
@@ -87,7 +87,7 @@ class PoWriter extends AbstractWriter {
      * @param mixed $value
      * @return string
      */
-    protected function _processLine(string $key, mixed $value): string {
+    protected function processLine(string $key, mixed $value): string {
         if (is_numeric($key)) {
             $key = $value;
             $value = '';

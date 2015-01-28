@@ -83,21 +83,21 @@ class Request extends Message implements IncomingRequest {
      *
      * @var string
      */
-    protected string $_method = '';
+    protected string $method = '';
 
     /**
      * When enabled, will use applicable HTTP headers set by proxies.
      *
      * @var bool
      */
-    protected bool $_trustProxies = true;
+    protected bool $trustProxies = true;
 
     /**
      * The current URL for the request.
      *
      * @var string
      */
-    protected string $_url = '';
+    protected string $url = '';
 
     /**
      * Load post data, query data, files data, cookies, server and environment settings.
@@ -181,7 +181,7 @@ class Request extends Message implements IncomingRequest {
             $contentType = [Mime::getTypeByExt((string) $type)];
         }
 
-        foreach ($this->_extractAcceptHeaders('Accept') as $accept) {
+        foreach ($this->extractAcceptHeaders('Accept') as $accept) {
             foreach ($contentType as $cType) {
                 if ($cType === $accept['value'] || $accept['value'] === '*/*') {
                     return $accept;
@@ -203,7 +203,7 @@ class Request extends Message implements IncomingRequest {
      * @return \Titon\Http\AcceptHeader
      */
     public function acceptsCharset(string $charset): ?AcceptHeader {
-        foreach ($this->_extractAcceptHeaders('Accept-Charset') as $accept) {
+        foreach ($this->extractAcceptHeaders('Accept-Charset') as $accept) {
             if (strtolower($charset) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
@@ -219,7 +219,7 @@ class Request extends Message implements IncomingRequest {
      * @return \Titon\Http\AcceptHeader
      */
     public function acceptsEncoding(string $encoding): ?AcceptHeader {
-        foreach ($this->_extractAcceptHeaders('Accept-Encoding') as $accept) {
+        foreach ($this->extractAcceptHeaders('Accept-Encoding') as $accept) {
             if (strtolower($encoding) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
@@ -235,7 +235,7 @@ class Request extends Message implements IncomingRequest {
      * @return \Titon\Http\AcceptHeader
      */
     public function acceptsLanguage(string $language): ?AcceptHeader {
-        foreach ($this->_extractAcceptHeaders('Accept-Language') as $accept) {
+        foreach ($this->extractAcceptHeaders('Accept-Language') as $accept) {
             if (strtolower($language) === $accept['value'] || $accept['value'] === '*') {
                 return $accept;
             }
@@ -250,7 +250,7 @@ class Request extends Message implements IncomingRequest {
      * @return $this;
      */
     public function dontTrustProxies(): this {
-        $this->_trustProxies = false;
+        $this->trustProxies = false;
 
         return $this;
     }
@@ -366,7 +366,7 @@ class Request extends Message implements IncomingRequest {
      * {@inheritdoc}
      */
     public function getMethod(): string {
-        if (!$this->_method) {
+        if (!$this->method) {
             $method = strtoupper($this->server->get('REQUEST_METHOD', 'GET'));
 
             if ($method === 'POST') {
@@ -378,7 +378,7 @@ class Request extends Message implements IncomingRequest {
             $this->setMethod($method);
         }
 
-        return $this->_method;
+        return $this->method;
     }
 
     /**
@@ -471,7 +471,7 @@ class Request extends Message implements IncomingRequest {
      * {@inheritdoc}
      */
     public function getUrl(): string {
-        if (!$this->_url) {
+        if (!$this->url) {
             $server = $this->server;
             $script = str_replace($server->get('DOCUMENT_ROOT'), '', $server->get('SCRIPT_FILENAME'));
             $base = dirname($script);
@@ -497,7 +497,7 @@ class Request extends Message implements IncomingRequest {
             $this->setUrl($url);
         }
 
-        return $this->_url;
+        return $this->url;
     }
 
     /**
@@ -676,7 +676,7 @@ class Request extends Message implements IncomingRequest {
      * @return bool
      */
     public function isTrustingProxies(): bool {
-        return $this->_trustProxies;
+        return $this->trustProxies;
     }
 
     /**
@@ -709,7 +709,7 @@ class Request extends Message implements IncomingRequest {
             throw new InvalidMethodException(sprintf('Invalid method %s', $method));
         }
 
-        $this->_method = $method;
+        $this->method = $method;
         $this->server->set('REQUEST_METHOD', $method);
 
         return $this;
@@ -719,7 +719,7 @@ class Request extends Message implements IncomingRequest {
      * {@inheritdoc}
      */
     public function setUrl($url): this {
-        $this->_url = $url;
+        $this->url = $url;
 
         return $this;
     }
@@ -730,7 +730,7 @@ class Request extends Message implements IncomingRequest {
      * @return $this;
      */
     public function trustProxies(): this {
-        $this->_trustProxies = true;
+        $this->trustProxies = true;
 
         return $this;
     }
@@ -741,7 +741,7 @@ class Request extends Message implements IncomingRequest {
      * @param string $header
      * @return Vector<Titon\Http\AcceptHeader>
      */
-    protected function _extractAcceptHeaders(string $header): Vector<AcceptHeader> {
+    protected function extractAcceptHeaders(string $header): Vector<AcceptHeader> {
         $data = Vector {};
 
         if ($accepts = $this->headers->get($header)) {

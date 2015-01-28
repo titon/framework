@@ -126,10 +126,10 @@ class Document {
     public static function fromMap(string $root, XmlMap $map): Element {
         $root = new Element($root);
 
-        static::_addAttributes($root, $map);
+        static::addAttributes($root, $map);
 
         foreach ($map as $key => $value) {
-            static::_createElement($root, $key, $value);
+            static::createElement($root, $key, $value);
         }
 
         return $root;
@@ -142,7 +142,7 @@ class Document {
      * @return \Titon\Type\Xml\Element
      */
     public static function fromString(string $string): Element {
-        return static::_convertSimpleXml(simplexml_load_string($string));
+        return static::convertSimpleXml(simplexml_load_string($string));
     }
 
     /**
@@ -156,7 +156,7 @@ class Document {
     public static function fromVector<Tv>(string $root, string $item, Vector<Tv> $list): Element {
         $root = new Element($root);
 
-        static::_createElement($root, $item, $list);
+        static::createElement($root, $item, $list);
 
         return $root;
     }
@@ -167,7 +167,7 @@ class Document {
      * @param \Titon\Type\Xml\Element $element
      * @param \Titon\Type\XmlMap $map
      */
-    protected static function _addAttributes(Element $element, XmlMap $map): void {
+    protected static function addAttributes(Element $element, XmlMap $map): void {
         if ($map->contains('@attributes')) {
             $attributes = $map->get('@attributes');
 
@@ -190,7 +190,7 @@ class Document {
      * @param string $key
      * @param mixed $value
      */
-    protected static function _createElement(Element $parent, string $key, mixed $value): void {
+    protected static function createElement(Element $parent, string $key, mixed $value): void {
 
         // One of two things:
         // An element that contains other children
@@ -203,7 +203,7 @@ class Document {
                 $child->setValue($value['@value'], (bool) $value->get('@cdata'));
 
                 // Add attributes to the child
-                static::_addAttributes($child, $value);
+                static::addAttributes($child, $value);
 
                 $parent->addChild($child);
 
@@ -215,7 +215,7 @@ class Document {
         // Multiple children with the same element name
         } else if ($value instanceof Vector) {
             foreach ($value as $item) {
-                static::_createElement($parent, $key, $item);
+                static::createElement($parent, $key, $item);
             }
 
         // Child element with a value
@@ -230,7 +230,7 @@ class Document {
      * @param \SimpleXMLElement $xml
      * @return \Titon\Type\Xml\Element
      */
-    protected static function _convertSimpleXml(SimpleXMLElement $xml): Element {
+    protected static function convertSimpleXml(SimpleXMLElement $xml): Element {
         $element = new Element($xml->getName());
 
         // Set attributes
@@ -252,7 +252,7 @@ class Document {
 
         // Add children
         foreach ($xml->children() as $child) {
-            $element->addChild( static::_convertSimpleXml($child) );
+            $element->addChild( static::convertSimpleXml($child) );
         }
 
         return $element;

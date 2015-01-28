@@ -38,28 +38,28 @@ class Response extends Message implements OutgoingResponse {
      *
      * @var bool
      */
-    protected bool $_debug = false;
+    protected bool $debug = false;
 
     /**
      * Will add a Content-MD5 header based on the body.
      *
      * @var bool
      */
-    protected bool $_md5 = false;
+    protected bool $md5 = false;
 
     /**
      * The HTTP protocol version.
      *
      * @var string
      */
-    protected string $_protocolVersion = '1.1';
+    protected string $protocolVersion = '1.1';
 
     /**
      * HTTP status code to output.
      *
      * @var int
      */
-    protected int $_status = Http::OK;
+    protected int $status = Http::OK;
 
     /**
      * Set body and status during initialization.
@@ -294,7 +294,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function contentLength(mixed $length): this {
-        if ($this->_status >= 300 && $this->_status <= 399) {
+        if ($this->status >= 300 && $this->status <= 399) {
             return $this;
         }
 
@@ -313,7 +313,7 @@ class Response extends Message implements OutgoingResponse {
      */
     public function contentMD5(mixed $content): this {
         if (is_bool($content)) {
-            $this->_md5 = $content;
+            $this->md5 = $content;
         } else {
             $this->setHeader('Content-MD5', $content);
         }
@@ -344,7 +344,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function contentType(string $type): this {
-        if (in_array($this->_status, [Http::NOT_MODIFIED, Http::NO_CONTENT])) {
+        if (in_array($this->status, [Http::NOT_MODIFIED, Http::NO_CONTENT])) {
             return $this;
         }
 
@@ -380,7 +380,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function debug(): this {
-        $this->_debug = true;
+        $this->debug = true;
 
         return $this;
     }
@@ -439,7 +439,7 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function getProtocolVersion(): string {
-        return $this->_protocolVersion;
+        return $this->protocolVersion;
     }
 
     /**
@@ -453,7 +453,7 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function getStatusCode(): int {
-        return $this->_status;
+        return $this->status;
     }
 
     /**
@@ -462,7 +462,7 @@ class Response extends Message implements OutgoingResponse {
      * @return bool
      */
     public function isDebugging(): bool {
-        return $this->_debug;
+        return $this->debug;
     }
 
     /**
@@ -607,7 +607,7 @@ class Response extends Message implements OutgoingResponse {
         $contents = (string) $body?->getContents();
 
         // Create an MD5 digest?
-        if ($contents && $this->_md5) {
+        if ($contents && $this->md5) {
             $this->setHeader('Content-MD5', base64_encode(pack('H*', md5($contents))));
         }
 
@@ -673,7 +673,7 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function setBody(StreamableInterface $body): this {
-        $this->_body = $body;
+        $this->body = $body;
 
         return $this;
     }
@@ -722,7 +722,7 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function setProtocolVersion($version): this {
-        $this->_protocolVersion = $version;
+        $this->protocolVersion = $version;
 
         return $this;
     }
@@ -739,7 +739,7 @@ class Response extends Message implements OutgoingResponse {
      */
     public function setStatus($code, $reasonPhrase = null): this {
         if (Http::getStatusCode($code)) {
-            $this->_status = $code;
+            $this->status = $code;
         }
 
         return $this->setHeader('Status-Code', $code . ' ' . ($reasonPhrase ?: $this->getReasonPhrase()));

@@ -25,7 +25,7 @@ class JsonResponse extends Response {
      *
      * @var string
      */
-    protected string $_callback = '';
+    protected string $callback = '';
 
     /**
      * Set the body, status code, and optional JSON encoding options.
@@ -62,7 +62,7 @@ class JsonResponse extends Response {
      * @return string
      */
     public function getCallback(): string {
-        return $this->_callback;
+        return $this->callback;
     }
 
     /**
@@ -99,7 +99,7 @@ class JsonResponse extends Response {
      * @return $this
      */
     public function setCallback(string $callback): this {
-        $this->_callback = $callback;
+        $this->callback = $callback;
 
         return $this;
     }

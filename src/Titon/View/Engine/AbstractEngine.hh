@@ -27,69 +27,69 @@ abstract class AbstractEngine implements Engine {
      *
      * @var string
      */
-    protected string $_content = '';
+    protected string $content = '';
 
     /**
      * Name of the layout template to wrap content with.
      *
      * @var string
      */
-    protected string $_layout = 'default';
+    protected string $layout = 'default';
 
     /**
      * Variables currently bound to the engine.
      *
      * @var \Titon\Common\DataMap
      */
-    protected DataMap $_variables = Map {};
+    protected DataMap $variables = Map {};
 
     /**
      * View instance.
      *
      * @var \Titon\View\View
      */
-    protected ?View $_view;
+    protected ?View $view;
 
     /**
      * List of wrappers to wrap templates with.
      *
      * @var \Titon\View\WrapperList
      */
-    protected WrapperList $_wrapper = Vector {};
+    protected WrapperList $wrapper = Vector {};
 
     /**
      * {@inheritdoc}
      */
     public function data(string $key, mixed $default = null): mixed {
-        return $this->_variables->get($key) ?: $default;
+        return $this->variables->get($key) ?: $default;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getContent(): string {
-        return $this->_content;
+        return $this->content;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getLayout(): string {
-        return $this->_layout;
+        return $this->layout;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getWrappers(): WrapperList {
-        return $this->_wrapper;
+        return $this->wrapper;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getView(): ?View {
-        return $this->_view;
+        return $this->view;
     }
 
     /**
@@ -112,7 +112,7 @@ abstract class AbstractEngine implements Engine {
      * {@inheritdoc}
      */
     public function setContent(string $content): this {
-        $this->_content = $content;
+        $this->content = $content;
 
         return $this;
     }
@@ -121,7 +121,7 @@ abstract class AbstractEngine implements Engine {
      * {@inheritdoc}
      */
     public function setView(View $view): this {
-        $this->_view = $view;
+        $this->view = $view;
 
         return $this;
     }
@@ -130,7 +130,7 @@ abstract class AbstractEngine implements Engine {
      * {@inheritdoc}
      */
     public function useLayout(string $name): this {
-        $this->_layout = $name;
+        $this->layout = $name;
 
         return $this;
     }
@@ -139,7 +139,7 @@ abstract class AbstractEngine implements Engine {
      * {@inheritdoc}
      */
     public function wrapWith(...$names): this {
-        $this->_wrapper = new Vector($names);
+        $this->wrapper = new Vector($names);
 
         return $this;
     }

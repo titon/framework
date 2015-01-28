@@ -40,7 +40,7 @@ class Logger extends AbstractLogger {
      *
      * @var string
      */
-    protected string $_directory;
+    protected string $directory;
 
     /**
      * Set the directory to log to.
@@ -59,7 +59,7 @@ class Logger extends AbstractLogger {
             throw new UnwritableDirectoryException('Log directory is not writable');
         }
 
-        $this->_directory = Path::ds($dir, true);
+        $this->directory = Path::ds($dir, true);
     }
 
     /**
@@ -68,7 +68,7 @@ class Logger extends AbstractLogger {
      * @return string
      */
     public function getDirectory(): string {
-        return $this->_directory;
+        return $this->directory;
     }
 
     /**

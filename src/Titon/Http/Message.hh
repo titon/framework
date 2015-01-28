@@ -31,7 +31,7 @@ class Message implements MessageInterface {
      *
      * @var \Psr\Http\Message\StreamableInterface
      */
-    protected ?StreamableInterface $_body = null;
+    protected ?StreamableInterface $body = null;
 
     /**
      * Instantiate a new header bag.
@@ -44,7 +44,7 @@ class Message implements MessageInterface {
      * {@inheritdoc}
      */
     public function getBody(): ?StreamableInterface {
-        return $this->_body;
+        return $this->body;
     }
 
     /**

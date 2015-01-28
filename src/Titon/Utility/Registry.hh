@@ -31,7 +31,7 @@ class Registry<T> {
      *
      * @var \Titon\Utility\RegistryMap
      */
-    protected static RegistryMap<T> $_registered = Map {};
+    protected static RegistryMap<T> $registered = Map {};
 
     /**
      * Return all registered objects.
@@ -39,7 +39,7 @@ class Registry<T> {
      * @return \Titon\Utility\RegistryMap
      */
     public static function all(): RegistryMap<T> {
-        return static::$_registered;
+        return static::$registered;
     }
 
     /**
@@ -72,7 +72,7 @@ class Registry<T> {
      * Flush the registry by removing all stored objects.
      */
     public static function flush(): void {
-        static::$_registered->clear();
+        static::$registered->clear();
     }
 
     /**
@@ -84,7 +84,7 @@ class Registry<T> {
      */
     public static function get(string $key): T {
         if (static::has($key)) {
-            $object = static::$_registered[$key];
+            $object = static::$registered[$key];
 
             if (is_callable($object)) {
                 // UNSAFE
@@ -105,7 +105,7 @@ class Registry<T> {
      * @return bool
      */
     public static function has(string $key): bool {
-        return static::$_registered->contains($key);
+        return static::$registered->contains($key);
     }
 
     /**
@@ -114,7 +114,7 @@ class Registry<T> {
      * @return Vector<string>
      */
     public static function keys(): Vector<string> {
-        return static::$_registered->keys();
+        return static::$registered->keys();
     }
 
     /**
@@ -126,7 +126,7 @@ class Registry<T> {
     public static function register(string $key, RegistryCallback<T> $callback): void {
         // UNSAFE
         // Since the property generics is T while the callback is RegistryCallback<T>
-        static::$_registered[$key] = $callback;
+        static::$registered[$key] = $callback;
     }
 
     /**
@@ -135,7 +135,7 @@ class Registry<T> {
      * @param string $key
      */
     public static function remove(string $key): void {
-        static::$_registered->remove($key);
+        static::$registered->remove($key);
     }
 
     /**
@@ -155,7 +155,7 @@ class Registry<T> {
             $key = get_class($object);
         }
 
-        static::$_registered[$key] = $object;
+        static::$registered[$key] = $object;
 
         return $object;
     }

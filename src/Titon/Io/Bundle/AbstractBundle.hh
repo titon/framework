@@ -36,14 +36,14 @@ abstract class AbstractBundle implements Bundle {
      *
      * @var \Titon\Io\DomainPathMap
      */
-    protected DomainPathMap $_paths = Map {};
+    protected DomainPathMap $paths = Map {};
 
     /**
      * File readers.
      *
      * @var \Titon\Io\ReaderMap
      */
-    protected ReaderMap $_readers = Map {};
+    protected ReaderMap $readers = Map {};
 
     /**
      * {@inheritdoc}
@@ -52,10 +52,10 @@ abstract class AbstractBundle implements Bundle {
      */
     public function addPath(string $domain, string $path): this {
         if (!$this->getPaths()->contains($domain)) {
-            $this->_paths[$domain] = Vector {};
+            $this->paths[$domain] = Vector {};
         }
 
-        $this->_paths[$domain][] = Path::ds($path, true);
+        $this->paths[$domain][] = Path::ds($path, true);
 
         return $this;
     }
@@ -77,7 +77,7 @@ abstract class AbstractBundle implements Bundle {
      * @uses Titon\Utility\Path
      */
     public function addReader(Reader $reader): this {
-        $this->_readers[$reader->getResourceExt()] = $reader;
+        $this->readers[$reader->getResourceExt()] = $reader;
 
         return $this;
     }
@@ -115,7 +115,7 @@ abstract class AbstractBundle implements Bundle {
      */
     public function getDomainPaths(string $domain): PathList {
         if ($this->getPaths()->contains($domain)) {
-            return $this->_paths[$domain];
+            return $this->paths[$domain];
         }
 
         throw new MissingDomainException(sprintf('Domain %s does not exist', $domain));
@@ -125,14 +125,14 @@ abstract class AbstractBundle implements Bundle {
      * {@inheritdoc}
      */
     public function getPaths(): DomainPathMap {
-        return $this->_paths;
+        return $this->paths;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getReaders(): ReaderMap {
-        return $this->_readers;
+        return $this->readers;
     }
 
     /**

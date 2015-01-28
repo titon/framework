@@ -19,7 +19,7 @@ trait SecureMixin {
      *
      * @var bool
      */
-    protected bool $_secure = false;
+    protected bool $secure = false;
 
     /**
      * Return the secure configuration.
@@ -27,7 +27,7 @@ trait SecureMixin {
      * @return bool
      */
     public function getSecure(): bool {
-        return $this->_secure;
+        return $this->secure;
     }
 
     /**
@@ -37,7 +37,7 @@ trait SecureMixin {
      * @return $this
      */
     public function setSecure(bool $secure): this {
-        $this->_secure = $secure;
+        $this->secure = $secure;
 
         return $this;
     }

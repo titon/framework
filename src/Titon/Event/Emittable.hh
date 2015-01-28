@@ -22,7 +22,7 @@ trait Emittable {
      *
      * @var \Titon\Event\Emitter
      */
-    protected ?Emitter $_emitter;
+    protected ?Emitter $emitter;
 
     /**
      * @see \Titon\Event\Emitter::emit()
@@ -42,11 +42,11 @@ trait Emittable {
      * @see \Titon\Event\Subject::getEmitter()
      */
     public function getEmitter(): Emitter {
-        if (!$this->_emitter) {
-            $this->_emitter = new Emitter();
+        if (!$this->emitter) {
+            $this->emitter = new Emitter();
         }
 
-        return $this->_emitter;
+        return $this->emitter;
     }
 
     /**
@@ -94,7 +94,7 @@ trait Emittable {
      * @see \Titon\Event\Subject::setEmitter()
      */
     public function setEmitter(Emitter $emitter): this {
-        $this->_emitter = $emitter;
+        $this->emitter = $emitter;
 
         return $this;
     }

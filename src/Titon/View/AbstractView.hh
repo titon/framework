@@ -36,42 +36,42 @@ abstract class AbstractView implements View, Subject {
      *
      * @var \Titon\Common\DataMap
      */
-    protected DataMap $_data = Map {};
+    protected DataMap $data = Map {};
 
     /**
      * The extension used for templates.
      *
      * @var string
      */
-    protected string $_extension = 'tpl';
+    protected string $extension = 'tpl';
 
     /**
      * List of helpers.
      *
      * @var \Titon\View\HelperMap
      */
-    protected HelperMap $_helpers = Map {};
+    protected HelperMap $helpers = Map {};
 
     /**
      * List of locales to use during template locating.
      *
      * @var \Titon\View\LocaleList
      */
-    protected LocaleList $_locales = Vector {};
+    protected LocaleList $locales = Vector {};
 
     /**
      * List of lookup paths.
      *
      * @var \Titon\View\PathList
      */
-    protected PathList $_paths = Vector {};
+    protected PathList $paths = Vector {};
 
     /**
      * Storage engine.
      *
      * @var \Titon\Cache\Storage
      */
-    protected ?Storage $_storage;
+    protected ?Storage $storage;
 
     /**
      * Add lookup paths through the constructor and set the extension.
@@ -105,7 +105,7 @@ abstract class AbstractView implements View, Subject {
     public function addHelper(string $key, Helper $helper): this {
         $helper->setView($this);
 
-        $this->_helpers[$key] = $helper;
+        $this->helpers[$key] = $helper;
 
         if ($helper instanceof Listener) {
             $this->on($helper);
@@ -126,8 +126,8 @@ abstract class AbstractView implements View, Subject {
      * @return $this
      */
     public function addLocale(string $locale): this {
-        if (!in_array($locale, $this->_locales)) {
-            $this->_locales[] = $locale;
+        if (!in_array($locale, $this->locales)) {
+            $this->locales[] = $locale;
         }
 
         return $this;
@@ -151,7 +151,7 @@ abstract class AbstractView implements View, Subject {
      * {@inheritdoc}
      */
     public function addPath(string $path): this {
-        $this->_paths[] = Path::ds($path, true);
+        $this->paths[] = Path::ds($path, true);
 
         return $this;
     }
@@ -178,15 +178,15 @@ abstract class AbstractView implements View, Subject {
      * {@inheritdoc}
      */
     public function getExtension(): string {
-        return $this->_extension;
+        return $this->extension;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getHelper(string $key): Helper {
-        if ($this->_helpers->contains($key)) {
-            return $this->_helpers[$key];
+        if ($this->helpers->contains($key)) {
+            return $this->helpers[$key];
         }
 
         throw new MissingHelperException(sprintf('Helper %s does not exist', $key));
@@ -196,7 +196,7 @@ abstract class AbstractView implements View, Subject {
      * {@inheritdoc}
      */
     public function getHelpers(): HelperMap {
-        return $this->_helpers;
+        return $this->helpers;
     }
 
     /**
@@ -205,14 +205,14 @@ abstract class AbstractView implements View, Subject {
      * @return \Titon\View\LocaleList
      */
     public function getLocales(): LocaleList {
-        return $this->_locales;
+        return $this->locales;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getPaths(): PathList {
-        return $this->_paths;
+        return $this->paths;
     }
 
     /**
@@ -221,7 +221,7 @@ abstract class AbstractView implements View, Subject {
      * @return \Titon\Cache\Storage
      */
     public function getStorage(): ?Storage {
-        return $this->_storage;
+        return $this->storage;
     }
 
     /**
@@ -235,7 +235,7 @@ abstract class AbstractView implements View, Subject {
      * {@inheritdoc}
      */
     public function getVariables(): DataMap {
-        return $this->_data;
+        return $this->data;
     }
 
     /**
@@ -310,7 +310,7 @@ abstract class AbstractView implements View, Subject {
      * {@inheritdoc}
      */
     public function setExtension(string $ext): this {
-        $this->_extension = $ext;
+        $this->extension = $ext;
 
         return $this;
     }
@@ -322,7 +322,7 @@ abstract class AbstractView implements View, Subject {
      * @return $this
      */
     public function setLocales(LocaleList $locales): this {
-        $this->_locales = $locales;
+        $this->locales = $locales;
 
         return $this;
     }
@@ -331,7 +331,7 @@ abstract class AbstractView implements View, Subject {
      * {@inheritdoc}
      */
     public function setPaths(PathList $paths): this {
-        $this->_paths = $paths;
+        $this->paths = $paths;
 
         return $this;
     }
@@ -343,7 +343,7 @@ abstract class AbstractView implements View, Subject {
      * @return $this
      */
     public function setStorage(Storage $storage): this {
-        $this->_storage = $storage;
+        $this->storage = $storage;
 
         return $this;
     }
@@ -352,7 +352,7 @@ abstract class AbstractView implements View, Subject {
      * {@inheritdoc}
      */
     public function setVariable(string $key, mixed $value): this {
-        $this->_data[Inflector::variable($key)] = $value;
+        $this->data[Inflector::variable($key)] = $value;
 
         return $this;
     }

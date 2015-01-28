@@ -20,7 +20,7 @@ class HtmlHelper extends AbstractHelper {
     /**
      * {@inheritdoc}
      */
-    protected TagMap $_tags = Map {
+    protected TagMap $tags = Map {
         'anchor'    => '<a{attr}>{body}</a>',
         'link'      => '<link{attr}>',
         'meta'      => '<meta{attr}>',

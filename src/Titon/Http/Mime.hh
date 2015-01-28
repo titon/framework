@@ -34,7 +34,7 @@ class Mime {
      *
      * @var \Titon\Http\MimeMap
      */
-    protected static MimeMap $_types = Map {
+    protected static MimeMap $types = Map {
         '3dml' => 'text/vnd.in3d.3dml',
         '3g2' => 'video/3gpp2',
         '3gp' => 'video/3gpp',
@@ -950,7 +950,7 @@ class Mime {
      * @return \Titon\Http\MimeMap
      */
     public static function getAll(): MimeMap {
-        return static::$_types;
+        return static::$types;
     }
 
     /**
@@ -999,8 +999,8 @@ class Mime {
      * @throws \Titon\Http\Exception\InvalidExtensionException
      */
     public static function getTypeByExt(string $ext): string {
-        if (static::$_types->contains($ext)) {
-            return static::$_types[$ext];
+        if (static::$types->contains($ext)) {
+            return static::$types[$ext];
         }
 
         throw new InvalidExtensionException(sprintf('Extension %s does not exist', $ext));

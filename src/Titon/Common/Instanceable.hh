@@ -24,7 +24,7 @@ trait Instanceable<T> {
      *
      * @var \Titon\Common\InstanceContainer
      */
-    protected static InstanceContainer<T> $_instances = Map {};
+    protected static InstanceContainer<T> $instances = Map {};
 
     /**
      * Return a count of all active instances.
@@ -65,7 +65,7 @@ trait Instanceable<T> {
      * @return \Titon\Common\InstanceMap
      */
     public static function getInstances(): InstanceMap<T> {
-        $instances = static::$_instances;
+        $instances = static::$instances;
         $class = static::class;
 
         if (!$instances->contains($class)) {

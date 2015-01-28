@@ -29,14 +29,14 @@ abstract class Node {
      *
      * @var \Titon\Io\Folder
      */
-    protected ?Folder $_parent;
+    protected ?Folder $parent;
 
     /**
      * Current path.
      *
      * @var string
      */
-    protected string $_path = '';
+    protected string $path = '';
 
     /**
      * Initialize the file path. If the file doesn't exist, create it.
@@ -350,17 +350,17 @@ abstract class Node {
      * @return \Titon\Io\Folder
      */
     public function parent(): ?Folder {
-        if ($this->_parent) {
-            return $this->_parent;
+        if ($this->parent) {
+            return $this->parent;
         }
 
         $folder = str_replace('\\', '/', dirname($this->path()));
 
         if ($folder !== '.' && $folder !== '/') {
-            $this->_parent = new Folder($folder);
+            $this->parent = new Folder($folder);
         }
 
-        return $this->_parent;
+        return $this->parent;
     }
 
     /**
@@ -382,7 +382,7 @@ abstract class Node {
      * @return string
      */
     public function pwd(): string {
-        return $this->_path;
+        return $this->path;
     }
 
     /**
@@ -449,7 +449,7 @@ abstract class Node {
     public function reset(string $path = ''): this {
         if ($path) {
             // Always use unix style slashes
-            $this->_path = str_replace('\\', '/', $path);
+            $this->path = str_replace('\\', '/', $path);
         }
 
         clearstatcache();

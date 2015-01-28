@@ -27,7 +27,7 @@ class Cache {
      *
      * @var \Titon\Cache\StorageMap
      */
-    protected StorageMap $_storage = Map {};
+    protected StorageMap $storage = Map {};
 
     /**
      * Add a new storage engine to the cache system.
@@ -37,7 +37,7 @@ class Cache {
      * @return $this
      */
     public function addStorage(string $key, Storage $storage): this {
-        $this->_storage[$key] = $storage;
+        $this->storage[$key] = $storage;
 
         return $this;
     }
@@ -92,8 +92,8 @@ class Cache {
      * @throws \Titon\Cache\Exception\MissingStorageException
      */
     public function getStorage(string $key): Storage {
-        if ($this->_storage->contains($key)) {
-            return $this->_storage[$key];
+        if ($this->storage->contains($key)) {
+            return $this->storage[$key];
         }
 
         throw new MissingStorageException(sprintf('Cache storage engine %s does not exist', $key));
@@ -105,7 +105,7 @@ class Cache {
      * @return \Titon\Cache\StorageMap
      */
     public function getStorages(): StorageMap {
-        return $this->_storage;
+        return $this->storage;
     }
 
     /**

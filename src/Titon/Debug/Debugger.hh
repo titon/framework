@@ -55,7 +55,7 @@ class Debugger {
      *
      * @var \Titon\Debug\ExceptionHandler
      */
-    protected static ?ExceptionHandler $_handler;
+    protected static ?ExceptionHandler $handler;
 
     /**
      * Has the debugger been initialized?
@@ -63,20 +63,20 @@ class Debugger {
      *
      * @var bool
      */
-    protected static bool $_initialized = false;
+    protected static bool $initialized = false;
 
     /**
      * Logger instance.
      *
      * @var \Psr\Log\LoggerInterface
      */
-    protected static ?LoggerInterface $_logger;
+    protected static ?LoggerInterface $logger;
 
     /**
      * Initialize the error, exception, and debug handling.
      */
     public static function initialize(): void {
-        if (static::$_initialized) {
+        if (static::$initialized) {
             return;
         }
 
@@ -90,7 +90,7 @@ class Debugger {
         static::setHandler(class_meth(__CLASS__, 'handleException'));
         static::disable();
 
-        static::$_initialized = true;
+        static::$initialized = true;
     }
 
     /**
@@ -285,7 +285,7 @@ class Debugger {
      * @return \Titon\Debug\ExceptionHandler
      */
     public static function getHandler(): ?ExceptionHandler {
-        return static::$_handler;
+        return static::$handler;
     }
 
     /**
@@ -294,7 +294,7 @@ class Debugger {
      * @return \Psr\Log\LoggerInterface
      */
     public static function getLogger(): ?LoggerInterface {
-        return static::$_logger;
+        return static::$logger;
     }
 
     /**
@@ -573,7 +573,7 @@ class Debugger {
      * @param \Titon\Debug\ExceptionHandler $callback
      */
     public static function setHandler(ExceptionHandler $callback): void {
-        static::$_handler = $callback;
+        static::$handler = $callback;
 
         set_exception_handler($callback);
     }
@@ -584,7 +584,7 @@ class Debugger {
      * @param \Psr\Log\LoggerInterface $logger
      */
     public static function setLogger(LoggerInterface $logger): void {
-        static::$_logger = $logger;
+        static::$logger = $logger;
     }
 
 }

@@ -45,7 +45,7 @@ abstract class AbstractController implements Controller, Subject {
      *
      * @var string
      */
-    protected string $_action = 'index';
+    protected string $action = 'index';
 
     /**
      * A mapping of actions that have been dispatched,
@@ -53,14 +53,14 @@ abstract class AbstractController implements Controller, Subject {
      *
      * @var \Titon\Controller\ActionMap
      */
-    protected ActionMap $_arguments = Map {};
+    protected ActionMap $arguments = Map {};
 
     /**
      * View instance.
      *
      * @var \Titon\View\View
      */
-    protected ?View $_view;
+    protected ?View $view;
 
     /**
      * Return a probable path to a view template that matches the current controller and action.
@@ -78,8 +78,8 @@ abstract class AbstractController implements Controller, Subject {
      * {@inheritdoc}
      */
     public function dispatchTo(string $action, ArgumentList $args = Vector {}, bool $emit = true): string {
-        $this->_action = $action;
-        $this->_arguments[$action] = $args;
+        $this->action = $action;
+        $this->arguments[$action] = $args;
 
         // Convert dashed actions to camel case
         if (strpos($action, '-') !== false) {
@@ -123,8 +123,8 @@ abstract class AbstractController implements Controller, Subject {
      * @return \Titon\Common\ArgumentList
      */
     public function getActionArguments(string $action): ArgumentList {
-        if ($this->_arguments->contains($action)) {
-            return $this->_arguments[$action];
+        if ($this->arguments->contains($action)) {
+            return $this->arguments[$action];
         }
 
         return Vector {};
@@ -136,7 +136,7 @@ abstract class AbstractController implements Controller, Subject {
      * @return string
      */
     public function getCurrentAction(): string {
-        return $this->_action;
+        return $this->action;
     }
 
     /**
@@ -152,7 +152,7 @@ abstract class AbstractController implements Controller, Subject {
      * {@inheritdoc}
      */
     public function getView(): ?View {
-        return $this->_view;
+        return $this->view;
     }
 
     /**
@@ -229,7 +229,7 @@ abstract class AbstractController implements Controller, Subject {
      * {@inheritdoc}
      */
     public function setView(View $view): this {
-        $this->_view = $view;
+        $this->view = $view;
 
         return $this;
     }

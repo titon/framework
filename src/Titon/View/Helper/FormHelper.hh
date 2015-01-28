@@ -21,7 +21,7 @@ type TimeFormatMap = Map<string, string>;
 
 /**
  * The FormHelper is used for HTML form creation. Data is passed to the associated input fields
- * if a value is present with the request ($_POST, $_GET and $_FILES) or a model.
+ * if a value is present with the request ($POST, $GET and $FILES) or a model.
  *
  * @package Titon\View\Helper
  */
@@ -32,7 +32,7 @@ class FormHelper extends AbstractHelper {
      *
      * @var bool
      */
-    protected bool $_24hour = true;
+    protected bool $twentyFour = true;
 
     /**
      * Mapping of datetime formats.
@@ -41,10 +41,10 @@ class FormHelper extends AbstractHelper {
      *      @var string $dayFormat     Format to display days in
      *      @var string $monthFormat   Format to display months in
      *      @var string $yearFormat    Format to display years in
-     *      @var string $24hour        Display all times in 24 hour formats
+     *      @var string $twentyFour    Display all times in 24 hour formats
      * }
      */
-    protected TimeFormatMap $_formats = Map {
+    protected TimeFormatMap $formats = Map {
         'dayFormat' => 'j',
         'monthFormat' => 'F',
         'yearFormat' => 'Y'
@@ -55,21 +55,21 @@ class FormHelper extends AbstractHelper {
      *
      * @var int
      */
-    protected int $_forms = 0;
+    protected int $forms = 0;
 
     /**
      * The model currently being used to generate a form.
      *
      * @var \Titon\Model\Model
      */
-    protected ?Model $_model;
+    protected ?Model $model;
 
     /**
      * A list of all HTML tags used within the current helper.
      *
      * @var \Titon\View\Helper\TagMap
      */
-    protected TagMap $_tags = Map {
+    protected TagMap $tags = Map {
         'input'             => '<input{attr}>',
         'textarea'          => '<textarea{attr}>{body}</textarea>',
         'label'             => '<label{attr}>{body}</label>',
@@ -175,7 +175,7 @@ class FormHelper extends AbstractHelper {
      * @return string
      */
     public function close(): string {
-        $this->_model = null;
+        $this->model = null;
 
         return $this->tag('form.close');
     }
@@ -368,7 +368,7 @@ class FormHelper extends AbstractHelper {
      * @return \Titon\View\Helper\TimeFormatMap
      */
     public function getFormats(): TimeFormatMap {
-        return $this->_formats;
+        return $this->formats;
     }
 
     /**
@@ -377,7 +377,7 @@ class FormHelper extends AbstractHelper {
      * @return \Titon\Model\Model
      */
     public function getModel(): ?Model {
-        return $this->_model;
+        return $this->model;
     }
 
     /**
@@ -498,7 +498,7 @@ class FormHelper extends AbstractHelper {
      * @return bool
      */
     public function is12Hour(): bool {
-        return !$this->_24hour;
+        return !$this->twentyFour;
     }
 
     /**
@@ -507,7 +507,7 @@ class FormHelper extends AbstractHelper {
      * @return bool
      */
     public function is24Hour(): bool {
-        return $this->_24hour;
+        return $this->twentyFour;
     }
 
     /**
@@ -657,7 +657,7 @@ class FormHelper extends AbstractHelper {
      * @return string
      */
     public function open(string $action, AttributeMap $attributes = Map {}): string {
-        $this->_forms++;
+        $this->forms++;
 
         if ($attributes->contains('type')) {
             if ($attributes['type'] === 'file') {
@@ -673,7 +673,7 @@ class FormHelper extends AbstractHelper {
             'enctype' => 'application/x-www-form-urlencoded',
             'method' => 'post',
             'action' => $action,
-            'id' => $this->formatID('form.' . $this->_forms)
+            'id' => $this->formatID('form.' . $this->forms)
         })->setAll($attributes);
 
         $attributes['method'] = strtoupper($attributes['method']);
@@ -829,7 +829,7 @@ class FormHelper extends AbstractHelper {
      */
     public function reset(string $title, AttributeMap $attributes = Map {}): string {
         $attributes = (Map {
-            'id' => $this->formatID('form.' . $this->_forms . '.reset'),
+            'id' => $this->formatID('form.' . $this->forms . '.reset'),
             'type' => 'reset'
         })->setAll($attributes);
 
@@ -908,7 +908,7 @@ class FormHelper extends AbstractHelper {
      * @return $this
      */
     public function setFormat(string $key, string $format): this {
-        $this->_formats[$key] = $format;
+        $this->formats[$key] = $format;
 
         return $this;
     }
@@ -920,7 +920,7 @@ class FormHelper extends AbstractHelper {
      * @return $this
      */
     public function setModel(Model $model): this {
-        $this->_model = $model;
+        $this->model = $model;
 
         return $this;
     }
@@ -934,7 +934,7 @@ class FormHelper extends AbstractHelper {
      */
     public function submit(string $title, AttributeMap $attributes = Map {}): string {
         $attributes = (Map {
-            'id' => $this->formatID('form.' . $this->_forms . '.submit'),
+            'id' => $this->formatID('form.' . $this->forms . '.submit'),
             'type' => 'submit'
         })->setAll($attributes);
 
@@ -1033,7 +1033,7 @@ class FormHelper extends AbstractHelper {
      * @return $this
      */
     public function use12Hour(): this {
-        $this->_24hour = false;
+        $this->twentyFour = false;
 
         return $this;
     }
@@ -1044,7 +1044,7 @@ class FormHelper extends AbstractHelper {
      * @return $this
      */
     public function use24Hour(): this {
-        $this->_24hour = true;
+        $this->twentyFour = true;
 
         return $this;
     }

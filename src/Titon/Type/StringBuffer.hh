@@ -25,7 +25,7 @@ class StringBuffer implements Serializable {
      *
      * @var string
      */
-    protected string $_value = '';
+    protected string $value = '';
 
     /**
      * Set the value.
@@ -478,7 +478,7 @@ class StringBuffer implements Serializable {
      * @return string
      */
     public function value(): string {
-        return $this->_value;
+        return $this->value;
     }
 
     /**
@@ -498,7 +498,7 @@ class StringBuffer implements Serializable {
      * @return $this
      */
     public function write(string $value): this {
-        $this->_value = $value;
+        $this->value = $value;
 
         return $this;
     }

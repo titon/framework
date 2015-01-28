@@ -21,7 +21,7 @@ class TemplateEngine extends AbstractEngine {
      * {@inheritdoc}
      */
     public function render(string $path, DataMap $variables = Map {}): string {
-        $this->_variables = $variables;
+        $this->variables = $variables;
 
         if ($variables) {
             extract($variables->toArray(), EXTR_OVERWRITE);

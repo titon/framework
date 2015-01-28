@@ -33,14 +33,14 @@ class FileSystemStorage extends AbstractStorage {
      *
      * @var \Titon\Cache\FileMap
      */
-    protected FileMap $_files = Map {};
+    protected FileMap $files = Map {};
 
     /**
      * Folder object for the cache folder.
      *
      * @var \Titon\Io\Folder
      */
-    protected Folder $_folder;
+    protected Folder $folder;
 
     /**
      * Set path through constructor.
@@ -52,15 +52,15 @@ class FileSystemStorage extends AbstractStorage {
             throw new InvalidPathException('Cache directory is required');
         }
 
-        $this->_folder = new Folder($path, true);
+        $this->folder = new Folder($path, true);
     }
 
     /**
      * {@inheritdoc}
      */
     public function flush(): bool {
-        $this->_files->clear();
-        $this->_folder->flush();
+        $this->files->clear();
+        $this->folder->flush();
 
         clearstatcache();
 
@@ -72,7 +72,7 @@ class FileSystemStorage extends AbstractStorage {
      */
     public function get(string $key): mixed {
         if ($this->has($key)) {
-            return unserialize($this->_readCache($key)['data']);
+            return unserialize($this->readCache($key)['data']);
         }
 
         throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
@@ -82,8 +82,8 @@ class FileSystemStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function has(string $key): bool {
-        if (file_exists($this->_buildPath($key))) {
-            if ($this->_readCache($key)['expires'] >= time()) {
+        if (file_exists($this->buildPath($key))) {
+            if ($this->readCache($key)['expires'] >= time()) {
                 return true;
             } else {
                 $this->remove($key);
@@ -97,8 +97,8 @@ class FileSystemStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        $this->_loadCache($key)->delete();
-        $this->_files->remove($key);
+        $this->loadCache($key)->delete();
+        $this->files->remove($key);
 
         return true;
     }
@@ -107,7 +107,7 @@ class FileSystemStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function set(string $key, mixed $value, int $expires): bool {
-        return $this->_loadCache($key)->write($expires . "\n" . serialize($value));
+        return $this->loadCache($key)->write($expires . "\n" . serialize($value));
     }
 
     /**
@@ -117,9 +117,9 @@ class FileSystemStorage extends AbstractStorage {
      * @return string
      */
     <<__Memoize>>
-    protected function _buildPath(string $key): string {
+    protected function buildPath(string $key): string {
         $path = trim(preg_replace('/[^a-z0-9\-]+/is', '-', $key), '-');
-        $path = $this->_folder->path() . $path . '.cache';
+        $path = $this->folder->path() . $path . '.cache';
 
         return $path;
     }
@@ -130,12 +130,12 @@ class FileSystemStorage extends AbstractStorage {
      * @param string $key
      * @return \Titon\Io\File
      */
-    protected function _loadCache(string $key): File {
-        if ($this->_files->contains($key)) {
-            return $this->_files[$key];
+    protected function loadCache(string $key): File {
+        if ($this->files->contains($key)) {
+            return $this->files[$key];
         }
 
-        return $this->_files[$key] = new File($this->_buildPath($key), true);
+        return $this->files[$key] = new File($this->buildPath($key), true);
     }
 
     /**
@@ -144,8 +144,8 @@ class FileSystemStorage extends AbstractStorage {
      * @param string $key
      * @return \Titon\Cache\Storage\FileCache
      */
-    protected function _readCache(string $key): FileCache {
-        return $this->_splitCache($this->_loadCache($key)->read());
+    protected function readCache(string $key): FileCache {
+        return $this->splitCache($this->loadCache($key)->read());
     }
 
     /**
@@ -154,7 +154,7 @@ class FileSystemStorage extends AbstractStorage {
      * @param string $cache
      * @return \Titon\Cache\Storage\FileCache
      */
-    protected function _splitCache(string $cache): FileCache {
+    protected function splitCache(string $cache): FileCache {
         list($expires, $data) = explode("\n", $cache, 2);
 
         return shape(

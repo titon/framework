@@ -58,7 +58,7 @@ class ArrayList<Tv> implements
      *
      * @var Vector<string>
      */
-    protected Vector<string> $_chainable = Vector {
+    protected Vector<string> $chainable = Vector {
         'add', 'addAll', 'clear', 'removeKey',
         'reserve', 'resize', 'set', 'setAll'
     };
@@ -68,7 +68,7 @@ class ArrayList<Tv> implements
      *
      * @var Vector<string>
      */
-    protected Vector<string> $_immutable = Vector {
+    protected Vector<string> $immutable = Vector {
         'filter', 'filterWithKey', 'map', 'mapWithKey',
         'reverse', 'shuffle', 'splice'
     };
@@ -78,7 +78,7 @@ class ArrayList<Tv> implements
      *
      * @var Vector<Tv>
      */
-    protected Vector<Tv> $_value = Vector {};
+    protected Vector<Tv> $value = Vector {};
 
     /**
      * Set the value.
@@ -103,7 +103,7 @@ class ArrayList<Tv> implements
         if (method_exists($vector, $method)) {
 
             // Chain the method call
-            if (in_array($method, $this->_chainable)) {
+            if (in_array($method, $this->chainable)) {
 
                 // UNSAFE
                 // Since inst_meth() requires literal strings and we are passing variables
@@ -112,7 +112,7 @@ class ArrayList<Tv> implements
                 return $this;
 
             // Return a new instance for immutability
-            } else if (in_array($method, $this->_immutable)) {
+            } else if (in_array($method, $this->immutable)) {
 
                 // Clone the vector so we don't interfere with references
                 $clonedList = $vector->toVector();
@@ -137,7 +137,7 @@ class ArrayList<Tv> implements
      * Clone the internal vector so references aren't shared.
      */
     public function __clone(): void {
-        $this->_value = $this->_value->toVector();
+        $this->value = $this->value->toVector();
     }
 
     /**
@@ -565,7 +565,7 @@ class ArrayList<Tv> implements
      * @return Vector<Tv>
      */
     public function value(): Vector<Tv> {
-        return $this->_value;
+        return $this->value;
     }
 
     /**
@@ -584,7 +584,7 @@ class ArrayList<Tv> implements
      * @return $this
      */
     public function write(Indexish<int, Tv> $value): this {
-        $this->_value = new Vector($value);
+        $this->value = new Vector($value);
 
         return $this;
     }

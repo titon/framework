@@ -53,7 +53,7 @@ class HashMap<Tk, Tv> implements
      *
      * @var Vector<string>
      */
-    protected Vector<string> $_chainable = Vector {
+    protected Vector<string> $chainable = Vector {
         'add', 'addAll', 'clear', 'removeKey',
         'reserve', 'resize', 'set', 'setAll'
     };
@@ -63,7 +63,7 @@ class HashMap<Tk, Tv> implements
      *
      * @var Vector<string>
      */
-    protected Vector<string> $_immutable = Vector {
+    protected Vector<string> $immutable = Vector {
         'filter', 'filterWithKey', 'map', 'mapWithKey',
         'reverse', 'shuffle', 'splice'
     };
@@ -73,7 +73,7 @@ class HashMap<Tk, Tv> implements
      *
      * @var Map<Tk, Tv>
      */
-    protected Map<Tk, Tv> $_value = Map {};
+    protected Map<Tk, Tv> $value = Map {};
 
     /**
      * Set the value.
@@ -98,7 +98,7 @@ class HashMap<Tk, Tv> implements
         if (method_exists($map, $method)) {
 
             // Chain the method call
-            if (in_array($method, $this->_chainable)) {
+            if (in_array($method, $this->chainable)) {
 
                 // UNSAFE
                 // Since inst_meth() requires literal strings and we are passing variables
@@ -107,7 +107,7 @@ class HashMap<Tk, Tv> implements
                 return $this;
 
             // Return a new instance for immutability
-            } else if (in_array($method, $this->_immutable)) {
+            } else if (in_array($method, $this->immutable)) {
 
                 // Clone the map so we don't interfere with references
                 $clonedList = $map->toMap();
@@ -132,7 +132,7 @@ class HashMap<Tk, Tv> implements
      * Clone the internal map so references aren't shared.
      */
     public function __clone(): void {
-        $this->_value = $this->_value->toMap();
+        $this->value = $this->value->toMap();
     }
 
     /**
@@ -620,7 +620,7 @@ class HashMap<Tk, Tv> implements
      * @return Map<Tk, Tv>
      */
     public function value(): Map<Tk, Tv> {
-        return $this->_value;
+        return $this->value;
     }
 
     /**
@@ -639,7 +639,7 @@ class HashMap<Tk, Tv> implements
      * @return $this
      */
     public function write(Indexish<Tk, Tv> $value): this {
-        $this->_value = new Map($value);
+        $this->value = new Map($value);
 
         return $this;
     }

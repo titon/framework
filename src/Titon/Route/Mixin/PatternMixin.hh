@@ -21,7 +21,7 @@ trait PatternMixin {
      *
      * @var \Titon\Route\Mixin\PatternMap
      */
-    protected PatternMap $_patterns = Map {};
+    protected PatternMap $patterns = Map {};
 
     /**
      * Add a regex pattern by token name.
@@ -31,7 +31,7 @@ trait PatternMixin {
      * @return $this
      */
     public function addPattern(string $pattern, string $regex): this {
-        $this->_patterns[$pattern] = $regex;
+        $this->patterns[$pattern] = $regex;
 
         return $this;
     }
@@ -56,7 +56,7 @@ trait PatternMixin {
      * @return \Titon\Route\Mixin\PatternMap
      */
     public function getPatterns(): PatternMap {
-        return $this->_patterns;
+        return $this->patterns;
     }
 
     /**
@@ -66,7 +66,7 @@ trait PatternMixin {
      * @return $this
      */
     public function setPatterns(PatternMap $patterns): this {
-        $this->_patterns = $patterns;
+        $this->patterns = $patterns;
 
         return $this;
     }

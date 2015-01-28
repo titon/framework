@@ -23,35 +23,35 @@ class Event {
      *
      * @var \Titon\Common\DataMap
      */
-    protected DataMap $_data = Map {};
+    protected DataMap $data = Map {};
 
     /**
      * The event key.
      *
      * @var string
      */
-    protected string $_key;
+    protected string $key;
 
     /**
      * The current count of how many observers have been notified.
      *
      * @var int
      */
-    protected int $_index = 0;
+    protected int $index = 0;
 
     /**
      * Has the event stopped? This will cancel upcoming observers.
      *
      * @var bool
      */
-    protected bool $_stopped = false;
+    protected bool $stopped = false;
 
     /**
      * The call stack in order of priority.
      *
      * @var \Titon\Event\CallStackList
      */
-    protected CallStackList $_stack = Vector {};
+    protected CallStackList $stack = Vector {};
 
     /**
      * The last state before the object was stopped.
@@ -59,14 +59,14 @@ class Event {
      *
      * @var mixed
      */
-    protected mixed $_state = true;
+    protected mixed $state = true;
 
     /**
      * The timestamp of when the event started.
      *
      * @var int
      */
-    protected int $_time;
+    protected int $time;
 
     /**
      * Initialize the event.
@@ -74,8 +74,8 @@ class Event {
      * @param string $key
      */
     public function __construct(string $key) {
-        $this->_key = $key;
-        $this->_time = time();
+        $this->key = $key;
+        $this->time = time();
     }
 
     /**
@@ -84,7 +84,7 @@ class Event {
      * @return \Titon\Event\CallStackList
      */
     public function getCallStack(): CallStackList {
-        return $this->_stack;
+        return $this->stack;
     }
 
     /**
@@ -94,7 +94,7 @@ class Event {
      * @return mixed
      */
     public function getData(string $key = ''): mixed {
-        return Col::get($this->_data, $key);
+        return Col::get($this->data, $key);
     }
 
     /**
@@ -103,7 +103,7 @@ class Event {
      * @return int
      */
     public function getIndex(): int {
-        return $this->_index;
+        return $this->index;
     }
 
     /**
@@ -112,7 +112,7 @@ class Event {
      * @return string
      */
     public function getKey(): string {
-        return $this->_key;
+        return $this->key;
     }
 
     /**
@@ -121,7 +121,7 @@ class Event {
      * @return mixed
      */
     public function getState(): mixed {
-        return $this->_state;
+        return $this->state;
     }
 
     /**
@@ -130,7 +130,7 @@ class Event {
      * @return int
      */
     public function getTime(): int {
-        return $this->_time;
+        return $this->time;
     }
 
     /**
@@ -139,7 +139,7 @@ class Event {
      * @return bool
      */
     public function isStopped(): bool {
-        return $this->_stopped;
+        return $this->stopped;
     }
 
     /**
@@ -149,7 +149,7 @@ class Event {
      */
     public function next(): this {
         if (!$this->isStopped()) {
-            $this->_index++;
+            $this->index++;
         }
 
         return $this;
@@ -162,7 +162,7 @@ class Event {
      * @return $this
      */
     public function setCallStack(CallStackList $stack): this {
-        $this->_stack = $stack;
+        $this->stack = $stack;
 
         return $this;
     }
@@ -175,7 +175,7 @@ class Event {
      * @return $this
      */
     public function setData(string $key, mixed $value): this {
-        Col::set($this->_data, $key, $value);
+        Col::set($this->data, $key, $value);
 
         return $this;
     }
@@ -187,7 +187,7 @@ class Event {
      * @return $this
      */
     public function setState(mixed $state): this {
-        $this->_state = $state;
+        $this->state = $state;
 
         return $this;
     }
@@ -198,7 +198,7 @@ class Event {
      * @return $this
      */
     public function stop(): this {
-        $this->_stopped = true;
+        $this->stopped = true;
 
         return $this;
     }

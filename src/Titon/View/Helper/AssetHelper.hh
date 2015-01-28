@@ -27,28 +27,28 @@ class AssetHelper extends AbstractHelper {
      *
      * @var bool
      */
-    protected bool $_timestamping = true;
+    protected bool $timestamping = true;
 
     /**
      * A list of JavaScript files to include in the current page.
      *
      * @var \Titon\View\Helper\ScriptMap
      */
-    protected ScriptMap $_scripts = Map {};
+    protected ScriptMap $scripts = Map {};
 
     /**
      * A list of CSS stylesheets to include in the current page.
      *
      * @var \Titon\View\Helper\StyleSheetMap
      */
-    protected StyleSheetMap $_stylesheets = Map {};
+    protected StyleSheetMap $stylesheets = Map {};
 
     /**
      * Path to the webroot where assets reside.
      *
      * @var string
      */
-    protected string $_webroot = '';
+    protected string $webroot = '';
 
     /**
      * Set the webroot and timestamping configuration.
@@ -74,7 +74,7 @@ class AssetHelper extends AbstractHelper {
         $scripts = $this->getScripts();
 
         if (!$scripts->contains($location)) {
-            $this->_scripts[$location] = Map {};
+            $this->scripts[$location] = Map {};
         }
 
         if ($order === 0) {
@@ -85,7 +85,7 @@ class AssetHelper extends AbstractHelper {
             $order++;
         }
 
-        $this->_scripts[$location][$order] = shape(
+        $this->scripts[$location][$order] = shape(
             'path' => $this->preparePath($script, 'js'),
             'attributes' => Map {},
             'env' => $env
@@ -114,7 +114,7 @@ class AssetHelper extends AbstractHelper {
             $order++;
         }
 
-        $this->_stylesheets[$order] = shape(
+        $this->stylesheets[$order] = shape(
             'path' => $this->preparePath($sheet, 'css'),
             'attributes' => $attributes,
             'env' => $env
@@ -129,7 +129,7 @@ class AssetHelper extends AbstractHelper {
      * @return \Titon\View\Helper\ScriptMap
      */
     public function getScripts(): ScriptMap {
-        return $this->_scripts;
+        return $this->scripts;
     }
 
     /**
@@ -138,7 +138,7 @@ class AssetHelper extends AbstractHelper {
      * @return \Titon\View\Helper\StyleSheetMap
      */
     public function getStyleSheets(): StyleSheetMap {
-        return $this->_stylesheets;
+        return $this->stylesheets;
     }
 
     /**
@@ -147,7 +147,7 @@ class AssetHelper extends AbstractHelper {
      * @return string
      */
     public function getWebroot(): string {
-        return $this->_webroot;
+        return $this->webroot;
     }
 
     /**
@@ -156,7 +156,7 @@ class AssetHelper extends AbstractHelper {
      * @return bool
      */
     public function isTimestamping(): bool {
-        return $this->_timestamping;
+        return $this->timestamping;
     }
 
     /**
@@ -208,7 +208,7 @@ class AssetHelper extends AbstractHelper {
      * @return $this
      */
     public function setTimestamping(bool $status): this {
-        $this->_timestamping = $status;
+        $this->timestamping = $status;
 
         return $this;
     }
@@ -226,7 +226,7 @@ class AssetHelper extends AbstractHelper {
             throw new InvalidWebrootException('Asset webroot does not exist');
         }
 
-        $this->_webroot = $path;
+        $this->webroot = $path;
 
         return $this;
     }

@@ -28,7 +28,7 @@ class DownloadResponse extends Response {
      *
      * @var string
      */
-    protected string $_path = '';
+    protected string $path = '';
 
     /**
      * Set the path of a file to output in the response.
@@ -48,7 +48,7 @@ class DownloadResponse extends Response {
             throw new InvalidFileException(sprintf('File %s is not readable', basename($path)));
         }
 
-        $this->_path = $path;
+        $this->path = $path;
         $this->contentDisposition(basename($path));
     }
 
@@ -58,7 +58,7 @@ class DownloadResponse extends Response {
      * @return string
      */
     public function getPath(): string {
-        return $this->_path;
+        return $this->path;
     }
 
     /**

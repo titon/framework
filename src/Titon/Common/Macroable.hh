@@ -25,7 +25,7 @@ trait Macroable {
      *
      * @var \Titon\Common\MacroContainer
      */
-    protected static MacroContainer $_macros = Map {};
+    protected static MacroContainer $macros = Map {};
 
     /**
      * Execute a macro if it has been called statically.
@@ -49,7 +49,7 @@ trait Macroable {
      * @return \Titon\Common\MacroMap
      */
     public static function getMacros(): MacroMap {
-        $macros = static::$_macros;
+        $macros = static::$macros;
         $class = static::class;
 
         if (!$macros->contains($class)) {

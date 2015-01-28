@@ -23,14 +23,14 @@ abstract class AbstractStream implements StreamableInterface {
      *
      * @var \Titon\Common\CacheMap
      */
-    protected CacheMap $_cache = Map {};
+    protected CacheMap $cache = Map {};
 
     /**
      * The stream resource.
      *
      * @var resource
      */
-    protected ?resource $_stream;
+    protected ?resource $stream;
 
     /**
      * Close the resource on destruction.
@@ -60,7 +60,7 @@ abstract class AbstractStream implements StreamableInterface {
         $cache['readable'] = !in_array($mode, ['w', 'a', 'x', 'c']);
         $cache['writable'] = ($mode !== 'r');
 
-        $this->_cache = new Map($cache);
+        $this->cache = new Map($cache);
 
         return $this;
     }
@@ -70,8 +70,8 @@ abstract class AbstractStream implements StreamableInterface {
      */
     public function close(): bool {
         if (is_resource($this->getStream()) && fclose($this->getStream())) {
-            $this->_cache['readable'] = false;
-            $this->_cache['writable'] = false;
+            $this->cache['readable'] = false;
+            $this->cache['writable'] = false;
 
             return true;
         }
@@ -83,9 +83,9 @@ abstract class AbstractStream implements StreamableInterface {
      * {@inheritdoc}
      */
     public function detach(): ?resource {
-        $resource = $this->_stream;
+        $resource = $this->stream;
 
-        $this->_stream = null;
+        $this->stream = null;
 
         return $resource;
     }
@@ -103,7 +103,7 @@ abstract class AbstractStream implements StreamableInterface {
      * @return \Titon\Common\CacheMap
      */
     public function getCache(): CacheMap {
-        return $this->_cache;
+        return $this->cache;
     }
 
     /**
@@ -130,10 +130,10 @@ abstract class AbstractStream implements StreamableInterface {
      */
     public function getMetadata($key = null): mixed {
         if ($key === null) {
-            return $this->_cache;
+            return $this->cache;
         }
 
-        return $this->_cache->get($key);
+        return $this->cache->get($key);
     }
 
     /**
@@ -142,7 +142,7 @@ abstract class AbstractStream implements StreamableInterface {
      * @return string
      */
     public function getMode(): string {
-        return (string) $this->_cache['mode'];
+        return (string) $this->cache['mode'];
     }
 
     /**
@@ -152,10 +152,10 @@ abstract class AbstractStream implements StreamableInterface {
         if ($this->isLocal()) {
             // UNSAFE
             // HHVM only has the 1st argument
-            clearstatcache(true, $this->_cache['uri']);
+            clearstatcache(true, $this->cache['uri']);
         }
 
-        if ($this->_cache['wrapper_type'] !== 'PHP') {
+        if ($this->cache['wrapper_type'] !== 'PHP') {
             $stat = fstat($this->getStream());
 
             if (array_key_exists('size', $stat)) {
@@ -172,7 +172,7 @@ abstract class AbstractStream implements StreamableInterface {
      * @return resource
      */
     public function getStream(): ?resource {
-        return $this->_stream;
+        return $this->stream;
     }
 
     /**
@@ -190,14 +190,14 @@ abstract class AbstractStream implements StreamableInterface {
      * @return bool
      */
     public function isLocal(): bool {
-        return (bool) $this->_cache['local'];
+        return (bool) $this->cache['local'];
     }
 
     /**
      * {@inheritdoc}
      */
     public function isReadable(): bool {
-        return (bool) $this->_cache['readable'];
+        return (bool) $this->cache['readable'];
     }
 
     /**
@@ -213,14 +213,14 @@ abstract class AbstractStream implements StreamableInterface {
      * {@inheritdoc}
      */
     public function isSeekable(): bool {
-        return (bool) $this->_cache['seekable'];
+        return (bool) $this->cache['seekable'];
     }
 
     /**
      * {@inheritdoc}
      */
     public function isWritable(): bool {
-        return (bool) $this->_cache['writable'];
+        return (bool) $this->cache['writable'];
     }
 
     /**
@@ -259,7 +259,7 @@ abstract class AbstractStream implements StreamableInterface {
      * @return $this
      */
     public function setStream(resource $stream): this {
-        $this->_stream = $stream;
+        $this->stream = $stream;
         $this->buildCache();
 
         return $this;

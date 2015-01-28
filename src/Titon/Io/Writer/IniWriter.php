@@ -27,7 +27,7 @@ class IniWriter extends AbstractWriter {
      * {@inheritdoc}
      */
     public function writeResource(ResourceMap $data): bool {
-        return $this->write($this->_process($data));
+        return $this->write($this->process($data));
     }
 
     /**
@@ -36,7 +36,7 @@ class IniWriter extends AbstractWriter {
      * @param \Titon\Io\ResourceMap $data
      * @return string
      */
-    protected function _process(ResourceMap $data): string {
+    protected function process(ResourceMap $data): string {
         $sections = Map {};
         $settings = Map {};
         $output = '';
@@ -52,7 +52,7 @@ class IniWriter extends AbstractWriter {
 
         // Write settings first
         foreach ($settings as $key => $value) {
-            $output .= $this->_processLine($key, $value);
+            $output .= $this->processLine($key, $value);
         }
 
         // And then sections
@@ -60,7 +60,7 @@ class IniWriter extends AbstractWriter {
             $output .= PHP_EOL . sprintf('[%s]', $key) . PHP_EOL;
 
             foreach ($settings as $k => $v) {
-                $output .= $this->_processLine($k, $v);
+                $output .= $this->processLine($k, $v);
             }
         }
 
@@ -74,15 +74,15 @@ class IniWriter extends AbstractWriter {
      * @param mixed $value
      * @return string
      */
-    protected function _processLine(string $key, mixed $value): string {
+    protected function processLine(string $key, mixed $value): string {
         $output = '';
 
         if ($value instanceof Vector) {
             foreach ($value as $v) {
-                $output .= sprintf('%s[] = %s', $key, $this->_getValue($v)) . PHP_EOL;
+                $output .= sprintf('%s[] = %s', $key, $this->getValue($v)) . PHP_EOL;
             }
         } else {
-            $output .= sprintf('%s = %s', $key, $this->_getValue($value)) . PHP_EOL;
+            $output .= sprintf('%s = %s', $key, $this->getValue($value)) . PHP_EOL;
         }
 
         return $output;
@@ -94,7 +94,7 @@ class IniWriter extends AbstractWriter {
      * @param mixed $value
      * @return string
      */
-    protected function _getValue(mixed $value): string {
+    protected function getValue(mixed $value): string {
         if (is_numeric($value)) {
             return (string) $value;
 

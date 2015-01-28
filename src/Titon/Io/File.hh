@@ -23,14 +23,14 @@ class File extends Node {
      *
      * @var resource
      */
-    protected ?resource $_handle;
+    protected ?resource $handle;
 
     /**
      * Current read / write mode.
      *
      * @var string
      */
-    protected string $_mode = '';
+    protected string $mode = '';
 
     /**
      * Close the current file resource handler when object is destroyed.
@@ -55,10 +55,10 @@ class File extends Node {
      * @return bool
      */
     public function close(): bool {
-        if (is_resource($this->_handle)) {
+        if (is_resource($this->handle)) {
             $this->unlock();
 
-            return fclose($this->_handle);
+            return fclose($this->handle);
         }
 
         return false;
@@ -147,8 +147,8 @@ class File extends Node {
      * @return bool
      */
     public function lock(int $mode = LOCK_SH): bool {
-        if (is_resource($this->_handle)) {
-            return flock($this->_handle, $mode);
+        if (is_resource($this->handle)) {
+            return flock($this->handle, $mode);
         }
 
         return false;
@@ -210,8 +210,8 @@ class File extends Node {
             return false;
         }
 
-        if (is_resource($this->_handle)) {
-            if ($mode === $this->_mode) {
+        if (is_resource($this->handle)) {
+            if ($mode === $this->mode) {
                 return true;
             } else {
                 $this->close();
@@ -220,10 +220,10 @@ class File extends Node {
 
         $this->reset();
 
-        $this->_handle = fopen($this->path(), $mode);
-        $this->_mode = $mode;
+        $this->handle = fopen($this->path(), $mode);
+        $this->mode = $mode;
 
-        return is_resource($this->_handle);
+        return is_resource($this->handle);
     }
 
     /**
@@ -255,7 +255,7 @@ class File extends Node {
                 $length = $this->size() ?: 1;
             }
 
-            $content = fread($this->_handle, $length);
+            $content = fread($this->handle, $length);
 
             $this->close();
 
@@ -299,8 +299,8 @@ class File extends Node {
      * @return bool
      */
     public function unlock(): bool {
-        if (is_resource($this->_handle)) {
-            return flock($this->_handle, LOCK_UN);
+        if (is_resource($this->handle)) {
+            return flock($this->handle, LOCK_UN);
         }
 
         return false;
@@ -320,7 +320,7 @@ class File extends Node {
         }
 
         if ($this->lock(LOCK_EX)) {
-            $result = fwrite($this->_handle, $data);
+            $result = fwrite($this->handle, $data);
 
             $this->unlock();
 

@@ -20,14 +20,14 @@ trait Cacheable {
      *
      * @var \Titon\Common\CacheMap
      */
-    protected CacheMap $_cache = Map {};
+    protected CacheMap $cache = Map {};
 
     /**
      * Is cache on or off?
      *
      * @var bool
      */
-    protected bool $_cacheEnabled = true;
+    protected bool $cacheEnabled = true;
 
     /**
      * Return all the current cached items.
@@ -35,7 +35,7 @@ trait Cacheable {
      * @return \Titon\Common\CacheMap
      */
     public function allCache(): CacheMap {
-        return $this->_cache;
+        return $this->cache;
     }
 
     /**
@@ -121,7 +121,7 @@ trait Cacheable {
      * @return bool
      */
     public function isCacheEnabled(): bool {
-        return $this->_cacheEnabled;
+        return $this->cacheEnabled;
     }
 
     /**
@@ -162,7 +162,7 @@ trait Cacheable {
      * @return $this
      */
     public function toggleCache(bool $on = true): this {
-        $this->_cacheEnabled = $on;
+        $this->cacheEnabled = $on;
 
         return $this;
     }

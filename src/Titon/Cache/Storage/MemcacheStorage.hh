@@ -30,7 +30,7 @@ class MemcacheStorage extends AbstractStorage {
      *
      * @var \Memcached
      */
-    protected Memcached $_memcache;
+    protected Memcached $memcache;
 
     /**
      * Set the Memcached instance.
@@ -38,7 +38,7 @@ class MemcacheStorage extends AbstractStorage {
      * @param \Memcached $memcache
      */
     public function __construct(Memcached $memcache) {
-        $this->_memcache = $memcache;
+        $this->memcache = $memcache;
     }
 
     /**
@@ -67,7 +67,7 @@ class MemcacheStorage extends AbstractStorage {
      * @return \Memcached
      */
     public function getMemcache(): Memcached {
-        return $this->_memcache;
+        return $this->memcache;
     }
 
     /**

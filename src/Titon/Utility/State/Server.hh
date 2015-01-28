@@ -8,7 +8,7 @@
 namespace Titon\Utility\State;
 
 /**
- * The Server class acts as a static immutable wrapper for the $_SERVER super global.
+ * The Server class acts as a static immutable wrapper for the $SERVER super global.
  *
  * @package Titon\Utility\State
  */

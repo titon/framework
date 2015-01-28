@@ -23,49 +23,49 @@ class Cookie {
      *
      * @var string
      */
-    protected string $_domain = '';
+    protected string $domain = '';
 
     /**
      * The unix timestamp until the cookie expires.
      *
      * @var int
      */
-    protected int $_expires = 0;
+    protected int $expires = 0;
 
     /**
      * Should the cookie only be accessible through PHP and not the Javascript layer.
      *
      * @var bool
      */
-    protected bool $_httpOnly = true;
+    protected bool $httpOnly = true;
 
     /**
      * Name of the cookie.
      *
      * @var string
      */
-    protected string $_name = '';
+    protected string $name = '';
 
     /**
      * Which path should the cookie only be accessible to.
      *
      * @var string
      */
-    protected string $_path = '/';
+    protected string $path = '/';
 
     /**
      * Should the cookie only be usable across an HTTPS connection.
      *
      * @var bool
      */
-    protected bool $_secure = false;
+    protected bool $secure = false;
 
     /**
      * The cookie value.
      *
      * @var string
      */
-    protected string $_value = '';
+    protected string $value = '';
 
     /**
      * Setup the cookie.
@@ -140,7 +140,7 @@ class Cookie {
      * @return string
      */
     public function getDomain(): string {
-        return $this->_domain;
+        return $this->domain;
     }
 
     /**
@@ -158,7 +158,7 @@ class Cookie {
      * @return int
      */
     public function getExpires(): int {
-        return $this->_expires;
+        return $this->expires;
     }
 
     /**
@@ -167,7 +167,7 @@ class Cookie {
      * @return string
      */
     public function getName(): string {
-        return $this->_name;
+        return $this->name;
     }
 
     /**
@@ -176,7 +176,7 @@ class Cookie {
      * @return string
      */
     public function getPath(): string {
-        return $this->_path;
+        return $this->path;
     }
 
     /**
@@ -185,7 +185,7 @@ class Cookie {
      * @return string
      */
     public function getValue(): string {
-        return $this->_value;
+        return $this->value;
     }
 
     /**
@@ -194,7 +194,7 @@ class Cookie {
      * @return bool
      */
     public function isHttpOnly(): bool {
-        return $this->_httpOnly;
+        return $this->httpOnly;
     }
 
     /**
@@ -203,7 +203,7 @@ class Cookie {
      * @return bool
      */
     public function isSecure(): bool {
-        return $this->_secure;
+        return $this->secure;
     }
 
     /**
@@ -213,7 +213,7 @@ class Cookie {
      * @return $this
      */
     public function setDomain(string $domain): this {
-        $this->_domain = $domain;
+        $this->domain = $domain;
 
         return $this;
     }
@@ -225,7 +225,7 @@ class Cookie {
      * @return $this
      */
     public function setExpires(mixed $expires): this {
-        $this->_expires = Time::toUnix($expires);
+        $this->expires = Time::toUnix($expires);
 
         return $this;
     }
@@ -237,7 +237,7 @@ class Cookie {
      * @return $this
      */
     public function setHttpOnly(bool $httpOnly): this {
-        $this->_httpOnly = $httpOnly;
+        $this->httpOnly = $httpOnly;
 
         return $this;
     }
@@ -253,7 +253,7 @@ class Cookie {
             throw new InvalidArgumentException(sprintf('The cookie name %s contains invalid characters', $name));
         }
 
-        $this->_name = $name;
+        $this->name = $name;
 
         return $this;
     }
@@ -265,7 +265,7 @@ class Cookie {
      * @return $this
      */
     public function setPath(string $path): this {
-        $this->_path = $path ?: '/';
+        $this->path = $path ?: '/';
 
         return $this;
     }
@@ -277,7 +277,7 @@ class Cookie {
      * @return $this
      */
     public function setSecure(bool $secure): this {
-        $this->_secure = $secure;
+        $this->secure = $secure;
 
         return $this;
     }
@@ -289,7 +289,7 @@ class Cookie {
      * @return $this
      */
     public function setValue(string $value): this {
-        $this->_value = $value;
+        $this->value = $value;
 
         return $this;
     }

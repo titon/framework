@@ -31,7 +31,7 @@ class PoReader extends AbstractReader {
      */
     public function readResource(): ResourceMap {
         if ($this->exists()) {
-            return $this->_parse();
+            return $this->parse();
         }
 
         throw new ReadErrorException(sprintf('PoReader failed to parse %s', $this->getPath()));
@@ -42,7 +42,7 @@ class PoReader extends AbstractReader {
      *
      * @return \Titon\Io\ResourceMap
      */
-    protected function _parse(): ResourceMap {
+    protected function parse(): ResourceMap {
         $lines = file($this->getPath(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $data = Map {};
         $key = '';

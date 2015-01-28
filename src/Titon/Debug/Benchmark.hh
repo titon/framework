@@ -26,7 +26,7 @@ class Benchmark {
      *
      * @var \Titon\Debug\MetricMap
      */
-    protected static MetricMap $_benchmarks = Map {};
+    protected static MetricMap $benchmarks = Map {};
 
     /**
      * Return all benchmarks and calculate averages.
@@ -34,7 +34,7 @@ class Benchmark {
      * @return \Titon\Debug\MetricMap
      */
     public static function all(): MetricMap {
-        return static::$_benchmarks;
+        return static::$benchmarks;
     }
 
     /**
@@ -49,7 +49,7 @@ class Benchmark {
             throw new MissingBenchmarkException(sprintf('Benchmark %s does not exist', $key));
         }
 
-        return static::$_benchmarks[$key];
+        return static::$benchmarks[$key];
     }
 
     /**
@@ -59,7 +59,7 @@ class Benchmark {
      * @return bool
      */
     public static function has(string $key): bool {
-        return static::$_benchmarks->contains($key);
+        return static::$benchmarks->contains($key);
     }
 
     /**
@@ -84,7 +84,7 @@ class Benchmark {
      * @param string $key
      */
     public static function start(string $key): void {
-        static::$_benchmarks[$key] = shape(
+        static::$benchmarks[$key] = shape(
             'time.start' => microtime(true),
             'time.stop' => 0.0,
             'time.avg' => 0.0,
@@ -110,7 +110,7 @@ class Benchmark {
         $benchmark['memory.peak'] = memory_get_peak_usage();
         $benchmark['running'] = false;
 
-        static::$_benchmarks[$key] = $benchmark;
+        static::$benchmarks[$key] = $benchmark;
     }
 
 }

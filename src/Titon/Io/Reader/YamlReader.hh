@@ -24,7 +24,7 @@ class YamlReader extends AbstractReader {
      * {@inheritdoc}
      */
     public function getResourceExt(): string {
-        return 'yaml';
+        return 'yml';
     }
 
     /**

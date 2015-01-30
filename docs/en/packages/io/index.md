@@ -15,7 +15,7 @@ composer require titon/io:*
 ### Documentation ###
 
 * [Files & Folders](files.md)
-* [Resource Bundles](bundles.md)
+* [Bundles](bundles.md)
 * [Readers](readers.md)
 * [Writers](writers.md)
 * [Type Aliases](types.md)

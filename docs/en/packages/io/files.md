@@ -27,7 +27,7 @@ $folder = new Folder('/path/to/folder', true, 0777);
 ```
 
 If not using the constructor, use `create()`, which will return a boolean `true` on successful creation.  
-This method will only create the file if it doesn't already exist. Also, an optional permission mode can be 
+This method will only create the file if it doesn't already exist. As well, an optional permission mode can be 
 passed (defaults to `0755`).
 
 ```hack
@@ -53,14 +53,14 @@ Copying files can be tricky as you must validate the source and the destination.
 a destination path must be defined, and the type of operation to use. The following operations are supported:
 
 * `OVERWRITE` - Will overwrite the destination file if one exists (file and folder)
-* `MERGE` - Will merge folders content together if they exist at the same location (folder only)
+* `MERGE` - Will merge folders together if they exist at the same location (folder only)
 * `SKIP` - Will not overwrite the destination file if it exists (file and folder)
 
 An optional permission mode can be set as the 3rd argument for the newly copied file.
 
 ```hack
 $file->copy('/to/new/file', File::OVERWRITE);
-$folder->copy('/to/new/folder', File::MERGE, 0755);
+$folder->copy('/to/new/folder', Folder::MERGE, 0755);
 ```
 
 Moving works in the same way as copying, but is much simpler. Simply use `move()` and pass the path to move to 
@@ -76,7 +76,7 @@ This method requires a new name and a boolean on whether to overwrite the destin
 
 ```hack
 $file->rename('new-file-name.' . $file->ext());
-$folder->rename('new-folder-name', true);
+$folder->rename('new-folder-name', false);
 ```
 
 <div class="notice is-warning">
@@ -210,7 +210,7 @@ $file->prepend('foo');
 $file->prepend('bar');
 ```
 
-When appending or prepending, the file resource is not automatically closed and will require manually closing.
+When appending or prepending, the file resource is not automatically closed and will require manual closing.
 
 ```hack
 $file->close();

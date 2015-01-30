@@ -22,7 +22,7 @@ class YamlWriter extends AbstractWriter {
      * {@inheritdoc}
      */
     public function getResourceExt(): string {
-        return 'yaml';
+        return 'yml';
     }
 
     /**

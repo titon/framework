@@ -22,6 +22,10 @@ use \RecursiveIteratorIterator;
  */
 class Folder extends Node {
 
+    const ALL = 0;
+    const FILES = 1;
+    const FOLDERS = 2;
+
     /**
      * Change directory. Alias for reset().
      *
@@ -108,7 +112,7 @@ class Folder extends Node {
      *
      * @return \Titon\Io\Folder
      */
-    public function copy(string $target, string $process = self::MERGE, int $mode = 0755): ?Node {
+    public function copy(string $target, int $process = self::MERGE, int $mode = 0755): ?Node {
         if (!$this->exists()) {
             return null;
         }
@@ -171,12 +175,23 @@ class Folder extends Node {
     }
 
     /**
+     * Scan the folder and return a list of File objects.
+     *
+     * @param bool $sort
+     * @param bool $recursive
+     * @return Vector<File>
+     */
+    public function files(bool $sort = false, bool $recursive = false): Vector<File> {
+        return $this->read($sort, $recursive, self::FILES);
+    }
+
+    /**
      * Find all files and folders within the current folder that match a specific pattern.
      *
      * @param string $pattern
      * @return Vector<Node>
      */
-    public function find(string $pattern): Vector<Node> {
+    public function find(string $pattern, int $filter = self::ALL): Vector<Node> {
         $contents = Vector {};
 
         if (!$this->exists()) {
@@ -191,10 +206,10 @@ class Folder extends Node {
 
         /** @var \SPLFileInfo $file */
         foreach ($iterator as $file) {
-            if ($file->isDir()) {
+            if ($file->isDir() && ($filter === self::ALL || $filter === self::FOLDERS)) {
                 $contents[] = new Folder($file->getPathname());
 
-            } else if ($file->isFile()) {
+            } else if ($file->isFile() && ($filter === self::ALL || $filter === self::FILES)) {
                 $contents[] = new File($file->getPathname());
             }
         }
@@ -203,26 +218,36 @@ class Folder extends Node {
     }
 
     /**
+     * Scan the folder and return a list of Folder objects.
+     *
+     * @param bool $sort
+     * @param bool $recursive
+     * @return Vector<Folder>
+     */
+    public function folders(bool $sort = false, bool $recursive = false): Vector<Folder> {
+        return $this->read($sort, $recursive, self::FOLDERS);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function move(string $target, bool $overwrite = true): bool {
-
-        // Don't move to the same location
         if (Path::ds($target, true) === Path::ds($this->path(), true)) {
-            return true;
+            return true; // Don't move to the same location
         }
 
         return parent::move($target, $overwrite);
      }
 
     /**
-     * Scan the folder and return an array of File and Folder objects.
+     * Scan the folder and return a list of File and Folder objects.
      *
      * @param bool $sort
      * @param bool $recursive
+     * @param int $filter
      * @return Vector<Node>
      */
-    public function read(bool $sort = true, bool $recursive = false): Vector<Node> {
+    public function read(bool $sort = false, bool $recursive = false, int $filter = self::ALL): Vector<Node> {
         $contents = Vector {};
 
         if (!$this->exists()) {
@@ -243,16 +268,16 @@ class Folder extends Node {
 
         /** @var \SPLFileInfo $file */
         foreach ($iterator as $file) {
-            if ($file->isDir()) {
+            if ($file->isDir() && ($filter === self::ALL || $filter === self::FOLDERS)) {
                 $contents[] = new Folder($file->getPathname());
 
-            } else if ($file->isFile()) {
+            } else if ($file->isFile() && ($filter === self::ALL || $filter === self::FILES)) {
                 $contents[] = new File($file->getPathname());
             }
         }
 
         if ($sort) {
-            usort($contents, (Node $a, Node $b) ==> strcmp($a->path(), $b->path()) );
+            usort($contents, ($a, $b) ==> strcmp($a->path(), $b->path()) );
         }
 
         return $contents;

@@ -14,8 +14,8 @@ class FileTest extends TestCase {
         parent::setUp();
 
         $this->setupVFS();
-        $this->object = new File($this->vfs->path('file/base'), true, 0777);
-        $this->temp = new File($this->vfs->path('file/temp'), false);
+        $this->object = new File($this->vfs->path('file/base.html'), true, 0777);
+        $this->temp = new File($this->vfs->path('file/temp.html'), false);
     }
 
     /**
@@ -36,6 +36,11 @@ class FileTest extends TestCase {
         $this->assertEquals('PrependContentAppend', $this->object->read());
     }
 
+    public function testBasename() {
+        $this->assertEquals('base.html', $this->object->basename());
+        $this->assertEquals('temp.html', $this->temp->basename());
+    }
+
     public function testCreate() {
         $this->assertTrue($this->object->exists());
         $this->assertFalse($this->object->create());
@@ -46,11 +51,12 @@ class FileTest extends TestCase {
     }
 
     public function testExt() {
-        $this->assertEquals('', $this->object->ext());
+        $this->assertEquals('html', $this->object->ext());
+        $this->assertEquals('html', $this->object->ext());
 
-        $file = new File($this->vfs->path('file/test.html'), true);
+        $file = new File($this->vfs->path('file/test'), true);
 
-        $this->assertEquals('html', $file->ext());
+        $this->assertEquals('', $file->ext());
     }
 
     public function testLockAndUnlock() {
@@ -71,6 +77,17 @@ class FileTest extends TestCase {
 
         $this->object->write('Change to content to produce a different hash.');
         $this->assertEquals('92dbea223f446b8d480a8fd4984232e4', $this->object->md5());
+    }
+
+    public function testMimeType() {
+        $this->assertEquals('text/plain', (new File(TEMP_DIR . '/io/ini.ini'))->mimeType());
+        $this->assertEquals('text/x-php', (new File(TEMP_DIR . '/io/php.php'))->mimeType());
+        $this->assertEquals('application/xml', (new File(TEMP_DIR . '/io/xml.xml'))->mimeType());
+    }
+
+    public function testName() {
+        $this->assertEquals('base', $this->object->name());
+        $this->assertEquals('temp', $this->temp->name());
     }
 
     public function testOpenClose() {

@@ -69,7 +69,7 @@ class File extends Node {
      *
      * @throws \Titon\Io\Exception\ExistingFileException
      */
-    public function copy(string $target, string $process = self::OVERWRITE, int $mode = 0755): ?File {
+    public function copy(string $target, int $process = self::OVERWRITE, int $mode = 0755): ?File {
         if (!$this->exists()) {
             return null;
         }
@@ -174,19 +174,14 @@ class File extends Node {
      * @return string
      */
     public function mimeType(): string {
-        $type = '';
-
         if (!$this->exists()) {
-            return $type;
+            return '';
         }
 
-        // We can't use the file command on windows
-        if (!defined('PHP_WINDOWS_VERSION_MAJOR')) {
-            $type = shell_exec(sprintf("file -b --mime %s", escapeshellarg($this->path())));
+        $type = shell_exec(sprintf("file -b --mime %s", escapeshellarg($this->path())));
 
-            if ($type && strpos($type, ';') !== false) {
-                $type = strstr($type, ';', true);
-            }
+        if ($type && strpos($type, ';') !== false) {
+            $type = strstr($type, ';', true);
         }
 
         // Fallback because of fileinfo bug: https://bugs.php.net/bug.php?id=53035

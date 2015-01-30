@@ -18,9 +18,9 @@ use Titon\Utility\Path;
  */
 abstract class Node {
 
-    const string OVERWRITE = 'overwrite';
-    const string MERGE = 'merge';
-    const string SKIP = 'skip';
+    const int OVERWRITE = 0;
+    const int MERGE = 1;
+    const int SKIP = 2;
 
     /**
      * Parent folder.
@@ -62,6 +62,15 @@ abstract class Node {
         }
 
         return 0;
+    }
+
+    /**
+     * Return the file name with extension.
+     *
+     * @return string
+     */
+    public function basename(): string {
+        return pathinfo($this->path(), PATHINFO_BASENAME);
     }
 
     /**
@@ -154,7 +163,7 @@ abstract class Node {
      * @param int $mode
      * @return \Titon\Io\Node
      */
-    abstract public function copy(string $target, string $process = self::OVERWRITE, int $mode = 0755): ?Node;
+    abstract public function copy(string $target, int $process = self::OVERWRITE, int $mode = 0755): ?Node;
 
     /**
      * Create the file if it doesn't exist.
@@ -268,7 +277,7 @@ abstract class Node {
      *
      * @return int
      */
-    public function modifiedTime(): int {
+    public function modifyTime(): int {
         if ($this->exists()) {
             return filemtime($this->path());
         }
@@ -312,12 +321,12 @@ abstract class Node {
     }
 
     /**
-     * Return the file name.
+     * Return the file name without extension.
      *
      * @return string
      */
     public function name(): string {
-        return basename($this->path());
+        return pathinfo($this->path(), PATHINFO_FILENAME);
     }
 
     /**

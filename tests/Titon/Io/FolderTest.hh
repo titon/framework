@@ -42,6 +42,11 @@ class FolderTest extends TestCase {
         $this->assertEquals(0, $this->temp->accessTime());
     }
 
+    public function testBasename() {
+        $this->assertEquals('base', $this->object->basename());
+        $this->assertEquals('temp', $this->temp->basename());
+    }
+
     public function testCd() {
         $this->assertEquals($this->vfs->path('base/'), $this->object->path());
         $this->object->cd($this->vfs->path('base-cd/'));
@@ -305,6 +310,44 @@ class FolderTest extends TestCase {
         $this->assertTrue($this->temp->exists());
     }
 
+    public function testFiles() {
+        $this->vfs->createStructure([
+            'base/read' => [
+                '4' => 'd',
+                '5' => 'e',
+                '6' => 'f',
+                'child' => [
+                    '1' => 'a',
+                    '2' => 'b',
+                    '3' => 'c'
+                ],
+                '1' => 'a',
+                '2' => 'b',
+                '3' => 'c',
+            ]
+        ]);
+
+        $folder = new Folder($this->vfs->path('base/read'));
+        $contents = $folder->files();
+
+        $scheme = $this->vfs->scheme();
+        $paths = $contents->map(function(Node $value) use ($scheme)  {
+            return str_replace($scheme . '://', '', $value->path());
+        });
+
+        $this->assertEquals(6, count($contents));
+        $this->assertEquals(Vector {
+            'base/read/4',
+            'base/read/5',
+            'base/read/6',
+            'base/read/1',
+            'base/read/2',
+            'base/read/3',
+        }, $paths);
+
+        $this->assertEquals(Vector {}, $this->temp->read());
+    }
+
     public function testFind() {
         $this->markTestSkipped('Glob iteration does not work with PHP streams');
 
@@ -340,6 +383,43 @@ class FolderTest extends TestCase {
         $this->assertEquals(Vector {}, $this->temp->find('*'));
     }
 
+    public function testFolders() {
+        $this->vfs->createStructure([
+            'base/read' => [
+                '4' => 'd',
+                '5' => 'e',
+                '6' => 'f',
+                'child1' => [
+                    '1' => 'a',
+                    '2' => 'b',
+                    '3' => 'c'
+                ],
+                '1' => 'a',
+                'child2' => [
+                    '1' => 'a',
+                    '2' => 'b',
+                    '3' => 'c'
+                ],
+            ]
+        ]);
+
+        $folder = new Folder($this->vfs->path('base/read'));
+        $contents = $folder->folders();
+
+        $scheme = $this->vfs->scheme();
+        $paths = $contents->map(function(Node $value) use ($scheme)  {
+            return str_replace($scheme . '://', '', $value->path());
+        });
+
+        $this->assertEquals(2, count($contents));
+        $this->assertEquals(Vector {
+            'base/read/child1/',
+            'base/read/child2/',
+        }, $paths);
+
+        $this->assertEquals(Vector {}, $this->temp->read());
+    }
+
     public function testGroup() {
         $this->assertEquals($this->groupid, $this->object->group());
         $this->assertEquals(null, $this->temp->group());
@@ -367,9 +447,9 @@ class FolderTest extends TestCase {
         $this->assertFalse($absolute->isRelative());
     }
 
-    public function testModifiedTime() {
-        $this->assertTrue(is_int($this->object->modifiedTime()));
-        $this->assertEquals(0, $this->temp->modifiedTime());
+    public function testModifyTime() {
+        $this->assertTrue(is_int($this->object->modifyTime()));
+        $this->assertEquals(0, $this->temp->modifyTime());
     }
 
     public function testMove() {
@@ -546,7 +626,7 @@ class FolderTest extends TestCase {
         ]);
 
         $folder = new Folder($this->vfs->path('base/read'));
-        $contents = $folder->read(false);
+        $contents = $folder->read();
 
         $scheme = $this->vfs->scheme();
         $paths = $contents->map(function(Node $value) use ($scheme)  {

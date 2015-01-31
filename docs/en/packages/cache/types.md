@@ -22,14 +22,14 @@ The following type aliases are available in the Cache package.
             <td>Titon\Cache\ItemList</td>
             <td>Vector&lt;Titon\Cache\Item&gt;</td>
             <td>
-                A list of <code>Item</code> objects used in deferred saving.
+                A list of <code>Titon\Cache\Item</code> objects used in deferred saving.
             </td>
         </tr>
         <tr>
             <td>Titon\Cache\ItemMap</td>
             <td>Map&lt;string, Titon\Cache\Item&gt;</td>
             <td>
-                A mapping of <code>Item</code> objects to their cache keys.
+                A mapping of <code>Titon\Cache\Item</code> objects to their cache keys.
             </td>
         </tr>
         <tr>
@@ -43,7 +43,7 @@ The following type aliases are available in the Cache package.
             <td>Titon\Cache\StorageMap</td>
             <td>Map&lt;string, Titon\Cache\Storage&gt;</td>
             <td>
-                A mapping of <code>Storage</code> engines to unique keys.
+                A mapping of <code>Titon\Cache\Storage</code> engines to unique keys.
             </td>
         </tr>
     </tbody>

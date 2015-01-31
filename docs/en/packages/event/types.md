@@ -19,7 +19,7 @@ The following type aliases are available in the Event package.
         <tr>
             <td>Titon\Event\EventMap</td>
             <td>Map&lt;string, Titon\Event\Event&gt;</td>
-            <td>A mapping of <code>Event</code> objects to their unique key.</td>
+            <td>A mapping of <code>Titon\Event\Event</code> objects to their unique key.</td>
         </tr>
         <tr>
             <td>Titon\Event\ListenerMap</td>
@@ -29,12 +29,12 @@ The following type aliases are available in the Event package.
         <tr>
             <td>Titon\Event\ObserverList</td>
             <td>Vector&lt;Titon\Event\Observer&gt;</td>
-            <td>A list of <code>Observer</code> objects.</td>
+            <td>A list of <code>Titon\Event\Observer</code> objects.</td>
         </tr>
         <tr>
             <td>Titon\Event\ObserverContainer</td>
             <td>Map&lt;string, Titon\Event\ObserverList&gt;</td>
-            <td>A mapping of <code>ObserverList</code>'s to event keys.</td>
+            <td>A mapping of <code>Titon\Event\ObserverList</code>s to event keys.</td>
         </tr>
         <tr>
             <td>Titon\Event\ObserverCallback</td>

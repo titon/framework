@@ -55,7 +55,7 @@ class PoWriter extends AbstractWriter {
         if ($data->contains('_comments')) {
             $customComments = $data['_comments'];
 
-            invariant($customComments instanceof Map, 'Po comments must be a map');
+            invariant($customComments instanceof Map, 'PO comments must be a map');
 
             $comments = $comments->setAll($customComments);
 

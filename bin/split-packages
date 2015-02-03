@@ -4,6 +4,9 @@ from argparse import ArgumentParser
 from gittle import Gittle
 from colorama import init, Fore
 
+// Disabled temporarily
+sys.exit()
+
 import os, sys, shutil, time
 
 parser = ArgumentParser(description='Split the project into multiple packages and push to git.')

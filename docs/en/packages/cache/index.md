@@ -1,7 +1,6 @@
 # Cache Package #
 
-The Cache package provides a data caching layer that supports popular cache engines like Memcache, APC, Redis,
-and the local file system, with features like prefixing and deferred saves.
+The Cache package provides a data caching layer that supports popular cache engines like Memcache, APC, Redis, and the local file system, with features like prefixing and deferred saves.
 
 ### Requirements ###
 

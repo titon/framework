@@ -12,7 +12,7 @@ The following system dependencies are required.
 
 ### Using Nexus ###
 
-We suggest using [Nexus](nexus.md), an all-in-one Vagrant development environment. 
+We suggest using [Nexus](https://github.com/titon/nexus), an all-in-one Vagrant development environment. 
 It's an official Titon project that provides up-to-date support for Hack and HHVM development.
 
 If you prefer not to use Nexus, continue reading, else jump down to the installation chapter.

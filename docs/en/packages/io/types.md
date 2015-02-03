@@ -15,14 +15,14 @@ The following type aliases are available in the IO package.
             <td>Titon\Io\DomainList</td>
             <td>Vector&lt;string&gt;</td>
             <td>
-                A list of domain names mapped within a <code>Titon\Io\Bundle</code>
+                A list of domain names mapped within a <code>Titon\Io\Bundle</code>.
             </td>
         </tr>
         <tr>
             <td>Titon\Io\PathList</td>
             <td>Vector&lt;string&gt;</td>
             <td>
-                A list of filesystem paths mapped within a <code>Titon\Io\Bundle</code>
+                A list of filesystem paths mapped within a <code>Titon\Io\Bundle</code>.
             </td>
         </tr>
         <tr>

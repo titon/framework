@@ -48,7 +48,7 @@ $writer = new Titon\Io\Writer\XmlWriter('/path/to/file');
 ```
 
 This writer makes use of the [XML class found in the type package](../type/xml.md) 
-and will require as special map format.
+and will require a special map format.
 
 ### INI ###
 
@@ -62,7 +62,7 @@ INI sections are supported through nested maps.
 
 ### PO ###
 
-The `Titon\Io\Writer\PoWriter` can be used in writing PO files by converting a map to valid PO message strings.
+The `Titon\Io\Writer\PoWriter` can be used in writing PO files by converting a map to valid message strings.
 A PO (portable object) file contains localized messages for the gettext extension.
 
 ```hack
@@ -87,7 +87,7 @@ $map = Map {
 };
 ```
 
-Plurals can be defined by passing a vector of strings.
+Plurals can also be defined by passing a vector of strings.
 
 ```hack
 $map = Map {

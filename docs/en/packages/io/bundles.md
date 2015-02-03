@@ -22,12 +22,12 @@ cms/
 ├── bar/
 |   └── rules.php
 └── baz/
-    └── rules.php
+|   └── rules.php
 blog/
 ├── foo/
 |   └── messages.php
 └── baz/
-    └── validations.php
+|   └── validations.php
 forum/
 └── foo/
     ├── messages.php
@@ -51,7 +51,7 @@ We can also add multiple paths using `addPaths()`.
 $bundle->addPaths('foo', Vector {'blog/foo/', 'forum/foo/'});
 ```
 
-Catalog files should only contain data that can be converted into collections. For example, 
+Catalog files should only contain data that can be converted into a map. For example, 
 a PHP file should return an array of key-value pairs.
 
 ## Using Readers ##

@@ -20,8 +20,8 @@
         "titon/utility": "*"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Common": "src/"
+        "psr-4": {
+            "Titon\\Common\\": "src/"
         },
         "files": [
             "src/Titon/Common/bootstrap.hh"

@@ -21,8 +21,8 @@
         "titon/event": "*"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Environment": "src/"
+        "psr-4": {
+            "Titon\\Environment\\": "src/"
         },
         "files": [
             "src/Titon/Environment/bootstrap.hh"

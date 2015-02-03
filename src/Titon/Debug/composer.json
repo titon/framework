@@ -25,8 +25,8 @@
         "monolog/monolog": "Integrate advanced logging with Monolog"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Debug": "src/"
+        "psr-4": {
+            "Titon\\Debug\\": "src/"
         },
         "files": [
             "src/Titon/Debug/bootstrap.hh"

@@ -25,8 +25,8 @@
         "titon/type": "Read and write XML files using the Type package"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Io": "src/"
+        "psr-4": {
+            "Titon\\Io\\": "src/"
         },
         "files": [
             "src/Titon/Io/bootstrap.hh"

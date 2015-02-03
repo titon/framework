@@ -26,8 +26,8 @@
         "titon/type": "Build breadcrumb trails using the Type package"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\View": "src/"
+        "psr-4": {
+            "Titon\\View\\": "src/"
         },
         "files": [
             "src/Titon/View/bootstrap.hh"

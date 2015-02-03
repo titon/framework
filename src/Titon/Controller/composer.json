@@ -26,8 +26,8 @@
         "titon/view": "Render templates using the View package"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Controller": "src/"
+        "psr-4": {
+            "Titon\\Controller\\": "src/"
         },
         "files": [
             "src/Titon/Controller/bootstrap.hh"

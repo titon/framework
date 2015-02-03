@@ -24,8 +24,8 @@
         "titon/cache": "Cache route lookups using the Cache package"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Route": "src/"
+        "psr-4": {
+            "Titon\\Route\\": "src/"
         },
         "files": [
             "src/Titon/Route/bootstrap.hh"

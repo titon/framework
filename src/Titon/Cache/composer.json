@@ -27,8 +27,8 @@
         "titon/db": "Cache data to a database using the DB package"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Cache": "src/"
+        "psr-4": {
+            "Titon\\Cache\\": "src/"
         },
         "files": [
             "src/Titon/Cache/bootstrap.hh"

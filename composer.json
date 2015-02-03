@@ -29,7 +29,7 @@
         "php-vfs/php-vfs": "~1.2.0"
     },
     "autoload": {
-        "psr-0": { "": "src/" },
+        "psr-4": { "": "src/" },
         "files": [
             "src/Titon/Cache/bootstrap.hh",
             "src/Titon/Common/bootstrap.hh",
@@ -47,6 +47,6 @@
         ]
     },
     "autoload-dev": {
-        "psr-0": { "": "tests/" }
+        "psr-4": { "": "tests/" }
     }
 }

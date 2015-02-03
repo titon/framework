@@ -20,8 +20,8 @@
         "titon/common": "*"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Validate": "src/"
+        "psr-4": {
+            "Titon\\Validate\\": "src/"
         },
         "files": [
             "src/Titon/Validate/bootstrap.hh"

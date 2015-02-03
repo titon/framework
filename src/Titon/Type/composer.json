@@ -24,8 +24,8 @@
         "ext-simplexml": "Read and Write XML files using the Type\\Xml classes"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Type": "src/"
+        "psr-4": {
+            "Titon\\Type\\": "src/"
         },
         "files": [
             "src/Titon/Type/bootstrap.hh"

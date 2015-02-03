@@ -20,8 +20,8 @@
         "titon/common": "*"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Event": "src/"
+        "psr-4": {
+            "Titon\\Event\\": "src/"
         },
         "files": [
             "src/Titon/Event/bootstrap.hh"

@@ -29,8 +29,8 @@
         "titon/io": "Load configuration files using an Io\\Reader class"
     },
     "autoload": {
-        "psr-0": {
-            "Titon\\Utility": "src/"
+        "psr-4": {
+            "Titon\\Utility\\": "src/"
         },
         "files": [
             "src/Titon/Utility/bootstrap.hh"

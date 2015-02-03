@@ -8,7 +8,7 @@
 namespace Titon\Utility\State;
 
 /**
- * The Env class acts as a static immutable wrapper for the $_ENV super global.
+ * The Env class acts as a static immutable wrapper for the $ENV super global.
  *
  * @package Titon\Utility\State
  */

@@ -23,21 +23,21 @@ class Item {
      *
      * @var \DateTime
      */
-    protected ?DateTime $_expires;
+    protected ?DateTime $expires;
 
     /**
      * The unique cache key.
      *
      * @var string
      */
-    protected string $_key = '';
+    protected string $key = '';
 
     /**
      * The items value to be saved.
      *
      * @var mixed
      */
-    protected mixed $_value = '';
+    protected mixed $value = '';
 
     /**
      * Set the key, value, and expiration.
@@ -79,7 +79,7 @@ class Item {
      *   The value corresponding to this cache item's key, or null if not found.
      */
     public function get(): mixed {
-        return $this->_value;
+        return $this->value;
     }
 
     /**
@@ -92,7 +92,7 @@ class Item {
      *   The timestamp at which this cache item will expire.
      */
     public function getExpiration(): ?DateTime {
-        return $this->_expires;
+        return $this->expires;
     }
 
     /**
@@ -105,7 +105,7 @@ class Item {
      *   The key string for this cache item.
      */
     public function getKey(): string {
-        return $this->_key;
+        return $this->key;
     }
 
     /**
@@ -138,7 +138,7 @@ class Item {
      * @return $this
      */
     public function set(mixed $value): this {
-        $this->_value = $value;
+        $this->value = $value;
 
         return $this;
     }
@@ -168,7 +168,7 @@ class Item {
             $time = Time::toUnix($ttl);
         }
 
-        $this->_expires = Time::factory($time);
+        $this->expires = Time::factory($time);
 
         return $this;
     }
@@ -180,7 +180,7 @@ class Item {
      * @return $this
      */
     public function setKey(string $key): this {
-        $this->_key = $key;
+        $this->key = $key;
 
         return $this;
     }

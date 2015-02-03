@@ -9,7 +9,7 @@ namespace Titon\Http\Server;
 
 use Titon\Http\Http;
 
-type RedirectCallback = (function(Response): void);
+newtype RedirectCallback = (function(Response): void);
 
 /**
  * The Redirector bundles convenience methods for redirecting to new URLs using HTTP headers.

@@ -44,7 +44,6 @@ class ControllerTest extends TestCase {
         $this->object->setRequest(Request::createFromGlobals());
         $this->object->setResponse(new Response());
         $this->object->setView($view);
-        $this->object->initialize();
     }
 
     public function testBuildViewPath() {

@@ -21,10 +21,6 @@ use \ReflectionFunctionAbstract;
 use \ReflectionMethod;
 use \Serializable;
 
-type ParamMap = Map<string, mixed>;
-type Token = shape('token' => string, 'optional' => bool);
-type TokenList = Vector<Token>;
-
 /**
  * Represents the skeleton for an individual route. A route is paired with a tokenized path that is matched and converted to a
  * routeable URL. Routes support filters, patterns, conditional matching, and more.
@@ -48,49 +44,49 @@ class Route implements Serializable {
      *
      * @var \Titon\Route\Action
      */
-    protected Action $_action;
+    protected Action $action;
 
     /**
      * The compiled regex pattern.
      *
      * @var string
      */
-    protected string $_compiled = '';
+    protected string $compiled = '';
 
     /**
      * Collection of route parameters.
      *
      * @var \Titon\Route\ParamMap
      */
-    protected ParamMap $_params = Map {};
+    protected ParamMap $params = Map {};
 
     /**
      * The path to match.
      *
      * @var string
      */
-    protected string $_path = '';
+    protected string $path = '';
 
     /**
      * A static route that contains no patterns.
      *
      * @var bool
      */
-    protected bool $_static = false;
+    protected bool $static = false;
 
     /**
      * Custom defined tokens.
      *
      * @var \Titon\Route\TokenList
      */
-    protected TokenList $_tokens = Vector {};
+    protected TokenList $tokens = Vector {};
 
     /**
      * The corresponding URL when a match is found.
      *
      * @var string
      */
-    protected string $_url = '';
+    protected string $url = '';
 
     /**
      * Store the tokenized URL to match and the action to route to.
@@ -101,7 +97,7 @@ class Route implements Serializable {
      * @param string $action
      */
     public function __construct(string $path, string $action) {
-        $this->_action = Router::parseAction($action);
+        $this->action = Router::parseAction($action);
         $this->append($path);
     }
 
@@ -112,7 +108,7 @@ class Route implements Serializable {
      * @return $this
      */
     public function append(string $path): this {
-        $this->_path .= '/' . trim($path, '/');
+        $this->path .= '/' . trim($path, '/');
 
         return $this;
     }
@@ -125,7 +121,7 @@ class Route implements Serializable {
      */
     public function compile(): string {
         if ($this->isCompiled()) {
-            return $this->_compiled;
+            return $this->compiled;
         }
 
         $path = $this->getPath();
@@ -190,7 +186,7 @@ class Route implements Serializable {
 
                     $compiled = str_replace($chunk, $pattern, $compiled);
 
-                    $this->_tokens[] = shape('token' => $token, 'optional' => $optional);
+                    $this->tokens[] = shape('token' => $token, 'optional' => $optional);
                 }
             } else {
                 $this->setStatic(true);
@@ -203,7 +199,7 @@ class Route implements Serializable {
         }
 
         // Save the compiled regex
-        return $this->_compiled = $compiled;
+        return $this->compiled = $compiled;
     }
 
     /**
@@ -232,7 +228,7 @@ class Route implements Serializable {
      * @return \Titon\Route\Action
      */
     public function getAction(): Action {
-        return $this->_action;
+        return $this->action;
     }
 
     /**
@@ -244,7 +240,7 @@ class Route implements Serializable {
         $action = $this->getAction();
         $method = new ReflectionMethod($action['class'], $action['action']);
 
-        return $this->_getArguments($method);
+        return $this->getArguments($method);
     }
 
     /**
@@ -253,7 +249,7 @@ class Route implements Serializable {
      * @return string
      */
     public function getPath(): string {
-        return $this->_path;
+        return $this->path;
     }
 
     /**
@@ -272,7 +268,7 @@ class Route implements Serializable {
      * @return \Titon\Route\ParamMap
      */
     public function getParams(): ParamMap {
-        return $this->_params;
+        return $this->params;
     }
 
     /**
@@ -281,7 +277,7 @@ class Route implements Serializable {
      * @return bool
      */
     public function getStatic(): bool {
-        return $this->_static;
+        return $this->static;
     }
 
     /**
@@ -290,7 +286,7 @@ class Route implements Serializable {
      * @return \Titon\Route\TokenList
      */
     public function getTokens(): TokenList {
-        return $this->_tokens;
+        return $this->tokens;
     }
 
     /**
@@ -299,7 +295,7 @@ class Route implements Serializable {
      * @return bool
      */
     public function isCompiled(): bool {
-        return ($this->_compiled !== '');
+        return ($this->compiled !== '');
     }
 
     /**
@@ -325,7 +321,7 @@ class Route implements Serializable {
             return false;
 
         } else if ($this->getPath() === $url) {
-            $this->_url = $url;
+            $this->url = $url;
 
             return true;
 
@@ -409,11 +405,11 @@ class Route implements Serializable {
     public function match(array<string> $matches): this {
         $tokens = $this->getTokens();
 
-        $this->_url = array_shift($matches);
+        $this->url = array_shift($matches);
 
         if ($matches && $tokens) {
             foreach ($tokens as $token) {
-                $this->_params[$token['token']] = array_shift($matches);
+                $this->params[$token['token']] = array_shift($matches);
             }
         }
 
@@ -427,7 +423,7 @@ class Route implements Serializable {
      * @return $this
      */
     public function prepend(string $path): this {
-        $this->_path = '/' . trim($path, '/') . rtrim($this->_path, '/');
+        $this->path = '/' . trim($path, '/') . rtrim($this->path, '/');
 
         return $this;
     }
@@ -456,7 +452,7 @@ class Route implements Serializable {
      * @return $this
      */
     public function setAction(Action $action): this {
-        $this->_action = $action;
+        $this->action = $action;
 
         return $this;
     }
@@ -468,7 +464,7 @@ class Route implements Serializable {
      * @return $this
      */
     public function setStatic(bool $static): this {
-        $this->_static = $static;
+        $this->static = $static;
 
         return $this;
     }
@@ -481,10 +477,10 @@ class Route implements Serializable {
     public function unserialize($data): void { // TODO - Type hint
         $data = unserialize($data);
 
-        $this->_path = $data['path'];
-        $this->_action = $data['action'];
-        $this->_tokens = $data['tokens'];
-        $this->_compiled = $data['compiled'];
+        $this->path = $data['path'];
+        $this->action = $data['action'];
+        $this->tokens = $data['tokens'];
+        $this->compiled = $data['compiled'];
 
         $this->setFilters($data['filters']);
         $this->setMethods($data['methods']);
@@ -499,7 +495,7 @@ class Route implements Serializable {
      * @return string
      */
     public function url(): string {
-        return $this->_url;
+        return $this->url;
     }
 
     /**
@@ -509,7 +505,7 @@ class Route implements Serializable {
      * @param \ReflectionFunctionAbstract $method
      * @return \Titon\Common\ArgumentList
      */
-    protected function _getArguments(ReflectionFunctionAbstract $method): ArgumentList {
+    protected function getArguments(ReflectionFunctionAbstract $method): ArgumentList {
         $tokens = $this->getTokens();
         $args = $this->getParams()->values();
 

@@ -26,7 +26,7 @@ class EngineView extends AbstractView {
      *
      * @var \Titon\View\Engine
      */
-    protected Engine $_engine;
+    protected Engine $engine;
 
     /**
      * Set the default rendering engine.
@@ -37,8 +37,8 @@ class EngineView extends AbstractView {
     public function __construct(mixed $paths, string $ext = 'tpl') {
         parent::__construct($paths, $ext);
 
-        $this->_engine = new TemplateEngine();
-        $this->_engine->setView($this);
+        $this->engine = new TemplateEngine();
+        $this->engine->setView($this);
     }
 
     /**
@@ -47,7 +47,7 @@ class EngineView extends AbstractView {
      * @return \Titon\View\Engine
      */
     public function getEngine(): Engine {
-        return $this->_engine;
+        return $this->engine;
     }
 
     /**
@@ -137,7 +137,7 @@ class EngineView extends AbstractView {
     public function setEngine(Engine $engine): this {
         $engine->setView($this);
 
-        $this->_engine = $engine;
+        $this->engine = $engine;
 
         return $this;
     }

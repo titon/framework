@@ -7,11 +7,7 @@
 
 namespace Titon\Common;
 
-use Titon\Common\ArgumentList;
 use \ReflectionClass;
-
-type InstanceContainer<T> = Map<string, InstanceMap<T>>;
-type InstanceMap<T> = Map<string, T>;
 
 /**
  * The Instanceable trait provides a low-level multiton interface for classes.
@@ -25,7 +21,7 @@ trait Instanceable<T> {
      *
      * @var \Titon\Common\InstanceContainer
      */
-    protected static InstanceContainer<T> $_instances = Map {};
+    protected static InstanceContainer<T> $instances = Map {};
 
     /**
      * Return a count of all active instances.
@@ -47,22 +43,17 @@ trait Instanceable<T> {
      * Return an object instance else instantiate a new one.
      *
      * @param string $key
-     * @param \Titon\Common\ArgumentList $params
+     * @param array<mixed> $args
      * @return $this
      */
-    public static function getInstance(string $key = 'default', ArgumentList $params = Vector {}): T {
+    public static function getInstance(string $key = 'default', ...$args): T {
         $instances = static::getInstances();
 
         if ($instances->contains($key)) {
             return $instances[$key];
         }
 
-        $reflection = new ReflectionClass(static::class);
-        $object = $reflection->newInstanceArgs($params->toArray());
-
-        $instances[$key] = $object;
-
-        return $object;
+        return $instances[$key] = (new ReflectionClass(static::class))->newInstanceArgs($args);
     }
 
     /**
@@ -71,7 +62,7 @@ trait Instanceable<T> {
      * @return \Titon\Common\InstanceMap
      */
     public static function getInstances(): InstanceMap<T> {
-        $instances = static::$_instances;
+        $instances = static::$instances;
         $class = static::class;
 
         if (!$instances->contains($class)) {

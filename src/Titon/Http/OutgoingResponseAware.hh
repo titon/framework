@@ -21,7 +21,7 @@ trait OutgoingResponseAware {
      *
      * @var \Psr\Http\Message\OutgoingResponseInterface
      */
-    protected ?OutgoingResponseInterface $_response;
+    protected ?OutgoingResponseInterface $response;
 
     /**
      * Return the response object.
@@ -29,7 +29,7 @@ trait OutgoingResponseAware {
      * @return \Psr\Http\Message\OutgoingResponseInterface
      */
     public function getResponse(): ?OutgoingResponseInterface {
-        return $this->_response;
+        return $this->response;
     }
 
     /**
@@ -39,7 +39,7 @@ trait OutgoingResponseAware {
      * @return $this
      */
     public function setResponse(OutgoingResponseInterface $response): this {
-        $this->_response = $response;
+        $this->response = $response;
 
         return $this;
     }

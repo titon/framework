@@ -10,7 +10,7 @@ namespace Titon\Route;
 use Titon\Route\Exception\NoMatchException;
 use \ReflectionFunction;
 
-type RouteCallback = (function(...): mixed);
+newtype RouteCallback = (function(...): mixed);
 
 /**
  * The CallbackRoute works in a similar fashion to the default Route with the only difference being
@@ -25,7 +25,7 @@ class CallbackRoute extends Route {
      *
      * @var \Titon\Route\RouteCallback
      */
-    protected RouteCallback $_callback;
+    protected RouteCallback $callback;
 
     /**
      * Store the tokenized URL to match and the callback to dispatch to.
@@ -34,7 +34,7 @@ class CallbackRoute extends Route {
      * @param \Titon\Route\RouteCallback $callback
      */
     public function __construct(string $path, RouteCallback $callback) {
-        $this->_callback = $callback;
+        $this->callback = $callback;
 
         parent::__construct($path, 'CallbackRoute@noop');
     }
@@ -49,7 +49,7 @@ class CallbackRoute extends Route {
 
         $callback = new ReflectionFunction($this->getCallback());
 
-        return $callback->invokeArgs($this->_getArguments($callback)->toArray());
+        return $callback->invokeArgs($this->getArguments($callback)->toArray());
     }
 
     /**
@@ -58,7 +58,7 @@ class CallbackRoute extends Route {
      * @return \Titon\Route\RouteCallback
      */
     public function getCallback(): RouteCallback {
-        return $this->_callback;
+        return $this->callback;
     }
 
     /**
@@ -68,7 +68,7 @@ class CallbackRoute extends Route {
      * @return $this
      */
     public function setCallback(RouteCallback $callback): this {
-        $this->_callback = $callback;
+        $this->callback = $callback;
 
         return $this;
     }

@@ -31,7 +31,7 @@ class SubjectTest extends TestCase {
         $listener = new ListenerStub();
 
         $this->object->on('event.test1', $callback);
-        $this->object->on('event', $listener);
+        $this->object->on($listener);
 
         $this->assertEquals(Vector {
             new Observer($callback, 100, false),
@@ -40,24 +40,31 @@ class SubjectTest extends TestCase {
         }, $this->object->getEmitter()->getObservers('event.test1'));
 
         $this->object->off('event.test1', $callback);
-        $this->object->off('event', $listener);
+        $this->object->off($listener);
 
         $this->assertEquals(Vector {}, $this->object->getEmitter()->getObservers('event.test1'));
     }
 
     public function testOnce() {
-        $ob1 = function(Event $event) { };
-        $ob2 = [new ListenerStub(), 'noop2'];
-        $ob3 = function(Event $event) { };
-        $ob4 = [new ListenerStub(), 'noop1'];
+        $count = 0;
+
+        $ob1 = function(Event $event, &$c) { $c++; };
+        $ob2 = [new ListenerStub(), 'counter'];
+        $ob3 = function(Event $event, &$c) { $c++; };
+        $ob4 = [new ListenerStub(), 'counter'];
 
         $this->object->once('event.test', $ob1, 20);
         $this->object->on('event.test', $ob2, 15);
         $this->object->on('event.test', $ob3, 5, true);
         $this->object->on('event.test', $ob4, 75);
 
-        $this->assertEquals(4, count($this->object->emit('event.test', [])->getCallStack()));
-        $this->assertEquals(2, count($this->object->emit('event.test', [])->getCallStack()));
+        $this->object->emit('event.test', [&$count]);
+
+        $this->assertEquals(4, $count);
+
+        $this->object->emit('event.test', [&$count]);
+
+        $this->assertEquals(6, $count);
     }
 
 }

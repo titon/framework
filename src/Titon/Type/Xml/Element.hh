@@ -11,10 +11,6 @@ use Titon\Utility\Sanitize;
 use \IteratorAggregate;
 use \Countable;
 
-type AttributeMap = Map<string, string>;
-type ElementList = Vector<Element>;
-type NamespaceMap = Map<string, string>;
-
 /**
  * The Element class represents a single element (or node) with an XML document tree.
  * It has support for attributes, children (nested elements), and an optional value.
@@ -28,21 +24,21 @@ class Element implements IteratorAggregate<Element>, Countable {
      *
      * @var \Titon\Type\Xml\AttributeMap
      */
-    protected AttributeMap $_attributes = Map {};
+    protected AttributeMap $attributes = Map {};
 
     /**
      * List of children within this element.
      *
      * @var \Titon\Type\Xml\ElementList
      */
-    protected ElementList $_children = Vector {};
+    protected ElementList $children = Vector {};
 
     /**
      * Map of attributes for document declaration (opening XML tag).
      *
      * @var \Titon\Type\Xml\AttributeMap
      */
-    protected AttributeMap $_declaration = Map {
+    protected AttributeMap $declaration = Map {
         'version' => '1.0',
         'encoding' => 'UTF-8'
     };
@@ -52,28 +48,28 @@ class Element implements IteratorAggregate<Element>, Countable {
      *
      * @var string
      */
-    protected string $_name = '';
+    protected string $name = '';
 
     /**
      * Map of namespaces for this element.
      *
      * @var \Titon\Type\Xml\NamespaceMap
      */
-    protected NamespaceMap $_namespaces = Map {};
+    protected NamespaceMap $namespaces = Map {};
 
     /**
      * The parent element this child belongs to.
      *
      * @var \Titon\Type\Xml\Element
      */
-    protected ?Element $_parent = null;
+    protected ?Element $parent = null;
 
     /**
      * The value within the element. Is override by children.
      *
      * @var string
      */
-    protected string $_value = '';
+    protected string $value = '';
 
     /**
      * Create a new element and optionally set attributes.
@@ -105,7 +101,7 @@ class Element implements IteratorAggregate<Element>, Countable {
     public function addChild(Element $child): this {
         $child->setParent($this);
 
-        $this->_children[] = $child;
+        $this->children[] = $child;
 
         return $this;
     }
@@ -130,7 +126,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return int
      */
     public function count(): int {
-        return count($this->_children);
+        return count($this->children);
     }
 
     /**
@@ -181,7 +177,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return \Titon\Type\Xml\AttributeMap
      */
     public function getAttributes(): AttributeMap {
-        return $this->_attributes;
+        return $this->attributes;
     }
 
     /**
@@ -215,7 +211,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return \Titon\Type\Xml\ElementList
      */
     public function getChildren(): ElementList {
-        return $this->_children;
+        return $this->children;
     }
 
     /**
@@ -233,7 +229,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return \Titon\Type\Xml\AttributeMap
      */
     public function getDeclaration(): AttributeMap {
-        return $this->_declaration;
+        return $this->declaration;
     }
 
     /**
@@ -251,7 +247,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return string
      */
     public function getName(): string {
-        return $this->_name;
+        return $this->name;
     }
 
     /**
@@ -270,7 +266,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return \Titon\Type\Xml\NamespaceMap
      */
     public function getNamespaces(): NamespaceMap {
-        return $this->_namespaces;
+        return $this->namespaces;
     }
 
     /**
@@ -299,7 +295,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return \Titon\Type\Xml\Element
      */
     public function getParent(): ?Element {
-        return $this->_parent;
+        return $this->parent;
     }
 
     /**
@@ -308,7 +304,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return string
      */
     public function getValue(): string {
-        return $this->_value;
+        return $this->value;
     }
 
     /**
@@ -406,7 +402,7 @@ class Element implements IteratorAggregate<Element>, Countable {
             $key = $namespace . ':' . $key;
         }
 
-        $this->_attributes[$key] = Document::unbox($value);
+        $this->attributes[$key] = Document::unbox($value);
 
         return $this;
     }
@@ -437,7 +433,7 @@ class Element implements IteratorAggregate<Element>, Countable {
         $attributes['version'] = $version;
         $attributes['encoding'] = $encoding;
 
-        $this->_declaration->setAll($attributes);
+        $this->declaration->setAll($attributes);
 
         return $this;
     }
@@ -457,7 +453,7 @@ class Element implements IteratorAggregate<Element>, Countable {
             $name = $namespace . ':' . $name;
         }
 
-        $this->_name = $name;
+        $this->name = $name;
 
         return $this;
     }
@@ -470,7 +466,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return $this
      */
     public function setNamespace(string $key, string $value): this {
-        $this->_namespaces[$key] = $value;
+        $this->namespaces[$key] = $value;
 
         return $this;
     }
@@ -496,7 +492,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return $this
      */
     public function setParent(Element $element): this {
-        $this->_parent = $element;
+        $this->parent = $element;
 
         return $this;
     }
@@ -515,7 +511,7 @@ class Element implements IteratorAggregate<Element>, Countable {
             $value = '<![CDATA[' . PHP_EOL . $value . PHP_EOL . ']]>';
         }
 
-        $this->_value = $value;
+        $this->value = $value;
 
         return $this;
     }

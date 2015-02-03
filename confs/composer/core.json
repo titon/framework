@@ -35,6 +35,7 @@
         },
         "files": [
             "src/Titon/Common/bootstrap.hh",
+            "src/Titon/Type/bootstrap.hh",
             "src/Titon/Utility/bootstrap.hh"
         ]
     }

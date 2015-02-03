@@ -7,11 +7,6 @@
 
 namespace Titon\Route\Mixin;
 
-use Titon\Route\Route;
-
-type ConditionCallback = (function(Route): bool);
-type ConditionList = Vector<ConditionCallback>;
-
 /**
  * Provides functionality for conditionals.
  *
@@ -24,7 +19,7 @@ trait ConditionMixin {
      *
      * @var \Titon\Route\Mixin\ConditionList
      */
-    protected ConditionList $_conditions = Vector {};
+    protected ConditionList $conditions = Vector {};
 
     /**
      * Add a condition callback.
@@ -33,7 +28,7 @@ trait ConditionMixin {
      * @return $this
      */
     public function addCondition(ConditionCallback $condition): this {
-        $this->_conditions[] = $condition;
+        $this->conditions[] = $condition;
 
         return $this;
     }
@@ -58,7 +53,7 @@ trait ConditionMixin {
      * @return \Titon\Route\Mixin\ConditionList
      */
     public function getConditions(): ConditionList {
-        return $this->_conditions;
+        return $this->conditions;
     }
 
     /**
@@ -68,7 +63,7 @@ trait ConditionMixin {
      * @return $this
      */
     public function setConditions(ConditionList $conditions): this {
-        $this->_conditions = $conditions;
+        $this->conditions = $conditions;
 
         return $this;
     }

@@ -10,8 +10,6 @@ namespace Titon\View\Helper;
 use Titon\Common\OptionMap;
 use Titon\Type\ArrayList;
 
-type Breadcrumb = shape('title' => string, 'url' => string, 'attributes' => AttributeMap);
-
 /**
  * The BreadcrumbHelper is primarily used for adding and generating breadcrumb lists.
  *
@@ -24,13 +22,13 @@ class BreadcrumbHelper extends AbstractHelper {
      *
      * @var ArrayList<Breadcrumb>
      */
-    protected ArrayList<Breadcrumb> $_breadcrumbs;
+    protected ArrayList<Breadcrumb> $breadcrumbs;
 
     /**
      * Initialize the ArrayList.
      */
     public function __construct() {
-        $this->_breadcrumbs = new ArrayList();
+        $this->breadcrumbs = new ArrayList();
     }
 
     /**
@@ -62,7 +60,7 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return $this
      */
     public function append(string $title, string $url, AttributeMap $attributes = Map {}): this {
-        $this->_breadcrumbs = $this->getBreadcrumbs()->append(shape(
+        $this->breadcrumbs = $this->getBreadcrumbs()->append(shape(
             'title' => $title,
             'url' => $url,
             'attributes' => $attributes
@@ -107,7 +105,7 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return \Titon\Type\ArrayList<Breadcrumb>
      */
     public function getBreadcrumbs(): ArrayList<Breadcrumb> {
-        return $this->_breadcrumbs;
+        return $this->breadcrumbs;
     }
 
     /**
@@ -128,7 +126,7 @@ class BreadcrumbHelper extends AbstractHelper {
      * @return $this
      */
     public function prepend(string $title, string $url, AttributeMap $attributes = Map {}): this {
-        $this->_breadcrumbs = $this->getBreadcrumbs()->prepend(shape(
+        $this->breadcrumbs = $this->getBreadcrumbs()->prepend(shape(
             'title' => $title,
             'url' => $url,
             'attributes' => $attributes

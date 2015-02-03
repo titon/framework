@@ -11,8 +11,6 @@ use Titon\Common\Exception\MissingFileException;
 use Titon\Io\Exception\ExistingFileException;
 use Titon\Utility\Path;
 
-type ResourceMap = Map<string, mixed>;
-
 /**
  * Shared functionality between file and folder objects.
  *
@@ -20,23 +18,23 @@ type ResourceMap = Map<string, mixed>;
  */
 abstract class Node {
 
-    const string OVERWRITE = 'overwrite';
-    const string MERGE = 'merge';
-    const string SKIP = 'skip';
+    const int OVERWRITE = 0;
+    const int MERGE = 1;
+    const int SKIP = 2;
 
     /**
      * Parent folder.
      *
      * @var \Titon\Io\Folder
      */
-    protected ?Folder $_parent;
+    protected ?Folder $parent;
 
     /**
      * Current path.
      *
      * @var string
      */
-    protected string $_path = '';
+    protected string $path = '';
 
     /**
      * Initialize the file path. If the file doesn't exist, create it.
@@ -64,6 +62,15 @@ abstract class Node {
         }
 
         return 0;
+    }
+
+    /**
+     * Return the file name with extension.
+     *
+     * @return string
+     */
+    public function basename(): string {
+        return pathinfo($this->path(), PATHINFO_BASENAME);
     }
 
     /**
@@ -156,7 +163,7 @@ abstract class Node {
      * @param int $mode
      * @return \Titon\Io\Node
      */
-    abstract public function copy(string $target, string $process = self::OVERWRITE, int $mode = 0755): ?Node;
+    abstract public function copy(string $target, int $process = self::OVERWRITE, int $mode = 0755): ?Node;
 
     /**
      * Create the file if it doesn't exist.
@@ -270,7 +277,7 @@ abstract class Node {
      *
      * @return int
      */
-    public function modifiedTime(): int {
+    public function modifyTime(): int {
         if ($this->exists()) {
             return filemtime($this->path());
         }
@@ -314,12 +321,12 @@ abstract class Node {
     }
 
     /**
-     * Return the file name.
+     * Return the file name without extension.
      *
      * @return string
      */
     public function name(): string {
-        return basename($this->path());
+        return pathinfo($this->path(), PATHINFO_FILENAME);
     }
 
     /**
@@ -350,17 +357,17 @@ abstract class Node {
      * @return \Titon\Io\Folder
      */
     public function parent(): ?Folder {
-        if ($this->_parent) {
-            return $this->_parent;
+        if ($this->parent) {
+            return $this->parent;
         }
 
         $folder = str_replace('\\', '/', dirname($this->path()));
 
         if ($folder !== '.' && $folder !== '/') {
-            $this->_parent = new Folder($folder);
+            $this->parent = new Folder($folder);
         }
 
-        return $this->_parent;
+        return $this->parent;
     }
 
     /**
@@ -382,7 +389,7 @@ abstract class Node {
      * @return string
      */
     public function pwd(): string {
-        return $this->_path;
+        return $this->path;
     }
 
     /**
@@ -449,7 +456,7 @@ abstract class Node {
     public function reset(string $path = ''): this {
         if ($path) {
             // Always use unix style slashes
-            $this->_path = str_replace('\\', '/', $path);
+            $this->path = str_replace('\\', '/', $path);
         }
 
         clearstatcache();

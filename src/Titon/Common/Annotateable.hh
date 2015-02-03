@@ -8,6 +8,7 @@
 namespace Titon\Common;
 
 use Titon\Common\ArgumentList;
+use Titon\Common\Exception\MissingAnnotationException;
 use \ReflectionClass;
 use \ReflectionMethod;
 
@@ -23,13 +24,13 @@ trait Annotateable {
      * {@inheritdoc}
      */
     <<__Memoize>>
-    public function getAnnotatedMethods(): Vector<string> {
+    public function getAnnotatedMethods(): Map<string, AnnotationMap> {
         $reflection = new ReflectionClass($this);
-        $methods = Vector {};
+        $methods = Map {};
 
         foreach ($reflection->getMethods() as $method) {
-            if ($this->getMethodAnnotations($method->getName())) {
-                $methods[] = $method->getName();
+            if ($annotations = $this->getMethodAnnotations($method->getName())) {
+                $methods[$method->getName()] = $annotations;
             }
         }
 
@@ -40,7 +41,13 @@ trait Annotateable {
      * {@inheritdoc}
      */
     public function getClassAnnotation(string $name): ArgumentList {
-        return $this->getClassAnnotations()->get($name) ?: Vector {};
+        $annotations = $this->getClassAnnotations();
+
+        if ($annotations->contains($name)) {
+            return $annotations[$name];
+        }
+
+        throw new MissingAnnotationException(sprintf('Class annotation %s does not exist', $name));
     }
 
     /**
@@ -55,7 +62,13 @@ trait Annotateable {
      * {@inheritdoc}
      */
     public function getMethodAnnotation(string $method, string $name): ArgumentList {
-        return $this->getMethodAnnotations($method)->get($name) ?: Vector {};
+        $annotations = $this->getMethodAnnotations($method);
+
+        if ($annotations->contains($name)) {
+            return $annotations[$name];
+        }
+
+        throw new MissingAnnotationException(sprintf('Method %s annotation %s does not exist', $method, $name));
     }
 
     /**
@@ -76,6 +89,10 @@ trait Annotateable {
         $annotations = Map {};
 
         foreach ($attributes as $name => $values) {
+            if (mb_substr($name, 0, 2) === '__') {
+                continue; // Ignore built-ins
+            }
+
             $arguments = Vector {};
 
             foreach ($values as $value) {

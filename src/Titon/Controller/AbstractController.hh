@@ -10,20 +10,16 @@ namespace Titon\Controller;
 use Titon\Common\ArgumentList;
 use Titon\Controller\Exception\InvalidActionException;
 use Titon\Event\Emittable;
-use Titon\Event\Event;
-use Titon\Event\Listener;
-use Titon\Event\ListenerMap;
 use Titon\Event\Subject;
 use Titon\Http\Exception\HttpException;
 use Titon\Http\Http;
 use Titon\Http\IncomingRequestAware;
 use Titon\Http\OutgoingResponseAware;
+use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
 use Titon\View\View;
 use \Exception;
-
-type ActionMap = Map<string, ArgumentList>;
 
 /**
  * The Controller (MVC) acts as the median between the request and response within the dispatch cycle.
@@ -39,7 +35,7 @@ type ActionMap = Map<string, ArgumentList>;
  *      controller.processed(Controller $con, string $action, string $response)
  *      controller.error(Controller $con, Exception $e)
  */
-abstract class AbstractController implements Controller, Listener, Subject {
+abstract class AbstractController implements Controller, Subject {
     use Emittable, IncomingRequestAware, OutgoingResponseAware;
 
     /**
@@ -47,7 +43,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
      *
      * @var string
      */
-    protected string $_action = 'index';
+    protected string $action = 'index';
 
     /**
      * A mapping of actions that have been dispatched,
@@ -55,21 +51,14 @@ abstract class AbstractController implements Controller, Listener, Subject {
      *
      * @var \Titon\Controller\ActionMap
      */
-    protected ActionMap $_arguments = Map {};
+    protected ActionMap $arguments = Map {};
 
     /**
      * View instance.
      *
      * @var \Titon\View\View
      */
-    protected ?View $_view;
-
-    /**
-     * Initialize events.
-     */
-    public function __construct() {
-        $this->on('controller', $this);
-    }
+    protected ?View $view;
 
     /**
      * Return a probable path to a view template that matches the current controller and action.
@@ -78,9 +67,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * @return string
      */
     public function buildViewPath(string $action): string {
-        $prepare = function(string $path): string {
-            return trim(str_replace(['_', 'controller'], ['-', ''], Inflector::underscore($path)), '-');
-        };
+        $prepare = ($path) ==> trim(str_replace(['_', 'controller'], ['-', ''], Inflector::underscore($path)), '-');
 
         return sprintf('%s/%s', $prepare(Path::className(static::class)), $prepare($action));
     }
@@ -89,8 +76,8 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * {@inheritdoc}
      */
     public function dispatchTo(string $action, ArgumentList $args = Vector {}, bool $emit = true): string {
-        $this->_action = $action;
-        $this->_arguments[$action] = $args;
+        $this->action = $action;
+        $this->arguments[$action] = $args;
 
         // Convert dashed actions to camel case
         if (strpos($action, '-') !== false) {
@@ -134,8 +121,8 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * @return \Titon\Common\ArgumentList
      */
     public function getActionArguments(string $action): ArgumentList {
-        if ($this->_arguments->contains($action)) {
-            return $this->_arguments[$action];
+        if ($this->arguments->contains($action)) {
+            return $this->arguments[$action];
         }
 
         return Vector {};
@@ -147,7 +134,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * @return string
      */
     public function getCurrentAction(): string {
-        return $this->_action;
+        return $this->action;
     }
 
     /**
@@ -163,14 +150,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * {@inheritdoc}
      */
     public function getView(): ?View {
-        return $this->_view;
-    }
-
-    /**
-     * Empty initializer method.
-     */
-    public function initialize(): void {
-        return;
+        return $this->view;
     }
 
     /**
@@ -179,33 +159,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * @throws \Titon\Controller\Exception\InvalidActionException
      */
     public function missingAction(): string {
-        throw new InvalidActionException(sprintf('Your action %s does not exist. Supply your own missingAction() method to customize this error or view.', $this->getCurrentAction()));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function preProcess(Event $event, Controller $controller, string $action, ArgumentList $args): void {
-        return;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function postProcess(Event $event, Controller $controller, string $action, string $response): void {
-        return;
-    }
-
-    /**
-     * Register the events to listen to.
-     *
-     * @return \Titon\Event\ListenerMap
-     */
-    public function registerEvents(): ListenerMap {
-        return Map {
-            'controller.processing' => Map {'method' => 'preProcess', 'priority' => 1},
-            'controller.processed' => Map {'method' => 'postProcess', 'priority' => 1}
-        };
+        throw new InvalidActionException(sprintf('Your action %s does not exist. Supply your own `missingAction()` method to customize this error or view.', $this->getCurrentAction()));
     }
 
     /**
@@ -216,20 +170,12 @@ abstract class AbstractController implements Controller, Listener, Subject {
     public function renderError(Exception $exception): string {
         $template = (error_reporting() <= 0) ? 'http' : 'error';
         $status = ($exception instanceof HttpException) ? $exception->getCode() : 500;
-        $view = $this->getView();
-
-        // Set the response status code
-        $this->getResponse()?->statusCode($status);
-
-        // If no view, exit with a generic message
-        if (!$view) {
-            return 'Internal server error.';
-        }
 
         $this->emit('controller.error', [$this, $exception]);
 
-        return $view
-            ->setVariables(Map {
+        // Render the view
+        $output = $this->getView()
+            ?->setVariables(Map {
                 'pageTitle' => Http::getStatusCode($status),
                 'error' => $exception,
                 'code' => $status,
@@ -237,20 +183,33 @@ abstract class AbstractController implements Controller, Listener, Subject {
                 'url' => $this->getRequest()?->getUrl() ?: ''
             })
             ->render('errors/' . $template, true);
+
+        if (!$output) {
+            $output = 'Internal server error.';
+        }
+
+        // Set the response status code and body
+        if ($response = $this->getResponse()) {
+            $response
+                ->setStatus($status)
+                ->setBody(new MemoryStream($output));
+        }
+
+        return (string) $output;
     }
 
     /**
      * {@inheritdoc}
      */
     public function renderView(): string {
-        $view = $this->getView();
+        $output = $this->getView()?->render($this->buildViewPath($this->getCurrentAction()));
 
-        // If no view, return nothing
-        if (!$view) {
-            return '';
+        // Set the response body
+        if ($output && ($response = $this->getResponse())) {
+            $response->setBody(new MemoryStream($output));
         }
 
-        return $view->render($this->buildViewPath($this->getCurrentAction()));
+        return (string) $output;
     }
 
     /**
@@ -268,7 +227,7 @@ abstract class AbstractController implements Controller, Listener, Subject {
      * {@inheritdoc}
      */
     public function setView(View $view): this {
-        $this->_view = $view;
+        $this->view = $view;
 
         return $this;
     }

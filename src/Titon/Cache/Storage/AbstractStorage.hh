@@ -29,7 +29,7 @@ abstract class AbstractStorage implements Storage {
      *
      * @var \Titon\Cache\ItemList
      */
-    protected ItemList $_deferred = Vector {};
+    protected ItemList $deferred = Vector {};
 
     /**
      * {@inheritdoc}
@@ -92,7 +92,7 @@ abstract class AbstractStorage implements Storage {
      * @return \Titon\Cache\ItemList
      */
     public function getDeferred(): ItemList {
-        return $this->_deferred;
+        return $this->deferred;
     }
 
     /**
@@ -153,7 +153,7 @@ abstract class AbstractStorage implements Storage {
      * {@inheritdoc}
      */
     public function saveDeferred(Item $item): this {
-        $this->_deferred[] = $item;
+        $this->deferred[] = $item;
 
         return $this;
     }

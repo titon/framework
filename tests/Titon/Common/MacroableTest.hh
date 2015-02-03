@@ -39,7 +39,7 @@ class MacroableTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Utility\Exception\UnsupportedMethodException
+     * @expectedException \Titon\Common\Exception\MissingMacroException
      */
     public function testMacroMissing() {
         Inflector::lowers('foObAr');

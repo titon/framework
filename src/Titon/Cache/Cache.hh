@@ -11,8 +11,6 @@ use Titon\Cache\Exception\MissingStorageException;
 use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
 
-type StorageMap = Map<string, Storage>;
-
 /**
  * Provides a very basic interface for caching individual sets of data. Multiple storage engines can be setup
  * to support different caching mechanisms: Memcache, APC, XCache, Memory, FileSystem, etc.
@@ -27,7 +25,7 @@ class Cache {
      *
      * @var \Titon\Cache\StorageMap
      */
-    protected StorageMap $_storage = Map {};
+    protected StorageMap $storage = Map {};
 
     /**
      * Add a new storage engine to the cache system.
@@ -37,7 +35,7 @@ class Cache {
      * @return $this
      */
     public function addStorage(string $key, Storage $storage): this {
-        $this->_storage[$key] = $storage;
+        $this->storage[$key] = $storage;
 
         return $this;
     }
@@ -92,8 +90,8 @@ class Cache {
      * @throws \Titon\Cache\Exception\MissingStorageException
      */
     public function getStorage(string $key): Storage {
-        if ($this->_storage->contains($key)) {
-            return $this->_storage[$key];
+        if ($this->storage->contains($key)) {
+            return $this->storage[$key];
         }
 
         throw new MissingStorageException(sprintf('Cache storage engine %s does not exist', $key));
@@ -105,7 +103,7 @@ class Cache {
      * @return \Titon\Cache\StorageMap
      */
     public function getStorages(): StorageMap {
-        return $this->_storage;
+        return $this->storage;
     }
 
     /**

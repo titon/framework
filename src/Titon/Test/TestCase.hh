@@ -32,7 +32,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      *
      * @var \Titon\Test\FixtureMap
      */
-    protected FixtureMap $_fixtures = Map {};
+    protected FixtureMap $fixtures = Map {};
 
     /**
      * Virtual file system.
@@ -121,7 +121,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      */
     public function getFixture(string $name): Fixture {
         if ($this->getFixtures()->contains($name)) {
-            return $this->_fixtures[$name];
+            return $this->fixtures[$name];
         }
 
         throw new \Exception(sprintf('Fixture %s does not exist', $name));
@@ -133,7 +133,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @return \Titon\Test\FixtureMap
      */
     public function getFixtures(): FixtureMap {
-        return $this->_fixtures;
+        return $this->fixtures;
     }
 
     /**
@@ -156,7 +156,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
             $object->createTable();
             $object->insertRecords();
 
-            $this->_fixtures[$fixture] = $object;
+            $this->fixtures[$fixture] = $object;
         }
 
         return $this;

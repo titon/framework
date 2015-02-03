@@ -30,7 +30,7 @@ class RedisStorage extends AbstractStorage {
      *
      * @var \Redis
      */
-    protected Redis $_redis;
+    protected Redis $redis;
 
     /**
      * Set the Redis instance.
@@ -38,7 +38,7 @@ class RedisStorage extends AbstractStorage {
      * @param \Redis $redis
      */
     public function __construct(Redis $redis) {
-        $this->_redis = $redis;
+        $this->redis = $redis;
     }
 
     /**
@@ -67,7 +67,7 @@ class RedisStorage extends AbstractStorage {
      * @return \Redis
      */
     public function getRedis(): Redis {
-        return $this->_redis;
+        return $this->redis;
     }
 
     /**

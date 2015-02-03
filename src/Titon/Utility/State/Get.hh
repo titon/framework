@@ -8,7 +8,7 @@
 namespace Titon\Utility\State;
 
 /**
- * The Get class acts as a static immutable wrapper for the $_GET super global.
+ * The Get class acts as a static immutable wrapper for the $GET super global.
  *
  * @package Titon\Utility\State
  */

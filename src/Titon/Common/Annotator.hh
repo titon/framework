@@ -7,8 +7,6 @@
 
 namespace Titon\Common;
 
-type AnnotationMap = Map<string, ArgumentList>;
-
 /**
  * The Annotator interface defines an easy access layer to annotations (also known as attributes)
  * defined on the current class and its methods.
@@ -18,11 +16,11 @@ type AnnotationMap = Map<string, ArgumentList>;
 interface Annotator {
 
     /**
-     * Return a list of all methods that have annotations.
+     * Return a map of all methods that have annotations.
      *
-     * @return Vector<string>
+     * @return Map<string, AnnotationMap>
      */
-    public function getAnnotatedMethods(): Vector<string>;
+    public function getAnnotatedMethods(): Map<string, AnnotationMap>;
 
     /**
      * Return the arguments for a single annotation on the current class.

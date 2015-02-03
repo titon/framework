@@ -11,11 +11,9 @@ use \Closure;
 use \ReflectionFunction;
 use \ReflectionMethod;
 
-type ParamList = array<mixed>;
-
 /**
  * The Observer class represents a single callback in the event stack.
- * It will be executed anytime an event is triggered that the observer is registered for.
+ * It will be executed anytime an event is triggered that the observer is subscribed for.
  *
  * @package Titon\Event
  */
@@ -26,35 +24,35 @@ class Observer {
      *
      * @var bool
      */
-    protected bool $_async = false;
+    protected bool $async = false;
 
     /**
      * The callback to execute.
      *
      * @var \Titon\Event\ObserverCallback
      */
-    protected ObserverCallback $_callback;
+    protected ObserverCallback $callback;
 
     /**
      * Has the callback been executed.
      *
      * @var bool
      */
-    protected bool $_executed = false;
+    protected bool $executed = false;
 
     /**
      * Should the callback be executed one time only?
      *
      * @var bool
      */
-    protected bool $_once;
+    protected bool $once;
 
     /**
      * The priority order for the observer.
      *
      * @var int
      */
-    protected int $_priority;
+    protected int $priority;
 
     /**
      * Setup the observer and auto-detect if the callback is async.
@@ -64,14 +62,14 @@ class Observer {
      * @param bool $once
      */
     public function __construct(ObserverCallback $callback, int $priority, bool $once) {
-        $this->_callback = $callback;
-        $this->_priority = $priority;
-        $this->_once = $once;
+        $this->callback = $callback;
+        $this->priority = $priority;
+        $this->once = $once;
 
         if (is_array($callback)) {
-            $this->_async = (new ReflectionMethod($callback[0], $callback[1]))->isAsync();
+            $this->async = (new ReflectionMethod($callback[0], $callback[1]))->isAsync();
         } else {
-            $this->_async = (new ReflectionFunction($callback))->isAsync();
+            $this->async = (new ReflectionFunction($callback))->isAsync();
         }
     }
 
@@ -82,7 +80,7 @@ class Observer {
      * @return Awaitable<mixed>
      */
     public async function asyncExecute(ParamList $params): Awaitable<mixed> {
-        $this->_executed = true;
+        $this->executed = true;
 
         return await call_user_func_array($this->getCallback(), $params);
     }
@@ -94,7 +92,7 @@ class Observer {
      * @return mixed
      */
     public function execute(ParamList $params): mixed {
-        $this->_executed = true;
+        $this->executed = true;
 
         return call_user_func_array($this->getCallback(), $params);
     }
@@ -105,7 +103,7 @@ class Observer {
      * @return \Titon\Event\ObserverCallback
      */
     public function getCallback(): ObserverCallback {
-        return $this->_callback;
+        return $this->callback;
     }
 
     /**
@@ -131,7 +129,7 @@ class Observer {
      * @return int
      */
     public function getPriority(): int {
-        return $this->_priority;
+        return $this->priority;
     }
 
     /**
@@ -140,7 +138,7 @@ class Observer {
      * @return bool
      */
     public function hasExecuted(): bool {
-        return $this->_executed;
+        return $this->executed;
     }
 
     /**
@@ -149,7 +147,7 @@ class Observer {
      * @return bool
      */
     public function isAsync(): bool {
-        return $this->_async;
+        return $this->async;
     }
 
     /**
@@ -158,7 +156,7 @@ class Observer {
      * @return bool
      */
     public function isOnce(): bool {
-        return $this->_once;
+        return $this->once;
     }
 
 }

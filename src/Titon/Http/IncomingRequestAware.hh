@@ -21,7 +21,7 @@ trait IncomingRequestAware {
      *
      * @var \Psr\Http\Message\IncomingRequestInterface
      */
-    protected ?IncomingRequestInterface $_request;
+    protected ?IncomingRequestInterface $request;
 
     /**
      * Return the request object.
@@ -29,7 +29,7 @@ trait IncomingRequestAware {
      * @return \Psr\Http\Message\IncomingRequestInterface
      */
     public function getRequest(): ?IncomingRequestInterface {
-        return $this->_request;
+        return $this->request;
     }
 
     /**
@@ -39,7 +39,7 @@ trait IncomingRequestAware {
      * @return $this
      */
     public function setRequest(IncomingRequestInterface $request): this {
-        $this->_request = $request;
+        $this->request = $request;
 
         return $this;
     }

@@ -7,11 +7,7 @@
 
 namespace Titon\Common;
 
-use Titon\Utility\Exception\UnsupportedMethodException;
-
-type MacroCallback = (function(): mixed);
-type MacroContainer = Map<string, MacroMap>;
-type MacroMap = Map<string, MacroCallback>;
+use Titon\Common\Exception\MissingMacroException;
 
 /**
  * Provides a mechanism at runtime for defining static methods that can be triggered during __callStatic().
@@ -25,7 +21,7 @@ trait Macroable {
      *
      * @var \Titon\Common\MacroContainer
      */
-    protected static MacroContainer $_macros = Map {};
+    protected static MacroContainer $macros = Map {};
 
     /**
      * Execute a macro if it has been called statically.
@@ -40,7 +36,7 @@ trait Macroable {
             return call_user_func_array(static::getMacros()->get($key), $args);
         }
 
-        throw new UnsupportedMethodException(sprintf('Macro %s has not been defined for %s', $key, static::class));
+        throw new MissingMacroException(sprintf('Macro %s has not been defined for %s', $key, static::class));
     }
 
     /**
@@ -49,7 +45,7 @@ trait Macroable {
      * @return \Titon\Common\MacroMap
      */
     public static function getMacros(): MacroMap {
-        $macros = static::$_macros;
+        $macros = static::$macros;
         $class = static::class;
 
         if (!$macros->contains($class)) {

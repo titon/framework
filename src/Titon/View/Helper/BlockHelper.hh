@@ -9,9 +9,6 @@ namespace Titon\View\Helper;
 
 use Titon\View\Exception\ActiveBlockException;
 
-type ActiveBlockList = Vector<string>;
-type BlockMap = Map<string, string>;
-
 /**
  * The BlockHelper can be used to capture output within the view layer and render at a later time.
  * Blocks can be created by triggering a start and stop, and all contents in between will be captured.
@@ -25,14 +22,14 @@ class BlockHelper extends AbstractHelper {
      *
      * @var \Titon\View\Helper\ActiveBlockList
      */
-    protected ActiveBlockList $_active = Vector {};
+    protected ActiveBlockList $active = Vector {};
 
     /**
      * List of captured output.
      *
      * @var \Titon\View\Helper\BlockMap
      */
-    protected BlockMap $_blocks = Map {};
+    protected BlockMap $blocks = Map {};
 
     /**
      * Return the last opened block in the active list.
@@ -40,7 +37,7 @@ class BlockHelper extends AbstractHelper {
      * @return string
      */
     public function active(): string {
-        return $this->_active[count($this->_active) - 1];
+        return $this->active[count($this->active) - 1];
     }
 
     /**
@@ -56,7 +53,7 @@ class BlockHelper extends AbstractHelper {
             $this->set($key, '');
         }
 
-        $this->_blocks[$key] .= $value;
+        $this->blocks[$key] .= $value;
 
         return $this;
     }
@@ -71,7 +68,7 @@ class BlockHelper extends AbstractHelper {
      */
     public function get(string $key, string $default = ''): string {
         if ($this->has($key)) {
-            return $this->_blocks[$key];
+            return $this->blocks[$key];
         }
 
         return $default;
@@ -84,7 +81,7 @@ class BlockHelper extends AbstractHelper {
      * @return bool
      */
     public function has(string $key): bool {
-        return $this->_blocks->contains($key);
+        return $this->blocks->contains($key);
     }
 
     /**
@@ -110,7 +107,7 @@ class BlockHelper extends AbstractHelper {
             $this->set($key, '');
         }
 
-        $this->set($key, $value . $this->_blocks[$key]);
+        $this->set($key, $value . $this->blocks[$key]);
 
         return $this;
     }
@@ -124,7 +121,7 @@ class BlockHelper extends AbstractHelper {
      * @return $this
      */
     public function set(string $key, string $value): this {
-        $this->_blocks[$key] = $value;
+        $this->blocks[$key] = $value;
 
         return $this;
     }
@@ -151,11 +148,11 @@ class BlockHelper extends AbstractHelper {
      * @throws \Titon\View\Exception\ActiveBlockException
      */
     public function start(string $key): this {
-        if (in_array($key, $this->_active)) {
+        if (in_array($key, $this->active)) {
             throw new ActiveBlockException(sprintf('A %s block is already active, please stop one before continuing', $key));
         }
 
-        $this->_active[] = $key;
+        $this->active[] = $key;
         ob_start();
 
         return $this;
@@ -167,12 +164,12 @@ class BlockHelper extends AbstractHelper {
      * @return $this
      */
     public function stop(): this {
-        if (!$this->_active) {
+        if (!$this->active) {
             return $this;
         }
 
         $this->set($this->active(), ob_get_clean());
-        $this->_active->pop();
+        $this->active->pop();
 
         return $this;
     }

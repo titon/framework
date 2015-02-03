@@ -10,7 +10,7 @@ namespace Titon\Common\Exception;
 /**
  * Exception thrown when a PHP extension is missing.
  *
- * @package Titon\Io\Exception
+ * @package Titon\Common\Exception
  */
 class MissingExtensionException extends \RuntimeException {
 

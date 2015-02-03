@@ -144,6 +144,21 @@ class DebuggerTest extends TestCase {
         $this->assertFileExists($this->vfs->path('/logs/info-' . date('Y-m-d') . '.log'));
     }
 
+    public function testInspect() {
+        $e = new \Exception('Foobar');
+
+        $this->assertRegExp('/^<div class="titon-debug titon-error">/', Debugger::inspect($e));
+
+        ob_start();
+        \inspect($e);
+        $actual = ob_get_clean();
+
+        $this->assertRegExp('/^<div class="titon-debug titon-error">/', $actual);
+
+        Debugger::disable();
+        $this->assertEquals('', Debugger::inspect($e));
+    }
+
     public function testLogException() {
         $date = date('Y-m-d');
 
@@ -189,21 +204,6 @@ class DebuggerTest extends TestCase {
         $f = fopen('php://input', 'r');
         $this->assertEquals('stream', Debugger::parseValue($f));
         fclose($f);
-    }
-
-    public function testPrintException() {
-        $e = new \Exception('Foobar');
-
-        $this->assertRegExp('/^<div class="titon-debug titon-error">/', Debugger::printException($e));
-
-        ob_start();
-        \inspect($e);
-        $actual = ob_get_clean();
-
-        $this->assertRegExp('/^<div class="titon-debug titon-error">/', $actual);
-
-        Debugger::disable();
-        $this->assertEquals('', Debugger::printException($e));
     }
 
     public function testSetHandler() {

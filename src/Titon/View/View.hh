@@ -10,10 +10,6 @@ namespace Titon\View;
 use Titon\Common\DataMap;
 use Titon\Cache\Storage;
 
-type HelperMap = Map<string, Helper>;
-type LocaleList = Vector<string>;
-type PathList = Vector<string>;
-
 /**
  * The View class acts as the hub between the individual templates and the rendering engine.
  * It manages a list of lookup paths, which it uses to locate templates for rendering.

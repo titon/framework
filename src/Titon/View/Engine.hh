@@ -9,8 +9,6 @@ namespace Titon\View;
 
 use Titon\Common\DataMap;
 
-type WrapperList = Vector<string>;
-
 /**
  * Interface for the rendering engine.
  *

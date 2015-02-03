@@ -8,6 +8,7 @@
 namespace Titon\Route;
 
 use Titon\Common\Annotator;
+use Titon\Common\Exception\MissingAnnotationException;
 use Titon\Utility\Col;
 use Titon\Utility\Path;
 
@@ -26,30 +27,35 @@ trait RouteAnnotation {
      *
      *      <<Route($path[, $methods[, $filters]])>>
      */
-    private function __wireRouteAnnotations(): void {
+    private function wireRouteAnnotations(): void {
         $router = Router::registry();
         $class = static::class;
         $key = strtolower(Path::className($class));
 
         // Map class resource route
-        if ($annotation = $this->getClassAnnotation('Route')) {
-            $router->resource($key, new Route((string) $annotation[0], $class . '@action'));
+        try {
+            if ($annotation = $this->getClassAnnotation('Route')) {
+                $router->resource($key, new Route((string) $annotation[0], $class . '@action'));
+            }
+        } catch (MissingAnnotationException $e) {
         }
 
         // Map individual method route
-        foreach ($this->getAnnotatedMethods() as $method) {
-            if ($annotation = $this->getMethodAnnotation($method, 'Route')) {
-                $route = new Route((string) $annotation[0], $class . '@' . $method);
+        foreach ($this->getAnnotatedMethods() as $method => $annotations) {
+            foreach ($annotations as $name => $annotation) {
+                if ($name === 'Route') {
+                    $route = new Route((string) $annotation[0], $class . '@' . $method);
 
-                if ($annotation->containsKey(1)) {
-                    $route->setMethods(Col::toVector($annotation[1]));
+                    if ($annotation->containsKey(1)) {
+                        $route->setMethods(Col::toVector($annotation[1]));
+                    }
+
+                    if ($annotation->containsKey(2)) {
+                        $route->setFilters(Col::toVector($annotation[2]));
+                    }
+
+                    $router->map($key . '.' . strtolower($method), $route);
                 }
-
-                if ($annotation->containsKey(2)) {
-                    $route->setFilters(Col::toVector($annotation[2]));
-                }
-
-                $router->map($key . '.' . strtolower($method), $route);
             }
         }
     }

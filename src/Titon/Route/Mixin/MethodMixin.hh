@@ -7,8 +7,6 @@
 
 namespace Titon\Route\Mixin;
 
-type MethodList = Vector<string>;
-
 /**
  * Provides functionality for HTTP methods.
  *
@@ -21,7 +19,7 @@ trait MethodMixin {
      *
      * @var \Titon\Route\Mixin\MethodList
      */
-    protected MethodList $_methods = Vector {};
+    protected MethodList $methods = Vector {};
 
     /**
      * Add an HTTP method to match against.
@@ -30,8 +28,8 @@ trait MethodMixin {
      * @return $this
      */
     public function addMethod(string $method): this {
-        if (!in_array($method, $this->_methods)) {
-            $this->_methods[] = strtolower($method);
+        if (!in_array($method, $this->methods)) {
+            $this->methods[] = strtolower($method);
         }
 
         return $this;
@@ -57,7 +55,7 @@ trait MethodMixin {
      * @return \Titon\Route\MethodList
      */
     public function getMethods(): MethodList {
-        return $this->_methods;
+        return $this->methods;
     }
 
     /**
@@ -67,7 +65,7 @@ trait MethodMixin {
      * @return $this
      */
     public function setMethods(MethodList $methods): this {
-        $this->_methods = $methods->map(fun('strtolower'));
+        $this->methods = $methods->map(fun('strtolower'));
 
         return $this;
     }

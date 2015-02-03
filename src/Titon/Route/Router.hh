@@ -25,16 +25,6 @@ use Titon\Utility\Registry;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
 
-type Action = shape('class' => string, 'action' => string);
-type FilterCallback = (function(Router, Route): void);
-type FilterMap = Map<string, FilterCallback>;
-type GroupCallback = (function(Router, Group): void);
-type GroupList = Vector<RouteGroup>;
-type QueryMap = Map<string, mixed>;
-type ResourceMap = Map<string, string>;
-type RouteMap = Map<string, Route>;
-type SegmentMap = Map<string, mixed>;
-
 /**
  * The Router is tasked with the management of routes and filters, at which some point a route is matched against
  * a URL based on the current environment settings.
@@ -52,42 +42,42 @@ class Router implements Subject {
      *
      * @var string
      */
-    protected string $_base = '/';
+    protected string $base = '/';
 
     /**
      * Have routes been loaded in from the cache?
      *
      * @var bool
      */
-    protected bool $_cached = false;
+    protected bool $cached = false;
 
     /**
      * The matched route object.
      *
      * @var \Titon\Route\Route
      */
-    protected ?Route $_current;
+    protected ?Route $current;
 
     /**
      * List of filters to trigger for specific routes during a match.
      *
      * @var \Titon\Route\FilterMap
      */
-    protected FilterMap $_filters = Map {};
+    protected FilterMap $filters = Map {};
 
     /**
      * List of currently open groups (and their options) in the stack.
      *
      * @var \Titon\Route\GroupList
      */
-    protected GroupList $_groups = Vector {};
+    protected GroupList $groups = Vector {};
 
     /**
      * The class to use for route matching.
      *
      * @var \Titon\Route\Matcher
      */
-    protected Matcher $_matcher;
+    protected Matcher $matcher;
 
     /**
      * Mapping of CRUD actions to URL path parts for REST resources.
@@ -101,7 +91,7 @@ class Router implements Subject {
      *      @var string $delete    - DELETE /resource/{id} - Delete resource
      * }
      */
-    protected ResourceMap $_resourceMap = Map {
+    protected ResourceMap $resourceMap = Map {
         'list' => 'index',
         'create' => 'create',
         'read' => 'read',
@@ -114,37 +104,37 @@ class Router implements Subject {
      *
      * @var \Titon\Route\RouteMap
      */
-    protected RouteMap $_routes = Map {};
+    protected RouteMap $routes = Map {};
 
     /**
      * The current URL broken up into multiple segments: protocol, host, route, query, base
      *
      * @var \Titon\Route\SegmentMap
      */
-    protected SegmentMap $_segments = Map {};
+    protected SegmentMap $segments = Map {};
 
     /**
      * Storage engine instance.
      *
      * @var \Titon\Cache\Storage
      */
-    protected ?Storage $_storage;
+    protected ?Storage $storage;
 
     /**
      * Parses the current environment settings into multiple segments and properties.
      */
     public function __construct() {
-        $this->_matcher = new LoopMatcher();
+        $this->matcher = new LoopMatcher();
 
         // Determine if app is within a base folder
         $base = dirname(str_replace(Server::get('DOCUMENT_ROOT'), '', Server::get('SCRIPT_FILENAME')));
 
         if ($base && $base !== '.') {
-            $this->_base = rtrim(str_replace('\\', '/', $base), '/') ?: '/';
+            $this->base = rtrim(str_replace('\\', '/', $base), '/') ?: '/';
         }
 
         // Store the current URL and query as router segments
-        $this->_segments = (new Map(parse_url(Server::get('REQUEST_URI'))))->setAll(Map {
+        $this->segments = (new Map(parse_url(Server::get('REQUEST_URI'))))->setAll(Map {
             'scheme' => (Server::get('HTTPS') === 'on') ? 'https' : 'http',
             'query' => Get::all(),
             'host' => Server::get('HTTP_HOST'),
@@ -170,7 +160,7 @@ class Router implements Subject {
      * @return string
      */
     public function base(): string {
-        return $this->_base;
+        return $this->base;
     }
 
     /**
@@ -189,7 +179,7 @@ class Router implements Subject {
      * @return \Titon\Route\Route
      */
     public function current(): ?Route {
-        return $this->_current;
+        return $this->current;
     }
 
     /**
@@ -252,8 +242,8 @@ class Router implements Subject {
         $item = $this->getStorage()?->getItem('routes');
 
         if ($item !== null && $item->isHit()) {
-            $this->_routes = unserialize($item->get());
-            $this->_cached = true;
+            $this->routes = unserialize($item->get());
+            $this->cached = true;
         }
     }
 
@@ -265,7 +255,7 @@ class Router implements Subject {
      * @return $this
      */
     public function filter(string $key, Filter $callback): this {
-        $this->_filters[$key] = inst_meth($callback, 'filter');
+        $this->filters[$key] = inst_meth($callback, 'filter');
 
         return $this;
     }
@@ -278,7 +268,7 @@ class Router implements Subject {
      * @return $this
      */
     public function filterCallback(string $key, FilterCallback $callback): this {
-        $this->_filters[$key] = $callback;
+        $this->filters[$key] = $callback;
 
         return $this;
     }
@@ -302,8 +292,8 @@ class Router implements Subject {
      * @throws \Titon\Route\Exception\MissingFilterException
      */
     public function getFilter(string $key): FilterCallback {
-        if ($this->_filters->contains($key)) {
-            return $this->_filters[$key];
+        if ($this->filters->contains($key)) {
+            return $this->filters[$key];
         }
 
         throw new MissingFilterException(sprintf('Filter %s does not exist', $key));
@@ -315,7 +305,7 @@ class Router implements Subject {
      * @return \Titon\Route\FilterMap
      */
     public function getFilters(): FilterMap {
-        return $this->_filters;
+        return $this->filters;
     }
 
     /**
@@ -324,7 +314,7 @@ class Router implements Subject {
      * @return \Titon\Route\GroupList
      */
     public function getGroups(): GroupList {
-        return $this->_groups;
+        return $this->groups;
     }
 
     /**
@@ -333,7 +323,7 @@ class Router implements Subject {
      * @return \Titon\Route\Matcher
      */
     public function getMatcher(): Matcher {
-        return $this->_matcher;
+        return $this->matcher;
     }
 
     /**
@@ -342,7 +332,7 @@ class Router implements Subject {
      * @return \Titon\Route\ResourceMap
      */
     public function getResourceMap(): ResourceMap {
-        return $this->_resourceMap;
+        return $this->resourceMap;
     }
 
     /**
@@ -353,8 +343,8 @@ class Router implements Subject {
      * @throws \Titon\Route\Exception\MissingRouteException
      */
     public function getRoute(string $key): Route {
-        if ($this->_routes->contains($key)) {
-            return $this->_routes[$key];
+        if ($this->routes->contains($key)) {
+            return $this->routes[$key];
         }
 
         throw new MissingRouteException(sprintf('Route %s does not exist', $key));
@@ -366,7 +356,7 @@ class Router implements Subject {
      * @return \Titon\Route\RouteMap
      */
     public function getRoutes(): RouteMap {
-        return $this->_routes;
+        return $this->routes;
     }
 
     /**
@@ -377,8 +367,8 @@ class Router implements Subject {
      * @throws \Titon\Route\Exception\MissingSegmentException
      */
     public function getSegment(string $key): mixed {
-        if ($this->_segments->contains($key)) {
-            return $this->_segments[$key];
+        if ($this->segments->contains($key)) {
+            return $this->segments[$key];
         }
 
         throw new MissingSegmentException(sprintf('Routing segment %s does not exist', $key));
@@ -390,7 +380,7 @@ class Router implements Subject {
      * @return \Titon\Route\SegmentMap
      */
     public function getSegments(): SegmentMap {
-        return $this->_segments;
+        return $this->segments;
     }
 
     /**
@@ -399,7 +389,7 @@ class Router implements Subject {
      * @return \Titon\Cache\Storage
      */
     public function getStorage(): ?Storage {
-        return $this->_storage;
+        return $this->storage;
     }
 
     /**
@@ -412,11 +402,11 @@ class Router implements Subject {
     public function group(GroupCallback $callback): this {
         $group = new Group();
 
-        $this->_groups[] = $group;
+        $this->groups[] = $group;
 
         call_user_func_array($callback, [$this, $group]);
 
-        $this->_groups->pop();
+        $this->groups->pop();
 
         return $this;
     }
@@ -450,7 +440,7 @@ class Router implements Subject {
      * @return bool
      */
     public function isCached(): bool {
-        return $this->_cached;
+        return $this->cached;
     }
 
     /**
@@ -461,7 +451,7 @@ class Router implements Subject {
      * @return \Titon\Route\Route
      */
     public function map(string $key, Route $route): Route {
-        $this->_routes[$key] = $route;
+        $this->routes[$key] = $route;
 
         // Apply group options
         foreach ($this->getGroups() as $group) {
@@ -511,7 +501,7 @@ class Router implements Subject {
             throw new NoMatchException(sprintf('No route has been matched for %s', $url));
         }
 
-        $this->_current = $match;
+        $this->current = $match;
 
         $this->emit('route.matched', [$this, $match]);
 
@@ -659,7 +649,7 @@ class Router implements Subject {
      * @return $this
      */
     public function setMatcher(Matcher $matcher): this {
-        $this->_matcher = $matcher;
+        $this->matcher = $matcher;
 
         return $this;
     }
@@ -671,7 +661,7 @@ class Router implements Subject {
      * @return $this
      */
     public function setResourceMap(ResourceMap $map): this {
-        $this->_resourceMap->setAll($map);
+        $this->resourceMap->setAll($map);
 
         return $this;
     }
@@ -683,7 +673,7 @@ class Router implements Subject {
      * @return $this
      */
     public function setStorage(Storage $storage): this {
-        $this->_storage = $storage;
+        $this->storage = $storage;
 
         return $this;
     }

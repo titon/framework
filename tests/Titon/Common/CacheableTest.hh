@@ -41,6 +41,26 @@ class CacheableTest extends TestCase {
             return get_class($parent);
         });
         $this->assertEquals('Titon\Common\CacheableStub', $this->object->getCache('class'));
+
+        $this->object->cache('false', function() {
+            return false;
+        });
+        $this->assertEquals(false, $this->object->getCache('false'));
+
+        $this->object->cache('null', function() {
+            return null;
+        });
+        $this->assertEquals(null, $this->object->getCache('null'));
+
+        $this->object->cache('zero', function() {
+            return 0;
+        });
+        $this->assertEquals(0, $this->object->getCache('zero'));
+
+        $this->object->cache('array', function() {
+            return [];
+        });
+        $this->assertEquals([], $this->object->getCache('array'));
     }
 
     public function testCreateCacheKey() {

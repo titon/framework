@@ -15,10 +15,6 @@ use Titon\Utility\Sanitize;
 use \Exception;
 use \ErrorException;
 
-type Error = shape('error' => string, 'level' => string);
-type ErrorCodeMap = Map<int, string>;
-type ExceptionHandler = (function(Exception): void);
-
 /**
  * Custom system to manage all errors and thrown/uncaught exceptions.
  *
@@ -55,7 +51,7 @@ class Debugger {
      *
      * @var \Titon\Debug\ExceptionHandler
      */
-    protected static ?ExceptionHandler $_handler;
+    protected static ?ExceptionHandler $handler;
 
     /**
      * Has the debugger been initialized?
@@ -63,20 +59,20 @@ class Debugger {
      *
      * @var bool
      */
-    protected static bool $_initialized = false;
+    protected static bool $initialized = false;
 
     /**
      * Logger instance.
      *
      * @var \Psr\Log\LoggerInterface
      */
-    protected static ?LoggerInterface $_logger;
+    protected static ?LoggerInterface $logger;
 
     /**
      * Initialize the error, exception, and debug handling.
      */
     public static function initialize(): void {
-        if (static::$_initialized) {
+        if (static::$initialized) {
             return;
         }
 
@@ -88,13 +84,14 @@ class Debugger {
         invariant_callback_register(class_meth(__CLASS__, 'handleInvariant'));
 
         static::setHandler(class_meth(__CLASS__, 'handleException'));
-        static::enable(false);
+        static::disable();
 
-        static::$_initialized = true;
+        static::$initialized = true;
     }
 
     /**
-     * Create a custom backtraced array based on the debug_backtrace() output.
+     * Return an HTML formatted table for the defined backtrace.
+     * If an exception is passed, use its stack trace.
      *
      * @param \Exception $exception
      * @return string
@@ -178,7 +175,7 @@ class Debugger {
     }
 
     /**
-     * Disable debugging.
+     * Disable error reporting.
      */
     public static function disable(): void {
         static::enable(false);
@@ -232,7 +229,7 @@ class Debugger {
     }
 
     /**
-     * Export a formatted variable to be used.
+     * Export a formatted variable to be usable by PHP.
      *
      * @param mixed $var
      * @param bool $short
@@ -284,7 +281,7 @@ class Debugger {
      * @return \Titon\Debug\ExceptionHandler
      */
     public static function getHandler(): ?ExceptionHandler {
-        return static::$_handler;
+        return static::$handler;
     }
 
     /**
@@ -293,7 +290,7 @@ class Debugger {
      * @return \Psr\Log\LoggerInterface
      */
     public static function getLogger(): ?LoggerInterface {
-        return static::$_logger;
+        return static::$logger;
     }
 
     /**
@@ -328,7 +325,7 @@ class Debugger {
 
         // Output error in development
         } else {
-            echo static::printException($exception);
+            echo static::inspect($exception);
         }
     }
 
@@ -340,7 +337,7 @@ class Debugger {
     public static function handleException(Exception $exception): void {
         static::logException($exception);
 
-        echo static::printException($exception);
+        echo static::inspect($exception);
 
         exit();
     }
@@ -372,9 +369,23 @@ class Debugger {
      * @param array $args
      */
     public static function handleInvariant(string $message, ...$args): void {
-        if ($logger = static::getLogger()) {
-            $logger->log(Logger::INFO, $message, $args);
+        static::getLogger()?->log(Logger::INFO, $message, $args);
+    }
+
+    /**
+     * Renders a formatted error message to the view accompanied by a stack trace.
+     *
+     * @param \Exception $exception
+     * @return string
+     */
+    public static function inspect(Exception $exception): string {
+        if (static::isOff()) {
+            return '';
         }
+
+        return static::renderTemplate('error', [
+            'exception' => $exception
+        ]);
     }
 
     /**
@@ -401,19 +412,17 @@ class Debugger {
      * @param \Exception $exception
      */
     public static function logException(Exception $exception): void {
-        if ($logger = static::getLogger()) {
-            $map = static::mapErrorCode($exception);
+        $map = static::mapErrorCode($exception);
 
-            $message = sprintf('%s: %s [%s:%s]',
-                $map['error'],
-                $exception->getMessage(),
-                $exception->getFile(),
-                $exception->getLine());
+        $message = sprintf('%s: %s [%s:%s]',
+            $map['error'],
+            $exception->getMessage(),
+            $exception->getFile(),
+            $exception->getLine());
 
-            $logger->log($map['level'], $message, [
-                'exception' => $exception
-            ]);
-        }
+        static::getLogger()?->log($map['level'], $message, [
+            'exception' => $exception
+        ]);
     }
 
     /**
@@ -544,22 +553,6 @@ class Debugger {
     }
 
     /**
-     * Renders a formatted error message to the view accompanied by a stack trace.
-     *
-     * @param \Exception $exception
-     * @return string
-     */
-    public static function printException(Exception $exception): string {
-        if (static::isOff()) {
-            return '';
-        }
-
-        return static::renderTemplate('error', [
-            'exception' => $exception
-        ]);
-    }
-
-    /**
      * Use a local template for outputting debug and error markup.
      *
      * @param string $template
@@ -576,7 +569,7 @@ class Debugger {
      * @param \Titon\Debug\ExceptionHandler $callback
      */
     public static function setHandler(ExceptionHandler $callback): void {
-        static::$_handler = $callback;
+        static::$handler = $callback;
 
         set_exception_handler($callback);
     }
@@ -587,7 +580,7 @@ class Debugger {
      * @param \Psr\Log\LoggerInterface $logger
      */
     public static function setLogger(LoggerInterface $logger): void {
-        static::$_logger = $logger;
+        static::$logger = $logger;
     }
 
 }

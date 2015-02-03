@@ -10,7 +10,7 @@ namespace Titon\Utility\State;
 use Titon\Utility\Col;
 
 /**
- * The Files class acts as a static immutable wrapper for the $_FILES super global.
+ * The Files class acts as a static immutable wrapper for the $FILES super global.
  *
  * @package Titon\Utility\State
  */

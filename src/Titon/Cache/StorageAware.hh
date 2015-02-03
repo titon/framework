@@ -19,7 +19,7 @@ trait StorageAware {
      *
      * @var \Titon\Cache\Storage
      */
-    protected ?Storage $_storage;
+    protected ?Storage $storage;
 
     /**
      * Get the storage engine.
@@ -27,7 +27,7 @@ trait StorageAware {
      * @return \Titon\Cache\Storage
      */
     public function getStorage(): ?Storage {
-        return $this->_storage;
+        return $this->storage;
     }
 
     /**
@@ -37,7 +37,7 @@ trait StorageAware {
      * @return $this
      */
     public function setStorage(Storage $storage): this {
-        $this->_storage = $storage;
+        $this->storage = $storage;
 
         return $this;
     }

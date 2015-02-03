@@ -5,6 +5,7 @@ use Titon\Http\Server\Request;
 use Titon\Test\TestCase;
 use Titon\View\Helper\AbstractHelper;
 use Titon\View\EngineView;
+use Titon\View\Helper\TagMap;
 
 /**
  * @property \Titon\View\Helper $object
@@ -70,7 +71,7 @@ class HelperTest extends TestCase {
 
 class HelperStub extends AbstractHelper {
 
-    protected Map<string, string> $_tags = Map {
+    protected TagMap $tags = Map {
         'noattr' => '<tag>{body}</tag>',
         'nobody' => '<tag{attr} />',
         'custom' => '<tag {one} {two}>{three}</tag>',

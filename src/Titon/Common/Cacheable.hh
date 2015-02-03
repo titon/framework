@@ -20,14 +20,14 @@ trait Cacheable {
      *
      * @var \Titon\Common\CacheMap
      */
-    protected CacheMap $_cache = Map {};
+    protected CacheMap $cache = Map {};
 
     /**
      * Is cache on or off?
      *
      * @var bool
      */
-    protected bool $_cacheEnabled = true;
+    protected bool $cacheEnabled = true;
 
     /**
      * Return all the current cached items.
@@ -35,7 +35,7 @@ trait Cacheable {
      * @return \Titon\Common\CacheMap
      */
     public function allCache(): CacheMap {
-        return $this->_cache;
+        return $this->cache;
     }
 
     /**
@@ -49,23 +49,17 @@ trait Cacheable {
     public function cache<T>(mixed $key, (function(T): mixed) $callback): mixed {
         $key = $this->createCacheKey($key);
 
-        if ($cache = $this->getCache($key)) {
-            return $cache;
+        if ($this->hasCache($key)) {
+            return $this->getCache($key);
         }
 
-        $value = call_user_func($callback, $this);
-
-        if (!$this->isCacheEnabled()) {
-            return $value;
-        }
-
-        return $this->setCache($key, $value);
+        return $this->setCache($key, call_user_func($callback, $this));
     }
 
     /**
      * Generate a cache key. If an array is passed, drill down and form a key.
      *
-     * @param string|Traversable $keys
+     * @param mixed $keys
      * @return string
      */
     public function createCacheKey(mixed $keys): string {
@@ -108,13 +102,7 @@ trait Cacheable {
             return null;
         }
 
-        $key = $this->createCacheKey($key);
-
-        if ($this->hasCache($key)) {
-            return $this->allCache()->get($key);
-        }
-
-        return null;
+        return $this->allCache()->get($this->createCacheKey($key));
     }
 
     /**
@@ -133,7 +121,7 @@ trait Cacheable {
      * @return bool
      */
     public function isCacheEnabled(): bool {
-        return $this->_cacheEnabled;
+        return $this->cacheEnabled;
     }
 
     /**
@@ -174,7 +162,7 @@ trait Cacheable {
      * @return $this
      */
     public function toggleCache(bool $on = true): this {
-        $this->_cacheEnabled = $on;
+        $this->cacheEnabled = $on;
 
         return $this;
     }

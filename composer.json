@@ -31,11 +31,19 @@
     "autoload": {
         "psr-0": { "": "src/" },
         "files": [
+            "src/Titon/Cache/bootstrap.hh",
             "src/Titon/Common/bootstrap.hh",
+            "src/Titon/Controller/bootstrap.hh",
             "src/Titon/Debug/bootstrap.hh",
             "src/Titon/Environment/bootstrap.hh",
+            "src/Titon/Event/bootstrap.hh",
+            "src/Titon/Http/bootstrap.hh",
+            "src/Titon/Io/bootstrap.hh",
             "src/Titon/Route/bootstrap.hh",
-            "src/Titon/Utility/bootstrap.hh"
+            "src/Titon/Type/bootstrap.hh",
+            "src/Titon/Utility/bootstrap.hh",
+            "src/Titon/Validate/bootstrap.hh",
+            "src/Titon/View/bootstrap.hh"
         ]
     },
     "autoload-dev": {

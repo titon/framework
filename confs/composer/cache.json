@@ -29,6 +29,9 @@
     "autoload": {
         "psr-0": {
             "Titon\\Cache": "src/"
-        }
+        },
+        "files": [
+            "src/Titon/Cache/bootstrap.hh"
+        ]
     }
 }

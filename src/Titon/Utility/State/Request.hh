@@ -9,10 +9,8 @@ namespace Titon\Utility\State;
 
 use Titon\Utility\Col;
 
-type GlobalMap = Map<string, mixed>;
-
 /**
- * The Request class acts as a static immutable wrapper for the $_REQUEST super global.
+ * The Request class acts as a static immutable wrapper for the $REQUEST super global.
  * The class also acts a base for all other super globals to inherit from.
  *
  * @package Titon\Utility\State
@@ -24,14 +22,14 @@ abstract class Request {
      *
      * @var Map<string, \Titon\Utility\State\GlobalMap>
      */
-    protected static Map<string, GlobalMap> $_data = Map {};
+    protected static Map<string, GlobalMap> $data = Map {};
 
     /**
      * Has the super global data been initialized?
      *
      * @var Map<string, bool>
      */
-    protected static Map<string, bool> $_loaded = Map {};
+    protected static Map<string, bool> $loaded = Map {};
 
     /**
      * Return the entire data collection.
@@ -39,7 +37,7 @@ abstract class Request {
      * @return \Titon\Utility\State\GlobalMap
      */
     public static function all(): GlobalMap {
-        return static::$_data->get(static::class) ?: Map {};
+        return static::$data->get(static::class) ?: Map {};
     }
 
     /**
@@ -50,7 +48,7 @@ abstract class Request {
      * @return mixed
      */
     public static function get(string $key, mixed $default = null): mixed {
-        $value = Col::get(static::$_data, static::class . '.' . $key);
+        $value = Col::get(static::$data, static::class . '.' . $key);
 
         if ($value === null) {
             return $default;
@@ -67,7 +65,7 @@ abstract class Request {
      * @return bool
      */
     public static function has(string $key): bool {
-        return Col::has(static::$_data, static::class . '.' . $key);
+        return Col::has(static::$data, static::class . '.' . $key);
     }
 
     /**
@@ -79,9 +77,9 @@ abstract class Request {
     public static function initialize(array<string, mixed> $data): void {
         $class = static::class;
 
-        if (php_sapi_name() === 'cli' || !static::$_loaded->contains($class)) {
-            static::$_data[$class] = static::package($data);
-            static::$_loaded[$class] = true;
+        if (php_sapi_name() === 'cli' || !static::$loaded->contains($class)) {
+            static::$data[$class] = static::package($data);
+            static::$loaded[$class] = true;
         }
     }
 

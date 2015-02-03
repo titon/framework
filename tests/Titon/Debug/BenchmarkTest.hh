@@ -10,21 +10,21 @@ class BenchmarkTest extends TestCase {
 
         $benchmark = Benchmark::get('test');
 
-        $this->assertGreaterThan(0.0, $benchmark['startTime']);
-        $this->assertGreaterThan(0, $benchmark['startMemory']);
-        $this->assertEquals(0.0, $benchmark['endTime']);
-        $this->assertEquals(0, $benchmark['endMemory']);
+        $this->assertGreaterThan(0.0, $benchmark['time.start']);
+        $this->assertGreaterThan(0, $benchmark['memory.start']);
+        $this->assertEquals(0.0, $benchmark['time.stop']);
+        $this->assertEquals(0, $benchmark['memory.stop']);
         $this->assertTrue($benchmark['running']);
 
         Benchmark::stop('test');
 
         $benchmark = Benchmark::get('test');
 
-        $this->assertGreaterThan(0.0, $benchmark['endTime']);
-        $this->assertGreaterThan(0, $benchmark['endMemory']);
+        $this->assertGreaterThan(0.0, $benchmark['time.stop']);
+        $this->assertGreaterThan(0, $benchmark['memory.stop']);
         $this->assertFalse($benchmark['running']);
         $this->assertTrue(count(Benchmark::all()) == 1);
-        $this->assertEquals(sprintf('[test] %s seconds, %s memory (%s peak)', number_format($benchmark['avgTime'], 4), $benchmark['avgMemory'], $benchmark['peakMemory']), Benchmark::output('test'));
+        $this->assertEquals(sprintf('[test] %s seconds, %s memory (%s peak)', number_format($benchmark['time.avg'], 4), $benchmark['memory.avg'], $benchmark['memory.peak']), Benchmark::output('test'));
     }
 
     /**

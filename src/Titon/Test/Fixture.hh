@@ -36,7 +36,7 @@ class Fixture {
      *
      * @var \Titon\Db\Repository
      */
-    protected ?Repository $_repository = null;
+    protected ?Repository $repository = null;
 
     /**
      * Create the database table using the table's schema.
@@ -68,8 +68,8 @@ class Fixture {
      * @throws \Exception
      */
     public function loadRepository(): Repository {
-        if ($this->_repository) {
-            return $this->_repository;
+        if ($this->repository) {
+            return $this->repository;
         }
 
         if (!$this->className) {
@@ -80,7 +80,7 @@ class Fixture {
 
         invariant($repository instanceof Repository, 'Must be a Repository');
 
-        return $this->_repository = $repository;
+        return $this->repository = $repository;
     }
 
     /**

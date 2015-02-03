@@ -33,7 +33,7 @@ class RouteAnnotationStub implements Annotator {
     use Annotateable, RouteAnnotation;
 
     public function __construct() {
-        $this->__wireRouteAnnotations();
+        $this->wireRouteAnnotations();
     }
 
     <<Route('/foo')>>

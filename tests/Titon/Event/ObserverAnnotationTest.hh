@@ -35,7 +35,7 @@ class ObserverAnnotationStub implements Annotator, Subject {
     use Annotateable, Emittable, ObserverAnnotation;
 
     public function __construct() {
-        $this->__wireObserverAnnotations();
+        $this->wireObserverAnnotations();
     }
 
     <<Observer('event.foo')>>
@@ -48,6 +48,6 @@ class ObserverAnnotationStub implements Annotator, Subject {
     public function onceObserver(Event $event): void {}
 
     <<Observer('event.qux')>>
-    async public function asyncObserver(Event $event): Awaitable {}
+    public async function asyncObserver(Event $event): Awaitable<mixed> {}
 
 }

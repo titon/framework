@@ -27,7 +27,7 @@ class UrlBuilder {
      *
      * @var \Titon\Route\Router
      */
-    protected Router $_router;
+    protected Router $router;
 
     /**
      * Store the Router instance.
@@ -35,7 +35,7 @@ class UrlBuilder {
      * @param \Titon\Route\Router $router
      */
     public function __construct(Router $router) {
-        $this->_router = $router;
+        $this->router = $router;
     }
 
     /**
@@ -107,7 +107,7 @@ class UrlBuilder {
      * @return \Titon\Route\Router
      */
     public function getRouter(): Router {
-        return $this->_router;
+        return $this->router;
     }
 
     /**

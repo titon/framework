@@ -7,11 +7,6 @@
 
 namespace Titon\Cache;
 
-type CacheCallback = (function(): mixed);
-type ItemList = Vector<Item>;
-type ItemMap = Map<string, Item>;
-type StatsMap = Map<string, mixed>;
-
 /**
  * Interface for the storage containers library.
  *
@@ -22,8 +17,8 @@ interface Storage {
     const string HITS = 'hits';
     const string MISSES = 'misses';
     const string UPTIME = 'uptime';
-    const string MEMORY_USAGE = 'memoryUsage';
-    const string MEMORY_AVAILABLE = 'memoryAvailable';
+    const string MEMORY_USAGE = 'memory.usage';
+    const string MEMORY_AVAILABLE = 'memory.available';
 
     /**
      * Deletes all items in the pool.

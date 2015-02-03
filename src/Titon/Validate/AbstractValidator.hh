@@ -27,42 +27,42 @@ abstract class AbstractValidator implements Validator {
      *
      * @var \Titon\Validate\ConstraintMap
      */
-    protected ConstraintMap $_constraints = Map {};
+    protected ConstraintMap $constraints = Map {};
 
     /**
      * Data to validate against.
      *
      * @var \Titon\Common\DataMap
      */
-    protected DataMap $_data = Map {};
+    protected DataMap $data = Map {};
 
     /**
      * Errors gathered during validation.
      *
      * @var \Titon\Validate\ErrorMap
      */
-    protected ErrorMap $_errors = Map {};
+    protected ErrorMap $errors = Map {};
 
     /**
      * Mapping of fields and titles.
      *
      * @var \Titon\Validate\FieldMap
      */
-    protected FieldMap $_fields = Map {};
+    protected FieldMap $fields = Map {};
 
     /**
      * Fallback mapping of error messages.
      *
      * @var \Titon\Validate\MessageMap
      */
-    protected MessageMap $_messages = Map {};
+    protected MessageMap $messages = Map {};
 
     /**
      * Mapping of fields and validation rules.
      *
      * @var \Titon\Validate\RuleContainer
      */
-    protected RuleContainer $_rules = Map {};
+    protected RuleContainer $rules = Map {};
 
     /**
      * Store the data to validate.
@@ -77,7 +77,7 @@ abstract class AbstractValidator implements Validator {
      * {@inheritdoc}
      */
     public function addConstraint(string $key, ConstraintCallback $callback): this {
-        $this->_constraints[$key] = $callback;
+        $this->constraints[$key] = $callback;
 
         return $this;
     }
@@ -86,7 +86,7 @@ abstract class AbstractValidator implements Validator {
      * {@inheritdoc}
      */
     public function addConstraintProvider(ConstraintProvider $provider): this {
-        $this->_constraints->setAll($provider->getConstraints());
+        $this->constraints->setAll($provider->getConstraints());
 
         return $this;
     }
@@ -95,7 +95,7 @@ abstract class AbstractValidator implements Validator {
      * {@inheritdoc}
      */
     public function addError(string $field, string $message): this {
-        $this->_errors[$field] = $message;
+        $this->errors[$field] = $message;
 
         return $this;
     }
@@ -104,7 +104,7 @@ abstract class AbstractValidator implements Validator {
      * {@inheritdoc}
      */
     public function addField(string $field, string $title, Map<string, OptionList> $rules = Map {}): this {
-        $this->_fields[$field] = $title;
+        $this->fields[$field] = $title;
 
         if (!$rules->isEmpty()) {
             foreach ($rules as $rule => $options) {
@@ -119,7 +119,7 @@ abstract class AbstractValidator implements Validator {
      * {@inheritdoc}
      */
     public function addMessages(MessageMap $messages): this {
-        $this->_messages->setAll($messages);
+        $this->messages->setAll($messages);
 
         return $this;
     }
@@ -130,21 +130,21 @@ abstract class AbstractValidator implements Validator {
      * @throws \Titon\Common\Exception\InvalidArgumentException
      */
     public function addRule(string $field, string $rule, string $message, OptionList $options = Vector{}): this {
-        if (!$this->_fields->contains($field)) {
+        if (!$this->fields->contains($field)) {
             throw new InvalidArgumentException(sprintf('Field %s does not exist', $field));
         }
 
-        if ($this->_messages->contains($rule)) {
-            $message = $message ?: $this->_messages[$rule];
+        if ($this->messages->contains($rule)) {
+            $message = $message ?: $this->messages[$rule];
         } else {
-            $this->_messages[$rule] = $message;
+            $this->messages[$rule] = $message;
         }
 
-        if (!$this->_rules->contains($field)) {
-            $this->_rules[$field] = Map {};
+        if (!$this->rules->contains($field)) {
+            $this->rules[$field] = Map {};
         }
 
-        $this->_rules[$field][$rule] = shape(
+        $this->rules[$field][$rule] = shape(
             'rule' => $rule,
             'message' => $message,
             'options' => $options
@@ -184,50 +184,50 @@ abstract class AbstractValidator implements Validator {
      * {@inheritdoc}
      */
     public function getConstraints(): ConstraintMap {
-        return $this->_constraints;
+        return $this->constraints;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getData(): DataMap {
-        return $this->_data;
+        return $this->data;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getErrors(): ErrorMap {
-        return $this->_errors;
+        return $this->errors;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getFields(): FieldMap {
-        return $this->_fields;
+        return $this->fields;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getMessages(): MessageMap {
-        return $this->_messages;
+        return $this->messages;
     }
 
     /**
      * {@inheritdoc}
      */
     public function getRules(): RuleContainer {
-        return $this->_rules;
+        return $this->rules;
     }
 
     /**
      * {@inheritdoc}
      */
     public function reset(): this {
-        $this->_data->clear();
-        $this->_errors->clear();
+        $this->data->clear();
+        $this->errors->clear();
 
         return $this;
     }
@@ -236,7 +236,7 @@ abstract class AbstractValidator implements Validator {
      * {@inheritdoc}
      */
     public function setData(DataMap $data): this {
-        $this->_data = $data;
+        $this->data = $data;
 
         return $this;
     }
@@ -249,7 +249,7 @@ abstract class AbstractValidator implements Validator {
     public function validate(DataMap $data = Map {}): bool {
         if ($data) {
             $this->setData($data);
-        } else if (!$this->_data) {
+        } else if (!$this->data) {
             return false;
         }
 
@@ -280,7 +280,7 @@ abstract class AbstractValidator implements Validator {
             }
         }
 
-        return (count($this->_errors) === 0);
+        return (count($this->errors) === 0);
     }
 
     /**

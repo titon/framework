@@ -9,8 +9,6 @@ namespace Titon\Environment;
 
 use Titon\Utility\Col;
 
-type HostnameList = Vector<string>;
-
 /**
  * A Host represents a shared configuration for a collection of hostnames.
  *
@@ -23,21 +21,21 @@ class Host {
      *
      * @var \Titon\Environment\HostnameList
      */
-    protected HostnameList $_hostnames;
+    protected HostnameList $hostnames;
 
     /**
      * Unique identifier.
      *
      * @var string
      */
-    protected string $_key = '';
+    protected string $key = '';
 
     /**
      * Type of environment.
      *
      * @var \Titon\Environment\Server
      */
-    protected Server $_type;
+    protected Server $type;
 
     /**
      * Set the required settings.
@@ -46,8 +44,8 @@ class Host {
      * @param string|array|Vector $hostnames
      */
     public function __construct(Server $type, mixed $hostnames = Vector {}) {
-        $this->_hostnames = Col::toVector($hostnames);
-        $this->_type = $type;
+        $this->hostnames = Col::toVector($hostnames);
+        $this->type = $type;
     }
 
     /**
@@ -56,7 +54,7 @@ class Host {
      * @return \Titon\Environment\HostnameList
      */
     public function getHostnames(): HostnameList {
-        return $this->_hostnames;
+        return $this->hostnames;
     }
 
     /**
@@ -65,7 +63,7 @@ class Host {
      * @return string
      */
     public function getKey(): string {
-        return $this->_key;
+        return $this->key;
     }
 
     /**
@@ -74,7 +72,7 @@ class Host {
      * @return \Titon\Environment\Server
      */
     public function getType(): Server {
-        return $this->_type;
+        return $this->type;
     }
 
     /**
@@ -129,7 +127,7 @@ class Host {
      * @return $this
      */
     public function setKey(string $key): this {
-        $this->_key = $key;
+        $this->key = $key;
 
         return $this;
     }

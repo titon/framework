@@ -9,10 +9,6 @@ namespace Titon\Http;
 
 use Titon\Http\Exception\InvalidStatusException;
 
-type HeaderList = Vector<string>;
-type MethodList = Vector<string>;
-type StatusCodeMap = Map<int, string>;
-
 /**
  * HTTP related constants and static variables.
  *
@@ -82,7 +78,7 @@ class Http {
      *
      * @var \Titon\Http\HeaderList
      */
-    protected static HeaderList $_headerTypes = Vector {
+    protected static HeaderList $headerTypes = Vector {
         'Accept',
         'Accept-Charset',
         'Accept-Encoding',
@@ -149,7 +145,7 @@ class Http {
      *
      * @var \Titon\Http\MethodList
      */
-    protected static MethodList $_methodTypes = Vector {
+    protected static MethodList $methodTypes = Vector {
         'GET',
         'POST',
         'PUT',
@@ -165,7 +161,7 @@ class Http {
      *
      * @var \Titon\Http\StatusCodeMap
      */
-    protected static StatusCodeMap $_statusCodes = Map {
+    protected static StatusCodeMap $statusCodes = Map {
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing', // RFC2518
@@ -226,7 +222,7 @@ class Http {
      * @return \Titon\Http\HeaderList
      */
     public static function getHeaderTypes(): HeaderList {
-        return static::$_headerTypes;
+        return static::$headerTypes;
     }
 
     /**
@@ -235,7 +231,7 @@ class Http {
      * @return \Titon\Http\MethodList
      */
     public static function getMethodTypes(): MethodList {
-        return static::$_methodTypes;
+        return static::$methodTypes;
     }
 
     /**
@@ -246,8 +242,8 @@ class Http {
      * @throws \Titon\Http\Exception\InvalidStatusException
      */
     public static function getStatusCode(int $code): string {
-        if (static::$_statusCodes->contains($code)) {
-            return static::$_statusCodes[$code];
+        if (static::$statusCodes->contains($code)) {
+            return static::$statusCodes[$code];
         }
 
         throw new InvalidStatusException(sprintf('Status code %s is not supported', $code));
@@ -259,7 +255,7 @@ class Http {
      * @return \Titon\Http\StatusCodeMap
      */
     public static function getStatusCodes(): StatusCodeMap {
-        return static::$_statusCodes;
+        return static::$statusCodes;
     }
 
 }

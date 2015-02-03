@@ -10,7 +10,7 @@
  *  Custom Types
  * --------------------------------------------------------------
  *
- * Defines custom types that should be usable in other packages.
+ * Defines type aliases that are used by the common package.
  */
 
 namespace Titon\Common {
@@ -18,6 +18,18 @@ namespace Titon\Common {
     type CacheMap = Map<string, mixed>;
     type DataMap = Map<string, mixed>;
     type OptionMap = Map<string, mixed>;
+
+    // Annotations
+    type AnnotationMap = Map<string, ArgumentList>;
+
+    // Instanceable
+    type InstanceContainer<T> = Map<string, InstanceMap<T>>;
+    type InstanceMap<T> = Map<string, T>;
+
+    // Macros
+    type MacroCallback = (function(...): mixed);
+    type MacroContainer = Map<string, MacroMap>;
+    type MacroMap = Map<string, MacroCallback>;
 }
 
 /**

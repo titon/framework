@@ -23,14 +23,14 @@ class File extends Node {
      *
      * @var resource
      */
-    protected ?resource $_handle;
+    protected ?resource $handle;
 
     /**
      * Current read / write mode.
      *
      * @var string
      */
-    protected string $_mode = '';
+    protected string $mode = '';
 
     /**
      * Close the current file resource handler when object is destroyed.
@@ -55,10 +55,10 @@ class File extends Node {
      * @return bool
      */
     public function close(): bool {
-        if (is_resource($this->_handle)) {
+        if (is_resource($this->handle)) {
             $this->unlock();
 
-            return fclose($this->_handle);
+            return fclose($this->handle);
         }
 
         return false;
@@ -69,7 +69,7 @@ class File extends Node {
      *
      * @throws \Titon\Io\Exception\ExistingFileException
      */
-    public function copy(string $target, string $process = self::OVERWRITE, int $mode = 0755): ?File {
+    public function copy(string $target, int $process = self::OVERWRITE, int $mode = 0755): ?File {
         if (!$this->exists()) {
             return null;
         }
@@ -147,8 +147,8 @@ class File extends Node {
      * @return bool
      */
     public function lock(int $mode = LOCK_SH): bool {
-        if (is_resource($this->_handle)) {
-            return flock($this->_handle, $mode);
+        if (is_resource($this->handle)) {
+            return flock($this->handle, $mode);
         }
 
         return false;
@@ -174,19 +174,14 @@ class File extends Node {
      * @return string
      */
     public function mimeType(): string {
-        $type = '';
-
         if (!$this->exists()) {
-            return $type;
+            return '';
         }
 
-        // We can't use the file command on windows
-        if (!defined('PHP_WINDOWS_VERSION_MAJOR')) {
-            $type = shell_exec(sprintf("file -b --mime %s", escapeshellarg($this->path())));
+        $type = shell_exec(sprintf("file -b --mime %s", escapeshellarg($this->path())));
 
-            if ($type && strpos($type, ';') !== false) {
-                $type = strstr($type, ';', true);
-            }
+        if ($type && strpos($type, ';') !== false) {
+            $type = strstr($type, ';', true);
         }
 
         // Fallback because of fileinfo bug: https://bugs.php.net/bug.php?id=53035
@@ -210,8 +205,8 @@ class File extends Node {
             return false;
         }
 
-        if (is_resource($this->_handle)) {
-            if ($mode === $this->_mode) {
+        if (is_resource($this->handle)) {
+            if ($mode === $this->mode) {
                 return true;
             } else {
                 $this->close();
@@ -220,10 +215,10 @@ class File extends Node {
 
         $this->reset();
 
-        $this->_handle = fopen($this->path(), $mode);
-        $this->_mode = $mode;
+        $this->handle = fopen($this->path(), $mode);
+        $this->mode = $mode;
 
-        return is_resource($this->_handle);
+        return is_resource($this->handle);
     }
 
     /**
@@ -255,7 +250,7 @@ class File extends Node {
                 $length = $this->size() ?: 1;
             }
 
-            $content = fread($this->_handle, $length);
+            $content = fread($this->handle, $length);
 
             $this->close();
 
@@ -299,8 +294,8 @@ class File extends Node {
      * @return bool
      */
     public function unlock(): bool {
-        if (is_resource($this->_handle)) {
-            return flock($this->_handle, LOCK_UN);
+        if (is_resource($this->handle)) {
+            return flock($this->handle, LOCK_UN);
         }
 
         return false;
@@ -320,7 +315,7 @@ class File extends Node {
         }
 
         if ($this->lock(LOCK_EX)) {
-            $result = fwrite($this->_handle, $data);
+            $result = fwrite($this->handle, $data);
 
             $this->unlock();
 

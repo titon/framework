@@ -22,7 +22,7 @@ trait Emittable {
      *
      * @var \Titon\Event\Emitter
      */
-    protected ?Emitter $_emitter;
+    protected ?Emitter $emitter;
 
     /**
      * @see \Titon\Event\Emitter::emit()
@@ -39,36 +39,32 @@ trait Emittable {
     }
 
     /**
-     * Return the emitter. If it has not been defined, instantiate one.
-     *
-     * @return \Titon\Event\Emitter
+     * @see \Titon\Event\Subject::getEmitter()
      */
     public function getEmitter(): Emitter {
-        if (!$this->_emitter) {
-            $this->_emitter = new Emitter();
+        if (!$this->emitter) {
+            $this->emitter = new Emitter();
         }
 
-        return $this->_emitter;
+        return $this->emitter;
     }
 
     /**
      * @see \Titon\Event\Subject::once()
      */
-    public function once(string $event, mixed $callback, int $priority = 0): this {
+    public function once(string $event, ObserverCallback $callback, int $priority = Emitter::AUTO_PRIORITY): this {
         return $this->on($event, $callback, $priority, true);
     }
 
     /**
      * @see \Titon\Event\Subject::once()
      */
-    public function on(string $event, mixed $callback, int $priority = 0, bool $once = false): this {
-        if ($callback instanceof Listener) {
-            $this->getEmitter()->registerListener($callback);
+    public function on(mixed $event, ?ObserverCallback $callback = null, int $priority = Emitter::AUTO_PRIORITY, bool $once = false): this {
+        if ($event instanceof Listener) {
+            $this->getEmitter()->listen($event);
 
-        } else if (is_callable($callback)) {
-            // UNSAFE
-            // Impossible to validate the callable
-            $this->getEmitter()->register($event, $callback, $priority, $once);
+        } else if ($callback !== null) {
+            $this->getEmitter()->subscribe((string) $event, $callback, $priority, $once);
 
         } else {
             throw new InvalidObserverException('Observer must be a callable or a Listener');
@@ -80,14 +76,12 @@ trait Emittable {
     /**
      * @see \Titon\Event\Subject::once()
      */
-    public function off(string $event, mixed $callback): this {
-        if ($callback instanceof Listener) {
-            $this->getEmitter()->removeListener($callback);
+    public function off(mixed $event, ?ObserverCallback $callback = null): this {
+        if ($event instanceof Listener) {
+            $this->getEmitter()->unlisten($event);
 
-        } else if (is_callable($callback)) {
-            // UNSAFE
-            // Impossible to validate the callable
-            $this->getEmitter()->remove($event, $callback);
+        } else if ($callback !== null) {
+            $this->getEmitter()->unsubscribe((string) $event, $callback);
 
         } else {
             throw new InvalidObserverException('Observer must be a callable or a Listener');
@@ -97,13 +91,10 @@ trait Emittable {
     }
 
     /**
-     * Set the emitter to use.
-     *
-     * @param \Titon\Event\Emitter $emitter
-     * @return $this
+     * @see \Titon\Event\Subject::setEmitter()
      */
     public function setEmitter(Emitter $emitter): this {
-        $this->_emitter = $emitter;
+        $this->emitter = $emitter;
 
         return $this;
     }

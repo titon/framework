@@ -27,14 +27,14 @@ class Group {
      *
      * @var string
      */
-    protected string $_prefix = '';
+    protected string $prefix = '';
 
     /**
      * Suffix to append to all route paths.
      *
      * @var string
      */
-    protected string $_suffix = '';
+    protected string $suffix = '';
 
     /**
      * Return the prefix.
@@ -42,7 +42,7 @@ class Group {
      * @return string
      */
     public function getPrefix(): string {
-        return $this->_prefix;
+        return $this->prefix;
     }
 
     /**
@@ -51,7 +51,7 @@ class Group {
      * @return string
      */
     public function getSuffix(): string {
-        return $this->_suffix;
+        return $this->suffix;
     }
 
     /**
@@ -61,7 +61,7 @@ class Group {
      * @return $this
      */
     public function setPrefix(string $prefix): this {
-        $this->_prefix = $prefix;
+        $this->prefix = $prefix;
 
         return $this;
     }
@@ -73,7 +73,7 @@ class Group {
      * @return $this
      */
     public function setSuffix(string $suffix): this {
-        $this->_suffix = $suffix;
+        $this->suffix = $suffix;
 
         return $this;
     }

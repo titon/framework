@@ -17,10 +17,6 @@ use Titon\Utility\Col;
 use Titon\Utility\Path;
 use Titon\Utility\State\Server as ServerGlobal;
 
-type BootstrapperList = Vector<Bootstrapper>;
-type HostMap = Map<string, Host>;
-type VariableMap = Map<string, string>;
-
 /**
  * A hub that allows you to store different environment host configurations,
  * which can be detected and initialized at runtime.
@@ -38,42 +34,42 @@ class Environment implements Subject {
      *
      * @params \Titon\Environment\BootstrapperList
      */
-    protected BootstrapperList $_bootstrappers = Vector {};
+    protected BootstrapperList $bootstrappers = Vector {};
 
     /**
      * Currently active environment.
      *
      * @var \Titon\Environment\Host
      */
-    protected ?Host $_current = null;
+    protected ?Host $current = null;
 
     /**
      * List of all environments.
      *
      * @var \Titon\Environment\HostMap
      */
-    protected HostMap $_hosts = Map {};
+    protected HostMap $hosts = Map {};
 
     /**
      * The fallback environment.
      *
      * @var \Titon\Environment\Host
      */
-    protected ?Host $_fallback = null;
+    protected ?Host $fallback = null;
 
     /**
      * Directory path to the secure variables directory.
      *
      * @var string
      */
-    protected string $_securePath = '';
+    protected string $securePath = '';
 
     /**
      * Secure variables loaded on initialization.
      *
      * @var \Titon\Environment\VariableMap
      */
-    protected VariableMap $_variables = Map {};
+    protected VariableMap $variables = Map {};
 
     /**
      * Set internal events and the secure variables lookup path.
@@ -82,7 +78,7 @@ class Environment implements Subject {
      */
     public function __construct(string $path = '') {
         if ($path) {
-            $this->_securePath = Path::ds($path, true);
+            $this->securePath = Path::ds($path, true);
         }
 
         $this->on('env.initialized', inst_meth($this, 'doLoadSecureVars'), 1);
@@ -96,7 +92,7 @@ class Environment implements Subject {
      * @return $this
      */
     public function addBootstrapper(Bootstrapper $bootstrapper): this {
-        $this->_bootstrappers[] = $bootstrapper;
+        $this->bootstrappers[] = $bootstrapper;
 
         return $this;
     }
@@ -109,7 +105,7 @@ class Environment implements Subject {
      * @return $this
      */
     public function addHost(string $key, Host $host): this {
-        $this->_hosts[$key] = $host->setKey($key);
+        $this->hosts[$key] = $host->setKey($key);
 
         return $this;
     }
@@ -120,7 +116,7 @@ class Environment implements Subject {
      * @return \Titon\Environment\Host
      */
     public function current(): ?Host {
-        return $this->_current;
+        return $this->current;
     }
 
     /**
@@ -148,7 +144,7 @@ class Environment implements Subject {
      * @return $this
      */
     public function doLoadSecureVars(Event $event, Environment $env, Host $host): void {
-        $path = $this->_securePath;
+        $path = $this->securePath;
         $variables = [];
 
         if (!$path) {
@@ -161,7 +157,7 @@ class Environment implements Subject {
             }
         }
 
-        $this->_variables = Col::toMap($variables);
+        $this->variables = Col::toMap($variables);
     }
 
     /**
@@ -170,7 +166,7 @@ class Environment implements Subject {
      * @return \Titon\Environment\BootstrapperList
      */
     public function getBootstrappers(): BootstrapperList {
-        return $this->_bootstrappers;
+        return $this->bootstrappers;
     }
 
     /**
@@ -179,7 +175,7 @@ class Environment implements Subject {
      * @return \Titon\Environment\Host
      */
     public function getFallback(): ?Host {
-        return $this->_fallback;
+        return $this->fallback;
     }
 
     /**
@@ -190,8 +186,8 @@ class Environment implements Subject {
      * @throws \Titon\Environment\Exception\MissingHostException
      */
     public function getHost(string $key): Host {
-        if ($this->_hosts->contains($key)) {
-            return $this->_hosts[$key];
+        if ($this->hosts->contains($key)) {
+            return $this->hosts[$key];
         }
 
         throw new MissingHostException(sprintf('Environment host %s does not exist', $key));
@@ -203,7 +199,7 @@ class Environment implements Subject {
      * @return \Titon\Environment\HostMap
      */
     public function getHosts(): HostMap {
-        return $this->_hosts;
+        return $this->hosts;
     }
 
     /**
@@ -222,11 +218,13 @@ class Environment implements Subject {
      * @return \Titon\Environment\VariableMap
      */
     public function getVariables(): VariableMap {
-        return $this->_variables;
+        return $this->variables;
     }
 
     /**
      * Initialize the environment by matching based on server variables or hostnames.
+     *
+     * @throws \Titon\Environment\Exception\NoHostMatchException
      */
     public function initialize(): void {
         if ($this->getHosts()->isEmpty()) {
@@ -243,11 +241,11 @@ class Environment implements Subject {
 
         // Set the host if found
         if ($current) {
-            $this->_current = $current;
+            $this->current = $current;
 
         // If not found, use the fallback
         } else if ($fallback = $this->getFallback()) {
-            $this->_current = $current = $fallback;
+            $this->current = $current = $fallback;
 
         // Throw an error if no matches could be found
         } else {
@@ -375,7 +373,7 @@ class Environment implements Subject {
      * @return $this
      */
     public function setFallback(string $key): this {
-        $this->_fallback = $this->getHost($key);
+        $this->fallback = $this->getHost($key);
 
         return $this;
     }

@@ -17,12 +17,13 @@
     },
     "require": {
         "hhvm": ">=3.4.0",
-        "titon/core": "*",
+        "titon/common": "*",
         "titon/event": "*"
     },
     "suggest": {
         "titon/cache": "Cache rendered templates using the Cache package",
-        "titon/model": "Generate model based forms using the Model package"
+        "titon/model": "Generate model based forms using the Model package",
+        "titon/type": "Build breadcrumb trails using the Type package"
     },
     "autoload": {
         "psr-0": {

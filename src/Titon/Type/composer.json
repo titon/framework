@@ -1,0 +1,34 @@
+{
+    "name": "titon/type",
+    "type": "library",
+    "description": "The type package provides a chainable immutable object oriented interface for array lists, hash maps, string buffers, xml documents, and more.",
+    "keywords": ["titon", "type", "array", "list", "hash", "map", "buffer", "xml", "yaml"],
+    "homepage": "http://titon.io",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "support": {
+        "irc": "irc://irc.freenode.org/titon",
+        "source": "https://github.com/titon/type"
+    },
+    "require": {
+        "hhvm": ">=3.4.0",
+        "ext-mbstring": "*",
+        "titon/common": "*"
+    },
+    "suggest": {
+        "ext-simplexml": "Read and Write XML files using the Type\\Xml classes"
+    },
+    "autoload": {
+        "psr-0": {
+            "Titon\\Type": "src/"
+        },
+        "files": [
+            "src/Titon/Type/bootstrap.hh"
+        ]
+    }
+}

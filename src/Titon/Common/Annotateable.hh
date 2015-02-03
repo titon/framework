@@ -89,7 +89,7 @@ trait Annotateable {
         $annotations = Map {};
 
         foreach ($attributes as $name => $values) {
-            if (mb_substr($name, 0, 2) === '__') {
+            if (substr($name, 0, 2) === '__') {
                 continue; // Ignore built-ins
             }
 

@@ -19,7 +19,10 @@
         "hhvm": ">=3.4.0",
         "ext-mbstring": "*",
         "ext-fileinfo": "*",
-        "titon/core": "*"
+        "titon/common": "*"
+    },
+    "suggest": {
+        "titon/type": "Read and write XML files using the Type package"
     },
     "autoload": {
         "psr-0": {

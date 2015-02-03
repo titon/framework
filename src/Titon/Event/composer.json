@@ -2,7 +2,7 @@
     "name": "titon/event",
     "type": "library",
     "description": "The event package provides functionality for notifying a list of observers about an event.",
-    "keywords": ["titon", "event", "listener", "subscriber", "emitter", "observer", "subject", "emit", "dispatch", "notify", "propagation"],
+    "keywords": ["titon", "event", "listener", "subscriber", "emitter", "observer", "subject", "emit", "dispatch", "notify", "propagation", "asynchronous"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
     "authors": [
@@ -17,7 +17,7 @@
     },
     "require": {
         "hhvm": ">=3.4.0",
-        "titon/core": "*"
+        "titon/common": "*"
     },
     "autoload": {
         "psr-0": {

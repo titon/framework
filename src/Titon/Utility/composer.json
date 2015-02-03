@@ -1,0 +1,39 @@
+{
+    "name": "titon/utility",
+    "type": "library",
+    "description": "The utility package provides convenience classes for basic tasks like validation, formatting, sanitization and more.",
+    "keywords": [
+        "titon", "utility", "collection", "config", "crypt", "format", "inflector",
+        "number", "path", "registry", "sanitize", "string", "time", "validate"
+    ],
+    "homepage": "http://titon.io",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "support": {
+        "irc": "irc://irc.freenode.org/titon",
+        "source": "https://github.com/titon/utility"
+    },
+    "require": {
+        "hhvm": ">=3.4.0",
+        "ext-mbstring": "*",
+        "titon/common": "*"
+    },
+    "suggest": {
+        "ext-mcrypt": "Encrypt and decrypt data with the Utility\\Crypt class",
+        "ext-fileinfo": "Validate file mime types with the Utility\\Validate class",
+        "titon/io": "Load configuration files using an Io\\Reader class"
+    },
+    "autoload": {
+        "psr-0": {
+            "Titon\\Utility": "src/"
+        },
+        "files": [
+            "src/Titon/Utility/bootstrap.hh"
+        ]
+    }
+}

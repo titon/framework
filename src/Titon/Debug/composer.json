@@ -17,7 +17,8 @@
     },
     "require": {
         "hhvm": ">=3.4.0",
-        "titon/core": "*",
+        "titon/common": "*",
+        "titon/type": "*",
         "psr/log": "~1.0.0"
     },
     "suggest": {

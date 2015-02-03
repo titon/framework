@@ -17,7 +17,7 @@
     },
     "require": {
         "hhvm": ">=3.4.0",
-        "titon/core": "*"
+        "titon/common": "*"
     },
     "suggest": {
         "ext-apc": "Cache data using APC",

@@ -7,6 +7,7 @@ The following conventions must be followed when contributing to the framework.
 Titon follows the official [PSR-1 Basic Coding Standard](http://www.php-fig.org/psr/psr-1/) with the following additions.
 
 * Properties must be declared in camel case.
+* Non-primitive type hints must use type aliases.
 
 ## PSR-2 ##
 

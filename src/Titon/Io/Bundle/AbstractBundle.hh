@@ -89,12 +89,8 @@ abstract class AbstractBundle implements Bundle {
         $contents = Vector {};
 
         foreach ($this->getDomainPaths($domain) as $path) {
-            $folder = new Folder($path);
-
-            foreach ($folder->read() as $file) {
-                if ($file instanceof File) {
-                    $contents[] = $file->path();
-                }
+            foreach ((new Folder($path))->files() as $file) {
+                $contents[] = $file->path();
             }
         }
 

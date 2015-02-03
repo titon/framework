@@ -54,6 +54,9 @@ class BundleTest extends TestCase {
     public function testGetContents() {
         $this->object->addPath('test', TEMP_DIR . '/io');
 
+        $paths = $this->object->getContents('test');
+        sort($paths);
+
         $this->assertEquals(Vector {
             TEMP_DIR . '/io/ini.ini',
             TEMP_DIR . '/io/json.json',
@@ -61,7 +64,7 @@ class BundleTest extends TestCase {
             TEMP_DIR . '/io/po.po',
             TEMP_DIR . '/io/xml.xml',
             TEMP_DIR . '/io/yaml.yaml'
-        }, $this->object->getContents('test'));
+        }, $paths);
     }
 
     public function testGetDomains() {

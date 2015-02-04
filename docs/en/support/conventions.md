@@ -6,8 +6,7 @@ The following conventions must be followed when contributing to the framework.
 
 Titon follows the official [PSR-1 Basic Coding Standard](http://www.php-fig.org/psr/psr-1/) with the following additions.
 
-* Properties must be declared in camel case.
-* Non-primitive type hints must use type aliases.
+* Folder paths must end in a trailing slash.
 
 ## PSR-2 ##
 
@@ -26,12 +25,9 @@ Each package must have a `composer.json` within the root of the package folder.
 
 The term "class" refers to classes, interfaces, traits, and other similar structures.
 
-When declaring a class, it must be organized into the following namespace structure `Titon(\<PackageName>)*\<ClassName>`. 
-All implementations of an interface (including an optional abstract class) must be organized in a sub-folder 
-that matches the interface name.
+When declaring a class, it must be organized into the following namespace structure `Titon(\<PackageName>)*\<ClassName>`. All implementations of an interface (including an optional abstract class) must be organized in a sub-folder that matches the interface name.
 
-Say we have the following setup. A class named `Foo`, an interface named `Bar`, its implementations, 
-and a few traits. We would have the following organization.
+Say we have the following setup. A class named `Foo`, an interface named `Bar`, its implementations, and a few traits. We would have the following organization.
 
 ```
 Titon\Package\Bar               // interface
@@ -43,46 +39,45 @@ Titon\Package\Foo               // class
 Titon\Package\FooAware          // trait
 ```
 
-The exception to this interface sub-folder organization rule is when a package is based solely around a single interface, 
-usually one that shares the same name. An example of this is the controller and view packages. 
-This exception exists primarily to stop duplicate folder names, like `Titon\Controller\Controller\AbstractController`.
+The exception to this interface sub-folder organization rule is when a package is based solely around a single interface, usually one that shares the same name. An example of this is the controller and view packages. This exception exists primarily to stop duplicate folder names, like `Titon\Controller\Controller\AbstractController`.
 
-## Interface Names ##
+## Naming Conventions ##
 
-All interface names *should not* be suffixed with `Interface` -- instead they should be written as a noun (a thing), 
-or as an adjective (suffixed with `-er`, `-able`, or `-ible`). For example, `Engine`, `Controller`, `Helper`, 
-`Subject`, `Arrayable`, etc.
+### Interfaces ###
 
-## Trait Names ##
+* Must *not* be suffixed with `Interface`.
+* Must be written as a noun (a thing) or as an adjective (suffixed with `-er`, `-able`, or `-ible`). For example, `Engine`, `Controller`, `Helper`, `Subject`, `Arrayable`, etc.
 
-All trait names must be written as an adjective with a suffix that ends in `-able` or `-ible`. 
-There are unique exceptions to this rule, which are:
+### Traits ###
 
-* If the trait provides a getter and a setter for a class (or interface), it must end in `Aware`. 
-    For example, `StorageAware`.
-* If the trait provides annotation wiring, it must end in `Annotation`, with the prefix being the annotation name.
-    For example, `RouteAnnotation`.
-* If the trait provides a set of encapsulated reusable methods or properties, it must end in `Mixin`.
-    For example, `FilterMixin`. If there are multiple mixins in a package, they should be grouped into a `Mixin` namespace.
+* Must be suffixed with `Aware` if the trait provides a getter and a setter for a class (or interface). For example, `StorageAware`.
+* Must be suffixed with `Annotation` if the trait provides annotation wiring, with the prefix being the annotation name. For example, `RouteAnnotation`.
+* Must be suffixed with `Mixin` if the trait provides a set of encapsulated reusable methods or properties. For example, `FilterMixin`. If there are multiple mixins in a package, they should be grouped into a `Mixin` namespace.
+* All other instances must be written as an adjective (suffixed with `-able` or `-ible`) or as a verb that conveys an action. For example, `Mutable`, `DispatchesEvents`.
 
-## Method Names ##
+### Methods ###
 
-All method names, excluding special cases, must be written as a verb and must convey an action. 
-For example, `getValue()`, `setValue()`, `hasItem()`, `removeMember()`, `flushContents()`, etc.
+* Must be written as a verb that conveys an action. For example, `getValue()`, `setValue()`, `hasItem()`, `removeMember()`, `flushContents()`, etc.
 
-The following actions must be used within the correct method context.
+The following actions must be used within the correct naming context.
 
-* `get()` - Get a value.
-* `set()` - Set a value. Only applicable if one possible value.
-* `add()` - Set a value to a collection or add multiple values.
-* `has()` - Check if a value exists or a key within a collection exists.
-* `is()` - Check if a state is truthy.
-* `remove()` - Remove a value.
-* `flush()` - Remove all values.
-* `parse()` - Extract values.
-* `build()` - Combine values.
-* `run()` - Process a value.
-* `do()` - Special case for event callbacks.
+* `get` - Get a value.
+* `set` - Set a value. Only applicable if one possible value.
+* `add` - Set a value to a collection or add multiple values.
+* `has` - Check if a value exists or a key within a collection exists.
+* `is` - Check if a state is truthy.
+* `remove` - Remove a value.
+* `flush` - Remove all values.
+* `parse` - Extract values.
+* `build` - Combine values.
+* `run` - Process a value.
+* `do` - Special case for event callbacks.
+
+### Properties ###
+
+* Must be written in camel case.
+* Must use the protected visibility modifier (unless there's a good reason otherwise). 
+* Must use a type alias for all non-primitive type hints.
 
 ## Type Hints ##
 
@@ -116,10 +111,10 @@ public function doAction(FooBar $map): void {}
 
 When naming a type alias, the following suffixes and conventions must be used.
 
-* `Callback` suffix when using a callable.
-* `Container` suffix with using a map that contains a map or list.
-* `List` suffix when using a vector.
-* `Map` suffix when using a map.
+* `Callback` suffix when declaring a callable.
+* `Container` suffix when declaring a map that contains a non-primitive type.
+* `List` suffix when declaring a vector.
+* `Map` suffix when declaring a map.
 * Shapes must be nouns.
 
 ## Exceptions ##

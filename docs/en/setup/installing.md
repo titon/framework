@@ -75,7 +75,7 @@ composer require titon/framework:*
 composer update
 ```
 
-Titon also comes bundled as individual packages, if you prefer not use the entire framework. 
+If you prefer to not use the entire framework, Titon also comes bundled as individual packages.
 Check out [Packagist](https://packagist.org/packages/titon/) for a list of supported packages.
 
 ```shell

@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from gittle import Gittle
 from colorama import init, Fore
 
-// Disabled temporarily
+# Disabled temporarily
 sys.exit()
 
 import os, sys, shutil, time

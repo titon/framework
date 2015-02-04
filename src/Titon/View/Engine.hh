@@ -8,6 +8,7 @@
 namespace Titon\View;
 
 use Titon\Common\DataMap;
+use Titon\View\Engine\WrapperList;
 
 /**
  * Interface for the rendering engine.

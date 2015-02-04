@@ -14,6 +14,8 @@
  */
 
 namespace Titon\Debug {
+    use Exception;
+
     type Error = shape('error' => string, 'level' => string);
     type ErrorCodeMap = Map<int, string>;
     type ExceptionHandler = (function(Exception): void);

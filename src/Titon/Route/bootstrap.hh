@@ -14,10 +14,12 @@
  */
 
 namespace Titon\Route {
+    use Titon\Route\Group as RouteGroup;
+
     type Action = shape('class' => string, 'action' => string);
     type FilterCallback = (function(Router, Route): void);
     type FilterMap = Map<string, FilterCallback>;
-    type GroupCallback = (function(Router, Group): void);
+    type GroupCallback = (function(Router, RouteGroup): void);
     type GroupList = Vector<RouteGroup>;
     type ParamMap = Map<string, mixed>;
     type QueryMap = Map<string, mixed>;

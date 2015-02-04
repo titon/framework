@@ -126,12 +126,14 @@ class Environment implements Subject {
      * @param \Titon\Event\Event $event
      * @param \Titon\Environment\Environment $env
      * @param \Titon\Environment\Host $host
-     * @return $this
+     * @return mixed
      */
-    public function doBootstrap(Event $event, Environment $env, Host $host): void {
+    public function doBootstrap(Event $event, Environment $env, Host $host): mixed {
         foreach ($this->getBootstrappers() as $bootstrapper) {
             $bootstrapper->bootstrap($host);
         }
+
+        return true;
     }
 
     /**
@@ -141,14 +143,14 @@ class Environment implements Subject {
      * @param \Titon\Event\Event $event
      * @param \Titon\Environment\Environment $env
      * @param \Titon\Environment\Host $host
-     * @return $this
+     * @return mixed
      */
-    public function doLoadSecureVars(Event $event, Environment $env, Host $host): void {
+    public function doLoadSecureVars(Event $event, Environment $env, Host $host): mixed {
         $path = $this->securePath;
         $variables = [];
 
         if (!$path) {
-            return;
+            return true;
         }
 
         foreach (['.env.php', sprintf('.env.%s.php', $host->getKey())] as $file) {
@@ -158,6 +160,8 @@ class Environment implements Subject {
         }
 
         $this->variables = Col::toMap($variables);
+
+        return true;
     }
 
     /**

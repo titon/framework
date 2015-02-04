@@ -14,5 +14,7 @@
  */
 
 namespace Titon\Controller {
+    use Titon\Common\ArgumentList;
+
     type ActionMap = Map<string, ArgumentList>;
 }

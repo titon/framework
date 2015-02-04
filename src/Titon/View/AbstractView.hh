@@ -12,7 +12,7 @@ use Titon\Common\Cacheable;
 use Titon\Common\FactoryAware;
 use Titon\Common\DataMap;
 use Titon\Event\Emittable;
-use Titon\Event\Event;
+use Titon\Event\Listener;
 use Titon\Event\Subject;
 use Titon\Utility\Config;
 use Titon\Utility\Col;

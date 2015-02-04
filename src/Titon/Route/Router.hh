@@ -200,10 +200,11 @@ class Router implements Subject {
      * @param \Titon\Event\Event $event
      * @param \Titon\Route\Router $router
      * @param \Titon\Route\Route $route
+     * @return mixed
      */
-    public function doCacheRoutes(Event $event, Router $router, Route $route): void {
+    public function doCacheRoutes(Event $event, Router $router, Route $route): mixed {
         if ($this->isCached()) {
-            return;
+            return true;
         }
 
         if (($storage = $this->getStorage()) && ($routes = $this->getRoutes())) {
@@ -215,6 +216,8 @@ class Router implements Subject {
             // Compiling before hand should speed up the next request
             $storage->save(new Item('routes', serialize($routes), '+1 year'));
         }
+
+        return true;
     }
 
     /**
@@ -223,11 +226,14 @@ class Router implements Subject {
      * @param \Titon\Event\Event $event
      * @param \Titon\Route\Router $router
      * @param \Titon\Route\Route $route
+     * @return mixed
      */
-    public function doRunFilters(Event $event, Router $router, Route $route): void {
+    public function doRunFilters(Event $event, Router $router, Route $route): mixed {
         foreach ($route->getFilters() as $filter) {
             call_user_func_array($this->getFilter($filter), [$router, $route]);
         }
+
+        return true;
     }
 
     /**
@@ -237,14 +243,17 @@ class Router implements Subject {
      * @param \Titon\Event\Event $event
      * @param \Titon\Route\Router $router
      * @param string $url
+     * @return mixed
      */
-    public function doLoadRoutes(Event $event, Router $router, string $url): void {
+    public function doLoadRoutes(Event $event, Router $router, string $url): mixed {
         $item = $this->getStorage()?->getItem('routes');
 
         if ($item !== null && $item->isHit()) {
             $this->routes = unserialize($item->get());
             $this->cached = true;
         }
+
+        return true;
     }
 
     /**

@@ -174,15 +174,19 @@ abstract class AbstractController implements Controller, Subject {
         $this->emit('controller.error', [$this, $exception]);
 
         // Render the view
-        $output = $this->getView()
-            ?->setVariables(Map {
-                'pageTitle' => Http::getStatusCode($status),
-                'error' => $exception,
-                'code' => $status,
-                'message' => $exception->getMessage(),
-                'url' => $this->getRequest()?->getUrl() ?: ''
-            })
-            ->render('errors/' . $template, true);
+        $output = '';
+
+        if ($view = $this->getView()) {
+            $output = $view
+                ->setVariables(Map {
+                    'pageTitle' => Http::getStatusCode($status),
+                    'error' => $exception,
+                    'code' => $status,
+                    'message' => $exception->getMessage(),
+                    'url' => $this->getRequest()?->getUrl() ?: ''
+                })
+                ->render('errors/' . $template, true);
+        }
 
         if (!$output) {
             $output = 'Internal server error.';
@@ -205,7 +209,7 @@ abstract class AbstractController implements Controller, Subject {
         $output = $this->getView()?->render($this->buildViewPath($this->getCurrentAction()));
 
         // Set the response body
-        if ($output && ($response = $this->getResponse())) {
+        if ($output !== null && ($response = $this->getResponse())) {
             $response->setBody(new MemoryStream($output));
         }
 

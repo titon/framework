@@ -70,5 +70,5 @@ class SubjectTest extends TestCase {
 }
 
 class SubjectStub implements Subject {
-    use Emittable;
+    use EmitsEvents;
 }

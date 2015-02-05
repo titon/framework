@@ -2,11 +2,11 @@
 
 A subject is an interface that provides event management support within individual classes. The `Titon\Event\Subject` 
 interface defines a set of methods for emitting events and subscribing observers. To make development easier, 
-the `Titon\Event\Emittable` trait can be used that will implement `Subject` out of the box.
+the `Titon\Event\EmitsEvents` trait can be inherited that will implement `Subject` out of the box.
 
 ```hack
 class Foo implements Titon\Event\Subject {
-    use Titon\Event\Emittable;
+    use Titon\Event\EmitsEvents;
 }
 
 $foo = new Foo();

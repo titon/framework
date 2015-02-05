@@ -9,7 +9,7 @@ namespace Titon\Controller;
 
 use Titon\Common\ArgumentList;
 use Titon\Controller\Exception\InvalidActionException;
-use Titon\Event\Emittable;
+use Titon\Event\EmitsEvents;
 use Titon\Event\Subject;
 use Titon\Http\Exception\HttpException;
 use Titon\Http\Http;
@@ -36,7 +36,7 @@ use \Exception;
  *      controller.error(Controller $con, Exception $e)
  */
 abstract class AbstractController implements Controller, Subject {
-    use Emittable, IncomingRequestAware, OutgoingResponseAware;
+    use EmitsEvents, IncomingRequestAware, OutgoingResponseAware;
 
     /**
      * The currently dispatched action.

@@ -6,6 +6,7 @@ Vagrant.configure("2") do |config|
 
     # Increase memory size as HHVM requires at minimum 1GB
     config.vm.provider "virtualbox" do |v|
+        v.name = "titon"
         v.memory = 2048
         v.cpus = 2
         v.customize ["modifyvm", :id, "--ostype", "Ubuntu_64"]

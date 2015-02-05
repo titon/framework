@@ -10,7 +10,7 @@ namespace Titon\Route;
 use Titon\Cache\Item;
 use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
-use Titon\Event\Emittable;
+use Titon\Event\EmitsEvents;
 use Titon\Event\Event;
 use Titon\Event\Subject;
 use Titon\Route\Exception\InvalidRouteActionException;
@@ -35,7 +35,7 @@ use Titon\Utility\State\Server;
  *      route.matched(Router $router, Route $route)
  */
 class Router implements Subject {
-    use Emittable, FactoryAware;
+    use EmitsEvents, FactoryAware;
 
     /**
      * Base folder structure if the application was placed within a directory.

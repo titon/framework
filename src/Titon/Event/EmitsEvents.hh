@@ -14,7 +14,7 @@ use Titon\Event\Exception\InvalidObserverException;
  *
  * @package Titon\Event
  */
-trait Emittable {
+trait EmitsEvents {
     require implements Subject;
 
     /**

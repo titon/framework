@@ -32,7 +32,7 @@ class ObserverAnnotationTest extends TestCase {
 }
 
 class ObserverAnnotationStub implements Annotator, Subject {
-    use Annotateable, Emittable, ObserverAnnotation;
+    use Annotateable, EmitsEvents, ObserverAnnotation;
 
     public function __construct() {
         $this->wireObserverAnnotations();

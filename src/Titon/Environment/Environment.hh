@@ -10,7 +10,7 @@ namespace Titon\Environment;
 use Titon\Common\FactoryAware;
 use Titon\Environment\Exception\MissingHostException;
 use Titon\Environment\Exception\NoHostMatchException;
-use Titon\Event\Emittable;
+use Titon\Event\EmitsEvents;
 use Titon\Event\Event;
 use Titon\Event\Subject;
 use Titon\Utility\Col;
@@ -27,7 +27,7 @@ use Titon\Utility\State\Server as ServerGlobal;
  *      env.initialized(Environment $env, Host $host)
  */
 class Environment implements Subject {
-    use Emittable, FactoryAware;
+    use EmitsEvents, FactoryAware;
 
     /**
      * List of bootstrappers to trigger after a match.

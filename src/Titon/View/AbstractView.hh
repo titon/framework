@@ -11,7 +11,7 @@ use Titon\Cache\Storage;
 use Titon\Common\Cacheable;
 use Titon\Common\FactoryAware;
 use Titon\Common\DataMap;
-use Titon\Event\Emittable;
+use Titon\Event\EmitsEvents;
 use Titon\Event\Listener;
 use Titon\Event\Subject;
 use Titon\Utility\Config;
@@ -29,7 +29,7 @@ use Titon\View\Helper;
  * @package Titon\View\View
  */
 abstract class AbstractView implements View, Subject {
-    use Cacheable, Emittable, FactoryAware;
+    use Cacheable, EmitsEvents, FactoryAware;
 
     /**
      * Variable data for templates.

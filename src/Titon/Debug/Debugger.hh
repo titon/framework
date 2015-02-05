@@ -8,9 +8,12 @@
 namespace Titon\Debug;
 
 use Psr\Log\LoggerInterface;
+use Titon\Debug\Dumper\CliDumper;
+use Titon\Debug\Dumper\HtmlDumper;
 use Titon\Debug\Exception\FatalErrorException;
 use Titon\Debug\Exception\InternalErrorException;
 use Titon\Type\Type;
+use Titon\Utility\Path;
 use Titon\Utility\Sanitize;
 use \Exception;
 use \ErrorException;
@@ -21,6 +24,13 @@ use \ErrorException;
  * @package Titon\Debug
  */
 class Debugger {
+
+    /**
+     * Dumper instance.
+     *
+     * @var \Titon\Debug\Dumper
+     */
+    protected static ?Dumper $dumper;
 
     /**
      * Complete list of all internal errors types.
@@ -69,109 +79,17 @@ class Debugger {
     protected static ?LoggerInterface $logger;
 
     /**
-     * Initialize the error, exception, and debug handling.
-     */
-    public static function initialize(): void {
-        if (static::$initialized) {
-            return;
-        }
-
-        ini_set('log_errors', true);
-        ini_set('report_memleaks', true);
-
-        set_error_handler(class_meth(__CLASS__, 'handleError'));
-        register_shutdown_function(class_meth(__CLASS__, 'handleFatalError'));
-        invariant_callback_register(class_meth(__CLASS__, 'handleInvariant'));
-
-        static::setHandler(class_meth(__CLASS__, 'handleException'));
-        static::disable();
-
-        static::$initialized = true;
-    }
-
-    /**
-     * Return an HTML formatted table for the defined backtrace.
-     * If an exception is passed, use its stack trace.
-     *
-     * @param \Exception $exception
-     * @return string
+     * @see \Titon\Debug\Dumper::backtrace()
      */
     public static function backtrace(?Exception $exception = null): string {
-        if (static::isOff()) {
-            return '';
-        }
-
-        if ($exception) {
-            $stack = $exception->getTrace();
-        } else {
-            $stack = debug_backtrace();
-        }
-
-        $backtrace = [];
-
-        foreach ($stack as $trace) {
-            if (in_array($trace['function'], get_class_methods(__CLASS__)) || (array_key_exists('file', $trace) && strpos($trace['file'], 'Debugger'))) {
-                continue;
-            }
-
-            $current = [
-                'line' => '',
-                'method' => '',
-                'file' => 0,
-                'args' => []
-            ];
-
-            $current['file'] = array_key_exists('file', $trace) ? $trace['file'] : '[Internal]';
-            $current['line'] = array_key_exists('line', $trace) ? $trace['line'] : 0;
-
-            $method = $trace['function'];
-
-            if (array_key_exists('class', $trace)) {
-                $method = $trace['class'] . $trace['type'] . $method;
-            }
-
-            if (strpos($method, '{closure}') === false) {
-                $method .= '()';
-            }
-
-            $current['method'] = $method;
-            $current['args'] = $trace['args'];
-
-            $backtrace[] = $current;
-        }
-
-        return static::renderTemplate('backtrace', [
-            'backtrace' => array_reverse($backtrace)
-        ]);
+        return (string) static::getDumper()->backtrace($exception);
     }
 
     /**
-     * Outputs multiple variables using print_r().
-     *
-     * @param mixed $var,...
-     * @return string
+     * @see \Titon\Debug\Dumper::debug()
      */
-    public static function debug(): string {
-        if (static::isOff()) {
-            return '';
-        }
-
-        $file = '';
-        $line = 0;
-
-        foreach (debug_backtrace() as $trace) {
-            if (array_key_exists('function', $trace) && $trace['function'] === 'debug' && array_key_exists('file', $trace)) {
-                $file = $trace['file'];
-                $line = $trace['line'];
-                break;
-            }
-        }
-
-        return static::renderTemplate('debug', [
-            'file' => $file,
-            'line' => $line,
-            'vars' => func_get_args()
-        ]);
+    public static function debug(...$vars): string {
+        return (string) call_user_func_array(inst_meth(static::getDumper(), 'debug'), $vars);
     }
 
     /**
@@ -182,33 +100,10 @@ class Debugger {
     }
 
     /**
-     * Output multiple variables in a nested HTML table.
-     *
-     * @param mixed $var,...
-     * @return string
+     * @see \Titon\Debug\Dumper::dump()
      */
-    public static function dump(): string {
-        if (static::isOff()) {
-            return '';
-        }
-
-        $file = '';
-        $line = 0;
-
-        foreach (debug_backtrace() as $trace) {
-            if (array_key_exists('function', $trace) && $trace['function'] === 'dump' && array_key_exists('file', $trace)) {
-                $file = $trace['file'];
-                $line = $trace['line'];
-                break;
-            }
-        }
-
-        return static::renderTemplate('debug', [
-            'file' => $file,
-            'line' => $line,
-            'vars' => func_get_args(),
-            'dump' => true
-        ]);
+    public static function dump(...$vars): string {
+        return (string) call_user_func_array(inst_meth(static::getDumper(), 'dump'), $vars);
     }
 
     /**
@@ -236,10 +131,6 @@ class Debugger {
      * @return string
      */
     public static function export(mixed $var, bool $short = true): string {
-        if (static::isOff()) {
-            return '';
-        }
-
         $export = var_export($var, true);
 
         if (is_array($var)) {
@@ -259,6 +150,49 @@ class Debugger {
         }
 
         return $export;
+    }
+
+    /**
+     * Return the file path and line number for the calling method.
+     *
+     * @param string $name
+     * @return \Titon\Debug\Caller
+     */
+    public static function getCaller(string $name): Caller {
+        $file = '';
+        $line = 0;
+
+        foreach (debug_backtrace() as $trace) {
+            if (array_key_exists('function', $trace) && $trace['function'] === $name && array_key_exists('file', $trace)) {
+                $file = $trace['file'];
+                $line = (int) $trace['line'];
+                break;
+            }
+        }
+
+        return shape(
+            'file' => Path::alias($file),
+            'line' => $line
+        );
+    }
+
+    /**
+     * Return the dumper. If no dumper has been defined, automatically set one.
+     *
+     * @return \Titon\Debug\Dumper
+     */
+    public static function getDumper(): Dumper {
+        if (self::$dumper) {
+            return self::$dumper;
+        }
+
+        if (substr(PHP_SAPI, 0, 3) === 'cli') {
+            self::$dumper = new CliDumper();
+        } else {
+            self::$dumper = new HtmlDumper();
+        }
+
+        return self::$dumper;
     }
 
     /**
@@ -373,19 +307,31 @@ class Debugger {
     }
 
     /**
-     * Renders a formatted error message to the view accompanied by a stack trace.
-     *
-     * @param \Exception $exception
-     * @return string
+     * Initialize error, exception, and debug handling.
      */
-    public static function inspect(Exception $exception): string {
-        if (static::isOff()) {
-            return '';
+    public static function initialize(): void {
+        if (static::$initialized) {
+            return;
         }
 
-        return static::renderTemplate('error', [
-            'exception' => $exception
-        ]);
+        ini_set('log_errors', true);
+        ini_set('report_memleaks', true);
+
+        set_error_handler(class_meth(__CLASS__, 'handleError'));
+        register_shutdown_function(class_meth(__CLASS__, 'handleFatalError'));
+        invariant_callback_register(class_meth(__CLASS__, 'handleInvariant'));
+
+        static::setHandler(class_meth(__CLASS__, 'handleException'));
+        static::disable();
+
+        static::$initialized = true;
+    }
+
+    /**
+     * @see \Titon\Debug\Dumper::inspect()
+     */
+    public static function inspect(Exception $exception): string {
+        return static::getDumper()->inspect($exception);
     }
 
     /**
@@ -553,14 +499,12 @@ class Debugger {
     }
 
     /**
-     * Use a local template for outputting debug and error markup.
+     * Set the dumper for outputting variables.
      *
-     * @param string $template
-     * @param array $variables
-     * @return string
+     * @param \Titon\Debug\Dumper
      */
-    public static function renderTemplate(string $template, array<string, mixed> $variables = []): string {
-        return render_template(sprintf('%s/templates/%s.php', __DIR__, $template), $variables);
+    public static function setDumper(Dumper $dumper): void {
+        static::$dumper = $dumper;
     }
 
     /**

@@ -16,6 +16,7 @@
 namespace Titon\Debug {
     use Exception;
 
+    type Caller = shape('file' => string, 'line' => int);
     type Error = shape('error' => string, 'level' => string);
     type ErrorCodeMap = Map<int, string>;
     type ExceptionHandler = (function(Exception): void);
@@ -39,34 +40,44 @@ namespace {
      * @see Titon\Debug\Debugger::inspect()
      */
     function inspect(Exception $e): void {
-        echo Debugger::inspect($e);
+        if (Debugger::isOn()) {
+            echo Debugger::inspect($e);
+        }
     }
 
     /**
      * @see Titon\Debug\Debugger::backtrace()
      */
     function backtrace(?Exception $e = null): void {
-        echo Debugger::backtrace($e);
+        if (Debugger::isOn()) {
+            echo Debugger::backtrace($e);
+        }
     }
 
     /**
      * @see Titon\Debug\Debugger::export()
      */
     function export(mixed $var, bool $short = true): void {
-        echo Debugger::export($var, $short);
+        if (Debugger::isOn()) {
+            echo Debugger::export($var, $short);
+        }
     }
 
     /**
      * @see Titon\Debug\Debugger::debug()
      */
     function debug(): void {
-        echo call_user_func_array(class_meth('Titon\Debug\Debugger', 'debug'), func_get_args());
+        if (Debugger::isOn()) {
+            echo call_user_func_array(class_meth('Titon\Debug\Debugger', 'debug'), func_get_args());
+        }
     }
 
     /**
      * @see Titon\Debug\Debugger::dump()
      */
     function dump(): void {
-        echo call_user_func_array(class_meth('Titon\Debug\Debugger', 'dump'), func_get_args());
+        if (Debugger::isOn()) {
+            echo call_user_func_array(class_meth('Titon\Debug\Debugger', 'dump'), func_get_args());
+        }
     }
 }

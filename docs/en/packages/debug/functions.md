@@ -1,7 +1,11 @@
 # Global Functions #
 
 The following global functions are available with the Debug package. [Learn more information about these functions 
-in the dumping variables chapter](debugging.md#dumping-variables).
+in the dumping variables chapter](debugging.md#dumping-variables). 
+
+<div class="notice is-info">
+    If error reporting is off, these functions will not output anything.
+ </div>
 
 ### debug(`... $args`): `void` ###
 
@@ -13,7 +17,7 @@ debug($foo, $bar);
 
 ### dump(`... $args`): `void` ###
 
-Output the value of a variable, or multiple variables, using an HTML table.
+Output the value of a variable, or multiple variables, and include type information.
 
 ```hack
 dump($foo, $bar);
@@ -38,7 +42,7 @@ inspect($e);
 
 ### export(`mixed $var`[, `bool $short`]): `void` ###
 
-Output the variable into a PHP usable format.
+Output the variable into a PHP/Hack usable format.
 
 ```hack
 export($baz);

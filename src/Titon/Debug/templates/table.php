@@ -1,10 +1,8 @@
 <?php
-
 use Titon\Debug\Debugger;
+use Titon\Debug\Dumper\HtmlDumper;
 
 if ($value instanceof Traversable || is_object($value)) {
-
-    // Empty data set
     if (!$value) { ?>
         <span class="debug-type type-unknown">(empty)</span>
         <?php return;
@@ -14,14 +12,14 @@ if ($value instanceof Traversable || is_object($value)) {
         <?php foreach ($value as $key => $var) { ?>
 
             <tr>
-                <td><span class="debug-type type-object"><?php echo $key; ?></span></td>
-                <td><?php echo Debugger::parseType($var); ?></td>
-                <td><?php echo Debugger::renderTemplate('table', ['value' => $var]); ?></td>
+                <td><span class="debug-type type-object"><?= $key; ?></span></td>
+                <td><?= Debugger::parseType($var); ?></td>
+                <td><?= HtmlDumper::renderTemplate('table', ['value' => $var]); ?></td>
             </tr>
 
         <?php }
 
-        // Display class methods for non-augment classes
+        // Display class methods
         if (is_object($value)) {
             $methods = get_class_methods($value);
             sort($methods);
@@ -29,7 +27,7 @@ if ($value instanceof Traversable || is_object($value)) {
             foreach ($methods as $method) { ?>
 
             <tr>
-                <td><span class="debug-type type-function"><?php echo $method; ?></span></td>
+                <td><span class="debug-type type-function"><?= $method; ?></span></td>
                 <td>method</td>
                 <td></td>
             </tr>

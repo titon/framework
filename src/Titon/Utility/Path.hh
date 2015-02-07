@@ -57,7 +57,7 @@ class Path {
         }
 
         // Define source locations
-        foreach (Vector {'src', 'lib'} as $source) {
+        foreach (Vector {'src', 'lib', 'tests'} as $source) {
             if (!$paths->contains($source) && strpos($file, $source) !== false) {
                 $parts = explode($source, $file);
                 $paths[$source] = $parts[0] . $source;

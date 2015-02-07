@@ -1,9 +1,9 @@
-<div class="titon-debug">
-    <?php if (isset($file)) { ?>
+<div class="titon-<?= isset($dump) ? 'dump' : 'debug'; ?>">
+    <?php if ($file) { ?>
         <div class="debug-head">
-            <abbr title="<?php echo $file; ?>" class="debug-file">
-                <?php echo path_alias($file) . ':'; ?><!--
-                --><span class="debug-line"><?php echo $line; ?></span>
+            <abbr title="<?= $file; ?>">
+                <span class="debug-file"><?= path_alias($file); ?></span>:
+                <span class="debug-line"><?= $line; ?></span>
             </abbr>
         </div>
     <?php } ?>
@@ -11,9 +11,9 @@
     <?php foreach ($vars as $var) { ?>
         <div class="debug-output">
             <?php if (isset($dump)) {
-                echo Titon\Debug\Debugger::renderTemplate('table', ['value' => $var]);
+                echo Titon\Debug\Dumper\HtmlDumper::renderTemplate('table', ['value' => $var]);
             } else { ?>
-                <pre><code><?php echo esc(print_r($var, true)); ?></code></pre>
+                <pre><code><?= esc(print_r($var, true)); ?></code></pre>
             <?php } ?>
         </div>
     <?php } ?>

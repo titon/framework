@@ -1,14 +1,11 @@
 <?hh
 namespace Titon\Debug;
 
+use Titon\Debug\Dumper\CliDumper;
 use Titon\Debug\Exception\FatalErrorException;
 use Titon\Test\TestCase;
 use \ErrorException;
 
-/**
- * @property callable $errorHandler
- * @property callable $exceptionHandler
- */
 class DebuggerTest extends TestCase {
 
     protected function setUp() {
@@ -32,58 +29,10 @@ class DebuggerTest extends TestCase {
         set_exception_handler(null);
     }
 
-    public function testBacktrace() {
-        $this->assertRegExp('/^<div class="titon-debug titon-backtrace">/', Debugger::backtrace());
-
-        ob_start();
-        \backtrace();
-        $actual = ob_get_clean();
-
-        $this->assertRegExp('/^<div class="titon-debug titon-backtrace">/', $actual);
-
-        Debugger::disable();
-        $this->assertEquals('', Debugger::backtrace());
-    }
-
-    public function testDebug() {
-        $this->assertRegExp('/^<div class="titon-debug">/', Debugger::debug(1));
-
-        ob_start();
-        \debug(1);
-        $actual = ob_get_clean();
-
-        $this->assertRegExp('/^<div class="titon-debug">/', $actual);
-
-        Debugger::disable();
-        $this->assertEquals('', Debugger::debug(1));
-    }
-
-    public function testDump() {
-        $this->assertRegExp('/^<div class="titon-debug">/', Debugger::dump(1));
-
-        ob_start();
-        \dump(1);
-        $actual = ob_get_clean();
-
-        $this->assertRegExp('/^<div class="titon-debug">/', $actual);
-
-        Debugger::disable();
-        $this->assertEquals('', Debugger::dump(1));
-    }
-
     public function testExport() {
         $this->assertEquals(123, Debugger::export(123));
         $this->assertEquals("[\n\t0 => 123,\n]", Debugger::export([123]));
         $this->assertEquals("array(\n\t0 => 123,\n)", Debugger::export([123], false));
-
-        ob_start();
-        \export([123]);
-        $actual = ob_get_clean();
-
-        $this->assertEquals("[\n\t0 => 123,\n]", $actual);
-
-        Debugger::disable();
-        $this->assertEquals('', Debugger::export(123));
     }
 
     public function testGetError() {
@@ -92,12 +41,36 @@ class DebuggerTest extends TestCase {
         $this->assertEquals('Unknown Error', Debugger::getError(-123));
     }
 
+    public function testGetSetDumper() {
+        $dumper = new CliDumper();
+
+        Debugger::setDumper($dumper);
+
+        $this->assertEquals($dumper, Debugger::getDumper());
+    }
+
+    public function testGetSetHandler() {
+        $handler = function() {};
+
+        Debugger::setHandler($handler);
+
+        $this->assertEquals($handler, Debugger::getHandler());
+    }
+
+    public function testGetSetLogger() {
+        $logger = new Logger($this->vfs->path('/logs/'));
+
+        Debugger::setLogger($logger);
+
+        $this->assertEquals($logger, Debugger::getLogger());
+    }
+
     public function testHandleError() {
         ob_start();
         Debugger::handleError(E_WARNING, 'Message');
         $actual = ob_get_clean();
 
-        $this->assertRegExp('/<div class="titon-debug titon-error">/', $actual);
+        $this->assertRegExp('/^ErrorException/', $actual);
     }
 
     /**
@@ -118,9 +91,10 @@ class DebuggerTest extends TestCase {
         strpos();
         $actual = ob_get_clean();
 
-        $this->assertRegExp('/<div class="titon-debug titon-error">/', $actual);
+        $this->assertRegExp('/^ErrorException/', $actual);
+    }
 
-        // With no error reporting
+    public function testHandleErrorTriggeredNoReporting() {
         Debugger::disable();
 
         $this->assertFileNotExists($this->vfs->path('/logs/warning-' . date('Y-m-d') . '.log'));
@@ -142,21 +116,6 @@ class DebuggerTest extends TestCase {
         invariant_violation('Something failed!', 'foo', 'bar');
 
         $this->assertFileExists($this->vfs->path('/logs/info-' . date('Y-m-d') . '.log'));
-    }
-
-    public function testInspect() {
-        $e = new \Exception('Foobar');
-
-        $this->assertRegExp('/^<div class="titon-debug titon-error">/', Debugger::inspect($e));
-
-        ob_start();
-        \inspect($e);
-        $actual = ob_get_clean();
-
-        $this->assertRegExp('/^<div class="titon-debug titon-error">/', $actual);
-
-        Debugger::disable();
-        $this->assertEquals('', Debugger::inspect($e));
     }
 
     public function testLogException() {
@@ -200,18 +159,15 @@ class DebuggerTest extends TestCase {
         $this->assertEquals('[]', Debugger::parseValue([]));
         $this->assertEquals('[123, "foo", null, true]', Debugger::parseValue([123, 'foo', null, true]));
         $this->assertEquals("[...]", Debugger::parseValue([123, 'foo', null, true], false, 3));
+        $this->assertEquals('Map {"bar"}', Debugger::parseValue(Map {'foo' => 'bar'}));
+        $this->assertEquals('Vector {"foo"}', Debugger::parseValue(Vector {'foo'}));
+        $this->assertEquals('Set {"foo"}', Debugger::parseValue(Set {'foo'}));
+        $this->assertEquals('Pair {"foo", 123}', Debugger::parseValue(Pair {'foo', 123}));
 
         $f = fopen('php://input', 'r');
         $this->assertEquals('stream', Debugger::parseValue($f));
         fclose($f);
     }
 
-    public function testSetHandler() {
-        $handler = function() {};
-
-        Debugger::setHandler($handler);
-
-        $this->assertEquals($handler, Debugger::getHandler());
-    }
 
 }

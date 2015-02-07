@@ -1,7 +1,6 @@
 # Benchmarking #
 
-Benchmarking is the process of comparing performance -- execution time and memory usage -- from one point to another.
-This functionality can be achieved using the static `Titon\Debug\Benchmark` class.
+Benchmarking is the process of comparing performance -- execution time and memory usage -- from one point to another. This functionality can be achieved using the static `Titon\Debug\Benchmark` class.
 
 ## Capturing Metrics ##
 
@@ -11,8 +10,7 @@ To start the benchmarking process, simply call `start()`. This will log the star
 Titon\Debug\Benchmark::start('foo');
 ```
 
-And to stop the process, call `stop()`. Once stopped, the end time and memory usage will be logged, 
-and averages will be calculated.
+And to stop the process, call `stop()`. Once stopped, the end time and memory usage will be logged, and averages will be calculated.
 
 ```hack
 Titon\Debug\Benchmark::stop('foo');
@@ -22,8 +20,7 @@ Both of these calls generate a `Titon\Debug\Metric` shape, which is a custom [ty
 
 ## Understanding Metrics ##
 
-Once a `Metric` has been captured, it can be accessed using `get()`. 
-If the `Metric` is accessed before it has been stopped, most of the values will be 0s.
+Once a `Metric` has been captured, it can be accessed using `get()`. If the `Metric` is accessed before it has been stopped, most of the values will be 0s.
 
 ```hack
 $metric = Titon\Debug\Benchmark::get('foo');

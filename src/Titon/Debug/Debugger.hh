@@ -13,7 +13,6 @@ use Titon\Debug\Dumper\HtmlDumper;
 use Titon\Debug\Exception\FatalErrorException;
 use Titon\Debug\Exception\InternalErrorException;
 use Titon\Type\Type;
-use Titon\Utility\Path;
 use Titon\Utility\Sanitize;
 use \Exception;
 use \ErrorException;
@@ -171,7 +170,7 @@ class Debugger {
         }
 
         return shape(
-            'file' => Path::alias($file),
+            'file' => $file,
             'line' => $line
         );
     }
@@ -467,8 +466,16 @@ class Debugger {
             $var = '"' . Sanitize::escape($value, Map {'flags' => ENT_NOQUOTES}) . '"';
 
         } else if ($value instanceof Traversable) {
+            if (is_array($value)) {
+                $open = '[';
+                $close = ']';
+            } else {
+                $open = str_replace('HH\\', '', get_class($value)) . ' {';
+                $close = '}';
+            }
+
             if ($depth >= 3) {
-                $var = '[...]';
+                $var = $open . '...' . $close;
 
             } else {
                 $values = [];
@@ -478,7 +485,7 @@ class Debugger {
                     $values[] = static::parseValue($a, $wrap, $depth);
                 }
 
-                $var = '[' . implode(', ', $values) . ']';
+                $var = $open . implode(', ', $values) . $close;
             }
 
         } else if (is_null($value)) {

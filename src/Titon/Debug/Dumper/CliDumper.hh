@@ -58,7 +58,7 @@ class CliDumper implements Dumper {
      */
     public function debug(...$vars): string {
         $caller = Debugger::getCaller('debug');
-        $output = $caller['file'] . ':' . $caller['line'];
+        $output = Path::alias($caller['file']) . ':' . $caller['line'];
         $length = strlen($output);
 
         foreach ($vars as $var) {
@@ -74,7 +74,7 @@ class CliDumper implements Dumper {
      */
     public function dump(...$vars): string {
         $caller = Debugger::getCaller('dump');
-        $output = $caller['file'] . ':' . $caller['line'];
+        $output = Path::alias($caller['file']) . ':' . $caller['line'];
         $length = strlen($output);
 
         foreach ($vars as $var) {

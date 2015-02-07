@@ -7,6 +7,7 @@
 
 namespace Titon\Debug\Dumper;
 
+use Titon\Debug\Debugger;
 use Titon\Debug\Dumper;
 use Exception;
 
@@ -41,13 +42,13 @@ class HtmlDumper implements Dumper {
                 'args' => []
             ];
 
-            $current['file'] = array_key_exists('file', $trace) ? $trace['file'] : '[Internal]';
-            $current['line'] = array_key_exists('line', $trace) ? $trace['line'] : 0;
-
-            $method = $trace['function'];
+            $current['file'] = array_key_exists('file', $trace) ? $trace['file'] : '[internal]';
+            $current['line'] = array_key_exists('line', $trace) ? (int) $trace['line'] : 0;
 
             if (array_key_exists('class', $trace)) {
-                $method = $trace['class'] . $trace['type'] . $method;
+                $method = $trace['class'] . $trace['type'] . $trace['function'];
+            } else {
+                $method = $trace['function'];
             }
 
             if (strpos($method, '{closure}') === false) {
@@ -61,7 +62,7 @@ class HtmlDumper implements Dumper {
         }
 
         return static::renderTemplate('backtrace', [
-            'backtrace' => array_reverse($backtrace)
+            'backtrace' => $backtrace
         ]);
     }
 
@@ -69,14 +70,12 @@ class HtmlDumper implements Dumper {
      * {@inheritdoc}
      */
     public function debug(...$vars): string {
-        $caller = static::getCaller('debug');
-
-        print_r($caller);
+        $caller = Debugger::getCaller('debug');
 
         return static::renderTemplate('debug', [
             'file' => $caller['file'],
             'line' => $caller['line'],
-            'vars' => func_get_args()
+            'vars' => $vars
         ]);
     }
 
@@ -84,10 +83,12 @@ class HtmlDumper implements Dumper {
      * {@inheritdoc}
      */
     public function dump(...$vars): string {
+        $caller = Debugger::getCaller('dump');
+
         return static::renderTemplate('debug', [
-            'file' => $file,
-            'line' => $line,
-            'vars' => func_get_args(),
+            'file' => $caller['file'],
+            'line' => $caller['line'],
+            'vars' => $vars,
             'dump' => true
         ]);
     }
@@ -96,8 +97,7 @@ class HtmlDumper implements Dumper {
      * {@inheritdoc}
      */
     public function inspect(Exception $exception): string {
-
-        return static::renderTemplate('error', [
+        return static::renderTemplate('inspect', [
             'exception' => $exception
         ]);
     }
@@ -110,7 +110,7 @@ class HtmlDumper implements Dumper {
      * @return string
      */
     public static function renderTemplate(string $template, array<string, mixed> $variables = []): string {
-        return render_template(sprintf('%s/templates/%s.php', __DIR__, $template), $variables);
+        return render_template(sprintf('%s/templates/%s.php', dirname(__DIR__), $template), $variables);
     }
 
 }

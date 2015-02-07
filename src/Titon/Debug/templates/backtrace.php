@@ -1,41 +1,38 @@
-<div class="titon-debug titon-backtrace">
+<?php $rand = rand(0, 100); ?>
+
+<div class="titon-backtrace">
     <table>
-        <?php $rand = rand(0, 100);
-
-        foreach ($backtrace as $i => $trace) { ?>
-
+        <?php foreach ($backtrace as $i => $trace) { ?>
             <tr class="trace-call">
                 <td class="trace-no">
-                    <?php echo $i + 1; ?>:
+                    <?= $i + 1; ?>:
                 </td>
                 <td class="trace-method">
-                    <?php if (array_key_exists('args', $trace)) { ?>
-                        <a href="javascript:;" onclick="return toggleArgs(<?php echo $rand; ?>, <?php echo $i; ?>);" class="debug-method"><?php echo $trace['method']; ?></a>
+                    <?php if ($trace['args']) { ?>
+                        <a href="javascript:;" onclick="return toggleArgs(<?= $rand; ?>, <?= $i; ?>);" class="debug-method"><?= $trace['method']; ?></a>
                     <?php } else { ?>
-                        <span class="debug-method"><?php echo $trace['method']; ?></span>
+                        <span class="debug-method"><?= $trace['method']; ?></span>
                     <?php } ?>
                 </td>
                 <td class="trace-file">
-                    <abbr title="<?php echo $trace['file']; ?>" class="debug-file">
-                        <?php echo path_alias($trace['file']); ?>:<!--
-                        --><span class="debug-line"><?php echo $trace['line']; ?></span>
+                    <abbr title="<?= $trace['file']; ?>">
+                        <span class="debug-file"><?= path_alias($trace['file']); ?></span>:
+                        <span class="debug-line"><?= $trace['line']; ?></span>
                     </abbr>
                 </td>
             </tr>
 
-            <?php if (array_key_exists('args', $trace)) { ?>
-
-                <tr id="titon-args-<?php echo $rand; ?>-<?php echo $i; ?>" class="trace-args" style="display: none">
+            <?php if ($trace['args']) { ?>
+                <tr id="titon-args-<?= $rand; ?>-<?= $i; ?>" class="trace-args" style="display: none">
                     <td> </td>
                     <td colspan="2">
                         <ol>
                             <?php foreach ($trace['args'] as $arg) { ?>
-                                <li><?php echo Titon\Debug\Debugger::parseValue($arg, true); ?></li>
+                                <li><?= Titon\Debug\Debugger::parseValue($arg, true); ?></li>
                             <?php } ?>
                         </ol>
                     </td>
                 </tr>
-
             <?php }
         } ?>
     </table>

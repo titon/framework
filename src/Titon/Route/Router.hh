@@ -635,7 +635,7 @@ class Router implements Subject {
             }
 
             /** @var \Titon\Route\Route $newRoute */
-            $newRoute = Registry::factory($class, Vector {$newPath, static::buildAction($newAction)}, false);
+            $newRoute = Registry::factory($class, [$newPath, static::buildAction($newAction)], false);
 
             invariant($newRoute instanceof Route, 'Must be a Route');
 

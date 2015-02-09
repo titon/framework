@@ -83,7 +83,9 @@ class DebuggerTest extends TestCase {
     public function testHandleErrorDoesntThrowsNotice() {
         ob_start();
         Debugger::handleError(E_NOTICE, 'Message');
-        ob_get_clean();
+        $actual = ob_get_clean();
+
+        $this->assertRegExp('/^ErrorException - Message/', $actual);
     }
 
     public function testHandleErrorTriggered() {

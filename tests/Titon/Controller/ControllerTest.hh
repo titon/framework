@@ -53,42 +53,42 @@ class ControllerTest extends TestCase {
     }
 
     public function testDispatchTo() {
-        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('action-no-args'));
-        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('actionNoArgs'));
-        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('actionNoArgs', Vector {'foo', 'bar'}));
-        $this->assertEquals(125, $this->object->dispatchTo('actionWithArgs', Vector {125}));
-        $this->assertEquals(555, $this->object->dispatchTo('actionWithArgs', Vector {505, 50}));
-        $this->assertEquals(335, $this->object->dispatchTo('actionWithArgs', Vector {335}));
-        $this->assertEquals(0, $this->object->dispatchTo('actionWithArgs', Vector {'foo', 'bar'}));
+        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('action-no-args', []));
+        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('actionNoArgs', []));
+        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('actionNoArgs', ['foo', 'bar']));
+        $this->assertEquals(125, $this->object->dispatchTo('actionWithArgs', [125]));
+        $this->assertEquals(555, $this->object->dispatchTo('actionWithArgs', [505, 50]));
+        $this->assertEquals(335, $this->object->dispatchTo('actionWithArgs', [335]));
+        $this->assertEquals(0, $this->object->dispatchTo('actionWithArgs', ['foo', 'bar']));
     }
 
     /**
      * @expectedException \Titon\Controller\Exception\InvalidActionException
      */
     public function testDispatchToMissingAction() {
-        $this->object->dispatchTo('noAction');
+        $this->object->dispatchTo('noAction', []);
     }
 
     public function testForwardTo() {
-        $this->object->forwardTo('actionNoArgs');
+        $this->object->forwardTo('actionNoArgs', []);
         $this->assertEquals('actionNoArgs', $this->object->getCurrentAction());
 
-        $this->object->forwardTo('actionWithArgs', Vector {'foo'});
+        $this->object->forwardTo('actionWithArgs', ['foo']);
         $this->assertEquals('actionWithArgs', $this->object->getCurrentAction());
     }
 
     public function testGetActionAndArguments() {
-        $this->object->dispatchTo('actionNoArgs');
+        $this->object->dispatchTo('actionNoArgs', []);
         $this->assertEquals('actionNoArgs', $this->object->getCurrentAction());
-        $this->assertEquals(Vector {}, $this->object->getCurrentArguments());
+        $this->assertEquals([], $this->object->getCurrentArguments());
 
-        $this->object->dispatchTo('actionWithArgs', Vector {'foo', 'bar'});
+        $this->object->dispatchTo('actionWithArgs', ['foo', 'bar']);
         $this->assertEquals('actionWithArgs', $this->object->getCurrentAction());
-        $this->assertEquals(Vector {'foo', 'bar'}, $this->object->getCurrentArguments());
+        $this->assertEquals(['foo', 'bar'], $this->object->getCurrentArguments());
 
-        $this->assertEquals(Vector {}, $this->object->getActionArguments('actionNoArgs'));
-        $this->assertEquals(Vector {'foo', 'bar'}, $this->object->getActionArguments('actionWithArgs'));
-        $this->assertEquals(Vector {}, $this->object->getActionArguments('noAction'));
+        $this->assertEquals([], $this->object->getActionArguments('actionNoArgs'));
+        $this->assertEquals(['foo', 'bar'], $this->object->getActionArguments('actionWithArgs'));
+        $this->assertEquals([], $this->object->getActionArguments('noAction'));
     }
 
     public function testRenderErrorWithNoReporting() {
@@ -112,7 +112,7 @@ class ControllerTest extends TestCase {
     public function testRenderView() {
         $this->assertEquals('stub:index', $this->object->renderView());
 
-        $this->object->dispatchTo('actionNoArgs');
+        $this->object->dispatchTo('actionNoArgs', []);
         $this->assertEquals('stub:action-no-args', $this->object->renderView());
     }
 
@@ -120,7 +120,7 @@ class ControllerTest extends TestCase {
      * @expectedException \Titon\View\Exception\MissingTemplateException
      */
     public function testRenderViewMissingView() {
-        $this->object->dispatchTo('actionWithArgs', Vector {'foo', 'bar'});
+        $this->object->dispatchTo('actionWithArgs', ['foo', 'bar']);
         $this->assertEquals('stub:action-with-args', $this->object->renderView());
     }
 

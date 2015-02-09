@@ -1,5 +1,5 @@
 <?hh
-namespace Titon\Route;
+/* namespace Titon\Route;
 
 use Titon\Common\Annotateable;
 use Titon\Common\Annotator;
@@ -44,4 +44,4 @@ class RouteAnnotationStub implements Annotator {
 
     <<Route('/baz', 'get', ['auth', 'guest'])>>
     public function baz(): string {}
-}
+} */

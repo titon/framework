@@ -41,10 +41,5 @@ The following type aliases are available in the Event package.
             <td>(function(...): mixed)</td>
             <td>A callable that defines the declaration for observers.</td>
         </tr>
-        <tr>
-            <td>Titon\Event\ParamList</td>
-            <td>array&lt;mixed&gt;</td>
-            <td>An array of values to pass as arguments to observers.</td>
-        </tr>
     </tbody>
 </table>

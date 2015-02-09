@@ -7,6 +7,8 @@
 
 namespace Titon\Event;
 
+use Titon\Common\ArgumentList;
+
 /**
  * The Emitter manages the subscribing and removing of observers (and listeners).
  * An emitted event will cycle through and trigger all observers.
@@ -30,17 +32,17 @@ class Emitter {
      * A list of parameters can be defined that will be passed to each observer.
      *
      * @param \Titon\Event\Event $event
-     * @param \Titon\Event\ParamList $params
+     * @param \Titon\Common\ArgumentList $args
      * @return \Titon\Event\Event
      */
-    public function dispatch(Event $event, ParamList $params): Event {
+    public function dispatch(Event $event, ArgumentList $args): Event {
         $key = $event->getKey();
 
         // Set call stack
         $event->setCallStack($this->getCallStack($key));
 
         // Add event as the 1st param
-        array_unshift($params, $event);
+        array_unshift($args, $event);
 
         // Group the observers
         $observers = $this->getSortedObservers($key);
@@ -56,8 +58,8 @@ class Emitter {
         }
 
         // Notify observers
-        $this->notifyObservers($syncObservers, $event, $params);
-        $this->notifyObserversAsync($asyncObservers, $event, $params)->getWaitHandle()->join();
+        $this->notifyObservers($syncObservers, $event, $args);
+        $this->notifyObserversAsync($asyncObservers, $event, $args)->getWaitHandle()->join();
 
         return $event;
     }
@@ -68,11 +70,11 @@ class Emitter {
      * @uses Titon\Event\Event
      *
      * @param string $event
-     * @param \Titon\Event\ParamList $params
+     * @param \Titon\Common\ArgumentList $args
      * @return \Titon\Event\Event
      */
-    public function emit(string $event, ParamList $params): Event {
-        return $this->dispatch(new Event($event), $params);
+    public function emit(string $event, ArgumentList $args): Event {
+        return $this->dispatch(new Event($event), $args);
     }
 
     /**
@@ -80,14 +82,14 @@ class Emitter {
      * If a `*` is provided in the key, a wildcard match will occur.
      *
      * @param mixed $event
-     * @param \Titon\Event\ParamList $params
+     * @param \Titon\Common\ArgumentList $args
      * @return \Titon\Event\EventMap
      */
-    public function emitMany(mixed $event, ParamList $params): EventMap {
+    public function emitMany(mixed $event, ArgumentList $args): EventMap {
         $objects = Map {};
 
         foreach ($this->resolveEventKeys($event) as $event) {
-            $objects[$event] = $this->emit($event, $params);
+            $objects[$event] = $this->emit($event, $args);
         }
 
         return $objects;
@@ -270,10 +272,10 @@ class Emitter {
      *
      * @param \Titon\Event\Observer $observer
      * @param \Titon\Event\Event $event
-     * @param \Titon\Event\ParamList $params
+     * @param \Titon\Common\ArgumentList $args
      * @return bool
      */
-    protected function executeObserver(Observer $observer, Event $event, ParamList $params): bool {
+    protected function executeObserver(Observer $observer, Event $event, ArgumentList $args): bool {
         if ($event->isStopped()) {
             return false;
 
@@ -281,7 +283,7 @@ class Emitter {
             return true;
         }
 
-        return $this->handleExecution($event, $observer->execute($params));
+        return $this->handleExecution($event, $observer->execute($args));
     }
 
     /**
@@ -289,10 +291,10 @@ class Emitter {
      *
      * @param \Titon\Event\Observer $observer
      * @param \Titon\Event\Event $event
-     * @param \Titon\Event\ParamList $params
+     * @param \Titon\Common\ArgumentList $args
      * @return bool
      */
-    protected async function executeObserverAsync(Observer $observer, Event $event, ParamList $params): Awaitable<bool> {
+    protected async function executeObserverAsync(Observer $observer, Event $event, ArgumentList $args): Awaitable<bool> {
         if ($event->isStopped()) {
             return false;
 
@@ -300,7 +302,7 @@ class Emitter {
             return true;
         }
 
-        $response = await $observer->asyncExecute($params);
+        $response = await $observer->asyncExecute($args);
 
         return $this->handleExecution($event, $response);
     }
@@ -329,12 +331,12 @@ class Emitter {
      *
      * @param \Titon\Event\ObserverList $observers
      * @param \Titon\Event\Event $event
-     * @param \Titon\Event\ParamList $params
+     * @param \Titon\Common\ArgumentList $args
      * @return bool
      */
-    protected function notifyObservers(ObserverList $observers, Event $event, ParamList $params): bool {
+    protected function notifyObservers(ObserverList $observers, Event $event, ArgumentList $args): bool {
         foreach ($observers as $observer) {
-            $this->executeObserver($observer, $event, $params);
+            $this->executeObserver($observer, $event, $args);
 
             if ($event->isStopped()) {
                 return false;
@@ -349,10 +351,10 @@ class Emitter {
      *
      * @param \Titon\Event\ObserverList $observers
      * @param \Titon\Event\Event $event
-     * @param \Titon\Event\ParamList $params
+     * @param \Titon\Common\ArgumentList $args
      * @return Awaitable<mixed>
      */
-    protected async function notifyObserversAsync(ObserverList $observers, Event $event, ParamList $params): Awaitable<mixed> {
+    protected async function notifyObserversAsync(ObserverList $observers, Event $event, ArgumentList $args): Awaitable<mixed> {
         if ($event->isStopped()) {
             return false; // Exit early if non-async stopped propagation
         }
@@ -360,7 +362,7 @@ class Emitter {
         $handles = Vector {};
 
         foreach ($observers as $observer) {
-            $handles[] = $this->executeObserverAsync($observer, $event, $params)->getWaitHandle();
+            $handles[] = $this->executeObserverAsync($observer, $event, $args)->getWaitHandle();
         }
 
         await GenVectorWaitHandle::create($handles);

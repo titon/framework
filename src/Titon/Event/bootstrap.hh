@@ -21,5 +21,4 @@ namespace Titon\Event {
     type ObserverList = Vector<Observer>;
     type ObserverContainer = Map<string, ObserverList>;
     type ObserverCallback = (function(Event, ...): mixed);
-    type ParamList = array<mixed>;
 }

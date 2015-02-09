@@ -7,6 +7,8 @@
 
 namespace Titon\Event;
 
+use Titon\Common\ArgumentList;
+
 /**
  * The Subject interface permits a class to manage observers and listeners, and emit events through an emitter.
  *
@@ -17,12 +19,12 @@ interface Subject {
     /**
      * @see \Titon\Event\Emitter::emit()
      */
-    public function emit(string $event, ParamList $params): Event;
+    public function emit(string $event, ArgumentList $args): Event;
 
     /**
      * @see \Titon\Event\Emitter::emitMany()
      */
-    public function emitMany(mixed $event, ParamList $params): EventMap;
+    public function emitMany(mixed $event, ArgumentList $args): EventMap;
 
     /**
      * Return the emitter. If no emitter exists, automatically create one.

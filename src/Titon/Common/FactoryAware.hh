@@ -34,7 +34,7 @@ trait FactoryAware {
      * @return $this
      */
     public static function registry<T>(...$args): T {
-        return Registry::factory(static::class, new Vector($args));
+        return Registry::factory(static::class, $args);
     }
 
 }

@@ -1,5 +1,5 @@
 <?hh
-namespace Titon\Event;
+/* namespace Titon\Event;
 
 use Titon\Common\Annotateable;
 use Titon\Common\Annotator;
@@ -51,3 +51,4 @@ class ObserverAnnotationStub implements Annotator, Subject {
     public async function asyncObserver(Event $event): Awaitable<mixed> {}
 
 }
+*/

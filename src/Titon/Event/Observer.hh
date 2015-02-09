@@ -7,6 +7,7 @@
 
 namespace Titon\Event;
 
+use Titon\Common\ArgumentList;
 use \Closure;
 use \ReflectionFunction;
 use \ReflectionMethod;
@@ -76,25 +77,25 @@ class Observer {
     /**
      * Asynchronously execute the callback and return the response.
      *
-     * @param \Titon\Event\ParamList $params
+     * @param \Titon\Common\ArgumentList $args
      * @return Awaitable<mixed>
      */
-    public async function asyncExecute(ParamList $params): Awaitable<mixed> {
+    public async function asyncExecute(ArgumentList $args): Awaitable<mixed> {
         $this->executed = true;
 
-        return await call_user_func_array($this->getCallback(), $params);
+        return await call_user_func_array($this->getCallback(), $args);
     }
 
     /**
      * Execute the callback and return the response.
      *
-     * @param \Titon\Event\ParamList $params
+     * @param \Titon\Common\ArgumentList $args
      * @return mixed
      */
-    public function execute(ParamList $params): mixed {
+    public function execute(ArgumentList $args): mixed {
         $this->executed = true;
 
-        return call_user_func_array($this->getCallback(), $params);
+        return call_user_func_array($this->getCallback(), $args);
     }
 
     /**

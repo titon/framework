@@ -22,10 +22,10 @@ class RegistryTest extends TestCase {
     }
 
     public function testFactory() {
-        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon\Utility\RegistryStub', Vector {}, false));
-        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon/Utility/RegistryStub', Vector {}, false));
-        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon\Utility\RegistryStub', Vector {}, false));
-        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('/Titon/Utility/RegistryStub', Vector {}, false));
+        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon\Utility\RegistryStub', [], false));
+        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon/Utility/RegistryStub', [], false));
+        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon\Utility\RegistryStub', [], false));
+        $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('/Titon/Utility/RegistryStub', [], false));
     }
 
     public function testFlushAndKeys() {

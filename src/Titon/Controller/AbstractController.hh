@@ -75,7 +75,7 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function dispatchTo(string $action, ArgumentList $args = Vector {}, bool $emit = true): string {
+    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): string {
         $this->action = $action;
         $this->arguments[$action] = $args;
 
@@ -110,7 +110,7 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function forwardTo(string $action, ArgumentList $args = Vector {}): string {
+    public function forwardTo(string $action, ArgumentList $args): string {
         return $this->dispatchTo($action, $args, false);
     }
 
@@ -125,7 +125,7 @@ abstract class AbstractController implements Controller, Subject {
             return $this->arguments[$action];
         }
 
-        return Vector {};
+        return [];
     }
 
     /**

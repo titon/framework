@@ -16,12 +16,14 @@ use Titon\Debug\Logger;
  * The Monitor annotation will monitor a class for instantiation and log a message with
  * the file location and line number of where it occurred.
  *
+ * <<Monitor>>
+ *
  * @package Titon\Debug\Annotation
  */
 class Monitor extends Annotation implements Wireable {
 
     /**
-     * Log the deprecation message.
+     * Log the file and line number where the class was instantiated.
      *
      * @param T $class
      * @param string $method

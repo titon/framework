@@ -16,6 +16,8 @@ use Titon\Debug\Logger;
  * The Deprecated annotation marks a class as deprecated and will log a deprecation
  * message each time the class is instantiated.
  *
+ * <<Deprecated('Message to log.')>>
+ *
  * @package Titon\Debug\Annotation
  */
 class Deprecated extends Annotation implements Wireable {

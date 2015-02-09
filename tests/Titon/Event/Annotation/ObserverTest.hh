@@ -1,29 +1,31 @@
 <?hh
-/* namespace Titon\Event;
+namespace Titon\Event\Annotation;
 
-use Titon\Common\Annotateable;
-use Titon\Common\Annotator;
+use Titon\Annotation\WiresAnnotations;
+use Titon\Event\EmitsEvents;
+use Titon\Event\Observer as Ob;
+use Titon\Event\Subject;
 use Titon\Test\TestCase;
 
-class ObserverAnnotationTest extends TestCase {
+class ObserverTest extends TestCase {
 
-    public function testAnnotationWiring() {
-        $stub = new ObserverAnnotationStub();
+    public function testObserversSubscribeToEvents() {
+        $stub = new ObserverStub();
 
         $this->assertEquals(Vector {
-            new Observer(inst_meth($stub, 'defaultObserver'), 100, false),
+            new Ob(inst_meth($stub, 'defaultObserver'), 100, false),
         }, $stub->getEmitter()->getObservers('event.foo'));
 
         $this->assertEquals(Vector {
-            new Observer(inst_meth($stub, 'priorityObserver'), 5, false),
+            new Ob(inst_meth($stub, 'priorityObserver'), 5, false),
         }, $stub->getEmitter()->getObservers('event.bar'));
 
         $this->assertEquals(Vector {
-            new Observer(inst_meth($stub, 'onceObserver'), 100, true),
+            new Ob(inst_meth($stub, 'onceObserver'), 100, true),
         }, $stub->getEmitter()->getObservers('event.baz'));
 
         $this->assertEquals(Vector {
-            new Observer(inst_meth($stub, 'asyncObserver'), 100, false),
+            new Ob(inst_meth($stub, 'asyncObserver'), 100, false),
         }, $stub->getEmitter()->getObservers('event.qux'));
 
         $this->assertTrue($stub->getEmitter()->getObservers('event.qux')[0]->isAsync());
@@ -31,11 +33,14 @@ class ObserverAnnotationTest extends TestCase {
 
 }
 
-class ObserverAnnotationStub implements Annotator, Subject {
-    use Annotateable, EmitsEvents, ObserverAnnotation;
+class ObserverStub implements Subject {
+    use EmitsEvents, WiresAnnotations;
 
     public function __construct() {
-        $this->wireObserverAnnotations();
+        $this->wireMethodAnnotation('defaultObserver', 'Observer');
+        $this->wireMethodAnnotation('priorityObserver', 'Observer');
+        $this->wireMethodAnnotation('onceObserver', 'Observer');
+        $this->wireMethodAnnotation('asyncObserver', 'Observer');
     }
 
     <<Observer('event.foo')>>
@@ -51,4 +56,3 @@ class ObserverAnnotationStub implements Annotator, Subject {
     public async function asyncObserver(Event $event): Awaitable<mixed> {}
 
 }
-*/

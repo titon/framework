@@ -8,7 +8,7 @@
 namespace Titon\Route;
 
 use Titon\Common\Annotator;
-use Titon\Common\Exception\MissingAnnotationException;
+use Titon\Annotation\Exception\MissingAnnotationException;
 use Titon\Utility\Col;
 use Titon\Utility\Path;
 

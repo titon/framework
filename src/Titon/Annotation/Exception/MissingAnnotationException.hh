@@ -5,12 +5,12 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Common\Exception;
+namespace Titon\Annotation\Exception;
 
 /**
  * Exception thrown when an annotation by name does not exist.
  *
- * @package Titon\Common\Exception
+ * @package Titon\Annotation\Exception
  */
 class MissingAnnotationException extends \OutOfBoundsException {
 

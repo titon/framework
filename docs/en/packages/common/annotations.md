@@ -63,7 +63,7 @@ inherited from the `Titon\Common\Annotator` interface.
 </table>
 
 When calling `getClassAnnotation()` or `getMethodAnnotation()` with a name that does not exist, then a 
-`Titon\Common\Exception\MissingAnnotationException` is thrown.
+`Titon\Annotation\Exception\MissingAnnotationException` is thrown.
 
 ## Wiring Annotations ##
 

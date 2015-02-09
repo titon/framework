@@ -38,7 +38,7 @@ namespace {
 
     if (class_exists('Titon\Annotation\Annotation')) {
         Registry::map('Deprecated', 'Titon\Debug\Annotation\Deprecated');
-        //Registry::map('Monitor', 'Titon\Debug\Annotation\Monitor');
+        Registry::map('Monitor', 'Titon\Debug\Annotation\Monitor');
     }
 }
 

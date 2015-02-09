@@ -7,7 +7,7 @@ use Titon\Debug\Logger;
 use Titon\Test\TestCase;
 use DateTime;
 
-class DeprecatedTest extends TestCase {
+class MonitorTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
@@ -19,25 +19,25 @@ class DeprecatedTest extends TestCase {
     }
 
     public function testMessageIsLoggedWhenClassIsInstantiated() {
-        $path = '/logs/notice-' . date('Y-m-d') . '.log';
+        $path = '/logs/info-' . date('Y-m-d') . '.log';
 
         $this->assertFileNotExists($this->vfs->path($path));
 
         $date = date(DateTime::RFC3339);
-        $stub = new DeprecatedStub();
+        $stub = new MonitorStub();
 
         $this->assertFileExists($this->vfs->path($path));
 
-        $this->assertEquals('[' . $date . '] Titon\Debug\Annotation\DeprecatedStub is deprecated. This is the error message. [/]' . PHP_EOL, file_get_contents($this->vfs->path($path)));
+        $this->assertEquals('[' . $date . '] Titon\Debug\Annotation\MonitorStub was instantiated in /vagrant/tests/Titon/Debug/Annotation/MonitorTest.hh on line 27. [/]' . PHP_EOL, file_get_contents($this->vfs->path($path)));
     }
 
 }
 
-<<Deprecated('This is the error message.')>>
-class DeprecatedStub {
+<<Monitor>>
+class MonitorStub {
     use WiresAnnotations;
 
     public function __construct() {
-        $this->wireClassAnnotation('Deprecated');
+        $this->wireClassAnnotation('Monitor');
     }
 }

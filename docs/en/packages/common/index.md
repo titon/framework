@@ -1,7 +1,6 @@
 # Common Package #
 
-The Common package is a collection of interfaces, traits, and abstract implementations for common patterns and use cases.
-Some of the functionality found in this package are annotations, memoization, instantiation, mutability, and much more.
+The Common package is a collection of interfaces, traits, and abstract implementations for common patterns and use cases. Some of the functionality found in this package is memoization, instantiation, mutability, and much more.
 
 ### Requirements ###
 
@@ -17,7 +16,6 @@ composer require titon/core:*
 
 ### Documentation ###
 
-* [Annotations](annotations.md)
 * [Bags](bags.md)
 * [Instantiation](instantiation.md)
 * [Interfaces](interfaces.md)

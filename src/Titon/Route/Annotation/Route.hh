@@ -17,7 +17,7 @@ use Titon\Utility\Col;
  * The Route annotation provides a low-level way of mapping paths, methods, filters, and patterns
  * to a method or class that can be mapped through `Titon\Route\Router::wire()`.
  *
- * <<Route($key, $path[, $methods[, $filters[, $patterns]])>>
+ * <<Route($key, $path[, $methods[, $filters[, $patterns]]])>>
  *
  * @package Titon\Route\Annotation
  */
@@ -47,7 +47,7 @@ class Route extends Annotation {
      * @param mixed  $filters
      * @param mixed  $patterns
      */
-    public function __construct(string $key, string $path, mixed $methods = [], mixed $filters = [], mixed $patterns = []) {
+    public function __construct(string $key, string $path, mixed $methods = [], mixed $filters = [], array<string, string> $patterns = []) {
         $this->key = $key;
         $this->path = $path;
         $this->setMethods(Col::toVector($methods));

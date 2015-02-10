@@ -17,4 +17,5 @@ composer require titon/debug:*
 * [Logging](logging.md)
 * [Benchmarking](benchmarking.md)
 * [Global Functions](functions.md)
+* [Annotations](annotations.md)
 * [Type Aliases](types.md)

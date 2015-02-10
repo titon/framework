@@ -10,6 +10,12 @@ namespace Titon\Annotation;
 use Titon\Annotation\Exception\MissingAnnotationException;
 use ReflectionClass;
 
+/**
+ * The Reader class provides a straight forward approach for reading class and method annotations.
+ * Each annotation that is read is converted to a mapped annotation class.
+ *
+ * @package Titon\Annotation
+ */
 class Reader {
 
     /**
@@ -20,12 +26,12 @@ class Reader {
     protected ReflectionClass $class;
 
     /**
-     * Store the reflection for the class to read annotations from.
+     * Instantiate a new class reflection layer based on the specified class.
      *
-     * @param \ReflectionClass $class
+     * @param mixed $class
      */
-    public function __construct(ReflectionClass $class) {
-        $this->class = $class;
+    public function __construct(mixed $class) {
+        $this->class = new ReflectionClass($class);
     }
 
     /**
@@ -52,6 +58,7 @@ class Reader {
      *
      * @param string $name
      * @return \Titon\Annotation\Annotation
+     * @throws \Titon\Annotation\Exception\MissingAnnotationException
      */
     public function getClassAnnotation(string $name): Annotation {
         $annotations = $this->getClassAnnotations();
@@ -80,6 +87,7 @@ class Reader {
      * @param string $method
      * @param string $name
      * @return \Titon\Annotation\Annotation
+     * @throws \Titon\Annotation\Exception\MissingAnnotationException
      */
     public function getMethodAnnotation(string $method, string $name): Annotation {
         $annotations = $this->getMethodAnnotations($method);

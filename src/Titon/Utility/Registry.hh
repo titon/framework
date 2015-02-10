@@ -45,7 +45,7 @@ class Registry<T> {
      * @uses Titon\Utility\Path
      *
      * @param string $key
-     * @param array $args
+     * @param \Titon\Common\ArgumentList $args
      * @param bool $store
      * @return T
      */

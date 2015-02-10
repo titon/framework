@@ -19,6 +19,9 @@
         "hhvm": ">=3.4.0",
         "titon/common": "*"
     },
+    "suggest": {
+        "titon/annotation": "Wire Observer annotations using the Annotation package"
+    },
     "autoload": {
         "psr-4": {
             "Titon\\Event\\": "src/"

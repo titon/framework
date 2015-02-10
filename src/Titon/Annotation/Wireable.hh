@@ -7,14 +7,21 @@
 
 namespace Titon\Annotation;
 
+/**
+ * The Wireable interface marks an annotation as wireable, which is a form of bootstrapping
+ * that occurs when a class wires up annotations within itself. This is handled with
+ * the `Titon\Annotation\WiresAnnotations` trait.
+ *
+ * @package Titon\Annotation
+ */
 interface Wireable {
 
     /**
      * When wiring an annotation through the `WiresAnnotations` trait,
      * immediately call this method for any required bootstrapping.
      *
-     * The current class being wired as passed as the 1st argument,
-     * as well as the method name if a method annotation.
+     * The class doing the wiring is passed as the 1st argument,
+     * and the method name as the 2nd argument (if a method annotation).
      *
      * @param T $class
      * @param string $method

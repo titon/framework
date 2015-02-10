@@ -1,7 +1,6 @@
 <?hh
 namespace Titon\Route;
 
-use Titon\Annotation\Annotatable;
 use Titon\Cache\Storage\MemoryStorage;
 use Titon\Test\TestCase;
 use Titon\Utility\State\Get;
@@ -671,13 +670,6 @@ class RouterTest extends TestCase {
         $this->assertEquals(Map {'id' => '[1-8]+'}, $routes['qux']->getPatterns());
     }
 
-    /**
-     * @expectedException \Titon\Annotation\Exception\InvalidClassException
-     */
-    public function testWireMappingThrowsException() {
-        $this->object->wire('Titon\Route\FilterStub');
-    }
-
 }
 
 class FilterStub implements Filter {
@@ -695,7 +687,7 @@ class TestRoute extends Route {
 }
 
 <<Route('parent', '/parent')>>
-class AnnotationStub implements Annotatable {
+class AnnotationStub {
 
     <<Route('foo', '/foo')>>
     public function foo(): void {}

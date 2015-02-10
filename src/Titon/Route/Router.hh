@@ -7,8 +7,6 @@
 
 namespace Titon\Route;
 
-use Titon\Annotation\Exception\InvalidClassException;
-use Titon\Annotation\Exception\MissingAnnotationException;
 use Titon\Annotation\Reader;
 use Titon\Cache\Item;
 use Titon\Cache\Storage;
@@ -28,7 +26,6 @@ use Titon\Route\Group as RouteGroup; // Will fatal without alias
 use Titon\Utility\Registry;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
-use ReflectionClass;
 
 /**
  * The Router is tasked with the management of routes and filters, at which some point a route is matched against
@@ -700,11 +697,7 @@ class Router implements Subject {
      * @return $this
      */
     public function wire(string $class): this {
-        if (!is_a($class, 'Titon\Annotation\Annotatable', true)) {
-            throw new InvalidClassException(sprintf('%s must implement the Titon\Annotation\Annotatable interface to wire routes', $class));
-        }
-
-        $reader = new Reader(new ReflectionClass($class));
+        $reader = new Reader($class);
 
         // Map resource routes if the annotation is on the class
         foreach ($reader->getClassAnnotations() as $annotation) {

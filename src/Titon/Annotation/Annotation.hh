@@ -7,10 +7,16 @@
 
 namespace Titon\Annotation;
 
+/**
+ * The Annotation class represents either a class or method annotation (attribute in Hack terms)
+ * in object form. Custom annotation classes encapsulate metadata through constructor arguments.
+ *
+ * @package Titon\Annotation
+ */
 class Annotation {
 
     /**
-     * The annotation name which is set when factoried.
+     * The unique annotation name.
      *
      * @var string
      */

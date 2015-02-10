@@ -8,7 +8,7 @@
 namespace Titon\Annotation\Exception;
 
 /**
- * Exception thrown when trying to map annotations with an invalid class.
+ * Exception thrown when trying to map/load/wire annotations with an invalid class.
  *
  * @package Titon\Annotation\Exception
  */

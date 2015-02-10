@@ -11,7 +11,7 @@ class ReaderTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new Reader(new \ReflectionClass(new ReaderStub()));
+        $this->object = new Reader(new ReaderStub());
     }
 
     public function testGetAnnotatedMethods() {

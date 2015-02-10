@@ -7,7 +7,7 @@ use Titon\Test\TestCase;
 class RouteTest extends TestCase {
 
     public function testParamsAreSetOnRouteAnnotation() {
-        $reader = new Reader(new \ReflectionClass(new RouteStub()));
+        $reader = new Reader(new RouteStub());
 
         // Class
         $class = $reader->getClassAnnotation('Route');

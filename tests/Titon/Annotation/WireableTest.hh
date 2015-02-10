@@ -50,7 +50,6 @@ class WireAnnotation extends Annotation implements Wireable {
     }
 }
 
-
 <<Wire('class', 'This is a class annotation')>>
 class WireableStub {
     use WiresAnnotations;

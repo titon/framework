@@ -10,8 +10,14 @@ namespace Titon\Annotation;
 use Titon\Common\ArgumentList;
 use Titon\Annotation\Exception\InvalidClassException;
 use Titon\Annotation\Exception\MissingAnnotationException;
-use ReflectionClass;
+use Titon\Utility\Registry as ClassRegistry;
 
+/**
+ * The Registry maps annotation names to annotation classes and provides a way
+ * to factory a class with given arguments.
+ *
+ * @package Titon\Annotation
+ */
 class Registry {
 
     /**
@@ -27,7 +33,8 @@ class Registry {
      *
      * @param string $name
      * @param \Titon\Common\ArgumentList $args
-     * @return Annotation
+     * @return \Titon\Annotation\Annotation
+     * @throws \Titon\Annotation\Exception\MissingAnnotationException
      */
     public static function factory(string $name, ArgumentList $args): Annotation {
         $annos = static::$annotations;
@@ -35,7 +42,7 @@ class Registry {
         if ($annos->contains($name)) {
 
             /** @var \Titon\Annotation\Annotation $object */
-            $object = (new ReflectionClass($annos[$name]))->newInstanceArgs($args);
+            $object = ClassRegistry::factory($annos[$name], $args, false);
             $object->setName($name);
 
             return $object;
@@ -46,10 +53,11 @@ class Registry {
 
     /**
      * Map an annotation class to a unique name. If the class does not extend the
-     * Titon\Annotation\Annotation class, throw an exception.
+     * `Titon\Annotation\Annotation` class, throw an exception.
      *
      * @param string $name
      * @param string $class
+     * @throws \Titon\Annotation\Exception\InvalidClassException
      */
     public static function map(string $name, string $class): void {
         if (!is_a($class, 'Titon\Annotation\Annotation', true)) {

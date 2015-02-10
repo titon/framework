@@ -7,12 +7,16 @@
 
 namespace Titon\Route;
 
+use Titon\Annotation\Exception\InvalidClassException;
+use Titon\Annotation\Exception\MissingAnnotationException;
+use Titon\Annotation\Reader;
 use Titon\Cache\Item;
 use Titon\Cache\Storage;
 use Titon\Common\FactoryAware;
 use Titon\Event\EmitsEvents;
 use Titon\Event\Event;
 use Titon\Event\Subject;
+use Titon\Route\Annotation\Route as RouteAnnotation;
 use Titon\Route\Exception\InvalidRouteActionException;
 use Titon\Route\Exception\MissingFilterException;
 use Titon\Route\Exception\MissingSegmentException;
@@ -24,6 +28,7 @@ use Titon\Route\Group as RouteGroup; // Will fatal without alias
 use Titon\Utility\Registry;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
+use ReflectionClass;
 
 /**
  * The Router is tasked with the management of routes and filters, at which some point a route is matched against
@@ -685,6 +690,56 @@ class Router implements Subject {
         $this->storage = $storage;
 
         return $this;
+    }
+
+    /**
+     * Map routes through annotations on a specified class. If an annotation is found on the class,
+     * map as a resource. If an annotation is found on a method, map normally.
+     *
+     * @param string $class
+     * @return $this
+     */
+    public function wire(string $class): this {
+        if (!is_a($class, 'Titon\Annotation\Annotatable', true)) {
+            throw new InvalidClassException(sprintf('%s must implement the Titon\Annotation\Annotatable interface to wire routes', $class));
+        }
+
+        $reader = new Reader(new ReflectionClass($class));
+
+        // Map resource routes if the annotation is on the class
+        foreach ($reader->getClassAnnotations() as $annotation) {
+            if ($annotation instanceof RouteAnnotation) {
+                $this->resource($annotation->getKey(), $this->buildAnnotationRoute($annotation, $class));
+            }
+        }
+
+        // Map regular routes if the annotation is on a method
+        foreach ($reader->getAnnotatedMethods() as $method => $annotations) {
+            foreach ($annotations as $annotation) {
+                if ($annotation instanceof RouteAnnotation) {
+                    $this->map($annotation->getKey(), $this->buildAnnotationRoute($annotation, $class, $method));
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Build a route object from an annotation.
+     *
+     * @param \Titon\Route\Annotation\Route $annotation
+     * @param string $class
+     * @param string $method
+     * @return \Titon\Route\Route
+     */
+    protected function buildAnnotationRoute(RouteAnnotation $annotation, string $class, string $method = 'index'): Route {
+        $route = new Route($annotation->getPath(), static::buildAction(shape('class' => $class, 'action' => $method)));
+        $route->setMethods($annotation->getMethods());
+        $route->setFilters($annotation->getFilters());
+        $route->setPatterns($annotation->getPatterns());
+
+        return $route;
     }
 
 }

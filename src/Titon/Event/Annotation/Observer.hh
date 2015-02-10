@@ -94,6 +94,8 @@ class Observer extends Annotation implements Wireable {
         if ($class instanceof Subject) {
             $class->on($this->getEvent(), inst_meth($class, $method), $this->getPriority(), $this->isOnce());
         }
+
+        return $this;
     }
 
 }

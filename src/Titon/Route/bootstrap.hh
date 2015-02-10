@@ -42,6 +42,22 @@ namespace Titon\Route\Mixin {
 
 /**
  * --------------------------------------------------------------
+ *  Annotations
+ * --------------------------------------------------------------
+ *
+ * Registers all annotations declared in the route packages.
+ */
+
+namespace {
+    use Titon\Annotation\Registry;
+
+    if (class_exists('Titon\Annotation\Annotation')) {
+        Registry::map('Route', 'Titon\Route\Annotation\Route');
+    }
+}
+
+/**
+ * --------------------------------------------------------------
  *  Helper Functions
  * --------------------------------------------------------------
  *

@@ -61,6 +61,7 @@ namespace {
  */
 
 namespace {
+    use Titon\Common\ArgumentList;
     use Titon\Utility\Col;
     use Titon\Utility\Config;
     use Titon\Utility\Inflector;
@@ -98,8 +99,8 @@ namespace {
     /**
      * @see Titon\Utility\Registry::factory()
      */
-    function factory(string $key): mixed {
-        return Registry::factory($key);
+    function factory(string $key, ArgumentList $args): mixed {
+        return Registry::factory($key, $args);
     }
 
     /**

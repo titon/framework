@@ -92,6 +92,8 @@ class Observer extends Annotation implements Wireable {
      */
     public function wire<T>(T $class, string $method = ''): this {
         if ($class instanceof Subject) {
+            // UNSAFE
+            // Since inst_meth() requires literal strings and we are passing variables.
             $class->on($this->getEvent(), inst_meth($class, $method), $this->getPriority(), $this->isOnce());
         }
 

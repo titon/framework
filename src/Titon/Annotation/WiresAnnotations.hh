@@ -26,9 +26,9 @@ trait WiresAnnotations {
     /**
      * Map of wired annotations.
      *
-     * @var Map<string, string>
+     * @var Map<string, int>
      */
-    protected Map<string, string> $wiredAnnotations = Map {};
+    protected Map<string, int> $wiredAnnotations = Map {};
 
     /**
      * Return an annotation reader instance. If one does not exist, it will be created.
@@ -103,6 +103,9 @@ trait WiresAnnotations {
         }
 
         $this->wiredAnnotations[$key] = time();
+
+        // The type checker balks here and thinks we are `Wireable` instead of `Annotation`, so reset it.
+        invariant($annotation instanceof Annotation, 'Must be an annotation.');
 
         return $annotation;
     }

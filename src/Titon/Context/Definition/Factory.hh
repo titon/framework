@@ -12,14 +12,14 @@ use Titon\Context\Depository;
 
 class Factory
 {
-    public function create(string $alias, mixed $concrete, Depository $canister)
+    public function create(string $alias, mixed $concrete, Depository $depository)
     {
         if ($concrete instanceof Closure) {
-            return new CallableDefinition($alias, $concrete, $canister);
+            return new CallableDefinition($alias, $concrete, $depository);
         }
 
         if (is_string($concrete) && class_exists($concrete)) {
-
+            return new ClassDefinition($alias, $concrete, $depository);
         }
 
         return $concrete;

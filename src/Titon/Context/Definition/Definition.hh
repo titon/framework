@@ -9,13 +9,13 @@ namespace Titon\Context\Definition;
 
 use Titon\Context\Depository;
 
-abstract class Definition implements DefinitionInterface
+abstract class Definition
 {
     protected string $alias;
-    protected Canister $canister;
+    protected Depository $depository;
     protected Vector<mixed> $arguments = Vector{};
 
-    public function __construct(string $alias, Depository $canister) {}
+    public function __construct(string $alias, Depository $depository) {}
 
     public function with(...$arguments): this
     {
@@ -34,7 +34,7 @@ abstract class Definition implements DefinitionInterface
 
         foreach ($this->arguments as $argument) {
             if (is_string($argument)) {
-                $resolvedArguments[] = $this->canister->make($argument);
+                $resolvedArguments[] = $this->depository->make($argument);
                 continue;
             }
 

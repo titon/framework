@@ -10,13 +10,13 @@ namespace Titon\Context\Definition;
 use Closure;
 use Titon\Context\Depository;
 
-class CallableDefinition extends Definition
+class CallableDefinition extends Definition implements DefinitionInterface
 {
     protected Closure $callable;
 
-    public function __construct(string $alias, Closure $concrete, Depository $canister)
+    public function __construct(string $alias, callable $concrete, Depository $depository)
     {
-        parent::__construct($alias, $canister);
+        parent::__construct($alias, $depository);
 
         $this->callable = $concrete;
     }

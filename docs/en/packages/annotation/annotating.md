@@ -17,6 +17,7 @@ For our example, we'll create an annotation that aliases the current class with 
 class Alias extends Titon\Annotation\Annotation {
     protected string $alias;
 
+    // Triggered when the annotation is first read
     public function __construct(string $alias) {
         $this->alias = $alias;
     }

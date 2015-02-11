@@ -6,7 +6,7 @@ The following annotations are available in the debug package.
 
 When declared on a class, the `Deprecated` annotation marks a class as deprecated and will log a notice, and a custom message, anytime the class is instantiated. The logger defined in `Titon\Debug\Debugger` will be used for logging.
 
-To mark a class as deprecated, declare the annotation, and then wire it up in the constructor. Wiring annotations requires the `Titon\Annotation\WiresAnnotations` trait.
+To mark a class as deprecated, declare the annotation, and then [wire it up in the constructor](../annotation/wiring.md).
 
 ```hack
 <<Deprecated('Please use Bar instead.')>>

@@ -19,7 +19,7 @@ class Foo implements Titon\Event\Subject {
 }
 ```
 
-Once the annotations are declared, we can wire them in the constructor, which in turn triggers the automatic subscribing. Wiring annotations requires the `Titon\Annotation\WiresAnnotations` trait.
+Once the annotations are declared, we can [wire them in the constructor](../annotation/wiring.md), which in turn triggers the automatic subscribing.
 
 ```hack
 class Foo implements Titon\Event\Subject {

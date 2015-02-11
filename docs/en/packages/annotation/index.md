@@ -1,6 +1,6 @@
 # Annotation Package #
 
-The Annotation package provides reading, mapping, and wiring of [attributes](http://docs.hhvm.com/manual/en/hack.attributes.php) (metadata) defined on classes and methods.
+The Annotation package provides class based support for [attributes](http://docs.hhvm.com/manual/en/hack.attributes.php) (metadata) defined on classes and methods.
 
 ### Installation ###
 

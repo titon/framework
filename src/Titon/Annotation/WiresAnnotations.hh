@@ -49,11 +49,7 @@ trait WiresAnnotations {
      * @return $this
      */
     protected function wireAnnotations(): this {
-        $reader = $this->getAnnotationReader();
-
-        foreach ($reader->getClassAnnotations() as $annotation) {
-            $this->wireUp($annotation);
-        }
+        $this->wireClassAnnotations();
 
         foreach ($reader->getAnnotatedMethods() as $method => $annotations) {
             foreach ($annotations as $annotation) {
@@ -75,6 +71,19 @@ trait WiresAnnotations {
     }
 
     /**
+     * Wire all class annotations.
+     *
+     * @return $this;
+     */
+    protected function wireClassAnnotations(): this {
+        foreach ($this->getAnnotationReader()->getClassAnnotations() as $annotation) {
+            $this->wireUp($annotation);
+        }
+
+        return $this;
+    }
+
+    /**
      * Wire a single method annotation by name and return the annotation.
      *
      * @param string $name
@@ -82,6 +91,19 @@ trait WiresAnnotations {
      */
     protected function wireMethodAnnotation(string $method, string $name): Annotation {
         return $this->wireUp($this->getAnnotationReader()->getMethodAnnotation($method, $name), $method);
+    }
+
+    /**
+     * Wire all annotations for a specific method.
+     *
+     * @return $this;
+     */
+    protected function wireMethodAnnotations(string $method): this {
+        foreach ($this->getAnnotationReader()->getMethodAnnotations($method) as $annotation) {
+            $this->wireUp($annotation);
+        }
+
+        return $this;
     }
 
     /**

@@ -18,6 +18,14 @@ class MonitorTest extends TestCase {
         Debugger::setLogger(new Logger($this->vfs->path('/logs/')));
     }
 
+    public function testCallbackIsTriggered() {
+        $this->assertEquals('', MonitorStub::$triggered);
+
+        $stub = new MonitorStub();
+
+        $this->assertEquals('Titon\Debug\Annotation\MonitorStub', MonitorStub::$triggered);
+    }
+
     public function testMessageIsLoggedWhenClassIsInstantiated() {
         $path = '/logs/info-' . date('Y-m-d') . '.log';
 
@@ -28,16 +36,22 @@ class MonitorTest extends TestCase {
 
         $this->assertFileExists($this->vfs->path($path));
 
-        $this->assertEquals('[' . $date . '] Titon\Debug\Annotation\MonitorStub was instantiated in /vagrant/tests/Titon/Debug/Annotation/MonitorTest.hh on line 27. [/]' . PHP_EOL, file_get_contents($this->vfs->path($path)));
+        $this->assertEquals('[' . $date . '] Titon\Debug\Annotation\MonitorStub was instantiated in /vagrant/tests/Titon/Debug/Annotation/MonitorTest.hh on line 35. [/]' . PHP_EOL, file_get_contents($this->vfs->path($path)));
     }
 
 }
 
-<<Monitor>>
+<<Monitor('Titon\Debug\Annotation\MonitorStub::testCallback')>>
 class MonitorStub {
     use WiresAnnotations;
 
+    public static string $triggered = '';
+
     public function __construct() {
         $this->wireClassAnnotation('Monitor');
+    }
+
+    public static function testCallback<T>(T $class, string $method = ''): void {
+        static::$triggered = get_class($class);
     }
 }

@@ -19,7 +19,7 @@ class Foo {
 }
 ```
 
-### Monitor ###
+### Monitor([`string $callback`]) ###
 
 Similar to the `Deprecated` annotation, the `Monitor` annotation will log an informational message anytime the class is instantiated. This message will include a file path and line number for the location in which the instantiation occurred. 
 
@@ -34,4 +34,9 @@ class Foo {
 }
 ```
 
-This annotation is extremely helpful in tracking down usage of a class.
+Furthermore, the `Monitor` annotation accepts an optional callback that will be triggered when the annotation is wired. This allows for userland code to hook into the monitoring process. The callback can either be a function, or a static class method.
+
+```hack
+<<Monitor('global_function')>>
+<<Monitor('Foo::staticMethod')>>
+```

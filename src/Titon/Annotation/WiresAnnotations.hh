@@ -51,7 +51,7 @@ trait WiresAnnotations {
     protected function wireAnnotations(): this {
         $this->wireClassAnnotations();
 
-        foreach ($reader->getAnnotatedMethods() as $method => $annotations) {
+        foreach ($this->getAnnotationReader()->getAnnotatedMethods() as $method => $annotations) {
             foreach ($annotations as $annotation) {
                 $this->wireUp($annotation, $method);
             }

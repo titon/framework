@@ -89,6 +89,14 @@ class DepositoryTest extends TestCase
         $this->object->register('foo', 'Titon\\Context\\Foo')->call('setName', 'Foo Bar');
         $this->assertEquals('Foo Bar', $this->object['foo']->getName());
     }
+
+    public function testArgumentsAtCreation()
+    {
+        $this->object->register('bar', 'Titon\\Context\\Bar');
+        $test = $this->object->make('bar', new Foo('Foo Bar'));
+        $this->assertInstanceOf('Titon\\Context\\Bar', $test);
+        $this->assertEquals('Foo Bar', $test->getFoo()->getName());
+    }
 }
 
 class Foo

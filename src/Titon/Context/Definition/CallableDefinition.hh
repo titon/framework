@@ -7,7 +7,6 @@
 
 namespace Titon\Context\Definition;
 
-use Closure;
 use Titon\Context\Depository;
 
 class CallableDefinition extends Definition implements DefinitionInterface
@@ -23,11 +22,9 @@ class CallableDefinition extends Definition implements DefinitionInterface
 
     public function create(...$arguments)
     {
-        if ($arguments) {
-            $this->arguments = [];
-            $this->with($arguments);
-        }
-
-        return call_user_func_array($this->callable, $this->resolveArguments());
+        return call_user_func_array(
+            $this->callable,
+            $this->resolveArguments(...$arguments)
+        );
     }
 }

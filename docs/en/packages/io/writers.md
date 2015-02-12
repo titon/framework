@@ -54,7 +54,7 @@ The `Titon\Io\Writer\XmlWriter` can be used in writing XML files by converting a
 $writer = new Titon\Io\Writer\XmlWriter('/path/to/file.xml');
 ```
 
-This writer makes use of the [XML document class](../type/xml.md) and will require a special map format.
+This writer makes use of the [XML class](../type/xml.md) and will require a special map format.
 
 ### INI ###
 

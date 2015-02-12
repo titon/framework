@@ -66,12 +66,12 @@ $foo->toVector();
 ## Xmlable ##
 
 The `Xmlable` interface provides a `toXml()` method that returns an XML structured string.
-We suggest using the built-in [XML type classes](../type/xml.md).
+We suggest using the built-in [XML class](../type/xml.md).
 
 ```hack
 class Foo implements Titon\Common\Xmlable {
     public function toXml(string $root = 'root'): string {
-        return Titon\Type\Xml\Document::from($value, $root)->toString();
+        return Titon\Type\Xml::from($value, $root)->toString();
     }
 }
 

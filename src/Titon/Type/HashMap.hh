@@ -13,7 +13,7 @@ use Titon\Common\Mapable;
 use Titon\Common\Vectorable;
 use Titon\Common\Xmlable;
 use Titon\Type\Exception\MissingMethodException;
-use Titon\Type\Xml\Document;
+use Titon\Type\Xml;
 use Titon\Utility\Col;
 use \ArrayAccess;
 use \Countable;
@@ -592,7 +592,7 @@ class HashMap<Tk, Tv> implements
     public function toXml(string $root = 'document'): string {
         // UNSAFE
         // The HashMap value is Map<Tk, Tv> while the XmlMap is Map<string, mixed>.
-        return Document::fromMap($root, $this->value())->toString();
+        return Xml::fromMap($root, $this->value())->toString();
     }
 
     /**

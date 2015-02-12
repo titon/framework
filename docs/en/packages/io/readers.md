@@ -60,7 +60,7 @@ key: "value"
 
 ### XML ###
 
-The `Titon\Io\Reader\XmlReader` can be used in reading XML files. This reader makes use of the [XML document class](../type/xml.md) and will return a specific map format.
+The `Titon\Io\Reader\XmlReader` can be used in reading XML files. This reader makes use of the [XML class](../type/xml.md) and will return a specific map format.
 
 ```hack
 $reader = new Titon\Io\Reader\XmlReader('/path/to/file.xml');

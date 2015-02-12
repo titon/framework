@@ -8,7 +8,7 @@
 namespace Titon\Io\Writer;
 
 use Titon\Io\ResourceMap;
-use Titon\Type\Xml\Document;
+use Titon\Type\Xml;
 
 /**
  * A file writer that generates XML files.
@@ -30,7 +30,7 @@ class XmlWriter extends AbstractWriter {
      * @uses Titon\Type\Xml\Document
      */
     public function writeResource(ResourceMap $data, string $root = 'root'): bool {
-        return $this->write(Document::fromMap($root, $data)->toString());
+        return $this->write(Xml::fromMap($root, $data)->toString());
     }
 
 }

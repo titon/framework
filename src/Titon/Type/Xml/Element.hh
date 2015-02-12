@@ -7,6 +7,7 @@
 
 namespace Titon\Type\Xml;
 
+use Titon\Type\Xml;
 use Titon\Utility\Sanitize;
 use \IteratorAggregate;
 use \Countable;
@@ -139,7 +140,7 @@ class Element implements IteratorAggregate<Element>, Countable {
         $xml = '';
 
         foreach ($attributes as $key => $value) {
-            $xml .= sprintf(' %s="%s"', Document::formatName($key), Sanitize::escape($value));
+            $xml .= sprintf(' %s="%s"', Xml::formatName($key), Sanitize::escape($value));
         }
 
         return $xml;
@@ -186,7 +187,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return mixed
      */
     public function getBoxedValue(): mixed {
-        return Document::box($this->getValueWithoutCdata());
+        return Xml::box($this->getValueWithoutCdata());
     }
 
     /**
@@ -402,7 +403,7 @@ class Element implements IteratorAggregate<Element>, Countable {
             $key = $namespace . ':' . $key;
         }
 
-        $this->attributes[$key] = Document::unbox($value);
+        $this->attributes[$key] = Xml::unbox($value);
 
         return $this;
     }
@@ -447,7 +448,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return $this
      */
     public function setName(string $name, string $namespace = ''): this {
-        $name = Document::formatName($name);
+        $name = Xml::formatName($name);
 
         if ($namespace) {
             $name = $namespace . ':' . $name;
@@ -505,7 +506,7 @@ class Element implements IteratorAggregate<Element>, Countable {
      * @return $this
      */
     public function setValue(mixed $value, bool $cdata = false): this {
-        $value = Document::unbox($value);
+        $value = Xml::unbox($value);
 
         if ($cdata) {
             $value = '<![CDATA[' . PHP_EOL . $value . PHP_EOL . ']]>';

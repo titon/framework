@@ -36,7 +36,7 @@ class MonitorTest extends TestCase {
 
         $this->assertFileExists($this->vfs->path($path));
 
-        $this->assertEquals('[' . $date . '] Titon\Debug\Annotation\MonitorStub was instantiated in /vagrant/tests/Titon/Debug/Annotation/MonitorTest.hh on line 35. [/]' . PHP_EOL, file_get_contents($this->vfs->path($path)));
+        $this->assertEquals(sprintf('[%s] Titon\Debug\Annotation\MonitorStub was instantiated in %s/Titon/Debug/Annotation/MonitorTest.hh on line 35. [/]' . PHP_EOL, $date, TEST_DIR), file_get_contents($this->vfs->path($path)));
     }
 
 }

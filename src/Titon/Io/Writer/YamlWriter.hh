@@ -32,7 +32,7 @@ class YamlWriter extends AbstractWriter {
      */
     public function writeResource(ResourceMap $data): bool {
         if (!extension_loaded('yaml')) {
-            throw new MissingExtensionException('YAML extension must be installed to use the YamlWriter');
+            throw new MissingExtensionException('YAML extension must be enabled using `hhvm.enable_zend_compat = true`');
         }
 
         return $this->write(yaml_emit(Col::toArray($data), YAML_UTF8_ENCODING));

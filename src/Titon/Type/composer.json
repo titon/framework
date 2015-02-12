@@ -2,7 +2,7 @@
     "name": "titon/type",
     "type": "library",
     "description": "The type package provides a chainable immutable object oriented interface for array lists, hash maps, string buffers, xml documents, and more.",
-    "keywords": ["titon", "type", "array", "list", "hash", "map", "buffer", "xml", "yaml"],
+    "keywords": ["titon", "type", "array", "list", "hash", "map", "buffer", "xml"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
     "authors": [

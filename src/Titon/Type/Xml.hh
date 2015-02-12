@@ -5,19 +5,21 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Type\Xml;
+namespace Titon\Type;
 
 use Titon\Common\Exception\MissingFileException;
+use Titon\Type\Xml\Element;
+use Titon\Type\Xml\XmlMap;
 use Titon\Utility\Col;
 use \SimpleXMLElement;
 
 /**
- * The Document class provides helper methods for XML parsing and building as well as static methods
+ * The Xml class provides helper methods for XML parsing and building as well as static methods
  * for generating Element trees based on maps and raw XML files.
  *
  * @package Titon\Type
  */
-class Document {
+class Xml {
 
     /**
      * Box a value by type casting it from a string to a scalar.

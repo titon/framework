@@ -24,9 +24,9 @@ class YamlWriterTest extends TestCase {
             'integer' => 1234567890,
             'number' => '1234567890',
             'string' => 'abcdefg',
-            'true' => true,
-            'false' => false,
-            'null' => null,
+            'true_' => true,
+            'false_' => false,
+            'null_' => null,
             'zero' => 0,
             'map' => Map {
                 'one' => true,
@@ -36,19 +36,22 @@ class YamlWriterTest extends TestCase {
         });
 
         $expected = <<<YAML
+---
 integer: 1234567890
-number: 1234567890
+number: "1234567890"
 string: abcdefg
-true: true
-false: false
-null: null
+true_: true
+false_: false
+null_: ~
 zero: 0
 map:
   one: true
   two: false
 list:
-  - foo
-  - bar
+- foo
+- bar
+...
+
 YAML;
 
         $this->assertEquals($expected, file_get_contents($path));

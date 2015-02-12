@@ -37,7 +37,7 @@ class YamlReader extends AbstractReader {
      */
     public function readResource(): ResourceMap {
         if (!extension_loaded('yaml')) {
-            throw new MissingExtensionException('YAML extension must be installed to use the YamlReader');
+            throw new MissingExtensionException('YAML extension must be enabled using `hhvm.enable_zend_compat = true`');
         }
 
         if ($this->exists()) {

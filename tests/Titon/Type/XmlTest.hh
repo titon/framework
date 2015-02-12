@@ -1,39 +1,40 @@
 <?hh
-namespace Titon\Type\Xml;
+namespace Titon\Type;
 
 use Titon\Test\TestCase;
+use Titon\Type\Xml\Element;
 
 class DocumentTest extends TestCase {
 
     public function testBox() {
-        $this->assertSame(123.45, Document::box('123.45'));
-        $this->assertSame(123.45, Document::box('123.45'));
-        $this->assertSame(123, Document::box('123'));
-        $this->assertSame(true, Document::box('true'));
-        $this->assertSame(false, Document::box('false'));
-        $this->assertSame('foo', Document::box('foo'));
-        $this->assertSame(null, Document::box('null'));
+        $this->assertSame(123.45, Xml::box('123.45'));
+        $this->assertSame(123.45, Xml::box('123.45'));
+        $this->assertSame(123, Xml::box('123'));
+        $this->assertSame(true, Xml::box('true'));
+        $this->assertSame(false, Xml::box('false'));
+        $this->assertSame('foo', Xml::box('foo'));
+        $this->assertSame(null, Xml::box('null'));
     }
 
     public function testUnbox() {
-        $this->assertSame('123.45', Document::unbox('123.45'));
-        $this->assertSame('123.45', Document::unbox(123.45));
-        $this->assertSame('123', Document::unbox('123'));
-        $this->assertSame('true', Document::unbox(true));
-        $this->assertSame('false', Document::unbox('false'));
-        $this->assertSame('foo', Document::unbox('foo'));
-        $this->assertSame('null', Document::unbox(null));
+        $this->assertSame('123.45', Xml::unbox('123.45'));
+        $this->assertSame('123.45', Xml::unbox(123.45));
+        $this->assertSame('123', Xml::unbox('123'));
+        $this->assertSame('true', Xml::unbox(true));
+        $this->assertSame('false', Xml::unbox('false'));
+        $this->assertSame('foo', Xml::unbox('foo'));
+        $this->assertSame('null', Xml::unbox(null));
     }
 
     public function testFormatName() {
-        $this->assertEquals('foo', Document::formatName('foo'));
-        $this->assertEquals('foobar', Document::formatName('foo bar'));
-        $this->assertEquals('ns:foo', Document::formatName('ns:foo'));
-        $this->assertEquals('foo-bar', Document::formatName('foo-bar'));
-        $this->assertEquals('foo.bar', Document::formatName('foo.bar'));
-        $this->assertEquals('_123', Document::formatName('123'));
-        $this->assertEquals('_.foo', Document::formatName('.foo'));
-        $this->assertEquals('_-foo', Document::formatName('-foo'));
+        $this->assertEquals('foo', Xml::formatName('foo'));
+        $this->assertEquals('foobar', Xml::formatName('foo bar'));
+        $this->assertEquals('ns:foo', Xml::formatName('ns:foo'));
+        $this->assertEquals('foo-bar', Xml::formatName('foo-bar'));
+        $this->assertEquals('foo.bar', Xml::formatName('foo.bar'));
+        $this->assertEquals('_123', Xml::formatName('123'));
+        $this->assertEquals('_.foo', Xml::formatName('.foo'));
+        $this->assertEquals('_-foo', Xml::formatName('-foo'));
     }
 
     public function testFromMap() {
@@ -111,7 +112,7 @@ class DocumentTest extends TestCase {
 
 XML;
 
-        $this->assertEquals($this->nl($xml), Document::fromMap('unit', $map)->toString());
+        $this->assertEquals($this->nl($xml), Xml::fromMap('unit', $map)->toString());
     }
 
     public function testFromMapWithAttributes() {
@@ -204,7 +205,7 @@ XML;
 
 XML;
 
-        $this->assertEquals($this->nl($xml), Document::fromMap('unit', $map)->toString());
+        $this->assertEquals($this->nl($xml), Xml::fromMap('unit', $map)->toString());
     }
 
     public function testFromMapWithCdata() {
@@ -228,11 +229,11 @@ foobar
 
 XML;
 
-        $this->assertEquals($this->nl($xml), Document::fromMap('root', $map)->toString());
+        $this->assertEquals($this->nl($xml), Xml::fromMap('root', $map)->toString());
     }
 
     public function testFromFile() {
-        $xml = Document::fromFile(TEMP_DIR . '/type/barbarian.xml');
+        $xml = Xml::fromFile(TEMP_DIR . '/type/barbarian.xml');
 
         $expected = new Element('unit');
 
@@ -295,7 +296,7 @@ XML;
 
     public function testFromFileStringComparison() {
         $path = TEMP_DIR . '/type/barbarian.xml';
-        $xml = Document::fromFile($path);
+        $xml = Xml::fromFile($path);
 
         $this->assertEquals($this->nl(file_get_contents($path)), $xml->toString());
     }
@@ -304,7 +305,7 @@ XML;
      * @expectedException \Titon\Common\Exception\MissingFileException
      */
     public function testFromFileMissingFile() {
-        Document::fromFile(TEMP_DIR . '/type/barbarian-missing.xml');
+        Xml::fromFile(TEMP_DIR . '/type/barbarian-missing.xml');
     }
 
     public function testFromVector() {
@@ -323,7 +324,7 @@ XML;
 
 XML;
 
-        $this->assertEquals($this->nl($xml), Document::fromVector('armors', 'armor', $list)->toString());
+        $this->assertEquals($this->nl($xml), Xml::fromVector('armors', 'armor', $list)->toString());
     }
 
     public function testFromVectorWithAttributes() {
@@ -349,7 +350,7 @@ XML;
 
 XML;
 
-        $this->assertEquals($this->nl($xml), Document::fromVector('armors', 'armor', $list)->toString());
+        $this->assertEquals($this->nl($xml), Xml::fromVector('armors', 'armor', $list)->toString());
     }
 
 }

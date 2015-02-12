@@ -10,7 +10,7 @@ namespace Titon\Http\Server;
 use Psr\Http\Message\StreamableInterface;
 use Titon\Http\Http;
 use Titon\Http\Stream\MemoryStream;
-use Titon\Type\Xml\Document;
+use Titon\Type\Xml;
 
 /**
  * Output XML as the response by converting any type of resource to XML.
@@ -29,7 +29,7 @@ class XmlResponse extends Response {
      */
     public function __construct(mixed $body = null, int $status = Http::OK, string $root = 'root') {
         if (!$body instanceof StreamableInterface) {
-            $body = new MemoryStream( Document::from($body, $root)->toString() );
+            $body = new MemoryStream( Xml::from($body, $root)->toString() );
         }
 
         parent::__construct($body, $status);

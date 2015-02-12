@@ -12,10 +12,16 @@ use Titon\Context\Depository;
 abstract class Definition
 {
     protected string $alias;
-    protected Depository $depository;
-    protected Vector<mixed> $arguments = Vector{};
 
-    public function __construct(string $alias, Depository $depository) {}
+    protected Depository $depository;
+
+    protected array $arguments = [];
+
+    public function __construct(string $alias, Depository $depository)
+    {
+        $this->alias = $alias;
+        $this->depository = $depository;
+    }
 
     public function with(...$arguments): this
     {
@@ -28,13 +34,17 @@ abstract class Definition
 
     abstract public function create(...$arguments);
 
-    public function resolveArguments()
+    public function resolveArguments(...$arguments)
     {
+        if ($arguments) {
+            $this->arguments = $arguments;
+        }
+
         $resolvedArguments = [];
 
         foreach ($this->arguments as $argument) {
-            if (is_string($argument)) {
-                $resolvedArguments[] = $this->depository->make($argument);
+            if (is_string($argument) && (isset($this->depository[$argument]) || class_exists($argument))) {
+                $resolvedArguments[] = $this->depository[$argument];
                 continue;
             }
 

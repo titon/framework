@@ -9,25 +9,52 @@ namespace Titon\Context;
 
 use Closure;
 use ArrayAccess;
-use Titon\Context\Definition\Definition;
+use ReflectionClass;
+use ReflectionException;
 use Titon\Context\Definition\CallableDefinition;
-use Titon\Context\Definition\Factory;
+use Titon\Context\Definition\ClassDefinition;
+use Titon\Context\Definition\Definition;
 
 class Depository implements ArrayAccess
 {
-    protected Factory $factory;
+    /**
+     * Hash of registered item definitions keyed by its alias or class name
+     *
+     * @var array
+     */
+    protected array $items = [];
 
-    protected Array $items = [];
+    /**
+     * Hash of registered, and already constructed, singletons keyd by its
+     * alias or class name
+     *
+     * @var array
+     */
+    protected array $singletons = [];
 
-    protected Array $singletons = [];
-
+    /**
+     * Instantiate a new container object
+     */
     public function __construct()
     {
-        $this->factory = new Factory();
-        $this->add('Titon\Context\Container', $this);
+        $this->register('Titon\Context\Container', $this);
     }
 
-    public function add(string $alias, $concrete = null, boolean $singleton = false): this
+    /**
+     * Register a new class, callable, or object in the container
+     *
+     * @param string $alias     The alias (container key) for the registered item
+     * @param mixed $concrete   The class name, closure, object to register in
+     *                          the container, or null to use the alias as the
+     *                          class name
+     * @param bool  $singleton  Whether or not the container should register the
+     *                          concrete as a singleton or not (only if concrete
+     *                          is class name or a closure)
+     *
+     * @return object|$definition   Either the concrete (if an object is registered)
+     *                              or the definition of the registered item
+     */
+    public function register(string $alias, ?mixed $concrete = null, boolean $singleton = false): mixed
     {
         if (is_null($concrete)) {
             $concrete = $alias;
@@ -35,27 +62,51 @@ class Depository implements ArrayAccess
 
         if (is_object($concrete) && !($concrete instanceof Closure)) {
             $this->singletons[$alias] = $concrete;
-            return null;
+
+            return $concrete;
         }
 
         // we need to build a definition
-        $definition = $this->factory->create($alias, $concrete, $this);
+        $definition = Definition::factory($alias, $concrete, $this);
 
         $this->items[$alias] = [
             'definition' => $definition,
             'singleton'  => $singleton,
         ];
 
-        return $this;
+        return $definition;
     }
 
-    public function singleton(string $alias, $concrete): this
+    public function alias($alias, $binding)
     {
-        $this->add($alias, $concrete, true);
-
-        return $this;
+        $this->aliases[$alias] = $binding;
     }
 
+    /**
+     * Register a new singleton in the container
+     *
+     * @param string $alias     The alias (container key) for the registered item
+     * @param mixed $concrete   The class name, closure, object to register in
+     *                          the container, or null to use the alias as the
+     *                          class name
+     *
+     * @return object|$definition   Either the concrete (if an object is registered)
+     *                              or the definition of the registered item
+     */
+    public function singleton(string $alias, ?mixed $concrete): mixed
+    {
+        return $this->register($alias, $concrete, true);
+    }
+
+    /**
+     * Retrieve (and build if necessary) the registered item from the container
+     *
+     * @param string $alias         The alias that the item was registered as
+     * @param mixed ...$arguments   Additional arguments to pass into the object
+     *                              during
+     *
+     * @return mixed
+     */
     public function make(string $alias, ...$arguments)
     {
         if (isset($this->singletons[$alias])) {
@@ -63,51 +114,133 @@ class Depository implements ArrayAccess
         }
 
         if (array_key_exists($alias, $this->items)) {
-            return $this->resolveDefinition($alias, $arguments);
+            $definition = $this->items[$alias]['definition'];
+            $retval = $definition;
+
+            if ($definition instanceof CallableDefinition || $definition instanceof ClassDefinition) {
+                $retval = $definition->create(...$arguments);
+            }
+
+            if (isset($this->items[$alias]['singleton']) && $this->items[$alias]['singleton'] === true) {
+                unset($this->items[$alias]);
+                $this->singletons[$alias] = $retval;
+            }
+
+            return $retval;
         }
+
+        $definition = $this->build($alias);
+        $this->items[$alias]['definition'] = $definition;
+
+        return $definition->create(...$arguments);
     }
 
-    protected function resolveDefinition(string $alias, ...$arguments)
+    protected function build($class, ...$parameters)
     {
-        $retval = $this->items[$alias]['definition'];
-
-        if ($retval instanceof CallableDefinition || $retval instanceof ClassDefinition) {
-            $retval = $retval->create($arguments);
+        if (!class_exists($class)) {
+            throw new ReflectionException("Class $class does not exist.");
         }
 
-        // store as a singleton if needed
-        if (isset($this->items[$alias]['singleton']) && $this->items[$alias]['singleton'] === true) {
-            $this->singletons[$alias] = $retval;
+        $reflector = new ReflectionClass($class);
+        if (!$reflector->isInstantiable()) {
+            $message = "Target [$class] is not instantiable.";
+            throw new ReflectionException($message);
         }
 
-        return $retval;
+        $definition = Definition::factory($class, $class, $this);
+        $constructor = $reflector->getConstructor();
+
+        if (is_null($constructor)) {
+            return $definition;
+        }
+
+        foreach ($constructor->getParameters() as $param) {
+            $dependency = $param->getClass();
+
+            if (is_null($dependency)) {
+                if ($param->isDefaultValueAvailable()) {
+                    $definition->with($param->getDefaultValue());
+                    continue;
+                }
+
+                throw new ReflectionException(
+                    sprintf('Unable to resolve a non-class dependency of [%s] for [%s]', $param, $class)
+                );
+            }
+
+            $definition->with($dependency->getName());
+        }
+
+        return $definition;
     }
 
-    public function offsetExists(mixed $key): bool
+    /**
+     * Return whether or not an alias has been registered in the container
+     *
+     * @param string $alias Registered key or class name
+     *
+     * @return bool
+     */
+    public function isRegistered(string $alias): bool
     {
-        if (!is_null($this->singletons->get($key))) {
+        if (isset($this->singletons[$alias])) {
             return true;
         }
-        if (!is_null($this->items->get($key))) {
+
+        if (isset($this->items[$alias])) {
             return true;
         }
 
         return false;
     }
 
-    public function offsetGet($key): mixed
+    /**
+     * Return whether or not an alias has been registered as a singleton in
+     * the container
+     *
+     * @param string $alias Registered key or class name
+     *
+     * @return bool
+     */
+    public function isSingleton(string $alias)
+    {
+        if (isset($this->singletons[$alias]) || (isset($this->items[$alias]) && $this->items[$alias]['singleton'] === true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists(mixed $key): bool
+    {
+        return $this->isRegistered($key);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet(mixed $key): mixed
     {
         return $this->make($key);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offsetSet(mixed $key, $value): mixed
     {
-        return $this->add($key, $value);
+        return $this->register($key, $value);
     }
 
-    public function offsetUnset($key)
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset(mixed $key)
     {
-        $this->singletons->remove($key);
-        $this->items->remove($key);
+        unset($this->singletons[$key]);
+        unset($this->items[$key]);
     }
 }

@@ -7,6 +7,7 @@
 
 namespace Titon\Context\Definition;
 
+use Closure;
 use Titon\Context\Depository;
 
 abstract class Definition
@@ -21,6 +22,19 @@ abstract class Definition
     {
         $this->alias = $alias;
         $this->depository = $depository;
+    }
+
+    public static function factory(string $alias, mixed $concrete, Depository $depository)
+    {
+        if ($concrete instanceof Closure) {
+            return new CallableDefinition($alias, $concrete, $depository);
+        }
+
+        if (is_string($concrete) && class_exists($concrete)) {
+            return new ClassDefinition($alias, $concrete, $depository);
+        }
+
+        return $concrete;
     }
 
     public function with(...$arguments): this

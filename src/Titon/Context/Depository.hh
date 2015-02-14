@@ -14,6 +14,7 @@ use ReflectionException;
 use Titon\Context\Definition\CallableDefinition;
 use Titon\Context\Definition\ClassDefinition;
 use Titon\Context\Definition\Definition;
+use Titon\Context\Exception\AlreadyRegisteredException;
 
 /**
  * The depository serves as a dependency injector. After registering an object,
@@ -72,7 +73,7 @@ class Depository implements ArrayAccess
     public function register(string $key, ?mixed $concrete = null, boolean $singleton = false): mixed
     {
         if (isset($this[$key]) || isset($this->aliases[$key])) {
-            // @TODO: throw exception
+            throw new AlreadyRegisteredException("Key $key has already been registered");
         }
 
         if (is_null($concrete)) {
@@ -119,7 +120,7 @@ class Depository implements ArrayAccess
     public function alias($alias, $key): this
     {
         if (isset($this->aliases[$alias])) {
-            // @TODO: throw exception
+            throw new AlreadyRegisteredException("Alias $alias has already been mapped to {$this->aliases[$alias]}");
         }
 
         $this->aliases[$alias] = $key;

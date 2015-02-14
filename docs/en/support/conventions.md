@@ -51,9 +51,8 @@ The exception to this interface sub-folder organization rule is when a package i
 ### Traits ###
 
 * Must be suffixed with `Aware` if the trait provides a getter and a setter for a class (or interface). For example, `StorageAware`.
-* Must be suffixed with `Annotation` if the trait provides annotation wiring, with the prefix being the annotation name. For example, `RouteAnnotation`.
 * Must be suffixed with `Mixin` if the trait provides a set of encapsulated reusable methods or properties. For example, `FilterMixin`. If there are multiple mixins in a package, they should be grouped into a `Mixin` namespace.
-* All other instances must be written as an adjective (suffixed with `-able` or `-ible`) or as a verb that conveys an action. For example, `Mutable`, `DispatchesEvents`.
+* All other instances must be written as an adjective (suffixed with `-able` or `-ible`) or as a verb that conveys an action. For example, `Mutable`, `EmitsEvents`, or `WiresAnnotations`.
 
 ### Methods ###
 
@@ -109,13 +108,13 @@ And when type hinting with the alias, the alias name must be used.
 public function doAction(FooBar $map): void {}
 ```
 
-When naming a type alias, the following suffixes and conventions must be used.
+When naming a type alias, the following suffixes and conventions must be adhered to.
 
-* `Callback` suffix when declaring a callable.
-* `Container` suffix when declaring a map that contains a non-primitive type.
-* `List` suffix when declaring a vector.
-* `Map` suffix when declaring a map.
-* Shapes must be nouns.
+* Must use `Callback` suffix when declaring a callable.
+* Must use `Container` suffix when declaring a map that contains a non-primitive type.
+* Must use `List` suffix when declaring a vector.
+* Must use `Map` suffix when declaring a map.
+* Must use nouns (a thing) when declaring a shape.
 
 ## Exceptions ##
 

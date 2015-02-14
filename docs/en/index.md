@@ -4,6 +4,7 @@ Setup
 * [Installing](setup/installing.md)
 
 Packages
+* [Annotation](packages/annotation/index.md)
 * [Cache](packages/cache/index.md)
 * [Common](packages/common/index.md)
 * [Controller](packages/controller/index.md)

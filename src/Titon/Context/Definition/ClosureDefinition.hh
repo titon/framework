@@ -41,6 +41,8 @@ class ClosureDefinition extends Definition implements DefinitionInterface
      */
     public function create(...$arguments)
     {
+        $arguments = $this->resolveArguments(...$arguments);
+
         return call_user_func_array(
             $this->closure,
             $this->resolveArguments(...$arguments)

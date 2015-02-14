@@ -67,4 +67,11 @@ abstract class Definition
 
         return $resolvedArguments;
     }
+
+    public function alias(string $alias): this
+    {
+        $this->depository->alias($alias, $this->alias);
+
+        return $this;
+    }
 }

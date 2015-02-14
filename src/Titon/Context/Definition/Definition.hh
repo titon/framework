@@ -46,8 +46,6 @@ abstract class Definition
         return $this;
     }
 
-    abstract public function create(...$arguments);
-
     public function resolveArguments(...$arguments)
     {
         if ($arguments) {

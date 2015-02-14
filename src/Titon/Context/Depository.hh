@@ -15,6 +15,14 @@ use Titon\Context\Definition\CallableDefinition;
 use Titon\Context\Definition\ClassDefinition;
 use Titon\Context\Definition\Definition;
 
+/**
+ * The depository serves as a dependency injector. After registering an object,
+ * class, or callable with the depository, retrieving it will handle any necessary
+ * dependency injection and reflection resolution before returning the object for
+ * use.
+ *
+ * @package Titon\Context
+ */
 class Depository implements ArrayAccess
 {
     /**

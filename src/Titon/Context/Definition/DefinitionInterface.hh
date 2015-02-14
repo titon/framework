@@ -7,9 +7,30 @@
 
 namespace Titon\Context\Definition;
 
+/**
+ * DefinitionInterface for depository definitions to follow
+ *
+ * @package Titon\Context\Definition
+ */
 interface DefinitionInterface
 {
-    public function with(...$arguments);
+    /**
+     * Arguments passed into the constructor when creating the object from
+     * within the container
+     *
+     * @param mixed ...$arguments   Arguments passed into the constructor
+     *
+     * @return $this    The definition for fluent method chaining
+     */
+    public function with(...$arguments): this;
 
+    /**
+     * Use reflection to construct a new object instance of the definition's class
+     * given any parameters passed
+     *
+     * @param mixed ...$arguments   Arguments passed into the constructor
+     *
+     * @return $this    The definition for fluent method chaining
+     */
     public function create(...$arguments);
 }

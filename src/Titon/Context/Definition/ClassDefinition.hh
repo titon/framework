@@ -11,19 +11,48 @@ use ReflectionClass;
 use ReflectionMethod;
 use Titon\Context\Depository;
 
+/**
+ * A class definition determines how a class is created, including necessary
+ * arguments passed into the constructor as well as methods to be called after
+ * instantiation before returning the object for use.
+ *
+ * @package Titon\Context\Definition
+ */
 class ClassDefinition extends Definition implements DefinitionInterface
 {
+    /**
+     * The name of the class defined
+     *
+     * @var string
+     */
     protected string $class;
 
+    /**
+     * Data structure of methods and arguments to be called on the class after
+     * instantiation
+     *
+     * @var array
+     */
     protected array $methods = [];
 
-    public function __construct(string $alias, mixed $class, Depository $depository)
+    /**
+     * Construct a new class definition
+     *
+     * @param string     $key           The class name or key associated with
+     * @param mixed      $class         The class to define
+     * @param Depository $depository    The container that the definition is
+     *                                  contained in
+     */
+    public function __construct(string $key, mixed $class, Depository $depository)
     {
-        parent::__construct($alias, $depository);
+        parent::__construct($key, $depository);
 
         $this->class = $class;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function create(...$arguments)
     {
         $reflection = new ReflectionClass($this->class);
@@ -34,6 +63,14 @@ class ClassDefinition extends Definition implements DefinitionInterface
         return $this->callMethods($object);
     }
 
+    /**
+     * Add a method to be called on the class after instantiating a new instance
+     *
+     * @param string $method        Name of th emethod
+     * @param        ...$arguments  Arguments to pass into the method
+     *
+     * @return $this    The definition for fluent method chaining
+     */
     public function call(string $method, ...$arguments): this
     {
         $this->methods[] = [
@@ -44,6 +81,14 @@ class ClassDefinition extends Definition implements DefinitionInterface
         return $this;
     }
 
+    /**
+     * After instantiating the instance, this method will call any necessary
+     * methods on the instance with the specified arguments
+     *
+     * @param object $object    The object to call the methods on
+     *
+     * @return mixed    The new object instance
+     */
     protected function callMethods($object)
     {
         foreach ($this->methods as $method) {

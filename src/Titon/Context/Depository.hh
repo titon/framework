@@ -44,9 +44,9 @@ class Depository implements ArrayAccess
     /**
      * Map of aliases to registered classes and keys
      *
-     * @var array
+     * @var AliasMap
      */
-    protected Map<string, string> $aliases = Map{};
+    protected AliasMap $aliases = Map{};
 
     /**
      * Instantiate a new container object
@@ -302,5 +302,11 @@ class Depository implements ArrayAccess
     {
         unset($this->singletons[$key]);
         unset($this->items[$key]);
+
+        if (isset($this->aliases[$key])) {
+            unset($this->singletons[$this->aliases[$key]]);
+            unset($this->items[$this->aliases[$key]]);
+            unset($this->aliases[$key]);
+        }
     }
 }

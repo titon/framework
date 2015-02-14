@@ -10,6 +10,8 @@ namespace Titon\Context;
 use Closure;
 use ArrayAccess;
 use ReflectionClass;
+use ReflectionMethod;
+use ReflectionFunction;
 use ReflectionException;
 use Titon\Context\Definition\CallableDefinition;
 use Titon\Context\Definition\ClosureDefinition;
@@ -180,8 +182,14 @@ class Depository implements ArrayAccess
             return $retval;
         }
 
-        $definition = $this->build($alias);
-        $this->items[$alias]['definition'] = $definition;
+        if (class_exists($alias)) {
+            $definition = $this->buildClass($alias);
+            $this->items[$alias]['definition'] = $definition;
+        }
+        else {
+            $definition = $this->buildCallable($alias);
+            $this->items[$alias]['definition'] = $definition;
+        }
 
         return $definition->create(...$arguments);
     }
@@ -196,7 +204,7 @@ class Depository implements ArrayAccess
      * @return ClosureDefinition|ClassDefinition|Definition\mixed
      * @throws ReflectionException
      */
-    protected function build(string $class, ...$parameters)
+    protected function buildClass(string $class): Definition
     {
         if (!class_exists($class)) {
             throw new ReflectionException("Class $class does not exist.");
@@ -224,9 +232,43 @@ class Depository implements ArrayAccess
                     continue;
                 }
 
-                throw new ReflectionException(
-                    sprintf('Unable to resolve a non-class dependency of [%s] for [%s]', $param, $class)
-                );
+                throw new ReflectionException("Unable to resolve a non-class dependency of $param for $class");
+            }
+
+            $definition->with($dependency->getName());
+        }
+
+        return $definition;
+    }
+
+    protected function buildCallable(string $alias): Definition
+    {
+        if (strpos($alias, '::') !== false) {
+            $callable = explode('::', $alias);
+        }
+        else {
+            $callable = $alias;
+        }
+
+        $definition = Definition::factory($alias, $callable, $this);
+
+        if (is_array($callable)) {
+            $reflector = new ReflectionMethod($callable[0], $callable[1]);
+        }
+        else {
+            $reflector = new ReflectionFunction($callable);
+        }
+
+        foreach ($reflector->getParameters() as $param) {
+            $dependency = $param->getClass();
+
+            if (is_null($dependency)) {
+                if ($param->isDefaultValueAvailable()) {
+                    $definition->with($param->getDefaultValue());
+                    continue;
+                }
+
+                throw new ReflectionException("Unable to resolve a non-class dependency of $param for $alias");
             }
 
             $definition->with($dependency->getName());

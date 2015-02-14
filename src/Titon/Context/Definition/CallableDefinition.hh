@@ -7,7 +7,6 @@
 
 namespace Titon\Context\Definition;
 
-use ReflectionClass;
 use Titon\Context\Depository;
 
 class CallableDefinition extends Definition implements DefinitionInterface
@@ -36,6 +35,8 @@ class CallableDefinition extends Definition implements DefinitionInterface
 
     public function create(...$arguments)
     {
+        $arguments = $this->resolveArguments(...$arguments);
+
         if (!is_null($this->class)) {
             $class = $this->depository->make($this->class);
             return call_user_func_array(array($class, $this->function), $arguments);

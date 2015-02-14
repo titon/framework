@@ -133,6 +133,11 @@ class DepositoryTest extends TestCase
         $test = $this->object->make('Titon\\Context\\Bar');
         $this->assertEquals('Alex Phillips', $test->getFoo()->getName());
     }
+
+    public function testCallableResolution()
+    {
+        $this->assertEquals('Alex Phillips', $this->object->make('Titon\\Context\\FooBar'));
+    }
 }
 
 class Foo
@@ -184,4 +189,8 @@ class Bar
 
 function Baz() {
     return 'Hello world!';
+}
+
+function FooBar(Foo $foo) {
+    return $foo->getName();
 }

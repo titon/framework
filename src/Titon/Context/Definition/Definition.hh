@@ -77,6 +77,10 @@ abstract class Definition
             return new ClassDefinition($key, $concrete, $depository);
         }
 
+        if (is_string($concrete) && strpos($concrete, '::') !== false) {
+            $concrete = explode('::', $concrete);
+        }
+
         if ((is_string($concrete) && function_exists($concrete)) || is_array($concrete)) {
             return new CallableDefinition($key, $concrete, $depository);
         }

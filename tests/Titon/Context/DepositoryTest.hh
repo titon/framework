@@ -79,6 +79,8 @@ class DepositoryTest extends TestCase
         $this->object->register('bar', 'Titon\\Context\\Bar')->with('Titon\\Context\\Foo');
         $this->assertInstanceOf('Titon\\Context\\Bar', $this->object['bar']);
 
+        unset($this->object['bar']);
+
         $this->object->register('bar', 'Titon\\Context\\Bar')->with((new Foo())->setName('Foo Bar'));
         $this->assertInstanceOf('Titon\\Context\\Bar', $this->object['bar']);
         $this->assertEquals($this->object['bar']->getFoo()->getName(), 'Foo Bar');

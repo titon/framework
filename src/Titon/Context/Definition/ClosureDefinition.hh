@@ -11,7 +11,7 @@ use Closure;
 use Titon\Context\Depository;
 
 /**
- * A callable definition determines how a callable is created, including necessary
+ * A closure definition determines how a closure is created, including necessary
  * arguments passed into the function as well as methods to be called after
  * instantiation before returning the result for use.
  *

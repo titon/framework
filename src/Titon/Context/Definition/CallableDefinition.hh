@@ -9,11 +9,32 @@ namespace Titon\Context\Definition;
 
 use Titon\Context\Depository;
 
+/**
+ * A callable definition determines how a callable is created, including necessary
+ * arguments passed into the function as well as methods to be called after
+ * instantiation before returning the result for use.
+ *
+ * @package Titon\Context\Definition
+ */
 class CallableDefinition extends Definition implements DefinitionInterface
 {
+    /**
+     * The class the callable method exists in (if the callable is a method)
+     *
+     * @var string
+     */
     protected $class;
+
+    /**
+     * The method (if class is present) name or function name
+     *
+     * @var string
+     */
     protected $function;
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct(string $key, mixed $callable, Depository $depository)
     {
         parent::__construct($key, $depository);
@@ -33,6 +54,9 @@ class CallableDefinition extends Definition implements DefinitionInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function create(...$arguments)
     {
         $arguments = $this->resolveArguments(...$arguments);

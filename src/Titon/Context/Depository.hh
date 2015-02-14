@@ -25,14 +25,19 @@ class Depository implements ArrayAccess
     protected array $items = [];
 
     /**
-     * Hash of registered, and already constructed, singletons keyd by its
+     * Hash of registered, and already constructed, singletons keyed by its
      * alias or class name
      *
      * @var array
      */
     protected array $singletons = [];
 
-    protected array $aliases = [];
+    /**
+     * Map of aliases to registered classes and keys
+     *
+     * @var array
+     */
+    protected Map<string, string> $aliases = Map{};
 
     /**
      * Instantiate a new container object
@@ -93,13 +98,25 @@ class Depository implements ArrayAccess
         return $definition;
     }
 
-    public function alias($alias, $key)
+    /**
+     * Alias a string to map to a registered item in the container. This allows
+     * you to call 'make' on an alias that maps to a more complex class name,
+     * Closure, or singleton instance.
+     *
+     * @param $alias string The alias to register
+     * @param $key string   The original class name or key registered
+     *
+     * @return $this Return the depository for fluent method chaining
+     */
+    public function alias($alias, $key): this
     {
         if (isset($this->aliases[$alias])) {
             // @TODO: throw exception
         }
 
         $this->aliases[$alias] = $key;
+
+        return $this;
     }
 
     /**
@@ -159,7 +176,17 @@ class Depository implements ArrayAccess
         return $definition->create(...$arguments);
     }
 
-    protected function build($class, ...$parameters)
+    /**
+     * If a class has not been registered, this method will use reflection
+     * to build the class and inject any necessary arguments for construction.
+     *
+     * @param string $class         The class name to reflect and construct
+     * @param mixed ...$parameters  Parameters required for constructing the object
+     *
+     * @return CallableDefinition|ClassDefinition|Definition\mixed
+     * @throws ReflectionException
+     */
+    protected function build(string $class, ...$parameters)
     {
         if (!class_exists($class)) {
             throw new ReflectionException("Class $class does not exist.");

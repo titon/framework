@@ -32,18 +32,20 @@ class Depository implements ArrayAccess
      */
     protected array $singletons = [];
 
+    protected array $aliases = [];
+
     /**
      * Instantiate a new container object
      */
     public function __construct()
     {
-        $this->register('Titon\Context\Container', $this);
+        $this->register('Titon\Context\Depository', $this);
     }
 
     /**
      * Register a new class, callable, or object in the container
      *
-     * @param string $alias     The alias (container key) for the registered item
+     * @param string $key     The alias (container key) for the registered item
      * @param mixed $concrete   The class name, closure, object to register in
      *                          the container, or null to use the alias as the
      *                          class name
@@ -54,22 +56,36 @@ class Depository implements ArrayAccess
      * @return object|$definition   Either the concrete (if an object is registered)
      *                              or the definition of the registered item
      */
-    public function register(string $alias, ?mixed $concrete = null, boolean $singleton = false): mixed
+    public function register(string $key, ?mixed $concrete = null, boolean $singleton = false): mixed
     {
+        if (isset($this[$key]) || isset($this->aliases[$key])) {
+            // @TODO: throw exception
+        }
+
         if (is_null($concrete)) {
-            $concrete = $alias;
+            $concrete = $key;
         }
 
         if (is_object($concrete) && !($concrete instanceof Closure)) {
-            $this->singletons[$alias] = $concrete;
+            if ($key !== get_class($concrete)) {
+                $this->aliases[$key] = get_class($concrete);
+                $key = get_class($concrete);
+            }
+
+            $this->singletons[$key] = $concrete;
 
             return $concrete;
         }
 
-        // we need to build a definition
-        $definition = Definition::factory($alias, $concrete, $this);
+        if (is_string($concrete) && $key !== $concrete) {
+            $this->aliases[$key] = $concrete;
+            $key = $concrete;
+        }
 
-        $this->items[$alias] = [
+        // we need to build a definition
+        $definition = Definition::factory($key, $concrete, $this);
+
+        $this->items[$key] = [
             'definition' => $definition,
             'singleton'  => $singleton,
         ];
@@ -77,9 +93,13 @@ class Depository implements ArrayAccess
         return $definition;
     }
 
-    public function alias($alias, $binding)
+    public function alias($alias, $key)
     {
-        $this->aliases[$alias] = $binding;
+        if (isset($this->aliases[$alias])) {
+            // @TODO: throw exception
+        }
+
+        $this->aliases[$alias] = $key;
     }
 
     /**
@@ -109,6 +129,10 @@ class Depository implements ArrayAccess
      */
     public function make(string $alias, ...$arguments)
     {
+        if (isset($this->aliases[$alias])) {
+            return $this->make($this->aliases[$alias], ...$arguments);
+        }
+
         if (isset($this->singletons[$alias])) {
             return $this->singletons[$alias];
         }

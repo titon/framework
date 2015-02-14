@@ -97,6 +97,25 @@ class DepositoryTest extends TestCase
         $this->assertInstanceOf('Titon\\Context\\Bar', $test);
         $this->assertEquals('Foo Bar', $test->getFoo()->getName());
     }
+
+    public function testAliasing()
+    {
+        $this->object->register('foo', 'Titon\\Context\\Foo', true);
+        $this->object->alias('foobar', 'Titon\\Context\\Foo');
+
+        $this->assertSame($this->object->make('foo'), $this->object->make('foobar'));
+    }
+
+    public function testAliasChaining()
+    {
+        $this->object->register('Titon\\Context\\Foo')->alias('foo');
+        $this->assertInstanceOf('Titon\\Context\\Foo', $this->object->make('Titon\\Context\\Foo'));
+        $this->assertInstanceOf('Titon\\Context\\Foo', $this->object->make('foo'));
+
+        $this->object->alias('bar', 'Titon\\Context\\Bar');
+        $this->assertInstanceOf('Titon\\Context\\Bar', $this->object->make('Titon\\Context\\Bar'));
+        $this->assertInstanceOf('Titon\\Context\\Bar', $this->object->make('bar'));
+    }
 }
 
 class Foo

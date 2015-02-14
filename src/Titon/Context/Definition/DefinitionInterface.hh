@@ -1,8 +1,8 @@
 <?hh // strict
 /**
- * @author Alex Phillips <exonintrendo@gmail.com>
- * Date: 2/9/15
- * Time: 5:19 PM
+ * @copyright   2010-2015, The Titon Project
+ * @license     http://opensource.org/licenses/bsd-license.php
+ * @link        http://titon.io
  */
 
 namespace Titon\Context\Definition;

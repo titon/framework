@@ -1,0 +1,34 @@
+{
+  "name": "titon/context",
+  "type": "library",
+  "description": "The context package provides dependency injection, allowing for easy decoupling of components.",
+  "keywords": ["titon", "context", "depository", "container", "dependency", "injection", "di"],
+  "homepage": "http://titon.io",
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Miles Johnson",
+      "homepage": "http://milesj.me"
+    },
+    {
+      "name": "Alex Phillips",
+      "homepage": "http://wootables.com"
+    }
+  ],
+  "support": {
+    "irc": "irc://irc.freenode.org/titon",
+    "source": "https://github.com/titon/common"
+  },
+  "require": {
+    "hhvm": ">=3.4.0",
+    "titon/utility": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Titon\\Context\\": "src/"
+    },
+    "files": [
+      "src/Titon/Context/bootstrap.hh"
+    ]
+  }
+}

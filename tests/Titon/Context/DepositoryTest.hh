@@ -118,6 +118,21 @@ class DepositoryTest extends TestCase
         $this->assertInstanceOf('Titon\\Context\\Bar', $this->object->make('Titon\\Context\\Bar'));
         $this->assertInstanceOf('Titon\\Context\\Bar', $this->object->make('bar'));
     }
+
+    public function testCallable()
+    {
+        $this->object->register('foo', array('Titon\\Context\\Foo', 'factory'));
+        $this->assertInstanceOf('Titon\\Context\\Foo', $this->object->make('foo'));
+
+        $this->object->register('baz', 'Titon\\Context\\Baz');
+        $this->assertEquals('Hello world!', $this->object->make('baz'));
+    }
+
+    public function testNestedDependencyResolution()
+    {
+        $test = $this->object->make('Titon\\Context\\Bar');
+        $this->assertEquals('Alex Phillips', $test->getFoo()->getName());
+    }
 }
 
 class Foo
@@ -127,6 +142,11 @@ class Foo
     public function __construct($name = 'Alex Phillips')
     {
         $this->name = $name;
+    }
+
+    public static function factory($name = 'Alex Phillips')
+    {
+        return new Foo($name);
     }
 
     public function getName()
@@ -160,4 +180,8 @@ class Bar
     {
         $this->foo = $foo;
     }
+}
+
+function Baz() {
+    return 'Hello world!';
 }

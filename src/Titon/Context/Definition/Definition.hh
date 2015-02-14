@@ -64,17 +64,21 @@ abstract class Definition
      * @param Depository $depository    The depository object the definition is
      *                                  contained in
      *
-     * @return CallableDefinition|ClassDefinition|mixed The definition object for
+     * @return ClosureDefinition|ClassDefinition|mixed The definition object for
      *                                                  fluent method chaining
      */
     public static function factory(string $key, mixed $concrete, Depository $depository)
     {
         if ($concrete instanceof Closure) {
-            return new CallableDefinition($key, $concrete, $depository);
+            return new ClosureDefinition($key, $concrete, $depository);
         }
 
         if (is_string($concrete) && class_exists($concrete)) {
             return new ClassDefinition($key, $concrete, $depository);
+        }
+
+        if ((is_string($concrete) && function_exists($concrete)) || is_array($concrete)) {
+            return new CallableDefinition($key, $concrete, $depository);
         }
 
         return $concrete;

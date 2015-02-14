@@ -12,6 +12,7 @@ use ArrayAccess;
 use ReflectionClass;
 use ReflectionException;
 use Titon\Context\Definition\CallableDefinition;
+use Titon\Context\Definition\ClosureDefinition;
 use Titon\Context\Definition\ClassDefinition;
 use Titon\Context\Definition\Definition;
 use Titon\Context\Exception\AlreadyRegisteredException;
@@ -167,7 +168,7 @@ class Depository implements ArrayAccess
             $definition = $this->items[$alias]['definition'];
             $retval = $definition;
 
-            if ($definition instanceof CallableDefinition || $definition instanceof ClassDefinition) {
+            if ($definition instanceof ClosureDefinition || $definition instanceof ClassDefinition || $definition instanceof CallableDefinition) {
                 $retval = $definition->create(...$arguments);
             }
 
@@ -192,7 +193,7 @@ class Depository implements ArrayAccess
      * @param string $class         The class name to reflect and construct
      * @param mixed ...$parameters  Parameters required for constructing the object
      *
-     * @return CallableDefinition|ClassDefinition|Definition\mixed
+     * @return ClosureDefinition|ClassDefinition|Definition\mixed
      * @throws ReflectionException
      */
     protected function build(string $class, ...$parameters)

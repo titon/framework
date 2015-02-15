@@ -156,8 +156,14 @@ class Depository implements ArrayAccess
      *
      * @return mixed
      */
-    public function make(string $alias, ...$arguments)
+    public function make($alias, ...$arguments)
     {
+        if ($alias instanceof Closure || is_callable($alias)) {
+            $definition = $this->buildCallable($alias);
+
+            return $definition->create(...$arguments);
+        }
+
         if (isset($this->aliases[$alias])) {
             return $this->make($this->aliases[$alias], ...$arguments);
         }
@@ -170,7 +176,7 @@ class Depository implements ArrayAccess
             $definition = $this->items[$alias]['definition'];
             $retval = $definition;
 
-            if ($definition instanceof ClosureDefinition || $definition instanceof ClassDefinition || $definition instanceof CallableDefinition) {
+            if ($definition instanceof Definition) {
                 $retval = $definition->create(...$arguments);
             }
 
@@ -195,29 +201,13 @@ class Depository implements ArrayAccess
     }
 
     /**
-     * Use the depository to resolve and execute a callable without registering
-     * it with the depository.
-     *
-     * @param callable $callable    The callable to resolve
-     * @param mixed ...$arguments   Arguments to pass into the callable
-     *
-     * @return mixed
-     */
-    public function call(callable $callable, ...$arguments)
-    {
-        $definition = $this->buildCallable($callable);
-
-        return $definition->create(...$arguments);
-    }
-
-    /**
-     * If a class has not been registered, this method will use reflection
-     * to build the class and inject any necessary arguments for construction.
+     * This method will use reflection to build the class and inject any
+     * necessary arguments for construction.
      *
      * @param string $class         The class name to reflect and construct
      * @param mixed ...$parameters  Parameters required for constructing the object
      *
-     * @return ClosureDefinition|ClassDefinition|Definition\mixed
+     * @return ClosureDefinition|CallableDefinition|ClassDefinition|Definition\mixed
      * @throws ReflectionException
      */
     protected function buildClass(string $class): Definition
@@ -226,14 +216,14 @@ class Depository implements ArrayAccess
             throw new ReflectionException("Class $class does not exist.");
         }
 
-        $reflector = new ReflectionClass($class);
-        if (!$reflector->isInstantiable()) {
+        $reflection = new ReflectionClass($class);
+        if (!$reflection->isInstantiable()) {
             $message = "Target [$class] is not instantiable.";
             throw new ReflectionException($message);
         }
 
         $definition = Definition::factory($class, $class, $this);
-        $constructor = $reflector->getConstructor();
+        $constructor = $reflection->getConstructor();
 
         if (is_null($constructor)) {
             return $definition;
@@ -248,7 +238,7 @@ class Depository implements ArrayAccess
                     continue;
                 }
 
-                throw new ReflectionException("Unable to resolve a non-class dependency of $param for $class");
+                throw new ReflectionException("Cannot to resolve dependency of $param for $class");
             }
 
             $definition->with($dependency->getName());
@@ -258,8 +248,8 @@ class Depository implements ArrayAccess
     }
 
     /**
-     * If a callable has not been registered, this method will use reflection
-     * to build the callable and inject any necessary arguments for execution.
+     * This method will use reflection to build a definition of the callable to
+     * be registered by the depository.
      *
      * @param string $alias
      */
@@ -271,8 +261,8 @@ class Depository implements ArrayAccess
         else {
             $callable = $alias;
 
-            if (is_array($alias)) {
-                $alias = implode('::', $alias);
+            if (!is_string($alias)) {
+                $alias = 'Callable';
             }
         }
 
@@ -294,7 +284,7 @@ class Depository implements ArrayAccess
                     continue;
                 }
 
-                throw new ReflectionException("Unable to resolve a non-class dependency of $param for $alias");
+                throw new ReflectionException("Cannot to resolve dependency of $param for $alias");
             }
 
             $definition->with($dependency->getName());
@@ -310,7 +300,7 @@ class Depository implements ArrayAccess
      *
      * @return bool
      */
-    public function isRegistered(string $alias): bool
+    public function has(string $alias): bool
     {
         if (isset($this->singletons[$alias])) {
             return true;
@@ -345,7 +335,7 @@ class Depository implements ArrayAccess
      */
     public function offsetExists(mixed $key): bool
     {
-        return $this->isRegistered($key);
+        return $this->has($key);
     }
 
     /**

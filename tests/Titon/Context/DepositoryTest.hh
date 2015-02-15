@@ -150,17 +150,26 @@ class DepositoryTest extends TestCase
 
     public function testCallResolution()
     {
-        $foo = $this->object->call(array('Titon\\Context\\Foo', 'factory'));
+        $foo = $this->object->make(array('Titon\\Context\\Foo', 'factory'));
         $this->assertEquals('Alex Phillips', $foo->getName());
 
-        $foo = $this->object->call('Titon\\Context\\Foo::factory');
+        $foo = $this->object->make('Titon\\Context\\Foo::factory');
         $this->assertEquals('Alex Phillips', $foo->getName());
 
-        $foo = $this->object->call('Titon\\Context\\Foo::factory', 'Foo Bar');
+        $foo = $this->object->make('Titon\\Context\\Foo::factory', 'Foo Bar');
         $this->assertEquals('Foo Bar', $foo->getName());
 
-        $foo = $this->object->call('Titon\\Context\\FooBar', new Foo('FooBar'));
+        $foo = $this->object->make('Titon\\Context\\FooBar', new Foo('FooBar'));
         $this->assertEquals('FooBar', $foo);
+    }
+
+    public function testCallOnClosure()
+    {
+        $bar = $this->object->make(function (Foo $foo) {
+            return new Bar($foo);
+        });
+
+        $this->assertEquals('Alex Phillips', $bar->getFoo()->getName());
     }
 }
 

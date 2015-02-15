@@ -195,6 +195,22 @@ class Depository implements ArrayAccess
     }
 
     /**
+     * Use the depository to resolve and execute a callable without registering
+     * it with the depository.
+     *
+     * @param callable $callable    The callable to resolve
+     * @param mixed ...$arguments   Arguments to pass into the callable
+     *
+     * @return mixed
+     */
+    public function call(callable $callable, ...$arguments)
+    {
+        $definition = $this->buildCallable($callable);
+
+        return $definition->create(...$arguments);
+    }
+
+    /**
      * If a class has not been registered, this method will use reflection
      * to build the class and inject any necessary arguments for construction.
      *
@@ -241,13 +257,23 @@ class Depository implements ArrayAccess
         return $definition;
     }
 
-    protected function buildCallable(string $alias): Definition
+    /**
+     * If a callable has not been registered, this method will use reflection
+     * to build the callable and inject any necessary arguments for execution.
+     *
+     * @param string $alias
+     */
+    protected function buildCallable($alias): Definition
     {
-        if (strpos($alias, '::') !== false) {
+        if (is_string($alias) && strpos($alias, '::') !== false) {
             $callable = explode('::', $alias);
         }
         else {
             $callable = $alias;
+
+            if (is_array($alias)) {
+                $alias = implode('::', $alias);
+            }
         }
 
         $definition = Definition::factory($alias, $callable, $this);

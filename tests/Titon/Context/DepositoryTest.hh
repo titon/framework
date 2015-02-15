@@ -61,6 +61,15 @@ class DepositoryTest extends TestCase
         $this->assertInstanceOf('Titon\\Context\\Foo', $test->getFoo());
     }
 
+    public function testSingletonNestedResolution()
+    {
+        $this->object->singleton('foo', 'Titon\\Context\\Foo');
+        $foo = $this->object->make('foo');
+        $bar = $this->object->make('Titon\\Context\\Bar');
+
+        $this->assertSame($foo, $bar->getFoo());
+    }
+
     public function testClassDefinitionWithMethodCalls()
     {
         $this->object->register('foo', 'Titon\\Context\\Foo')->call('setName', 'Foo Bar');
@@ -137,6 +146,21 @@ class DepositoryTest extends TestCase
     public function testCallableResolution()
     {
         $this->assertEquals('Alex Phillips', $this->object->make('Titon\\Context\\FooBar'));
+    }
+
+    public function testCallResolution()
+    {
+        $foo = $this->object->call(array('Titon\\Context\\Foo', 'factory'));
+        $this->assertEquals('Alex Phillips', $foo->getName());
+
+        $foo = $this->object->call('Titon\\Context\\Foo::factory');
+        $this->assertEquals('Alex Phillips', $foo->getName());
+
+        $foo = $this->object->call('Titon\\Context\\Foo::factory', 'Foo Bar');
+        $this->assertEquals('Foo Bar', $foo->getName());
+
+        $foo = $this->object->call('Titon\\Context\\FooBar', new Foo('FooBar'));
+        $this->assertEquals('FooBar', $foo);
     }
 }
 

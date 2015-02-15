@@ -300,7 +300,7 @@ class Depository implements ArrayAccess
      *
      * @return bool
      */
-    public function has(string $alias): bool
+    public function isRegistered(string $alias): bool
     {
         if (isset($this->singletons[$alias])) {
             return true;
@@ -335,7 +335,7 @@ class Depository implements ArrayAccess
      */
     public function offsetExists(mixed $key): bool
     {
-        return $this->has($key);
+        return $this->isRegistered($key);
     }
 
     /**

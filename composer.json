@@ -31,6 +31,7 @@
     "autoload": {
         "psr-4": { "": "src/" },
         "files": [
+            "src/Titon/Annotation/bootstrap.hh",
             "src/Titon/Cache/bootstrap.hh",
             "src/Titon/Common/bootstrap.hh",
             "src/Titon/Controller/bootstrap.hh",

@@ -29,7 +29,7 @@ interface Controller {
      * @param bool $emit
      * @return string
      */
-    public function dispatchTo(string $action, ArgumentList $args = Vector {}, bool $emit = true): string;
+    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): string;
 
     /**
      * Forward the current request to a new action, instead of doing an additional HTTP request.
@@ -38,7 +38,7 @@ interface Controller {
      * @param \Titon\Common\ArgumentList $args
      * @return string
      */
-    public function forwardTo(string $action, ArgumentList $args = Vector {}): string;
+    public function forwardTo(string $action, ArgumentList $args): string;
 
     /**
      * Return the request object.

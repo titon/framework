@@ -21,5 +21,20 @@ namespace Titon\Event {
     type ObserverList = Vector<Observer>;
     type ObserverContainer = Map<string, ObserverList>;
     type ObserverCallback = (function(Event, ...): mixed);
-    type ParamList = array<mixed>;
+}
+
+/**
+ * --------------------------------------------------------------
+ *  Annotations
+ * --------------------------------------------------------------
+ *
+ * Registers all annotations declared in the event packages.
+ */
+
+namespace {
+    use Titon\Annotation\Registry;
+
+    if (class_exists('Titon\Annotation\Annotation')) {
+        Registry::map('Observer', 'Titon\Event\Annotation\Observer');
+    }
 }

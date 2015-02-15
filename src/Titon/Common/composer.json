@@ -2,7 +2,7 @@
     "name": "titon/common",
     "type": "library",
     "description": "The common package provides interfaces, traits, and abstract implementations for common patterns usable by other packages.",
-    "keywords": ["titon", "common", "shared", "traits", "interfaces", "abstract", "factory", "annotations", "bags"],
+    "keywords": ["titon", "common", "shared", "traits", "interfaces", "abstract", "factory", "bags"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
     "authors": [

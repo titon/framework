@@ -14,13 +14,10 @@
  */
 
 namespace Titon\Common {
-    type ArgumentList = Vector<mixed>;
+    type ArgumentList = array<mixed>;
     type CacheMap = Map<string, mixed>;
     type DataMap = Map<string, mixed>;
     type OptionMap = Map<string, mixed>;
-
-    // Annotations
-    type AnnotationMap = Map<string, ArgumentList>;
 
     // Instanceable
     type InstanceContainer<T> = Map<string, InstanceMap<T>>;

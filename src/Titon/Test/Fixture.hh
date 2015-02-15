@@ -76,7 +76,7 @@ class Fixture {
             throw new RuntimeException(sprintf('Repository for %s has not been defined', static::class));
         }
 
-        $repository = Registry::factory($this->className, Vector {}, false);
+        $repository = Registry::factory($this->className, [], false);
 
         invariant($repository instanceof Repository, 'Must be a Repository');
 

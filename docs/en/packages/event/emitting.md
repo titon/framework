@@ -170,8 +170,8 @@ Multiple events can be dispatched using `emitMany()` and providing an array of e
 or a string of space separated event keys.
 
 ```hack
-$events = $emitter->emitMany('foo bar', $params);
-$events = $emitter->emitMany(['foo', 'bar'], $params);
+$events = $emitter->emitMany('foo bar', $args);
+$events = $emitter->emitMany(['foo', 'bar'], $args);
 ```
 
 When using this approach, each unique key will create a new `Event` object, but any arguments will be shared.
@@ -184,7 +184,7 @@ To make multiple dispatching easier, a wildcard can be used using `*`. This wild
 character, a dash, or underscore.
 
 ```hack
-$events = $emitter->emitMany('foo.*', $params);
+$events = $emitter->emitMany('foo.*', $args);
 ```
 
 The previous example will notify any event that begins with `foo.`, like `foo.bar`, `foo.baz`, etc.
@@ -195,7 +195,7 @@ Every time `emit()` is called, a `Titon\Event\Event` object is automatically cre
 the `dispatch()` method can be used.
 
 ```hack
-$event = $emitter->dispatch(new ExampleEvent('saved'), $params);
+$event = $emitter->dispatch(new ExampleEvent('saved'), $args);
 ```
 
 ## Persisting Data ##

@@ -593,6 +593,83 @@ class RouterTest extends TestCase {
         $this->object->getSegment('fakeKey');
     }
 
+    public function testWireClassMapping() {
+        $this->object->wire('Titon\Route\AnnotationStub');
+
+        $routes = $this->object->getRoutes();
+
+        // Keys
+        $this->assertFalse(isset($routes['parent']));
+        $this->assertTrue(isset($routes['parent.list']));
+        $this->assertTrue(isset($routes['parent.create']));
+        $this->assertTrue(isset($routes['parent.read']));
+        $this->assertTrue(isset($routes['parent.update']));
+        $this->assertTrue(isset($routes['parent.delete']));
+
+        // Paths
+        $this->assertEquals('/parent', $routes['parent.list']->getPath());
+        $this->assertEquals('/parent', $routes['parent.create']->getPath());
+        $this->assertEquals('/parent/{id}', $routes['parent.read']->getPath());
+        $this->assertEquals('/parent/{id}', $routes['parent.update']->getPath());
+        $this->assertEquals('/parent/{id}', $routes['parent.delete']->getPath());
+
+        // Action
+        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'index'), $routes['parent.list']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'create'), $routes['parent.create']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'read'), $routes['parent.read']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'update'), $routes['parent.update']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'delete'), $routes['parent.delete']->getAction());
+
+        // Method
+        $this->assertEquals(Vector {'get'}, $routes['parent.list']->getMethods());
+        $this->assertEquals(Vector {'post'}, $routes['parent.create']->getMethods());
+        $this->assertEquals(Vector {'get'}, $routes['parent.read']->getMethods());
+        $this->assertEquals(Vector {'put', 'post'}, $routes['parent.update']->getMethods());
+        $this->assertEquals(Vector {'delete', 'post'}, $routes['parent.delete']->getMethods());
+    }
+
+    public function testWireMethodMapping() {
+        $this->object->wire('Titon\Route\AnnotationStub');
+
+        $routes = $this->object->getRoutes();
+
+        // Keys
+        $this->assertTrue(isset($routes['foo']));
+        $this->assertTrue(isset($routes['bar']));
+        $this->assertTrue(isset($routes['baz']));
+        $this->assertTrue(isset($routes['qux']));
+
+        // Paths
+        $this->assertEquals('/foo', $routes['foo']->getPath());
+        $this->assertEquals('/bar', $routes['bar']->getPath());
+        $this->assertEquals('/baz', $routes['baz']->getPath());
+        $this->assertEquals('/qux', $routes['qux']->getPath());
+
+        // Action
+        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'foo'), $routes['foo']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'bar'), $routes['bar']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'baz'), $routes['baz']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'qux'), $routes['qux']->getAction());
+
+        // Method
+        $this->assertEquals(Vector {}, $routes['foo']->getMethods());
+        $this->assertEquals(Vector {'post'}, $routes['bar']->getMethods());
+        $this->assertEquals(Vector {'get'}, $routes['baz']->getMethods());
+        $this->assertEquals(Vector {'put', 'post'}, $routes['qux']->getMethods());
+
+        // Filter
+        $this->assertEquals(Vector {}, $routes['foo']->getFilters());
+        $this->assertEquals(Vector {}, $routes['bar']->getFilters());
+        $this->assertEquals(Vector {'auth', 'guest'}, $routes['baz']->getFilters());
+        $this->assertEquals(Vector {}, $routes['qux']->getFilters());
+
+        // Pattern
+        $this->assertEquals(Map {}, $routes['foo']->getPatterns());
+        $this->assertEquals(Map {}, $routes['bar']->getPatterns());
+        $this->assertEquals(Map {}, $routes['baz']->getPatterns());
+        $this->assertEquals(Map {'id' => '[1-8]+'}, $routes['qux']->getPatterns());
+    }
+
 }
 
 class FilterStub implements Filter {
@@ -607,4 +684,21 @@ class TestRoute extends Route {
 
         $this->compile();
     }
+}
+
+<<Route('parent', '/parent')>>
+class AnnotationStub {
+
+    <<Route('foo', '/foo')>>
+    public function foo(): void {}
+
+    <<Route('bar', '/bar', 'POST')>>
+    public function bar(): void {}
+
+    <<Route('baz', '/baz', ['get'], ['auth', 'guest'])>>
+    public function baz(): void {}
+
+    <<Route('qux', '/qux', ['PUT', 'POST'], [], ['id' => '[1-8]+'])>>
+    public function qux(): void {}
+
 }

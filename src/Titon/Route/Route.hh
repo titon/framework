@@ -216,10 +216,10 @@ class Route implements Serializable {
         }
 
         $action = $this->getAction();
-        $object = Registry::factory($action['class']);
+        $object = Registry::factory($action['class'], []);
         $method = new ReflectionMethod($object, $action['action']);
 
-        return $method->invokeArgs($object, $this->getActionArguments()->toArray());
+        return $method->invokeArgs($object, $this->getActionArguments());
     }
 
     /**
@@ -507,7 +507,7 @@ class Route implements Serializable {
      */
     protected function getArguments(ReflectionFunctionAbstract $method): ArgumentList {
         $tokens = $this->getTokens();
-        $args = $this->getParams()->values();
+        $args = $this->getParams()->values()->toArray();
 
         foreach ($method->getParameters() as $i => $param) {
             if (!$tokens->containsKey($i)) {

@@ -36,7 +36,7 @@ class CallbackRouteTest extends TestCase {
      * @expectedException \Titon\Route\Exception\NoMatchException
      */
     public function testDispatchNoMatch() {
-        $route = new CallbackRoute('/', function(): string { return ''; });
+        $route = new CallbackRoute('/', () ==> '');
         $route->dispatch();
     }
 

@@ -45,18 +45,17 @@ class Registry<T> {
      * @uses Titon\Utility\Path
      *
      * @param string $key
-     * @param array $params
+     * @param \Titon\Common\ArgumentList $args
      * @param bool $store
      * @return T
      */
-    public static function factory(string $key, ArgumentList $params = Vector {}, bool $store = true): T {
+    public static function factory(string $key, ArgumentList $args, bool $store = true): T {
         if (static::has($key)) {
             return static::get($key);
         }
 
         $namespace = Path::toNamespace($key);
-        $reflection = new ReflectionClass($namespace);
-        $object = $reflection->newInstanceArgs($params->toArray());
+        $object = (new ReflectionClass($namespace))->newInstanceArgs($args);
 
         if ($store) {
             $object = static::set($object, $key);

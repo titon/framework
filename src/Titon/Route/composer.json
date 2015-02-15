@@ -21,6 +21,7 @@
         "titon/event": "*"
     },
     "suggest": {
+        "titon/annotation": "Wire Route annotations using the Annotation package",
         "titon/cache": "Cache route lookups using the Cache package"
     },
     "autoload": {

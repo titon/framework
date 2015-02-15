@@ -119,7 +119,7 @@ abstract class AbstractHelper implements Helper {
             return $view->getHelper($name);
         }
 
-        $helper = Registry::factory(sprintf('Titon\View\Helper\%sHelper', ucfirst(str_replace('Helper', '', $name))));
+        $helper = Registry::factory(sprintf('Titon\View\Helper\%sHelper', ucfirst(str_replace('Helper', '', $name))), []);
 
         invariant($helper instanceof Helper, 'Must be a Helper');
 

@@ -16,8 +16,7 @@ Each alias has a specific use case that should be followed accordingly.
             <td>Titon\Common\ArgumentList</td>
             <td>Vector&lt;mixed&gt;</td>
             <td>
-                Represents a list of values to be used as arguments to a function or method. 
-                This type is primarily used for factories and annotations.
+                Represents a list of values to be used as arguments to a function or method.
             </td>
         </tr>
         <tr>
@@ -43,16 +42,6 @@ Each alias has a specific use case that should be followed accordingly.
                 Represents a mapping of customizable options for methods. 
                 These options should always have a default value set within the method, that gets overridden. 
                 Continue on for more information on this alias.
-            </td>
-        </tr>
-        <tr class="table-divider">
-            <td colspan="3">Annotations</td>
-        </tr>
-        <tr>
-            <td>Titon\Common\AnnotationMap</td>
-            <td>Map&lt;string, Titon\Common\ArgumentList&gt;</td>
-            <td>
-                Maps class or method annotation names to their arguments.
             </td>
         </tr>
         <tr class="table-divider">

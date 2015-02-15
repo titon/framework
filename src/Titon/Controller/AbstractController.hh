@@ -75,7 +75,7 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function dispatchTo(string $action, ArgumentList $args = Vector {}, bool $emit = true): string {
+    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): string {
         $this->action = $action;
         $this->arguments[$action] = $args;
 
@@ -110,7 +110,7 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function forwardTo(string $action, ArgumentList $args = Vector {}): string {
+    public function forwardTo(string $action, ArgumentList $args): string {
         return $this->dispatchTo($action, $args, false);
     }
 
@@ -125,7 +125,7 @@ abstract class AbstractController implements Controller, Subject {
             return $this->arguments[$action];
         }
 
-        return Vector {};
+        return [];
     }
 
     /**
@@ -223,7 +223,7 @@ abstract class AbstractController implements Controller, Subject {
         $action->setController($this);
 
         // UNSAFE
-        // Since inst_meth() requires literal strings and we are passing variables
+        // Since inst_meth() requires literal strings and we are passing variables.
         return call_user_func_array(inst_meth($action, strtolower($this->getRequest()->getMethod())), $this->getCurrentArguments());
     }
 

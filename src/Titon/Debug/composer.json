@@ -22,6 +22,7 @@
         "psr/log": "~1.0.0"
     },
     "suggest": {
+        "titon/annotation": "Wire Deprecated and Monitor annotations using the Annotation package",
         "monolog/monolog": "Integrate advanced logging with Monolog"
     },
     "autoload": {

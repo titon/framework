@@ -19,7 +19,7 @@ use Titon\Context\Depository;
 abstract class Definition
 {
     /**
-     * The key (class name or alias) for the definition
+     * The key for the definition
      *
      * @var string
      */

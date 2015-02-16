@@ -12,7 +12,7 @@ args = parser.parse_args()
 init()
 
 # Go to the defined path
-path = '/vagrant/src/'
+path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')) + '/'
 
 if (args.path):
     path += args.path;

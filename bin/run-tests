@@ -14,7 +14,8 @@ args = parser.parse_args()
 init()
 
 # Build command to run
-command = 'hhvm /vagrant/vendor/phpunit/phpunit/phpunit --configuration /vagrant/phpunit.xml --test-suffix=Test.hh'
+root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+command = 'hhvm ' + root + '/vendor/phpunit/phpunit/phpunit --configuration ' + root + '/phpunit.xml --test-suffix=Test.hh'
 
 if args.filter:
   command += ' --filter=' + args.filter
@@ -22,7 +23,7 @@ if args.filter:
 if args.debug:
   command += ' --stop-on-failure --debug'
 
-command += ' /vagrant/tests/' + args.path
+command += ' ' + root + '/tests/' + args.path
 
 # Run command
 print Fore.GREEN + 'Running command: ' + command + '\n' + Fore.RESET

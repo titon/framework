@@ -30,7 +30,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Titon\\Utility\\": "src/"
+            "Titon\\Utility\\": ""
         },
         "files": [
             "src/Titon/Utility/bootstrap.hh"

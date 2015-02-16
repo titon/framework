@@ -21,7 +21,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Titon\\Validate\\": "src/"
+            "Titon\\Validate\\": ""
         },
         "files": [
             "src/Titon/Validate/bootstrap.hh"

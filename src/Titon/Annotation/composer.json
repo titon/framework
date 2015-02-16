@@ -21,7 +21,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Titon\\Annotation\\": "src/"
+            "Titon\\Annotation\\": ""
         },
         "files": [
             "src/Titon/Annotation/bootstrap.hh"

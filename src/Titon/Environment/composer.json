@@ -22,7 +22,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Titon\\Environment\\": "src/"
+            "Titon\\Environment\\": ""
         },
         "files": [
             "src/Titon/Environment/bootstrap.hh"

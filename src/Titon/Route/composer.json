@@ -26,7 +26,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Titon\\Route\\": "src/"
+            "Titon\\Route\\": ""
         },
         "files": [
             "src/Titon/Route/bootstrap.hh"

@@ -25,7 +25,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Titon\\Type\\": "src/"
+            "Titon\\Type\\": ""
         },
         "files": [
             "src/Titon/Type/bootstrap.hh"

@@ -27,7 +27,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Titon\\Debug\\": "src/"
+            "Titon\\Debug\\": ""
         },
         "files": [
             "src/Titon/Debug/bootstrap.hh"

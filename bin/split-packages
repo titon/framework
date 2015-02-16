@@ -4,9 +4,6 @@ from argparse import ArgumentParser
 from gittle import Gittle
 from colorama import init, Fore
 
-# Disabled temporarily
-sys.exit()
-
 import os, sys, shutil, time
 
 parser = ArgumentParser(description='Split the project into multiple packages and push to git.')
@@ -29,9 +26,7 @@ class PackageSplitter:
         Return the valid configuration name for the package.
         """
 
-        if name == 'Common' or name == 'Type' or name == 'Utility':
-            return 'core'
-        elif name == 'Environment':
+        if name == 'Environment':
             return 'env'
         else:
             return name.lower()
@@ -64,24 +59,6 @@ class PackageSplitter:
 
             repo = Gittle(dst, origin_uri=repoUrl)
             repo.pull()
-
-    def copy_composer(self, name, dst):
-        """
-        Copy the composer.json file from the config folder to the destination.
-        """
-
-        print '\tCopying composer.json'
-
-        shutil.copy(CONFIG_DIR + 'composer/' + name + '.json', dst)
-
-    def copy_readme(self, name, dst):
-        """
-        Copy the readme file from the config folder to the destination.
-        """
-
-        print '\tCopying readme'
-
-        shutil.copy(CONFIG_DIR + 'readme/' + name + '.md', dst)
 
     def copy_license(self, dst):
         """
@@ -125,20 +102,14 @@ class PackageSplitter:
 
             print Fore.YELLOW + '\n' + packageName + Fore.RESET
 
-            # Clone or pdate the repo
+            # Clone or update the repo
             self.init_git(configName, repoDir)
-
-            # Copy the composer config
-            self.copy_composer(configName, repoDir + 'composer.json')
-
-            # Copy the readme
-            self.copy_readme(configName, repoDir + 'readme.md')
 
             # Copy license
             self.copy_license(repoDir + 'license.md')
 
             # Copy the source folder
-            self.copy_source(packageDir, repoDir + 'src/Titon/' + packageName + '/')
+            self.copy_source(packageDir, repoDir)
 
     def push_packages(self):
         """
@@ -158,20 +129,36 @@ class PackageSplitter:
             repo = Gittle(repoDir, origin_uri=self.repo_url(repoName))
 
             # Add new files
+            added = len(repo.added_files)
+
+            if added > 0:
+                print '\tAdding {0} files'.format(added)
+
+                repo.stage(repo.added_files)
+
+            # Add untracked files
             untracked = len(repo.untracked_files)
 
             if untracked > 0:
-                print '\tAdding {0} new files'.format(untracked)
+                print '\tAdding {0} untracked files'.format(untracked)
 
                 repo.stage(repo.untracked_files)
 
             # Update modified files
-            modified = len(repo.modified_unstaged_files)
+            modified = len(repo.modified_files)
 
             if modified > 0:
-                print '\tUpdating {0} modified files'.format(modified)
+                print '\tUpdating {0} files'.format(modified)
 
-                repo.stage(repo.modified_unstaged_files)
+                repo.stage(repo.modified_files)
+
+            # Remove files
+            removed = len(repo.removed_files)
+
+            if removed > 0:
+                print '\tRemoving {0} files'.format(removed)
+
+                repo.stage(repo.removed_files)
 
             # Commit the changes
             if len(repo.tracked_files) > 0:

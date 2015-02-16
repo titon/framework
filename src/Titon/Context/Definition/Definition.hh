@@ -118,8 +118,8 @@ abstract class Definition
         $resolvedArguments = [];
 
         foreach ($this->arguments as $argument) {
-            if (is_string($argument) && (isset($this->depository[$argument]) || class_exists($argument))) {
-                $resolvedArguments[] = $this->depository[$argument];
+            if (is_string($argument) && ($this->depository->isRegistered($argument) || class_exists($argument))) {
+                $resolvedArguments[] = $this->depository->make($argument);
                 continue;
             }
 

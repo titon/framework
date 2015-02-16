@@ -10,7 +10,7 @@ namespace Titon\Context;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Context\Depository $object
+ * @property \Titon\Context\Depository $container
  */
 class DepositoryTest extends TestCase
 {
@@ -18,154 +18,127 @@ class DepositoryTest extends TestCase
     {
         parent::setUp();
 
-        $this->object = new Depository();
+        $this->container = new Depository();
     }
 
     public function testRegisterClassName()
     {
-        $this->object->register('foo', 'Titon\\Context\\Foo');
-        $this->assertInstanceOf('Titon\\Context\\Foo', $this->object['foo']);
+        $this->container->register('foo', 'Titon\Context\Foo');
+
+        $this->assertTrue($this->container->isRegistered('foo'));
+        $this->assertTrue($this->container->isRegistered('Titon\Context\Foo'));
+        $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('foo'));
+        $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('Titon\Context\Foo'));
     }
 
-    public function testClosure()
+    public function testRegisterInstance()
     {
-        $this->object->register('bar', function() {
-            $test = new Bar((new Foo())->setName('Foo Bar'));
+        $this->container->register('foo', new Foo());
+        $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('foo'));
+        $this->assertTrue($this->container->isSingleton('foo'));
+        $this->assertSame($this->container->make('foo'), $this->container->make('Titon\Context\Foo'));
+    }
 
-            return $test;
+    public function testRegisterClosure()
+    {
+        $this->container->register('foo', function(){
+            $foo = new Foo('Foo');
+
+            return $foo;
         });
 
-        $this->assertInstanceOf('Titon\\Context\\Bar', $this->object['bar']);
-        $this->assertEquals('Foo Bar', $this->object['bar']->getFoo()->getName());
+        $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('foo'));
+        $this->assertEquals('Foo', $this->container->make('foo')->getName());
     }
 
-    public function testSingleton()
+    public function testRegisterCallable()
     {
-        $test = new Foo();
-        $this->object->singleton('foo', $test);
+        $this->container->register('foo', array('Titon\Context\Foo', 'factory'));
+        $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('foo'));
 
-        $this->assertEquals('Alex Phillips', $this->object['foo']->getName());
-
-        $test = new Bar((new Foo())->setName('Foo Bar'));
-        $this->object->singleton('bar', $test);
-
-        $test = $this->object['bar'];
-        $this->assertInstanceOf('Titon\\Context\\Bar', $test);
-        $this->assertEquals('Foo Bar', $test->getFoo()->getName());
+        $this->container->register('Foo', 'Titon\Context\Foo::factory');
+        $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('Foo'));
     }
 
     public function testAutoDependencyResolution()
     {
-        $test = $this->object['Titon\\Context\\Bar'];
-        $this->assertInstanceOf('Titon\\Context\\Bar', $test);
-        $this->assertInstanceOf('Titon\\Context\\Foo', $test->getFoo());
+        $test = $this->container->make('Titon\Context\Bar');
+        $this->assertInstanceOf('Titon\Context\Bar', $test);
+        $this->assertInstanceOf('Titon\Context\Foo', $test->getFoo());
     }
 
     public function testSingletonNestedResolution()
     {
-        $this->object->singleton('foo', 'Titon\\Context\\Foo');
-        $foo = $this->object->make('foo');
-        $bar = $this->object->make('Titon\\Context\\Bar');
-
+        $this->container->singleton('foo', 'Titon\Context\Foo');
+        $foo = $this->container->make('foo');
+        $bar = $this->container->make('Titon\Context\Bar');
         $this->assertSame($foo, $bar->getFoo());
-    }
-
-    public function testClassDefinitionWithMethodCalls()
-    {
-        $this->object->register('foo', 'Titon\\Context\\Foo')->call('setName', 'Foo Bar');
-        $this->assertInstanceOf('Titon\\Context\\Foo', $this->object['foo']);
-        $this->assertEquals('Foo Bar', $this->object['foo']->getName());
-    }
-
-    public function testCallMethodsWithObjects()
-    {
-        $test = $this->object['Titon\\Context\\Bar']->getFoo();
-        $this->assertInstanceOf('Titon\\Context\\Foo', $test);
-    }
-
-    public function testConstructorInjection()
-    {
-        $this->object->register('bar', 'Titon\\Context\\Bar')->with('Titon\\Context\\Foo');
-        $this->assertInstanceOf('Titon\\Context\\Bar', $this->object['bar']);
-
-        unset($this->object['bar']);
-
-        $this->object->register('bar', 'Titon\\Context\\Bar')->with((new Foo())->setName('Foo Bar'));
-        $this->assertInstanceOf('Titon\\Context\\Bar', $this->object['bar']);
-        $this->assertEquals($this->object['bar']->getFoo()->getName(), 'Foo Bar');
+        $this->assertSame($foo, $this->container->make('Titon\Context\Foo'));
     }
 
     public function testMethodInjection()
     {
-        $this->object->register('foo', 'Titon\\Context\\Foo')->call('setName', 'Foo Bar');
-        $this->assertEquals('Foo Bar', $this->object['foo']->getName());
+        $this->container->register('foo', 'Titon\Context\Foo')->call('setName', 'Foo Bar');
+        $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('foo'));
+        $this->assertEquals('Foo Bar', $this->container->make('foo')->getName());
     }
 
-    public function testArgumentsAtCreation()
+    public function testMethodChaining()
     {
-        $this->object->register('bar', 'Titon\\Context\\Bar');
-        $test = $this->object->make('bar', new Foo('Foo Bar'));
-        $this->assertInstanceOf('Titon\\Context\\Bar', $test);
+        $test = $this->container->make('Titon\Context\Bar')->getFoo();
+        $this->assertInstanceOf('Titon\Context\Foo', $test);
+    }
+
+    public function testConstructorInjection()
+    {
+        $this->container->register('bar', 'Titon\Context\Bar')->with('Titon\Context\Foo');
+        $this->assertInstanceOf('Titon\Context\Bar', $this->container->make('bar'));
+
+        $this->container->remove('bar');
+
+        $this->container->register('bar', 'Titon\Context\Bar')->with((new Foo())->setName('Foo Bar'));
+        $this->assertInstanceOf('Titon\Context\Bar', $this->container->make('bar'));
+        $this->assertEquals($this->container->make('bar')->getFoo()->getName(), 'Foo Bar');
+    }
+
+    public function testPassArgumentsAtMake()
+    {
+        $this->container->register('bar', 'Titon\Context\Bar');
+        $test = $this->container->make('bar', new Foo('Foo Bar'));
+        $this->assertInstanceOf('Titon\Context\Bar', $test);
         $this->assertEquals('Foo Bar', $test->getFoo()->getName());
     }
 
     public function testAliasing()
     {
-        $this->object->register('foo', 'Titon\\Context\\Foo', true);
-        $this->object->alias('foobar', 'Titon\\Context\\Foo');
+        $this->container->register('foo', 'Titon\Context\Foo', true);
+        $this->container->alias('foobar', 'Titon\Context\Foo');
 
-        $this->assertSame($this->object->make('foo'), $this->object->make('foobar'));
+        $this->assertSame($this->container->make('foo'), $this->container->make('foobar'));
+        $this->assertSame($this->container->make('foobar'), $this->container->make('Titon\Context\Foo'));
     }
 
     public function testAliasChaining()
     {
-        $this->object->register('Titon\\Context\\Foo')->alias('foo');
-        $this->assertInstanceOf('Titon\\Context\\Foo', $this->object->make('Titon\\Context\\Foo'));
-        $this->assertInstanceOf('Titon\\Context\\Foo', $this->object->make('foo'));
-
-        $this->object->alias('bar', 'Titon\\Context\\Bar');
-        $this->assertInstanceOf('Titon\\Context\\Bar', $this->object->make('Titon\\Context\\Bar'));
-        $this->assertInstanceOf('Titon\\Context\\Bar', $this->object->make('bar'));
-    }
-
-    public function testCallable()
-    {
-        $this->object->register('foo', array('Titon\\Context\\Foo', 'factory'));
-        $this->assertInstanceOf('Titon\\Context\\Foo', $this->object->make('foo'));
-
-        $this->object->register('baz', 'Titon\\Context\\Baz');
-        $this->assertEquals('Hello world!', $this->object->make('baz'));
+        $this->container->register('Titon\Context\Foo')->alias('foo');
+        $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('Titon\Context\Foo'));
+        $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('foo'));
     }
 
     public function testNestedDependencyResolution()
     {
-        $test = $this->object->make('Titon\\Context\\Bar');
+        $test = $this->container->make('Titon\Context\Bar');
         $this->assertEquals('Alex Phillips', $test->getFoo()->getName());
     }
 
     public function testCallableResolution()
     {
-        $this->assertEquals('Alex Phillips', $this->object->make('Titon\\Context\\FooBar'));
+        $this->assertEquals('Alex Phillips', $this->container->make('Titon\Context\FooBar'));
     }
 
-    public function testCallResolution()
+    public function testClosureDependencyResolution()
     {
-        $foo = $this->object->make(array('Titon\\Context\\Foo', 'factory'));
-        $this->assertEquals('Alex Phillips', $foo->getName());
-
-        $foo = $this->object->make('Titon\\Context\\Foo::factory');
-        $this->assertEquals('Alex Phillips', $foo->getName());
-
-        $foo = $this->object->make('Titon\\Context\\Foo::factory', 'Foo Bar');
-        $this->assertEquals('Foo Bar', $foo->getName());
-
-        $foo = $this->object->make('Titon\\Context\\FooBar', new Foo('FooBar'));
-        $this->assertEquals('FooBar', $foo);
-    }
-
-    public function testCallOnClosure()
-    {
-        $bar = $this->object->make(function (Foo $foo) {
+        $bar = $this->container->make(function (Foo $foo) {
             return new Bar($foo);
         });
 
@@ -218,10 +191,6 @@ class Bar
     {
         $this->foo = $foo;
     }
-}
-
-function Baz() {
-    return 'Hello world!';
 }
 
 function FooBar(Foo $foo) {

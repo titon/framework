@@ -15,4 +15,10 @@
 
 namespace Titon\Context {
     type AliasMap = Map<string, string>;
+    type ItemMap = Map<string, Item>;
+    type Item = shape(
+        'definition' => Definition,
+        'singleton'  => boolean,
+    );
+    type SingletonMap = Map<string, mixed>;
 }

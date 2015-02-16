@@ -8,7 +8,6 @@
 namespace Titon\Context;
 
 use Closure;
-use ArrayAccess;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionFunction;
@@ -27,22 +26,22 @@ use Titon\Context\Exception\AlreadyRegisteredException;
  *
  * @package Titon\Context
  */
-class Depository implements ArrayAccess
+class Depository
 {
     /**
      * Hash of registered item definitions keyed by its alias or class name
      *
-     * @var array
+     * @var ItemMap
      */
-    protected array $items = [];
+    protected ItemMap $items = Map{};
 
     /**
      * Hash of registered, and already constructed, singletons keyed by its
      * alias or class name
      *
-     * @var array
+     * @var SingletonMap
      */
-    protected array $singletons = [];
+    protected SingletonMap $singletons = Map{};
 
     /**
      * Map of aliases to registered classes and keys
@@ -56,7 +55,7 @@ class Depository implements ArrayAccess
      */
     public function __construct()
     {
-        $this->register('Titon\Context\Depository', $this);
+//        $this->register('Titon\Context\Depository', $this);
     }
 
     /**
@@ -73,9 +72,9 @@ class Depository implements ArrayAccess
      * @return object|$definition   Either the concrete (if an object is registered)
      *                              or the definition of the registered item
      */
-    public function register(string $key, ?mixed $concrete = null, boolean $singleton = false): mixed
+    public function register(string $key, mixed $concrete = null, bool $singleton = false): mixed
     {
-        if (isset($this[$key]) || isset($this->aliases[$key])) {
+        if ($this->isRegistered($key)) {
             throw new AlreadyRegisteredException("Key $key has already been registered");
         }
 
@@ -94,7 +93,7 @@ class Depository implements ArrayAccess
             return $concrete;
         }
 
-        if (is_string($concrete) && $key !== $concrete) {
+        if (is_string($concrete) && $key !== $concrete && !is_callable($concrete)) {
             $this->aliases[$key] = $concrete;
             $key = $concrete;
         }
@@ -120,9 +119,9 @@ class Depository implements ArrayAccess
      *
      * @return $this Return the depository for fluent method chaining
      */
-    public function alias($alias, $key): this
+    public function alias(string $alias, string $key): this
     {
-        if (isset($this->aliases[$alias])) {
+        if ($this->aliases->contains($alias)) {
             throw new AlreadyRegisteredException("Alias $alias has already been mapped to {$this->aliases[$alias]}");
         }
 
@@ -142,7 +141,7 @@ class Depository implements ArrayAccess
      * @return object|$definition   Either the concrete (if an object is registered)
      *                              or the definition of the registered item
      */
-    public function singleton(string $alias, ?mixed $concrete): mixed
+    public function singleton(string $alias, mixed $concrete): mixed
     {
         return $this->register($alias, $concrete, true);
     }
@@ -150,13 +149,14 @@ class Depository implements ArrayAccess
     /**
      * Retrieve (and build if necessary) the registered item from the container
      *
-     * @param string $alias         The alias that the item was registered as
-     * @param mixed ...$arguments   Additional arguments to pass into the object
-     *                              during
+     * @param string $alias         Key or alias of a registered item or a class
+     *                              name, callable, or Closure to construct
+     * @param mixed ...$arguments   Additional arguments to pass into the item at
+     *                              construction
      *
-     * @return mixed
+     * @return mixed    The resolved registered item or return value
      */
-    public function make($alias, ...$arguments)
+    public function make(mixed $alias, ...$arguments)
     {
         if ($alias instanceof Closure || is_callable($alias)) {
             $definition = $this->buildCallable($alias);
@@ -164,11 +164,11 @@ class Depository implements ArrayAccess
             return $definition->create(...$arguments);
         }
 
-        if (isset($this->aliases[$alias])) {
+        if ($this->aliases->contains($alias)) {
             return $this->make($this->aliases[$alias], ...$arguments);
         }
 
-        if (isset($this->singletons[$alias])) {
+        if ($this->singletons->contains($alias)) {
             return $this->singletons[$alias];
         }
 
@@ -180,8 +180,8 @@ class Depository implements ArrayAccess
                 $retval = $definition->create(...$arguments);
             }
 
-            if (isset($this->items[$alias]['singleton']) && $this->items[$alias]['singleton'] === true) {
-                unset($this->items[$alias]);
+            if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
+                $this->items->remove($alias);
                 $this->singletons[$alias] = $retval;
             }
 
@@ -190,14 +190,29 @@ class Depository implements ArrayAccess
 
         if (class_exists($alias)) {
             $definition = $this->buildClass($alias);
-            $this->items[$alias]['definition'] = $definition;
         }
         else {
             $definition = $this->buildCallable($alias);
-            $this->items[$alias]['definition'] = $definition;
         }
 
+        $this->item[$alias] = shape(
+            'definition' => $definition,
+            'singleton'  => false,
+        );
+
         return $definition->create(...$arguments);
+    }
+
+    public function remove(string $key)
+    {
+        $this->singletons->remove($key);
+        $this->items->remove($key);
+
+        if ($this->aliases->contains($key)) {
+            $this->singletons->remove($this->aliases[$key]);
+            $this->items->remove($this->aliases[$key]);
+            $this->aliases->remove($key);
+        }
     }
 
     /**
@@ -302,11 +317,15 @@ class Depository implements ArrayAccess
      */
     public function isRegistered(string $alias): bool
     {
-        if (isset($this->singletons[$alias])) {
+        if ($this->aliases->contains($alias)) {
             return true;
         }
 
-        if (isset($this->items[$alias])) {
+        if ($this->singletons->contains($alias)) {
+            return true;
+        }
+
+        if ($this->items->contains($alias)) {
             return true;
         }
 
@@ -323,49 +342,14 @@ class Depository implements ArrayAccess
      */
     public function isSingleton(string $alias)
     {
-        if (isset($this->singletons[$alias]) || (isset($this->items[$alias]) && $this->items[$alias]['singleton'] === true)) {
+        if ($this->aliases->contains($alias)) {
+            return $this->isSingleton($this->aliases[$alias]);
+        }
+
+        if ($this->singletons->contains($alias) || ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true)) {
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetExists(mixed $key): bool
-    {
-        return $this->isRegistered($key);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetGet(mixed $key): mixed
-    {
-        return $this->make($key);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetSet(mixed $key, $value): mixed
-    {
-        return $this->register($key, $value);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetUnset(mixed $key)
-    {
-        unset($this->singletons[$key]);
-        unset($this->items[$key]);
-
-        if (isset($this->aliases[$key])) {
-            unset($this->singletons[$this->aliases[$key]]);
-            unset($this->items[$this->aliases[$key]]);
-            unset($this->aliases[$key]);
-        }
     }
 }

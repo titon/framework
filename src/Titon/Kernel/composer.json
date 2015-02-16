@@ -1,0 +1,30 @@
+{
+    "name": "titon/kernel",
+    "type": "library",
+    "description": "",
+    "keywords": ["titon", "kernel", "input", "output", "request", "response", "middleware"],
+    "homepage": "http://titon.io",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "support": {
+        "irc": "irc://irc.freenode.org/titon",
+        "source": "https://github.com/titon/kernel"
+    },
+    "require": {
+        "hhvm": ">=3.4.0",
+        "titon/event": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Titon\\Kernel\\": ""
+        },
+        "files": [
+            "src/Titon/Kernel/bootstrap.hh"
+        ]
+    }
+}

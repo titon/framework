@@ -40,6 +40,7 @@
             "src/Titon/Event/bootstrap.hh",
             "src/Titon/Http/bootstrap.hh",
             "src/Titon/Io/bootstrap.hh",
+            "src/Titon/Kernel/bootstrap.hh",
             "src/Titon/Route/bootstrap.hh",
             "src/Titon/Type/bootstrap.hh",
             "src/Titon/Utility/bootstrap.hh",

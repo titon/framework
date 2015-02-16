@@ -21,6 +21,9 @@
         "titon/common": "*",
         "psr/http-message": "~0.5.0"
     },
+    "suggest": {
+        "titon/type": "Output XML responses using the Type package"
+    },
     "autoload": {
         "psr-4": {
             "Titon\\Http\\": ""

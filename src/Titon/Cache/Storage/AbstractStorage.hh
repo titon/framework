@@ -16,6 +16,7 @@ use Titon\Cache\ItemMap;
 use Titon\Cache\MissItem;
 use Titon\Cache\StatsMap;
 use Titon\Cache\Storage;
+use Titon\Utility\Config;
 
 /**
  * Primary class for all storage engines to extend. Provides functionality for the Storage interface.
@@ -30,6 +31,22 @@ abstract class AbstractStorage implements Storage {
      * @var \Titon\Cache\ItemList
      */
     protected ItemList $deferred = Vector {};
+
+    /**
+     * Unique cache key prefix.
+     *
+     * @var string
+     */
+    protected string $prefix = '';
+
+    /**
+     * Set the unique prefix during instantiation.
+     *
+     * @param string $prefix
+     */
+    public function __construct(string $prefix = '') {
+        $this->setPrefix($prefix);
+    }
 
     /**
      * {@inheritdoc}
@@ -122,6 +139,13 @@ abstract class AbstractStorage implements Storage {
     /**
      * {@inheritdoc}
      */
+    public function getPrefix(): string {
+        return (string) Config::get('cache.prefix', '') . $this->prefix;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function increment(string $key, int $step = 1, int $initial = 0): int {
         $item = $this->getItem($key);
 
@@ -154,6 +178,15 @@ abstract class AbstractStorage implements Storage {
      */
     public function saveDeferred(Item $item): this {
         $this->deferred[] = $item;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPrefix(string $prefix): this {
+        $this->prefix = $prefix;
 
         return $this;
     }

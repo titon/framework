@@ -24,9 +24,12 @@ class DatabaseStorage extends AbstractStorage {
      * Set a repository object.
      *
      * @param \Titon\Db\Repository $repository
+     * @param string $prefix
      */
-    public function __construct(Repository $repository) {
+    public function __construct(Repository $repository, string $prefix = '') {
         $this->setRepository($repository);
+
+        parent::__construct($prefix);
     }
 
     /**
@@ -36,7 +39,7 @@ class DatabaseStorage extends AbstractStorage {
      * @return \Titon\Db\Query
      */
     public function find(string $key): Query {
-        return $this->getRepository()->select()->where('key', $key);
+        return $this->getRepository()->select()->where('key', $this->getPrefix() . $key);
     }
 
     /**
@@ -73,7 +76,7 @@ class DatabaseStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        return (bool) $this->getRepository()->query(Query::DELETE)->where('key', $key)->save();
+        return (bool) $this->getRepository()->query(Query::DELETE)->where('key', $this->getPrefix() . $key)->save();
     }
 
     /**
@@ -89,7 +92,7 @@ class DatabaseStorage extends AbstractStorage {
 
         } else {
             return (bool) $repo->create([
-                'key' => $key,
+                'key' => $this->getPrefix() . $key,
                 'value' => serialize($value),
                 'expires_at' => $this->expires($expires)
             ]);

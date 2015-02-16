@@ -13,7 +13,7 @@ class DatabaseStorageTest extends AbstractStorageTest {
 
         $this->loadFixtures('Cache');
 
-        $this->object = new DatabaseStorage(new Cache());
+        $this->object = new DatabaseStorage(new Cache(), 'db-');
 
         parent::setUp();
     }

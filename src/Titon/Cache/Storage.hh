@@ -107,6 +107,13 @@ interface Storage {
     public function getItems(array<string> $keys = []): ItemMap;
 
     /**
+     * Return the unique cache key prefix.
+     *
+     * @return string
+     */
+    public function getPrefix(): string;
+
+    /**
      * Check if the item exists within the cache.
      *
      * @param string $key
@@ -161,6 +168,14 @@ interface Storage {
      * @return bool
      */
     public function set(string $key, mixed $value, int $expires): bool;
+
+    /**
+     * Set the unique cache key prefix.
+     *
+     * @param string $prefix
+     * @return $this
+     */
+    public function setPrefix(string $prefix): this;
 
     /**
      * Returns cached information from the storage engine.

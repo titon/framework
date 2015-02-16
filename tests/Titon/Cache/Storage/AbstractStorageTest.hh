@@ -4,6 +4,7 @@ namespace Titon\Cache\Storage;
 use Titon\Cache\HitItem;
 use Titon\Cache\Item;
 use Titon\Test\TestCase;
+use Titon\Utility\Config;
 
 /**
  * @property \Titon\Cache\Storage\AbstractStorage $object
@@ -115,6 +116,20 @@ abstract class AbstractStorageTest extends TestCase {
 
         $this->assertInstanceOf('Titon\Cache\MissItem', $item); // Expired
         $this->assertFalse($item->isHit());
+    }
+
+    public function testGetSetPrefix() {
+        $this->assertNotEquals('', $this->object->getPrefix()); // Set in constructor
+
+        $this->object->setPrefix('prefix-');
+
+        $this->assertEquals('prefix-', $this->object->getPrefix());
+
+        Config::set('cache.prefix', 'global-');
+
+        $this->assertEquals('global-prefix-', $this->object->getPrefix());
+
+        Config::set('cache.prefix', '');
     }
 
     public function testHas() {

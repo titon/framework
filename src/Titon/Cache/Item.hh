@@ -8,6 +8,7 @@
 namespace Titon\Cache;
 
 use Titon\Cache\Exception\UnsupportedOperationException;
+use Titon\Utility\Config;
 use Titon\Utility\Time;
 use \DateTime;
 
@@ -159,7 +160,7 @@ class Item {
      */
     public function setExpiration(mixed $ttl = null): this {
         if (!$ttl) {
-            $time = strtotime('+1 hour');
+            $time = strtotime((string) Config::get('cache.expires', '+1 hour'));
 
         } else if (is_int($ttl)) {
             $time = time() + $ttl;

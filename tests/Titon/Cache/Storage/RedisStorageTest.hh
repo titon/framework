@@ -18,7 +18,7 @@ class RedisStorageTest extends AbstractStorageTest {
             $this->markTestSkipped('Could not connect to Redis');
         }
 
-        $this->object = new RedisStorage($redis);
+        $this->object = new RedisStorage($redis, 'redis-');
 
         parent::setUp();
     }

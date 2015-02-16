@@ -8,7 +8,7 @@ class ApcStorageTest extends AbstractStorageTest {
             $this->markTestSkipped('APC is not installed or configured properly');
         }
 
-        $this->object = new ApcStorage();
+        $this->object = new ApcStorage('apc-');
 
         parent::setUp();
     }

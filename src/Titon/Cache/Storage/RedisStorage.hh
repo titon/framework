@@ -36,9 +36,12 @@ class RedisStorage extends AbstractStorage {
      * Set the Redis instance.
      *
      * @param \Redis $redis
+     * @param string $prefix
      */
-    public function __construct(Redis $redis) {
+    public function __construct(Redis $redis, string $prefix = '') {
         $this->redis = $redis;
+
+        parent::__construct($prefix);
     }
 
     /**
@@ -52,7 +55,7 @@ class RedisStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function get(string $key): mixed {
-        $value = $this->getRedis()->get($key);
+        $value = $this->getRedis()->get($this->getPrefix() . $key);
 
         if ($value === false) {
             throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
@@ -74,21 +77,21 @@ class RedisStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function has(string $key): bool {
-        return $this->getRedis()->exists($key);
+        return $this->getRedis()->exists($this->getPrefix() . $key);
     }
 
     /**
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        return (bool) $this->getRedis()->delete($key);
+        return (bool) $this->getRedis()->delete($this->getPrefix() . $key);
     }
 
     /**
      * {@inheritdoc}
      */
     public function set(string $key, mixed $value, int $expires): bool {
-        return $this->getRedis()->setex($key, $expires - time(), serialize($value)); // Redis is TTL
+        return $this->getRedis()->setex($this->getPrefix() . $key, $expires - time(), serialize($value)); // Redis is TTL
     }
 
     /**

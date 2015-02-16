@@ -36,9 +36,12 @@ class MemcacheStorage extends AbstractStorage {
      * Set the Memcached instance.
      *
      * @param \Memcached $memcache
+     * @param string $prefix
      */
-    public function __construct(Memcached $memcache) {
+    public function __construct(Memcached $memcache, string $prefix = '') {
         $this->memcache = $memcache;
+
+        parent::__construct($prefix);
     }
 
     /**
@@ -52,7 +55,7 @@ class MemcacheStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function get(string $key): mixed {
-        $value = $this->getMemcache()->get($key);
+        $value = $this->getMemcache()->get($this->getPrefix() . $key);
 
         if ($value === false && $this->getMemcache()->getResultCode() === Memcached::RES_NOTFOUND) {
             throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
@@ -75,7 +78,7 @@ class MemcacheStorage extends AbstractStorage {
      */
     public function has(string $key): bool {
         return (
-            $this->getMemcache()->get($key) &&
+            $this->getMemcache()->get($this->getPrefix() . $key) &&
             $this->getMemcache()->getResultCode() === Memcached::RES_SUCCESS
         );
     }
@@ -84,14 +87,14 @@ class MemcacheStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        return $this->getMemcache()->delete($key);
+        return $this->getMemcache()->delete($this->getPrefix() . $key);
     }
 
     /**
      * {@inheritdoc}
      */
     public function set(string $key, mixed $value, int $expires): bool {
-        return $this->getMemcache()->set($key, $value, $expires);
+        return $this->getMemcache()->set($this->getPrefix() . $key, $value, $expires);
     }
 
     /**

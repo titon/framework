@@ -7,7 +7,7 @@ class FileSystemStorageTest extends AbstractStorageTest {
         $this->setupVFS();
         $this->vfs->createDirectory('/cache/');
 
-        $this->object = new FileSystemStorage($this->vfs->path('/cache/'));
+        $this->object = new FileSystemStorage($this->vfs->path('/cache/'), 'fs-');
 
         parent::setUp();
     }
@@ -20,21 +20,21 @@ class FileSystemStorageTest extends AbstractStorageTest {
     }
 
     public function testFlush() {
-        $this->assertFileExists($this->vfs->path('/cache/foo.cache'));
+        $this->assertFileExists($this->vfs->path('/cache/fs-foo.cache'));
 
         $this->object->flush();
 
-        $this->assertFileNotExists($this->vfs->path('/cache/foo.cache'));
+        $this->assertFileNotExists($this->vfs->path('/cache/fs-foo.cache'));
     }
 
     public function testRemove() {
         $this->assertTrue($this->object->has('foo'));
-        $this->assertFileExists($this->vfs->path('/cache/foo.cache'));
+        $this->assertFileExists($this->vfs->path('/cache/fs-foo.cache'));
 
         $this->object->remove('foo');
 
         $this->assertFalse($this->object->has('foo'));
-        $this->assertFileNotExists($this->vfs->path('/cache/foo.cache'));
+        $this->assertFileNotExists($this->vfs->path('/cache/fs-foo.cache'));
     }
 
 }

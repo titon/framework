@@ -46,13 +46,16 @@ class FileSystemStorage extends AbstractStorage {
      * Set path through constructor.
      *
      * @param string $path
+     * @param string $prefix
      */
-    public function __construct(string $path) {
+    public function __construct(string $path, string $prefix = '') {
         if (!$path) {
             throw new InvalidPathException('Cache directory is required');
         }
 
         $this->folder = new Folder($path, true);
+
+        parent::__construct($prefix);
     }
 
     /**
@@ -82,7 +85,7 @@ class FileSystemStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function has(string $key): bool {
-        if (file_exists($this->buildPath($key))) {
+        if (file_exists($this->buildPath($this->getPrefix() . $key))) {
             if ($this->readCache($key)['expires'] >= time()) {
                 return true;
             } else {
@@ -98,7 +101,7 @@ class FileSystemStorage extends AbstractStorage {
      */
     public function remove(string $key): bool {
         $this->loadCache($key)->delete();
-        $this->files->remove($key);
+        $this->files->remove($this->getPrefix() . $key);
 
         return true;
     }
@@ -131,6 +134,8 @@ class FileSystemStorage extends AbstractStorage {
      * @return \Titon\Io\File
      */
     protected function loadCache(string $key): File {
+        $key = $this->getPrefix() . $key;
+
         if ($this->files->contains($key)) {
             return $this->files[$key];
         }

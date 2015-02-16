@@ -24,12 +24,15 @@ class ApcStorage extends AbstractStorage {
     /**
      * Validate that APC is installed.
      *
+     * @param string $prefix
      * @throws \Titon\Common\Exception\MissingExtensionException
      */
-    public function __construct() {
+    public function __construct(string $prefix = '') {
         if (!extension_loaded('apc')) {
             throw new MissingExtensionException('APC extension is not loaded');
         }
+
+        parent::__construct($prefix);
     }
 
     /**
@@ -44,7 +47,7 @@ class ApcStorage extends AbstractStorage {
      */
     public function get(string $key): mixed {
         $success = true;
-        $value = apc_fetch($key, $success);
+        $value = apc_fetch($this->getPrefix() . $key, $success);
 
         if ($value === false && $success === false) {
             throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
@@ -57,21 +60,21 @@ class ApcStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function has(string $key): bool {
-        return apc_exists($key);
+        return apc_exists($this->getPrefix() . $key);
     }
 
     /**
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        return apc_delete($key);
+        return apc_delete($this->getPrefix() . $key);
     }
 
     /**
      * {@inheritdoc}
      */
     public function set(string $key, mixed $value, int $expires): bool {
-        return apc_store($key, $value, $expires - time()); // APC uses TTL
+        return apc_store($this->getPrefix() . $key, $value, $expires - time()); // APC uses TTL
     }
 
     /**

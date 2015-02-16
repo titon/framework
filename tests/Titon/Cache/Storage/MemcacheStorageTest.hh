@@ -24,7 +24,7 @@ class MemcacheStorageTest extends AbstractStorageTest {
             $this->markTestSkipped('Could not connect to Memcache');
         }
 
-        $this->object = new MemcacheStorage($memcache);
+        $this->object = new MemcacheStorage($memcache, 'memcache-');
 
         parent::setUp();
     }

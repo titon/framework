@@ -32,7 +32,7 @@ class MemoryStorage extends AbstractStorage {
      */
     public function get(string $key): mixed {
         if ($this->has($key)) {
-            return $this->getCache($key);
+            return $this->getCache($this->getPrefix() . $key);
         }
 
         throw new MissingItemException(sprintf('Item with key %s does not exist', $key));
@@ -42,14 +42,14 @@ class MemoryStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function has(string $key): bool {
-        return $this->hasCache($key);
+        return $this->hasCache($this->getPrefix() . $key);
     }
 
     /**
      * {@inheritdoc}
      */
     public function remove(string $key): bool {
-        $this->removeCache($key);
+        $this->removeCache($this->getPrefix() . $key);
 
         return true;
     }
@@ -58,7 +58,7 @@ class MemoryStorage extends AbstractStorage {
      * {@inheritdoc}
      */
     public function set(string $key, mixed $value, int $expires): bool {
-        $this->setCache($key, $value);
+        $this->setCache($this->getPrefix() . $key, $value);
 
         return true;
     }

@@ -184,6 +184,21 @@ $storage->decrement('foo'); // by 1
 
 The same methods are available on the `Cache` class.
 
+## Key Prefixing ##
+
+Every storage engine supports prefixing of cache keys to avoid collision. The prefix can either be set through the constructor or using the `setPrefix()` method.
+
+```hack
+$storage = new MemoryStorage('prefix-'); // Or
+$storage->setPrefix('prefix-');
+```
+
+Global prefixing can also be set through the configuration layer. This is extremely useful in setting application specific cache namespaces.
+
+```hack
+Titon\Utility\Config::set('cache.prefix', 'global-');
+```
+
 ## Miscellaneous Usage ##
 
 To check if an item exists in the cache, use `has()`. This method is available on both the storage engine and `Cache`.

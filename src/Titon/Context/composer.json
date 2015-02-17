@@ -21,7 +21,7 @@
   },
   "require": {
     "hhvm": ">=3.4.0",
-    "titon/utility": "*"
+    "titon/common": "*"
   },
   "autoload": {
     "psr-4": {

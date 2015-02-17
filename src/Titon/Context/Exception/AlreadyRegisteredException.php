@@ -15,6 +15,6 @@ use InvalidArgumentException;
  *
  * @package Titon\Context\Exception
  */
-class AlreadyRegisteredException extends InvalidArgumentException
-{
+class AlreadyRegisteredException extends InvalidArgumentException {
+
 }

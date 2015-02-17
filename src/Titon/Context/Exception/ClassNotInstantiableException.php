@@ -15,6 +15,6 @@ use RuntimeException;
  *
  * @package Titon\Context\Exception
  */
-class ClassNotInstantiableException extends RuntimeException
-{
+class ClassNotInstantiableException extends RuntimeException{
+
 }

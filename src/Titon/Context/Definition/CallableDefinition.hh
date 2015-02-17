@@ -35,8 +35,7 @@ class CallableDefinition extends AbstractDefinition
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $key, mixed $callable, Depository $depository)
-    {
+    public function __construct(string $key, mixed $callable, Depository $depository) {
         parent::__construct($key, $depository);
 
         if (is_array($callable)) {
@@ -50,8 +49,7 @@ class CallableDefinition extends AbstractDefinition
     /**
      * {@inheritdoc}
      */
-    public function create<T>(...$arguments): T
-    {
+    public function create<T>(...$arguments): T {
         $arguments = $this->resolveArguments(...$arguments);
 
         if (!is_null($this->class)) {
@@ -61,6 +59,8 @@ class CallableDefinition extends AbstractDefinition
             return $f(...$arguments);
         }
 
-        return call_user_func_array($this->function, $arguments);
+        $f = fun($this->function);
+
+        return $f(...$arguments);
     }
 }

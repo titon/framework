@@ -48,8 +48,7 @@ abstract class AbstractDefinition implements Definition
      * @param Depository $depository    The container that the definition is
      *                                  contained in
      */
-    public function __construct(string $key, Depository $depository)
-    {
+    public function __construct(string $key, Depository $depository) {
         $this->key = $key;
         $this->depository = $depository;
     }
@@ -68,8 +67,7 @@ abstract class AbstractDefinition implements Definition
      * @return ClosureAbstractDefinition|ClassAbstractDefinition|mixed The definition object for
      *                                                  fluent method chaining
      */
-    public static function factory<T>(string $key, mixed $concrete, Depository $depository): T
-    {
+    public static function factory<T>(string $key, mixed $concrete, Depository $depository): T {
         if ($concrete instanceof Closure) {
             return new ClosureDefinition($key, $concrete, $depository);
         }
@@ -97,8 +95,7 @@ abstract class AbstractDefinition implements Definition
      *
      * @return $this    The definition for fluent method chaining
      */
-    public function with(...$arguments): this
-    {
+    public function with(...$arguments): this {
         foreach ($arguments as $argument) {
             $this->arguments[] = $argument;
         }
@@ -115,8 +112,7 @@ abstract class AbstractDefinition implements Definition
      *
      * @return Vector   The resolved arguments
      */
-    public function resolveArguments(...$arguments): array<mixed>
-    {
+    public function resolveArguments(...$arguments): array<mixed> {
         if ($arguments) {
             $this->arguments = $arguments;
         }
@@ -142,8 +138,7 @@ abstract class AbstractDefinition implements Definition
      *
      * @return $this    The definition for fluent method chaining
      */
-    public function alias(string $alias): this
-    {
+    public function alias(string $alias): this {
         $this->depository->alias($alias, $this->key);
 
         return $this;

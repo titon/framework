@@ -51,8 +51,7 @@ class Depository
     /**
      * Instantiate a new container object
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->singleton('Titon\Context\Depository', $this);
     }
 
@@ -70,8 +69,7 @@ class Depository
      * @return object|$definition   Either the concrete (if an object is registered)
      *                              or the definition of the registered item
      */
-    public function register(string $key, mixed $concrete = null, bool $singleton = false): mixed
-    {
+    public function register(string $key, mixed $concrete = null, bool $singleton = false): mixed {
         if ($this->isRegistered($key)) {
             throw new AlreadyRegisteredException("Key $key has already been registered");
         }
@@ -117,8 +115,7 @@ class Depository
      *
      * @return $this Return the depository for fluent method chaining
      */
-    public function alias(string $alias, string $key): this
-    {
+    public function alias(string $alias, string $key): this {
         if ($this->aliases->contains($alias)) {
             throw new AlreadyRegisteredException("Alias $alias has already been mapped to {$this->aliases[$alias]}");
         }
@@ -139,8 +136,7 @@ class Depository
      * @return object|$definition   Either the concrete (if an object is registered)
      *                              or the definition of the registered item
      */
-    public function singleton(string $alias, mixed $concrete): mixed
-    {
+    public function singleton(string $alias, mixed $concrete): mixed {
         return $this->register($alias, $concrete, true);
     }
 
@@ -154,8 +150,8 @@ class Depository
      *
      * @return T    The resolved registered item or return value
      */
-    public function make<T>(mixed $alias, ...$arguments): T
-    {
+    public function make<T>(mixed $alias, ...$arguments): T {
+
         if ($alias instanceof Closure || is_callable($alias)) {
             $definition = $this->buildCallable($alias);
 
@@ -208,8 +204,7 @@ class Depository
      *
      * @return $this Return the depository for fluent method chaining
      */
-    public function remove(string $key): this
-    {
+    public function remove(string $key): this {
         $this->singletons->remove($key);
         $this->items->remove($key);
 
@@ -232,8 +227,7 @@ class Depository
      * @return Definition|mixed
      * @throws ReflectionException
      */
-    protected function buildClass(string $class): Definition
-    {
+    protected function buildClass(string $class): Definition {
         $reflection = new ReflectionClass($class);
         if (!$reflection->isInstantiable()) {
             $message = "Target [$class] is not instantiable.";
@@ -273,8 +267,7 @@ class Depository
      *
      * @return Definition   The definition built from the callable
      */
-    protected function buildCallable($alias): Definition
-    {
+    protected function buildCallable($alias): Definition {
         if (is_string($alias) && strpos($alias, '::') !== false) {
             $callable = explode('::', $alias);
         }
@@ -320,8 +313,7 @@ class Depository
      *
      * @return bool
      */
-    public function isRegistered(string $alias): bool
-    {
+    public function isRegistered(string $alias): bool {
         if ($this->aliases->contains($alias)) {
             return true;
         }
@@ -345,8 +337,7 @@ class Depository
      *
      * @return bool
      */
-    public function isSingleton(string $alias): bool
-    {
+    public function isSingleton(string $alias): bool {
         if ($this->aliases->contains($alias)) {
             return $this->isSingleton($this->aliases[$alias]);
         }

@@ -44,8 +44,7 @@ class ClassDefinition extends AbstractDefinition
      * @param Depository $depository    The container that the definition is
      *                                  contained in
      */
-    public function __construct(string $key, mixed $class, Depository $depository)
-    {
+    public function __construct(string $key, mixed $class, Depository $depository) {
         parent::__construct($key, $depository);
 
         $this->class = $class;
@@ -54,8 +53,7 @@ class ClassDefinition extends AbstractDefinition
     /**
      * {@inheritdoc}
      */
-    public function create<T>(...$arguments): T
-    {
+    public function create<T>(...$arguments): T {
         $reflection = new ReflectionClass($this->class);
         $object = $reflection->newInstanceArgs(
             $this->resolveArguments(...$arguments)
@@ -72,8 +70,7 @@ class ClassDefinition extends AbstractDefinition
      *
      * @return $this    The definition for fluent method chaining
      */
-    public function call(string $method, ...$arguments): this
-    {
+    public function call(string $method, ...$arguments): this {
         $this->methods[] = shape(
             'method'    => $method,
             'arguments' => $arguments,
@@ -90,8 +87,7 @@ class ClassDefinition extends AbstractDefinition
      *
      * @return mixed    The new object instance
      */
-    protected function callMethods<T>(T $object): T
-    {
+    protected function callMethods<T>(T $object): T {
         foreach ($this->methods as $method) {
             $reflection = new ReflectionMethod($object, $method['method']);
 

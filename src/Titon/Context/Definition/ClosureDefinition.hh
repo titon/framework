@@ -29,8 +29,7 @@ class ClosureDefinition extends AbstractDefinition
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $alias, Closure $closure, Depository $depository)
-    {
+    public function __construct(string $alias, Closure $closure, Depository $depository) {
         parent::__construct($alias, $depository);
 
         $this->closure = $closure;
@@ -39,8 +38,7 @@ class ClosureDefinition extends AbstractDefinition
     /**
      * {@inheritdoc}
      */
-    public function create<T>(...$arguments): T
-    {
+    public function create<T>(...$arguments): T {
         $arguments = $this->resolveArguments(...$arguments);
 
         return call_user_func_array(

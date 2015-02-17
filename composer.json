@@ -44,7 +44,8 @@
             "src/Titon/Type/bootstrap.hh",
             "src/Titon/Utility/bootstrap.hh",
             "src/Titon/Validate/bootstrap.hh",
-            "src/Titon/View/bootstrap.hh"
+            "src/Titon/View/bootstrap.hh",
+            "src/Titon/Context/bootstrap.hh"
         ]
     },
     "autoload-dev": {

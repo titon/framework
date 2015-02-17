@@ -58,10 +58,10 @@ class Foo
 }
 ```
 
-This will work on Closures as well:
+Resolving Closures are done by calling `run` on the depository:
 
 ```hack
-$$bar = $container->make(function(Foo $foo) {
+$$bar = $container->call(function(Foo $foo) {
     return $foo->getBar();
 });
 

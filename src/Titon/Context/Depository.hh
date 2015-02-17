@@ -28,9 +28,9 @@ class Depository
     /**
      * Hash of registered item definitions keyed by its alias or class name
      *
-     * @var ItemMap
+     * @var ItemContainer
      */
-    protected ItemMap $items = Map{};
+    protected ItemContainer $items = Map{};
 
     /**
      * Hash of registered, and already constructed, singletons keyed by its

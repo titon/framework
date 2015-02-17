@@ -10,7 +10,7 @@ namespace Titon\Context\Definition;
 use ReflectionClass;
 use ReflectionMethod;
 use Titon\Context\Depository;
-use Titon\Context\MethodVector;
+use Titon\Context\MethodList;
 
 /**
  * A class definition determines how a class is created, including necessary
@@ -32,9 +32,9 @@ class ClassDefinition extends AbstractDefinition
      * Data structure of methods and arguments to be called on the class after
      * instantiation
      *
-     * @var array
+     * @var MethodList
      */
-    protected MethodVector $methods = Vector{};
+    protected MethodList $methods = Vector{};
 
     /**
      * Construct a new class definition

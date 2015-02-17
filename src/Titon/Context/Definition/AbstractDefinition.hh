@@ -9,6 +9,7 @@ namespace Titon\Context\Definition;
 
 use Titon\Context\Definition;
 use Titon\Context\Depository;
+use Titon\Common\ArgumentList;
 
 /**
  * A definition is an object that defines how an object or callable should be

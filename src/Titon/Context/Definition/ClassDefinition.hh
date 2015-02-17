@@ -10,6 +10,7 @@ namespace Titon\Context\Definition;
 use ReflectionClass;
 use ReflectionMethod;
 use Titon\Context\Depository;
+use Titon\Context\MethodVector;
 
 /**
  * A class definition determines how a class is created, including necessary

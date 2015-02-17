@@ -5,14 +5,14 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Context\Definition;
+namespace Titon\Context;
 
 /**
  * DefinitionInterface for depository definitions to follow
  *
  * @package Titon\Context\Definition
  */
-interface DefinitionInterface
+interface Definition
 {
     /**
      * Arguments passed into the constructor when creating the object from
@@ -32,5 +32,5 @@ interface DefinitionInterface
      *
      * @return $this    The definition for fluent method chaining
      */
-    public function create(...$arguments);
+    public function create<T>(...$arguments): T;
 }

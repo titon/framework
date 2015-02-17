@@ -7,7 +7,7 @@
 
 namespace Titon\Context\Definition;
 
-use Closure;
+use Titon\Context\Definition;
 use Titon\Context\Depository;
 
 /**
@@ -16,7 +16,7 @@ use Titon\Context\Depository;
  *
  * @package Titon\Context\Definition
  */
-abstract class Definition
+abstract class AbstractDefinition implements Definition
 {
     /**
      * The key for the definition
@@ -35,9 +35,9 @@ abstract class Definition
     /**
      * Arguments used to pass into the object or Closure
      *
-     * @var array
+     * @var ArgumentList
      */
-    protected array $arguments = [];
+    protected ArgumentList $arguments = [];
 
     /**
      * Construct a new definition instance
@@ -64,10 +64,10 @@ abstract class Definition
      * @param Depository $depository    The depository object the definition is
      *                                  contained in
      *
-     * @return ClosureDefinition|ClassDefinition|mixed The definition object for
+     * @return ClosureAbstractDefinition|ClassAbstractDefinition|mixed The definition object for
      *                                                  fluent method chaining
      */
-    public static function factory(string $key, mixed $concrete, Depository $depository)
+    public static function factory<T>(string $key, mixed $concrete, Depository $depository): T
     {
         if ($concrete instanceof Closure) {
             return new ClosureDefinition($key, $concrete, $depository);
@@ -81,7 +81,7 @@ abstract class Definition
             $concrete = explode('::', $concrete);
         }
 
-        if ((is_string($concrete) && function_exists($concrete)) || is_array($concrete)) {
+        if (is_callable($concrete)) {
             return new CallableDefinition($key, $concrete, $depository);
         }
 
@@ -89,7 +89,12 @@ abstract class Definition
     }
 
     /**
-     * {@inheritdoc}
+     * Arguments passed into the constructor when creating the object from
+     * within the container
+     *
+     * @param mixed ...$arguments   Arguments passed into the constructor
+     *
+     * @return $this    The definition for fluent method chaining
      */
     public function with(...$arguments): this
     {
@@ -107,9 +112,9 @@ abstract class Definition
      *
      * @param mixed ...$arguments   The arguments to resolve
      *
-     * @return array    The resolved arguments
+     * @return Vector   The resolved arguments
      */
-    public function resolveArguments(...$arguments)
+    public function resolveArguments(...$arguments): array<mixed>
     {
         if ($arguments) {
             $this->arguments = $arguments;

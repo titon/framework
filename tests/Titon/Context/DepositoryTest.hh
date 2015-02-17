@@ -81,6 +81,12 @@ class DepositoryTest extends TestCase
         $this->container->register('foo', 'Titon\Context\Foo')->call('setName', 'Foo Bar');
         $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('foo'));
         $this->assertEquals('Foo Bar', $this->container->make('foo')->getName());
+
+        $this->container->remove('foo');
+
+        $this->container->register('foo', 'Titon\Context\Foo')->call('setBar', new Bar(new Foo('Alex Phillips')));
+        $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('foo'));
+        $this->assertEquals('Alex Phillips', $this->container->make('foo')->getName());
     }
 
     public function testMethodChaining()
@@ -150,6 +156,8 @@ class Foo
 {
     public $name;
 
+    private $bar;
+
     public function __construct($name = 'Alex Phillips')
     {
         $this->name = $name;
@@ -170,6 +178,11 @@ class Foo
         $this->name = $name;
 
         return $this;
+    }
+
+    public function setBar(Bar $bar)
+    {
+        $this->bar = $bar;
     }
 }
 

@@ -12,10 +12,7 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionFunction;
 use ReflectionException;
-use Titon\Context\Definition\CallableDefinition;
-use Titon\Context\Definition\ClosureDefinition;
-use Titon\Context\Definition\ClassDefinition;
-use Titon\Context\Definition\Definition;
+use Titon\Context\Definition\AbstractDefinition;
 use Titon\Context\Exception\AlreadyRegisteredException;
 
 /**
@@ -55,7 +52,7 @@ class Depository
      */
     public function __construct()
     {
-//        $this->register('Titon\Context\Depository', $this);
+        $this->singleton('Titon\Context\Depository', $this);
     }
 
     /**
@@ -99,12 +96,12 @@ class Depository
         }
 
         // we need to build a definition
-        $definition = Definition::factory($key, $concrete, $this);
+        $definition = AbstractDefinition::factory($key, $concrete, $this);
 
-        $this->items[$key] = [
+        $this->items[$key] = shape(
             'definition' => $definition,
             'singleton'  => $singleton,
-        ];
+        );
 
         return $definition;
     }
@@ -154,9 +151,9 @@ class Depository
      * @param mixed ...$arguments   Additional arguments to pass into the item at
      *                              construction
      *
-     * @return mixed    The resolved registered item or return value
+     * @return T    The resolved registered item or return value
      */
-    public function make(mixed $alias, ...$arguments)
+    public function make<T>(mixed $alias, ...$arguments): T
     {
         if ($alias instanceof Closure || is_callable($alias)) {
             $definition = $this->buildCallable($alias);
@@ -176,7 +173,7 @@ class Depository
             $definition = $this->items[$alias]['definition'];
             $retval = $definition;
 
-            if ($definition instanceof Definition) {
+            if ($definition instanceof AbstractDefinition) {
                 $retval = $definition->create(...$arguments);
             }
 
@@ -203,7 +200,14 @@ class Depository
         return $definition->create(...$arguments);
     }
 
-    public function remove(string $key)
+    /**
+     * Remove an alias or key from the depository's registry
+     *
+     * @param string $key The key to remove
+     *
+     * @return $this Return the depository for fluent method chaining
+     */
+    public function remove(string $key): this
     {
         $this->singletons->remove($key);
         $this->items->remove($key);
@@ -213,6 +217,8 @@ class Depository
             $this->items->remove($this->aliases[$key]);
             $this->aliases->remove($key);
         }
+
+        return $this;
     }
 
     /**
@@ -222,22 +228,18 @@ class Depository
      * @param string $class         The class name to reflect and construct
      * @param mixed ...$parameters  Parameters required for constructing the object
      *
-     * @return ClosureDefinition|CallableDefinition|ClassDefinition|Definition\mixed
+     * @return AbstractDefinition|mixed
      * @throws ReflectionException
      */
-    protected function buildClass(string $class): Definition
+    protected function buildClass(string $class): AbstractDefinition
     {
-        if (!class_exists($class)) {
-            throw new ReflectionException("Class $class does not exist.");
-        }
-
         $reflection = new ReflectionClass($class);
         if (!$reflection->isInstantiable()) {
             $message = "Target [$class] is not instantiable.";
             throw new ReflectionException($message);
         }
 
-        $definition = Definition::factory($class, $class, $this);
+        $definition = AbstractDefinition::factory($class, $class, $this);
         $constructor = $reflection->getConstructor();
 
         if (is_null($constructor)) {
@@ -268,7 +270,7 @@ class Depository
      *
      * @param string $alias
      */
-    protected function buildCallable($alias): Definition
+    protected function buildCallable($alias): AbstractDefinition
     {
         if (is_string($alias) && strpos($alias, '::') !== false) {
             $callable = explode('::', $alias);
@@ -281,7 +283,7 @@ class Depository
             }
         }
 
-        $definition = Definition::factory($alias, $callable, $this);
+        $definition = AbstractDefinition::factory($alias, $callable, $this);
 
         if (is_array($callable)) {
             $reflector = new ReflectionMethod($callable[0], $callable[1]);
@@ -340,7 +342,7 @@ class Depository
      *
      * @return bool
      */
-    public function isSingleton(string $alias)
+    public function isSingleton(string $alias): bool
     {
         if ($this->aliases->contains($alias)) {
             return $this->isSingleton($this->aliases[$alias]);

@@ -18,7 +18,7 @@ use Titon\Context\Depository;
  *
  * @package Titon\Context\Definition
  */
-class ClassDefinition extends Definition implements DefinitionInterface
+class ClassDefinition extends AbstractDefinition
 {
     /**
      * The name of the class defined
@@ -33,7 +33,7 @@ class ClassDefinition extends Definition implements DefinitionInterface
      *
      * @var array
      */
-    protected array $methods = [];
+    protected MethodVector $methods = Vector{};
 
     /**
      * Construct a new class definition
@@ -53,7 +53,7 @@ class ClassDefinition extends Definition implements DefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function create(...$arguments)
+    public function create<T>(...$arguments): T
     {
         $reflection = new ReflectionClass($this->class);
         $object = $reflection->newInstanceArgs(
@@ -73,10 +73,10 @@ class ClassDefinition extends Definition implements DefinitionInterface
      */
     public function call(string $method, ...$arguments): this
     {
-        $this->methods[] = [
-            'method' => $method,
+        $this->methods[] = shape(
+            'method'    => $method,
             'arguments' => $arguments,
-        ];
+        );
 
         return $this;
     }
@@ -89,13 +89,13 @@ class ClassDefinition extends Definition implements DefinitionInterface
      *
      * @return mixed    The new object instance
      */
-    protected function callMethods($object)
+    protected function callMethods<T>(T $object): T
     {
         foreach ($this->methods as $method) {
             $reflection = new ReflectionMethod($object, $method['method']);
 
             foreach ($method['arguments'] as $arg) {
-                $args[] = (class_exists($arg)) ? $this->depository[$arg] : $arg;
+                $args[] = (is_string($arg) && class_exists($arg)) ? $this->depository->make($arg) : $arg;
             }
 
             $reflection->invokeArgs($object, $args);

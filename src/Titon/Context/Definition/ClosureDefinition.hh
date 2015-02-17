@@ -17,7 +17,7 @@ use Titon\Context\Depository;
  *
  * @package Titon\Context\Definition
  */
-class ClosureDefinition extends Definition implements DefinitionInterface
+class ClosureDefinition extends AbstractDefinition
 {
     /**
      * The Closure object defined
@@ -39,7 +39,7 @@ class ClosureDefinition extends Definition implements DefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function create(...$arguments)
+    public function create<T>(...$arguments): T
     {
         $arguments = $this->resolveArguments(...$arguments);
 

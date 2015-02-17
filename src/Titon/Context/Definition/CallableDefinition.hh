@@ -16,21 +16,21 @@ use Titon\Context\Depository;
  *
  * @package Titon\Context\Definition
  */
-class CallableDefinition extends Definition implements DefinitionInterface
+class CallableDefinition extends AbstractDefinition
 {
     /**
      * The class the callable method exists in (if the callable is a method)
      *
      * @var string
      */
-    protected $class;
+    protected string $class;
 
     /**
      * The method (if class is present) name or function name
      *
      * @var string
      */
-    protected $function;
+    protected string $function;
 
     /**
      * {@inheritdoc}
@@ -41,23 +41,16 @@ class CallableDefinition extends Definition implements DefinitionInterface
 
         if (is_array($callable)) {
             list($this->class, $this->function) = $callable;
-            if (!method_exists($this->class, $this->function)) {
-                // throw exception
-            }
-
         }
         else {
             $this->function = $callable;
-            if (!function_exists($this->function)) {
-                // throw exception
-            }
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function create(...$arguments)
+    public function create<T>(...$arguments): T
     {
         $arguments = $this->resolveArguments(...$arguments);
 

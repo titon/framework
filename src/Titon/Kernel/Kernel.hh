@@ -11,13 +11,9 @@ use Titon\Event\Subject;
 
 interface Kernel extends Subject {
 
-    public function handle(Input $input): Output;
-
     public function pipe(Middleware $middleware): this;
 
-    public function shutdown(): this;
-
-    public function startup(): this;
+    public function run(Input $input, Output $output): Output;
 
     public function terminate(): this;
 

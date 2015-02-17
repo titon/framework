@@ -9,6 +9,8 @@ namespace Titon\Kernel;
 
 interface Middleware {
 
-    public function handle(Input $input): Output;
+    public function before(Input $input, Output $output, ?MiddlewareCallback $next = null): void;
+
+    public function after(Input $input, Output $output, ?MiddlewareCallback $next = null): void;
 
 }

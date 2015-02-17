@@ -14,4 +14,6 @@
  */
 
 namespace Titon\Kernel {
+    type MiddlewareCallback = (function(Input, Output, ?MiddlewareCallback): void);
+    type MiddlewareList = Vector<Middleware>;
 }

@@ -40,12 +40,10 @@ class DefinitionFactory {
         }
 
         if (is_callable($concrete)) {
+            $class = null;
+            $function = $concrete;
             if (is_array($concrete)) {
                 list($class, $function) = $concrete;
-            }
-            else {
-                $class = null;
-                $function = $concrete;
             }
 
             return new CallableDefinition($key, $class, $function, $depository);

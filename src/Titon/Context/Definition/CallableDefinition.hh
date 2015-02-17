@@ -49,11 +49,16 @@ class CallableDefinition extends AbstractDefinition {
 
         if (!is_null($this->class)) {
             $class = $this->depository->make($this->class);
+
+            // UNSAFE
+            // Since inst_meth() requires literal strings and we are passing variables.
             $f = inst_meth($class, $this->function);
 
             return $f(...$arguments);
         }
 
+        // UNSAFE
+        // Since fun() requires literal strings and we are passing variables.
         $f = fun($this->function);
 
         return $f(...$arguments);

@@ -149,18 +149,12 @@ class Depository {
      *
      * @return T    The resolved registered item or return value
      */
-    public function make<T>(mixed $alias, ...$arguments): T {
-        if ($alias instanceof Closure || is_callable($alias)) {
-            $definition = $this->buildCallable($alias);
-
-            return $definition->create(...$arguments);
-        }
-
+    public function make<T>(string $alias, ...$arguments): T {
         if (is_string($alias) && $this->isRegistered($alias)) {
             return $this->getRegisteredItem($alias, ...$arguments);
         }
 
-        if (is_string($alias) && class_exists($alias)) {
+        if (class_exists($alias)) {
             $definition = $this->buildClass($alias);
         }
         else {
@@ -171,6 +165,12 @@ class Depository {
             'definition' => $definition,
             'singleton'  => false,
         );
+
+        return $definition->create(...$arguments);
+    }
+
+    public function run<T>(Closure $callable, ...$arguments): T {
+        $definition = $this->buildCallable($callable);
 
         return $definition->create(...$arguments);
     }
@@ -191,19 +191,20 @@ class Depository {
         }
 
         if ($this->singletons->contains($alias)) {
-            return $this->singletons[$alias];
+            $retval = $this->singletons[$alias];
         }
+        else {
+            $definition = $this->items[$alias]['definition'];
+            $retval = $definition;
 
-        $definition = $this->items[$alias]['definition'];
-        $retval = $definition;
+            if ($definition instanceof Definition) {
+                $retval = $definition->create(...$arguments);
+            }
 
-        if ($definition instanceof Definition) {
-            $retval = $definition->create(...$arguments);
-        }
-
-        if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
-            $this->items->remove($alias);
-            $this->singletons[$alias] = $retval;
+            if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
+                $this->items->remove($alias);
+                $this->singletons[$alias] = $retval;
+            }
         }
 
         return $retval;

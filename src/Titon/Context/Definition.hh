@@ -12,13 +12,12 @@ namespace Titon\Context;
  *
  * @package Titon\Context\Definition
  */
-interface Definition
-{
+interface Definition {
     /**
      * Arguments passed into the constructor when creating the object from
      * within the container
      *
-     * @param mixed ...$arguments   Arguments passed into the constructor
+     * @param array<mixed> ...$arguments   Arguments passed into the constructor
      *
      * @return $this    The definition for fluent method chaining
      */
@@ -28,7 +27,7 @@ interface Definition
      * Use reflection to construct a new object instance of the definition's class
      * given any parameters passed
      *
-     * @param mixed ...$arguments   Arguments passed into the constructor
+     * @param array<mixed> ...$arguments   Arguments passed into the constructor
      *
      * @return $this    The definition for fluent method chaining
      */

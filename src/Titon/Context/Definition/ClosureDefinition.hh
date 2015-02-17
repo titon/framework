@@ -17,8 +17,7 @@ use Titon\Context\Depository;
  *
  * @package Titon\Context\Definition
  */
-class ClosureDefinition extends AbstractDefinition
-{
+class ClosureDefinition extends AbstractDefinition {
     /**
      * The Closure object defined
      *

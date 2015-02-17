@@ -13,7 +13,7 @@ use ReflectionMethod;
 use ReflectionFunction;
 use ReflectionException;
 use Titon\Context\Definition;
-use Titon\Context\Definition\AbstractDefinition;
+use Titon\Context\Definition\DefinitionFactory;
 use Titon\Context\Exception\AlreadyRegisteredException;
 
 /**
@@ -24,8 +24,7 @@ use Titon\Context\Exception\AlreadyRegisteredException;
  *
  * @package Titon\Context
  */
-class Depository
-{
+class Depository {
     /**
      * Hash of registered item definitions keyed by its alias or class name
      *
@@ -95,7 +94,7 @@ class Depository
         }
 
         // we need to build a definition
-        $definition = AbstractDefinition::factory($key, $concrete, $this);
+        $definition = DefinitionFactory::factory($key, $concrete, $this);
 
         $this->items[$key] = shape(
             'definition' => $definition,
@@ -143,21 +142,50 @@ class Depository
     /**
      * Retrieve (and build if necessary) the registered item from the container
      *
-     * @param string $alias         Key or alias of a registered item or a class
-     *                              name, callable, or Closure to construct
-     * @param mixed ...$arguments   Additional arguments to pass into the item at
-     *                              construction
+     * @param string $alias                 Key or alias of a registered item or a class
+     *                                      name, callable, or Closure to construct
+     * @param array<mixed> ...$arguments    Additional arguments to pass into the item at
+     *                                      construction
      *
      * @return T    The resolved registered item or return value
      */
     public function make<T>(mixed $alias, ...$arguments): T {
-
         if ($alias instanceof Closure || is_callable($alias)) {
             $definition = $this->buildCallable($alias);
 
             return $definition->create(...$arguments);
         }
 
+        if (is_string($alias) && $this->isRegistered($alias)) {
+            return $this->getRegisteredItem($alias, ...$arguments);
+        }
+
+        if (is_string($alias) && class_exists($alias)) {
+            $definition = $this->buildClass($alias);
+        }
+        else {
+            $definition = $this->buildCallable($alias);
+        }
+
+        $this->items[$alias] = shape(
+            'definition' => $definition,
+            'singleton'  => false,
+        );
+
+        return $definition->create(...$arguments);
+    }
+
+    /**
+     * Retrieve the created definition or stored instance from the depository
+     * by key
+     *
+     * @param string $alias                 The key the item is stored under
+     * @param array<mixed> ...$arguments    Arguments passed into creating the
+     *                                      definition
+     *
+     * @return mixed
+     */
+    protected function getRegisteredItem<T>(string $alias, ...$arguments): T {
         if ($this->aliases->contains($alias)) {
             return $this->make($this->aliases[$alias], ...$arguments);
         }
@@ -166,35 +194,19 @@ class Depository
             return $this->singletons[$alias];
         }
 
-        if (array_key_exists($alias, $this->items)) {
-            $definition = $this->items[$alias]['definition'];
-            $retval = $definition;
+        $definition = $this->items[$alias]['definition'];
+        $retval = $definition;
 
-            if ($definition instanceof AbstractDefinition) {
-                $retval = $definition->create(...$arguments);
-            }
-
-            if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
-                $this->items->remove($alias);
-                $this->singletons[$alias] = $retval;
-            }
-
-            return $retval;
+        if ($definition instanceof Definition) {
+            $retval = $definition->create(...$arguments);
         }
 
-        if (class_exists($alias)) {
-            $definition = $this->buildClass($alias);
-        }
-        else {
-            $definition = $this->buildCallable($alias);
+        if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
+            $this->items->remove($alias);
+            $this->singletons[$alias] = $retval;
         }
 
-        $this->item[$alias] = shape(
-            'definition' => $definition,
-            'singleton'  => false,
-        );
-
-        return $definition->create(...$arguments);
+        return $retval;
     }
 
     /**
@@ -234,7 +246,7 @@ class Depository
             throw new ReflectionException($message);
         }
 
-        $definition = AbstractDefinition::factory($class, $class, $this);
+        $definition = DefinitionFactory::factory($class, $class, $this);
         $constructor = $reflection->getConstructor();
 
         if (is_null($constructor)) {
@@ -267,7 +279,7 @@ class Depository
      *
      * @return Definition   The definition built from the callable
      */
-    protected function buildCallable($alias): Definition {
+    protected function buildCallable(mixed $alias): Definition {
         if (is_string($alias) && strpos($alias, '::') !== false) {
             $callable = explode('::', $alias);
         }
@@ -279,7 +291,7 @@ class Depository
             }
         }
 
-        $definition = AbstractDefinition::factory($alias, $callable, $this);
+        $definition = DefinitionFactory::factory($alias, $callable, $this);
 
         if (is_array($callable)) {
             $reflector = new ReflectionMethod($callable[0], $callable[1]);

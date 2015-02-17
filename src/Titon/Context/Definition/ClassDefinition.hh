@@ -19,8 +19,7 @@ use Titon\Context\MethodList;
  *
  * @package Titon\Context\Definition
  */
-class ClassDefinition extends AbstractDefinition
-{
+class ClassDefinition extends AbstractDefinition {
     /**
      * The name of the class defined
      *
@@ -44,7 +43,7 @@ class ClassDefinition extends AbstractDefinition
      * @param Depository $depository    The container that the definition is
      *                                  contained in
      */
-    public function __construct(string $key, mixed $class, Depository $depository) {
+    public function __construct(string $key, string $class, Depository $depository) {
         parent::__construct($key, $depository);
 
         $this->class = $class;
@@ -91,6 +90,7 @@ class ClassDefinition extends AbstractDefinition
         foreach ($this->methods as $method) {
             $reflection = new ReflectionMethod($object, $method['method']);
 
+            $args = [];
             foreach ($method['arguments'] as $arg) {
                 $args[] = (is_string($arg) && class_exists($arg)) ? $this->depository->make($arg) : $arg;
             }

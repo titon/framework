@@ -7,9 +7,9 @@
 
 namespace Titon\Context\Definition;
 
+use Closure;
 use Titon\Context\Definition;
 use Titon\Context\Depository;
-use Titon\Common\ArgumentList;
 
 /**
  * A definition is an object that defines how an object or callable should be
@@ -17,8 +17,7 @@ use Titon\Common\ArgumentList;
  *
  * @package Titon\Context\Definition
  */
-abstract class AbstractDefinition implements Definition
-{
+abstract class AbstractDefinition implements Definition {
     /**
      * The key for the definition
      *
@@ -36,9 +35,9 @@ abstract class AbstractDefinition implements Definition
     /**
      * Arguments used to pass into the object or Closure
      *
-     * @var ArgumentList
+     * @var array<mixed>
      */
-    protected ArgumentList $arguments = [];
+    protected array<mixed> $arguments = [];
 
     /**
      * Construct a new definition instance
@@ -54,44 +53,10 @@ abstract class AbstractDefinition implements Definition
     }
 
     /**
-     * Factory method to generate the necessary definition given the passed in
-     * parameters
-     *
-     * @param string     $key           The key (class name or alias) for the
-     *                                  definition
-     * @param mixed      $concrete      The concrete (class, class name, or callable)
-     *                                  for the definition to reference
-     * @param Depository $depository    The depository object the definition is
-     *                                  contained in
-     *
-     * @return ClosureAbstractDefinition|ClassAbstractDefinition|mixed The definition object for
-     *                                                  fluent method chaining
-     */
-    public static function factory<T>(string $key, mixed $concrete, Depository $depository): T {
-        if ($concrete instanceof Closure) {
-            return new ClosureDefinition($key, $concrete, $depository);
-        }
-
-        if (is_string($concrete) && class_exists($concrete)) {
-            return new ClassDefinition($key, $concrete, $depository);
-        }
-
-        if (is_string($concrete) && strpos($concrete, '::') !== false) {
-            $concrete = explode('::', $concrete);
-        }
-
-        if (is_callable($concrete)) {
-            return new CallableDefinition($key, $concrete, $depository);
-        }
-
-        return $concrete;
-    }
-
-    /**
      * Arguments passed into the constructor when creating the object from
      * within the container
      *
-     * @param mixed ...$arguments   Arguments passed into the constructor
+     * @param array<mixed> ...$arguments   Arguments passed into the constructor
      *
      * @return $this    The definition for fluent method chaining
      */
@@ -108,9 +73,9 @@ abstract class AbstractDefinition implements Definition
      * by either creating them through reflection or the depository object
      * to pass them into the definition
      *
-     * @param mixed ...$arguments   The arguments to resolve
+     * @param array<mixed> ...$arguments   The arguments to resolve
      *
-     * @return Vector   The resolved arguments
+     * @return array<mixed> The resolved arguments
      */
     public function resolveArguments(...$arguments): array<mixed> {
         if ($arguments) {

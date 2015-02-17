@@ -16,14 +16,14 @@
 namespace Titon\Context {
     type AliasMap = Map<string, string>;
     type SingletonMap = Map<string, mixed>;
-    type ItemContainer = Map<string, Item>;
     type Item = shape(
         'definition' => Definition,
         'singleton'  => bool,
     );
-    type MethodList = Vector<string, Method>;
+    type ItemContainer = Map<string, Item>;
     type Method = shape(
         'method'    => string,
         'arguments' => array<mixed>,
     );
+    type MethodList = Vector<Method>;
 }

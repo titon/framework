@@ -16,14 +16,13 @@ use Titon\Context\Depository;
  *
  * @package Titon\Context\Definition
  */
-class CallableDefinition extends AbstractDefinition
-{
+class CallableDefinition extends AbstractDefinition {
     /**
      * The class the callable method exists in (if the callable is a method)
      *
      * @var string
      */
-    protected string $class;
+    protected ?string $class;
 
     /**
      * The method (if class is present) name or function name
@@ -35,15 +34,11 @@ class CallableDefinition extends AbstractDefinition
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $key, mixed $callable, Depository $depository) {
+    public function __construct(string $key, ?string $class, string $function, Depository $depository) {
         parent::__construct($key, $depository);
 
-        if (is_array($callable)) {
-            list($this->class, $this->function) = $callable;
-        }
-        else {
-            $this->function = $callable;
-        }
+        $this->class = $class;
+        $this->function = $function;
     }
 
     /**

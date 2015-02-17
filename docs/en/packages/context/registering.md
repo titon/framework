@@ -84,17 +84,4 @@ $container->singleton('bar', 'Titon\Bar');
 $container->register(new Foo());
 ```
 
-## ArrayAccess ##
-
-ArrayAccess is also supported for registering items as well as making items. Note: all items set through ArrayAccess are
-NOT set as singletons unless the set value is an object instance.
-
-```hack
-$container['foo'] = 'Titon\Foo';
-$foo = $container['foo'];
-
-// Singleton registered
-$container['foo'] = new Foo();
-```
-
 If, at any point, an existing key is registered, a `Titon\Context\Exception\AlreadyRegisteredException' is thrown.

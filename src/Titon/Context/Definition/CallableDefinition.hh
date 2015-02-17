@@ -56,7 +56,9 @@ class CallableDefinition extends AbstractDefinition
 
         if (!is_null($this->class)) {
             $class = $this->depository->make($this->class);
-            return call_user_func_array(array($class, $this->function), $arguments);
+            $f = inst_meth($class, $this->function);
+
+            return $f(...$arguments);
         }
 
         return call_user_func_array($this->function, $arguments);

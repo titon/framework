@@ -34,7 +34,7 @@ class ClassDefinition extends AbstractDefinition
      *
      * @var MethodList
      */
-    protected MethodList $methods = Vector{};
+    protected MethodList $methods = Vector {};
 
     /**
      * Construct a new class definition

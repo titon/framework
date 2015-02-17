@@ -12,6 +12,7 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionFunction;
 use ReflectionException;
+use Titon\Context\Definition;
 use Titon\Context\Definition\AbstractDefinition;
 use Titon\Context\Exception\AlreadyRegisteredException;
 
@@ -30,7 +31,7 @@ class Depository
      *
      * @var ItemContainer
      */
-    protected ItemContainer $items = Map{};
+    protected ItemContainer $items = Map {};
 
     /**
      * Hash of registered, and already constructed, singletons keyed by its
@@ -38,14 +39,14 @@ class Depository
      *
      * @var SingletonMap
      */
-    protected SingletonMap $singletons = Map{};
+    protected SingletonMap $singletons = Map {};
 
     /**
      * Map of aliases to registered classes and keys
      *
      * @var AliasMap
      */
-    protected AliasMap $aliases = Map{};
+    protected AliasMap $aliases = Map {};
 
     /**
      * Instantiate a new container object
@@ -228,10 +229,10 @@ class Depository
      * @param string $class         The class name to reflect and construct
      * @param mixed ...$parameters  Parameters required for constructing the object
      *
-     * @return AbstractDefinition|mixed
+     * @return Definition|mixed
      * @throws ReflectionException
      */
-    protected function buildClass(string $class): AbstractDefinition
+    protected function buildClass(string $class): Definition
     {
         $reflection = new ReflectionClass($class);
         if (!$reflection->isInstantiable()) {
@@ -269,8 +270,10 @@ class Depository
      * be registered by the depository.
      *
      * @param string $alias
+     *
+     * @return Definition   The definition built from the callable
      */
-    protected function buildCallable($alias): AbstractDefinition
+    protected function buildCallable($alias): Definition
     {
         if (is_string($alias) && strpos($alias, '::') !== false) {
             $callable = explode('::', $alias);

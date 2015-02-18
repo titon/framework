@@ -53,7 +53,7 @@ class DepositoryTest extends TestCase
 
     public function testRegisterCallable()
     {
-        $this->container->register('foo', array('Titon\Context\Foo', 'factory'));
+        $this->container->register('foo', ['Titon\Context\Foo', 'factory']);
         $this->assertInstanceOf('Titon\Context\Foo', $this->container->make('foo'));
 
         $this->container->register('Foo', 'Titon\Context\Foo::factory');

@@ -15,6 +15,6 @@ use RuntimeException;
  *
  * @package Titon\Context\Exception
  */
-class ItemNotDefinable extends RuntimeException{
+class ItemNotDefinableException extends RuntimeException {
 
 }

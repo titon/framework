@@ -10,12 +10,18 @@ namespace Titon\Context\Definition;
 use Closure;
 use Titon\Context\Depository;
 use Titon\Context\Definition;
-use Titon\Context\Exception\ItemNotDefinable;
+use Titon\Context\Exception\ItemNotDefinableException;
 
+/**
+ * The DefinitionFactory aids in the creation of definition instances.
+ *
+ * @package Titon\Context\Definition
+ */
 class DefinitionFactory {
+
     /**
      * Factory method to generate the necessary definition given the passed in
-     * parameters
+     * parameters.
      *
      * @param string     $key           The key (class name or alias) for the
      *                                  definition
@@ -25,6 +31,7 @@ class DefinitionFactory {
      *                                  contained in
      *
      * @return Definition   The definition object for fluent method chaining
+     * @throws \Titon\Context\Exception\ItemNotDefinableException
      */
     public static function factory(string $key, mixed $concrete, Depository $depository): Definition {
         if ($concrete instanceof Closure) {
@@ -40,8 +47,9 @@ class DefinitionFactory {
         }
 
         if (is_callable($concrete)) {
-            $class = null;
+            $class = '';
             $function = $concrete;
+
             if (is_array($concrete)) {
                 list($class, $function) = $concrete;
             }
@@ -49,6 +57,7 @@ class DefinitionFactory {
             return new CallableDefinition($key, $class, $function, $depository);
         }
 
-        throw new ItemNotDefinable("Cannot create a definition from " . print_r($concrete));
+        throw new ItemNotDefinableException("Cannot create a definition from " . print_r($concrete, true));
     }
+
 }

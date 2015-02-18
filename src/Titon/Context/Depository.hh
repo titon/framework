@@ -25,37 +25,38 @@ use Titon\Context\Exception\AlreadyRegisteredException;
  * @package Titon\Context
  */
 class Depository {
+
     /**
-     * Hash of registered item definitions keyed by its alias or class name
+     * Hash of registered item definitions keyed by its alias or class name.
      *
-     * @var ItemContainer
+     * @var \Titon\Context\ItemMap
      */
-    protected ItemContainer $items = Map {};
+    protected ItemMap $items = Map {};
 
     /**
      * Hash of registered, and already constructed, singletons keyed by its
-     * alias or class name
+     * alias or class name.
      *
-     * @var SingletonMap
+     * @var \Titon\Context\SingletonMap
      */
     protected SingletonMap $singletons = Map {};
 
     /**
-     * Map of aliases to registered classes and keys
+     * Map of aliases to registered classes and keys.
      *
-     * @var AliasMap
+     * @var \Titon\Context\AliasMap
      */
     protected AliasMap $aliases = Map {};
 
     /**
-     * Instantiate a new container object
+     * Instantiate a new container object.
      */
     public function __construct() {
         $this->singleton('Titon\Context\Depository', $this);
     }
 
     /**
-     * Register a new class, callable, or object in the container
+     * Register a new class, callable, or object in the container.
      *
      * @param string $key     The alias (container key) for the registered item
      * @param mixed $concrete   The class name, closure, object to register in
@@ -67,6 +68,7 @@ class Depository {
      *
      * @return object|$definition   Either the concrete (if an object is registered)
      *                              or the definition of the registered item
+     * @throws \Titon\Context\Exception\AlreadyRegisteredException
      */
     public function register(string $key, mixed $concrete = null, bool $singleton = false): mixed {
         if ($this->isRegistered($key)) {
@@ -98,7 +100,7 @@ class Depository {
 
         $this->items[$key] = shape(
             'definition' => $definition,
-            'singleton'  => $singleton,
+            'singleton'  => $singleton
         );
 
         return $definition;
@@ -113,6 +115,7 @@ class Depository {
      * @param $key string   The original class name or key registered
      *
      * @return $this Return the depository for fluent method chaining
+     * @throws \Titon\Context\Exception\AlreadyRegisteredException
      */
     public function alias(string $alias, string $key): this {
         if ($this->aliases->contains($alias)) {
@@ -125,7 +128,7 @@ class Depository {
     }
 
     /**
-     * Register a new singleton in the container
+     * Register a new singleton in the container.
      *
      * @param string $alias     The alias (container key) for the registered item
      * @param mixed $concrete   The class name, closure, object to register in
@@ -140,7 +143,7 @@ class Depository {
     }
 
     /**
-     * Retrieve (and build if necessary) the registered item from the container
+     * Retrieve (and build if necessary) the registered item from the container.
      *
      * @param string $alias                 Key or alias of a registered item or a class
      *                                      name, callable, or Closure to construct
@@ -156,8 +159,7 @@ class Depository {
 
         if (class_exists($alias)) {
             $definition = $this->buildClass($alias);
-        }
-        else {
+        } else {
             $definition = $this->buildCallable($alias);
         }
 
@@ -176,42 +178,7 @@ class Depository {
     }
 
     /**
-     * Retrieve the created definition or stored instance from the depository
-     * by key
-     *
-     * @param string $alias                 The key the item is stored under
-     * @param array<mixed> ...$arguments    Arguments passed into creating the
-     *                                      definition
-     *
-     * @return mixed
-     */
-    protected function getRegisteredItem<T>(string $alias, ...$arguments): T {
-        if ($this->aliases->contains($alias)) {
-            return $this->make($this->aliases[$alias], ...$arguments);
-        }
-
-        if ($this->singletons->contains($alias)) {
-            $retval = $this->singletons[$alias];
-        }
-        else {
-            $definition = $this->items[$alias]['definition'];
-            $retval = $definition;
-
-            if ($definition instanceof Definition) {
-                $retval = $definition->create(...$arguments);
-            }
-
-            if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
-                $this->items->remove($alias);
-                $this->singletons[$alias] = $retval;
-            }
-        }
-
-        return $retval;
-    }
-
-    /**
-     * Remove an alias or key from the depository's registry
+     * Remove an alias or key from the depository's registry.
      *
      * @param string $key The key to remove
      *
@@ -228,95 +195,6 @@ class Depository {
         }
 
         return $this;
-    }
-
-    /**
-     * This method will use reflection to build the class and inject any
-     * necessary arguments for construction.
-     *
-     * @param string $class         The class name to reflect and construct
-     * @param mixed ...$parameters  Parameters required for constructing the object
-     *
-     * @return Definition|mixed
-     * @throws ReflectionException
-     */
-    protected function buildClass(string $class): Definition {
-        $reflection = new ReflectionClass($class);
-        if (!$reflection->isInstantiable()) {
-            $message = "Target [$class] is not instantiable.";
-            throw new ReflectionException($message);
-        }
-
-        $definition = DefinitionFactory::factory($class, $class, $this);
-        $constructor = $reflection->getConstructor();
-
-        if (is_null($constructor)) {
-            return $definition;
-        }
-
-        foreach ($constructor->getParameters() as $param) {
-            $dependency = $param->getClass();
-
-            if (is_null($dependency)) {
-                if ($param->isDefaultValueAvailable()) {
-                    $definition->with($param->getDefaultValue());
-                    continue;
-                }
-
-                throw new ReflectionException("Cannot to resolve dependency of $param for $class");
-            }
-
-            $definition->with($dependency->getName());
-        }
-
-        return $definition;
-    }
-
-    /**
-     * This method will use reflection to build a definition of the callable to
-     * be registered by the depository.
-     *
-     * @param string $alias
-     *
-     * @return Definition   The definition built from the callable
-     */
-    protected function buildCallable(mixed $alias): Definition {
-        if (is_string($alias) && strpos($alias, '::') !== false) {
-            $callable = explode('::', $alias);
-        }
-        else {
-            $callable = $alias;
-
-            if (!is_string($alias)) {
-                $alias = 'Callable';
-            }
-        }
-
-        $definition = DefinitionFactory::factory($alias, $callable, $this);
-
-        if (is_array($callable)) {
-            $reflector = new ReflectionMethod($callable[0], $callable[1]);
-        }
-        else {
-            $reflector = new ReflectionFunction($callable);
-        }
-
-        foreach ($reflector->getParameters() as $param) {
-            $dependency = $param->getClass();
-
-            if (is_null($dependency)) {
-                if ($param->isDefaultValueAvailable()) {
-                    $definition->with($param->getDefaultValue());
-                    continue;
-                }
-
-                throw new ReflectionException("Cannot to resolve dependency of $param for $alias");
-            }
-
-            $definition->with($dependency->getName());
-        }
-
-        return $definition;
     }
 
     /**
@@ -361,4 +239,126 @@ class Depository {
 
         return false;
     }
+
+    /**
+     * This method will use reflection to build a definition of the callable to
+     * be registered by the depository.
+     *
+     * @param string $alias
+     *
+     * @return Definition   The definition built from the callable
+     */
+    protected function buildCallable(mixed $alias): Definition {
+        if (is_string($alias) && strpos($alias, '::') !== false) {
+            $callable = explode('::', $alias);
+        } else {
+            $callable = $alias;
+
+            if (!is_string($alias)) {
+                $alias = 'Callable';
+            }
+        }
+
+        $definition = DefinitionFactory::factory($alias, $callable, $this);
+
+        if (is_array($callable)) {
+            $reflector = new ReflectionMethod($callable[0], $callable[1]);
+        } else {
+            $reflector = new ReflectionFunction($callable);
+        }
+
+        foreach ($reflector->getParameters() as $param) {
+            $dependency = $param->getClass();
+
+            if (is_null($dependency)) {
+                if ($param->isDefaultValueAvailable()) {
+                    $definition->with($param->getDefaultValue());
+                    continue;
+                }
+
+                throw new ReflectionException("Cannot to resolve dependency of $param for $alias");
+            }
+
+            $definition->with($dependency->getName());
+        }
+
+        return $definition;
+    }
+
+    /**
+     * This method will use reflection to build the class and inject any
+     * necessary arguments for construction.
+     *
+     * @param string $class         The class name to reflect and construct
+     * @param mixed ...$parameters  Parameters required for constructing the object
+     *
+     * @return Definition
+     * @throws ReflectionException
+     */
+    protected function buildClass(string $class): Definition {
+        $reflection = new ReflectionClass($class);
+
+        if (!$reflection->isInstantiable()) {
+            throw new ReflectionException("Target [$class] is not instantiable.");
+        }
+
+        $definition = DefinitionFactory::factory($class, $class, $this);
+        $constructor = $reflection->getConstructor();
+
+        if (is_null($constructor)) {
+            return $definition;
+        }
+
+        foreach ($constructor->getParameters() as $param) {
+            $dependency = $param->getClass();
+
+            if (is_null($dependency)) {
+                if ($param->isDefaultValueAvailable()) {
+                    $definition->with($param->getDefaultValue());
+                    continue;
+                }
+
+                throw new ReflectionException("Cannot to resolve dependency of $param for $class");
+            }
+
+            $definition->with($dependency->getName());
+        }
+
+        return $definition;
+    }
+
+    /**
+     * Retrieve the created definition or stored instance from the depository
+     * by key
+     *
+     * @param string $alias                 The key the item is stored under
+     * @param array<mixed> ...$arguments    Arguments passed into creating the
+     *                                      definition
+     *
+     * @return mixed
+     */
+    protected function getRegisteredItem<T>(string $alias, ...$arguments): T {
+        if ($this->aliases->contains($alias)) {
+            return $this->make($this->aliases[$alias], ...$arguments);
+        }
+
+        if ($this->singletons->contains($alias)) {
+            $retval = $this->singletons[$alias];
+        } else {
+            $definition = $this->items[$alias]['definition'];
+            $retval = $definition;
+
+            if ($definition instanceof Definition) {
+                $retval = $definition->create(...$arguments);
+            }
+
+            if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
+                $this->items->remove($alias);
+                $this->singletons[$alias] = $retval;
+            }
+        }
+
+        return $retval;
+    }
+
 }

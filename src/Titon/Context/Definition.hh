@@ -8,14 +8,15 @@
 namespace Titon\Context;
 
 /**
- * DefinitionInterface for depository definitions to follow
+ * The Definition is an interface for depository definitions to follow.
  *
  * @package Titon\Context\Definition
  */
 interface Definition {
+
     /**
      * Arguments passed into the constructor when creating the object from
-     * within the container
+     * within the container.
      *
      * @param array<mixed> ...$arguments   Arguments passed into the constructor
      *
@@ -25,11 +26,12 @@ interface Definition {
 
     /**
      * Use reflection to construct a new object instance of the definition's class
-     * given any parameters passed
+     * given any parameters passed.
      *
      * @param array<mixed> ...$arguments   Arguments passed into the constructor
      *
      * @return $this    The definition for fluent method chaining
      */
     public function create<T>(...$arguments): T;
+
 }

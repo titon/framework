@@ -20,7 +20,7 @@ namespace Titon\Context {
         'definition' => Definition,
         'singleton'  => bool,
     );
-    type ItemContainer = Map<string, Item>;
+    type ItemMap = Map<string, Item>;
     type Method = shape(
         'method'    => string,
         'arguments' => array<mixed>,

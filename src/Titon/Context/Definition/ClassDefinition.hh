@@ -20,8 +20,9 @@ use Titon\Context\MethodList;
  * @package Titon\Context\Definition
  */
 class ClassDefinition extends AbstractDefinition {
+
     /**
-     * The name of the class defined
+     * The name of the class defined.
      *
      * @var string
      */
@@ -29,14 +30,14 @@ class ClassDefinition extends AbstractDefinition {
 
     /**
      * Data structure of methods and arguments to be called on the class after
-     * instantiation
+     * instantiation.
      *
-     * @var MethodList
+     * @var \Titon\Context\MethodList
      */
     protected MethodList $methods = Vector {};
 
     /**
-     * Construct a new class definition
+     * Construct a new class definition.
      *
      * @param string     $key           The class name or key associated with
      * @param mixed      $class         The class to define
@@ -62,9 +63,9 @@ class ClassDefinition extends AbstractDefinition {
     }
 
     /**
-     * Add a method to be called on the class after instantiating a new instance
+     * Add a method to be called on the class after instantiating a new instance.
      *
-     * @param string $method        Name of th emethod
+     * @param string $method        Name of the method
      * @param        ...$arguments  Arguments to pass into the method
      *
      * @return $this    The definition for fluent method chaining
@@ -80,7 +81,7 @@ class ClassDefinition extends AbstractDefinition {
 
     /**
      * After instantiating the instance, this method will call any necessary
-     * methods on the instance with the specified arguments
+     * methods on the instance with the specified arguments.
      *
      * @param object $object    The object to call the methods on
      *
@@ -89,8 +90,8 @@ class ClassDefinition extends AbstractDefinition {
     protected function callMethods<T>(T $object): T {
         foreach ($this->methods as $method) {
             $reflection = new ReflectionMethod($object, $method['method']);
-
             $args = [];
+
             foreach ($method['arguments'] as $arg) {
                 $args[] = (is_string($arg) && class_exists($arg)) ? $this->depository->make($arg) : $arg;
             }
@@ -100,4 +101,5 @@ class ClassDefinition extends AbstractDefinition {
 
         return $object;
     }
+
 }

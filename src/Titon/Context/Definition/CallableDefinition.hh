@@ -17,15 +17,16 @@ use Titon\Context\Depository;
  * @package Titon\Context\Definition
  */
 class CallableDefinition extends AbstractDefinition {
+
     /**
-     * The class the callable method exists in (if the callable is a method)
+     * The class the callable method exists in (if the callable is a method).
      *
      * @var string
      */
-    protected ?string $class;
+    protected string $class;
 
     /**
-     * The method (if class is present) name or function name
+     * The method (if class is present) name or function name.
      *
      * @var string
      */
@@ -34,7 +35,7 @@ class CallableDefinition extends AbstractDefinition {
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $key, ?string $class, string $function, Depository $depository) {
+    public function __construct(string $key, string $class, string $function, Depository $depository) {
         parent::__construct($key, $depository);
 
         $this->class = $class;
@@ -47,20 +48,19 @@ class CallableDefinition extends AbstractDefinition {
     public function create<T>(...$arguments): T {
         $arguments = $this->resolveArguments(...$arguments);
 
-        if (!is_null($this->class)) {
-            $class = $this->depository->make($this->class);
-
+        if ($this->class) {
             // UNSAFE
             // Since inst_meth() requires literal strings and we are passing variables.
-            $f = inst_meth($class, $this->function);
+            $callable = inst_meth($this->depository->make($this->class), $this->function);
 
-            return $f(...$arguments);
+            return $callable(...$arguments);
         }
 
         // UNSAFE
         // Since fun() requires literal strings and we are passing variables.
-        $f = fun($this->function);
+        $callable = fun($this->function);
 
-        return $f(...$arguments);
+        return $callable(...$arguments);
     }
+
 }

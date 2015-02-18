@@ -18,6 +18,7 @@ use Titon\Context\Depository;
  * @package Titon\Context\Definition
  */
 class ClosureDefinition extends AbstractDefinition {
+
     /**
      * The Closure object defined
      *
@@ -45,4 +46,5 @@ class ClosureDefinition extends AbstractDefinition {
             $this->resolveArguments(...$arguments)
         );
     }
+
 }

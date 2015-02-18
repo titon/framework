@@ -165,7 +165,7 @@ class Depository {
 
         $this->items[$alias] = shape(
             'definition' => $definition,
-            'singleton'  => false,
+            'singleton'  => false
         );
 
         return $definition->create(...$arguments);

@@ -12,6 +12,7 @@ composer require titon/context:*
 
 ### Documentation ###
 
+* [Containers](container.md)
 * [Aliasing](aliasing.md)
-* [Constructor and Method Injection](injection.md)
-* [Auto Dependency Resolution](dependency_resolution.md)
+* [Constructor & Method Injection](injection.md)
+* [Auto-Dependency Resolution](dependency-resolution.md)

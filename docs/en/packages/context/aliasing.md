@@ -1,28 +1,25 @@
 # Aliasing #
 
-Aliasing allows the user to define an additional key retrieve a registered item by. Adding an alias to a class name will
-generate the same return value as calling `make` on the originally registered item.
+Aliasing allows the user to define an additional key to retrieve a registered item by. Adding an alias to a class name will generate the same return value as calling `make()` on the originally registered item.
 
 ```hack
-$container->register('Titon\Foo');
-$container->alias('foo', 'Titon\Foo');
-
-// Optionally set initial alias
-$container->make('foo');
+$container = new Titon\Context\Depository();
+$container->register('Foo');
+$container->alias('foo', 'Foo');
+$container->make('foo'); // Foo
 ```
 
-Fluent method chaining
+Fluent method chaining is available when registering an item.
 
 ```hack
-$container->register('Titon\Foo')->alias('foo');
+$container->register('Foo')->alias('foo');
 ```
 
-If an item is registered as a singleton an an alias is added, calling `make` on the alias will return the same singleton
-instance.
+If an item is registered as a singleton and an alias is added, calling `make()` on the alias will return the same singleton instance.
 
 ```hack
-$container->register('Titon\Foo');
-$container->alias('foo', 'Titon\Foo');
+$container->register('Foo');
+$container->alias('foo', 'Foo');
 
 // Optionally set initial alias
 $container->make('foo');

@@ -150,9 +150,9 @@ class Depository {
      * @param array<mixed> ...$arguments    Additional arguments to pass into the item at
      *                                      construction
      *
-     * @return T    The resolved registered item or return value
+     * @return mixed    The resolved registered item or return value
      */
-    public function make<T>(string $alias, ...$arguments): T {
+    public function make(string $alias, ...$arguments): mixed {
         if (is_string($alias) && $this->isRegistered($alias)) {
             return $this->getRegisteredItem($alias, ...$arguments);
         }
@@ -171,7 +171,14 @@ class Depository {
         return $definition->create(...$arguments);
     }
 
-    public function run<T>(Closure $callable, ...$arguments): T {
+    /**
+     * Immediately build a closure and run it.
+     *
+     * @param \Closure $callable
+     * @param ...$arguments
+     * @return mixed    The resolved registered item or return value
+     */
+    public function run(Closure $callable, ...$arguments): mixed {
         $definition = $this->buildCallable($callable);
 
         return $definition->create(...$arguments);
@@ -337,7 +344,7 @@ class Depository {
      *
      * @return mixed
      */
-    protected function getRegisteredItem<T>(string $alias, ...$arguments): T {
+    protected function getRegisteredItem(string $alias, ...$arguments): mixed {
         if ($this->aliases->contains($alias)) {
             return $this->make($this->aliases[$alias], ...$arguments);
         }

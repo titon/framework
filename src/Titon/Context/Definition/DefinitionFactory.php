@@ -54,7 +54,7 @@ class DefinitionFactory {
                 list($class, $function) = $concrete;
             }
 
-            return new CallableDefinition($key, $class, $function, $depository);
+            return new CallableDefinition($key, $class, (string) $function, $depository);
         }
 
         throw new ItemNotDefinableException("Cannot create a definition from " . print_r($concrete, true));

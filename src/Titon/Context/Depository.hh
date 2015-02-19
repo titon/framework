@@ -49,14 +49,30 @@ class Depository {
     protected AliasMap $aliases = Map {};
 
     /**
-     * Instantiate a new container object.
+     * Singleton instance of Depository
+     */
+    protected static Depository $instance;
+
+    /**
+     * Instantiate a new container object
      */
     public function __construct() {
         $this->singleton('Titon\Context\Depository', $this);
     }
 
     /**
-     * Register a new class, callable, or object in the container.
+     * Retrieve the Depository singleton
+     */
+    public static function getInstance(): Depository {
+        if (is_null(self::$instance)) {
+            self::$instance = new Depository();
+        }
+
+        return self::$instance;
+    }
+
+    /**
+     * Register a new class, callable, or object in the container
      *
      * @param string $key     The alias (container key) for the registered item
      * @param mixed $concrete   The class name, closure, object to register in
@@ -152,21 +168,16 @@ class Depository {
      *
      * @return mixed    The resolved registered item or return value
      */
-    public function make(string $alias, ...$arguments): mixed {
+    public function make(mixed $alias, ...$arguments): mixed {
         if (is_string($alias) && $this->isRegistered($alias)) {
             return $this->getRegisteredItem($alias, ...$arguments);
         }
 
-        if (class_exists($alias)) {
+        if (is_string($alias) && class_exists($alias)) {
             $definition = $this->buildClass($alias);
         } else {
             $definition = $this->buildCallable($alias);
         }
-
-        $this->items[$alias] = shape(
-            'definition' => $definition,
-            'singleton'  => false
-        );
 
         return $definition->create(...$arguments);
     }

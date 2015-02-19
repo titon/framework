@@ -144,7 +144,7 @@ class DepositoryTest extends TestCase
 
     public function testClosureDependencyResolution()
     {
-        $bar = $this->container->run(function (Foo $foo) {
+        $bar = $this->container->make(function (Foo $foo) {
             return new Bar($foo);
         });
 

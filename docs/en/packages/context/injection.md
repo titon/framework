@@ -4,56 +4,33 @@ Injection allows the user to inject arguments into the constructor of the regist
 
 ## Constructor Injection ##
 
-Constructor injection allows the user to inject specific arguments into the constructor.
+Constructor injection allows the user to inject specific arguments into the constructor. Using our examples from the [container docs](container.md), lets set a constructor argument for `Foo`.
 
 ```hack
-$container->register('foo', 'Foo')->with(new Bar('Alex Phillips'));
+$container->register('foo', 'Foo')
+    ->with(new Bar('Alex Phillips'));
+```
 
-$foo = $container->make('foo');
+We can take this a step further by passing an alias to with, which will attempt to pass another registered dependency into the constructor.
 
-class Foo {
-    private Bar $bar;
+```hack
+$container->register('bar', 'Bar')
+$container->register('foo', 'Foo')
+    ->with('bar');
+```
 
-    public function __construct(Bar $bar) {
-        $this->bar = $bar;
-    }
-}
+Passing multiple arguments is as simple as declaring multiple arguments on `with()`.
 
-class Bar {
-    private string $name;
-
-    public function __construct(string $name) {
-        $this->name = $name;
-    }
-}
+```hack
+$container->register('foo', 'Foo')
+    ->with('bar', 'baz');
 ```
 
 ## Method Injection ##
 
-Method injection allows the user to automatically call methods immediately after instantiating a registered item.
+Method injection allows the user to automatically call methods immediately after instantiating a registered item. This is only applicable for items registered as classes.
 
 ```hack
-$container->register('foo', 'Foo')->call('setBar', new Bar('Alex Phillips'));
-
-$foo = $container->make('foo');
-
-class Foo {
-    private ?Bar $bar;
-
-    public function __construct(?Bar $bar = null) {
-        $this->bar = $bar;
-    }
-
-    public function setBar(Bar $bar): void {
-        $this->bar = $bar;
-    }
-}
-
-class Bar {
-    private string $name;
-
-    public function __construct($name) {
-        $this->name = $name;
-    }
-}
+$container->register('foo', 'Foo')
+    ->call('setBar', new Bar('Alex Phillips'));
 ```

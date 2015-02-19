@@ -18,12 +18,12 @@ namespace Titon\Context {
     type SingletonMap = Map<string, mixed>;
     type Item = shape(
         'definition' => Definition,
-        'singleton'  => bool,
+        'singleton'  => bool
     );
     type ItemMap = Map<string, Item>;
     type Method = shape(
         'method'    => string,
-        'arguments' => array<mixed>,
+        'arguments' => array<mixed>
     );
     type MethodList = Vector<Method>;
 }

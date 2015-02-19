@@ -75,7 +75,7 @@ class Depository {
             throw new AlreadyRegisteredException("Key $key has already been registered");
         }
 
-        if (is_null($concrete)) {
+        if (!$concrete) {
             $concrete = $key;
         }
 
@@ -306,7 +306,7 @@ class Depository {
         $reflection = new ReflectionClass($class);
 
         if (!$reflection->isInstantiable()) {
-            throw new ReflectionException("Target [$class] is not instantiable.");
+            throw new ReflectionException("Target [$class] is not instantiable");
         }
 
         $definition = DefinitionFactory::factory($class, $class, $this);

@@ -7,6 +7,7 @@ The following conventions must be followed when contributing to the framework.
 Titon follows the official [PSR-1 Basic Coding Standard](http://www.php-fig.org/psr/psr-1/) with the following additions.
 
 * Folder paths must end in a trailing slash.
+* All docblock sentences must end in a period.
 
 ## PSR-2 ##
 
@@ -15,6 +16,8 @@ Titon follows the majority of the official [PSR-2 Style Guide](http://www.php-fi
 * Opening bracket `{` must be on the same line instead of a new line for all instances.
 * There must be a single new line between every method, property, and class declaration.
 * The `elseif` is written as `else if`.
+* Properties and methods must be in alphabetical order.
+* Properties and methods must be in order of public, protected, private.
 
 ## PSR-4 ##
 
@@ -58,7 +61,7 @@ The exception to this interface sub-folder organization rule is when a package i
 
 * Must be written as a verb that conveys an action. For example, `getValue()`, `setValue()`, `hasItem()`, `removeMember()`, `flushContents()`, etc.
 
-The following actions must be used within the correct naming context.
+The following actions should be used within the correct naming context, but are not mandatory.
 
 * `get` - Get a value.
 * `set` - Set a value. Only applicable if one possible value.
@@ -111,7 +114,7 @@ public function doAction(FooBar $map): void {}
 When naming a type alias, the following suffixes and conventions must be adhered to.
 
 * Must use `Callback` suffix when declaring a callable.
-* Must use `Container` suffix when declaring a map that contains a non-primitive type.
+* Must use `Container` suffix when declaring a map that contains another map, vector, set, pair, or array.
 * Must use `List` suffix when declaring a vector.
 * Must use `Map` suffix when declaring a map.
 * Must use nouns (a thing) when declaring a shape.

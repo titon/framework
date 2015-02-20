@@ -51,7 +51,7 @@ class Depository {
     /**
      * Singleton instance of Depository
      */
-    protected static Depository $instance;
+    protected static ?Depository $instance;
 
     /**
      * Instantiate a new container object
@@ -172,7 +172,7 @@ class Depository {
      * @return mixed    Either the concrete (if an object is registered)
      *                  or the definition of the registered item
      */
-    public function makeSingleton(string $alias, mixed $concrete = null): mied {
+    public function makeSingleton(string $alias, mixed $concrete = null): mixed {
         if ($this->aliases->contains($alias)) {
             return $this->makeSingleton($this->aliases[$alias]);
         }
@@ -222,8 +222,27 @@ class Depository {
      * @param ...$arguments
      * @return mixed    The resolved registered item or return value
      */
-    public function run(Closure $callable, ...$arguments): mixed {
-        $definition = $this->buildCallable($callable);
+    protected function getRegisteredItem(string $alias, ...$arguments): mixed {
+        if ($this->aliases->contains($alias)) {
+            return $this->make($this->aliases[$alias], ...$arguments);
+        }
+
+        if ($this->singletons->contains($alias)) {
+            $retval = $this->singletons[$alias];
+        }
+        else {
+            $definition = $this->items[$alias]['definition'];
+            $retval = $definition;
+
+            if ($definition instanceof Definition) {
+                $retval = $definition->create(...$arguments);
+            }
+
+            if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
+                $this->items->remove($alias);
+                $this->singletons[$alias] = $retval;
+            }
+        }
 
         return $definition->create(...$arguments);
     }
@@ -274,7 +293,7 @@ class Depository {
             return true;
         }
 
-        if (!empty($arguments)) {
+        if (count($arguments) > 0) {
             foreach ($arguments as $arg) {
                 $definition->with($arg);
             }

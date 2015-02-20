@@ -62,6 +62,8 @@ class Depository {
 
     /**
      * Retrieve the Depository singleton
+     *
+     * @return Depository   Return the Depository instance
      */
     public static function getInstance(): Depository {
         if (is_null(self::$instance)) {
@@ -267,6 +269,11 @@ class Depository {
         return $this;
     }
 
+    /**
+     * Clear all registered items, singletons, and aliases in the Depository.
+     *
+     * @return $this    Return the depository for fluent method chaining
+     */
     public function clear(): this {
         $this->aliases->clear();
         $this->singletons->clear();

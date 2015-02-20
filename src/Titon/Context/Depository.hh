@@ -172,7 +172,7 @@ class Depository {
      * @return mixed    Either the concrete (if an object is registered)
      *                  or the definition of the registered item
      */
-    public function makeSingleton(string $alias, mixed $concrete = null) {
+    public function makeSingleton(string $alias, mixed $concrete = null): mied {
         if ($this->aliases->contains($alias)) {
             return $this->makeSingleton($this->aliases[$alias]);
         }

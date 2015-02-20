@@ -5,8 +5,6 @@
  * @link        http://titon.io
  */
 
-use Titon\Context\Depository;
-
 /**
  * --------------------------------------------------------------
  *  Type Aliases

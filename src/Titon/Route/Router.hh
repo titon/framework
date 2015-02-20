@@ -22,7 +22,6 @@ use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
 use Titon\Route\Mixin\MethodList;
 use Titon\Route\Group as RouteGroup; // Will fatal without alias
-use Titon\Context\Depository;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
 
@@ -636,7 +635,7 @@ class Router implements Subject {
             }
 
             /** @var \Titon\Route\Route $newRoute */
-            $newRoute = Depository::getInstance()->make($class, $newPath, static::buildAction($newAction));
+            $newRoute = Registry::factory($class, [$newPath, static::buildAction($newAction)], false);
 
             invariant($newRoute instanceof Route, 'Must be a Route');
 

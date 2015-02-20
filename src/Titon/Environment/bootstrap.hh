@@ -6,7 +6,6 @@
  */
 
 use Titon\Environment\Environment;
-use Titon\Context\Depository;
 
 /**
  * --------------------------------------------------------------
@@ -32,6 +31,7 @@ namespace Titon\Environment {
  */
 
 namespace {
+    use Titon\Context\Depository;
 
     /**
      * @see Titon\Environment\Environment::getVariable()

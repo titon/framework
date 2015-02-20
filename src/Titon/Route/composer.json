@@ -22,7 +22,8 @@
     },
     "suggest": {
         "titon/annotation": "Wire Route annotations using the Annotation package",
-        "titon/cache": "Cache route lookups using the Cache package"
+        "titon/cache": "Cache route lookups using the Cache package",
+        "titon/context": "Use the IoC container to register Environment for global functions"
     },
     "autoload": {
         "psr-4": {

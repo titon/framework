@@ -15,7 +15,7 @@ use Titon\Route\Mixin\FilterMixin;
 use Titon\Route\Mixin\MethodMixin;
 use Titon\Route\Mixin\PatternMixin;
 use Titon\Route\Mixin\SecureMixin;
-use Titon\Utility\Registry;
+use Titon\Context\Depository;
 use Titon\Utility\State\Server;
 use \ReflectionFunctionAbstract;
 use \ReflectionMethod;
@@ -216,7 +216,8 @@ class Route implements Serializable {
         }
 
         $action = $this->getAction();
-        $object = Registry::factory($action['class'], []);
+
+        $object = Depository::getInstance()->make($action['class']);
         $method = new ReflectionMethod($object, $action['action']);
 
         return $method->invokeArgs($object, $this->getActionArguments());

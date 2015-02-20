@@ -10,7 +10,6 @@ namespace Titon\Route;
 use Titon\Annotation\Reader;
 use Titon\Cache\Item;
 use Titon\Cache\Storage;
-use Titon\Common\FactoryAware;
 use Titon\Event\EmitsEvents;
 use Titon\Event\Event;
 use Titon\Event\Subject;
@@ -23,7 +22,7 @@ use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
 use Titon\Route\Mixin\MethodList;
 use Titon\Route\Group as RouteGroup; // Will fatal without alias
-use Titon\Utility\Registry;
+use Titon\Context\Depository;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
 
@@ -37,7 +36,7 @@ use Titon\Utility\State\Server;
  *      route.matched(Router $router, Route $route)
  */
 class Router implements Subject {
-    use EmitsEvents, FactoryAware;
+    use EmitsEvents;
 
     /**
      * Base folder structure if the application was placed within a directory.
@@ -637,7 +636,7 @@ class Router implements Subject {
             }
 
             /** @var \Titon\Route\Route $newRoute */
-            $newRoute = Registry::factory($class, [$newPath, static::buildAction($newAction)], false);
+            $newRoute = Depository::getInstance()->make($class, $newPath, static::buildAction($newAction));
 
             invariant($newRoute instanceof Route, 'Must be a Route');
 

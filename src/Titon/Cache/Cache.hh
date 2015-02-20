@@ -9,7 +9,6 @@ namespace Titon\Cache;
 
 use Titon\Cache\Exception\MissingStorageException;
 use Titon\Cache\Storage;
-use Titon\Common\FactoryAware;
 
 /**
  * Provides a very basic interface for caching individual sets of data. Multiple storage engines can be setup
@@ -18,8 +17,6 @@ use Titon\Common\FactoryAware;
  * @package Titon\Cache
  */
 class Cache {
-    use FactoryAware;
-
     /**
      * Storage engines.
      *

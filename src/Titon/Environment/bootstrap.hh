@@ -6,6 +6,7 @@
  */
 
 use Titon\Environment\Environment;
+use Titon\Context\Depository;
 
 /**
  * --------------------------------------------------------------
@@ -36,6 +37,8 @@ namespace {
      * @see Titon\Environment\Environment::getVariable()
      */
     function env(string $key): string {
-        return Environment::registry()->getVariable($key);
+        return Depository::getInstance()
+            ->make('Titon\Environment\Environment')
+            ->getVariable($key);
     }
 }

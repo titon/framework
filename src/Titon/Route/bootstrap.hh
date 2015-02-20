@@ -5,6 +5,8 @@
  * @link        http://titon.io
  */
 
+use Titon\Context\Depository;
+
 /**
  * --------------------------------------------------------------
  *  Type Aliases
@@ -67,28 +69,23 @@ namespace {
 namespace {
     use Titon\Route\ParamMap;
     use Titon\Route\QueryMap;
-    use Titon\Route\Router;
-    use Titon\Route\UrlBuilder;
+    use Titon\Context\Depository;
 
     /**
      * @see Titon\Route\UrlBuilder::build()
      */
     function link_to(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        $router = Router::registry();
-
-        invariant($router instanceof Router, 'Must be a Router');
-
-        return UrlBuilder::registry($router)->build($key, $params, $query);
+        return Depository::getInstance()
+            ->make('Titon\Route\UrlBuilder')
+            ->build($key, $params, $query);
     }
 
     /**
      * @see Titon\Route\UrlBuilder::url()
      */
     function url(): string {
-        $router = Router::registry();
-
-        invariant($router instanceof Router, 'Must be a Router');
-
-        return UrlBuilder::registry($router)->url();
+        return Depository::getInstance()
+            ->make('Titon\Route\UrlBuilder')
+            ->url();
     }
 }

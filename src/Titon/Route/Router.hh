@@ -24,7 +24,7 @@ use Titon\Route\Mixin\MethodList;
 use Titon\Route\Group as RouteGroup; // Will fatal without alias
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
-use Titon\Utility\Registry
+use Titon\Utility\Registry;
 
 /**
  * The Router is tasked with the management of routes and filters, at which some point a route is matched against

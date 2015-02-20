@@ -16,7 +16,7 @@ use Titon\Route\Mixin\MethodMixin;
 use Titon\Route\Mixin\PatternMixin;
 use Titon\Route\Mixin\SecureMixin;
 use Titon\Utility\State\Server;
-use Titon\Utility\Registry
+use Titon\Utility\Registry;
 use \ReflectionFunctionAbstract;
 use \ReflectionMethod;
 use \Serializable;

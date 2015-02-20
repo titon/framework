@@ -150,6 +150,15 @@ class DepositoryTest extends TestCase
 
         $this->assertEquals('Alex Phillips', $bar->getFoo()->getName());
     }
+
+    public function testMakeSingleton()
+    {
+        $this->container->register('Titon\Context\Foo');
+        $this->assertNotSame($this->container->make('Titon\Context\Foo'), $this->container->make('Titon\Context\Foo'));
+
+        $this->container->makeSingleton('Titon\Context\Foo');
+        $this->assertSame($this->container->make('Titon\Context\Foo'), $this->container->make('Titon\Context\Foo'));
+    }
 }
 
 class Foo

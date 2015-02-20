@@ -147,14 +147,46 @@ class Depository {
      * Register a new singleton in the container.
      *
      * @param string $alias     The alias (container key) for the registered item
-     * @param mixed $concrete   The class name, closure, object to register in
+     * @param mixed $concrete   The class name, Closure, or object to register in
      *                          the container, or null to use the alias as the
      *                          class name
      *
      * @return object|$definition   Either the concrete (if an object is registered)
      *                              or the definition of the registered item
      */
-    public function singleton(string $alias, mixed $concrete): mixed {
+    public function singleton(string $alias, mixed $concrete = null): mixed {
+        return $this->register($alias, $concrete, true);
+    }
+
+    /**
+     * Change an existing item to be used as a singleton or, if alias doesn't
+     * exist, register passed in alias and existing concrete as singleton.
+     *
+     * @param string $alias     The key or alias to change to a singleton
+     * @param mixed  $concrete  Class name, Closure, or object to register if
+     *                          no item is currently registered as the alias.
+     *                          If an item is already registered, the existing
+     *                          item will be used and this concrete will be
+     *                          ignored.
+     *
+     * @return mixed    Either the concrete (if an object is registered)
+     *                  or the definition of the registered item
+     */
+    public function makeSingleton(string $alias, mixed $concrete = null) {
+        if ($this->aliases->contains($alias)) {
+            return $this->makeSingleton($this->aliases[$alias]);
+        }
+
+        if ($this->items->contains($alias)) {
+            $this->items[$alias]['singleton'] = true;
+
+            return $this->items[$alias]['definition'];
+        }
+
+        if (!$this->singletons->contains($alias)) {
+            return $this->singletons[$alias];
+        }
+
         return $this->register($alias, $concrete, true);
     }
 
@@ -174,8 +206,9 @@ class Depository {
         }
 
         if (is_string($alias) && class_exists($alias)) {
-            $definition = $this->buildClass($alias);
-        } else {
+            $definition = $this->buildClass($alias, ...$arguments);
+        }
+        else {
             $definition = $this->buildCallable($alias);
         }
 
@@ -215,6 +248,14 @@ class Depository {
         return $this;
     }
 
+    public function clear(): this {
+        $this->aliases->clear();
+        $this->singletons->clear();
+        $this->items->clear();
+
+        return $this;
+    }
+
     /**
      * Return whether or not an alias has been registered in the container
      *
@@ -222,37 +263,37 @@ class Depository {
      *
      * @return bool
      */
-    public function isRegistered(string $alias): bool {
-        if ($this->aliases->contains($alias)) {
-            return true;
+    protected function buildClass(string $class, ...$arguments): Definition {
+        $reflection = new ReflectionClass($class);
+        if (!$reflection->isInstantiable()) {
+            $message = "Target [$class] is not instantiable.";
+            throw new ReflectionException($message);
         }
 
         if ($this->singletons->contains($alias)) {
             return true;
         }
 
-        if ($this->items->contains($alias)) {
-            return true;
+        if (!empty($arguments)) {
+            foreach ($arguments as $arg) {
+                $definition->with($arg);
+            }
         }
+        else {
+            foreach ($constructor->getParameters() as $param) {
+                $dependency = $param->getClass();
 
-        return false;
-    }
+                if (is_null($dependency)) {
+                    if ($param->isDefaultValueAvailable()) {
+                        $definition->with($param->getDefaultValue());
+                        continue;
+                    }
 
-    /**
-     * Return whether or not an alias has been registered as a singleton in
-     * the container
-     *
-     * @param string $alias Registered key or class name
-     *
-     * @return bool
-     */
-    public function isSingleton(string $alias): bool {
-        if ($this->aliases->contains($alias)) {
-            return $this->isSingleton($this->aliases[$alias]);
-        }
+                    throw new ReflectionException("Cannot to resolve dependency of $param for $class");
+                }
 
-        if ($this->singletons->contains($alias) || ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true)) {
-            return true;
+                $definition->with($dependency->getName());
+            }
         }
 
         return false;

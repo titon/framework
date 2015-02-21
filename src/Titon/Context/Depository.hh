@@ -49,7 +49,7 @@ class Depository {
     protected AliasMap $aliases = Map {};
 
     /**
-     * Singleton instance of Depository
+     * Instantiate a new container object.
      */
     protected static ?Depository $instance;
 

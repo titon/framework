@@ -209,8 +209,7 @@ class Depository {
 
         if (is_string($alias) && class_exists($alias)) {
             $definition = $this->buildClass($alias, ...$arguments);
-        }
-        else {
+        } else {
             $definition = $this->buildCallable($alias);
         }
 
@@ -231,8 +230,7 @@ class Depository {
 
         if ($this->singletons->contains($alias)) {
             $retval = $this->singletons[$alias];
-        }
-        else {
+        } else {
             $definition = $this->items[$alias]['definition'];
             $retval = $definition;
 
@@ -304,8 +302,7 @@ class Depository {
             foreach ($arguments as $arg) {
                 $definition->with($arg);
             }
-        }
-        else {
+        } else {
             foreach ($constructor->getParameters() as $param) {
                 $dependency = $param->getClass();
 
@@ -371,8 +368,7 @@ class Depository {
     }
 
     /**
-     * This method will use reflection to build the class and inject any
-     * necessary arguments for construction.
+     * Return whether or not an alias has been registered in the container.
      *
      * @param string $class         The class name to reflect and construct
      * @param mixed ...$parameters  Parameters required for constructing the object
@@ -413,8 +409,8 @@ class Depository {
     }
 
     /**
-     * Retrieve the created definition or stored instance from the depository
-     * by key
+     * Return whether or not an alias has been registered as a singleton in
+     * the container.
      *
      * @param string $alias                 The key the item is stored under
      * @param array<mixed> ...$arguments    Arguments passed into creating the

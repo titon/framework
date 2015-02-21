@@ -86,7 +86,6 @@ class Depository {
      *
      * @return object|$definition   Either the concrete (if an object is registered)
      *                              or the definition of the registered item
-     * @throws \Titon\Context\Exception\AlreadyRegisteredException
      */
     public function register(string $key, mixed $concrete = null, bool $singleton = false): mixed {
         if ($this->isRegistered($key)) {
@@ -133,7 +132,6 @@ class Depository {
      * @param $key string   The original class name or key registered
      *
      * @return $this Return the depository for fluent method chaining
-     * @throws \Titon\Context\Exception\AlreadyRegisteredException
      */
     public function alias(string $alias, string $key): this {
         if ($this->aliases->contains($alias)) {
@@ -217,11 +215,14 @@ class Depository {
     }
 
     /**
-     * Immediately build a closure and run it.
+     * Retrieve the created definition or stored instance from the depository
+     * by key
      *
-     * @param \Closure $callable
-     * @param ...$arguments
-     * @return mixed    The resolved registered item or return value
+     * @param string $alias                 The key the item is stored under
+     * @param array<mixed> ...$arguments    Arguments passed into creating the
+     *                                      definition
+     *
+     * @return mixed
      */
     protected function getRegisteredItem(string $alias, ...$arguments): mixed {
         if ($this->aliases->contains($alias)) {
@@ -244,7 +245,7 @@ class Depository {
             }
         }
 
-        return $definition->create(...$arguments);
+        return $retval;
     }
 
     /**
@@ -281,11 +282,14 @@ class Depository {
     }
 
     /**
-     * Return whether or not an alias has been registered in the container
+     * This method will use reflection to build the class and inject any
+     * necessary arguments for construction.
      *
-     * @param string $alias Registered key or class name
+     * @param string $class         The class name to reflect and construct
+     * @param mixed ...$parameters  Parameters required for constructing the object
      *
-     * @return bool
+     * @return Definition|mixed
+     * @throws ReflectionException
      */
     protected function buildClass(string $class, ...$arguments): Definition {
         $reflection = new ReflectionClass($class);
@@ -294,8 +298,11 @@ class Depository {
             throw new ReflectionException($message);
         }
 
-        if ($this->singletons->contains($alias)) {
-            return true;
+        $definition = DefinitionFactory::factory($class, $class, $this);
+        $constructor = $reflection->getConstructor();
+
+        if (is_null($constructor)) {
+            return $definition;
         }
 
         if (count($arguments) > 0) {
@@ -319,7 +326,7 @@ class Depository {
             }
         }
 
-        return false;
+        return $definition;
     }
 
     /**
@@ -370,76 +377,43 @@ class Depository {
     /**
      * Return whether or not an alias has been registered in the container.
      *
-     * @param string $class         The class name to reflect and construct
-     * @param mixed ...$parameters  Parameters required for constructing the object
+     * @param string $alias Registered key or class name
      *
-     * @return Definition
-     * @throws ReflectionException
+     * @return bool
      */
-    protected function buildClass(string $class): Definition {
-        $reflection = new ReflectionClass($class);
-
-        if (!$reflection->isInstantiable()) {
-            throw new ReflectionException("Target [$class] is not instantiable");
+    public function isRegistered(string $alias): bool {
+        if ($this->aliases->contains($alias)) {
+            return true;
         }
 
-        $definition = DefinitionFactory::factory($class, $class, $this);
-        $constructor = $reflection->getConstructor();
-
-        if (is_null($constructor)) {
-            return $definition;
+        if ($this->singletons->contains($alias)) {
+            return true;
         }
 
-        foreach ($constructor->getParameters() as $param) {
-            $dependency = $param->getClass();
-
-            if (is_null($dependency)) {
-                if ($param->isDefaultValueAvailable()) {
-                    $definition->with($param->getDefaultValue());
-                    continue;
-                }
-
-                throw new ReflectionException("Cannot to resolve dependency of $param for $class");
-            }
-
-            $definition->with($dependency->getName());
+        if ($this->items->contains($alias)) {
+            return true;
         }
 
-        return $definition;
+        return false;
     }
 
     /**
      * Return whether or not an alias has been registered as a singleton in
      * the container.
      *
-     * @param string $alias                 The key the item is stored under
-     * @param array<mixed> ...$arguments    Arguments passed into creating the
-     *                                      definition
+     * @param string $alias Registered key or class name
      *
-     * @return mixed
+     * @return bool
      */
-    protected function getRegisteredItem(string $alias, ...$arguments): mixed {
+    public function isSingleton(string $alias): bool {
         if ($this->aliases->contains($alias)) {
-            return $this->make($this->aliases[$alias], ...$arguments);
+            return $this->isSingleton($this->aliases[$alias]);
         }
 
-        if ($this->singletons->contains($alias)) {
-            $retval = $this->singletons[$alias];
-        } else {
-            $definition = $this->items[$alias]['definition'];
-            $retval = $definition;
-
-            if ($definition instanceof Definition) {
-                $retval = $definition->create(...$arguments);
-            }
-
-            if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
-                $this->items->remove($alias);
-                $this->singletons[$alias] = $retval;
-            }
+        if ($this->singletons->contains($alias) || ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true)) {
+            return true;
         }
 
-        return $retval;
+        return false;
     }
-
 }

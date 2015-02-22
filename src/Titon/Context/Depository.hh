@@ -82,7 +82,7 @@ class Depository {
             $serviceProvider = $this->make($serviceProvider);
         }
 
-        // Type checker thinks we are `mixed` here instead of `ServiceProvider. Reset it.
+        // Type checker thinks we are `mixed` here instead of `ServiceProvider`. Reset it.
         invariant($serviceProvider instanceof ServiceProvider, 'Must be a ServiceProvider.');
 
         $serviceProvider->setDepository($this);

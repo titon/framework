@@ -68,11 +68,7 @@ abstract class AbstractServiceProvider implements ServiceProvider {
      * {@inheritdoc}
      */
     public function provides(string $className): bool {
-        if ($this->provides->linearSearch($className) >= 0) {
-            return true;
-        }
-
-        return false;
+        return $this->provides->linearSearch($className) >= 0;
     }
 
     /**

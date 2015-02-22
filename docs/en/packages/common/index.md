@@ -17,7 +17,6 @@ composer require titon/core:*
 ### Documentation ###
 
 * [Bags](bags.md)
-* [Instantiation](instantiation.md)
 * [Interfaces](interfaces.md)
 * [Macros](macros.md)
 * [Memoization](memoization.md)

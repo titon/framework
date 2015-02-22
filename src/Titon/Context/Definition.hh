@@ -22,7 +22,7 @@ interface Definition {
      *
      * @return $this    The definition for fluent method chaining
      */
-    public function with(...$arguments): this;
+    public function with(/* HH_FIXME[4033]: variadic + strict */ ...$arguments): this;
 
     /**
      * Use reflection to construct a new object instance of the definition's class
@@ -32,6 +32,6 @@ interface Definition {
      *
      * @return $this    The definition for fluent method chaining
      */
-    public function create<T>(...$arguments): T;
+    public function create<T>(/* HH_FIXME[4033]: variadic + strict */ ...$arguments): T;
 
 }

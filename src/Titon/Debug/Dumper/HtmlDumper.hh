@@ -69,7 +69,7 @@ class HtmlDumper implements Dumper {
     /**
      * {@inheritdoc}
      */
-    public function debug(...$vars): string {
+    public function debug(/* HH_FIXME[4033]: variadic + strict */ ...$vars): string {
         $caller = Debugger::getCaller('debug');
 
         return static::renderTemplate('debug', [
@@ -82,7 +82,7 @@ class HtmlDumper implements Dumper {
     /**
      * {@inheritdoc}
      */
-    public function dump(...$vars): string {
+    public function dump(/* HH_FIXME[4033]: variadic + strict */ ...$vars): string {
         $caller = Debugger::getCaller('dump');
 
         return static::renderTemplate('debug', [

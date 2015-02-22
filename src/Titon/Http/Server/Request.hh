@@ -33,6 +33,7 @@ newtype AcceptHeader = shape('value' => string, 'quality' => float);
  */
 <<__ConsistentConstruct>>
 class Request extends Message implements IncomingRequest {
+
     /**
      * Custom attributes for the request.
      *

@@ -49,7 +49,9 @@ class Depository {
     protected AliasMap $aliases = Map {};
 
     /**
-     * Instantiate a new container object.
+     * Instantiate a persistent container object.
+     *
+     * @var \Titon\Context\Depository
      */
     protected static ?Depository $instance;
 
@@ -61,9 +63,42 @@ class Depository {
     }
 
     /**
+     * Alias a string to map to a registered item in the container. This allows
+     * you to call 'make' on an alias that maps to a more complex class name,
+     * Closure, or singleton instance.
+     *
+     * @param $alias string The alias to register
+     * @param $key string   The original class name or key registered
+     *
+     * @return $this Return the depository for fluent method chaining
+     */
+    public function alias(string $alias, string $key): this {
+        if ($this->aliases->contains($alias)) {
+            throw new AlreadyRegisteredException("Alias $alias has already been mapped to {$this->aliases[$alias]}");
+        }
+
+        $this->aliases[$alias] = $key;
+
+        return $this;
+    }
+
+    /**
+     * Clear all registered items, singletons, and aliases in the Depository.
+     *
+     * @return $this    Return the depository for fluent method chaining
+     */
+    public function clear(): this {
+        $this->aliases->clear();
+        $this->singletons->clear();
+        $this->items->clear();
+
+        return $this;
+    }
+
+    /**
      * Retrieve the Depository singleton
      *
-     * @return Depository   Return the Depository instance
+     * @return \Titon\Context\Depository
      */
     public static function getInstance(): Depository {
         if (is_null(self::$instance)) {
@@ -71,6 +106,105 @@ class Depository {
         }
 
         return self::$instance;
+    }
+
+    /**
+     * Return whether or not an alias has been registered in the container.
+     *
+     * @param string $alias Registered key or class name
+     *
+     * @return bool
+     */
+    public function isRegistered(string $alias): bool {
+        if ($this->aliases->contains($alias)) {
+            return true;
+        }
+
+        if ($this->singletons->contains($alias)) {
+            return true;
+        }
+
+        if ($this->items->contains($alias)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Return whether or not an alias has been registered as a singleton in
+     * the container.
+     *
+     * @param string $alias Registered key or class name
+     *
+     * @return bool
+     */
+    public function isSingleton(string $alias): bool {
+        if ($this->aliases->contains($alias)) {
+            return $this->isSingleton($this->aliases[$alias]);
+        }
+
+        if ($this->singletons->contains($alias) || ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Retrieve (and build if necessary) the registered item from the container.
+     *
+     * @param string $alias                 Key or alias of a registered item or a class
+     *                                      name, callable, or Closure to construct
+     * @param array<mixed> ...$arguments    Additional arguments to pass into the item at
+     *                                      construction
+     *
+     * @return mixed    The resolved registered item or return value
+     */
+    public function make(mixed $alias, ...$arguments): mixed {
+        if (is_string($alias) && $this->isRegistered($alias)) {
+            return $this->getRegisteredItem($alias, ...$arguments);
+        }
+
+        if (is_string($alias) && class_exists($alias)) {
+            $definition = $this->buildClass($alias, ...$arguments);
+        } else {
+            $definition = $this->buildCallable($alias);
+        }
+
+        return $definition->create(...$arguments);
+    }
+
+    /**
+     * Change an existing item to be used as a singleton or, if alias doesn't
+     * exist, register passed in alias and existing concrete as singleton.
+     *
+     * @param string $alias     The key or alias to change to a singleton
+     * @param mixed  $concrete  Class name, Closure, or object to register if
+     *                          no item is currently registered as the alias.
+     *                          If an item is already registered, the existing
+     *                          item will be used and this concrete will be
+     *                          ignored.
+     *
+     * @return mixed    Either the concrete (if an object is registered)
+     *                  or the definition of the registered item
+     */
+    public function makeSingleton(string $alias, mixed $concrete = null): mixed {
+        if ($this->aliases->contains($alias)) {
+            return $this->makeSingleton($this->aliases[$alias]);
+        }
+
+        if ($this->items->contains($alias)) {
+            $this->items[$alias]['singleton'] = true;
+
+            return $this->items[$alias]['definition'];
+        }
+
+        if (!$this->singletons->contains($alias)) {
+            return $this->singletons[$alias];
+        }
+
+        return $this->register($alias, $concrete, true);
     }
 
     /**
@@ -124,131 +258,6 @@ class Depository {
     }
 
     /**
-     * Alias a string to map to a registered item in the container. This allows
-     * you to call 'make' on an alias that maps to a more complex class name,
-     * Closure, or singleton instance.
-     *
-     * @param $alias string The alias to register
-     * @param $key string   The original class name or key registered
-     *
-     * @return $this Return the depository for fluent method chaining
-     */
-    public function alias(string $alias, string $key): this {
-        if ($this->aliases->contains($alias)) {
-            throw new AlreadyRegisteredException("Alias $alias has already been mapped to {$this->aliases[$alias]}");
-        }
-
-        $this->aliases[$alias] = $key;
-
-        return $this;
-    }
-
-    /**
-     * Register a new singleton in the container.
-     *
-     * @param string $alias     The alias (container key) for the registered item
-     * @param mixed $concrete   The class name, Closure, or object to register in
-     *                          the container, or null to use the alias as the
-     *                          class name
-     *
-     * @return object|$definition   Either the concrete (if an object is registered)
-     *                              or the definition of the registered item
-     */
-    public function singleton(string $alias, mixed $concrete = null): mixed {
-        return $this->register($alias, $concrete, true);
-    }
-
-    /**
-     * Change an existing item to be used as a singleton or, if alias doesn't
-     * exist, register passed in alias and existing concrete as singleton.
-     *
-     * @param string $alias     The key or alias to change to a singleton
-     * @param mixed  $concrete  Class name, Closure, or object to register if
-     *                          no item is currently registered as the alias.
-     *                          If an item is already registered, the existing
-     *                          item will be used and this concrete will be
-     *                          ignored.
-     *
-     * @return mixed    Either the concrete (if an object is registered)
-     *                  or the definition of the registered item
-     */
-    public function makeSingleton(string $alias, mixed $concrete = null): mixed {
-        if ($this->aliases->contains($alias)) {
-            return $this->makeSingleton($this->aliases[$alias]);
-        }
-
-        if ($this->items->contains($alias)) {
-            $this->items[$alias]['singleton'] = true;
-
-            return $this->items[$alias]['definition'];
-        }
-
-        if (!$this->singletons->contains($alias)) {
-            return $this->singletons[$alias];
-        }
-
-        return $this->register($alias, $concrete, true);
-    }
-
-    /**
-     * Retrieve (and build if necessary) the registered item from the container.
-     *
-     * @param string $alias                 Key or alias of a registered item or a class
-     *                                      name, callable, or Closure to construct
-     * @param array<mixed> ...$arguments    Additional arguments to pass into the item at
-     *                                      construction
-     *
-     * @return mixed    The resolved registered item or return value
-     */
-    public function make(mixed $alias, ...$arguments): mixed {
-        if (is_string($alias) && $this->isRegistered($alias)) {
-            return $this->getRegisteredItem($alias, ...$arguments);
-        }
-
-        if (is_string($alias) && class_exists($alias)) {
-            $definition = $this->buildClass($alias, ...$arguments);
-        } else {
-            $definition = $this->buildCallable($alias);
-        }
-
-        return $definition->create(...$arguments);
-    }
-
-    /**
-     * Retrieve the created definition or stored instance from the depository
-     * by key
-     *
-     * @param string $alias                 The key the item is stored under
-     * @param array<mixed> ...$arguments    Arguments passed into creating the
-     *                                      definition
-     *
-     * @return mixed
-     */
-    protected function getRegisteredItem(string $alias, ...$arguments): mixed {
-        if ($this->aliases->contains($alias)) {
-            return $this->make($this->aliases[$alias], ...$arguments);
-        }
-
-        if ($this->singletons->contains($alias)) {
-            $retval = $this->singletons[$alias];
-        } else {
-            $definition = $this->items[$alias]['definition'];
-            $retval = $definition;
-
-            if ($definition instanceof Definition) {
-                $retval = $definition->create(...$arguments);
-            }
-
-            if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
-                $this->items->remove($alias);
-                $this->singletons[$alias] = $retval;
-            }
-        }
-
-        return $retval;
-    }
-
-    /**
      * Remove an alias or key from the depository's registry.
      *
      * @param string $key The key to remove
@@ -269,16 +278,18 @@ class Depository {
     }
 
     /**
-     * Clear all registered items, singletons, and aliases in the Depository.
+     * Register a new singleton in the container.
      *
-     * @return $this    Return the depository for fluent method chaining
+     * @param string $alias     The alias (container key) for the registered item
+     * @param mixed $concrete   The class name, Closure, or object to register in
+     *                          the container, or null to use the alias as the
+     *                          class name
+     *
+     * @return object|$definition   Either the concrete (if an object is registered)
+     *                              or the definition of the registered item
      */
-    public function clear(): this {
-        $this->aliases->clear();
-        $this->singletons->clear();
-        $this->items->clear();
-
-        return $this;
+    public function singleton(string $alias, mixed $concrete = null): mixed {
+        return $this->register($alias, $concrete, true);
     }
 
     /**
@@ -375,45 +386,37 @@ class Depository {
     }
 
     /**
-     * Return whether or not an alias has been registered in the container.
+     * Retrieve the created definition or stored instance from the depository
+     * by key
      *
-     * @param string $alias Registered key or class name
+     * @param string $alias                 The key the item is stored under
+     * @param array<mixed> ...$arguments    Arguments passed into creating the
+     *                                      definition
      *
-     * @return bool
+     * @return mixed
      */
-    public function isRegistered(string $alias): bool {
+    protected function getRegisteredItem(string $alias, ...$arguments): mixed {
         if ($this->aliases->contains($alias)) {
-            return true;
+            return $this->make($this->aliases[$alias], ...$arguments);
         }
 
         if ($this->singletons->contains($alias)) {
-            return true;
+            $retval = $this->singletons[$alias];
+        } else {
+            $definition = $this->items[$alias]['definition'];
+            $retval = $definition;
+
+            if ($definition instanceof Definition) {
+                $retval = $definition->create(...$arguments);
+            }
+
+            if ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true) {
+                $this->items->remove($alias);
+                $this->singletons[$alias] = $retval;
+            }
         }
 
-        if ($this->items->contains($alias)) {
-            return true;
-        }
-
-        return false;
+        return $retval;
     }
 
-    /**
-     * Return whether or not an alias has been registered as a singleton in
-     * the container.
-     *
-     * @param string $alias Registered key or class name
-     *
-     * @return bool
-     */
-    public function isSingleton(string $alias): bool {
-        if ($this->aliases->contains($alias)) {
-            return $this->isSingleton($this->aliases[$alias]);
-        }
-
-        if ($this->singletons->contains($alias) || ($this->items->contains($alias) && $this->items[$alias]['singleton'] === true)) {
-            return true;
-        }
-
-        return false;
-    }
 }

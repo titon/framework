@@ -17,6 +17,7 @@ use Titon\Cache\Storage;
  * @package Titon\Cache
  */
 class Cache {
+
     /**
      * Storage engines.
      *

@@ -42,6 +42,14 @@ class Depository {
     protected SingletonMap $singletons = Map {};
 
     /**
+     * Vector collection of all Service Provider objects registered with the
+     * Depository.
+     *
+     * @var \Titon\Context\ProviderList
+     */
+    protected ProviderList $providers = Vector {};
+
+    /**
      * Map of aliases to registered classes and keys.
      *
      * @var \Titon\Context\AliasMap
@@ -60,6 +68,32 @@ class Depository {
      */
     public function __construct() {
         $this->singleton('Titon\Context\Depository', $this);
+    }
+
+    /**
+     * Register a new Service Provider object in the container.
+     *
+     * @param mixed $serviceProvider
+     *
+     * @return $this Return the depository for fluent method chaining
+     */
+    public function addServiceProvider(mixed $serviceProvider): this {
+        if (!($serviceProvider instanceof ServiceProvider)) {
+            $serviceProvider = $this->make($serviceProvider);
+        }
+
+        // Type checker thinks we are `mixed` here instead of `ServiceProvider. Reset it.
+        invariant($serviceProvider instanceof ServiceProvider, 'Must be a ServiceProvider.');
+
+        $serviceProvider->setDepository($this);
+
+        if ($serviceProvider->getProvides()->isEmpty()) {
+            $serviceProvider->initialize();
+        }
+
+        $this->providers[] = $serviceProvider;
+
+        return $this;
     }
 
     /**
@@ -106,6 +140,27 @@ class Depository {
         }
 
         return self::$instance;
+    }
+
+    /**
+     * Determines if a Service Provider `provides` the given class name and,
+     * if so, initializes the Service Provider for the Depository to resolve
+     * it.
+     *
+     * @param string $key   The class name to check.
+     *
+     * @return bool
+     */
+    protected function isInServiceProvider(string $className): bool {
+        foreach ($this->providers as $provider) {
+            if ($provider->provides($className)) {
+                $provider->initialize();
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -164,6 +219,10 @@ class Depository {
     public function make(mixed $alias, /* HH_FIXME[4033]: variadic + strict */ ...$arguments): mixed {
         if (is_string($alias) && $this->isRegistered($alias)) {
             return $this->getRegisteredItem($alias, ...$arguments);
+        }
+
+        if (is_string($alias) && $this->isInServiceProvider($alias)) {
+            return $this->make($alias, ...$arguments);
         }
 
         if (is_string($alias) && class_exists($alias)) {

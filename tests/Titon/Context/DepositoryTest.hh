@@ -7,6 +7,7 @@
 
 namespace Titon\Context;
 
+use Titon\Context\ServiceProvider\AbstractServiceProvider;
 use Titon\Test\TestCase;
 
 /**
@@ -159,6 +160,16 @@ class DepositoryTest extends TestCase
         $this->container->makeSingleton('Titon\Context\Foo');
         $this->assertSame($this->container->make('Titon\Context\Foo'), $this->container->make('Titon\Context\Foo'));
     }
+
+    public function testServiceProviders()
+    {
+        $this->container->addServiceProvider('Titon\Context\SomeServiceProvider');
+        $this->assertEquals(new Foo(), $this->container->make('Titon\Context\Foo'));
+        $this->assertEquals(new Foo(), $this->container->make('foo'));
+
+        $this->container->addServiceProvider('Titon\Context\AnotherServiceProvider');
+        $this->assertSame($this->container->make('bar'), $this->container->make('Titon\Context\Bar'));
+    }
 }
 
 class Foo
@@ -217,4 +228,22 @@ class Bar
 
 function FooBar(Foo $foo) {
     return $foo->getName();
+}
+
+class SomeServiceProvider extends AbstractServiceProvider {
+
+    protected ClassList $provides = Vector {
+        'Titon\Context\Foo'
+    };
+
+    public function register() {
+        $this->depository->register('foo', 'Titon\Context\Foo');
+    }
+}
+
+class AnotherServiceProvider extends AbstractServiceProvider {
+
+    public function register() {
+        $this->depository->singleton('bar', 'Titon\Context\Bar')->with('Titon\Context\Foo');
+    }
 }

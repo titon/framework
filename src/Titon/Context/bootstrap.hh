@@ -26,4 +26,6 @@ namespace Titon\Context {
         'arguments' => array<mixed>
     );
     type MethodList = Vector<Method>;
+    type ClassList = Vector<string>;
+    type ProviderList = Vector<ServiceProvider>;
 }

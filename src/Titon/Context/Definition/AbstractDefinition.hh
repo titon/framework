@@ -60,7 +60,7 @@ abstract class AbstractDefinition implements Definition {
      *
      * @return $this    The definition for fluent method chaining
      */
-    public function with(...$arguments): this {
+    public function with(/* HH_FIXME[4033]: variadic + strict */ ...$arguments): this {
         foreach ($arguments as $argument) {
             $this->arguments[] = $argument;
         }
@@ -77,7 +77,7 @@ abstract class AbstractDefinition implements Definition {
      *
      * @return array<mixed> The resolved arguments
      */
-    public function resolveArguments(...$arguments): array<mixed> {
+    public function resolveArguments(/* HH_FIXME[4033]: variadic + strict */ ...$arguments): array<mixed> {
         if ($arguments) {
             $this->arguments = $arguments;
         }

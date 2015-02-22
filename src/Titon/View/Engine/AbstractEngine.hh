@@ -138,7 +138,7 @@ abstract class AbstractEngine implements Engine {
     /**
      * {@inheritdoc}
      */
-    public function wrapWith(...$names): this {
+    public function wrapWith(/* HH_FIXME[4033]: variadic + strict */ ...$names): this {
         $this->wrapper = new Vector($names);
 
         return $this;

@@ -161,7 +161,7 @@ class Depository {
      *
      * @return mixed    The resolved registered item or return value
      */
-    public function make(mixed $alias, ...$arguments): mixed {
+    public function make(mixed $alias, /* HH_FIXME[4033]: variadic + strict */ ...$arguments): mixed {
         if (is_string($alias) && $this->isRegistered($alias)) {
             return $this->getRegisteredItem($alias, ...$arguments);
         }
@@ -302,7 +302,7 @@ class Depository {
      * @return Definition|mixed
      * @throws ReflectionException
      */
-    protected function buildClass(string $class, ...$arguments): Definition {
+    protected function buildClass(string $class, /* HH_FIXME[4033]: variadic + strict */ ...$arguments): Definition {
         $reflection = new ReflectionClass($class);
         if (!$reflection->isInstantiable()) {
             $message = "Target [$class] is not instantiable.";
@@ -395,7 +395,7 @@ class Depository {
      *
      * @return mixed
      */
-    protected function getRegisteredItem(string $alias, ...$arguments): mixed {
+    protected function getRegisteredItem(string $alias, /* HH_FIXME[4033]: variadic + strict */ ...$arguments): mixed {
         if ($this->aliases->contains($alias)) {
             return $this->make($this->aliases[$alias], ...$arguments);
         }

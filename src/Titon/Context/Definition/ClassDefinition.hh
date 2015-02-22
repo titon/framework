@@ -53,7 +53,7 @@ class ClassDefinition extends AbstractDefinition {
     /**
      * {@inheritdoc}
      */
-    public function create<T>(...$arguments): T {
+    public function create<T>(/* HH_FIXME[4033]: variadic + strict */ ...$arguments): T {
         $reflection = new ReflectionClass($this->class);
         $object = $reflection->newInstanceArgs(
             $this->resolveArguments(...$arguments)
@@ -70,7 +70,7 @@ class ClassDefinition extends AbstractDefinition {
      *
      * @return $this    The definition for fluent method chaining
      */
-    public function call(string $method, ...$arguments): this {
+    public function call(string $method, /* HH_FIXME[4033]: variadic + strict */ ...$arguments): this {
         $this->methods[] = shape(
             'method'    => $method,
             'arguments' => $arguments,

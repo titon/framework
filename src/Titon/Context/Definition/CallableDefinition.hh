@@ -45,7 +45,7 @@ class CallableDefinition extends AbstractDefinition {
     /**
      * {@inheritdoc}
      */
-    public function create<T>(...$arguments): T {
+    public function create<T>(/* HH_FIXME[4033]: variadic + strict */ ...$arguments): T {
         $arguments = $this->resolveArguments(...$arguments);
 
         if ($this->class) {

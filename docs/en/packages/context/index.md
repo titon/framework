@@ -15,3 +15,4 @@ composer require titon/context:*
 * [Containers](container.md)
 * [Constructor & Method Injection](injection.md)
 * [Auto-Dependency Resolution](resolution.md)
+* [Service Providers](service-providers.md)

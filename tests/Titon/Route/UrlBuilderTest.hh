@@ -1,6 +1,8 @@
 <?hh
 namespace Titon\Route;
 
+use Titon\Context\Depository;
+use Titon\Context\Exception\AlreadyRegisteredException;
 use Titon\Test\TestCase;
 use Titon\Utility\Config;
 use Titon\Utility\State\Get;
@@ -11,17 +13,30 @@ use Titon\Utility\State\Server;
  */
 class UrlBuilderTest extends TestCase {
 
+    public static function setUpBeforeClass() {
+        $container = Depository::getInstance();
+
+        $container->singleton('Titon\Route\Router');
+        $container->register('Titon\Route\UrlBuilder')->with($container->make('Titon\Route\Router'));
+    }
+
+    public static function tearDownAfterClass() {
+        Depository::getInstance()->clear();
+    }
+
     protected function setUp() {
         parent::setUp();
 
-        $router = Router::registry();
+        $container = Depository::getInstance();
+
+        $router = $container->make('Titon\Route\Router');
         $router->map('action.ext', new TestRoute('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
         $router->map('action', new TestRoute('/{module}/{controller}/{action}', 'Module\Controller@action'));
         $router->map('controller', new TestRoute('/{module}/{controller}', 'Module\Controller@action'));
         $router->map('module', new TestRoute('/{module}', 'Module\Controller@action'));
         $router->map('root', new TestRoute('/', 'Module\Controller@action'));
 
-        $this->object = UrlBuilder::registry($router);
+        $this->object = $container->make('Titon\Route\UrlBuilder');
     }
 
     public function testBuild() {

@@ -8,7 +8,6 @@
 namespace Titon\Route;
 
 use Titon\Common\Cacheable;
-use Titon\Common\FactoryAware;
 use Titon\Route\Exception\MissingTokenException;
 use Titon\Utility\Config;
 use Titon\Utility\Inflector;
@@ -20,7 +19,7 @@ use Titon\Utility\Inflector;
  * @package Titon\Route
  */
 class UrlBuilder {
-    use Cacheable, FactoryAware;
+    use Cacheable;
 
     /**
      * Router instance.

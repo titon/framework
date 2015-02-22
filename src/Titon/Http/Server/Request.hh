@@ -8,7 +8,6 @@
 
 namespace Titon\Http\Server;
 
-use Titon\Common\FactoryAware;
 use Titon\Http\Cookie;
 use Titon\Http\Message;
 use Titon\Http\Bag\CookieBag;
@@ -34,8 +33,6 @@ newtype AcceptHeader = shape('value' => string, 'quality' => float);
  */
 <<__ConsistentConstruct>>
 class Request extends Message implements IncomingRequest {
-    use FactoryAware;
-
     /**
      * Custom attributes for the request.
      *

@@ -20,6 +20,9 @@
         "titon/common": "*",
         "titon/event": "*"
     },
+    "suggest": {
+        "titon/context": "Use the Depository to register Environment for global functions"
+    },
     "autoload": {
         "psr-4": {
             "Titon\\Environment\\": ""

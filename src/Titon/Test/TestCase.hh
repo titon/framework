@@ -27,6 +27,8 @@ type FixtureMap = Map<string, Fixture>;
  */
 class TestCase extends \PHPUnit_Framework_TestCase {
 
+    const DATE_RFC3339_REGEX = '\d{4}\-\d{2}\-\d{2}T\d{2}:\d{2}:\d{2}\+\d{2}:\d{2}';
+
     /**
      * List of loaded fixtures.
      *

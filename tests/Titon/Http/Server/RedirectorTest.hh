@@ -23,8 +23,9 @@ class RedirectorTest extends TestCase {
         $_SERVER['HTTP_REFERER'] = '/new/url';
         Server::initialize($_SERVER);
 
-        $response = Redirector::back();
         $time = time();
+        $response = Redirector::back();
+        $response->date($time);
 
         $this->assertEquals([
             'Date' => [gmdate(Http::DATE_FORMAT, $time)],
@@ -34,8 +35,9 @@ class RedirectorTest extends TestCase {
     }
 
     public function testHome() {
-        $response = Redirector::home();
         $time = time();
+        $response = Redirector::home();
+        $response->date($time);
 
         $this->assertEquals([
             'Date' => [gmdate(Http::DATE_FORMAT, $time)],
@@ -48,8 +50,9 @@ class RedirectorTest extends TestCase {
         $_SERVER['PATH_INFO'] = '/current/url';
         Server::initialize($_SERVER);
 
-        $response = Redirector::refresh();
         $time = time();
+        $response = Redirector::refresh();
+        $response->date($time);
 
         $this->assertEquals([
             'Date' => [gmdate(Http::DATE_FORMAT, $time)],
@@ -59,10 +62,11 @@ class RedirectorTest extends TestCase {
     }
 
     public function testTo() {
+        $time = time();
         $response = Redirector::to('/custom/url', 300, function(Response $response) {
             $response->setHeader('X-Test', 'Foobar');
         });
-        $time = time();
+        $response->date($time);
 
         $this->assertEquals([
             'Date' => [gmdate(Http::DATE_FORMAT, $time)],

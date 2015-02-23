@@ -10,6 +10,7 @@ class XmlResponseTest extends TestCase {
         $time = time();
         $response = new XmlResponse(['foo' => 'bar']);
         $response->debug();
+        $response->date($time);
 
         ob_start();
         $body = $response->send();
@@ -35,6 +36,7 @@ class XmlResponseTest extends TestCase {
         $time = time();
         $response = new XmlResponse(['foo' => 'bar'], 200, 'data');
         $response->debug();
+        $response->date($time);
 
         ob_start();
         $body = $response->send();

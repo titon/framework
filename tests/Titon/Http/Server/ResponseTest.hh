@@ -22,6 +22,7 @@ class ResponseTest extends TestCase {
 
         $this->object = new Response();
         $this->object->debug();
+        $this->object->date($this->time);
     }
 
     public function testAcceptRanges() {

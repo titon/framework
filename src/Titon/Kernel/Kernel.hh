@@ -7,14 +7,12 @@
 
 namespace Titon\Kernel;
 
-use Titon\Event\Subject;
-
-interface Kernel extends Subject {
+interface Kernel extends Middleware {
 
     public function pipe(Middleware $middleware): this;
 
     public function run(Input $input, Output $output): Output;
 
-    public function terminate(): this;
+    //public function terminate(): this;
 
 }

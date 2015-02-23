@@ -7,25 +7,46 @@
 
 namespace Titon\Kernel\Middleware;
 
-use Titon\Kernel\MiddlewareList;
+use Titon\Kernel\Input;
+use Titon\Kernel\Output;
+use SplQueue;
 
+/**
+ * The Next class handles the nested execution of middleware in the pipeline.
+ *
+ * @package Titon\Kernel\Middleware
+ */
 class Next {
 
-    protected string $method;
+    /**
+     * The middleware in the pipeline to execute.
+     *
+     * @var \SplQueue
+     */
+    protected SplQueue $pipeline;
 
-    protected MiddlewareList $pipeline;
-
-    public function __construct(MiddlewareList $pipeline, string $method) {
-        $this->pipeline = $pipeline->toVector();
-        $this->method = $method;
+    /**
+     * Store the pipeline to handle.
+     *
+     * @param \SplQueue $pipeline
+     */
+    public function __construct(SplQueue $pipeline) {
+        $this->pipeline = $pipeline;
     }
 
-    public function __invoke(Input $input, Output $output) {
-        $middleware = $this->pipeline[0];
+    /**
+     * This method will dequeue the next middleware in line and execute its `handle()` method.
+     * A new `Next` instance should be instantiated so the following middleware in line can be executed.
+     *
+     * @param \Titon\Kernel\Input $input
+     * @param \Titon\Kernel\Output $output
+     * @return \Titon\Kernel\Output
+     */
+    public function handle(Input $input, Output $output): Output {
+        $middleware = $this->pipeline->dequeue();
+        $handler = inst_meth($middleware, 'handle');
 
-        $this->pipeline->removeKey(0);
-
-        return call_user_func(inst_meth($middleware, $this->method), $input, $output, new Next($this->pipeline, $this->method));
+        return $handler($input, $output, new Next($this->pipeline));
     }
 
 }

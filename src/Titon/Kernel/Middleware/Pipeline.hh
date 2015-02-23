@@ -7,28 +7,61 @@
 
 namespace Titon\Kernel\Middleware;
 
-use Titon\Kernel\MiddlewareList;
+use Titon\Kernel\Input;
+use Titon\Kernel\Kernel;
+use Titon\Kernel\Middleware;
+use Titon\Kernel\Output;
+use SplQueue;
 
+/**
+ * The Pipeline handles the management of middleware through the use of a queue data structure.
+ *
+ * @package Titon\Kernel\Middleware
+ */
 class Pipeline {
 
-    protected MiddlewareList $pipeline = Vector {};
+    /**
+     * Middleware items stored in a queue data structure.
+     *
+     * @var \SplQueue
+     */
+    protected SplQueue $pipeline;
 
+    /**
+     * Create a new queue to store middleware.
+     */
+    public function __construct() {
+        $this->pipeline = new SplQueue();
+    }
+
+    /**
+     * Add a middleware to the queue.
+     *
+     * @param \Titon\Kernel\Middleware $middleware
+     * @return $this
+     */
     public function through(Middleware $middleware): this {
-        $this->pipeline[] = $middleware;
+        $this->pipeline->enqueue($middleware);
 
         return $this;
     }
 
-    public function runAfter(Input $input, Output $ouput): void {
-        $next = new Next($this->pipeline->reverse(), 'after');
+    /**
+     * Start the pipeline process by executing the first middleware in the queue,
+     * and passing a handler for the next middleware as an argument callback.
+     *
+     * @param \Titon\Kernel\Kernel $kernel
+     * @param \Titon\Kernel\Input $input
+     * @param \Titon\Kernel\Output $output
+     * @return \Titon\Kernel\Output
+     */
+    public function send(Kernel $kernel, Input $input, Output $output): Output {
 
-        return $next($input, $output);
-    }
+        // Since the kernel itself is middleware, add the kernel as the last item in the queue.
+        // This allows its `handle()` method to be ran after all other middleware.
+        $this->through($kernel);
 
-    public function runBefore(Input $input, Output $ouput): void {
-        $next = new Next($this->pipeline, 'before');
-
-        return $next($input, $output);
+        return (new Next($this->pipeline))->handle($input, $output);
     }
 
 }

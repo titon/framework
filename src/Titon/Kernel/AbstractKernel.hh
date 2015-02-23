@@ -9,10 +9,12 @@ namespace Titon\Kernel;
 
 // https://mwop.net/blog/2015-01-08-on-http-middleware-and-psr-7.html
 
+use Titon\Context\Depository;
 use Titon\Event\EmitsEvents;
+use Titon\Event\Subject;
 use Titon\Kernel\Middleware\Pipeline;
 
-abstract class AbstractKernel implements Kernel {
+abstract class AbstractKernel extends Depository implements Kernel, Subject {
     use EmitsEvents;
 
     protected Pipeline $pipeline;
@@ -27,20 +29,14 @@ abstract class AbstractKernel implements Kernel {
         return $this;
     }
 
-    protected function start(Input $input, Output $ouput): void {
-        $this->emit('kernel.starting', [$input, $output]);
+    public function run(Input $input, Output $output): Output {
+        //$this->emit('kernel.startup', [$input, $output]);
 
-        $this->pipeline->runBefore($input, $output);
+        $output = $this->pipeline->send($this, $input, $output);
 
-        $this->emit('kernel.started', [$input, $output]);
-    }
+        //$this->emit('kernel.shutdown', [$input, $output]);
 
-    protected function stop(Input $input, Output $ouput): void {
-        $this->emit('kernel.stopping', [$input, $output]);
-
-        $this->pipeline->runAfter($input, $output);
-
-        $this->emit('kernel.stopped', [$input, $output]);
+        return $output;
     }
 
 }

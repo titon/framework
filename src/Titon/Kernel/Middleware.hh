@@ -7,10 +7,10 @@
 
 namespace Titon\Kernel;
 
+use Titon\Kernel\Middleware\Next;
+
 interface Middleware {
 
-    public function before(Input $input, Output $output, ?MiddlewareCallback $next = null): void;
-
-    public function after(Input $input, Output $output, ?MiddlewareCallback $next = null): void;
+    public function handle(Input $input, Output $output, Next $next): Output;
 
 }

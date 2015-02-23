@@ -217,17 +217,21 @@ class Depository {
      * @return mixed    The resolved registered item or return value
      */
     public function make(mixed $alias, /* HH_FIXME[4033]: variadic + strict */ ...$arguments): mixed {
-        if (is_string($alias) && $this->isRegistered($alias)) {
-            return $this->getRegisteredItem($alias, ...$arguments);
+        $definition = null;
+
+        if (is_string($alias)) {
+            if ($this->isRegistered($alias)) {
+                return $this->getRegisteredItem($alias, ...$arguments);
+
+            } else if ($this->isInServiceProvider($alias)) {
+                return $this->make($alias, ...$arguments);
+
+            } else if (class_exists($alias)) {
+                $definition = $this->buildClass($alias, ...$arguments);
+            }
         }
 
-        if (is_string($alias) && $this->isInServiceProvider($alias)) {
-            return $this->make($alias, ...$arguments);
-        }
-
-        if (is_string($alias) && class_exists($alias)) {
-            $definition = $this->buildClass($alias, ...$arguments);
-        } else {
+        if (!$definition) {
             $definition = $this->buildCallable($alias);
         }
 

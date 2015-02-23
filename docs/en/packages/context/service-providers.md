@@ -1,23 +1,31 @@
 # Service Providers #
 
-Service providers provide a central location to bootstrap dependencies for an application. They allow the registering of
-items into the Depository in groups as well as deferred loading so that items aren't registered until needed.
+Service providers provide a central location to bootstrap dependencies for an application. They allow the registering of items into a `Titon\Context\Depository` in groups as well as deferred loading so that items aren't registered until needed.
 
-A service provider must extend `AbstractServiceProvider` and define the `register` method. An optional `provides` vector
-can be defined. If the `provides` Vector is defined, all class names must be present in the list. This allows deferred
-loading of the service provider and it will not be initialized until a class from the service provider is needed.
+A service provider must extend the `Titon\Context\ServiceProvider\AbstractServiceProvider` abstract class or implement the `Titon\Context\ServiceProvider` interface, as well as define the `register()` method. An optional `provides` vector property can be defined, which should contain a list of fully qualified class names that the service provider provides. This allows deferred loading of the service provider and deferred initialization until a class from the service provider is needed.
 
-The `register` method is where the retrieving and registering items in the Depository is handled.
+## Registering ##
+
+The `register()` method can be used to register items in the `Depository`.
 
 ```hack
-class SomeServiceProvider extends Titon\Context\ServiceProvider\AbstractServiceProvider {
+use Titon\Context\ClassList;
+
+class ExampleServiceProvider extends Titon\Context\ServiceProvider\AbstractServiceProvider {
 
     protected ClassList $provides = Vector {
-        'Titon\Context\Foo'
+        'Some\Namespace\Foo'
     };
 
     public function register() {
-        $this->depository->register('foo', 'Titon\Context\Foo');
+        $this->depository->register('foo', 'Some\Namespace\Foo');
     }
 }
+```
+
+To make use of a service provider, it must be added to a `Depository`. The provider can either be passed as a string, or as an object. If passed as a string, the provider will be instantiated using the container allowing for automatic constructor injection.
+
+```hack
+$container->addServiceProvider($provider);
+$container->addServiceProvider('ExampleServiceProvider');
 ```

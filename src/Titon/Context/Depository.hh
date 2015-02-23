@@ -151,7 +151,7 @@ class Depository {
      *
      * @return bool
      */
-    protected function isInServiceProvider(string $className): bool {
+    public function isInServiceProvider(string $className): bool {
         foreach ($this->providers as $provider) {
             if ($provider->provides($className)) {
                 $provider->initialize();

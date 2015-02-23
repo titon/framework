@@ -15,7 +15,7 @@
 
 namespace Titon\Context {
     type AliasMap = Map<string, string>;
-    type SingletonMap = Map<string, mixed>;
+    type ClassList = Vector<string>;
     type Item = shape(
         'definition' => Definition,
         'singleton'  => bool
@@ -26,6 +26,6 @@ namespace Titon\Context {
         'arguments' => array<mixed>
     );
     type MethodList = Vector<Method>;
-    type ClassList = Vector<string>;
     type ProviderList = Vector<ServiceProvider>;
+    type SingletonMap = Map<string, mixed>;
 }

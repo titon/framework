@@ -131,3 +131,7 @@ $foo = $container->make('Foo');
 ```
 
 The method accepts either an alias, or the class name.
+
+## Service Providers ##
+
+[Jump to the service provider documentation for more information.](service-providers.md)

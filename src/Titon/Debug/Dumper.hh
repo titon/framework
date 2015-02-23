@@ -32,7 +32,7 @@ interface Dumper {
      * @param mixed ...$vars
      * @return string
      */
-    public function debug(...$vars): string;
+    public function debug(/* HH_FIXME[4033]: variadic + strict */ ...$vars): string;
 
     /**
      * Output a variable, or multiple variables, and include type information.
@@ -41,7 +41,7 @@ interface Dumper {
      * @param mixed ...$vars
      * @return string
      */
-    public function dump(...$vars): string;
+    public function dump(/* HH_FIXME[4033]: variadic + strict */ ...$vars): string;
 
     /**
      * Output an exception including any meta data and stack trace.

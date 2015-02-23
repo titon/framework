@@ -23,12 +23,11 @@ class DeprecatedTest extends TestCase {
 
         $this->assertFileNotExists($this->vfs->path($path));
 
-        $date = date(DateTime::RFC3339);
         $stub = new DeprecatedStub();
 
         $this->assertFileExists($this->vfs->path($path));
 
-        $this->assertEquals('[' . $date . '] Titon\Debug\Annotation\DeprecatedStub is deprecated. This is the error message. [/]' . PHP_EOL, file_get_contents($this->vfs->path($path)));
+        $this->assertRegExp('/^\[' . self::DATE_RFC3339_REGEX . '\] ' . preg_quote('Titon\Debug\Annotation\DeprecatedStub', '/') . ' is deprecated\. This is the error message\./', file_get_contents($this->vfs->path($path)));
     }
 
 }

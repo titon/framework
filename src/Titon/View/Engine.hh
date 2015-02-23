@@ -104,6 +104,6 @@ interface Engine {
      * @param string $names
      * @return $this
      */
-    public function wrapWith(...$names): this; // todo - type hint once variadic supports it
+    public function wrapWith(/* HH_FIXME[4033]: variadic + strict */ ...$names): this;
 
 }

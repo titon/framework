@@ -8,7 +8,13 @@
     "authors": [
         {
             "name": "Miles Johnson",
-            "homepage": "http://milesj.me"
+            "homepage": "http://milesj.me",
+            "role": "Owner, Developer"
+        },
+        {
+            "name": "Alex Phillips",
+            "homepage": "http://wootables.com",
+            "role": "Developer"
         }
     ],
     "support": {
@@ -34,6 +40,7 @@
             "src/Titon/Annotation/bootstrap.hh",
             "src/Titon/Cache/bootstrap.hh",
             "src/Titon/Common/bootstrap.hh",
+            "src/Titon/Context/bootstrap.hh",
             "src/Titon/Controller/bootstrap.hh",
             "src/Titon/Debug/bootstrap.hh",
             "src/Titon/Environment/bootstrap.hh",

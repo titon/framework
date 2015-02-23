@@ -10,7 +10,6 @@ namespace Titon\Route;
 use Titon\Annotation\Reader;
 use Titon\Cache\Item;
 use Titon\Cache\Storage;
-use Titon\Common\FactoryAware;
 use Titon\Event\EmitsEvents;
 use Titon\Event\Event;
 use Titon\Event\Subject;
@@ -23,9 +22,9 @@ use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
 use Titon\Route\Mixin\MethodList;
 use Titon\Route\Group as RouteGroup; // Will fatal without alias
-use Titon\Utility\Registry;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
+use Titon\Utility\Registry;
 
 /**
  * The Router is tasked with the management of routes and filters, at which some point a route is matched against
@@ -37,7 +36,7 @@ use Titon\Utility\State\Server;
  *      route.matched(Router $router, Route $route)
  */
 class Router implements Subject {
-    use EmitsEvents, FactoryAware;
+    use EmitsEvents;
 
     /**
      * Base folder structure if the application was placed within a directory.

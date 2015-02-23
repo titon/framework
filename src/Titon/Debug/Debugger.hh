@@ -87,7 +87,7 @@ class Debugger {
     /**
      * @see \Titon\Debug\Dumper::debug()
      */
-    public static function debug(...$vars): string {
+    public static function debug(/* HH_FIXME[4033]: variadic + strict */ ...$vars): string {
         return (string) call_user_func_array(inst_meth(static::getDumper(), 'debug'), $vars);
     }
 
@@ -101,7 +101,7 @@ class Debugger {
     /**
      * @see \Titon\Debug\Dumper::dump()
      */
-    public static function dump(...$vars): string {
+    public static function dump(/* HH_FIXME[4033]: variadic + strict */ ...$vars): string {
         return (string) call_user_func_array(inst_meth(static::getDumper(), 'dump'), $vars);
     }
 
@@ -301,7 +301,7 @@ class Debugger {
      * @param string $message
      * @param array $args
      */
-    public static function handleInvariant(string $message, ...$args): void {
+    public static function handleInvariant(string $message, /* HH_FIXME[4033]: variadic + strict */ ...$args): void {
         static::getLogger()?->log(Logger::INFO, $message, $args);
     }
 

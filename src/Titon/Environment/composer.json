@@ -20,6 +20,9 @@
         "titon/common": "*",
         "titon/event": "*"
     },
+    "suggest": {
+        "titon/context": "Utilize global environment functions using the Context package"
+    },
     "autoload": {
         "psr-4": {
             "Titon\\Environment\\": ""

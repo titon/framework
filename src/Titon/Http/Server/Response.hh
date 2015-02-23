@@ -10,7 +10,6 @@ namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamableInterface;
 use Titon\Common\Exception\InvalidArgumentException;
-use Titon\Common\FactoryAware;
 use Titon\Http\Cookie;
 use Titon\Http\Message;
 use Titon\Http\Http;
@@ -31,7 +30,7 @@ use Titon\Utility\Time;
  * @package Titon\Http\Server
  */
 class Response extends Message implements OutgoingResponse {
-    use FactoryAware, IncomingRequestAware;
+    use IncomingRequestAware;
 
     /**
      * Will return the response as a string instead of sending output.

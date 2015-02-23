@@ -22,7 +22,8 @@
     },
     "suggest": {
         "titon/annotation": "Wire Route annotations using the Annotation package",
-        "titon/cache": "Cache route lookups using the Cache package"
+        "titon/cache": "Cache route lookups using the Cache package",
+        "titon/context": "Utilize global route functions using the Context package"
     },
     "autoload": {
         "psr-4": {

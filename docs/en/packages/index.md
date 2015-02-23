@@ -6,6 +6,7 @@ Each package can be used externally outside of the framework, or in unison with 
 * [Annotation](annotation/index.md) - Class and method metadata annotating
 * [Cache](cache/index.md) - Data caching through storage engines
 * [Common](common/index.md) - Common interfaces, traits, and abstract implementations
+* [Context](context/index.md) - Dependency containers and service providers
 * [Controller](controller/index.md) - Controllers and actions in the dispatch cycle
 * [Debug](debug/index.md) - Debugging, logging, and benchmarking
 * [Environment](environment/index.md) - Environment detection and host bootstrapping

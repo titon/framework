@@ -35,6 +35,7 @@ class DownloadResponseTest extends TestCase {
         $time = time();
         $response = new DownloadResponse($this->vfs->path('/http/download.txt'));
         $response->prepare(Request::createFromGlobals());
+        $response->date($time);
 
         ob_start();
         $body = $response->send();
@@ -60,6 +61,7 @@ class DownloadResponseTest extends TestCase {
         $time = time();
         $response = new DownloadResponse($this->vfs->path('/http/download'));
         $response->prepare(Request::createFromGlobals());
+        $response->date($time);
 
         ob_start();
         $body = $response->send();
@@ -83,6 +85,7 @@ class DownloadResponseTest extends TestCase {
         $time = time();
         $response = Response::download($this->vfs->path('/http/download.txt'), 'custom-filename.txt', true, true);
         $response->prepare(Request::createFromGlobals());
+        $response->date($time);
 
         ob_start();
         $body = $response->send();

@@ -67,28 +67,27 @@ namespace {
 namespace {
     use Titon\Route\ParamMap;
     use Titon\Route\QueryMap;
-    use Titon\Route\Router;
-    use Titon\Route\UrlBuilder;
+    use Titon\Context\Depository;
 
     /**
      * @see Titon\Route\UrlBuilder::build()
      */
     function link_to(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        $router = Router::registry();
-
-        invariant($router instanceof Router, 'Must be a Router');
-
-        return UrlBuilder::registry($router)->build($key, $params, $query);
+        // UNSAFE
+        // Since we're not type checking the response from the container.
+        return Depository::getInstance()
+            ->make('Titon\Route\UrlBuilder')
+            ->build($key, $params, $query);
     }
 
     /**
      * @see Titon\Route\UrlBuilder::url()
      */
     function url(): string {
-        $router = Router::registry();
-
-        invariant($router instanceof Router, 'Must be a Router');
-
-        return UrlBuilder::registry($router)->url();
+        // UNSAFE
+        // Since we're not type checking the response from the container.
+        return Depository::getInstance()
+            ->make('Titon\Route\UrlBuilder')
+            ->url();
     }
 }

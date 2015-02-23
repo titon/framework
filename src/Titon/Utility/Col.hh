@@ -335,7 +335,7 @@ class Col {
      * @param Map<Tk, Tv> $merges
      * @return Map<Tk, Tv>
      */
-    public static function merge<Tk, Tv>(...$merges): Map<Tk, Tv> { // @todo - Variadic doesn't support type hints
+    public static function merge<Tk, Tv>(/* HH_FIXME[4033]: variadic + strict */ ...$merges): Map<Tk, Tv> {
         $base = Map {};
 
         foreach ($merges as $merge) {

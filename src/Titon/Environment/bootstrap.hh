@@ -31,11 +31,16 @@ namespace Titon\Environment {
  */
 
 namespace {
+    use Titon\Context\Depository;
 
     /**
      * @see Titon\Environment\Environment::getVariable()
      */
     function env(string $key): string {
-        return Environment::registry()->getVariable($key);
+        // UNSAFE
+        // Since we're not type checking the response from the container.
+        return Depository::getInstance()
+            ->make('Titon\Environment\Environment')
+            ->getVariable($key);
     }
 }

@@ -31,12 +31,11 @@ class MonitorTest extends TestCase {
 
         $this->assertFileNotExists($this->vfs->path($path));
 
-        $date = date(DateTime::RFC3339);
         $stub = new MonitorStub();
 
         $this->assertFileExists($this->vfs->path($path));
 
-        $this->assertEquals(sprintf('[%s] Titon\Debug\Annotation\MonitorStub was instantiated in %s/Titon/Debug/Annotation/MonitorTest.hh on line 35. [/]' . PHP_EOL, $date, TEST_DIR), file_get_contents($this->vfs->path($path)));
+        $this->assertRegExp('/^\[' . self::DATE_RFC3339_REGEX . '\] ' . preg_quote('Titon\Debug\Annotation\MonitorStub', '/') . ' was instantiated in ' . preg_quote(TEST_DIR . '/Titon/Debug/Annotation/MonitorTest.hh', '/') . '/', file_get_contents($this->vfs->path($path)));
     }
 
 }

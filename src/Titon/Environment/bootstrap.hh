@@ -37,6 +37,8 @@ namespace {
      * @see Titon\Environment\Environment::getVariable()
      */
     function env(string $key): string {
+        // UNSAFE
+        // Since we're not type checking the response from the container.
         return Depository::getInstance()
             ->make('Titon\Environment\Environment')
             ->getVariable($key);

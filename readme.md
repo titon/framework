@@ -30,17 +30,14 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 
 Upcoming features and release plan.
 
-* February
-    * Context package - Dependency containers and service locators
-    * YAML support
-* March
-    * Kernel package - Application foundation
-    * [MVC package](https://github.com/titon/mvc) - Model-view-controller application
+* February - March
+    * Kernel package - Application foundation [IN PROGRESS]
+    * Console package - Command line tools [IN PROGRESS]
 * April
+    * [MVC package](https://github.com/titon/mvc) - Model-view-controller application
     * [G11N package](https://github.com/titon/g11n) - Internationalization and localization
-    * Bus package - Command bus layer
 * May - June
-    * Console package - Command line tools
+    * CommandBus package - Command bus layer
     * [DB package](https://github.com/titon/db) - Database abstraction layer
 * July
     * [Model package](https://github.com/titon/model) - Object relational mapper and active record for DB entities

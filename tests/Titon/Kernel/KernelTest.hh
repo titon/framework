@@ -40,7 +40,7 @@ class KernelTest extends TestCase {
 
 }
 
-class KernelStub extends AbstractKernel {
+class KernelStub extends AbstractKernel<InputStub, OutputStub> {
     public function handle(Input $input, Output $output, Next $next): Output {
         $input->stack[] = 'kernel';
         $output->ran = true;
@@ -55,6 +55,8 @@ class InputStub implements Input {
 
 class OutputStub implements Output {
     public bool $ran = false;
+
+    public function send(): void {}
 }
 
 class MiddlewareStub implements Middleware {

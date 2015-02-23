@@ -7,6 +7,16 @@
 
 namespace Titon\Kernel;
 
+/**
+ * Represents the output or response for the current context.
+ *
+ * @package Titon\Kernel
+ */
 interface Output {
+
+    /**
+     * Send the output directly to the client.
+     */
+    public function send(): void;
 
 }

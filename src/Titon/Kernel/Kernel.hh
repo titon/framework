@@ -7,12 +7,31 @@
 
 namespace Titon\Kernel;
 
-interface Kernel extends Middleware {
+/**
+ * A Kernel acts as the central point of an application -- it is the application.
+ * When ran, it receives an input and an output for the current context,
+ * processes it, and in turn sends an output back to the client.
+ *
+ * @package Titon\Kernel
+ */
+interface Kernel<Ti as Input, To as Output> extends Middleware {
 
+    /**
+     * Add a middleware to the pipeline. Middleware will be executed in a nested process.
+     *
+     * @param \Titon\Kernel\Middleware $middleware
+     * @return $this
+     */
     public function pipe(Middleware $middleware): this;
 
-    public function run(Input $input, Output $output): Output;
-
-    //public function terminate(): this;
+    /**
+     * Run the startup, pipeline, and shutdown processes.
+     * The output must be returned so that output can be sent to the client.
+     *
+     * @param \Titon\Kernel\Input $input
+     * @param \Titon\Kernel\Output $output
+     * @return \Titon\Kernel\Output
+     */
+    public function run(Ti $input, To $output): To;
 
 }

@@ -43,6 +43,10 @@ class Next {
      * @return \Titon\Kernel\Output
      */
     public function handle(Input $input, Output $output): Output {
+        if (count($this->pipeline) <= 0) {
+            return $output;
+        }
+
         $middleware = $this->pipeline->dequeue();
         $handler = inst_meth($middleware, 'handle');
 

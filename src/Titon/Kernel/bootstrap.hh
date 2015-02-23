@@ -13,5 +13,4 @@
  * Defines type aliases that are used by the kernel package.
  */
 
-namespace Titon\Kernel {
-}
+namespace Titon\Kernel {}

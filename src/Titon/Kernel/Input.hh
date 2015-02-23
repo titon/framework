@@ -7,6 +7,11 @@
 
 namespace Titon\Kernel;
 
+/**
+ * Represents the input or request for the current context.
+ *
+ * @package Titon\Kernel
+ */
 interface Input {
 
 }

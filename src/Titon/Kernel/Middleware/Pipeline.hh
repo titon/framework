@@ -35,6 +35,24 @@ class Pipeline {
     }
 
     /**
+     * Start the pipeline process by executing the first middleware in the queue,
+     * and passing a handler for the next middleware as an argument callback.
+     *
+     * @param \Titon\Kernel\Kernel $kernel
+     * @param \Titon\Kernel\Input $input
+     * @param \Titon\Kernel\Output $output
+     * @return \Titon\Kernel\Output
+     */
+    public function handle(Kernel $kernel, Input $input, Output $output): Output {
+
+        // Since the kernel itself is middleware, add the kernel as the last item in the queue.
+        // This allows its `handle()` method to be ran after all other middleware.
+        $this->through($kernel);
+
+        return (new Next($this->pipeline))->handle($input, $output);
+    }
+
+    /**
      * Add a middleware to the queue.
      *
      * @param \Titon\Kernel\Middleware $middleware
@@ -44,24 +62,6 @@ class Pipeline {
         $this->pipeline->enqueue($middleware);
 
         return $this;
-    }
-
-    /**
-     * Start the pipeline process by executing the first middleware in the queue,
-     * and passing a handler for the next middleware as an argument callback.
-     *
-     * @param \Titon\Kernel\Kernel $kernel
-     * @param \Titon\Kernel\Input $input
-     * @param \Titon\Kernel\Output $output
-     * @return \Titon\Kernel\Output
-     */
-    public function send(Kernel $kernel, Input $input, Output $output): Output {
-
-        // Since the kernel itself is middleware, add the kernel as the last item in the queue.
-        // This allows its `handle()` method to be ran after all other middleware.
-        $this->through($kernel);
-
-        return (new Next($this->pipeline))->handle($input, $output);
     }
 
 }

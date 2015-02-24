@@ -9,6 +9,7 @@ namespace Titon\Kernel\Middleware;
 
 use Titon\Kernel\Input;
 use Titon\Kernel\Output;
+use Titon\Kernel\Middleware;
 use SplQueue;
 
 /**
@@ -23,14 +24,14 @@ class Next {
      *
      * @var \SplQueue
      */
-    protected SplQueue $pipeline;
+    protected SplQueue<Middleware> $pipeline;
 
     /**
      * Store the pipeline to handle.
      *
      * @param \SplQueue $pipeline
      */
-    public function __construct(SplQueue $pipeline) {
+    public function __construct(SplQueue<Middleware> $pipeline) {
         $this->pipeline = $pipeline;
     }
 
@@ -42,7 +43,7 @@ class Next {
      * @param \Titon\Kernel\Output $output
      * @return \Titon\Kernel\Output
      */
-    public function handle(Input $input, Output $output): Output {
+    public function handle<Ti, To>(Ti $input, To $output): To {
         if (count($this->pipeline) <= 0) {
             return $output;
         }

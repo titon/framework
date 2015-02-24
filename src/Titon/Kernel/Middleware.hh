@@ -26,6 +26,6 @@ interface Middleware {
      * @param \Titon\Kernel\Middleware\Next $next
      * @return \Titon\Kernel\Output
      */
-    public function handle(Input $input, Output $output, Next $next): Output;
+    public function handle<Ti, To>(Ti $input, To $output, Next $next): To;
 
 }

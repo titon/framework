@@ -34,4 +34,9 @@ interface Kernel<Ti as Input, To as Output> extends Middleware {
      */
     public function run(Ti $input, To $output): To;
 
+    /**
+     * Terminate the kernel and finalize the process.
+     */
+    public function terminate(): void;
+
 }

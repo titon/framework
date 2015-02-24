@@ -21,7 +21,7 @@ use Titon\Kernel\Middleware\Pipeline;
  *      kernel.startup(Kernel $kernel, Input $input, Output $output)
  *      kernel.shutdown(Kernel $kernel, Input $input, Output $output)
  */
-abstract class AbstractKernel<Ti, To> extends Depository implements Kernel<Ti, To>, Subject {
+abstract class AbstractKernel<Ti as Input, To as Output> extends Depository implements Kernel<Ti, To>, Subject {
     use EmitsEvents;
 
     /**
@@ -29,7 +29,7 @@ abstract class AbstractKernel<Ti, To> extends Depository implements Kernel<Ti, T
      *
      * @var \Titon\Kernel\Middleware\Pipeline
      */
-    protected Pipeline $pipeline;
+    protected Pipeline<Ti, To> $pipeline;
 
     /**
      * The time the execution started.
@@ -40,10 +40,14 @@ abstract class AbstractKernel<Ti, To> extends Depository implements Kernel<Ti, T
 
     /**
      * Instantiate a new pipeline.
+     *
+     * @var \Titon\Kernel\Middleware\Pipeline
      */
-    public function __construct() {
-        $this->pipeline = new Pipeline();
+    public function __construct(Pipeline<Ti, To> $pipeline) {
+        $this->pipeline = $pipeline;
         $this->startTime = microtime(true);
+
+        parent::__construct();
     }
 
     /**
@@ -94,6 +98,13 @@ abstract class AbstractKernel<Ti, To> extends Depository implements Kernel<Ti, T
         $this->shutdown($input, $output);
 
         return $output;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function terminate(): void {
+        exit(0);
     }
 
     /**

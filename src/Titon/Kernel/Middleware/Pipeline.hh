@@ -18,14 +18,14 @@ use SplQueue;
  *
  * @package Titon\Kernel\Middleware
  */
-class Pipeline {
+class Pipeline<Ti as Input, To as Output> {
 
     /**
      * Middleware items stored in a queue data structure.
      *
      * @var \SplQueue
      */
-    protected SplQueue $pipeline;
+    protected SplQueue<Middleware> $pipeline;
 
     /**
      * Create a new queue to store middleware.
@@ -43,7 +43,7 @@ class Pipeline {
      * @param \Titon\Kernel\Output $output
      * @return \Titon\Kernel\Output
      */
-    public function handle(Kernel $kernel, Input $input, Output $output): Output {
+    public function handle(Kernel<Ti, To> $kernel, Ti $input, To $output): To {
 
         // Since the kernel itself is middleware, add the kernel as the last item in the queue.
         // This allows its `handle()` method to be ran after all other middleware.

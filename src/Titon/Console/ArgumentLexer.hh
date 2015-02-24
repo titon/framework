@@ -7,13 +7,13 @@
 
 namespace Titon\Console;
 
-use Iterator;
+use Titon\Common\ArgumentList;
 
-class ArgumentLexer implements Iterator {
+class ArgumentLexer<Tv> implements Iterator<Tv> {
 
-    protected array<string> $items = array();
+    public array<string> $items = array();
 
-    protected int $position;
+    protected int $position = 0;
 
     protected int $length = 0;
 
@@ -21,18 +21,17 @@ class ArgumentLexer implements Iterator {
 
     protected bool $first = true;
 
-    public function __construct(array<string> $items = array()) {
+    public function __construct(ArgumentList $items) {
         $this->items = $items;
         $this->length = count($items);
-        $this->position = 0;
     }
 
-    public function current(): mixed {
-        return $this->items[$this->position];
+    public function current(): Tv {
+        return $this->current;
     }
 
     public function end(): bool {
-        return ($this->position + 1) === $this->length;
+        return ($this->position + 1) == $this->length;
     }
 
     public function isArgument(string $value): bool {
@@ -57,11 +56,15 @@ class ArgumentLexer implements Iterator {
         }
     }
 
-    public function peek(): string {
-        return $this->processInput($this->items[0]);
+    public function peek(): ?Input {
+        if (!empty($this->items)) {
+            return $this->processInput($this->items[0]);
+        }
+
+        return null;
     }
 
-    public function processInput(string $input): RawInput {
+    public function processInput(string $input): Input {
         $raw = $input;
         $value = $input;
 
@@ -81,7 +84,6 @@ class ArgumentLexer implements Iterator {
 
     public function rewind(): void {
         $this->shift();
-
         if ($this->first) {
             $this->position = 0;
             $this->first = false;
@@ -96,7 +98,11 @@ class ArgumentLexer implements Iterator {
             $key = $matches[1];
             array_unshift($this->items, $matches[2]);
         } else {
-            $this->position += 1;
+            $this->position++;
+        }
+
+        if (is_null($key)) {
+            return;
         }
 
         $this->current = $this->processInput($key);
@@ -117,10 +123,10 @@ class ArgumentLexer implements Iterator {
 
     public function unshift(string $item): void {
         array_unshift($this->items, $item);
-        $this->length += 1;
+        $this->length++;
     }
 
     public function valid(): bool {
-        return $this->position < count($this->items);
+        return ($this->position < $this->length);
     }
 }

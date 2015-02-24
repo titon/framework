@@ -40,6 +40,7 @@
             "src/Titon/Annotation/bootstrap.hh",
             "src/Titon/Cache/bootstrap.hh",
             "src/Titon/Common/bootstrap.hh",
+            "src/Titon/Console/bootstrap.hh",
             "src/Titon/Context/bootstrap.hh",
             "src/Titon/Controller/bootstrap.hh",
             "src/Titon/Debug/bootstrap.hh",

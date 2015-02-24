@@ -7,7 +7,11 @@
 
 namespace Titon\Console;
 
-use Iterator;
+use Titon\Common\ArgumentList;
+use Titon\Console\InputDefinition\Argument;
+use Titon\Console\InputDefinition\Flag;
+use Titon\Console\InputDefinition\Option;
+use Titon\Console\Exception\MissingValueException;
 
 class Arguments {
 
@@ -30,12 +34,60 @@ class Arguments {
      *
      * @param  array $options An array of options for this parser.
      */
-    public function __construct(array<string> $args = []) {
-        if (count($args) === 0) {
+    public function __construct(?ArgumentList $args = null) {
+        if (is_null($args) === 0) {
             $args = array_slice($_SERVER['argv'], 1);
         }
 
         $this->input = new ArgumentLexer($args);
+    }
+
+    public function addArgument(Argument $argument): this {
+        $this->arguments[$argument->getName()] = $argument;
+
+        return $this;
+    }
+
+    public function addFlag(Flag $flag): this {
+        $this->flags[$flag->getName()] = $flag;
+
+        return $this;
+    }
+
+    public function addOption(Option $option): this {
+        $this->options[$option->getName()] = $option;
+
+        return $this;
+    }
+
+    public function getArgument(string $key): ?Argument {
+        if (!is_null($argument = $this->arguments->get($key))) {
+            return $argument;
+        }
+
+        return null;
+    }
+
+    public function getFlag(string $key): ?Flag {
+        if (!is_null($flag = $this->flags->get($key))) {
+            return $flag;
+        }
+
+        foreach ($this->flags as $flag) {
+            if ($key === $flag->getName() || $key === $flag->getAlias()) {
+                return $flag;
+            }
+        }
+
+        return null;
+    }
+
+    public function getOption(string $key): ?Option {
+        if (!is_null($option = $this->options->get($key))) {
+            return $option;
+        }
+
+        return null;
     }
 
     public function parse() {
@@ -46,14 +98,27 @@ class Arguments {
             if ($this->parseOption($val)) {
                 continue;
             }
-//            if ($this->parseArgument($val)) {
-//                continue;
-//            }
+            if ($this->parseArgument($val)) {
+                continue;
+            }
         }
     }
 
-    public function parseFlag($key): bool {
-        if ($this->flags->contains($key)) {
+    public function parseArgument(Input $key): bool {
+        foreach ($this->arguments as $argument) {
+            if (is_null($argument->getValue())) {
+                $argument->setValue($key['raw']);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function parseFlag(Input $key): bool {
+        $key = $key['value'];
+        if (is_null($flag = $this->flags->get($key))) {
             return false;
         }
 
@@ -66,24 +131,27 @@ class Arguments {
         return true;
     }
 
-    public function parseOption(string $key): bool {
-        if (!$this->options->contains($key))) {
+    public function parseOption(Input $key): bool {
+        $key = $key['value'];
+        if (is_null($option = $this->options->get($key))) {
             return false;
         }
 
         // Peak ahead to make sure we get a value.
-        if (!$this->input->end() && !$this->input->isArgument($this->input->peek()))
-            $this->options[$key]->setValue($this->options[$key]->getDefault());
-
-            return true;
+        $nextValue = $this->input->peek();
+        if (!$this->input->end() && $this->input->isArgument($nextValue['raw'])) {
+            throw new MissingValueException("No value is present for option $key");
         }
 
-        $values = [];
+        $values = Vector {};
         foreach ($this->input as $value) {
-            array_push($values, $value);
-            if (!$this->input->end() && $this->input->isArgument($this->input->peek())) {
-                break;
-            }
+            $values[] = $value['raw'];
+            break;
+
+//            $nextValue = $this->input->peek();
+//            if (!$this->input->end() && $this->input->isArgument($nextValue['raw'])) {
+//                break;
+//            }
         }
 
         $value = join($values, ' ');
@@ -92,7 +160,7 @@ class Arguments {
             $value = 1;
         }
 
-        $this->options[$key]->setValue($value);
+        $option->setValue($value);
 
         return true;
     }

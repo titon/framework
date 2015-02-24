@@ -20,7 +20,7 @@ namespace Titon\Console {
     use Titon\Console\InputDefinition\Argument;
 
     type Input = shape(
-        'raw' => string,
+        'raw'   => string,
         'value' => string
     );
     type CommandMap = Map<string, Command>;

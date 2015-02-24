@@ -38,6 +38,10 @@ abstract class AbstractInputDefinition implements InputDefinition {
         return true;
     }
 
+    public function getDefault(): mixed {
+        return $this->default;
+    }
+
     public function getDescription(): string {
         return $this->description;
     }
@@ -51,6 +55,6 @@ abstract class AbstractInputDefinition implements InputDefinition {
             return $this->value;
         }
 
-        return $this-> default;
+        return $this->default;
     }
 }

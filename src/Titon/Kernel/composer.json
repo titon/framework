@@ -1,7 +1,7 @@
 {
     "name": "titon/kernel",
     "type": "library",
-    "description": "",
+    "description": "The kernel package acts as the core handler of the input/output cycle within an application.",
     "keywords": ["titon", "kernel", "input", "output", "request", "response", "middleware", "pipeline"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
@@ -23,9 +23,6 @@
     "autoload": {
         "psr-4": {
             "Titon\\Kernel\\": ""
-        },
-        "files": [
-            "src/Titon/Kernel/bootstrap.hh"
-        ]
+        }
     }
 }

@@ -7,7 +7,6 @@
 
 namespace Titon\Kernel;
 
-use Titon\Context\Depository;
 use Titon\Event\EmitsEvents;
 use Titon\Event\Subject;
 use Titon\Kernel\Middleware\Pipeline;
@@ -20,9 +19,24 @@ use Titon\Kernel\Middleware\Pipeline;
  * @events
  *      kernel.startup(Kernel $kernel, Input $input, Output $output)
  *      kernel.shutdown(Kernel $kernel, Input $input, Output $output)
+ *      kernel.terminate(Kernel $kernel, Input $input, Output $output)
  */
-abstract class AbstractKernel<Ti as Input, To as Output> extends Depository implements Kernel<Ti, To>, Subject {
+abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, To>, Subject {
     use EmitsEvents;
+
+    /**
+     * The contextual input object.
+     *
+     * @var \Titon\Kernel\Input
+     */
+    protected ?Ti $input;
+
+    /**
+     * The contextual output object.
+     *
+     * @var \Titon\Kernel\Output
+     */
+    protected ?To $output;
 
     /**
      * Pipeline to manage middleware.
@@ -41,23 +55,11 @@ abstract class AbstractKernel<Ti as Input, To as Output> extends Depository impl
     /**
      * Instantiate a new pipeline.
      *
-     * @var \Titon\Kernel\Middleware\Pipeline
+     * @param \Titon\Kernel\Middleware\Pipeline $pipeline
      */
     public function __construct(Pipeline<Ti, To> $pipeline) {
         $this->pipeline = $pipeline;
         $this->startTime = microtime(true);
-
-        parent::__construct();
-    }
-
-    /**
-     * Alias method for `pipe()`.
-     *
-     * @param \Titon\Kernel\Middleware $middleware
-     * @return $this
-     */
-    public function addMiddleware(Middleware $middleware): this {
-        return $this->pipe($middleware);
     }
 
     /**
@@ -67,6 +69,20 @@ abstract class AbstractKernel<Ti as Input, To as Output> extends Depository impl
      */
     public function getExecutionTime(): float {
         return microtime(true) - $this->getStartTime();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getInput(): ?Ti {
+        return $this->input;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOutput(): ?To {
+        return $this->output;
     }
 
     /**
@@ -90,12 +106,22 @@ abstract class AbstractKernel<Ti as Input, To as Output> extends Depository impl
     /**
      * {@inheritdoc}
      */
-    public function run(Ti $input, To $output): To {
-        $this->startup($input, $output);
+    final public function run(Ti $input, To $output): To {
+        $this->input = $input;
+        $this->output = $output;
 
-        $output = $this->pipeline->handle($this, $input, $output);
+        // Emit startup events
+        $this->startup();
 
-        $this->shutdown($input, $output);
+        // Since the kernel itself is middleware, add the kernel as the last item in the pipeline.
+        // This allows the `handle()` method to be ran after all other middleware.
+        $this->pipe($this);
+
+        // Handle the middleware pipeline stack
+        $this->output = $output = $this->pipeline->handle($input, $output);
+
+        // Emit shutdown events
+        $this->shutdown();
 
         return $output;
     }
@@ -104,27 +130,23 @@ abstract class AbstractKernel<Ti as Input, To as Output> extends Depository impl
      * {@inheritdoc}
      */
     public function terminate(): void {
+        $this->emit('kernel.terminate', [$this, $this->getInput(), $this->getOutput()]);
+
         exit(0);
     }
 
     /**
-     * Triggered after the pipeline is handled and emits the shutdown event.
-     *
-     * @param \Titon\Kernel\Input $input
-     * @param \Titon\Kernel\Output $output
+     * Triggered after the pipeline is handled but before the output is sent.
      */
-    protected function shutdown(Ti $input, To $output): void {
-        $this->emit('kernel.shutdown', [$this, $input, $output]);
+    protected function shutdown(): void {
+        $this->emit('kernel.shutdown', [$this, $this->getInput(), $this->getOutput()]);
     }
 
     /**
-     * Triggered before the pipeline is handled and emits the startup event.
-     *
-     * @param \Titon\Kernel\Input $input
-     * @param \Titon\Kernel\Output $output
+     * Triggered before the pipeline is handled.
      */
-    protected function startup(Ti $input, To $output): void {
-        $this->emit('kernel.startup', [$this, $input, $output]);
+    protected function startup(): void {
+        $this->emit('kernel.startup', [$this, $this->getInput(), $this->getOutput()]);
     }
 
 }

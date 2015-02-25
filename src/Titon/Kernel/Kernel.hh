@@ -17,6 +17,20 @@ namespace Titon\Kernel;
 interface Kernel<Ti as Input, To as Output> extends Middleware {
 
     /**
+     * Return the contextual input object.
+     *
+     * @return \Titon\Kernel\Input
+     */
+    public function getInput(): ?Ti;
+
+    /**
+     * Return the contextual output object.
+     *
+     * @return \Titon\Kernel\Output
+     */
+    public function getOutput(): ?To;
+
+    /**
      * Add a middleware to the pipeline. Middleware will be executed in a nested process.
      *
      * @param \Titon\Kernel\Middleware $middleware
@@ -35,7 +49,8 @@ interface Kernel<Ti as Input, To as Output> extends Middleware {
     public function run(Ti $input, To $output): To;
 
     /**
-     * Terminate the kernel and finalize the process.
+     * Terminate the kernel and finalize the process after the output is sent.
+     * This should exit the script using `exit()`.
      */
     public function terminate(): void;
 

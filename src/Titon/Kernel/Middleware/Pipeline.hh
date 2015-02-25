@@ -21,7 +21,7 @@ use SplQueue;
 class Pipeline<Ti as Input, To as Output> {
 
     /**
-     * Middleware items stored in a queue data structure.
+     * Queued middleware items.
      *
      * @var \SplQueue
      */
@@ -38,17 +38,11 @@ class Pipeline<Ti as Input, To as Output> {
      * Start the pipeline process by executing the first middleware in the queue,
      * and passing a handler for the next middleware as an argument callback.
      *
-     * @param \Titon\Kernel\Kernel $kernel
      * @param \Titon\Kernel\Input $input
      * @param \Titon\Kernel\Output $output
      * @return \Titon\Kernel\Output
      */
-    public function handle(Kernel<Ti, To> $kernel, Ti $input, To $output): To {
-
-        // Since the kernel itself is middleware, add the kernel as the last item in the queue.
-        // This allows its `handle()` method to be ran after all other middleware.
-        $this->through($kernel);
-
+    public function handle(Ti $input, To $output): To {
         return (new Next($this->pipeline))->handle($input, $output);
     }
 

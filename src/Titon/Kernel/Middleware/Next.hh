@@ -7,8 +7,6 @@
 
 namespace Titon\Kernel\Middleware;
 
-use Titon\Kernel\Input;
-use Titon\Kernel\Output;
 use Titon\Kernel\Middleware;
 use SplQueue;
 
@@ -37,7 +35,7 @@ class Next {
 
     /**
      * This method will dequeue the next middleware in line and execute its `handle()` method.
-     * A new `Next` instance should be instantiated so the following middleware in line can be executed.
+     * A new `Next` instance should be instantiated so the middleware next in line can be executed.
      *
      * @param \Titon\Kernel\Input $input
      * @param \Titon\Kernel\Output $output

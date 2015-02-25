@@ -14,20 +14,26 @@ abstract class AbstractInputDefinition implements InputDefinition {
     const VALUE_OPTIONAL = 0;
     const VALUE_REQUIRED = 1;
 
-    protected string $name;
+    protected ?string $alias;
+
+    protected mixed $default;
 
     protected string $description;
 
     protected int $mode = self::VALUE_OPTIONAL;
 
+    protected string $name;
+
     protected mixed $value;
 
-    protected mixed $default;
-
-    public function __construct(string $name, string $description, int $mode = self::VALUE_OPTIONAL) {
+    public function __construct(string $name, string $description = '', int $mode = self::VALUE_OPTIONAL) {
         $this->name = $name;
         $this->description = $description;
         $this->mode = $mode;
+    }
+
+    public function alias(string $alias): this {
+        return $this->setAlias($alias);
     }
 
     public function exists(): bool {
@@ -36,6 +42,10 @@ abstract class AbstractInputDefinition implements InputDefinition {
         }
 
         return true;
+    }
+
+    public function getAlias(): ?string {
+        return $this->alias;
     }
 
     public function getDefault(): mixed {
@@ -56,5 +66,16 @@ abstract class AbstractInputDefinition implements InputDefinition {
         }
 
         return $this->default;
+    }
+
+    public function setAlias(string $alias): this {
+        if (strlen($alias) > strlen($this->name)) {
+            $this->alias = $this->name;
+            $this->name = $alias;
+        } else {
+            $this->alias = $alias;
+        }
+
+        return $this;
     }
 }

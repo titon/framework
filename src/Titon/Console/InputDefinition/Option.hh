@@ -9,25 +9,12 @@ namespace Titon\Console\InputDefinition;
 
 class Option extends AbstractInputDefinition {
 
-    protected ?string $alias;
-
     public function getValue(mixed $default = null): mixed {
         if (!is_null($this->value)) {
             return $this->value;
         }
 
         return $default;
-    }
-
-    public function setAlias(string $alias): this {
-        if (strlen($alias) > strlen($this->name)) {
-            $this->alias = $this->name;
-            $this->name = $alias;
-        } else {
-            $this->alias = $alias;
-        }
-
-        return $this;
     }
 
     public function setDefault(string $default): this {

@@ -9,11 +9,9 @@ namespace Titon\Console\InputDefinition;
 
 class Flag extends AbstractInputDefinition {
 
-    protected ?string $alias;
-
     protected bool $stackable = false;
 
-    public function __construct(string $name, string $description, int $mode = self::VALUE_OPTIONAL, bool $stackable = false) {
+    public function __construct(string $name, string $description = '', int $mode = self::VALUE_OPTIONAL, bool $stackable = false) {
         parent::__construct($name, $description, $mode);
 
         $this->default = 0;
@@ -33,7 +31,7 @@ class Flag extends AbstractInputDefinition {
             if (is_null($this->value)) {
                 $this->value = 1;
             } else {
-                invariant($this->value instanceof \int, 'Must be an annotation.');
+                invariant(is_int($this->value), 'Must be an integer.');
 
                 $this->value++;
             }
@@ -46,13 +44,8 @@ class Flag extends AbstractInputDefinition {
         return $this->stackable;
     }
 
-    public function setAlias(string $alias): this {
-        if (strlen($alias) > strlen($this->name)) {
-            $this->alias = $this->name;
-            $this->name = $alias;
-        } else {
-            $this->alias = $alias;
-        }
+    public function setStackable(bool $stackable): this {
+        $this->stackable = $stackable;
 
         return $this;
     }

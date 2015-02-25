@@ -15,47 +15,42 @@ use Titon\Console\Exception\MissingValueException;
 
 class Arguments {
 
-    protected FlagMap $flags = Map {};
-
-    protected OptionMap $options = Map {};
-
     protected ArgumentMap $arguments = Map {};
 
     protected CommandMap $commands = Map {};
 
+    protected ArgumentBag $flags;
+
     protected ArgumentLexer $input;
 
-    /**
-     * Initializes the argument parser. If you wish to change the default behaviour
-     * you may pass an array of options as the first argument. Valid options are
-     * `'help'` and `'strict'`, each a boolean.
-     *
-     * `'help'` is `true` by default, `'strict'` is false by default.
-     *
-     * @param  array $options An array of options for this parser.
-     */
+    protected OptionMap $options = Map {};
+
     public function __construct(?ArgumentList $args = null) {
         if (is_null($args) === 0) {
             $args = array_slice($_SERVER['argv'], 1);
         }
 
+        $this->flags = new ArgumentBag();
+        $this->options = new ArgumentBag();
+        $this->arguments = new ArgumentBag();
+
         $this->input = new ArgumentLexer($args);
     }
 
     public function addArgument(Argument $argument): this {
-        $this->arguments[$argument->getName()] = $argument;
+        $this->arguments->set($argument->getName(), $argument);
 
         return $this;
     }
 
     public function addFlag(Flag $flag): this {
-        $this->flags[$flag->getName()] = $flag;
+        $this->flags->set($flag->getName(), $flag);
 
         return $this;
     }
 
     public function addOption(Option $option): this {
-        $this->options[$option->getName()] = $option;
+        $this->options->set($option->getName(), $option);
 
         return $this;
     }
@@ -122,10 +117,10 @@ class Arguments {
             return false;
         }
 
-        if ($this->flags[$key]->isStackable()) {
-            $this->flags[$key]->increaseValue();
+        if ($this->flags->get($key)->isStackable()) {
+            $this->flags->get($key)->increaseValue();
         } else {
-            $this->flags[$key]->setValue(1);
+            $this->flags->get($key)->setValue(1);
         }
 
         return true;
@@ -143,21 +138,16 @@ class Arguments {
             throw new MissingValueException("No value is present for option $key");
         }
 
-        $values = Vector {};
-        foreach ($this->input as $value) {
-            $values[] = $value['raw'];
-            break;
+        $this->input->shift();
+        $value = $this->input->current();
 
-//            $nextValue = $this->input->peek();
-//            if (!$this->input->end() && $this->input->isArgument($nextValue['raw'])) {
-//                break;
-//            }
-        }
-
-        $value = join($values, ' ');
-
-        if (!$value && $value !== false) {
-            $value = 1;
+        $matches = [];
+        if (preg_match('#\A"(.+)"$#', $value['raw'], $matches)) {
+            $value = $matches[1];
+        } else if (preg_match("#\A'(.+)'$#", $value['raw'], $matches)) {
+            $value = $matches[1];
+        } else {
+            $value = $value['raw'];
         }
 
         $option->setValue($value);

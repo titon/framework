@@ -6,7 +6,7 @@
   \/_/    \/_/\/_/ \/_/\/_/ \/_/  \/_/ \/_____/ \/_/  \/_/ \/_____/ \/_/\/_/ \/_/\/_/ 
 ```
 
-# Framework #
+# Titon Framework #
 [![Project Titon](https://img.shields.io/badge/project-titon-82667d.svg?style=flat)](http://titon.io)
 [![Build Status](https://img.shields.io/travis/titon/framework.svg?style=flat)](https://travis-ci.org/titon/framework)
 [![HHVM](https://img.shields.io/hhvm/titon/framework.svg?style=flat)](https://github.com/titon/framework)
@@ -16,7 +16,7 @@
 
 ## What is Titon? ##
 
-Titon is a full-stack web framework built on Hack that runs in HHVM. It is written with simplicity and efficiency in mind, with enough room for extensibility and abstraction. The framework takes advantage of Hack's strict mode, type system, generics, collections, and more. It also integrates the wonderful PSRs from PHP-FIG for increased interoperability with external PHP code bases and libraries.
+Titon is a modular web framework built on Hack that runs in HHVM. It is written with simplicity and efficiency in mind, with enough room for extensibility and abstraction. The framework takes advantage of Hack's strict mode, type system, generics, collections, and more. It also integrates the wonderful PSRs from PHP-FIG for increased interoperability with external PHP code bases and libraries.
 
 Looking for more information? Find us in [#titon](http://webchat.freenode.net/?channels=titon) on FreeNode.
 
@@ -30,9 +30,11 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 
 Upcoming features and release plan.
 
-* February - March
-    * Kernel package - Application foundation [IN PROGRESS]
+* February
+    * Kernel package - Application foundation [COMPLETE]
+* March
     * Console package - Command line tools [IN PROGRESS]
+    * Cleaned up unit tests [IN PROGRESS]
 * April
     * [MVC package](https://github.com/titon/mvc) - Model-view-controller application
     * [G11N package](https://github.com/titon/g11n) - Internationalization and localization

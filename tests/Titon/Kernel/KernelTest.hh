@@ -15,7 +15,7 @@ class KernelTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $this->object = new KernelStub(new Pipeline());
+        $this->object = new KernelStub(new ApplicationStub(), new Pipeline());
         $this->input = new InputStub();
         $this->output = new OutputStub();
     }
@@ -29,7 +29,7 @@ class KernelTest extends TestCase {
     }
 
     public function testKernelRunsWithoutMiddleware() {
-        $this->object = new KernelStub(new Pipeline());
+        $this->object = new KernelStub(new ApplicationStub(), new Pipeline());
 
         $this->assertFalse($this->output->ran);
 
@@ -39,7 +39,7 @@ class KernelTest extends TestCase {
     }
 
     public function testKernelCallNextHandleDoesNothing() {
-        $this->object = new CallNextKernelStub(new Pipeline());
+        $this->object = new CallNextKernelStub(new ApplicationStub(), new Pipeline());
         $this->object->pipe(new MiddlewareStub('foo'));
         $this->object->pipe(new MiddlewareStub('bar'));
         $this->object->pipe(new MiddlewareStub('baz'));
@@ -80,6 +80,10 @@ class KernelTest extends TestCase {
 
         $this->assertLessThan($this->object->getStartTime(), $this->object->getExecutionTime());
     }
+
+}
+
+class ApplicationStub implements Application {
 
 }
 

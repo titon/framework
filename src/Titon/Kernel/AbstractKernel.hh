@@ -25,6 +25,13 @@ abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, T
     use EmitsEvents;
 
     /**
+     * The current application.
+     *
+     * @var \Titon\Kernel\Application
+     */
+    protected Application $app;
+
+    /**
      * The contextual input object.
      *
      * @var \Titon\Kernel\Input
@@ -53,13 +60,22 @@ abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, T
     protected float $startTime;
 
     /**
-     * Instantiate a new pipeline.
+     * Instantiate a new application and pipeline.
      *
+     * @param \Titon\Kernel\Application $app
      * @param \Titon\Kernel\Middleware\Pipeline $pipeline
      */
-    public function __construct(Pipeline<Ti, To> $pipeline) {
+    public function __construct(Application $app, Pipeline<Ti, To> $pipeline) {
+        $this->app = $app;
         $this->pipeline = $pipeline;
         $this->startTime = microtime(true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getApplication(): Application {
+        return $this->app;
     }
 
     /**

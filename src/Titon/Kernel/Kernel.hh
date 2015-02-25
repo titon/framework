@@ -17,6 +17,13 @@ namespace Titon\Kernel;
 interface Kernel<Ti as Input, To as Output> extends Middleware {
 
     /**
+     * Return the current application.
+     *
+     * @return \Titon\Kernel\Application
+     */
+    public function getApplication(): Application;
+
+    /**
      * Return the contextual input object.
      *
      * @return \Titon\Kernel\Input

@@ -34,12 +34,27 @@ class ArgumentLexer<Tv> implements Iterator<Tv> {
         return ($this->position + 1) == $this->length;
     }
 
+    private function explode(): void {
+        if (!$this->isShort($this->current['raw']) || strlen($this->current['value']) <= 1) {
+            return false;
+        }
+
+        $exploded = str_split($this->current['value']);
+
+        $this->current['value'] = array_pop($exploded);
+        $this->current['raw'] = '-' . $this->current['value'];
+
+        foreach ($exploded as $piece) {
+            $this->unshift('-' . $piece);
+        }
+    }
+
     public function isArgument(string $value): bool {
         return $this->isShort($value) || $this->isLong($value);
     }
 
     public function isLong(string $value): bool {
-        return (0 == strncmp($value, '--', 2));
+         return (0 == strncmp($value, '--', 2));
     }
 
     public function isShort(string $value): bool {
@@ -107,18 +122,7 @@ class ArgumentLexer<Tv> implements Iterator<Tv> {
 
         $this->current = $this->processInput($key);
 
-        if ($this->isShort($key['raw']) && strlen($key['value']) > 1) {
-            $exploded = array();
-            for ($i = strlen($key['value']); $i > 0; $i--) {
-                array_push($exploded, $key['value'][$i - 1]);
-            }
-            $key['value'] = array_pop($exploded);
-            $key['raw'] = '-' . $key['value'];
-
-            foreach ($exploded as $piece) {
-                $this->unshift('-' . $piece);
-            }
-        }
+        $this->explode();
     }
 
     public function unshift(string $item): void {

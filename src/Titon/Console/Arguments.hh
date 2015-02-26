@@ -15,7 +15,7 @@ use Titon\Console\Exception\MissingValueException;
 
 class Arguments {
 
-    protected ArgumentMap $arguments = Map {};
+    protected ArgumentBag $arguments;
 
     protected CommandMap $commands = Map {};
 
@@ -23,18 +23,19 @@ class Arguments {
 
     protected ArgumentLexer $input;
 
-    protected OptionMap $options = Map {};
+    protected Vector<string> $invalid = Vector {};
+
+    protected ArgumentBag $options;
 
     public function __construct(?ArgumentList $args = null) {
-        if (is_null($args) === 0) {
+        if (is_null($args)) {
             $args = array_slice($_SERVER['argv'], 1);
         }
 
+        $this->input = new ArgumentLexer($args);
         $this->flags = new ArgumentBag();
         $this->options = new ArgumentBag();
         $this->arguments = new ArgumentBag();
-
-        $this->input = new ArgumentLexer($args);
     }
 
     public function addArgument(Argument $argument): this {
@@ -63,6 +64,10 @@ class Arguments {
         return null;
     }
 
+    public function getArguments(): ArgumentBag {
+        return $this->arguments;
+    }
+
     public function getFlag(string $key): ?Flag {
         if (!is_null($flag = $this->flags->get($key))) {
             return $flag;
@@ -77,12 +82,20 @@ class Arguments {
         return null;
     }
 
+    public function getFlags(): ArgumentBag {
+        return $this->flags;
+    }
+
     public function getOption(string $key): ?Option {
         if (!is_null($option = $this->options->get($key))) {
             return $option;
         }
 
         return null;
+    }
+
+    public function getOptions(): ArgumentBag {
+        return $this->options;
     }
 
     public function parse() {
@@ -96,6 +109,8 @@ class Arguments {
             if ($this->parseArgument($val)) {
                 continue;
             }
+
+            $this->invalid[] = $val;
         }
     }
 

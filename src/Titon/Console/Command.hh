@@ -9,4 +9,7 @@ namespace Titon\Console;
 
 interface Command {
 
+    public function configure(): void;
+
+    public function run(): void;
 }

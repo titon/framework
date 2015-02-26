@@ -24,7 +24,4 @@ namespace Titon\Console {
         'value' => string
     );
     type CommandMap = Map<string, Command>;
-    type FlagMap = Map<string, Flag>;
-    type OptionMap = Map<string, Option>;
-    type ArgumentMap = Map<string, Argument>;
 }

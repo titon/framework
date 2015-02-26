@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Io\Writer;
 
 use Titon\Io\Writer\XmlWriter;
@@ -9,12 +9,11 @@ class XmlWriterTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/writer');
+        $this->vfs()->createDirectory('/writer');
     }
 
     public function testWriteResource(): void {
-        $path = $this->vfs->path('/writer/xml.xml');
+        $path = $this->vfs()->path('/writer/xml.xml');
 
         $writer = new XmlWriter($path, true);
         $writer->writeResource(Map {

@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\View\Engine;
 
 use Titon\View\EngineView;
@@ -13,8 +13,7 @@ class TemplateEngineTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createStructure([
+        $this->vfs()->createStructure([
             '/views/' => [
                 'private/' => [
                     'partials/' => [
@@ -35,7 +34,7 @@ class TemplateEngineTest extends TestCase {
 
         $this->engine = new TemplateEngine();
 
-        $this->object = new EngineView([$this->vfs->path('/views')]);
+        $this->object = new EngineView([$this->vfs()->path('/views')]);
         $this->object->setEngine($this->engine);
     }
 

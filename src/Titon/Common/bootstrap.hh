@@ -24,9 +24,8 @@ namespace Titon\Common {
     type InstanceMap<T> = Map<string, T>;
 
     // Macros
-    type MacroCallback = (function(...): mixed);
     type MacroContainer = Map<string, MacroMap>;
-    type MacroMap = Map<string, MacroCallback>;
+    type MacroMap = Map<string, Closure>;
 }
 
 /**

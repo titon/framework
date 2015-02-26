@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Cache\Storage;
 
 class MemoryStorageTest extends AbstractStorageTest {

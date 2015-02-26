@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Validate;
 
 use Titon\Test\TestCase;

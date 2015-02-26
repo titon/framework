@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Event\Annotation;
 
 use Titon\Event\Observer;

@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;
@@ -112,4 +112,5 @@ class RegistryTest extends TestCase {
 }
 
 class RegistryStub {
+    public string $key = '';
 }

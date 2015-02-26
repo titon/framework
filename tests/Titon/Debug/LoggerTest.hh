@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Debug;
 
 use Titon\Test\TestCase;
@@ -10,38 +10,37 @@ class LoggerTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/logs/');
+        $this->vfs()->createDirectory('/logs/');
     }
 
     /**
      * @expectedException \Titon\Debug\Exception\InvalidDirectoryException
      */
     public function testErrorOnInvalidDir(): void {
-        new Logger($this->vfs->path('/logs-missing/'));
+        new Logger($this->vfs()->path('/logs-missing/'));
     }
 
     /**
      * @expectedException \Titon\Debug\Exception\UnwritableDirectoryException
      */
     public function testErrorOnUnwritableDir(): void {
-        $this->vfs->createDirectory('/logs-unwritable/', false, 0555);
+        $this->vfs()->createDirectory('/logs-unwritable/', false, 0555);
 
-        new Logger($this->vfs->path('/logs-unwritable/'));
+        new Logger($this->vfs()->path('/logs-unwritable/'));
     }
 
     public function testLog(): void {
-        $logger = new Logger($this->vfs->path('/logs/'));
+        $logger = new Logger($this->vfs()->path('/logs/'));
         $date = date('Y-m-d');
 
-        $this->assertFileNotExists($this->vfs->path('/logs/error-' . $date . '.log'));
-        $this->assertFileNotExists($this->vfs->path('/logs/notice-' . $date . '.log'));
+        $this->assertFileNotExists($this->vfs()->path('/logs/error-' . $date . '.log'));
+        $this->assertFileNotExists($this->vfs()->path('/logs/notice-' . $date . '.log'));
 
         $logger->log(Logger::ERROR, 'Message');
         $logger->log(Logger::NOTICE, 'Message');
 
-        $this->assertFileExists($this->vfs->path('/logs/error-' . $date . '.log'));
-        $this->assertFileExists($this->vfs->path('/logs/notice-' . $date . '.log'));
+        $this->assertFileExists($this->vfs()->path('/logs/error-' . $date . '.log'));
+        $this->assertFileExists($this->vfs()->path('/logs/notice-' . $date . '.log'));
     }
 
     public function testCreateMessage(): void {

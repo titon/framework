@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Annotation;
 
 use Titon\Test\Stub\Annotation\BarAnnotationStub;

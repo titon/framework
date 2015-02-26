@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Route;
 
 use Titon\Cache\Storage\MemoryStorage;
@@ -20,8 +20,11 @@ class RouterTest extends TestCase {
         $container = Depository::getInstance();
         $container->singleton('Titon\Route\Router');
 
-        $this->object = Depository::getInstance()->make('Titon\Route\Router');
-        $container->register('Titon\Route\UrlBuilder')->with($this->object);
+        $this->object = $router = Depository::getInstance()->make('Titon\Route\Router');
+
+        invariant($router instanceof Router, 'Must be a Router.');
+
+        $container->register('Titon\Route\UrlBuilder')->with($router);
 
         $this->object->map('action.ext', new TestRouteStub('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
         $this->object->map('action', new TestRouteStub('/{module}/{controller}/{action}', 'Module\Controller@action'));
@@ -31,8 +34,9 @@ class RouterTest extends TestCase {
     }
 
     protected function tearDown(): void {
-        Depository::getInstance()->remove('Titon\Route\Router');
-        Depository::getInstance()->remove('Titon\Route\UrlBuilder');
+        Depository::getInstance()
+            ->remove('Titon\Route\Router')
+            ->remove('Titon\Route\UrlBuilder');
     }
 
     public function testBuildAction(): void {
@@ -133,7 +137,7 @@ class RouterTest extends TestCase {
      * @expectedException \Exception
      */
     public function testFilterCanThrowException(): void {
-        $this->object->filterCallback('test', function() use (&$count) {
+        $this->object->filterCallback('test', () ==> {
             throw new \Exception('Filter error!');
         });
 
@@ -502,7 +506,6 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/', $router->base());
-        $this->assertEquals('http://localhost/', Depository::getInstance()->make('Titon\Route\UrlBuilder', $router)->url());
         $this->assertEquals('/', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -521,7 +524,6 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/', $router->base());
-        $this->assertEquals('http://domain.com/module/index', Depository::getInstance()->make('Titon\Route\UrlBuilder', $router)->url());
         $this->assertEquals('/module/index', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -540,7 +542,6 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/root/dir', $router->base());
-        $this->assertEquals('http://sub.domain.com/root/dir/module/controller/action.html', Depository::getInstance()->make('Titon\Route\UrlBuilder', $router)->url());
         $this->assertEquals('/module/controller/action.html', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -563,7 +564,6 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/rooter/root/dir', $router->base());
-        $this->assertEquals('https://subber.sub.domain.com/rooter/root/dir/module/controller/action.html?foo=bar&int=123', Depository::getInstance()->make('Titon\Route\UrlBuilder', $router)->url());
         $this->assertEquals('/module/controller/action.html', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -586,7 +586,6 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/base/rooter/root/dir', $router->base());
-        $this->assertEquals('https://subbest.subber.sub.domain.com/base/rooter/root/dir/module/controller/action.html/123/abc?foo=bar&int=123', Depository::getInstance()->make('Titon\Route\UrlBuilder', $router)->url());
         $this->assertEquals('/module/controller/action.html/123/abc', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {

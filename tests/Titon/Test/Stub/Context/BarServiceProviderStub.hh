@@ -6,8 +6,11 @@ use Titon\Context\ServiceProvider\AbstractServiceProvider;
 class BarServiceProviderStub extends AbstractServiceProvider {
 
     public function register(): void {
-        $this->depository->singleton('bar', 'Titon\Test\Stub\Context\BarStub')
-            ->with('Titon\Test\Stub\Context\FooStub');
+        // UNSAFE
+        if ($this->depository !== null) {
+            $this->depository->singleton('bar', 'Titon\Test\Stub\Context\BarStub')
+                ->with('Titon\Test\Stub\Context\FooStub');
+        }
     }
 
 }

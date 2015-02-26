@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
@@ -227,10 +227,9 @@ class ResponseTest extends TestCase {
     }
 
     public function testDownload(): void {
-        $this->setupVFS();
-        $this->vfs->createFile('/download.txt');
+        $this->vfs()->createFile('/download.txt');
 
-        $this->assertInstanceOf('Titon\Http\Server\DownloadResponse', Response::download($this->vfs->path('/download.txt')));
+        $this->assertInstanceOf('Titon\Http\Server\DownloadResponse', Response::download($this->vfs()->path('/download.txt')));
     }
 
     public function testEtag(): void {

@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Cache;
 
 use Titon\Cache\Storage\MemoryStorage;

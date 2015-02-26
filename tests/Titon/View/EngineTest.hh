@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\View;
 
 use Titon\Test\Stub\View\EngineStub;

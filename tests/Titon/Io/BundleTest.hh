@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Io;
 
 use Titon\Io\Bundle\ResourceBundle;
@@ -16,8 +16,7 @@ class BundleTest extends TestCase {
 
         $this->object = new ResourceBundle();
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/bundle/');
+        $this->vfs()->createDirectory('/bundle/');
     }
 
     public function testAddPath(): void {
@@ -92,17 +91,17 @@ class BundleTest extends TestCase {
     }
 
     public function testLoadResource(): void {
-        $this->vfs->createDirectory('/bundle/foo');
-        $this->vfs->createFile('/bundle/foo/test.php', '<?php return ["foo" => "bar"];');
+        $this->vfs()->createDirectory('/bundle/foo');
+        $this->vfs()->createFile('/bundle/foo/test.php', '<?php return ["foo" => "bar"];');
 
-        $this->object->addPath('foo', $this->vfs->path('/bundle/foo/'));
+        $this->object->addPath('foo', $this->vfs()->path('/bundle/foo/'));
         $this->object->addReader(new PhpReader());
 
         $this->assertEquals(Map {'foo' => 'bar'}, $this->object->loadResource('foo', 'test'));
     }
 
     public function testLoadResourceFromMultiplePaths(): void {
-        $this->vfs->createStructure([
+        $this->vfs()->createStructure([
             '/bundle/foo1' => [
                 'test.php' => '<?php return ["foo" => "bar"];'
             ],
@@ -111,7 +110,7 @@ class BundleTest extends TestCase {
             ]
         ]);
 
-        $this->object->addPaths('foo', Vector {$this->vfs->path('/bundle/foo1/'), $this->vfs->path('/bundle/foo2/')});
+        $this->object->addPaths('foo', Vector {$this->vfs()->path('/bundle/foo1/'), $this->vfs()->path('/bundle/foo2/')});
         $this->object->addReader(new PhpReader());
 
         $this->assertEquals(Map {
@@ -121,7 +120,7 @@ class BundleTest extends TestCase {
     }
 
     public function testLoadResourceUsingMultipleReaders(): void {
-        $this->vfs->createStructure([
+        $this->vfs()->createStructure([
             '/bundle/foo1' => [
                 'test.php' => '<?php return ["foo" => "bar"];'
             ],
@@ -130,7 +129,7 @@ class BundleTest extends TestCase {
             ]
         ]);
 
-        $this->object->addPaths('foo', Vector {$this->vfs->path('/bundle/foo1/'), $this->vfs->path('/bundle/foo2/')});
+        $this->object->addPaths('foo', Vector {$this->vfs()->path('/bundle/foo1/'), $this->vfs()->path('/bundle/foo2/')});
         $this->object->addReader(new PhpReader());
         $this->object->addReader(new JsonReader());
 

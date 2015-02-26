@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Type\Xml;
 
 use Titon\Test\TestCase;
@@ -398,8 +398,8 @@ class XmlElementTest extends TestCase {
 
     public function testToMapChildrenWithSameName(): void {
         $this->object->addChildren(Vector {
-            new Element('boy', Map {'a' => 1}),
-            new Element('boy', Map {'b' => 2}),
+            new Element('boy', Map {'a' => '1'}),
+            new Element('boy', Map {'b' => '2'}),
             (new Element('boy'))->setValue('3'),
             new Element('girl')
         });
@@ -468,7 +468,7 @@ class XmlElementTest extends TestCase {
         $xml = new Element('root');
         $xml->setValue('Will not be to stringed.');
 
-        $boy = new Element('boy', Map {'age' => 15});
+        $boy = new Element('boy', Map {'age' => '15'});
         $girl = (new Element('girl'))->setValue('Mary');
 
         $xml->addChildren(Vector {$boy, $girl});
@@ -486,7 +486,7 @@ class XmlElementTest extends TestCase {
         $xml = new Element('root');
         $xml->setValue('Will not be to stringed.');
 
-        $boy = new Element('boy', Map {'age' => 15});
+        $boy = new Element('boy', Map {'age' => '15'});
         $girl = (new Element('girl'))->setValue('Mary');
 
         $xml->addChildren(Vector {$boy, $girl});

@@ -200,6 +200,19 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Return a virtual file system, or create it if it doesn't exist.
+     *
+     * @return \VirtualFileSystem\FileSystem
+     */
+    public function vfs(): FileSystem {
+        if ($this->vfs) {
+            return $this->vfs;
+        }
+
+        return $this->setupVFS();
+    }
+
+    /**
      * Assert that two array values are equal, disregarding the order.
      *
      * @param array<Tk, Tv> $expected

@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Debug\Dumper;
 
 use Titon\Debug\Exception\FatalErrorException;

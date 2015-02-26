@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Route\Annotation;
 
 use Titon\Annotation\Reader;
@@ -13,6 +13,8 @@ class RouteTest extends TestCase {
         // Class
         $class = $reader->getClassAnnotation('Route');
 
+        invariant($class instanceof Route, 'Must be a Route annotation.');
+
         $this->assertEquals('parent', $class->getKey());
         $this->assertEquals('/controller', $class->getPath());
         $this->assertEquals(Vector {}, $class->getMethods());
@@ -21,6 +23,8 @@ class RouteTest extends TestCase {
 
         // Foo
         $foo = $reader->getMethodAnnotation('foo', 'Route');
+
+        invariant($foo instanceof Route, 'Must be a Route annotation.');
 
         $this->assertEquals('foo', $foo->getKey());
         $this->assertEquals('/foo', $foo->getPath());
@@ -31,6 +35,8 @@ class RouteTest extends TestCase {
         // Bar
         $bar = $reader->getMethodAnnotation('bar', 'Route');
 
+        invariant($bar instanceof Route, 'Must be a Route annotation.');
+
         $this->assertEquals('bar', $bar->getKey());
         $this->assertEquals('/bar', $bar->getPath());
         $this->assertEquals(Vector {'post'}, $bar->getMethods());
@@ -40,6 +46,8 @@ class RouteTest extends TestCase {
         // Baz
         $baz = $reader->getMethodAnnotation('baz', 'Route');
 
+        invariant($baz instanceof Route, 'Must be a Route annotation.');
+
         $this->assertEquals('baz', $baz->getKey());
         $this->assertEquals('/baz', $baz->getPath());
         $this->assertEquals(Vector {'get'}, $baz->getMethods());
@@ -48,6 +56,8 @@ class RouteTest extends TestCase {
 
         // Qux
         $qux = $reader->getMethodAnnotation('qux', 'Route');
+
+        invariant($qux instanceof Route, 'Must be a Route annotation.');
 
         $this->assertEquals('qux', $qux->getKey());
         $this->assertEquals('/qux', $qux->getPath());

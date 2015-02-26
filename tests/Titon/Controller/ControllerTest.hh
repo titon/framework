@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Controller;
 
 use Titon\Http\Exception\NotFoundException;
@@ -17,8 +17,7 @@ class ControllerTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createStructure([
+        $this->vfs()->createStructure([
             '/views/' => [
                 'private/' => [
                     'errors/' => [
@@ -38,7 +37,7 @@ class ControllerTest extends TestCase {
             ]
         ]);
 
-        $view = new EngineView($this->vfs->path('/views/'));
+        $view = new EngineView($this->vfs()->path('/views/'));
         $view->setEngine(new TemplateEngine());
 
         $this->object = new ControllerStub();
@@ -127,7 +126,7 @@ class ControllerTest extends TestCase {
 
     public function testGetSetView(): void {
         $stub = new ControllerStub();
-        $view = new EngineView($this->vfs->path('/views/'));
+        $view = new EngineView($this->vfs()->path('/views/'));
 
         $this->assertEquals(null, $stub->getView());
 

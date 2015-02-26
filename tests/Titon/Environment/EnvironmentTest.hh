@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Environment;
 
 use Titon\Test\Stub\Environment\BootstrapperStub;

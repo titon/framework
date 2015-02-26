@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Debug;
 
 use Titon\Debug\Dumper\CliDumper;
@@ -11,11 +11,10 @@ class DebuggerTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/logs/');
+        $this->vfs()->createDirectory('/logs/');
 
         Debugger::enable();
-        Debugger::setLogger(new Logger($this->vfs->path('/logs/')));
+        Debugger::setLogger(new Logger($this->vfs()->path('/logs/')));
 
         set_error_handler(class_meth('Titon\Debug\Debugger', 'handleError'));
         set_exception_handler(class_meth('Titon\Debug\Debugger', 'handleException'));
@@ -58,7 +57,7 @@ class DebuggerTest extends TestCase {
     }
 
     public function testGetSetLogger(): void {
-        $logger = new Logger($this->vfs->path('/logs/'));
+        $logger = new Logger($this->vfs()->path('/logs/'));
 
         Debugger::setLogger($logger);
 
@@ -99,38 +98,38 @@ class DebuggerTest extends TestCase {
     public function testHandleErrorTriggeredNoReporting(): void {
         Debugger::disable();
 
-        $this->assertFileNotExists($this->vfs->path('/logs/warning-' . date('Y-m-d') . '.log'));
+        $this->assertFileNotExists($this->vfs()->path('/logs/warning-' . date('Y-m-d') . '.log'));
 
         ob_start();
         strpos();
         $actual = ob_get_clean();
 
         $this->assertEquals('', $actual);
-        $this->assertFileExists($this->vfs->path('/logs/warning-' . date('Y-m-d') . '.log'));
+        $this->assertFileExists($this->vfs()->path('/logs/warning-' . date('Y-m-d') . '.log'));
     }
 
     /**
      * @expectedException \HH\InvariantException
      */
     public function testHandleInvariant(): void {
-        $this->assertFileNotExists($this->vfs->path('/logs/info-' . date('Y-m-d') . '.log'));
+        $this->assertFileNotExists($this->vfs()->path('/logs/info-' . date('Y-m-d') . '.log'));
 
         invariant_violation('Something failed!', 'foo', 'bar');
 
-        $this->assertFileExists($this->vfs->path('/logs/info-' . date('Y-m-d') . '.log'));
+        $this->assertFileExists($this->vfs()->path('/logs/info-' . date('Y-m-d') . '.log'));
     }
 
     public function testLogException(): void {
         $date = date('Y-m-d');
 
-        $this->assertFileNotExists($this->vfs->path('/logs/error-' . $date . '.log'));
-        $this->assertFileNotExists($this->vfs->path('/logs/notice-' . $date . '.log'));
+        $this->assertFileNotExists($this->vfs()->path('/logs/error-' . $date . '.log'));
+        $this->assertFileNotExists($this->vfs()->path('/logs/notice-' . $date . '.log'));
 
         Debugger::logException(new ErrorException('Message', E_ERROR));
         Debugger::logException(new ErrorException('Message', E_USER_NOTICE));
 
-        $this->assertFileExists($this->vfs->path('/logs/error-' . $date . '.log'));
-        $this->assertFileExists($this->vfs->path('/logs/notice-' . $date . '.log'));
+        $this->assertFileExists($this->vfs()->path('/logs/error-' . $date . '.log'));
+        $this->assertFileExists($this->vfs()->path('/logs/notice-' . $date . '.log'));
     }
 
     public function testMapErrorCode(): void {

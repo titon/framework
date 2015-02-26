@@ -24,12 +24,12 @@ abstract class AbstractAction implements Action {
      *
      * @var \Titon\Controller\Controller
      */
-    protected Controller $controller;
+    protected ?Controller $controller;
 
     /**
      * {@inheritdoc}
      */
-    public function getController(): Controller {
+    public function getController(): ?Controller {
         return $this->controller;
     }
 

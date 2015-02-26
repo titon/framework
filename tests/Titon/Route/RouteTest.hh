@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Route;
 
 use Titon\Test\Stub\Route\TestRouteStub;
@@ -36,9 +36,9 @@ class RouteTest extends TestCase {
 
         $this->assertEquals(Vector {}, $route->getConditions());
 
-        $cond1 = () ==> {};
-        $cond2 = () ==> {};
-        $cond3 = () ==> {};
+        $cond1 = ($route) ==> { return true; };
+        $cond2 = ($route) ==> { return true; };
+        $cond3 = ($route) ==> { return true; };
 
         $route->addCondition($cond1);
         $route->addConditions(Vector {$cond3, $cond2});

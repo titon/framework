@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Io\Writer;
 
 use Titon\Io\Writer\IniWriter;
@@ -9,12 +9,11 @@ class IniWriterTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/writer');
+        $this->vfs()->createDirectory('/writer');
     }
 
     public function testWriteResource(): void {
-        $path = $this->vfs->path('/writer/ini.ini');
+        $path = $this->vfs()->path('/writer/ini.ini');
 
         $writer = new IniWriter($path, true);
         $writer->writeResource(Map {

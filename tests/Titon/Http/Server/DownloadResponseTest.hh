@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
@@ -10,30 +10,29 @@ class DownloadResponseTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/http/');
-        $this->vfs->createFile('/http/download.txt', 'This will be downloaded! Let\'s fluff this file with even more data to increase the file size.');
+        $this->vfs()->createDirectory('/http/');
+        $this->vfs()->createFile('/http/download.txt', 'This will be downloaded! Let\'s fluff this file with even more data to increase the file size.');
     }
 
     /**
      * @expectedException \Titon\Common\Exception\MissingFileException
      */
     public function testMissingFileErrors(): void {
-        new DownloadResponse($this->vfs->path('/http/download-missing.txt'));
+        new DownloadResponse($this->vfs()->path('/http/download-missing.txt'));
     }
 
     /**
      * @expectedException \Titon\Http\Exception\InvalidFileException
      */
     public function testUnwritableFileErrors(): void {
-        $this->vfs->createFile('/http/download-unwritable.txt', '')->chmod(0300);
+        $this->vfs()->createFile('/http/download-unwritable.txt', '')->chmod(0300);
 
-        new DownloadResponse($this->vfs->path('/http/download-unwritable.txt'));
+        new DownloadResponse($this->vfs()->path('/http/download-unwritable.txt'));
     }
 
     public function testSend(): void {
         $time = time();
-        $response = new DownloadResponse($this->vfs->path('/http/download.txt'));
+        $response = new DownloadResponse($this->vfs()->path('/http/download.txt'));
         $response->prepare(Request::createFromGlobals());
         $response->date($time);
 
@@ -56,10 +55,10 @@ class DownloadResponseTest extends TestCase {
     }
 
     public function testSendNoType(): void {
-        $this->vfs->createFile('/http/download', 'This will be downloaded! Let\'s fluff this file with even more data to increase the file size.');
+        $this->vfs()->createFile('/http/download', 'This will be downloaded! Let\'s fluff this file with even more data to increase the file size.');
 
         $time = time();
-        $response = new DownloadResponse($this->vfs->path('/http/download'));
+        $response = new DownloadResponse($this->vfs()->path('/http/download'));
         $response->prepare(Request::createFromGlobals());
         $response->date($time);
 
@@ -83,7 +82,7 @@ class DownloadResponseTest extends TestCase {
 
     public function testSendConfig(): void {
         $time = time();
-        $response = Response::download($this->vfs->path('/http/download.txt'), 'custom-filename.txt', true, true);
+        $response = Response::download($this->vfs()->path('/http/download.txt'), 'custom-filename.txt', true, true);
         $response->prepare(Request::createFromGlobals());
         $response->date($time);
 
@@ -99,7 +98,7 @@ class DownloadResponseTest extends TestCase {
             'Content-Disposition' => ['attachment; filename="custom-filename.txt"'],
             'Accept-Ranges' => ['bytes'],
             'Content-Transfer-Encoding' => ['binary'],
-            'Last-Modified' => [gmdate(Http::DATE_FORMAT, filemtime($this->vfs->path('/http/download.txt')))],
+            'Last-Modified' => [gmdate(Http::DATE_FORMAT, filemtime($this->vfs()->path('/http/download.txt')))],
             'ETag' => ['"3cefcf43cb525cb668db0cb67cccc41a8f90a727"'],
             'Content-Length' => [93],
         ], $response->getHeaders());
@@ -111,7 +110,7 @@ class DownloadResponseTest extends TestCase {
         $_SERVER['HTTP_RANGE'] = 'bytes=0-5';
         Server::initialize($_SERVER);
 
-        $response = new DownloadResponse($this->vfs->path('/http/download.txt'));
+        $response = new DownloadResponse($this->vfs()->path('/http/download.txt'));
         $response->prepare(Request::createFromGlobals());
 
         ob_start();
@@ -127,7 +126,7 @@ class DownloadResponseTest extends TestCase {
         $_SERVER['HTTP_RANGE'] = 'bytes=5-3';
         Server::initialize($_SERVER);
 
-        $response = new DownloadResponse($this->vfs->path('/http/download.txt'));
+        $response = new DownloadResponse($this->vfs()->path('/http/download.txt'));
         $response->prepare(Request::createFromGlobals());
 
         ob_start();
@@ -143,10 +142,13 @@ class DownloadResponseTest extends TestCase {
         $_SERVER['HTTP_RANGE'] = 'bytes=0-19';
         Server::initialize($_SERVER);
 
-        $path = $this->vfs->path('/http/download.txt');
+        $path = $this->vfs()->path('/http/download.txt');
 
         $response = new DownloadResponse($path);
         $response->prepare(Request::createFromGlobals());
+        $request = $response->getRequest();
+
+        invariant($request instanceof Request, 'Must be a Request.');
 
         // Valid starting range
         $response->setFileRange($path);
@@ -156,7 +158,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 0-19/93', $response->getHeader('Content-Range'));
 
         // No starting range
-        $response->getRequest()->headers->set('Range', ['bytes=-35']);
+        $request->headers->set('Range', ['bytes=-35']);
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
@@ -164,7 +166,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 0-35/93', $response->getHeader('Content-Range'));
 
         // No ending range
-        $response->getRequest()->headers->set('Range', ['bytes=45-']);
+        $request->headers->set('Range', ['bytes=45-']);
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
@@ -172,7 +174,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 45-92/93', $response->getHeader('Content-Range'));
 
         // Valid ending range
-        $response->getRequest()->headers->set('Range', ['bytes=33-92']);
+        $request->headers->set('Range', ['bytes=33-92']);
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
@@ -180,7 +182,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 33-92/93', $response->getHeader('Content-Range'));
 
         // No ranges at all
-        $response->getRequest()->headers->set('Range', ['bytes=-']);
+        $request->headers->set('Range', ['bytes=-']);
         $response->setFileRange($path);
 
         $this->assertEquals(206, $response->getStatusCode());
@@ -188,12 +190,12 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 0-92/93', $response->getHeader('Content-Range'));
 
         // Invalid ranges
-        $response->getRequest()->headers->set('Range', ['bytes=100-0']);
+        $request->headers->set('Range', ['bytes=100-0']);
         $response->setFileRange($path);
 
         $this->assertEquals(416, $response->getStatusCode());
 
-        $response->getRequest()->headers->set('Range', ['bytes=0-125']);
+        $request->headers->set('Range', ['bytes=0-125']);
         $response->setFileRange($path);
 
         $this->assertEquals(416, $response->getStatusCode());
@@ -205,7 +207,7 @@ class DownloadResponseTest extends TestCase {
         $_SERVER['HTTP_ETAG'] = 'ETAG';
         Server::initialize($_SERVER);
 
-        $path = $this->vfs->path('/http/download.txt');
+        $path = $this->vfs()->path('/http/download.txt');
 
         $response = new DownloadResponse($path);
         $response->prepare(Request::createFromGlobals());

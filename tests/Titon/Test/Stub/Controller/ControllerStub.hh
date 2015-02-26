@@ -5,23 +5,23 @@ use Titon\Controller\AbstractController;
 
 class ControllerStub extends AbstractController {
 
-    public function actionWithArgs(mixed $arg1, mixed $arg2 = 0): string {
-        return strval($arg1 + $arg2);
+    public function actionWithArgs(mixed $arg1, mixed $arg2 = 0): mixed {
+        return strval((int) $arg1 + (int) $arg2);
     }
 
-    public function actionNoArgs(): string {
+    public function actionNoArgs(): mixed {
         return 'actionNoArgs';
     }
 
-    public function _actionPseudoPrivate(): string {
+    public function _actionPseudoPrivate(): mixed {
         return 'wontBeCalled';
     }
 
-    protected function actionProtected(): string {
+    protected function actionProtected(): mixed {
         return 'wontBeCalled';
     }
 
-    private function actionPrivate(): string {
+    private function actionPrivate(): mixed {
         return 'wontBeCalled';
     }
 

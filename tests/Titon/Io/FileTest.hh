@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Io;
 
 use Titon\Test\TestCase;
@@ -13,9 +13,8 @@ class FileTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->object = new File($this->vfs->path('file/base.html'), true, 0777);
-        $this->temp = new File($this->vfs->path('file/temp.html'), false);
+        $this->object = new File($this->vfs()->path('file/base.html'), true, 0777);
+        $this->temp = new File($this->vfs()->path('file/temp.html'), false);
     }
 
     /**
@@ -54,7 +53,7 @@ class FileTest extends TestCase {
         $this->assertEquals('html', $this->object->ext());
         $this->assertEquals('html', $this->object->ext());
 
-        $file = new File($this->vfs->path('file/test'), true);
+        $file = new File($this->vfs()->path('file/test'), true);
 
         $this->assertEquals('', $file->ext());
     }

@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Io\Writer;
 
 use Titon\Test\TestCase;
@@ -12,12 +12,11 @@ class YamlWriterTest extends TestCase {
             $this->markTestSkipped('YAML extension must be installed to use the YamlWriter');
         }
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/writer');
+        $this->vfs()->createDirectory('/writer');
     }
 
     public function testWriteResource(): void {
-        $path = $this->vfs->path('/writer/yaml.yaml');
+        $path = $this->vfs()->path('/writer/yaml.yaml');
 
         $writer = new YamlWriter($path, true);
         $writer->writeResource(Map {

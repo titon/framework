@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Type;
 
 use Titon\Test\TestCase;
@@ -274,7 +274,7 @@ class HashMapTest extends TestCase {
                 14 => Map {'id' => 14, 'series_id' => 3, 'name' => 'The Two Towers', 'isbn' => '', 'released' => '1954-11-11'},
                 15 => Map {'id' => 15, 'series_id' => 3, 'name' => 'The Return of the King', 'isbn' => '', 'released' => '1955-10-25'},
             ])
-        ]), $books->groupBy(($item) ==> $item['series_id']));
+        ]), $books->groupBy(($item, $key) ==> $item['series_id']));
     }
 
     public function testHas(): void {

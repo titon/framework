@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\View\Helper;
 
 use Titon\Test\TestCase;
@@ -12,14 +12,13 @@ class AssetHelperTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/css/');
-        $this->vfs->createFile('/css/test.css');
+        $this->vfs()->createDirectory('/css/');
+        $this->vfs()->createFile('/css/test.css');
 
         $view = new EngineView(TEMP_DIR);
         $view->addHelper('html', new HtmlHelper());
 
-        $this->object = new AssetHelper($this->vfs->path('/'));
+        $this->object = new AssetHelper($this->vfs()->path('/'));
         $this->object->setView($view);
     }
 

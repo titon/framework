@@ -11,7 +11,9 @@ class FooServiceProviderStub extends AbstractServiceProvider {
     };
 
     public function register(): void {
-        $this->depository->register('foo', 'Titon\Test\Stub\Context\FooStub');
+        if ($this->depository !== null) {
+            $this->depository->register('foo', 'Titon\Test\Stub\Context\FooStub');
+        }
     }
 
 }

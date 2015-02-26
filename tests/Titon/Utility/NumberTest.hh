@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;
@@ -39,13 +39,13 @@ class NumberTest extends TestCase {
 
     public function testBytesTo(): void {
         $this->assertEquals('1B', Number::bytesTo(1));
-        $this->assertEquals('225B', Number::bytesTo(225, 1));
-        $this->assertEquals('100B', Number::bytesTo(100, 2));
+        $this->assertEquals('225B', Number::bytesTo(225));
+        $this->assertEquals('100B', Number::bytesTo(100));
 
         // kb
         $this->assertEquals('1KB', Number::bytesTo(1024));
-        $this->assertEquals('225KB', Number::bytesTo(230400, 1));
-        $this->assertEquals('100KB', Number::bytesTo(102400, 2));
+        $this->assertEquals('225KB', Number::bytesTo(230400));
+        $this->assertEquals('100KB', Number::bytesTo(102400));
 
         // mb
         $this->assertEquals('1MB', Number::bytesTo(1048576));

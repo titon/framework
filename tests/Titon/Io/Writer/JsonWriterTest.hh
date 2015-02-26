@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Io\Writer;
 
 use Titon\Io\Writer\JsonWriter;
@@ -9,12 +9,11 @@ class JsonWriterTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/writer');
+        $this->vfs()->createDirectory('/writer');
     }
 
     public function testWriteResource(): void {
-        $path = $this->vfs->path('/writer/json.json');
+        $path = $this->vfs()->path('/writer/json.json');
 
         $writer = new JsonWriter($path, true);
         $writer->writeResource(Map {

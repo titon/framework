@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Kernel;
 
 use Titon\Kernel\Middleware\Pipeline;

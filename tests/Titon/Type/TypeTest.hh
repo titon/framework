@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Type;
 
 use Titon\Test\TestCase;

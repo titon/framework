@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Utility;
 
 use Titon\Io\Reader\PhpReader;
@@ -6,19 +6,19 @@ use Titon\Test\TestCase;
 
 class ConfigTest extends TestCase {
 
-    protected $app = Map {
+    protected Map<string, string> $app = Map {
         'name' => 'Titon',
         'salt' => '66c63d989368170aff46040ab2353923',
         'seed' => 'nsdASDn7012dn1dsjSa',
         'encoding' => 'UTF-8'
     };
 
-    protected $debug = Map {
+    protected Map<string, mixed> $debug = Map {
         'level' => 2,
         'email' => ''
     };
 
-    protected $test = Map {
+    protected Map<string, mixed> $test = Map {
         'integer' => 1234567890,
         'number' => '1234567890',
         'string' => 'abcdefg',
@@ -32,8 +32,6 @@ class ConfigTest extends TestCase {
 
     protected function setUp(): void {
         parent::setUp();
-
-        $this->setupVFS();
 
         Config::set('app', $this->app);
         Config::set('debug', $this->debug);
@@ -87,7 +85,7 @@ class ConfigTest extends TestCase {
         $this->assertEquals(Config::get('debug'), $this->debug);
         $this->assertEquals(Config::get('debug.level'), $this->debug['level']);
 
-        $this->assertTrue(is_integer(Config::get('test.integer')));
+        $this->assertTrue(is_int(Config::get('test.integer')));
         $this->assertTrue(is_numeric(Config::get('test.number')));
         $this->assertTrue(is_string(Config::get('test.string')));
         $this->assertTrue(empty(Config::get('test.vector')));
@@ -139,9 +137,9 @@ return [
 CFG;
 
 
-        $this->vfs->createFile('/config.php', $data);
+        $this->vfs()->createFile('/config.php', $data);
 
-        $reader = new PhpReader($this->vfs->path('/config.php'));
+        $reader = new PhpReader($this->vfs()->path('/config.php'));
 
         Config::load('Php', $reader);
         $this->assertTrue(isset(Config::all()['Php']));

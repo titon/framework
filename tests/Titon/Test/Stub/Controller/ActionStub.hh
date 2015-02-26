@@ -6,6 +6,7 @@ use Titon\Controller\Action\AbstractAction;
 class ActionStub extends AbstractAction {
 
     public function get(): mixed {
+        // UNSAFE
         $this->getController()->foo = 'bar';
 
         return 'get';
@@ -24,6 +25,7 @@ class ActionStub extends AbstractAction {
     }
 
     public function head(): mixed {
+        // UNSAFE
         $this->getController()->foo = 'baz';
 
         return 'head';

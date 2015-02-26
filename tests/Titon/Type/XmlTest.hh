@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Type;
 
 use Titon\Test\TestCase;
@@ -238,31 +238,31 @@ XML;
         $expected = new Element('unit');
 
         $name = (new Element('name'))->setValue('Barbarian');
-        $life = (new Element('life', Map {'max' => 150}))->setValue('50');
-        $mana = (new Element('mana', Map {'max' => 250}))->setValue('100');
+        $life = (new Element('life', Map {'max' => '150'}))->setValue('50');
+        $mana = (new Element('mana', Map {'max' => '250'}))->setValue('100');
         $stamina = (new Element('stamina'))->setValue('15');
         $vitality = (new Element('vitality'))->setValue('20');
         $dexterity = new Element('dexterity', Map {'evade' => '5%', 'block' => '10%'});
         $agility = new Element('agility', Map {'turnRate' => '1.25', 'acceleration' => '5'});
-        $armors = new Element('armors', Map {'items' => 6});
+        $armors = new Element('armors', Map {'items' => '6'});
 
-            $armor1 = (new Element('armor', Map {'defense' => 15}))->setValue('Helmet');
-            $armor2 = (new Element('armor', Map {'defense' => 25}))->setValue('Shoulder Plates');
-            $armor3 = (new Element('armor', Map {'defense' => 50}))->setValue('Breast Plate');
-            $armor4 = (new Element('armor', Map {'defense' => 10}))->setValue('Greaves');
-            $armor5 = (new Element('armor', Map {'defense' => 10}))->setValue('Gloves');
-            $armor6 = (new Element('armor', Map {'defense' => 25}))->setValue('Shield');
+            $armor1 = (new Element('armor', Map {'defense' => '15'}))->setValue('Helmet');
+            $armor2 = (new Element('armor', Map {'defense' => '25'}))->setValue('Shoulder Plates');
+            $armor3 = (new Element('armor', Map {'defense' => '50'}))->setValue('Breast Plate');
+            $armor4 = (new Element('armor', Map {'defense' => '10'}))->setValue('Greaves');
+            $armor5 = (new Element('armor', Map {'defense' => '10'}))->setValue('Gloves');
+            $armor6 = (new Element('armor', Map {'defense' => '25'}))->setValue('Shield');
 
             $armors->addChildren(Vector {$armor1, $armor2, $armor3, $armor4, $armor5, $armor6});
 
-        $weapons = new Element('weapons', Map {'items' => 6});
+        $weapons = new Element('weapons', Map {'items' => '6'});
 
-            $sword1 = (new Element('sword', Map {'damage' => 25}))->setValue('Broadsword');
-            $sword2 = (new Element('sword', Map {'damage' => 30}))->setValue('Longsword');
-            $axe1 = (new Element('axe', Map {'damage' => 20}))->setValue('Heavy Axe');
-            $axe2 = (new Element('axe', Map {'damage' => 25}))->setValue('Double-edged Axe');
-            $polearm = (new Element('polearm', Map {'damage' => 50, 'range' => 3, 'speed' => 'slow'}))->setValue('Polearm');
-            $mace = (new Element('mace', Map {'damage' => 15, 'speed' => 'fast'}))->setValue('Mace');
+            $sword1 = (new Element('sword', Map {'damage' => '25'}))->setValue('Broadsword');
+            $sword2 = (new Element('sword', Map {'damage' => '30'}))->setValue('Longsword');
+            $axe1 = (new Element('axe', Map {'damage' => '20'}))->setValue('Heavy Axe');
+            $axe2 = (new Element('axe', Map {'damage' => '25'}))->setValue('Double-edged Axe');
+            $polearm = (new Element('polearm', Map {'damage' => '50', 'range' => '3', 'speed' => 'slow'}))->setValue('Polearm');
+            $mace = (new Element('mace', Map {'damage' => '15', 'speed' => 'fast'}))->setValue('Mace');
 
             $weapons->addChildren(Vector {$sword1, $sword2, $axe1, $axe2, $polearm, $mace});
 
@@ -285,7 +285,7 @@ XML;
             $food1 = (new Element('food'))->setValue('Fruit');
             $food2 = (new Element('food'))->setValue('Bread');
             $food3 = (new Element('food'))->setValue('Vegetables');
-            $scrap = (new Element('scrap', Map {'count' => 25}))->setValue('Scrap');
+            $scrap = (new Element('scrap', Map {'count' => '25'}))->setValue('Scrap');
 
             $items->addChildren(Vector {$potions, $keys, $food1, $food2, $food3, $scrap});
 

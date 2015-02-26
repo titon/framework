@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Event;
 
 use Titon\Test\Stub\Event\ListenerStub;

@@ -1,4 +1,4 @@
-<?php
+<?hh
 /**
  * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -9,21 +9,10 @@
 date_default_timezone_set('UTC');
 
 // Set testing constants
-if (!defined('TEST_DIR')) {
-    define('TEST_DIR', __DIR__);
-}
-
-if (!defined('TEMP_DIR')) {
-    define('TEMP_DIR', TEST_DIR . '/tmp');
-}
-
-if (!defined('VENDOR_DIR')) {
-    define('VENDOR_DIR', dirname(TEST_DIR) . '/vendor');
-}
-
-if (!defined('DS')) {
-    define('DS', DIRECTORY_SEPARATOR);
-}
+const string TEST_DIR = __DIR__;
+const string TEMP_DIR = TEST_DIR . '/tmp';
+const string VENDOR_DIR = TEST_DIR . '/../vendor';
+const string DS = DIRECTORY_SEPARATOR;
 
 // Start autoloader
 if (!file_exists(VENDOR_DIR . '/autoload.php')) {

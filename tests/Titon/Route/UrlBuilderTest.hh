@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\Route;
 
 use Titon\Context\Depository;
@@ -29,13 +29,18 @@ class UrlBuilderTest extends TestCase {
         $container = Depository::getInstance();
 
         $router = $container->make('Titon\Route\Router');
+
+        invariant($router instanceof Router, 'Must be a Router.');
+
         $router->map('action.ext', new TestRouteStub('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
         $router->map('action', new TestRouteStub('/{module}/{controller}/{action}', 'Module\Controller@action'));
         $router->map('controller', new TestRouteStub('/{module}/{controller}', 'Module\Controller@action'));
         $router->map('module', new TestRouteStub('/{module}', 'Module\Controller@action'));
         $router->map('root', new TestRouteStub('/', 'Module\Controller@action'));
 
-        $this->object = $container->make('Titon\Route\UrlBuilder');
+        $this->object = $builder = $container->make('Titon\Route\UrlBuilder');
+
+        invariant($builder instanceof UrlBuilder, 'Must be a UrlBuilder.');
     }
 
     public function testBuild(): void {

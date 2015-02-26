@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 namespace Titon\View;
 
 use Titon\Cache\Storage\MemoryStorage;
@@ -12,8 +12,7 @@ class EngineViewTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createStructure([
+        $this->vfs()->createStructure([
             '/views/' => [
                 'fallback/' => [
                     'private/' => [
@@ -56,8 +55,8 @@ class EngineViewTest extends TestCase {
         ]);
 
         $this->object = new EngineView([
-            $this->vfs->path('/views/'),
-            $this->vfs->path('/views/fallback/')
+            $this->vfs()->path('/views/'),
+            $this->vfs()->path('/views/fallback/')
         ]);
     }
 

@@ -1,11 +1,11 @@
-<?hh // strict
+<?hh
 namespace Titon\Http\Stream;
 
 use Titon\Test\TestCase;
 
 class ResourceStreamTest extends TestCase {
 
-    protected function makeStream($mode, $content = ''): void {
+    protected function makeStream(string $mode, string $content = ''): ResourceStream {
         $stream = new ResourceStream(fopen('php://memory', $mode));
 
         if ($content) {

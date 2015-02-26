@@ -139,13 +139,9 @@ class CacheTest extends TestCase {
     }
 
     public function testStore(): void {
-        $this->assertEquals('bar', $this->object->store('foo', function(): void {
-            return 'bar';
-        }));
+        $this->assertEquals('bar', $this->object->store('foo', () ==> 'bar'));
 
-        $this->assertEquals('bar', $this->object->store('foo', function(): void {
-            return 'baz';
-        }));
+        $this->assertEquals('bar', $this->object->store('foo', () ==> 'baz'));
     }
 
 }

@@ -53,13 +53,9 @@ class ValidateTest extends TestCase {
     }
 
     public function testCallback(): void {
-        $this->assertTrue(Validate::callback('123', function($value): void {
-            return is_numeric($value);
-        }));
+        $this->assertTrue(Validate::callback('123', ($value) ==> is_numeric($value)));
 
-        $this->assertFalse(Validate::callback('123abc', function($value): void {
-            return is_numeric($value);
-        }));
+        $this->assertFalse(Validate::callback('123abc', ($value) ==> is_numeric($value)));
     }
 
     public function testComparison(): void {

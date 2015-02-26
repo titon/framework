@@ -17,48 +17,48 @@ class CacheableTest extends TestCase {
     }
 
     public function testCache(): void {
-        $this->object->cache('foo', function(): void {
+        $this->object->cache('foo', () ==> {
             return 'bar';
         });
         $this->assertEquals('bar', $this->object->getCache('foo'));
 
         // doesn't overwrite
-        $this->object->cache('foo', function(): void {
+        $this->object->cache('foo', () ==> {
             return 'baz';
         });
         $this->assertEquals('bar', $this->object->getCache('foo'));
 
-        $this->object->cache('number', function(): void {
+        $this->object->cache('number', () ==> {
             return 12345;
         });
         $this->assertEquals(12345, $this->object->getCache('number'));
 
-        $this->object->cache('closure', function(): void {
+        $this->object->cache('closure', () ==> {
             return (100 * 22);
         });
         $this->assertEquals(2200, $this->object->getCache('closure'));
 
-        $this->object->cache('class', function($parent): void {
+        $this->object->cache('class', ($parent) ==> {
             return get_class($parent);
         });
         $this->assertEquals('Titon\Test\Stub\Common\CacheableStub', $this->object->getCache('class'));
 
-        $this->object->cache('false', function(): void {
+        $this->object->cache('false', () ==> {
             return false;
         });
         $this->assertEquals(false, $this->object->getCache('false'));
 
-        $this->object->cache('null', function(): void {
+        $this->object->cache('null', () ==> {
             return null;
         });
         $this->assertEquals(null, $this->object->getCache('null'));
 
-        $this->object->cache('zero', function(): void {
+        $this->object->cache('zero', () ==> {
             return 0;
         });
         $this->assertEquals(0, $this->object->getCache('zero'));
 
-        $this->object->cache('array', function(): void {
+        $this->object->cache('array', () ==> {
             return [];
         });
         $this->assertEquals([], $this->object->getCache('array'));

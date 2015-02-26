@@ -95,7 +95,7 @@ class HtmlHelperTest extends TestCase {
         $this->assertEquals('<script src="script.js" type="text/javascript"></script>' . PHP_EOL, $this->object->script('script.js'));
         $this->assertEquals('<script src="path/script.js" type="text/javascript"></script>' . PHP_EOL, $this->object->script('path/script.js'));
         $this->assertEquals('<script type="text/javascript"><![CDATA[script.js]]></script>' . PHP_EOL, $this->object->script('script.js', true));
-        $this->assertEquals('<script type="text/javascript"><![CDATA[(function(): void { alert(); })();]]></script>' . PHP_EOL, $this->object->script('(function(): void { alert(); })();', true));
+        $this->assertEquals('<script type="text/javascript"><![CDATA[(function() { alert(); })();]]></script>' . PHP_EOL, $this->object->script('(function() { alert(); })();', true));
     }
 
     public function testStyle(): void {

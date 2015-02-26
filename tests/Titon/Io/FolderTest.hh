@@ -331,7 +331,7 @@ class FolderTest extends TestCase {
         $contents = $folder->files();
 
         $scheme = $this->vfs->scheme();
-        $paths = $contents->map(function(Node $value) use ($scheme)  {
+        $paths = $contents->map(($value) ==> {
             return str_replace($scheme . '://', '', $value->path());
         });
 
@@ -407,7 +407,7 @@ class FolderTest extends TestCase {
         $contents = $folder->folders();
 
         $scheme = $this->vfs->scheme();
-        $paths = $contents->map(function(Node $value) use ($scheme)  {
+        $paths = $contents->map(($value) ==> {
             return str_replace($scheme . '://', '', $value->path());
         });
 
@@ -629,7 +629,7 @@ class FolderTest extends TestCase {
         $contents = $folder->read();
 
         $scheme = $this->vfs->scheme();
-        $paths = $contents->map(function(Node $value) use ($scheme)  {
+        $paths = $contents->map(($value) ==> {
             return str_replace($scheme . '://', '', $value->path());
         });
 
@@ -668,7 +668,7 @@ class FolderTest extends TestCase {
         $contents = $folder->read(false, true);
 
         $scheme = $this->vfs->scheme();
-        $paths = $contents->map(function(Node $value) use ($scheme)  {
+        $paths = $contents->map(($value) ==> {
             return str_replace($scheme . '://', '', $value->path());
         });
 
@@ -710,7 +710,7 @@ class FolderTest extends TestCase {
         $contents = $folder->read(true);
 
         $scheme = $this->vfs->scheme();
-        $paths = $contents->map(function(Node $value) use ($scheme)  {
+        $paths = $contents->map(($value) ==> {
             return str_replace($scheme . '://', '', $value->path());
         });
 
@@ -749,7 +749,7 @@ class FolderTest extends TestCase {
         $contents = $folder->read(true, true);
 
         $scheme = $this->vfs->scheme();
-        $paths = $contents->map(function(Node $value) use ($scheme)  {
+        $paths = $contents->map(($value) ==> {
             return str_replace($scheme . '://', '', $value->path());
         });
 

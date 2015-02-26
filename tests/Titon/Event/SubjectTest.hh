@@ -29,7 +29,7 @@ class SubjectTest extends TestCase {
     }
 
     public function testOnAndOff(): void {
-        $callback = function(Event $event): void { };
+        $callback = ($event) ==> { };
         $listener = new ListenerStub();
 
         $this->object->on('event.test1', $callback);
@@ -50,9 +50,9 @@ class SubjectTest extends TestCase {
     public function testOnce(): void {
         $count = 0;
 
-        $ob1 = function(Event $event, &$c): void { $c++; };
+        $ob1 = function(Event $event, &$c) { $c++; };
         $ob2 = [new ListenerStub(), 'counter'];
-        $ob3 = function(Event $event, &$c): void { $c++; };
+        $ob3 = function(Event $event, &$c) { $c++; };
         $ob4 = [new ListenerStub(), 'counter'];
 
         $this->object->once('event.test', $ob1, 20);

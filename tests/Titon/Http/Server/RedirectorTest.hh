@@ -63,7 +63,7 @@ class RedirectorTest extends TestCase {
 
     public function testTo(): void {
         $time = time();
-        $response = Redirector::to('/custom/url', 300, function(Response $response): void {
+        $response = Redirector::to('/custom/url', 300, ($response) ==> {
             $response->setHeader('X-Test', 'Foobar');
         });
         $response->date($time);

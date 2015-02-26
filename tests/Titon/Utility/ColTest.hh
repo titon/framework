@@ -21,9 +21,7 @@ class ColTest extends TestCase {
             1 => 'foo',
             2 => 123,
             3 => 'bar'
-        }, function($key, $value): void {
-            return is_string($value) ? strtoupper($value) : $value;
-        }));
+        }, ($key, $value) ==> is_string($value) ? strtoupper($value) : $value));
     }
 
     public function testEachVector(): void {
@@ -35,24 +33,18 @@ class ColTest extends TestCase {
             'foo',
             123,
             'bar'
-        }, function($key, $value): void {
-            return is_string($value) ? strtoupper($value) : $value;
-        }));
+        }, ($key, $value) ==> is_string($value) ? strtoupper($value) : $value));
     }
 
     public function testEveryMap(): void {
-        $callback = function($key, $value): void {
-            return is_int($value);
-        };
+        $callback = ($key, $value) ==> is_int($value);
 
         $this->assertTrue(Col::every(Map {1 => 123, 2 => 456, 3 => 789}, $callback));
         $this->assertFalse(Col::every(Map {1 => 123, 2 => 456, 3 => '789'}, $callback));
     }
 
     public function testEveryVector(): void {
-        $callback = function($key, $value): void {
-            return is_int($value);
-        };
+        $callback = ($key, $value) ==> is_int($value);
 
         $this->assertTrue(Col::every(Vector {123, 456, 789}, $callback));
         $this->assertFalse(Col::every(Vector {123, 456, '789'}, $callback));
@@ -515,23 +507,15 @@ class ColTest extends TestCase {
     }
 
     public function testSomeMap(): void {
-        $this->assertTrue(Col::some(Map {0 => 'foo', 1 => 123, 2 => true}, function($key, $value): void {
-            return is_numeric($value);
-        }));
+        $this->assertTrue(Col::some(Map {0 => 'foo', 1 => 123, 2 => true}, ($key, $value) ==> is_numeric($value)));
 
-        $this->assertFalse(Col::some(Map {0 => 'foo', 1 => 123, 2 => true}, function($key, $value): void {
-            return is_float($value);
-        }));
+        $this->assertFalse(Col::some(Map {0 => 'foo', 1 => 123, 2 => true}, ($key, $value) ==> is_float($value)));
     }
 
     public function testSomeVector(): void {
-        $this->assertTrue(Col::some(Vector {'foo', 123, true}, function($key, $value): void {
-            return is_numeric($value);
-        }));
+        $this->assertTrue(Col::some(Vector {'foo', 123, true}, ($key, $value) ==> is_numeric($value)));
 
-        $this->assertFalse(Col::some(Vector {'foo', 123, true}, function($key, $value): void {
-            return is_float($value);
-        }));
+        $this->assertFalse(Col::some(Vector {'foo', 123, true}, ($key, $value) ==> is_float($value)));
     }
 
     public function testToArray(): void {

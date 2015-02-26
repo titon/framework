@@ -75,14 +75,14 @@ class RouterTest extends TestCase {
         $stub = new FilterStub();
 
         $this->object->filter('test', $stub);
-        $this->object->filterCallback('test2', function(): void {});
+        $this->object->filterCallback('test2', () ==> {});
 
         $this->assertEquals(inst_meth($stub, 'filter'), $this->object->getFilter('test'));
         $this->assertEquals(Vector {'test', 'test2'}, $this->object->getFilters()->keys());
 
         // Filtering is passed to routes
         $this->object->map('f1', (new Route('/f1', 'Controller@action'))->addFilter('test2'));
-        $this->object->group(function(Router $router, Group $group): void {
+        $this->object->group(($router, $group) ==> {
             $group->setFilters(Vector {'test'});
 
             $router->map('f2', new Route('/f2', 'Controller@action'));
@@ -112,7 +112,7 @@ class RouterTest extends TestCase {
         });
 
         $router->map('f1', (new Route('/f1', 'Controller@action'))->addFilter('test'));
-        $router->group(function(Router $router, Group $group): void {
+        $router->group(($router, $group) ==> {
             $group->setFilters(Vector {'test'});
 
             $router->map('f2', new Route('/f2', 'Controller@action'));
@@ -143,7 +143,7 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupPrefixing(): void {
-        $this->object->group(function(Router $router, Group $group) {
+        $this->object->group(($router, $group) ==> {
             $group->setPrefix('/pre/');
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
@@ -161,7 +161,7 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupSuffixing(): void {
-        $this->object->group(function(Router $router, Group $group) {
+        $this->object->group(($router, $group) ==> {
             $group->setSuffix('/post/');
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
@@ -179,7 +179,7 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupSecure(): void {
-        $this->object->group(function(Router $router, Group $group) {
+        $this->object->group(($router, $group) ==> {
             $group->setSecure(true);
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
@@ -197,7 +197,7 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupPatterns(): void {
-        $this->object->group(function(Router $router, Group $group) {
+        $this->object->group(($router, $group) ==> {
             $group->setPrefix('<token>');
             $group->addPattern('token', '([abcd]+)');
 
@@ -221,10 +221,10 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupConditions(): void {
-        $cond1 = function(): void {};
-        $cond2 = function(): void {};
+        $cond1 = () ==> {};
+        $cond2 = () ==> {};
 
-        $this->object->group(function(Router $router, Group $group) use ($cond1, $cond2) {
+        $this->object->group(($router, $group) ==> {
             $group->setConditions(Vector {$cond1, $cond2});
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
@@ -242,12 +242,12 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupNesting(): void {
-        $this->object->group(function(Router $router, Group $group1) {
+        $this->object->group(($router, $group1) ==> {
             $group1->setPrefix('/pre/');
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
 
-            $router->group(function(Router $router, Group $group2) {
+            $router->group(($router, $group2) ==> {
                 $group2->setSuffix('/post');
 
                 $router->map('group2', new Route('/group-2', 'Controller@action'));
@@ -265,17 +265,17 @@ class RouterTest extends TestCase {
     }
 
     public function testGroupNestingInherits(): void {
-        $this->object->group(function(Router $router, Group $group1) {
+        $this->object->group(($router, $group1) ==> {
             $group1->setFilters(Vector {'foo'})->setMethods(Vector {'get'});
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
 
-            $router->group(function(Router $router, Group $group2) {
+            $router->group(($router, $group2) ==> {
                 $group2->setFilters(Vector {'bar'});
 
                 $router->map('group2', new Route('/group-2', 'Controller@action'));
 
-                $router->group(function(Router $router, Group $group3) {
+                $router->group(($router, $group3) ==> {
                     $group3->setMethods(Vector {'post'});
 
                     $router->map('group3', new Route('/group-3', 'Controller@action'));

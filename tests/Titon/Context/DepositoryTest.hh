@@ -37,11 +37,7 @@ class DepositoryTest extends TestCase
 
     public function testRegisterClosure()
     {
-        $this->container->register('foo', function(){
-            $foo = new FooStub('Foo');
-
-            return $foo;
-        });
+        $this->container->register('foo', () ==> new FooStub('Foo'));
 
         $this->assertInstanceOf('Titon\Test\Stub\Context\FooStub', $this->container->make('foo'));
         $this->assertEquals('Foo', $this->container->make('foo')->getName());
@@ -142,9 +138,7 @@ class DepositoryTest extends TestCase
 
     public function testClosureDependencyResolution()
     {
-        $bar = $this->container->make(function(FooStub $foo): void {
-            return new BarStub($foo);
-        });
+        $bar = $this->container->make((FooStub $foo) ==> new BarStub($foo));
 
         $this->assertEquals('Alex Phillips', $bar->getFoo()->getName());
     }

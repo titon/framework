@@ -145,9 +145,7 @@ class ArrayListTest extends TestCase {
     }
 
     public function testEach(): void {
-        $this->assertEquals(new ArrayList(Vector {'FOO', 'BAR', 'BAZ'}), $this->object->each(function(int $key, string $value): string {
-            return strtoupper($value);
-        }));
+        $this->assertEquals(new ArrayList(Vector {'FOO', 'BAR', 'BAZ'}), $this->object->each(($key, $value) ==> strtoupper($value)));
     }
 
     public function testErase(): void {
@@ -155,13 +153,11 @@ class ArrayListTest extends TestCase {
     }
 
     public function testFilter(): void {
-        $this->assertEquals(new ArrayList(Vector {'bar', 'baz'}), $this->object->filter(function(string $value): bool {
-            return (strpos($value, 'b') !== false);
-        }));
+        $this->assertEquals(new ArrayList(Vector {'bar', 'baz'}), $this->object->filter(($value) ==> (strpos($value, 'b') !== false)));
     }
 
     public function testFilterWithKey(): void {
-        $this->assertEquals(new ArrayList(Vector {'baz'}), $this->object->filterWithKey(function(int $index, string $value): bool {
+        $this->assertEquals(new ArrayList(Vector {'baz'}), $this->object->filterWithKey(($index, $value) ==> {
             return (strpos($value, 'b') !== false && $index % 2 === 0);
         }));
     }
@@ -218,15 +214,11 @@ class ArrayListTest extends TestCase {
     }
 
     public function testMap(): void {
-        $this->assertEquals(new ArrayList(Vector {'Foo', 'Bar', 'Baz'}), $this->object->map(function(string $value): string {
-            return ucfirst($value);
-        }));
+        $this->assertEquals(new ArrayList(Vector {'Foo', 'Bar', 'Baz'}), $this->object->map(($value) ==> ucfirst($value)));
     }
 
     public function testMapWithKey(): void {
-        $this->assertEquals(new ArrayList(Vector {'Foo0', 'Bar1', 'Baz2'}), $this->object->mapWithKey(function(int $index, string $value): string {
-            return ucfirst($value) . $index;
-        }));
+        $this->assertEquals(new ArrayList(Vector {'Foo0', 'Bar1', 'Baz2'}), $this->object->mapWithKey(($index, $value) ==> ucfirst($value) . $index));
     }
 
     public function testMerge(): void {
@@ -240,9 +232,7 @@ class ArrayListTest extends TestCase {
             Map {'key' => 3},
         });
 
-        $this->assertEquals(Vector {1, 2, 3}, $list->pluck(function($value, $key): void {
-            return $value['key'];
-        }));
+        $this->assertEquals(Vector {1, 2, 3}, $list->pluck(($value, $key) ==> $value['key']));
     }
 
     public function testPrepend(): void {
@@ -308,13 +298,9 @@ class ArrayListTest extends TestCase {
     }
 
     public function testSome(): void {
-        $this->assertTrue($this->object->some(function(int $key, mixed $value): void {
-            return is_string($value);
-        }));
+        $this->assertTrue($this->object->some(($key, $value) ==> is_string($value)));
 
-        $this->assertFalse($this->object->some(function(int $key, mixed $value): void {
-            return is_numeric($value);
-        }));
+        $this->assertFalse($this->object->some(($key, $value) ==> is_numeric($value)));
     }
 
     public function testSort(): void {
@@ -328,7 +314,7 @@ class ArrayListTest extends TestCase {
     public function testSortWithCallback(): void {
         $list = new ArrayList([5, 3, 4, 2, 1]);
 
-        $callback = function($a, $b) {
+        $callback = ($a, $b) ==> {
             if ($a == $b) {
                 return 0;
             } else if ($a > $b) {

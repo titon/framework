@@ -50,7 +50,7 @@ class DebuggerTest extends TestCase {
     }
 
     public function testGetSetHandler(): void {
-        $handler = function(): void {};
+        $handler = () ==> {};
 
         Debugger::setHandler($handler);
 
@@ -148,7 +148,8 @@ class DebuggerTest extends TestCase {
         $this->assertEquals('array', Debugger::parseType([]));
         $this->assertEquals('object', Debugger::parseType(new \stdClass()));
         $this->assertEquals('null', Debugger::parseType(null));
-        $this->assertEquals('callable', Debugger::parseType(function(): void {}));
+        $this->assertEquals('callable', Debugger::parseType(function() {}));
+        $this->assertEquals('callable', Debugger::parseType(() ==> {}));
     }
 
     public function testParseValue(): void {

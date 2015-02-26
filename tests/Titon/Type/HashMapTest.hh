@@ -204,9 +204,7 @@ class HashMapTest extends TestCase {
     }
 
     public function testEach(): void {
-        $this->assertEquals(new HashMap(Map {'a' => 'FOO', 'b' => 'BAR', 'c' => 'BAZ'}), $this->object->each(function(string $key, string $value): string {
-            return strtoupper($value);
-        }));
+        $this->assertEquals(new HashMap(Map {'a' => 'FOO', 'b' => 'BAR', 'c' => 'BAZ'}), $this->object->each(($key, $value) ==> strtoupper($value)));
     }
 
     public function testErase(): void {
@@ -214,15 +212,11 @@ class HashMapTest extends TestCase {
     }
 
     public function testFilter(): void {
-        $this->assertEquals(new HashMap(Map {'b' => 'bar', 'c' => 'baz'}), $this->object->filter(function(string $value): bool {
-            return (strpos($value, 'b') !== false);
-        }));
+        $this->assertEquals(new HashMap(Map {'b' => 'bar', 'c' => 'baz'}), $this->object->filter(($value) ==> (strpos($value, 'b') !== false)));
     }
 
     public function testFilterWithKey(): void {
-        $this->assertEquals(new HashMap(Map {'c' => 'baz'}), $this->object->filterWithKey(function(string $index, string $value): bool {
-            return ($index === 'c');
-        }));
+        $this->assertEquals(new HashMap(Map {'c' => 'baz'}), $this->object->filterWithKey(($index, $value) ==> ($index === 'c')));
     }
 
     public function testFirst(): void {
@@ -280,9 +274,7 @@ class HashMapTest extends TestCase {
                 14 => Map {'id' => 14, 'series_id' => 3, 'name' => 'The Two Towers', 'isbn' => '', 'released' => '1954-11-11'},
                 15 => Map {'id' => 15, 'series_id' => 3, 'name' => 'The Return of the King', 'isbn' => '', 'released' => '1955-10-25'},
             ])
-        ]), $books->groupBy(function($item): void {
-            return $item['series_id'];
-        }));
+        ]), $books->groupBy(($item) ==> $item['series_id']));
     }
 
     public function testHas(): void {
@@ -329,15 +321,11 @@ class HashMapTest extends TestCase {
     }
 
     public function testMap(): void {
-        $this->assertEquals(new HashMap(Map {'a' => 'Foo', 'b' => 'Bar', 'c' => 'Baz'}), $this->object->map(function(string $value): string {
-            return ucfirst($value);
-        }));
+        $this->assertEquals(new HashMap(Map {'a' => 'Foo', 'b' => 'Bar', 'c' => 'Baz'}), $this->object->map(($value) ==> ucfirst($value)));
     }
 
     public function testMapWithKey(): void {
-        $this->assertEquals(new HashMap(Map {'a' => 'FooA', 'b' => 'BarB', 'c' => 'BazC'}), $this->object->mapWithKey(function(string $index, string $value): string {
-            return ucfirst($value) . strtoupper($index);
-        }));
+        $this->assertEquals(new HashMap(Map {'a' => 'FooA', 'b' => 'BarB', 'c' => 'BazC'}), $this->object->mapWithKey(($index, $value) ==> ucfirst($value) . strtoupper($index)));
     }
 
     public function testMerge(): void {
@@ -351,9 +339,7 @@ class HashMapTest extends TestCase {
             'c' => Map {'key' => 3},
         });
 
-        $this->assertEquals(Vector {1, 2, 3}, $list->pluck(function($value, $key): void {
-            return $value['key'];
-        }));
+        $this->assertEquals(Vector {1, 2, 3}, $list->pluck(($value, $key) ==> $value['key']));
     }
 
     public function testRemove(): void {
@@ -435,13 +421,9 @@ class HashMapTest extends TestCase {
     }
 
     public function testSome(): void {
-        $this->assertTrue($this->object->some(function(string $key, mixed $value): void {
-            return is_string($value);
-        }));
+        $this->assertTrue($this->object->some(($key, $value) ==> is_string($value)));
 
-        $this->assertFalse($this->object->some(function(string $key, mixed $value): void {
-            return is_numeric($value);
-        }));
+        $this->assertFalse($this->object->some(($key, $value) ==> is_numeric($value)));
     }
 
     public function testSort(): void {
@@ -473,7 +455,7 @@ class HashMapTest extends TestCase {
             'e' => 2
         ]);
 
-        $callback = function($a, $b) {
+        $callback = ($a, $b) ==> {
             if ($a == $b) {
                 return 0;
             } else if ($a > $b) {

@@ -14,48 +14,48 @@ class StaticCacheableTest extends TestCase {
     }
 
     public function testCache(): void {
-        StaticCacheableStub::cache('foo', function(): void {
+        StaticCacheableStub::cache('foo', () ==> {
             return 'bar';
         });
         $this->assertEquals('bar', StaticCacheableStub::getCache('foo'));
 
         // doesn't overwrite
-        StaticCacheableStub::cache('foo', function(): void {
+        StaticCacheableStub::cache('foo', () ==> {
             return 'baz';
         });
         $this->assertEquals('bar', StaticCacheableStub::getCache('foo'));
 
-        StaticCacheableStub::cache('number', function(): void {
+        StaticCacheableStub::cache('number', () ==> {
             return 12345;
         });
         $this->assertEquals(12345, StaticCacheableStub::getCache('number'));
 
-        StaticCacheableStub::cache('closure', function(): void {
+        StaticCacheableStub::cache('closure', () ==> {
             return (100 * 22);
         });
         $this->assertEquals(2200, StaticCacheableStub::getCache('closure'));
 
-        StaticCacheableStub::cache('class', function(): void {
+        StaticCacheableStub::cache('class', () ==> {
             return 'Titon\Common\StaticCacheableStub';
         });
         $this->assertEquals('Titon\Common\StaticCacheableStub', StaticCacheableStub::getCache('class'));
 
-        StaticCacheableStub::cache('false', function(): void {
+        StaticCacheableStub::cache('false', () ==> {
             return false;
         });
         $this->assertEquals(false, StaticCacheableStub::getCache('false'));
 
-        StaticCacheableStub::cache('null', function(): void {
+        StaticCacheableStub::cache('null', () ==> {
             return null;
         });
         $this->assertEquals(null, StaticCacheableStub::getCache('null'));
 
-        StaticCacheableStub::cache('zero', function(): void {
+        StaticCacheableStub::cache('zero', () ==> {
             return 0;
         });
         $this->assertEquals(0, StaticCacheableStub::getCache('zero'));
 
-        StaticCacheableStub::cache('array', function(): void {
+        StaticCacheableStub::cache('array', () ==> {
             return [];
         });
         $this->assertEquals([], StaticCacheableStub::getCache('array'));

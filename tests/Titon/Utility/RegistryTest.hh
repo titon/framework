@@ -87,7 +87,7 @@ class RegistryTest extends TestCase {
     }
 
     public function testRegisterAndGet(): void {
-        Registry::register('base', function() {
+        Registry::register('base', () ==> {
             $base = new RegistryStub();
             $base->key = 'registry';
 

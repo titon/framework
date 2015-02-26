@@ -36,9 +36,9 @@ class RouteTest extends TestCase {
 
         $this->assertEquals(Vector {}, $route->getConditions());
 
-        $cond1 = function(): void {};
-        $cond2 = function(): void {};
-        $cond3 = function(): void {};
+        $cond1 = () ==> {};
+        $cond2 = () ==> {};
+        $cond3 = () ==> {};
 
         $route->addCondition($cond1);
         $route->addConditions(Vector {$cond3, $cond2});
@@ -335,9 +335,7 @@ class RouteTest extends TestCase {
 
     public function testIsMatchConditions(): void {
         $route = new Route('/{module}', 'Controller@action');
-        $route->addCondition(function(): bool {
-            return (strpos($_SERVER['HTTP_ACCEPT'], 'json') !== false);
-        });
+        $route->addCondition(() ==> (strpos($_SERVER['HTTP_ACCEPT'], 'json') !== false));
 
         $_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
 

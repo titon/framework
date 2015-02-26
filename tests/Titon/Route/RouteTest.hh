@@ -1,6 +1,7 @@
 <?hh
 namespace Titon\Route;
 
+use Titon\Test\Stub\Route\TestRouteStub;
 use Titon\Test\TestCase;
 use Titon\Utility\State\Server;
 
@@ -103,21 +104,21 @@ class RouteTest extends TestCase {
     }
 
     public function testDispatch() {
-        $route = new Route('/{a}/{b}', 'Titon\Route\TestDispatch@noOptional');
+        $route = new Route('/{a}/{b}', 'Titon\Test\Stub\Route\DispatchRouteStub@noOptional');
         $route->isMatch('/foo/bar');
 
         $this->assertEquals('foobar', $route->dispatch());
     }
 
     public function testDispatchOptional() {
-        $route = new Route('/{a}/{b?}', 'Titon\Route\TestDispatch@withOptional');
+        $route = new Route('/{a}/{b?}', 'Titon\Test\Stub\Route\DispatchRouteStub@withOptional');
         $route->isMatch('/foo');
 
         $this->assertEquals('foobaz', $route->dispatch());
     }
 
     public function testDispatchTypeHints() {
-        $route = new Route('/{a}/[b]/(c)', 'Titon\Route\TestDispatch@typeHints');
+        $route = new Route('/{a}/[b]/(c)', 'Titon\Test\Stub\Route\DispatchRouteStub@typeHints');
         $route->isMatch('/foo/123/bar_456');
 
         $this->assertEquals('foo123bar_456', $route->dispatch());
@@ -127,7 +128,7 @@ class RouteTest extends TestCase {
      * @expectedException \Titon\Route\Exception\NoMatchException
      */
     public function testDispatchNoMatch() {
-        $route = new Route('/{a}/{b}', 'Titon\Route\TestDispatch@noOptional');
+        $route = new Route('/{a}/{b}', 'Titon\Test\Stub\Route\DispatchRouteStub@noOptional');
         $route->dispatch();
     }
 
@@ -380,7 +381,7 @@ class RouteTest extends TestCase {
     }
 
     public function testParamsOptional() {
-        $route = new TestRoute('/blog/[year]/[month]/[day?]', 'Module\Controller@action');
+        $route = new TestRouteStub('/blog/[year]/[month]/[day?]', 'Module\Controller@action');
         $route->isMatch('/blog/2014/02');
 
         $this->assertEquals('/blog/2014/02', $route->url());
@@ -476,18 +477,4 @@ class RouteTest extends TestCase {
         $this->assertEquals($route, unserialize($serialized));
     }
 
-}
-
-class TestDispatch {
-    public function noOptional(string $a, string $b): string {
-        return $a . $b;
-    }
-
-    public function withOptional(string $a, string $b = 'baz'): string {
-        return $a . $b;
-    }
-
-    public function typeHints(string $a, int $b, string $c): string {
-        return $a . $b . $c;
-    }
 }

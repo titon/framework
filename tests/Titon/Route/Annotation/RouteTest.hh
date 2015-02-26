@@ -2,12 +2,13 @@
 namespace Titon\Route\Annotation;
 
 use Titon\Annotation\Reader;
+use Titon\Test\Stub\Route\RouteAnnotatedStub;
 use Titon\Test\TestCase;
 
 class RouteTest extends TestCase {
 
     public function testParamsAreSetOnRouteAnnotation() {
-        $reader = new Reader(new RouteStub());
+        $reader = new Reader(new RouteAnnotatedStub());
 
         // Class
         $class = $reader->getClassAnnotation('Route');
@@ -54,22 +55,5 @@ class RouteTest extends TestCase {
         $this->assertEquals(Vector {}, $qux->getFilters());
         $this->assertEquals(Map {'id' => '[1-8]+'}, $qux->getPatterns());
     }
-
-}
-
-<<Route('parent', '/controller')>>
-class RouteStub {
-
-    <<Route('foo', '/foo')>>
-    public function foo(): void {}
-
-    <<Route('bar', '/bar', 'POST')>>
-    public function bar(): void {}
-
-    <<Route('baz', '/baz', ['get'], ['auth', 'guest'])>>
-    public function baz(): void {}
-
-    <<Route('qux', '/qux', ['PUT', 'POST'], [], ['id' => '[1-8]+'])>>
-    public function qux(): void {}
 
 }

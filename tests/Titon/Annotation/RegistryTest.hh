@@ -9,7 +9,7 @@ class RegistryTest extends TestCase {
         $annotation = Registry::factory('Bar', ['This is the message!']);
 
         $this->assertInstanceOf('Titon\Annotation\Annotation', $annotation);
-        $this->assertInstanceOf('Titon\Annotation\BarAnnotation', $annotation);
+        $this->assertInstanceOf('Titon\Test\Stub\Annotation\BarAnnotationStub', $annotation);
         $this->assertEquals('Bar', $annotation->getName());
         $this->assertEquals('This is the message!', $annotation->string);
     }

@@ -1,6 +1,10 @@
 <?hh
 namespace Titon\Annotation;
 
+use Titon\Test\Stub\Annotation\BarAnnotationStub;
+use Titon\Test\Stub\Annotation\BazAnnotationStub;
+use Titon\Test\Stub\Annotation\FooAnnotationStub;
+use Titon\Test\Stub\Annotation\ReaderStub;
 use Titon\Test\TestCase;
 
 /**
@@ -17,14 +21,14 @@ class ReaderTest extends TestCase {
     public function testGetAnnotatedMethods() {
         $this->assertEquals(Map {
             'hasAnno' => Map {
-                'Baz' => (new BazAnnotation(['a' => 1]))->setName('Baz')
+                'Baz' => (new BazAnnotationStub(['a' => 1]))->setName('Baz')
             }
         }, $this->object->getAnnotatedMethods());
     }
 
     public function testGetClassAnnotation() {
-        $this->assertEquals((new FooAnnotation())->setName('Foo'), $this->object->getClassAnnotation('Foo'));
-        $this->assertEquals((new BarAnnotation('abc', 123))->setName('Bar'), $this->object->getClassAnnotation('Bar'));
+        $this->assertEquals((new FooAnnotationStub())->setName('Foo'), $this->object->getClassAnnotation('Foo'));
+        $this->assertEquals((new BarAnnotationStub('abc', 123))->setName('Bar'), $this->object->getClassAnnotation('Bar'));
     }
 
     /**
@@ -36,13 +40,13 @@ class ReaderTest extends TestCase {
 
     public function testGetClassAnnotations() {
         $this->assertEquals(Map {
-            'Foo' => (new FooAnnotation())->setName('Foo'),
-            'Bar' => (new BarAnnotation('abc', 123))->setName('Bar')
+            'Foo' => (new FooAnnotationStub())->setName('Foo'),
+            'Bar' => (new BarAnnotationStub('abc', 123))->setName('Bar')
         }, $this->object->getClassAnnotations());
     }
 
     public function testGetMethodAnnotation() {
-        $this->assertEquals((new BazAnnotation(['a' => 1]))->setName('Baz'), $this->object->getMethodAnnotation('hasAnno', 'Baz'));
+        $this->assertEquals((new BazAnnotationStub(['a' => 1]))->setName('Baz'), $this->object->getMethodAnnotation('hasAnno', 'Baz'));
     }
 
     /**
@@ -54,7 +58,7 @@ class ReaderTest extends TestCase {
 
     public function testGetMethodAnnotations() {
         $this->assertEquals(Map {
-            'Baz' => (new BazAnnotation(['a' => 1]))->setName('Baz')
+            'Baz' => (new BazAnnotationStub(['a' => 1]))->setName('Baz')
         }, $this->object->getMethodAnnotations('hasAnno'));
     }
 
@@ -65,13 +69,4 @@ class ReaderTest extends TestCase {
         $this->object->getMethodAnnotations('invalid');
     }
 
-}
-
-<<Foo, Bar('abc', 123)>>
-class ReaderStub {
-
-    <<Baz(['a' => 1])>>
-    public function hasAnno(): void {}
-
-    public function noAnno(): void {}
 }

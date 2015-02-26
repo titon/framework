@@ -4,12 +4,13 @@ namespace Titon\Controller;
 use Titon\Http\Exception\NotFoundException;
 use Titon\Http\Server\Request;
 use Titon\Http\Server\Response;
+use Titon\Test\Stub\Controller\ControllerStub;
 use Titon\Test\TestCase;
 use Titon\View\Engine\TemplateEngine;
 use Titon\View\EngineView;
 
 /**
- * @property \Titon\Controller\ControllerStub $object
+ * @property \Titon\Test\Stub\Controller\ControllerStub $object
  */
 class ControllerTest extends TestCase {
 
@@ -132,30 +133,6 @@ class ControllerTest extends TestCase {
 
         $stub->setView($view);
         $this->assertEquals($view, $stub->getView());
-    }
-
-}
-
-class ControllerStub extends AbstractController {
-
-    public function actionWithArgs(mixed $arg1, mixed $arg2 = 0): string {
-        return strval($arg1 + $arg2);
-    }
-
-    public function actionNoArgs(): string {
-        return 'actionNoArgs';
-    }
-
-    public function _actionPseudoPrivate(): string {
-        return 'wontBeCalled';
-    }
-
-    protected function actionProtected(): string {
-        return 'wontBeCalled';
-    }
-
-    private function actionPrivate(): string {
-        return 'wontBeCalled';
     }
 
 }

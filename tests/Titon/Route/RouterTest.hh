@@ -2,6 +2,8 @@
 namespace Titon\Route;
 
 use Titon\Cache\Storage\MemoryStorage;
+use Titon\Test\Stub\Route\FilterStub;
+use Titon\Test\Stub\Route\TestRouteStub;
 use Titon\Test\TestCase;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
@@ -16,15 +18,16 @@ class RouterTest extends TestCase {
         parent::setUp();
 
         $container = Depository::getInstance();
-
         $container->singleton('Titon\Route\Router');
+
         $this->object = Depository::getInstance()->make('Titon\Route\Router');
         $container->register('Titon\Route\UrlBuilder')->with($this->object);
-        $this->object->map('action.ext', new TestRoute('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
-        $this->object->map('action', new TestRoute('/{module}/{controller}/{action}', 'Module\Controller@action'));
-        $this->object->map('controller', new TestRoute('/{module}/{controller}', 'Module\Controller@action'));
-        $this->object->map('module', new TestRoute('/{module}', 'Module\Controller@action'));
-        $this->object->map('root', new TestRoute('/', 'Module\Controller@action'));
+
+        $this->object->map('action.ext', new TestRouteStub('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
+        $this->object->map('action', new TestRouteStub('/{module}/{controller}/{action}', 'Module\Controller@action'));
+        $this->object->map('controller', new TestRouteStub('/{module}/{controller}', 'Module\Controller@action'));
+        $this->object->map('module', new TestRouteStub('/{module}', 'Module\Controller@action'));
+        $this->object->map('root', new TestRouteStub('/', 'Module\Controller@action'));
     }
 
     protected function tearDown() {
@@ -65,7 +68,6 @@ class RouterTest extends TestCase {
         $this->assertEquals(Map {'module' => $route1, 'root' => $route2}, $router2->getRoutes());
 
         // The previous routes should be overwritten
-
         $this->assertEquals('/', $router2->getRoute('root')->getPath());
     }
 
@@ -475,7 +477,7 @@ class RouterTest extends TestCase {
         $this->assertEquals(Vector {'delete', 'post'}, $routes['rest.delete']->getMethods());
     }
 
-    public function testRoutes() {
+    public function TestRouteStubs() {
         $route = new Route('/', 'Controller@action');
         $router = new Router();
         $router->map('key', $route);
@@ -487,7 +489,7 @@ class RouterTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\MissingRouteException
      */
-    public function testRoutesMissingKey() {
+    public function TestRouteStubsMissingKey() {
         $this->object->getRoute('fakeKey');
     }
 
@@ -604,7 +606,7 @@ class RouterTest extends TestCase {
     }
 
     public function testWireClassMapping() {
-        $this->object->wire('Titon\Route\AnnotationStub');
+        $this->object->wire('Titon\Test\Stub\Route\RouteAnnotatedStub');
 
         $routes = $this->object->getRoutes();
 
@@ -617,18 +619,18 @@ class RouterTest extends TestCase {
         $this->assertTrue(isset($routes['parent.delete']));
 
         // Paths
-        $this->assertEquals('/parent', $routes['parent.list']->getPath());
-        $this->assertEquals('/parent', $routes['parent.create']->getPath());
-        $this->assertEquals('/parent/{id}', $routes['parent.read']->getPath());
-        $this->assertEquals('/parent/{id}', $routes['parent.update']->getPath());
-        $this->assertEquals('/parent/{id}', $routes['parent.delete']->getPath());
+        $this->assertEquals('/controller', $routes['parent.list']->getPath());
+        $this->assertEquals('/controller', $routes['parent.create']->getPath());
+        $this->assertEquals('/controller/{id}', $routes['parent.read']->getPath());
+        $this->assertEquals('/controller/{id}', $routes['parent.update']->getPath());
+        $this->assertEquals('/controller/{id}', $routes['parent.delete']->getPath());
 
         // Action
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'index'), $routes['parent.list']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'create'), $routes['parent.create']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'read'), $routes['parent.read']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'update'), $routes['parent.update']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'delete'), $routes['parent.delete']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'index'), $routes['parent.list']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'create'), $routes['parent.create']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'read'), $routes['parent.read']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'update'), $routes['parent.update']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'delete'), $routes['parent.delete']->getAction());
 
         // Method
         $this->assertEquals(Vector {'get'}, $routes['parent.list']->getMethods());
@@ -639,7 +641,7 @@ class RouterTest extends TestCase {
     }
 
     public function testWireMethodMapping() {
-        $this->object->wire('Titon\Route\AnnotationStub');
+        $this->object->wire('Titon\Test\Stub\Route\RouteAnnotatedStub');
 
         $routes = $this->object->getRoutes();
 
@@ -656,10 +658,10 @@ class RouterTest extends TestCase {
         $this->assertEquals('/qux', $routes['qux']->getPath());
 
         // Action
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'foo'), $routes['foo']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'bar'), $routes['bar']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'baz'), $routes['baz']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'qux'), $routes['qux']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'foo'), $routes['foo']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'bar'), $routes['bar']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'baz'), $routes['baz']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'qux'), $routes['qux']->getAction());
 
         // Method
         $this->assertEquals(Vector {}, $routes['foo']->getMethods());
@@ -679,36 +681,5 @@ class RouterTest extends TestCase {
         $this->assertEquals(Map {}, $routes['baz']->getPatterns());
         $this->assertEquals(Map {'id' => '[1-8]+'}, $routes['qux']->getPatterns());
     }
-
-}
-
-class FilterStub implements Filter {
-    public function filter(Router $router, Route $route): void {
-        return;
-    }
-}
-
-class TestRoute extends Route {
-    public function __construct(string $path, string $action) {
-        parent::__construct($path, $action);
-
-        $this->compile();
-    }
-}
-
-<<Route('parent', '/parent')>>
-class AnnotationStub {
-
-    <<Route('foo', '/foo')>>
-    public function foo(): void {}
-
-    <<Route('bar', '/bar', 'POST')>>
-    public function bar(): void {}
-
-    <<Route('baz', '/baz', ['get'], ['auth', 'guest'])>>
-    public function baz(): void {}
-
-    <<Route('qux', '/qux', ['PUT', 'POST'], [], ['id' => '[1-8]+'])>>
-    public function qux(): void {}
 
 }

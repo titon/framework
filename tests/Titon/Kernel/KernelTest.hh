@@ -1,14 +1,20 @@
 <?hh
 namespace Titon\Kernel;
 
-use Titon\Kernel\Middleware\Next;
 use Titon\Kernel\Middleware\Pipeline;
+use Titon\Test\Stub\Kernel\ApplicationStub;
+use Titon\Test\Stub\Kernel\CallNextKernelStub;
+use Titon\Test\Stub\Kernel\InputStub;
+use Titon\Test\Stub\Kernel\InterruptMiddlewareStub;
+use Titon\Test\Stub\Kernel\KernelStub;
+use Titon\Test\Stub\Kernel\MiddlewareStub;
+use Titon\Test\Stub\Kernel\OutputStub;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Kernel\KernelStub $object
- * @property \Titon\Kernel\InputStub $input
- * @property \Titon\Kernel\OutputStub $output
+ * @property \Titon\Test\Stub\Kernel\KernelStub $object
+ * @property \Titon\Test\Stub\Kernel\InputStub $input
+ * @property \Titon\Test\Stub\Kernel\OutputStub $output
  */
 class KernelTest extends TestCase {
 
@@ -81,58 +87,4 @@ class KernelTest extends TestCase {
         $this->assertLessThan($this->object->getStartTime(), $this->object->getExecutionTime());
     }
 
-}
-
-class ApplicationStub implements Application {
-
-}
-
-class KernelStub extends AbstractKernel<InputStub, OutputStub> {
-    public function handle(Input $input, Output $output, Next $next): Output {
-        $input->stack[] = 'kernel';
-        $output->ran = true;
-
-        return $output;
-    }
-}
-
-class CallNextKernelStub extends KernelStub {
-    public function handle(Input $input, Output $output, Next $next): Output {
-        $next->handle($input, $output);
-        $output->ran = true;
-
-        return $output;
-    }
-}
-
-class InputStub implements Input {
-    public array<mixed> $stack = [];
-}
-
-class OutputStub implements Output {
-    public bool $ran = false;
-
-    public function send(): void {}
-}
-
-class MiddlewareStub implements Middleware {
-    public function __construct(protected string $key) {}
-
-    public function handle<Ti, To>(Ti $input, To $output, Next $next): To {
-        $input->stack[] = $this->key;
-
-        $output = $next->handle($input, $output);
-
-        $input->stack[] = $this->key;
-
-        return $output;
-    }
-}
-
-class InterruptMiddlewareStub extends MiddlewareStub {
-    public function handle<Ti, To>(Ti $input, To $output, Next $next): To {
-        $input->stack[] = $this->key;
-
-        return $output;
-    }
 }

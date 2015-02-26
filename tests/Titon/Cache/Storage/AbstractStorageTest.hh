@@ -185,17 +185,11 @@ abstract class AbstractStorageTest extends TestCase {
     }
 
     public function testStore() {
-        $this->assertEquals('foo', $this->object->store('storeTest', function() {
-            return 'foo';
-        }));
+        $this->assertEquals('foo', $this->object->store('storeTest', () ==> 'foo'));
 
-        $this->assertEquals('foo', $this->object->store('storeTest', function() {
-            return 'bar';
-        }));
+        $this->assertEquals('foo', $this->object->store('storeTest', () ==> 'bar'));
 
-        $this->assertEquals('foo', $this->object->store('storeTest', function() {
-            return 'baz';
-        }));
+        $this->assertEquals('foo', $this->object->store('storeTest', () ==> 'baz'));
     }
 
 }

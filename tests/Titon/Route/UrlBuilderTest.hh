@@ -2,7 +2,7 @@
 namespace Titon\Route;
 
 use Titon\Context\Depository;
-use Titon\Context\Exception\AlreadyRegisteredException;
+use Titon\Test\Stub\Route\TestRouteStub;
 use Titon\Test\TestCase;
 use Titon\Utility\Config;
 use Titon\Utility\State\Get;
@@ -15,7 +15,6 @@ class UrlBuilderTest extends TestCase {
 
     public static function setUpBeforeClass() {
         $container = Depository::getInstance();
-
         $container->singleton('Titon\Route\Router');
         $container->register('Titon\Route\UrlBuilder')->with($container->make('Titon\Route\Router'));
     }
@@ -30,11 +29,11 @@ class UrlBuilderTest extends TestCase {
         $container = Depository::getInstance();
 
         $router = $container->make('Titon\Route\Router');
-        $router->map('action.ext', new TestRoute('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
-        $router->map('action', new TestRoute('/{module}/{controller}/{action}', 'Module\Controller@action'));
-        $router->map('controller', new TestRoute('/{module}/{controller}', 'Module\Controller@action'));
-        $router->map('module', new TestRoute('/{module}', 'Module\Controller@action'));
-        $router->map('root', new TestRoute('/', 'Module\Controller@action'));
+        $router->map('action.ext', new TestRouteStub('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
+        $router->map('action', new TestRouteStub('/{module}/{controller}/{action}', 'Module\Controller@action'));
+        $router->map('controller', new TestRouteStub('/{module}/{controller}', 'Module\Controller@action'));
+        $router->map('module', new TestRouteStub('/{module}', 'Module\Controller@action'));
+        $router->map('root', new TestRouteStub('/', 'Module\Controller@action'));
 
         $this->object = $container->make('Titon\Route\UrlBuilder');
     }
@@ -57,7 +56,7 @@ class UrlBuilderTest extends TestCase {
     }
 
     public function testBuildOptionalToken() {
-        $this->object->getRouter()->map('blog.archives', new TestRoute('/blog/[year]/[month]/[day?]', 'Module\Controller@action'));
+        $this->object->getRouter()->map('blog.archives', new TestRouteStub('/blog/[year]/[month]/[day?]', 'Module\Controller@action'));
 
         $this->assertEquals('/blog/2012/2', $this->object->build('blog.archives', Map {'year' => 2012, 'month' => 02}));
         $this->assertEquals('/blog/2012/2/26', $this->object->build('blog.archives', Map {'year' => 2012, 'month' => 02, 'day' => 26}));
@@ -70,7 +69,7 @@ class UrlBuilderTest extends TestCase {
         Server::initialize($_SERVER);
 
         $router = new Router();
-        $router->map('module', new TestRoute('/{module}', 'Module\Controller@action'));
+        $router->map('module', new TestRouteStub('/{module}', 'Module\Controller@action'));
 
         $builder = new UrlBuilder($router);
 

@@ -1,11 +1,13 @@
 <?hh
 namespace Titon\Environment;
 
+use Titon\Test\Stub\Environment\BootstrapperStub;
+use Titon\Test\Stub\Environment\EnvironmentStub;
 use Titon\Test\TestCase;
 use Titon\Utility\State\Server as ServerGlobal;
 
 /**
- * @property \Titon\Environment\EnvironmentStub $object
+ * @property \Titon\Environment\Environment $object
  */
 class EnvironmentTest extends TestCase {
 
@@ -284,34 +286,6 @@ class EnvironmentTest extends TestCase {
         $this->assertEquals('bar', $env->getVariable('foo'));
         $this->assertEquals('qux', $env->getVariable('baz'));
         $this->assertEquals('', $env->getVariable('bar'));
-    }
-
-}
-
-class EnvironmentStub extends Environment {
-
-    // Use host/IP for testing
-    public function isMachine(string $name): bool {
-        $host = null;
-
-        if (!empty($_SERVER['HTTP_HOST'])) {
-            $host = $_SERVER['HTTP_HOST'];
-
-        } else if (!empty($_SERVER['SERVER_ADDR'])) {
-            $host = $_SERVER['SERVER_ADDR'];
-        }
-
-        return (bool) preg_match('/^' . preg_quote($name, '/') . '/i', $host);
-    }
-
-}
-
-class BootstrapperStub implements Bootstrapper {
-
-    public static string $loaded = '';
-
-    public function bootstrap(Host $host) {
-        static::$loaded = $host->getKey();
     }
 
 }

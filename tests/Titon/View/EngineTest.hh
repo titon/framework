@@ -1,9 +1,8 @@
 <?hh
 namespace Titon\View;
 
-use Titon\Common\DataMap;
+use Titon\Test\Stub\View\EngineStub;
 use Titon\Test\TestCase;
-use Titon\View\Engine\AbstractEngine;
 
 /**
  * @property \Titon\View\Engine $object
@@ -39,13 +38,5 @@ class EngineTest extends TestCase {
         $this->object->setContent('content');
         $this->assertEquals('content', $this->object->getContent());
     }
-
-}
-
-class EngineStub extends AbstractEngine {
-
-    public function open(string $partial, DataMap $variables = Map {}): string {}
-    public function render(string $path, DataMap $variables = Map {}): string {}
-    public function getExtension(): string {}
 
 }

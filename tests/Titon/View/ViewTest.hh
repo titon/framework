@@ -2,6 +2,7 @@
 namespace Titon\View;
 
 use Titon\Common\DataMap;
+use Titon\Test\Stub\View\ViewStub;
 use Titon\Utility\Config;
 use Titon\View\Helper\HtmlHelper;
 use Titon\View\Helper\FormHelper;
@@ -184,12 +185,5 @@ class ViewTest extends TestCase {
 
         $this->assertEquals($rootPath . 'public/lang/index.fr.tpl', $localePath);
     }
-
-}
-
-class ViewStub extends AbstractView {
-
-    public function render(string $template, bool $private = false): string {}
-    public function renderTemplate(string $path, DataMap $variables = Map {}): string {}
 
 }

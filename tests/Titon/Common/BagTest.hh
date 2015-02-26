@@ -1,11 +1,11 @@
 <?hh
 namespace Titon\Common;
 
-use Titon\Common\Bag\AbstractBag;
+use Titon\Test\Stub\Common\BagStub;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Common\BagStub $object
+ * @property \Titon\Common\Bag $object
  */
 class BagTest extends TestCase {
 
@@ -139,9 +139,5 @@ class BagTest extends TestCase {
 
         $this->assertEquals(5, $this->object->count());
     }
-
-}
-
-class BagStub extends AbstractBag {
 
 }

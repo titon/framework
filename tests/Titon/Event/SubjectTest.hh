@@ -1,10 +1,12 @@
 <?hh
 namespace Titon\Event;
 
+use Titon\Test\Stub\Event\ListenerStub;
+use Titon\Test\Stub\Event\SubjectStub;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Event\SubjectStub $object
+ * @property \Titon\Test\Stub\Event\SubjectStub $object
  */
 class SubjectTest extends TestCase {
 
@@ -67,8 +69,4 @@ class SubjectTest extends TestCase {
         $this->assertEquals(6, $count);
     }
 
-}
-
-class SubjectStub implements Subject {
-    use EmitsEvents;
 }

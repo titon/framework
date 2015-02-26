@@ -1,12 +1,11 @@
 <?hh
 namespace Titon\Common;
 
+use Titon\Test\Stub\Common\MutableStub;
 use Titon\Test\TestCase;
-use \IteratorAggregate;
-use \Countable;
 
 /**
- * @property \Titon\Common\MutableStub $object
+ * @property \Titon\Test\Stub\Common\MutableStub $object
  */
 class MutableTest extends TestCase {
 
@@ -75,8 +74,4 @@ class MutableTest extends TestCase {
         $this->assertEquals(Vector {1, 2, 3}, $this->object->values());
     }
 
-}
-
-class MutableStub implements IteratorAggregate, Countable {
-    use Mutable;
 }

@@ -1,6 +1,7 @@
 <?hh
 namespace Titon\Common;
 
+use Titon\Test\Stub\Common\StaticCacheableStub;
 use Titon\Test\TestCase;
 
 class StaticCacheableTest extends TestCase {
@@ -108,8 +109,4 @@ class StaticCacheableTest extends TestCase {
         }, StaticCacheableStub::allCache());
     }
 
-}
-
-class StaticCacheableStub {
-    use StaticCacheable;
 }

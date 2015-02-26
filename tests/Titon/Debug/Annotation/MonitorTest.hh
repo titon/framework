@@ -1,11 +1,10 @@
 <?hh
 namespace Titon\Debug\Annotation;
 
-use Titon\Annotation\WiresAnnotations;
 use Titon\Debug\Debugger;
 use Titon\Debug\Logger;
+use Titon\Test\Stub\Debug\MonitorClassStub;
 use Titon\Test\TestCase;
-use DateTime;
 
 class MonitorTest extends TestCase {
 
@@ -19,11 +18,11 @@ class MonitorTest extends TestCase {
     }
 
     public function testCallbackIsTriggered() {
-        $this->assertEquals('', MonitorStub::$triggered);
+        $this->assertEquals('', MonitorClassStub::$triggered);
 
-        $stub = new MonitorStub();
+        $stub = new MonitorClassStub();
 
-        $this->assertEquals('Titon\Debug\Annotation\MonitorStub', MonitorStub::$triggered);
+        $this->assertEquals('Titon\Test\Stub\Debug\MonitorClassStub', MonitorClassStub::$triggered);
     }
 
     public function testMessageIsLoggedWhenClassIsInstantiated() {
@@ -31,26 +30,11 @@ class MonitorTest extends TestCase {
 
         $this->assertFileNotExists($this->vfs->path($path));
 
-        $stub = new MonitorStub();
+        $stub = new MonitorClassStub();
 
         $this->assertFileExists($this->vfs->path($path));
 
-        $this->assertRegExp('/^\[' . self::DATE_RFC3339_REGEX . '\] ' . preg_quote('Titon\Debug\Annotation\MonitorStub', '/') . ' was instantiated in ' . preg_quote(TEST_DIR . '/Titon/Debug/Annotation/MonitorTest.hh', '/') . '/', file_get_contents($this->vfs->path($path)));
+        $this->assertRegExp('/^\[' . self::DATE_RFC3339_REGEX . '\] ' . preg_quote('Titon\Test\Stub\Debug\MonitorClassStub', '/') . ' was instantiated in ' . preg_quote(TEST_DIR . '/Titon/Debug/Annotation/MonitorTest.hh', '/') . '/', file_get_contents($this->vfs->path($path)));
     }
 
-}
-
-<<Monitor('Titon\Debug\Annotation\MonitorStub::testCallback')>>
-class MonitorStub {
-    use WiresAnnotations;
-
-    public static string $triggered = '';
-
-    public function __construct() {
-        $this->wireClassAnnotation('Monitor');
-    }
-
-    public static function testCallback<T>(T $class, string $method = ''): void {
-        static::$triggered = get_class($class);
-    }
 }

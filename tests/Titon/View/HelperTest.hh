@@ -1,10 +1,8 @@
 <?hh
 namespace Titon\View;
 
-use Titon\Http\Server\Request;
+use Titon\Test\Stub\View\HelperStub;
 use Titon\Test\TestCase;
-use Titon\View\Helper\AbstractHelper;
-use Titon\View\EngineView;
 use Titon\View\Helper\TagMap;
 
 /**
@@ -66,16 +64,5 @@ class HelperTest extends TestCase {
         $this->object->setView($view);
         $this->assertEquals($view, $this->object->getView());
     }
-
-}
-
-class HelperStub extends AbstractHelper {
-
-    protected TagMap $tags = Map {
-        'noattr' => '<tag>{body}</tag>',
-        'nobody' => '<tag{attr} />',
-        'custom' => '<tag {one} {two}>{three}</tag>',
-        'default' => '<tag {0}>{1}</tag>{2}'
-    };
 
 }

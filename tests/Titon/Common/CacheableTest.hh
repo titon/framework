@@ -1,10 +1,11 @@
 <?hh
 namespace Titon\Common;
 
+use Titon\Test\Stub\Common\CacheableStub;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Common\CacheableStub $object
+ * @property \Titon\Test\Stub\Common\CacheableStub $object
  */
 class CacheableTest extends TestCase {
 
@@ -40,7 +41,7 @@ class CacheableTest extends TestCase {
         $this->object->cache('class', function($parent) {
             return get_class($parent);
         });
-        $this->assertEquals('Titon\Common\CacheableStub', $this->object->getCache('class'));
+        $this->assertEquals('Titon\Test\Stub\Common\CacheableStub', $this->object->getCache('class'));
 
         $this->object->cache('false', function() {
             return false;
@@ -128,8 +129,4 @@ class CacheableTest extends TestCase {
         $this->assertEquals('value', $this->object->getCache('key'));
     }
 
-}
-
-class CacheableStub {
-    use Cacheable;
 }

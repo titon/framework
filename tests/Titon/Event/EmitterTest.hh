@@ -1,6 +1,7 @@
 <?hh
 namespace Titon\Event;
 
+use Titon\Test\Stub\Event\ListenerStub;
 use Titon\Test\TestCase;
 
 /**
@@ -58,8 +59,8 @@ class EmitterTest extends TestCase {
         $this->assertEquals(Vector {
             '{closure}',
             '{closure}',
-            'Titon\Event\ListenerStub::noop2',
-            'Titon\Event\ListenerStub::noop3'
+            'Titon\Test\Stub\Event\ListenerStub::noop2',
+            'Titon\Test\Stub\Event\ListenerStub::noop3'
         }, $this->object->getCallStack('event.test'));
     }
 
@@ -177,8 +178,8 @@ class EmitterTest extends TestCase {
         $this->object->listen($listener);
 
         $this->assertEquals(Vector {
-            'Titon\Event\ListenerStub::noop2',
-            'Titon\Event\ListenerStub::noop1'
+            'Titon\Test\Stub\Event\ListenerStub::noop2',
+            'Titon\Test\Stub\Event\ListenerStub::noop1'
         }, $this->object->getCallStack('event.test1'));
 
         // Remove using the instance
@@ -292,57 +293,6 @@ class EmitterTest extends TestCase {
 
         $this->assertEquals(6, count($list));
         $this->assertNotEquals([1, 2, 3, 1, 2, 3], $list);
-    }
-
-}
-
-class ListenerStub implements Listener {
-
-    public function subscribeToEvents(): ListenerMap {
-        return Map {
-            'event.test1' => Vector {
-                'noop1',
-                Map {'method' => 'noop2', 'priority' => 45}
-            },
-            'event.test2' => 'noop1',
-            'event.test3' => Map {'method' => 'noop2', 'priority' => 15}
-        };
-    }
-
-    public function noop1(Event $e): void {}
-
-    public function noop2(Event $e): void {}
-
-    public function noop3(Event $e, $object1, $object2): void {
-        $object2->foo = 'bar';
-    }
-
-    public function counter(Event $e, &$count): void {
-        $count++;
-    }
-
-    public async function asyncNoop1(Event $e, &$list): Awaitable<mixed> {
-        await SleepWaitHandle::create(rand(100, 1000) * 1000);
-
-        $list[] = 1;
-
-        return true;
-    }
-
-    public async function asyncNoop2(Event $e, &$list): Awaitable<mixed> {
-        await SleepWaitHandle::create(rand(100, 500) * 1000);
-
-        $list[] = 2;
-
-        return true;
-    }
-
-    public async function asyncNoop3(Event $e, &$list): Awaitable<mixed> {
-        await SleepWaitHandle::create(rand(1, 500) * 1000);
-
-        $list[] = 3;
-
-        return true;
     }
 
 }

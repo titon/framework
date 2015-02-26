@@ -56,6 +56,14 @@ abstract class AbstractInputDefinition implements InputDefinition {
         return $this->description;
     }
 
+    public function getFormattedName(string $name): string {
+        if (strlen($name) === 1) {
+            return "-$name";
+        }
+
+        return "--$name";
+    }
+
     public function getName(): string {
         return $this->name;
     }

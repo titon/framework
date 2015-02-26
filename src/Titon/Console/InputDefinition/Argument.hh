@@ -9,6 +9,10 @@ namespace Titon\Console\InputDefinition;
 
 class Argument extends AbstractInputDefinition {
 
+    public function getFormattedName(string $name): string {
+        return $name;
+    }
+
     public function setValue(string $value): this {
         $this->value = $value;
 

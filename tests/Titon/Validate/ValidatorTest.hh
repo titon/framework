@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Validate;
 
 use Titon\Test\TestCase;
@@ -8,7 +8,7 @@ use Titon\Test\TestCase;
  */
 class ValidatorTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new CoreValidator(Map {
@@ -17,21 +17,21 @@ class ValidatorTest extends TestCase {
         });
     }
 
-    public function testAddGetErrors() {
+    public function testAddGetErrors(): void {
         $this->assertEquals(Map {}, $this->object->getErrors());
 
         $this->object->addError('username', 'Invalid username');
         $this->assertEquals(Map {'username' => 'Invalid username'}, $this->object->getErrors());
     }
 
-    public function testAddGetFields() {
+    public function testAddGetFields(): void {
         $this->assertEquals(Map {}, $this->object->getFields());
 
         $this->object->addField('username', 'Username');
         $this->assertEquals(Map {'username' => 'Username'}, $this->object->getFields());
     }
 
-    public function testAddGetRules() {
+    public function testAddGetRules(): void {
         $this->assertEquals(Map {}, $this->object->getRules());
 
         // via addRule()
@@ -111,11 +111,11 @@ class ValidatorTest extends TestCase {
     /**
      * @expectedException \Titon\Common\Exception\InvalidArgumentException
      */
-    public function testAddRuleInvalidField() {
+    public function testAddRuleInvalidField(): void {
         $this->object->addRule('field', 'rule', 'message');
     }
 
-    public function testMessages() {
+    public function testMessages(): void {
         $this->object
             ->addField('username', 'Username')
                 ->addRule('username', 'between', 'May only be between {0} and {1} characters', Vector {25, 45})
@@ -135,7 +135,7 @@ class ValidatorTest extends TestCase {
         }, $this->object->getErrors());
     }
 
-    public function testMessageDetection() {
+    public function testMessageDetection(): void {
         $this->object
             ->addField('username', 'Username')
                 ->addRule('username', 'notEmpty', '')
@@ -165,7 +165,7 @@ class ValidatorTest extends TestCase {
         }, $this->object->getErrors());
     }
 
-    public function testFormatMessage() {
+    public function testFormatMessage(): void {
         $this->object
             ->addField('username', 'Username');
 
@@ -178,7 +178,7 @@ class ValidatorTest extends TestCase {
     /**
      * @expectedException \Titon\Validate\Exception\MissingMessageException
      */
-    public function testFormatMessageErrorOnMissing() {
+    public function testFormatMessageErrorOnMissing(): void {
         $this->object
             ->addField('username', 'Username')
                 ->addRule('username', 'notEmpty', '');
@@ -186,18 +186,18 @@ class ValidatorTest extends TestCase {
         $this->object->formatMessage('username', shape('rule' => 'notEmpty', 'message' => '', 'options' => Vector {}));
     }
 
-    public function testReset() {
+    public function testReset(): void {
         $this->assertEquals(Map {'username' => 'miles', 'email' => 'miles@titon'}, $this->object->getData());
         $this->object->reset();
         $this->assertEquals(Map {}, $this->object->getData());
     }
 
-    public function testSetGetData() {
+    public function testSetGetData(): void {
         $this->object->setData(Map {'foo' => 'bar'});
         $this->assertEquals(Map {'foo' => 'bar'}, $this->object->getData());
     }
 
-    public function testSplitShorthand() {
+    public function testSplitShorthand(): void {
         // only a rule
         $this->assertEquals(shape(
             'rule' => 'boolean',
@@ -234,7 +234,7 @@ class ValidatorTest extends TestCase {
         ), $this->object->splitShorthand('between:1,10:Must be between 1:10!'));
     }
 
-    public function testValidate() {
+    public function testValidate(): void {
         $this->object->addField('username', 'Username')->addRule('username', 'alpha', 'Not alpha');
 
         $this->assertTrue($this->object->validate());
@@ -247,7 +247,7 @@ class ValidatorTest extends TestCase {
         $this->assertEquals(Map {'email' => 'Invalid email'}, $this->object->getErrors());
     }
 
-    public function testValidateFailsNoData() {
+    public function testValidateFailsNoData(): void {
         $this->object->reset();
 
         $this->assertFalse($this->object->validate());
@@ -256,7 +256,7 @@ class ValidatorTest extends TestCase {
     /**
      * @expectedException \Titon\Validate\Exception\MissingConstraintException
      */
-    public function testValidateMissingRule() {
+    public function testValidateMissingRule(): void {
         $this->object
             ->addField('username', 'Username')
                 ->addRule('username', 'fooBar', 'A message');
@@ -264,7 +264,7 @@ class ValidatorTest extends TestCase {
         $this->object->validate();
     }
 
-    public function testMakeFromShorthand() {
+    public function testMakeFromShorthand(): void {
         // simple rule
         $obj = CoreValidator::makeFromShorthand(Map {}, Map {
             'field' => 'alphaNumeric',

@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Environment;
 
 use Titon\Environment\Bootstrapper;
@@ -8,7 +8,7 @@ class BootstrapperStub implements Bootstrapper {
 
     public static string $loaded = '';
 
-    public function bootstrap(Host $host) {
+    public function bootstrap(Host $host): void {
         static::$loaded = $host->getKey();
     }
 

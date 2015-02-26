@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 /**
  * @copyright   2010-2013, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -11,7 +11,7 @@ use Titon\Test\TestCase;
 
 class PhpReaderTest extends TestCase {
 
-    public function testReadResource() {
+    public function testReadResource(): void {
         $reader = new PhpReader(TEMP_DIR . '/io/php.php');
 
         $this->assertMapsEqual(Map {

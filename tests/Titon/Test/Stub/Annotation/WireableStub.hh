@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Annotation;
 
 use Titon\Annotation\WiresAnnotations;
@@ -11,7 +11,7 @@ class WireableStub {
 
     public Map<string, string> $method = Map {};
 
-    public function __construct(string $type = 'both') {
+    public function __construct(string $type = 'both'): void {
         if ($type === 'method') {
             $this->wireMethodAnnotation('doAction', 'Wire');
         } else if ($type === 'class') {

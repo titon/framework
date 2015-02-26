@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Debug\Annotation;
 
 use Titon\Debug\Debugger;
@@ -8,7 +8,7 @@ use Titon\Test\TestCase;
 
 class DeprecatedTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
@@ -17,7 +17,7 @@ class DeprecatedTest extends TestCase {
         Debugger::setLogger(new Logger($this->vfs->path('/logs/')));
     }
 
-    public function testMessageIsLoggedWhenClassIsInstantiated() {
+    public function testMessageIsLoggedWhenClassIsInstantiated(): void {
         $path = '/logs/notice-' . date('Y-m-d') . '.log';
 
         $this->assertFileNotExists($this->vfs->path($path));

@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\View;
 
 use Titon\Test\Stub\View\HelperStub;
@@ -10,13 +10,13 @@ use Titon\View\Helper\TagMap;
  */
 class HelperTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new HelperStub();
     }
 
-    public function testAttributes() {
+    public function testAttributes(): void {
         $this->assertEquals('', $this->object->attributes(Map {}));
         $this->assertEquals(' key="value"', $this->object->attributes(Map {'key' => 'value'}));
         $this->assertEquals(' foo="bar" key="value" number="1"', $this->object->attributes(Map {'key' => 'value', 'foo' => 'bar', 'number' => 1}));
@@ -35,7 +35,7 @@ class HelperTest extends TestCase {
         $this->assertEquals(' bool="1"', $this->object->attributes(Map {'key' => 'value', 'null' => null, 'bool' => true}, Vector {'key', 'null'}));
     }
 
-    public function testEscape() {
+    public function testEscape(): void {
         $value = 'This is "double" and \'single\' quotes.';
 
         $this->assertEquals('This is &quot;double&quot; and &#039;single&#039; quotes.', $this->object->escape($value));
@@ -49,7 +49,7 @@ class HelperTest extends TestCase {
         $this->assertEquals('This is &quot;double&quot; and &#039;single&#039; quotes.', $this->object->escape($value));
     }
 
-    public function testTag() {
+    public function testTag(): void {
         $this->assertEquals('<tag>{body}</tag>' . PHP_EOL, $this->object->tag('noattr'));
         $this->assertEquals('<tag>body</tag>' . PHP_EOL, $this->object->tag('noattr', Map {'fake' => 'attr', 'body' => 'body'}));
         $this->assertEquals('<tag value />' . PHP_EOL, $this->object->tag('nobody', Map {'attr' => ' value'}));
@@ -57,7 +57,7 @@ class HelperTest extends TestCase {
         $this->assertEquals('<tag 1>2</tag>3' . PHP_EOL, $this->object->tag('default', Map {'0' => 1, '1' => 2, '2' => 3}));
     }
 
-    public function testGetSetView() {
+    public function testGetSetView(): void {
         $view = new EngineView(Vector {'/'});
         $this->assertEquals(null, $this->object->getView());
 

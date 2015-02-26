@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Route\Annotation;
 
 use Titon\Annotation\Reader;
@@ -7,7 +7,7 @@ use Titon\Test\TestCase;
 
 class RouteTest extends TestCase {
 
-    public function testParamsAreSetOnRouteAnnotation() {
+    public function testParamsAreSetOnRouteAnnotation(): void {
         $reader = new Reader(new RouteAnnotatedStub());
 
         // Class

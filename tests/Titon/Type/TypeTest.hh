@@ -1,11 +1,11 @@
-<?hh
+<?hh // strict
 namespace Titon\Type;
 
 use Titon\Test\TestCase;
 
 class TypeTest extends TestCase {
 
-    public function testIs() {
+    public function testIs(): void {
         $this->assertEquals('array', Type::is([]));
         $this->assertEquals('object', Type::is(new \stdClass()));
         $this->assertEquals('map', Type::is(Map {}));
@@ -18,7 +18,7 @@ class TypeTest extends TestCase {
         $this->assertEquals('string', Type::is('foo'));
     }
 
-    public function testIsResource() {
+    public function testIsResource(): void {
         $f = fopen('php://input', 'r');
 
         $this->assertEquals('resource', Type::is($f));

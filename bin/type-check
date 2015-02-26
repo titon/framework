@@ -12,12 +12,12 @@ args = parser.parse_args()
 init()
 
 # Go to the defined path
-path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')) + '/'
+path = os.path.abspath(os.path.dirname(os.path.dirname(__file__))) + '/'
 
 if (args.path):
-    path += args.path;
+    path += 'src/' + args.path;
 
-os.chdir(os.path.abspath(path))
+os.chdir(path)
 
 # Create .hhconfig file
 config = open('.hhconfig', 'w+')

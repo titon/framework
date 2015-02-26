@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
@@ -6,7 +6,7 @@ use Titon\Test\TestCase;
 
 class RedirectResponseTest extends TestCase {
 
-    public function testSend() {
+    public function testSend(): void {
         $time = time();
         $response = new RedirectResponse('/new/url');
         $response->debug();
@@ -36,7 +36,7 @@ class RedirectResponseTest extends TestCase {
     /**
      * @expectedException \Titon\Http\Exception\MalformedResponseException
      */
-    public function testSendErrorsNoUrl() {
+    public function testSendErrorsNoUrl(): void {
         $response = new RedirectResponse('');
         $response->send();
     }

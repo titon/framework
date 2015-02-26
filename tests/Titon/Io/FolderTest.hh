@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Io;
 
 use Titon\Test\TestCase;
@@ -18,7 +18,7 @@ class FolderTest extends TestCase {
     /** @type int */
     protected $groupid;
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->vfs = new FileSystem();
@@ -33,32 +33,32 @@ class FolderTest extends TestCase {
     /**
      * @expectedException \Titon\Io\Exception\InvalidPathException
      */
-    public function testConstructThrowsNotFolderException() {
+    public function testConstructThrowsNotFolderException(): void {
         new Folder(TEST_DIR . '/bootstrap.php');
     }
 
-    public function testAccessTime() {
+    public function testAccessTime(): void {
         $this->assertTrue(is_int($this->object->accessTime()));
         $this->assertEquals(0, $this->temp->accessTime());
     }
 
-    public function testBasename() {
+    public function testBasename(): void {
         $this->assertEquals('base', $this->object->basename());
         $this->assertEquals('temp', $this->temp->basename());
     }
 
-    public function testCd() {
+    public function testCd(): void {
         $this->assertEquals($this->vfs->path('base/'), $this->object->path());
         $this->object->cd($this->vfs->path('base-cd/'));
         $this->assertEquals($this->vfs->path('base-cd/'), $this->object->path());
     }
 
-    public function testChangeTime() {
+    public function testChangeTime(): void {
         $this->assertTrue(is_int($this->object->changeTime()));
         $this->assertEquals(0, $this->temp->changeTime());
     }
 
-    public function testChgrp() {
+    public function testChgrp(): void {
         $file = new Folder($this->vfs->path('base/chgrp'), true);
 
         $this->assertEquals($this->groupid, $file->group());
@@ -66,7 +66,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(666, $file->group());
     }
 
-    public function testChgrpLink() {
+    public function testChgrpLink(): void {
         $this->vfs->createDirectory('base/link');
         $this->vfs->createLink('base/chgrp-link', 'base/link');
 
@@ -78,11 +78,11 @@ class FolderTest extends TestCase {
         $this->assertEquals(666, $file->group());
     }
 
-    public function testChgrpMissingFile() {
+    public function testChgrpMissingFile(): void {
         $this->assertFalse($this->temp->chgrp(666));
     }
 
-    public function testChgrpRecursive() {
+    public function testChgrpRecursive(): void {
         $folder = new Folder($this->vfs->path('base/chgrp'), true);
         $file1 = new File($this->vfs->path('base/chgrp/1'), true);
         $file2 = new Folder($this->vfs->path('base/chgrp/2'), true);
@@ -98,7 +98,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(666, $file2->group());
     }
 
-    public function testChmod() {
+    public function testChmod(): void {
         $file = new Folder($this->vfs->path('base/chmod'), true);
 
         $this->assertEquals(755, $file->permissions());
@@ -106,11 +106,11 @@ class FolderTest extends TestCase {
         $this->assertEquals(666, $file->permissions());
     }
 
-    public function testChmodMissingFile() {
+    public function testChmodMissingFile(): void {
         $this->assertFalse($this->temp->chmod(0666));
     }
 
-    public function testChmodRecursive() {
+    public function testChmodRecursive(): void {
         $folder = new Folder($this->vfs->path('base/chmod'), true);
         $file1 = new File($this->vfs->path('base/chmod/1'), true);
         $file2 = new Folder($this->vfs->path('base/chmod/2'), true);
@@ -126,7 +126,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(666, $file2->permissions());
     }
 
-    public function testChown() {
+    public function testChown(): void {
         $file = new Folder($this->vfs->path('base/chown'), true);
 
         $this->assertEquals($this->userid, $file->owner());
@@ -134,7 +134,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(666, $file->owner());
     }
 
-    public function testChownLink() {
+    public function testChownLink(): void {
         $this->vfs->createDirectory('base/link');
         $this->vfs->createLink('base/chown-link', 'base/link');
 
@@ -146,11 +146,11 @@ class FolderTest extends TestCase {
         $this->assertEquals(666, $file->owner());
     }
 
-    public function testChownMissingFile() {
+    public function testChownMissingFile(): void {
         $this->assertFalse($this->temp->chown(666));
     }
 
-    public function testChownRecursive() {
+    public function testChownRecursive(): void {
         $folder = new Folder($this->vfs->path('base/chown'), true);
         $file1 = new File($this->vfs->path('base/chown/1'), true);
         $file2 = new Folder($this->vfs->path('base/chown/2'), true);
@@ -166,7 +166,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(666, $file2->owner());
     }
 
-    public function testCreate() {
+    public function testCreate(): void {
         $this->assertTrue($this->object->exists());
         $this->assertFalse($this->object->create());
 
@@ -175,7 +175,7 @@ class FolderTest extends TestCase {
         $this->assertTrue($this->temp->exists());
     }
 
-    public function testCopy() {
+    public function testCopy(): void {
         $this->vfs->createStructure([
             'base/copy' => [
                 '1' => 'foo',
@@ -194,11 +194,11 @@ class FolderTest extends TestCase {
         $this->assertEquals('foo', file_get_contents($this->vfs->path('base/copy-to/2')));
     }
 
-    public function testCopyMissingFile() {
+    public function testCopyMissingFile(): void {
         $this->assertEquals(null, $this->temp->copy($this->vfs->path('base/copy-to')));
     }
 
-    public function testCopyOverwrite() {
+    public function testCopyOverwrite(): void {
         $this->vfs->createStructure([
             'base/copy' => [
                 '1' => 'foo',
@@ -223,7 +223,7 @@ class FolderTest extends TestCase {
         $this->assertEquals('foo', file_get_contents($this->vfs->path('base/copy-to/2')));
     }
 
-    public function testCopySkip() {
+    public function testCopySkip(): void {
         $this->vfs->createStructure([
             'base/copy' => [
                 '1' => 'foo',
@@ -252,7 +252,7 @@ class FolderTest extends TestCase {
         $this->assertEquals('bar', file_get_contents($this->vfs->path('base/copy-to/2')));
     }
 
-    public function testCopyMerge() {
+    public function testCopyMerge(): void {
         $this->vfs->createStructure([
             'base/copy' => [
                 '1' => 'foo',
@@ -290,19 +290,19 @@ class FolderTest extends TestCase {
         $this->assertEquals('foo', file_get_contents($this->vfs->path('base/copy-to/3/3-1')));
     }
 
-    public function testDelete() {
+    public function testDelete(): void {
         $this->assertTrue($this->object->delete());
         $this->assertFalse($this->temp->delete());
     }
 
-    public function testDir() {
+    public function testDir(): void {
         $folder = new Folder($this->vfs->path('base/child/dir'), true);
 
         $this->assertEquals($this->vfs->path('base/child/'), $folder->dir());
         $this->assertEquals($this->vfs->path('base/'), $folder->parent()->dir());
     }
 
-    public function testExists() {
+    public function testExists(): void {
         $this->assertTrue($this->object->exists());
         $this->assertFalse($this->temp->exists());
 
@@ -310,7 +310,7 @@ class FolderTest extends TestCase {
         $this->assertTrue($this->temp->exists());
     }
 
-    public function testFiles() {
+    public function testFiles(): void {
         $this->vfs->createStructure([
             'base/read' => [
                 '4' => 'd',
@@ -348,7 +348,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(Vector {}, $this->temp->read());
     }
 
-    public function testFind() {
+    public function testFind(): void {
         $this->markTestSkipped('Glob iteration does not work with PHP streams');
 
         $this->vfs->createStructure([
@@ -379,11 +379,11 @@ class FolderTest extends TestCase {
         $this->assertTrue(count($files) == 1);
     }
 
-    public function testFindMissingFile() {
+    public function testFindMissingFile(): void {
         $this->assertEquals(Vector {}, $this->temp->find('*'));
     }
 
-    public function testFolders() {
+    public function testFolders(): void {
         $this->vfs->createStructure([
             'base/read' => [
                 '4' => 'd',
@@ -420,12 +420,12 @@ class FolderTest extends TestCase {
         $this->assertEquals(Vector {}, $this->temp->read());
     }
 
-    public function testGroup() {
+    public function testGroup(): void {
         $this->assertEquals($this->groupid, $this->object->group());
         $this->assertEquals(null, $this->temp->group());
     }
 
-    public function testIsAbsolute() {
+    public function testIsAbsolute(): void {
         $linux = new Folder('/dir');
         $windows = new Folder('C:\dir');
         $relative = new Folder('../dir');
@@ -436,7 +436,7 @@ class FolderTest extends TestCase {
         $this->assertFalse($relative->isAbsolute());
     }
 
-    public function testIsRelative() {
+    public function testIsRelative(): void {
         $linux = new Folder('../dir');
         $windows = new Folder('..\dir');
         $absolute = new Folder('/dir');
@@ -447,12 +447,12 @@ class FolderTest extends TestCase {
         $this->assertFalse($absolute->isRelative());
     }
 
-    public function testModifyTime() {
+    public function testModifyTime(): void {
         $this->assertTrue(is_int($this->object->modifyTime()));
         $this->assertEquals(0, $this->temp->modifyTime());
     }
 
-    public function testMove() {
+    public function testMove(): void {
         $this->vfs->createStructure([
             'base/move' => [
                 '1' => 'foo',
@@ -472,11 +472,11 @@ class FolderTest extends TestCase {
         $this->assertFileExists($this->vfs->path('base/move-to'));
     }
 
-    public function testMoveMissingFile() {
+    public function testMoveMissingFile(): void {
         $this->assertFalse($this->temp->move($this->vfs->path('base/move-to')));
     }
 
-    public function testMoveExitsEarlySameLocation() {
+    public function testMoveExitsEarlySameLocation(): void {
         $folder = new Folder($this->vfs->path('base/move'), true);
 
         $this->assertTrue($folder->move($this->vfs->path('base/move')));
@@ -485,7 +485,7 @@ class FolderTest extends TestCase {
     /**
      * @expectedException \Titon\Io\Exception\ExistingFileException
      */
-    public function testMoveTargetExists() {
+    public function testMoveTargetExists(): void {
         $this->vfs->createStructure([
             'base/move' => [
                 '1' => 'foo',
@@ -500,7 +500,7 @@ class FolderTest extends TestCase {
         $folder->move($this->vfs->path('base/move-to'), false);
     }
 
-    public function testMoveOverwriteTargetFile() {
+    public function testMoveOverwriteTargetFile(): void {
         $this->vfs->createStructure([
             'base/move' => [
                 '1' => 'foo'
@@ -521,7 +521,7 @@ class FolderTest extends TestCase {
         $this->assertFalse(is_file($this->vfs->path('base/move-to')));
     }
 
-    public function testMoveOverwriteTargetFolder() {
+    public function testMoveOverwriteTargetFolder(): void {
         $this->vfs->createStructure([
             'base/move' => [
                 '1' => 'foo'
@@ -546,27 +546,27 @@ class FolderTest extends TestCase {
         $this->assertTrue(is_dir($this->vfs->path('base/move-to')));
     }
 
-    public function testName() {
+    public function testName(): void {
         $this->assertEquals('base', $this->object->name());
         $this->assertEquals('temp', $this->temp->name());
     }
 
-    public function testOwner() {
+    public function testOwner(): void {
         $this->assertEquals($this->userid, $this->object->owner());
         $this->assertEquals(null, $this->temp->owner());
     }
 
-    public function testPath() {
+    public function testPath(): void {
         $this->assertEquals($this->vfs->path('/base/'), $this->object->path());
         $this->assertEquals($this->vfs->path('/temp/'), $this->temp->path());
     }
 
-    public function testParent() {
+    public function testParent(): void {
         $this->assertInstanceOf('Titon\Io\Folder', $this->object->parent());
         $this->assertEquals($this->vfs->scheme() . ':/', $this->object->parent()->path());
     }
 
-    public function testPermissions() {
+    public function testPermissions(): void {
         $this->assertEquals('0755', $this->object->permissions());
         $this->assertEquals(null, $this->temp->permissions());
 
@@ -577,7 +577,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(null, $this->temp->permissions());
     }
 
-    public function testPermissionReading() {
+    public function testPermissionReading(): void {
         $this->markTestSkipped('This currently fails on HHVM 3.4.0, but works on nightlies');
 
         $this->object->chmod(0777);
@@ -603,12 +603,12 @@ class FolderTest extends TestCase {
         $this->assertFalse($this->temp->writable());
     }
 
-    public function testPwd() {
+    public function testPwd(): void {
         $this->assertEquals($this->vfs->path('base/'), $this->object->path());
         $this->assertEquals($this->vfs->path('temp/'), $this->temp->path());
     }
 
-    public function testRead() {
+    public function testRead(): void {
         $this->vfs->createStructure([
             'base/read' => [
                 '4' => 'd',
@@ -647,7 +647,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(Vector {}, $this->temp->read());
     }
 
-    public function testReadRecursive() {
+    public function testReadRecursive(): void {
         $this->vfs->createStructure([
             'base/read' => [
                 '4' => 'd',
@@ -689,7 +689,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(Vector {}, $this->temp->read());
     }
 
-    public function testReadSorting() {
+    public function testReadSorting(): void {
         $this->vfs->createStructure([
             'base/read' => [
                 '4' => 'd',
@@ -728,7 +728,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(Vector {}, $this->temp->read());
     }
 
-    public function testReadSortingRecursive() {
+    public function testReadSortingRecursive(): void {
         $this->vfs->createStructure([
             'base/read' => [
                 '4' => 'd',
@@ -770,7 +770,7 @@ class FolderTest extends TestCase {
         $this->assertEquals(Vector {}, $this->temp->read());
     }
 
-    public function testRename() {
+    public function testRename(): void {
         $file = new Folder($this->vfs->path('base/rename'), true);
 
         $this->assertEquals($this->vfs->path('base/rename/'), $file->path());
@@ -784,11 +784,11 @@ class FolderTest extends TestCase {
         $this->assertFileExists($this->vfs->path('base/rename-to'));
     }
 
-    public function testRenameMissingFile() {
+    public function testRenameMissingFile(): void {
         $this->assertFalse($this->temp->rename('temp-rename-to'));
     }
 
-    public function testRenameExitsEarlySameLocation() {
+    public function testRenameExitsEarlySameLocation(): void {
         $file = new Folder($this->vfs->path('base/rename'), true);
 
         $this->assertTrue($file->rename('rename'));
@@ -797,7 +797,7 @@ class FolderTest extends TestCase {
     /**
      * @expectedException \Titon\Io\Exception\ExistingFileException
      */
-    public function testRenameTargetExists() {
+    public function testRenameTargetExists(): void {
         $this->vfs->createStructure([
             'base/rename' => [
                 '1' => 'foo',
@@ -812,7 +812,7 @@ class FolderTest extends TestCase {
         $folder->rename('rename-to', false);
     }
 
-    public function testRenameOverwriteTargetFile() {
+    public function testRenameOverwriteTargetFile(): void {
         $this->vfs->createStructure([
             'base/rename' => [
                 '1' => 'foo'
@@ -833,7 +833,7 @@ class FolderTest extends TestCase {
         $this->assertFalse(is_file($this->vfs->path('base/rename-to')));
     }
 
-    public function testRenameOverwriteTargetFolder() {
+    public function testRenameOverwriteTargetFolder(): void {
         $this->vfs->createStructure([
             'base/rename' => [
                 '1' => 'foo'
@@ -858,14 +858,14 @@ class FolderTest extends TestCase {
         $this->assertTrue(is_dir($this->vfs->path('base/rename-to')));
     }
 
-    public function testRenameFormatName() {
+    public function testRenameFormatName(): void {
         $file = new Folder($this->vfs->path('base/rename'), true);
 
         $this->assertTrue($file->rename('SA# DM)8NS #$ 97py1n  6 d6as9 #%@ P'));
         $this->assertEquals('SA--DM-8NS----97py1n--6-d6as9-----P', $file->name());
     }
 
-    public function testReset() {
+    public function testReset(): void {
         $this->object->reset($this->vfs->path('reset-to'));
         $this->assertEquals($this->vfs->path('reset-to/'), $this->object->path());
     }
@@ -873,13 +873,13 @@ class FolderTest extends TestCase {
     /**
      * @expectedException \Titon\Io\Exception\InvalidPathException
      */
-    public function testResetFailsOnFile() {
+    public function testResetFailsOnFile(): void {
         $this->vfs->createFile('base/reset-to', 'foo');
 
         $this->object->reset($this->vfs->path('base/reset-to'));
     }
 
-    public function testSize() {
+    public function testSize(): void {
         $this->vfs->createStructure([
             'base/size' => [
                 '1' => 'a',

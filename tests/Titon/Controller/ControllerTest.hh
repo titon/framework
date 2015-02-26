@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Controller;
 
 use Titon\Http\Exception\NotFoundException;
@@ -14,7 +14,7 @@ use Titon\View\EngineView;
  */
 class ControllerTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
@@ -47,13 +47,13 @@ class ControllerTest extends TestCase {
         $this->object->setView($view);
     }
 
-    public function testBuildViewPath() {
+    public function testBuildViewPath(): void {
         $this->assertEquals('stub/index', $this->object->buildViewPath('index'));
         $this->assertEquals('stub/action-no-args', $this->object->buildViewPath('actionNoArgs'));
         $this->assertEquals('stub/action-with-args', $this->object->buildViewPath('actionWithArgs'));
     }
 
-    public function testDispatchTo() {
+    public function testDispatchTo(): void {
         $this->assertEquals('actionNoArgs', $this->object->dispatchTo('action-no-args', []));
         $this->assertEquals('actionNoArgs', $this->object->dispatchTo('actionNoArgs', []));
         $this->assertEquals('actionNoArgs', $this->object->dispatchTo('actionNoArgs', ['foo', 'bar']));
@@ -66,11 +66,11 @@ class ControllerTest extends TestCase {
     /**
      * @expectedException \Titon\Controller\Exception\InvalidActionException
      */
-    public function testDispatchToMissingAction() {
+    public function testDispatchToMissingAction(): void {
         $this->object->dispatchTo('noAction', []);
     }
 
-    public function testForwardTo() {
+    public function testForwardTo(): void {
         $this->object->forwardTo('actionNoArgs', []);
         $this->assertEquals('actionNoArgs', $this->object->getCurrentAction());
 
@@ -78,7 +78,7 @@ class ControllerTest extends TestCase {
         $this->assertEquals('actionWithArgs', $this->object->getCurrentAction());
     }
 
-    public function testGetActionAndArguments() {
+    public function testGetActionAndArguments(): void {
         $this->object->dispatchTo('actionNoArgs', []);
         $this->assertEquals('actionNoArgs', $this->object->getCurrentAction());
         $this->assertEquals([], $this->object->getCurrentArguments());
@@ -92,7 +92,7 @@ class ControllerTest extends TestCase {
         $this->assertEquals([], $this->object->getActionArguments('noAction'));
     }
 
-    public function testRenderErrorWithNoReporting() {
+    public function testRenderErrorWithNoReporting(): void {
         $old = error_reporting(0);
 
         $this->assertEquals('404: Not Found', $this->object->renderError(new NotFoundException('Not Found')));
@@ -101,7 +101,7 @@ class ControllerTest extends TestCase {
         error_reporting($old);
     }
 
-    public function testRenderErrorWithReporting() {
+    public function testRenderErrorWithReporting(): void {
         $old = error_reporting(E_ALL);
 
         $this->assertEquals('Message', $this->object->renderError(new \Exception('Message')));
@@ -110,7 +110,7 @@ class ControllerTest extends TestCase {
         error_reporting($old);
     }
 
-    public function testRenderView() {
+    public function testRenderView(): void {
         $this->assertEquals('stub:index', $this->object->renderView());
 
         $this->object->dispatchTo('actionNoArgs', []);
@@ -120,12 +120,12 @@ class ControllerTest extends TestCase {
     /**
      * @expectedException \Titon\View\Exception\MissingTemplateException
      */
-    public function testRenderViewMissingView() {
+    public function testRenderViewMissingView(): void {
         $this->object->dispatchTo('actionWithArgs', ['foo', 'bar']);
         $this->assertEquals('stub:action-with-args', $this->object->renderView());
     }
 
-    public function testGetSetView() {
+    public function testGetSetView(): void {
         $stub = new ControllerStub();
         $view = new EngineView($this->vfs->path('/views/'));
 

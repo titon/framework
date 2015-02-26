@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Common;
 
 use Titon\Common\Bag\AbstractBag;

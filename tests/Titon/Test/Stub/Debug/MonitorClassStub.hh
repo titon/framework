@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Debug;
 
 use Titon\Annotation\WiresAnnotations;
@@ -9,7 +9,7 @@ class MonitorClassStub {
 
     public static string $triggered = '';
 
-    public function __construct() {
+    public function __construct(): void {
         $this->wireClassAnnotation('Monitor');
     }
 

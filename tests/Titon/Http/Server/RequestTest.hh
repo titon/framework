@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
@@ -15,7 +15,7 @@ use Titon\Utility\State\Server;
  */
 class RequestTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $_GET = [
@@ -109,7 +109,7 @@ class RequestTest extends TestCase {
         $this->object = Request::createFromGlobals();
     }
 
-    public function testInitialize() {
+    public function testInitialize(): void {
         $this->assertEquals(Map {
             'key' => 'value',
             'Model' => Map {
@@ -168,7 +168,7 @@ class RequestTest extends TestCase {
         }, $this->object->files->all());
     }
 
-    public function testClone() {
+    public function testClone(): void {
         $clone = clone $this->object;
 
         $this->assertEquals($clone->attributes, $this->object->attributes);
@@ -180,7 +180,7 @@ class RequestTest extends TestCase {
         $this->assertEquals($clone->server, $this->object->server);
     }
 
-    public function testAccepts() {
+    public function testAccepts(): void {
         $this->object->headers->set('Accept', ['text/xml,application/xml;q=0.9,application/xhtml+xml,text/html,text/plain,image/png']);
 
         $this->assertEquals(shape('value' =>'text/html', 'quality' => 1), $this->object->accepts('html'));
@@ -200,7 +200,7 @@ class RequestTest extends TestCase {
         $this->assertEquals(null, $this->object->accepts('application/json'));
     }
 
-    public function testAcceptsCharset() {
+    public function testAcceptsCharset(): void {
         $this->object->headers->set('Accept-Charset', ['UTF-8']);
 
         $this->assertEquals(shape('value' =>'utf-8', 'quality' => 1), $this->object->acceptsCharset('utf-8'));
@@ -211,14 +211,14 @@ class RequestTest extends TestCase {
         $this->assertEquals(shape('value' =>'iso-8859-1', 'quality' => 1), $this->object->acceptsCharset('iso-8859-1'));
     }
 
-    public function testAcceptsEncoding() {
+    public function testAcceptsEncoding(): void {
         $this->object->headers->set('Accept-Encoding', ['compress;q=0.5, gzip;q=1.0']);
 
         $this->assertEquals(shape('value' =>'gzip', 'quality' => 1), $this->object->acceptsEncoding('gzip'));
         $this->assertEquals(null, $this->object->acceptsEncoding('identity'));
     }
 
-    public function testAcceptsLanguage() {
+    public function testAcceptsLanguage(): void {
         $this->object->headers->set('Accept-Language', ['en-us,en;q=0.8,fr-fr;q=0.5,fr;q=0.3']);
 
         $this->assertEquals(shape('value' =>'en-us', 'quality' => 1), $this->object->acceptsLanguage('en-US'));
@@ -227,7 +227,7 @@ class RequestTest extends TestCase {
         $this->assertEquals(null, $this->object->acceptsLanguage('DE'));
     }
 
-    public function testGetAttribute() {
+    public function testGetAttribute(): void {
         $this->assertEquals(null, $this->object->getAttribute('foo'));
         $this->assertEquals('bar', $this->object->getAttribute('foo', 'bar'));
 
@@ -235,7 +235,7 @@ class RequestTest extends TestCase {
         $this->assertEquals('baz', $this->object->getAttribute('foo'));
     }
 
-    public function testGetAttributes() {
+    public function testGetAttributes(): void {
         $this->object->setAttribute('foo', 'bar');
         $this->object->setAttribute('baz', 'qux');
 
@@ -245,7 +245,7 @@ class RequestTest extends TestCase {
         ], $this->object->getAttributes());
     }
 
-    public function testGetBodyParams() {
+    public function testGetBodyParams(): void {
         $this->assertEquals([
             'key' => 'value',
             'Model' => [
@@ -254,7 +254,7 @@ class RequestTest extends TestCase {
         ], $this->object->getBodyParams());
     }
 
-    public function testGetClientIp() {
+    public function testGetClientIp(): void {
         $this->object->server->set('REMOTE_ADDR', '192.168.1.2');
         $this->object->server->set('HTTP_CLIENT_IP', '192.168.1.1');
 
@@ -273,25 +273,25 @@ class RequestTest extends TestCase {
         $this->assertEquals('192.168.1.1', $this->object->getClientIP());
     }
 
-    public function testGetCookie() {
+    public function testGetCookie(): void {
         $this->assertEquals(null, $this->object->getCookie('key'));
         $this->assertEquals(new Cookie('foo', '5hxAThObwiiTyh0mhfxIKw%3D%3D'), $this->object->getCookie('foo'));
         $this->assertEquals('bar', $this->object->getCookie('foo')->getDecryptedValue());
     }
 
-    public function testGetCookies() {
+    public function testGetCookies(): void {
         $this->assertEquals(Map {
             'foo' => new Cookie('foo', '5hxAThObwiiTyh0mhfxIKw%3D%3D') // Object version
         }, $this->object->getCookies());
     }
 
-    public function testGetCookieParams() {
+    public function testGetCookieParams(): void {
         $this->assertEquals([
             'foo' => 'bar' // Unencrypted version
         ], $this->object->getCookieParams());
     }
 
-    public function testGetFileParams() {
+    public function testGetFileParams(): void {
         $this->assertEquals(4, count($this->object->getFileParams()));
         $this->assertEquals([
             'two' => [
@@ -306,7 +306,7 @@ class RequestTest extends TestCase {
         ], $this->object->getFileParams()['three']);
     }
 
-    public function testGetHeader() {
+    public function testGetHeader(): void {
         $this->assertEquals('', $this->object->getHeader('Accept-Charset'));
         $this->object->headers->set('Accept-Charset', ['utf-8', 'utf-16']);
 
@@ -314,7 +314,7 @@ class RequestTest extends TestCase {
         $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeaderAsArray('Accept-Charset'));
     }
 
-    public function testGetHost() {
+    public function testGetHost(): void {
         $this->object->server->set('HTTP_HOST', 'titon.io');
         $this->assertEquals('titon.io', $this->object->getHost());
 
@@ -336,11 +336,11 @@ class RequestTest extends TestCase {
         $this->assertEquals('74.232.443.122', $this->object->getHost());
     }
 
-    public function testGetMethod() {
+    public function testGetMethod(): void {
         $this->assertEquals('PUT', $this->object->getMethod()); // set in $_POST
     }
 
-    public function testGetMethodOverride() {
+    public function testGetMethodOverride(): void {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_SERVER['HTTP_X_METHOD_OVERRIDE'] = 'DELETE';
 
@@ -349,14 +349,14 @@ class RequestTest extends TestCase {
         $this->assertEquals('DELETE', Request::createFromGlobals()->getMethod());
     }
 
-    public function testGetProtocolVersion() {
+    public function testGetProtocolVersion(): void {
         $this->assertEquals('1.1', $this->object->getProtocolVersion());
 
         $this->object->server->set('SERVER_PROTOCOL', '1.0');
         $this->assertEquals('1.0', $this->object->getProtocolVersion());
     }
 
-    public function testGetPort() {
+    public function testGetPort(): void {
         $this->object->server->set('HTTP_HOST', 'titon.io');
         $this->assertEquals(80, $this->object->getPort());
 
@@ -393,7 +393,7 @@ class RequestTest extends TestCase {
         $this->assertEquals(88, $this->object->getPort());
     }
 
-    public function testGetQueryParams() {
+    public function testGetQueryParams(): void {
         $this->assertEquals([
             'key' => 'value',
             'Model' => [
@@ -402,7 +402,7 @@ class RequestTest extends TestCase {
         ], $this->object->getQueryParams());
     }
 
-    public function testGetReferrer() {
+    public function testGetReferrer(): void {
         $this->object->server->set('HTTP_REFERER', '');
         $this->assertEquals('/', $this->object->getReferrer());
 
@@ -413,23 +413,23 @@ class RequestTest extends TestCase {
         $this->assertEquals('/module/controller', $this->object->getReferrer());
     }
 
-    public function testGetScheme() {
+    public function testGetScheme(): void {
         $this->assertEquals('http', $this->object->getScheme());
 
         $this->object->server->set('HTTPS', 'on');
         $this->assertEquals('https', $this->object->getScheme());
     }
 
-    public function testGetServerIp() {
+    public function testGetServerIp(): void {
         $this->object->server->set('SERVER_ADDR', '127.0.0.1');
         $this->assertEquals('127.0.0.1', $this->object->getServerIP());
     }
 
-    public function testGetServerParams() {
+    public function testGetServerParams(): void {
         $this->assertGreaterThan(0, count($this->object->getServerParams())); // Too many values to explicitly test
     }
 
-    public function testGetUrl() {
+    public function testGetUrl(): void {
         $this->object->server->add(Map {
             'SCRIPT_FILENAME' => '/var/www/titon/app/web/index.php',
             'DOCUMENT_ROOT' => '/var/www/titon/app/web',
@@ -451,7 +451,7 @@ class RequestTest extends TestCase {
         $this->assertEquals('/en/some/path/', $this->object->getUrl()); // PHP_SELF
     }
 
-    public function testGetUrlBaseFolder() {
+    public function testGetUrlBaseFolder(): void {
         $this->object->server->add(Map {
             'SCRIPT_FILENAME' => '/var/www/titon/app/web/root/index.php',
             'DOCUMENT_ROOT' => '/var/www/titon/app/web',
@@ -473,19 +473,19 @@ class RequestTest extends TestCase {
         $this->assertEquals('/root/en/some/path/', $this->object->getUrl()); // PHP_SELF
     }
 
-    public function testGetUserAgent() {
+    public function testGetUserAgent(): void {
         $this->object->server->set('HTTP_USER_AGENT', 'Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0');
         $this->assertEquals('Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0', $this->object->getUserAgent());
     }
 
-    public function testHasHeader() {
+    public function testHasHeader(): void {
         $this->assertFalse($this->object->hasHeader('Accept-Charset'));
 
         $this->object->headers->set('Accept-Charset', ['utf-8']);
         $this->assertTrue($this->object->hasHeader('Accept-Charset'));
     }
 
-    public function testIsAjax() {
+    public function testIsAjax(): void {
         $this->object->server->set('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest');
         $this->assertTrue($this->object->isAJAX());
 
@@ -493,7 +493,7 @@ class RequestTest extends TestCase {
         $this->assertFalse($this->object->isAJAX());
     }
 
-    public function testIsMethods() {
+    public function testIsMethods(): void {
         $this->assertTrue($this->object->isPut()); // Set in $_POST
 
         $this->object->setMethod('get');
@@ -509,7 +509,7 @@ class RequestTest extends TestCase {
         $this->assertTrue($this->object->isMethod('put'));
     }
 
-    public function testIsFlash() {
+    public function testIsFlash(): void {
         $this->object->server->set('HTTP_USER_AGENT', '');
         $this->assertFalse($this->object->isFlash());
 
@@ -520,7 +520,7 @@ class RequestTest extends TestCase {
         $this->assertTrue($this->object->isFlash());
     }
 
-    public function testIsMobile() {
+    public function testIsMobile(): void {
         $this->object->server->set('HTTP_USER_AGENT', '');
         $this->assertFalse($this->object->isMobile());
 
@@ -540,7 +540,7 @@ class RequestTest extends TestCase {
         $this->assertTrue($this->object->isMobile());
     }
 
-    public function testIsSecure() {
+    public function testIsSecure(): void {
         $this->object->server->set('HTTPS', 'off');
         $this->object->server->set('SERVER_PORT', 80);
 
@@ -570,7 +570,7 @@ class RequestTest extends TestCase {
         $this->assertTrue($this->object->isSecure());
     }
 
-    public function testSetAttribute() {
+    public function testSetAttribute(): void {
         $this->object->setAttribute('foo', 'bar');
         $this->assertEquals('bar', $this->object->getAttribute('foo'));
 
@@ -578,7 +578,7 @@ class RequestTest extends TestCase {
         $this->assertEquals('baz', $this->object->getAttribute('foo'));
     }
 
-    public function testSetAttributes() {
+    public function testSetAttributes(): void {
         $this->object->setAttributes([
             'foo' => 'bar',
             'baz' => 'qux'
@@ -590,7 +590,7 @@ class RequestTest extends TestCase {
         ], $this->object->getAttributes());
     }
 
-    public function testSetMethod() {
+    public function testSetMethod(): void {
         $this->assertEquals('PUT', $this->object->getMethod());
 
         $this->object->setMethod('delete');
@@ -600,18 +600,18 @@ class RequestTest extends TestCase {
     /**
      * @expectedException \Titon\Http\Exception\InvalidMethodException
      */
-    public function testSetMethodInvalidMethod() {
+    public function testSetMethodInvalidMethod(): void {
         $this->object->setMethod('FOO');
     }
 
-    public function testSetUrl() {
+    public function testSetUrl(): void {
         $this->assertEquals('/', $this->object->getUrl());
 
         $this->object->setUrl('/foo');
         $this->assertEquals('/foo', $this->object->getUrl());
     }
 
-    public function testTrustProxyToggle() {
+    public function testTrustProxyToggle(): void {
         $this->object->trustProxies();
         $this->assertTrue($this->object->isTrustingProxies());
 

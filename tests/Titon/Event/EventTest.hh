@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Event;
 
 use Titon\Test\TestCase;
@@ -10,7 +10,7 @@ class EventTest extends TestCase {
 
     protected $time;
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->time = time();
@@ -22,7 +22,7 @@ class EventTest extends TestCase {
         });
     }
 
-    public function testGetCallStack() {
+    public function testGetCallStack(): void {
         $this->assertEquals(Vector {
             'ClassName::method3',
             'ClassName::method1',
@@ -30,7 +30,7 @@ class EventTest extends TestCase {
         }, $this->object->getCallStack());
     }
 
-    public function testGetIndexAndNext() {
+    public function testGetIndexAndNext(): void {
         $this->assertEquals(0, $this->object->getIndex());
 
         $this->object->next();
@@ -43,18 +43,18 @@ class EventTest extends TestCase {
         $this->assertEquals(2, $this->object->getIndex());
     }
 
-    public function testIsStoppedAndStop() {
+    public function testIsStoppedAndStop(): void {
         $this->assertFalse($this->object->isStopped());
 
         $this->object->stop();
         $this->assertTrue($this->object->isStopped());
     }
 
-    public function testGetKey() {
+    public function testGetKey(): void {
         $this->assertEquals('event.test.key', $this->object->getKey());
     }
 
-    public function testGetTime() {
+    public function testGetTime(): void {
         $this->assertEquals($this->time, $this->object->getTime());
     }
 

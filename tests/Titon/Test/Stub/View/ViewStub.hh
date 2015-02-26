@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\View;
 
 use Titon\Common\DataMap;

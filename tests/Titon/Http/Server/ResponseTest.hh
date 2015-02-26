@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
@@ -13,7 +13,7 @@ class ResponseTest extends TestCase {
 
     protected $time;
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-us,en;q=0.5';
@@ -25,7 +25,7 @@ class ResponseTest extends TestCase {
         $this->object->date($this->time);
     }
 
-    public function testAcceptRanges() {
+    public function testAcceptRanges(): void {
         $this->object->acceptRanges();
         $this->assertEquals('bytes', $this->object->getHeader('Accept-Ranges'));
 
@@ -36,14 +36,14 @@ class ResponseTest extends TestCase {
         $this->assertEquals('custom', $this->object->getHeader('Accept-Ranges'));
     }
 
-    public function testAddHeader() {
+    public function testAddHeader(): void {
         $this->object->addHeader('Accept-Charset', 'utf-8');
         $this->object->addHeader('Accept-Charset', 'utf-16');
 
         $this->assertEquals(['utf-8', 'utf-16'], $this->object->getHeaderAsArray('Accept-Charset'));
     }
 
-    public function testAddHeaders() {
+    public function testAddHeaders(): void {
         $this->object->addHeader('Accept-Charset', 'utf-8');
         $this->object->addHeader('Accept-Language', 'en');
         $this->object->addHeaders([
@@ -55,7 +55,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals(['en', 'fr'], $this->object->getHeaderAsArray('Accept-Language'));
     }
 
-    public function testAge() {
+    public function testAge(): void {
         $this->object->age(120);
         $this->assertEquals('120', $this->object->getHeader('Age'));
 
@@ -63,7 +63,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals('3600', $this->object->getHeader('Age'));
     }
 
-    public function testAllow() {
+    public function testAllow(): void {
         $this->object->allow(Vector {'get'});
         $this->assertEquals('GET', $this->object->getHeader('Allow'));
 
@@ -71,7 +71,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals('POST, PUT', $this->object->getHeader('Allow'));
     }
 
-    public function testCache() {
+    public function testCache(): void {
         $this->object->cache('none');
         $this->assertEquals('no-cache, no-store, must-revalidate, proxy-revalidate', $this->object->getHeader('Cache-Control'));
 
@@ -97,11 +97,11 @@ class ResponseTest extends TestCase {
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testCacheInvalidDirective() {
+    public function testCacheInvalidDirective(): void {
         $this->object->cache('foobar');
     }
 
-    public function testCacheControl() {
+    public function testCacheControl(): void {
         $this->object->cacheControl(Map {'public' => true});
         $this->assertEquals('public', $this->object->getHeader('Cache-Control'));
 
@@ -115,7 +115,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals('private="foobar", max-age=123', $this->object->getHeader('Cache-Control'));
     }
 
-    public function testConnection() {
+    public function testConnection(): void {
         $this->object->connection(true);
         $this->assertEquals('keep-alive', $this->object->getHeader('Connection'));
 
@@ -126,7 +126,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals('custom', $this->object->getHeader('Connection'));
     }
 
-    public function testContentDisposition() {
+    public function testContentDisposition(): void {
         $this->object->contentDisposition('file.png');
         $this->assertEquals('attachment; filename="file.png"', $this->object->getHeader('Content-Disposition'));
 
@@ -137,11 +137,11 @@ class ResponseTest extends TestCase {
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testContentDispositionInvalidType() {
+    public function testContentDispositionInvalidType(): void {
         $this->object->contentDisposition('file.png', 'foobar');
     }
 
-    public function testContentEncoding() {
+    public function testContentEncoding(): void {
         $this->object->contentEncoding('gzip');
         $this->assertEquals('gzip', $this->object->getHeader('Content-Encoding'));
 
@@ -149,7 +149,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals('gzip, compress', $this->object->getHeader('Content-Encoding'));
     }
 
-    public function testContentLanguage() {
+    public function testContentLanguage(): void {
         $this->object->contentLanguage('');
         $this->assertEquals('', $this->object->getHeader('Content-Language'));
 
@@ -160,7 +160,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals('en, en-us', $this->object->getHeader('Content-Language'));
     }
 
-    public function testContentLocation() {
+    public function testContentLocation(): void {
         $this->object->contentLocation('');
         $this->assertEquals('', $this->object->getHeader('Content-Location'));
 
@@ -168,7 +168,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals('/file.txt', $this->object->getHeader('Content-Location'));
     }
 
-    public function testContentLength() {
+    public function testContentLength(): void {
         $this->object->contentLength(1234);
         $this->assertEquals('1234', $this->object->getHeader('Content-Length'));
 
@@ -176,13 +176,13 @@ class ResponseTest extends TestCase {
         $this->assertEquals('2147483648', $this->object->getHeader('Content-Length'));
     }
 
-    public function testContentLength300Status() {
+    public function testContentLength300Status(): void {
         $this->object->setStatus(302);
         $this->object->contentLength(1234);
         $this->assertEquals('', $this->object->getHeader('Content-Length'));
     }
 
-    public function testContentMD5() {
+    public function testContentMD5(): void {
         $this->object->contentMD5('AHASHHERE');
         $this->assertEquals('AHASHHERE', $this->object->getHeader('Content-MD5'));
 
@@ -192,12 +192,12 @@ class ResponseTest extends TestCase {
         $this->assertEquals('hBotaJrYa9FhFEdFPCLG/A==', $this->object->getHeader('Content-MD5'));
     }
 
-    public function testContentRange() {
+    public function testContentRange(): void {
         $this->object->contentRange(0, 50, 100);
         $this->assertEquals('bytes 0-50/100', $this->object->getHeader('Content-Range'));
     }
 
-    public function testContentType() {
+    public function testContentType(): void {
         $this->object->contentType('html');
         $this->assertEquals('text/html; charset=UTF-8', $this->object->getHeader('Content-Type'));
 
@@ -208,7 +208,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals('application/xhtml+xml', $this->object->getHeader('Content-Type'));
     }
 
-    public function testContentType300Status() {
+    public function testContentType300Status(): void {
         $this->object->setStatus(304);
         $this->object->contentType('xhtml');
         $this->assertEquals('text/html; charset=UTF-8', $this->object->getHeader('Content-Type'));
@@ -217,23 +217,23 @@ class ResponseTest extends TestCase {
     /**
      * @expectedException \Titon\Http\Exception\InvalidExtensionException
      */
-    public function testContentTypeInvalidType() {
+    public function testContentTypeInvalidType(): void {
         $this->object->contentType('fake');
     }
 
-    public function testDate() {
+    public function testDate(): void {
         $this->object->date('+12 hours');
         $this->assertEquals(Format::http('+12 hours'), $this->object->getHeader('Date'));
     }
 
-    public function testDownload() {
+    public function testDownload(): void {
         $this->setupVFS();
         $this->vfs->createFile('/download.txt');
 
         $this->assertInstanceOf('Titon\Http\Server\DownloadResponse', Response::download($this->vfs->path('/download.txt')));
     }
 
-    public function testEtag() {
+    public function testEtag(): void {
         $this->object->etag('FooBar');
         $this->assertEquals('"FooBar"', $this->object->getHeader('ETag'));
 
@@ -241,12 +241,12 @@ class ResponseTest extends TestCase {
         $this->assertEquals('W/"FooBar"', $this->object->getHeader('ETag'));
     }
 
-    public function testExpires() {
+    public function testExpires(): void {
         $this->object->expires('+12 hours');
         $this->assertEquals(Format::http('+12 hours'), $this->object->getHeader('Expires'));
     }
 
-    public function testGetHeaders() {
+    public function testGetHeaders(): void {
         $this->assertEquals([
             'Date' => [gmdate(Http::DATE_FORMAT, $this->time)],
             'Connection' => ['keep-alive'],
@@ -265,29 +265,29 @@ class ResponseTest extends TestCase {
         ], $this->object->getHeaders());
     }
 
-    public function testGetProtocolVersion() {
+    public function testGetProtocolVersion(): void {
         $this->assertEquals('1.1', $this->object->getProtocolVersion());
     }
 
-    public function testGetReasonPhrase() {
+    public function testGetReasonPhrase(): void {
         $this->object->setStatus(400);
         $this->assertEquals('Bad Request', $this->object->getReasonPhrase());
     }
 
-    public function testGetStatusCode() {
+    public function testGetStatusCode(): void {
         $this->assertEquals(200, $this->object->getStatusCode());
     }
 
-    public function testJson() {
+    public function testJson(): void {
         $this->assertInstanceOf('Titon\Http\Server\JsonResponse', Response::json(['foo' => 'bar']));
     }
 
-    public function testLastModified() {
+    public function testLastModified(): void {
         $this->object->lastModified('+12 hours');
         $this->assertEquals(Format::http('+12 hours'), $this->object->getHeader('Last-Modified'));
     }
 
-    public function testLocation() {
+    public function testLocation(): void {
         $this->object->location('/local/url');
         $this->assertEquals('/local/url', $this->object->getHeader('Location'));
 
@@ -295,14 +295,14 @@ class ResponseTest extends TestCase {
         $this->assertEquals('http://google.com', $this->object->getHeader('Location'));
     }
 
-    public function testNoCache() {
+    public function testNoCache(): void {
         $this->object->noCache();
         $this->assertEquals(Format::http('-1 year'), $this->object->getHeader('Expires'));
         $this->assertEquals(Format::http(time()), $this->object->getHeader('Last-Modified'));
         $this->assertEquals('no-cache, no-store, must-revalidate, proxy-revalidate', $this->object->getHeader('Cache-Control'));
     }
 
-    public function testNotModified() {
+    public function testNotModified(): void {
         $this->object->contentType('html')->notModified();
         $this->assertEquals([
             'Date' => [gmdate(Http::DATE_FORMAT, $this->time)],
@@ -311,18 +311,18 @@ class ResponseTest extends TestCase {
         ], $this->object->getHeaders());
     }
 
-    public function testRedirect() {
+    public function testRedirect(): void {
         $this->assertInstanceOf('Titon\Http\Server\RedirectResponse', Response::redirect('/'));
     }
 
-    public function testRemoveCookie() {
+    public function testRemoveCookie(): void {
         $time = time();
         $this->object->removeCookie('foo');
 
         $this->assertEquals('foo=deleted; Expires=' . gmdate(Http::DATE_FORMAT, $time) . '; Path=/; HttpOnly', $this->object->getHeader('Set-Cookie'));
     }
 
-    public function testRemoveHeader() {
+    public function testRemoveHeader(): void {
         $this->object->setHeader('Content-Type', 'text/html');
         $this->assertTrue($this->object->hasHeader('Content-Type'));
 
@@ -330,7 +330,7 @@ class ResponseTest extends TestCase {
         $this->assertFalse($this->object->hasHeader('Content-Type'));
     }
 
-    public function testRemoveHeaders() {
+    public function testRemoveHeaders(): void {
         $this->object->setHeader('Content-Type', 'text/html');
         $this->object->setHeader('Content-Length', 100);
 
@@ -349,7 +349,7 @@ class ResponseTest extends TestCase {
         ], $this->object->getHeaders());
     }
 
-    public function testRetryAfter() {
+    public function testRetryAfter(): void {
         $this->object->retryAfter(120);
         $this->assertEquals('120', $this->object->getHeader('Retry-After'));
 
@@ -357,7 +357,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals(Format::http('+1 hour'), $this->object->getHeader('Retry-After'));
     }
 
-    public function testSendBody() {
+    public function testSendBody(): void {
         $this->object->setBody(new MemoryStream('body'));
 
         ob_start();
@@ -367,17 +367,17 @@ class ResponseTest extends TestCase {
         $this->assertEquals('body', $body);
     }
 
-    public function testSendBodyAndHeaders() {
+    public function testSendBodyAndHeaders(): void {
         $this->object->body(new MemoryStream('<html><body>body</body></html>'));
         $this->assertEquals('<html><body>body</body></html>', $this->object->send());
     }
 
-    public function testSetHeader() {
+    public function testSetHeader(): void {
         $this->object->setHeader('X-Framework', 'Titon');
         $this->assertEquals('Titon', $this->object->getHeader('X-Framework'));
     }
 
-    public function testSetHeaders() {
+    public function testSetHeaders(): void {
         $this->object->setHeaders([
             'X-Framework' => 'Titon',
             'X-Version' => '1.2.3'
@@ -387,23 +387,23 @@ class ResponseTest extends TestCase {
         $this->assertEquals('1.2.3', $this->object->getHeader('X-Version'));
     }
 
-    public function testSetCookie() {
+    public function testSetCookie(): void {
         $time = strtotime('+1 week');
         $this->object->setCookie('foo', 'bar', $time);
         $this->assertEquals('foo=5hxAThObwiiTyh0mhfxIKw%3D%3D; Expires=' . gmdate(Http::DATE_FORMAT, $time) . '; Path=/; HttpOnly', $this->object->getHeader('Set-Cookie'));
     }
 
-    public function testSetProtocolVersion() {
+    public function testSetProtocolVersion(): void {
         $this->object->setProtocolVersion('1.0');
         $this->assertEquals('1.0', $this->object->getProtocolVersion());
     }
 
-    public function testSetReasonPhrase() {
+    public function testSetReasonPhrase(): void {
         $this->object->setReasonPhrase('Foo Bar');
         $this->assertEquals('Foo Bar', $this->object->getReasonPhrase());
     }
 
-    public function testStatus() {
+    public function testStatus(): void {
         $this->object->statusCode(404);
         $this->assertEquals('404 Not Found', $this->object->getHeader('Status-Code'));
 
@@ -414,11 +414,11 @@ class ResponseTest extends TestCase {
     /**
      * @expectedException \Titon\Http\Exception\InvalidStatusException
      */
-    public function testStatusCodeInvalidCode() {
+    public function testStatusCodeInvalidCode(): void {
         $this->object->statusCode(666);
     }
 
-    public function testVary() {
+    public function testVary(): void {
         $this->object->vary('Accept');
         $this->assertEquals('Accept', $this->object->getHeader('Vary'));
 
@@ -426,7 +426,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals('Accept, Cookie', $this->object->getHeader('Vary'));
     }
 
-    public function testWwwAuthenticate() {
+    public function testWwwAuthenticate(): void {
         $this->object->wwwAuthenticate('Basic');
         $this->assertEquals('Basic', $this->object->getHeader('WWW-Authenticate'));
 
@@ -434,7 +434,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals('Digest', $this->object->getHeader('WWW-Authenticate'));
     }
 
-    public function testXml() {
+    public function testXml(): void {
         $this->assertInstanceOf('Titon\Http\Server\XmlResponse', Response::xml(['foo' => 'bar']));
     }
 

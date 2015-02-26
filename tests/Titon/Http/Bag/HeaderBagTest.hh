@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Http\Bag;
 
 use Titon\Test\TestCase;
@@ -8,13 +8,13 @@ use Titon\Test\TestCase;
  */
 class HeaderBagTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new HeaderBag();
     }
 
-    public function testKeyFormatsCorrectly() {
+    public function testKeyFormatsCorrectly(): void {
         $this->assertEquals('Content-Length', $this->object->key('CONTENT_LENGTH'));
         $this->assertEquals('Content-Type', $this->object->key('Content-TYPE'));
         $this->assertEquals('Location', $this->object->key('location'));

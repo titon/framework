@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Context;
 
 class FooStub
@@ -35,6 +35,6 @@ class FooStub
     }
 }
 
-function foo_stub_func(FooStub $foo) {
+function foo_stub_func(FooStub $foo): void {
     return $foo->getName();
 }

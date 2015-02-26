@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\View\Helper;
 
 use Titon\Test\TestCase;
@@ -10,7 +10,7 @@ use Titon\View\EngineView;
  */
 class BreadcrumbHelperTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $view = new EngineView(TEMP_DIR);
@@ -20,7 +20,7 @@ class BreadcrumbHelperTest extends TestCase {
         $this->object->setView($view);
     }
 
-    public function testOneCrumb() {
+    public function testOneCrumb(): void {
         $this->object->add('Title', '/');
 
         $this->assertEquals(Vector {
@@ -28,7 +28,7 @@ class BreadcrumbHelperTest extends TestCase {
         }, $this->object->generate());
     }
 
-    public function testMultipleCrumbs() {
+    public function testMultipleCrumbs(): void {
         $this->object
             ->add('Title', '/')
             ->add('Title 2', '/static/url', Map {'class' => 'tier2'})
@@ -41,7 +41,7 @@ class BreadcrumbHelperTest extends TestCase {
         }, $this->object->generate());
     }
 
-    public function testFirstLast() {
+    public function testFirstLast(): void {
         $this->assertEquals(null, $this->object->first());
         $this->assertEquals(null, $this->object->last());
 
@@ -63,7 +63,7 @@ class BreadcrumbHelperTest extends TestCase {
         ), $this->object->last());
     }
 
-    public function testAppendPrepend() {
+    public function testAppendPrepend(): void {
         $this->object->add('Base', '/');
 
         $this->assertEquals(new ArrayList(Vector {
@@ -96,7 +96,7 @@ class BreadcrumbHelperTest extends TestCase {
         }), $this->object->getBreadcrumbs());
     }
 
-    public function testTitle() {
+    public function testTitle(): void {
         $this->object->add([
             'A' => '/a',
             'B' => '/b',
@@ -116,7 +116,7 @@ class BreadcrumbHelperTest extends TestCase {
         $this->assertEquals('Base - A - B - C - D - E - F - G', $this->object->title('Base', Map {'depth' => 15}));
     }
 
-    public function testTitleFallback() {
+    public function testTitleFallback(): void {
         $this->object->getView()->setVariable('pageTitle', 'Page Title');
 
         $this->assertEquals('Page Title', $this->object->title());

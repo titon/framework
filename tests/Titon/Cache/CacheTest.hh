@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Cache;
 
 use Titon\Cache\Storage\MemoryStorage;
@@ -9,7 +9,7 @@ use Titon\Test\TestCase;
  */
 class CacheTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new Cache();
@@ -24,7 +24,7 @@ class CacheTest extends TestCase {
         $this->object->addStorage('custom', $custom);
     }
 
-    public function testDecrement() {
+    public function testDecrement(): void {
         $this->assertEquals(null, $this->object->get('decrement')->get());
         $this->assertEquals(null, $this->object->get('decrement', 'custom')->get());
 
@@ -38,7 +38,7 @@ class CacheTest extends TestCase {
         $this->assertEquals(-5, $this->object->get('decrement', 'custom')->get());
     }
 
-    public function testFlush() {
+    public function testFlush(): void {
         $this->object->set('test', 123);
         $this->assertTrue($this->object->has('key'));
         $this->assertTrue($this->object->has('test'));
@@ -62,7 +62,7 @@ class CacheTest extends TestCase {
         $this->assertFalse($this->object->has('test', 'custom'));
     }
 
-    public function testGet() {
+    public function testGet(): void {
         $this->assertEquals(null, $this->object->get('fakeKey')->get());
         $this->assertEquals('foo', $this->object->get('key')->get());
 
@@ -70,7 +70,7 @@ class CacheTest extends TestCase {
         $this->assertEquals('bar', $this->object->get('key', 'custom')->get());
     }
 
-    public function testHas() {
+    public function testHas(): void {
         $this->assertTrue($this->object->has('key'));
         $this->assertFalse($this->object->has('fakeKey'));
 
@@ -78,7 +78,7 @@ class CacheTest extends TestCase {
         $this->assertFalse($this->object->has('fakeKey', 'custom'));
     }
 
-    public function testIncrement() {
+    public function testIncrement(): void {
         $this->assertEquals(null, $this->object->get('increment')->get());
         $this->assertEquals(null, $this->object->get('increment', 'custom')->get());
 
@@ -92,7 +92,7 @@ class CacheTest extends TestCase {
         $this->assertEquals(2, $this->object->get('increment', 'custom')->get());
     }
 
-    public function testRemove() {
+    public function testRemove(): void {
         $this->assertEquals('foo', $this->object->get('key')->get());
 
         $this->object->remove('key');
@@ -106,7 +106,7 @@ class CacheTest extends TestCase {
         $this->assertEquals(null, $this->object->get('key', 'custom')->get());
     }
 
-    public function testSet() {
+    public function testSet(): void {
         $this->assertEquals('foo', $this->object->get('key')->get());
 
         $this->object->set('key', 'bar', '+1 hour');
@@ -120,11 +120,11 @@ class CacheTest extends TestCase {
         $this->assertEquals('baz', $this->object->get('key', 'custom')->get());
     }
 
-    public function testStats() {
+    public function testStats(): void {
         $this->assertInstanceOf('HH\Map', $this->object->stats());
     }
 
-    public function testStorages() {
+    public function testStorages(): void {
         $this->object->addStorage('test', new MemoryStorage());
 
         $this->assertInstanceOf('Titon\Cache\Storage', $this->object->getStorage('test'));
@@ -134,16 +134,16 @@ class CacheTest extends TestCase {
     /**
      * @expectedException \Titon\Cache\Exception\MissingStorageException
      */
-    public function testGetStorageMissing() {
+    public function testGetStorageMissing(): void {
         $this->object->getStorage('missing');
     }
 
-    public function testStore() {
-        $this->assertEquals('bar', $this->object->store('foo', function() {
+    public function testStore(): void {
+        $this->assertEquals('bar', $this->object->store('foo', function(): void {
             return 'bar';
         }));
 
-        $this->assertEquals('bar', $this->object->store('foo', function() {
+        $this->assertEquals('bar', $this->object->store('foo', function(): void {
             return 'baz';
         }));
     }

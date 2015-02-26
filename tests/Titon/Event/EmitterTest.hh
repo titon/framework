@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Event;
 
 use Titon\Test\Stub\Event\ListenerStub;
@@ -9,15 +9,15 @@ use Titon\Test\TestCase;
  */
 class EmitterTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new Emitter();
     }
 
-    public function testFlush() {
-        $ob1 = function(Event $event) { };
-        $ob2 = function(Event $event) { };
+    public function testFlush(): void {
+        $ob1 = function(Event $event): void { };
+        $ob2 = function(Event $event): void { };
 
         $this->object->subscribe('event.test1', $ob1);
         $this->object->subscribe('event.test2', $ob2);
@@ -31,8 +31,8 @@ class EmitterTest extends TestCase {
         $this->assertEquals(Vector {}, $this->object->getEventKeys());
     }
 
-    public function testGetObservers() {
-        $ob1 = function(Event $event) { };
+    public function testGetObservers(): void {
+        $ob1 = function(Event $event): void { };
         $ob2 = [new ListenerStub(), 'noop1'];
 
         $this->object->subscribe('event.test', $ob1, 20);
@@ -45,10 +45,10 @@ class EmitterTest extends TestCase {
         }, $this->object->getObservers('event.test'));
     }
 
-    public function testGetCallStack() {
-        $ob1 = function(Event $event) { };
+    public function testGetCallStack(): void {
+        $ob1 = function(Event $event): void { };
         $ob2 = [new ListenerStub(), 'noop2'];
-        $ob3 = function(Event $event) { };
+        $ob3 = function(Event $event): void { };
         $ob4 = [new ListenerStub(), 'noop3'];
 
         $this->object->subscribe('event.test', $ob1, 20);
@@ -64,19 +64,19 @@ class EmitterTest extends TestCase {
         }, $this->object->getCallStack('event.test'));
     }
 
-    public function testGetEventKeys() {
+    public function testGetEventKeys(): void {
         $this->assertEquals(Vector {}, $this->object->getEventKeys());
 
-        $this->object->subscribe('event.test1', function(Event $event) { });
-        $this->object->subscribe('event.test2', function(Event $event) { });
+        $this->object->subscribe('event.test1', function(Event $event): void { });
+        $this->object->subscribe('event.test2', function(Event $event): void { });
 
         $this->assertEquals(Vector {'event.test1', 'event.test2'}, $this->object->getEventKeys());
     }
 
-    public function testGetSortedObservers() {
-        $ob1 = function(Event $event) { };
+    public function testGetSortedObservers(): void {
+        $ob1 = function(Event $event): void { };
         $ob2 = [new ListenerStub(), 'noop1'];
-        $ob3 = function(Event $event) { };
+        $ob3 = function(Event $event): void { };
 
         $this->object->subscribe('event.test', $ob1, 20);
         $this->object->subscribe('event.test', $ob2, 15);
@@ -97,15 +97,15 @@ class EmitterTest extends TestCase {
         }, $this->object->getSortedObservers('event.test'));
     }
 
-    public function testHasObservers() {
+    public function testHasObservers(): void {
         $this->assertFalse($this->object->hasObservers('event.test'));
 
-        $this->object->subscribe('event.test', function(Event $event) { });
+        $this->object->subscribe('event.test', function(Event $event): void { });
 
         $this->assertTrue($this->object->hasObservers('event.test'));
     }
 
-    public function testAsyncGetObservers() {
+    public function testAsyncGetObservers(): void {
         $stub = new ListenerStub();
 
         $this->object->subscribe('event.test', [$stub, 'noop1']);
@@ -118,12 +118,12 @@ class EmitterTest extends TestCase {
         $this->assertTrue($observers[1]->isAsync());
     }
 
-    public function testExit() {
+    public function testExit(): void {
         $n = 0;
-        $ob1 = function(Event $event, &$i) { $i++; };
-        $ob2 = function(Event $event, &$i) { $i++; return true; };
-        $ob3 = function(Event $event, &$i) { $i++; return false; };
-        $ob4 = function(Event $event, &$i) { $i++; };
+        $ob1 = function(Event $event, &$i): void { $i++; };
+        $ob2 = function(Event $event, &$i): void { $i++; return true; };
+        $ob3 = function(Event $event, &$i): void { $i++; return false; };
+        $ob4 = function(Event $event, &$i): void { $i++; };
 
         $this->object->subscribe('event.test', $ob1);
         $this->object->subscribe('event.test', $ob2);
@@ -135,11 +135,11 @@ class EmitterTest extends TestCase {
         $this->assertEquals(3, $n);
     }
 
-    public function testData() {
-        $ob1 = function(Event $event) { $event->setData('key', $event->getData('key') + 1); };
-        $ob2 = function(Event $event) { $event->setData('key', $event->getData('key') + 1); };
-        $ob3 = function(Event $event) { $event->setData('key', $event->getData('key') + 1); };
-        $ob4 = function(Event $event) { $event->setData('key', $event->getData('key') + 1); };
+    public function testData(): void {
+        $ob1 = function(Event $event): void { $event->setData('key', $event->getData('key') + 1); };
+        $ob2 = function(Event $event): void { $event->setData('key', $event->getData('key') + 1); };
+        $ob3 = function(Event $event): void { $event->setData('key', $event->getData('key') + 1); };
+        $ob4 = function(Event $event): void { $event->setData('key', $event->getData('key') + 1); };
 
         $this->object->subscribe('event.test', $ob1);
         $this->object->subscribe('event.test', $ob2);
@@ -152,9 +152,9 @@ class EmitterTest extends TestCase {
         $this->assertEquals(Map {'key' => 4}, $event->getData());
     }
 
-    public function testSubscribeAndUnsubscribe() {
-        $ob1 = function(Event $event) { };
-        $ob2 = function(Event $event) { };
+    public function testSubscribeAndUnsubscribe(): void {
+        $ob1 = function(Event $event): void { };
+        $ob2 = function(Event $event): void { };
 
         $this->object->subscribe('event.test', $ob1);
         $this->object->subscribe('event.test', $ob2);
@@ -172,7 +172,7 @@ class EmitterTest extends TestCase {
         }, $this->object->getObservers('event.test'));
     }
 
-    public function testListenAndUnlisten() {
+    public function testListenAndUnlisten(): void {
         $listener = new ListenerStub();
 
         $this->object->listen($listener);
@@ -190,9 +190,9 @@ class EmitterTest extends TestCase {
         $this->assertEquals(Vector {}, $this->object->getCallStack('event.test1'));
     }
 
-    public function testEmit() {
-        $ob1 = function(Event $event) { };
-        $ob2 = function(Event $event) { $event->stop(); };
+    public function testEmit(): void {
+        $ob1 = function(Event $event): void { };
+        $ob2 = function(Event $event): void { $event->stop(); };
         $ob3 = new ListenerStub();
 
         $this->object->subscribe('event.test', $ob1);
@@ -205,17 +205,17 @@ class EmitterTest extends TestCase {
         $this->assertEquals(1, $event->getIndex());
     }
 
-    public function testEmitNoObservers() {
+    public function testEmitNoObservers(): void {
         $event = $this->object->emit('fake.event', []);
 
         $this->assertInstanceOf('Titon\Event\Event', $event);
         $this->assertEquals(Vector {}, $event->getCallStack());
     }
 
-    public function testEmitParams() {
+    public function testEmitParams(): void {
         $ob1 = new ListenerStub();
-        $ob2 = function(Event $event, &$int, $object) { $int++; };
-        $ob3 = function(Event $event, &$int, $object) { $int += 5; };
+        $ob2 = function(Event $event, &$int, $object): void { $int++; };
+        $ob3 = function(Event $event, &$int, $object): void { $int += 5; };
 
         $this->object->subscribe('event.test', [$ob1, 'noop3']);
         $this->object->subscribe('event.test', $ob2);
@@ -231,7 +231,7 @@ class EmitterTest extends TestCase {
         $this->assertEquals(6, $int);
     }
 
-    public function testEmitReturnState() {
+    public function testEmitReturnState(): void {
         $count = 0;
         $ob1 = function(Event $event) use (&$count) { $count++; }; // Void, will continue
         $ob2 = function(Event $event) use (&$count) { $count++; return true; }; // True, will continue
@@ -249,9 +249,9 @@ class EmitterTest extends TestCase {
         $this->assertEquals(['foo' => 'bar'], $event->getState());
     }
 
-    public function testEmitMany() {
-        $ob1 = function(Event $event) { };
-        $ob2 = function(Event $event) { $event->stop(); };
+    public function testEmitMany(): void {
+        $ob1 = function(Event $event): void { };
+        $ob2 = function(Event $event): void { $event->stop(); };
         $ob3 = new ListenerStub();
 
         $this->object->subscribe('event.test', $ob1);
@@ -263,9 +263,9 @@ class EmitterTest extends TestCase {
         $this->assertEquals(2, count($events));
     }
 
-    public function testEmitManyWildcard() {
-        $ob1 = function(Event $event) { };
-        $ob2 = function(Event $event) { $event->stop(); };
+    public function testEmitManyWildcard(): void {
+        $ob1 = function(Event $event): void { };
+        $ob2 = function(Event $event): void { $event->stop(); };
         $ob3 = new ListenerStub();
 
         $this->object->subscribe('event.cb1', $ob1);
@@ -276,7 +276,7 @@ class EmitterTest extends TestCase {
         $this->assertEquals(5, count($events));
     }
 
-    public function testEmitAsyncs() {
+    public function testEmitAsyncs(): void {
         $stub = new ListenerStub();
         $list = [];
 

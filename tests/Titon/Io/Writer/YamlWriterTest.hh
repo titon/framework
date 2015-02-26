@@ -1,11 +1,11 @@
-<?hh
+<?hh // strict
 namespace Titon\Io\Writer;
 
 use Titon\Test\TestCase;
 
 class YamlWriterTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         if (!extension_loaded('yaml')) {
@@ -16,7 +16,7 @@ class YamlWriterTest extends TestCase {
         $this->vfs->createDirectory('/writer');
     }
 
-    public function testWriteResource() {
+    public function testWriteResource(): void {
         $path = $this->vfs->path('/writer/yaml.yaml');
 
         $writer = new YamlWriter($path, true);

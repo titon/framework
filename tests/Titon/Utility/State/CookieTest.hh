@@ -1,11 +1,11 @@
-<?hh
+<?hh // strict
 namespace Titon\Utility\State;
 
 use Titon\Test\TestCase;
 
 class CookieTest extends TestCase {
 
-    public function testClass() {
+    public function testClass(): void {
         $_COOKIE = [
             'foo' => '940a8df7d359963b805f92e125dabecf',
             'bar' => '756457dc85f13450b3dfba2cbc1465e5'

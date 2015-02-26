@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Controller;
 
 use Titon\Controller\Action\AbstractAction;

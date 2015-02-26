@@ -1,11 +1,11 @@
-<?hh
+<?hh // strict
 namespace Titon\Utility\State;
 
 use Titon\Test\TestCase;
 
 class GetTest extends TestCase {
 
-    public function testClass() {
+    public function testClass(): void {
         $_GET = [
             'foo' => 123,
             'bar' => 'abc',

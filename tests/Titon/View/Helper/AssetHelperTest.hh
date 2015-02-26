@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\View\Helper;
 
 use Titon\Test\TestCase;
@@ -9,7 +9,7 @@ use Titon\View\EngineView;
  */
 class AssetHelperTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
@@ -23,7 +23,7 @@ class AssetHelperTest extends TestCase {
         $this->object->setView($view);
     }
 
-    public function testScripts() {
+    public function testScripts(): void {
         $this->object
             ->addScript('script.js')
             ->addScript('path/commons.js', 'header')
@@ -43,7 +43,7 @@ class AssetHelperTest extends TestCase {
         , $this->object->scripts('footer'));
     }
 
-    public function testScriptsOrdering() {
+    public function testScriptsOrdering(): void {
         $this->object
             ->addScript('script.js', 'footer', 3)
             ->addScript('path/commons.js', 'footer', 2)
@@ -58,7 +58,7 @@ class AssetHelperTest extends TestCase {
         , $this->object->scripts('footer'));
     }
 
-    public function testScriptsEnv() {
+    public function testScriptsEnv(): void {
         $this->object
             ->addScript('script.js', 'footer', 30, 'dev')
             ->addScript('path/commons.js', 'footer', 30, 'prod')
@@ -71,7 +71,7 @@ class AssetHelperTest extends TestCase {
         , $this->object->scripts('footer', 'dev'));
     }
 
-    public function testStylesheets() {
+    public function testStylesheets(): void {
         $this->object
             ->addStylesheet('style.css')
             ->addStylesheet('a/really/deep/path/with/no/extension/style.css')
@@ -84,7 +84,7 @@ class AssetHelperTest extends TestCase {
         , $this->object->stylesheets());
     }
 
-    public function testStylesheetsOrdering() {
+    public function testStylesheetsOrdering(): void {
         $this->object
             ->addStylesheet('style.css', Map {'media' => 'handheld'}, 3)
             ->addStylesheet('a/really/deep/path/with/no/extension/style.css', Map {'media' => 'screen'}, 1)
@@ -97,7 +97,7 @@ class AssetHelperTest extends TestCase {
         , $this->object->stylesheets());
     }
 
-    public function testStylesheetsEnv() {
+    public function testStylesheetsEnv(): void {
         $this->object
             ->addStylesheet('style.css', Map {'media' => 'handheld'}, 30, 'dev')
             ->addStylesheet('a/really/deep/path/with/no/extension/style.css', Map {'media' => 'screen'}, 30, 'staging')
@@ -106,7 +106,7 @@ class AssetHelperTest extends TestCase {
         $this->assertEquals('<link href="style.css" media="handheld" rel="stylesheet" type="text/css">' . PHP_EOL, $this->object->stylesheets('dev'));
     }
 
-    public function testPreparePath() {
+    public function testPreparePath(): void {
         $helper = $this->object;
 
         $this->assertEquals('style.css', $helper->preparePath('style', 'css'));
@@ -121,7 +121,7 @@ class AssetHelperTest extends TestCase {
         $this->assertEquals('https://domain.com/asset?version=123', $helper->preparePath('https://domain.com/asset?version=123', 'js'));
     }
 
-    public function testTimestamping() {
+    public function testTimestamping(): void {
         $this->object->addStylesheet('/css/test.css');
 
         $this->assertRegExp('/<link href="\/css\/test\.css\?([0-9]+)" media="screen" rel="stylesheet" type="text\/css">/', $this->object->stylesheets());

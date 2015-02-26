@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Event\Annotation;
 
 use Titon\Event\Observer;
@@ -7,7 +7,7 @@ use Titon\Test\TestCase;
 
 class ObserverTest extends TestCase {
 
-    public function testObserversSubscribeToEvents() {
+    public function testObserversSubscribeToEvents(): void {
         $stub = new ObserverClassStub();
 
         $this->assertEquals(Vector {

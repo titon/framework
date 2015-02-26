@@ -1,9 +1,9 @@
-<?php
+<?hh // strict
 namespace Titon\Cache\Storage;
 
 class FileSystemStorageTest extends AbstractStorageTest {
 
-    protected function setUp() {
+    protected function setUp(): void {
         $this->setupVFS();
         $this->vfs->createDirectory('/cache/');
 
@@ -15,11 +15,11 @@ class FileSystemStorageTest extends AbstractStorageTest {
     /**
      * @expectedException \Titon\Io\Exception\InvalidPathException
      */
-    public function testExceptionThrownMissingDir() {
+    public function testExceptionThrownMissingDir(): void {
         new FileSystemStorage('');
     }
 
-    public function testFlush() {
+    public function testFlush(): void {
         $this->assertFileExists($this->vfs->path('/cache/fs-foo.cache'));
 
         $this->object->flush();
@@ -27,7 +27,7 @@ class FileSystemStorageTest extends AbstractStorageTest {
         $this->assertFileNotExists($this->vfs->path('/cache/fs-foo.cache'));
     }
 
-    public function testRemove() {
+    public function testRemove(): void {
         $this->assertTrue($this->object->has('foo'));
         $this->assertFileExists($this->vfs->path('/cache/fs-foo.cache'));
 

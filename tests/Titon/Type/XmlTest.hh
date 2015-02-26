@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Type;
 
 use Titon\Test\TestCase;
@@ -6,7 +6,7 @@ use Titon\Type\Xml\Element;
 
 class DocumentTest extends TestCase {
 
-    public function testBox() {
+    public function testBox(): void {
         $this->assertSame(123.45, Xml::box('123.45'));
         $this->assertSame(123.45, Xml::box('123.45'));
         $this->assertSame(123, Xml::box('123'));
@@ -16,7 +16,7 @@ class DocumentTest extends TestCase {
         $this->assertSame(null, Xml::box('null'));
     }
 
-    public function testUnbox() {
+    public function testUnbox(): void {
         $this->assertSame('123.45', Xml::unbox('123.45'));
         $this->assertSame('123.45', Xml::unbox(123.45));
         $this->assertSame('123', Xml::unbox('123'));
@@ -26,7 +26,7 @@ class DocumentTest extends TestCase {
         $this->assertSame('null', Xml::unbox(null));
     }
 
-    public function testFormatName() {
+    public function testFormatName(): void {
         $this->assertEquals('foo', Xml::formatName('foo'));
         $this->assertEquals('foobar', Xml::formatName('foo bar'));
         $this->assertEquals('ns:foo', Xml::formatName('ns:foo'));
@@ -37,7 +37,7 @@ class DocumentTest extends TestCase {
         $this->assertEquals('_-foo', Xml::formatName('-foo'));
     }
 
-    public function testFromMap() {
+    public function testFromMap(): void {
         $map = Map {
             'name' => 'Barbarian',
             'life' => 50,
@@ -115,7 +115,7 @@ XML;
         $this->assertEquals($this->nl($xml), Xml::fromMap('unit', $map)->toString());
     }
 
-    public function testFromMapWithAttributes() {
+    public function testFromMapWithAttributes(): void {
         $map = Map {
             'name' => 'Barbarian',
             'life' => Map {'@value' => 50},
@@ -208,7 +208,7 @@ XML;
         $this->assertEquals($this->nl($xml), Xml::fromMap('unit', $map)->toString());
     }
 
-    public function testFromMapWithCdata() {
+    public function testFromMapWithCdata(): void {
         $map = Map {
             'data' => Map {
                 '@value' => 'foobar',
@@ -232,7 +232,7 @@ XML;
         $this->assertEquals($this->nl($xml), Xml::fromMap('root', $map)->toString());
     }
 
-    public function testFromFile() {
+    public function testFromFile(): void {
         $xml = Xml::fromFile(TEMP_DIR . '/type/barbarian.xml');
 
         $expected = new Element('unit');
@@ -294,7 +294,7 @@ XML;
         $this->assertEquals($expected, $xml);
     }
 
-    public function testFromFileStringComparison() {
+    public function testFromFileStringComparison(): void {
         $path = TEMP_DIR . '/type/barbarian.xml';
         $xml = Xml::fromFile($path);
 
@@ -304,11 +304,11 @@ XML;
     /**
      * @expectedException \Titon\Common\Exception\MissingFileException
      */
-    public function testFromFileMissingFile() {
+    public function testFromFileMissingFile(): void {
         Xml::fromFile(TEMP_DIR . '/type/barbarian-missing.xml');
     }
 
-    public function testFromVector() {
+    public function testFromVector(): void {
         $list = Vector {'Helmet', 'Shoulder Plates', 'Breast Plate', 'Greaves', 'Gloves', 'Shield'};
 
         $xml = <<<XML
@@ -327,7 +327,7 @@ XML;
         $this->assertEquals($this->nl($xml), Xml::fromVector('armors', 'armor', $list)->toString());
     }
 
-    public function testFromVectorWithAttributes() {
+    public function testFromVectorWithAttributes(): void {
         $list = Vector {
             'Helmet',
             'Shoulder Plates',

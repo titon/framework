@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Debug\Annotation;
 
 use Titon\Debug\Debugger;
@@ -8,7 +8,7 @@ use Titon\Test\TestCase;
 
 class MonitorTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
@@ -17,7 +17,7 @@ class MonitorTest extends TestCase {
         Debugger::setLogger(new Logger($this->vfs->path('/logs/')));
     }
 
-    public function testCallbackIsTriggered() {
+    public function testCallbackIsTriggered(): void {
         $this->assertEquals('', MonitorClassStub::$triggered);
 
         $stub = new MonitorClassStub();
@@ -25,7 +25,7 @@ class MonitorTest extends TestCase {
         $this->assertEquals('Titon\Test\Stub\Debug\MonitorClassStub', MonitorClassStub::$triggered);
     }
 
-    public function testMessageIsLoggedWhenClassIsInstantiated() {
+    public function testMessageIsLoggedWhenClassIsInstantiated(): void {
         $path = '/logs/info-' . date('Y-m-d') . '.log';
 
         $this->assertFileNotExists($this->vfs->path($path));

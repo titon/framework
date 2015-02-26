@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Debug;
 
 use Titon\Test\TestCase;
@@ -7,7 +7,7 @@ use \DateTime;
 
 class LoggerTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
@@ -17,20 +17,20 @@ class LoggerTest extends TestCase {
     /**
      * @expectedException \Titon\Debug\Exception\InvalidDirectoryException
      */
-    public function testErrorOnInvalidDir() {
+    public function testErrorOnInvalidDir(): void {
         new Logger($this->vfs->path('/logs-missing/'));
     }
 
     /**
      * @expectedException \Titon\Debug\Exception\UnwritableDirectoryException
      */
-    public function testErrorOnUnwritableDir() {
+    public function testErrorOnUnwritableDir(): void {
         $this->vfs->createDirectory('/logs-unwritable/', false, 0555);
 
         new Logger($this->vfs->path('/logs-unwritable/'));
     }
 
-    public function testLog() {
+    public function testLog(): void {
         $logger = new Logger($this->vfs->path('/logs/'));
         $date = date('Y-m-d');
 
@@ -44,7 +44,7 @@ class LoggerTest extends TestCase {
         $this->assertFileExists($this->vfs->path('/logs/notice-' . $date . '.log'));
     }
 
-    public function testCreateMessage() {
+    public function testCreateMessage(): void {
         $this->assertRegExp('/^\[' . self::DATE_RFC3339_REGEX . '\] Message \[\/\]/' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message'));
         $this->assertRegExp('/^\[' . self::DATE_RFC3339_REGEX . '\] Message \[\/custom\/url\]/' . PHP_EOL, Logger::createMessage(Logger::DEBUG, 'Message', ['url' => '/custom/url']));
 

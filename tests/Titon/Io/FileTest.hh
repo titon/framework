@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Io;
 
 use Titon\Test\TestCase;
@@ -10,7 +10,7 @@ use VirtualFileSystem\FileSystem;
  */
 class FileTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
@@ -21,11 +21,11 @@ class FileTest extends TestCase {
     /**
      * @expectedException \Titon\Io\Exception\InvalidPathException
      */
-    public function testConstructThrowsNotFileException() {
+    public function testConstructThrowsNotFileException(): void {
         new File(TEMP_DIR);
     }
 
-    public function testAppendPrepend() {
+    public function testAppendPrepend(): void {
         $this->object->write('Content');
         $this->assertEquals('Content', $this->object->read());
 
@@ -36,12 +36,12 @@ class FileTest extends TestCase {
         $this->assertEquals('PrependContentAppend', $this->object->read());
     }
 
-    public function testBasename() {
+    public function testBasename(): void {
         $this->assertEquals('base.html', $this->object->basename());
         $this->assertEquals('temp.html', $this->temp->basename());
     }
 
-    public function testCreate() {
+    public function testCreate(): void {
         $this->assertTrue($this->object->exists());
         $this->assertFalse($this->object->create());
 
@@ -50,7 +50,7 @@ class FileTest extends TestCase {
         $this->assertTrue($this->temp->exists());
     }
 
-    public function testExt() {
+    public function testExt(): void {
         $this->assertEquals('html', $this->object->ext());
         $this->assertEquals('html', $this->object->ext());
 
@@ -59,7 +59,7 @@ class FileTest extends TestCase {
         $this->assertEquals('', $file->ext());
     }
 
-    public function testLockAndUnlock() {
+    public function testLockAndUnlock(): void {
         $this->object->open('r');
 
         $this->assertTrue($this->object->lock());
@@ -71,7 +71,7 @@ class FileTest extends TestCase {
         $this->object->close();
     }
 
-    public function testMd5() {
+    public function testMd5(): void {
         $this->assertEquals('d41d8cd98f00b204e9800998ecf8427e', $this->object->md5());
         $this->assertEquals(null, $this->temp->md5());
 
@@ -79,18 +79,18 @@ class FileTest extends TestCase {
         $this->assertEquals('92dbea223f446b8d480a8fd4984232e4', $this->object->md5());
     }
 
-    public function testMimeType() {
+    public function testMimeType(): void {
         $this->assertEquals('text/plain', (new File(TEMP_DIR . '/io/ini.ini'))->mimeType());
         $this->assertEquals('text/x-php', (new File(TEMP_DIR . '/io/php.php'))->mimeType());
         $this->assertEquals('application/xml', (new File(TEMP_DIR . '/io/xml.xml'))->mimeType());
     }
 
-    public function testName() {
+    public function testName(): void {
         $this->assertEquals('base', $this->object->name());
         $this->assertEquals('temp', $this->temp->name());
     }
 
-    public function testOpenClose() {
+    public function testOpenClose(): void {
         $this->assertFalse($this->object->close());
         $this->assertFalse($this->temp->close());
 
@@ -101,7 +101,7 @@ class FileTest extends TestCase {
         $this->assertFalse($this->temp->close());
     }
 
-    public function testPermissionReading() {
+    public function testPermissionReading(): void {
         $this->object->chmod(0777);
         $this->temp->chmod(0777);
 
@@ -125,7 +125,7 @@ class FileTest extends TestCase {
         $this->assertFalse($this->temp->writable());
     }
 
-    public function testReadWrite() {
+    public function testReadWrite(): void {
         $content = 'Lets add a bit of fat to you before reading.';
         $this->object->write($content);
 
@@ -136,7 +136,7 @@ class FileTest extends TestCase {
         $this->assertEquals('', $this->object->read());
     }
 
-    public function testSize() {
+    public function testSize(): void {
         $this->assertTrue($this->object->write('foobar'));
         $this->assertEquals(6, $this->object->size());
         $this->assertEquals(0, $this->temp->size());

@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Environment;
 
 use Titon\Test\Stub\Environment\BootstrapperStub;
@@ -11,7 +11,7 @@ use Titon\Utility\State\Server as ServerGlobal;
  */
 class EnvironmentTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new EnvironmentStub();
@@ -22,7 +22,7 @@ class EnvironmentTest extends TestCase {
         $this->object->setFallback('dev');
     }
 
-    public function testBootstrappers() {
+    public function testBootstrappers(): void {
         $this->assertEquals(1, count($this->object->getBootstrappers()));
 
         $bs = new BootstrapperStub();
@@ -32,7 +32,7 @@ class EnvironmentTest extends TestCase {
         $this->assertEquals($bs, $this->object->getBootstrappers()[1]);
     }
 
-    public function testCurrent() {
+    public function testCurrent(): void {
         // dev
         $_SERVER['HTTP_HOST'] = 'dev';
 
@@ -81,7 +81,7 @@ class EnvironmentTest extends TestCase {
         $this->assertEquals('dev', $this->object->current()->getKey());
     }
 
-    public function testSetFallback() {
+    public function testSetFallback(): void {
         $this->object->setFallback('dev');
 
         $_SERVER['HTTP_HOST'] = 'fake_environment';
@@ -95,15 +95,15 @@ class EnvironmentTest extends TestCase {
     /**
      * @expectedException \Titon\Environment\Exception\MissingHostException
      */
-    public function testSetFallbackMissingHost() {
+    public function testSetFallbackMissingHost(): void {
         $this->object->setFallback('fakeEnv');
     }
 
-    public function testGetHosts() {
+    public function testGetHosts(): void {
         $this->assertEquals(3, count($this->object->getHosts()));
     }
 
-    public function testBootstrapping() {
+    public function testBootstrapping(): void {
         $_SERVER['HTTP_HOST'] = 'dev';
 
         $this->object->initialize();
@@ -115,21 +115,21 @@ class EnvironmentTest extends TestCase {
         $this->assertEquals('prod', BootstrapperStub::$loaded);
     }
 
-    public function testBootstrappingFallback() {
+    public function testBootstrappingFallback(): void {
         $_SERVER['HTTP_HOST'] = 'qa';
 
         $this->object->initialize();
         $this->assertEquals('dev', BootstrapperStub::$loaded); // Since dev is the fallback
     }
 
-    public function testInitializeNoHosts() {
+    public function testInitializeNoHosts(): void {
         $env = new EnvironmentStub();
         $env->initialize();
 
         $this->assertEquals(null, $env->current());
     }
 
-    public function testIs() {
+    public function testIs(): void {
         // dev
         $_SERVER['HTTP_HOST'] = 'dev';
 
@@ -181,7 +181,7 @@ class EnvironmentTest extends TestCase {
         $this->assertFalse($this->object->is('staging'));
     }
 
-    public function testIsMachine() {
+    public function testIsMachine(): void {
         if (getenv('TRAVIS')) {
             $this->markTestSkipped('Can\'t test host names within travis as they are too different per box');
         }
@@ -192,7 +192,7 @@ class EnvironmentTest extends TestCase {
         $this->assertTrue($env->isMachine('tit*'));
     }
 
-    public function testIsLocalhost() {
+    public function testIsLocalhost(): void {
         $_SERVER['HTTP_HOST'] = 'domain.com';
         $_SERVER['REMOTE_ADDR'] = '127.33.123.54';
         ServerGlobal::initialize($_SERVER);
@@ -216,7 +216,7 @@ class EnvironmentTest extends TestCase {
         $this->assertTrue($this->object->isLocalhost());
     }
 
-    public function testIsDevelopment() {
+    public function testIsDevelopment(): void {
         $_SERVER['HTTP_HOST'] = 'dev';
         ServerGlobal::initialize($_SERVER);
 
@@ -227,7 +227,7 @@ class EnvironmentTest extends TestCase {
         $this->assertFalse($this->object->isStaging());
     }
 
-    public function testIsProduction() {
+    public function testIsProduction(): void {
         $_SERVER['HTTP_HOST'] = 'prod';
 
         $this->object->initialize();
@@ -237,7 +237,7 @@ class EnvironmentTest extends TestCase {
         $this->assertFalse($this->object->isStaging());
     }
 
-    public function testIsQA() {
+    public function testIsQA(): void {
         $this->object->addHost('qa', new Host(Server::QA, ['qa', '123.456.0.666']));
 
         $_SERVER['HTTP_HOST'] = 'qa';
@@ -249,7 +249,7 @@ class EnvironmentTest extends TestCase {
         $this->assertFalse($this->object->isStaging());
     }
 
-    public function testIsStaging() {
+    public function testIsStaging(): void {
         $_SERVER['HTTP_HOST'] = 'staging';
 
         $this->object->initialize();
@@ -259,7 +259,7 @@ class EnvironmentTest extends TestCase {
         $this->assertTrue($this->object->isStaging());
     }
 
-    public function testVarLoading() {
+    public function testVarLoading(): void {
         $_SERVER['HTTP_HOST'] = 'dev';
 
         $env = new EnvironmentStub(TEMP_DIR . '/environment/');
@@ -275,7 +275,7 @@ class EnvironmentTest extends TestCase {
         $this->assertEquals('', $env->getVariable('bar'));
     }
 
-    public function testVarLoadingInheritance() {
+    public function testVarLoadingInheritance(): void {
         $_SERVER['HTTP_HOST'] = 'prod';
 
         $env = new EnvironmentStub(TEMP_DIR . '/environment/');

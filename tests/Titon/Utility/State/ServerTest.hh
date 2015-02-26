@@ -1,11 +1,11 @@
-<?hh
+<?hh // strict
 namespace Titon\Utility\State;
 
 use Titon\Test\TestCase;
 
 class ServerTest extends TestCase {
 
-    public function testClass() {
+    public function testClass(): void {
         $oldServer = $_SERVER;
 
         $_SERVER = [

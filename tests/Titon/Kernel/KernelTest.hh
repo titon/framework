@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Kernel;
 
 use Titon\Kernel\Middleware\Pipeline;
@@ -18,7 +18,7 @@ use Titon\Test\TestCase;
  */
 class KernelTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new KernelStub(new ApplicationStub(), new Pipeline());
@@ -26,7 +26,7 @@ class KernelTest extends TestCase {
         $this->output = new OutputStub();
     }
 
-    public function testKernelModifiesOutputInHandle() {
+    public function testKernelModifiesOutputInHandle(): void {
         $this->assertFalse($this->output->ran);
 
         $this->object->run($this->input, $this->output);
@@ -34,7 +34,7 @@ class KernelTest extends TestCase {
         $this->assertTrue($this->output->ran);
     }
 
-    public function testKernelRunsWithoutMiddleware() {
+    public function testKernelRunsWithoutMiddleware(): void {
         $this->object = new KernelStub(new ApplicationStub(), new Pipeline());
 
         $this->assertFalse($this->output->ran);
@@ -44,7 +44,7 @@ class KernelTest extends TestCase {
         $this->assertTrue($this->output->ran);
     }
 
-    public function testKernelCallNextHandleDoesNothing() {
+    public function testKernelCallNextHandleDoesNothing(): void {
         $this->object = new CallNextKernelStub(new ApplicationStub(), new Pipeline());
         $this->object->pipe(new MiddlewareStub('foo'));
         $this->object->pipe(new MiddlewareStub('bar'));
@@ -57,7 +57,7 @@ class KernelTest extends TestCase {
         $this->assertTrue($this->output->ran);
     }
 
-    public function testMiddlewareAreExecutedInANestedFormat() {
+    public function testMiddlewareAreExecutedInANestedFormat(): void {
         $this->object->pipe(new MiddlewareStub('foo'));
         $this->object->pipe(new MiddlewareStub('bar'));
         $this->object->pipe(new MiddlewareStub('baz'));
@@ -69,7 +69,7 @@ class KernelTest extends TestCase {
         $this->assertEquals(['foo', 'bar', 'baz', 'kernel', 'baz', 'bar', 'foo'], $this->input->stack);
     }
 
-    public function testMiddlewareCanInterruptCycle() {
+    public function testMiddlewareCanInterruptCycle(): void {
         $this->object->pipe(new MiddlewareStub('foo'));
         $this->object->pipe(new InterruptMiddlewareStub('bar'));
         $this->object->pipe(new MiddlewareStub('baz'));
@@ -81,7 +81,7 @@ class KernelTest extends TestCase {
         $this->assertEquals(['foo', 'bar', 'foo'], $this->input->stack);
     }
 
-    public function testExecutionTimeIsLogged() {
+    public function testExecutionTimeIsLogged(): void {
         $this->object->run($this->input, $this->output);
 
         $this->assertLessThan($this->object->getStartTime(), $this->object->getExecutionTime());

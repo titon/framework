@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Event;
 
 use Titon\Annotation\WiresAnnotations;
@@ -9,7 +9,7 @@ use Titon\Event\Subject;
 class ObserverClassStub implements Subject {
     use EmitsEvents, WiresAnnotations;
 
-    public function __construct() {
+    public function __construct(): void {
         $this->wireMethodAnnotation('defaultObserver', 'Observer');
         $this->wireMethodAnnotation('priorityObserver', 'Observer');
         $this->wireMethodAnnotation('onceObserver', 'Observer');

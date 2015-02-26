@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\View\Helper;
 
 use Titon\Test\TestCase;
@@ -10,13 +10,13 @@ use Titon\View\EngineView;
  */
 class HtmlHelperTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new HtmlHelper();
     }
 
-    public function testAnchor() {
+    public function testAnchor(): void {
         $this->assertEquals('<a href="">Anchor</a>' . PHP_EOL, $this->object->anchor('Anchor', ''));
         $this->assertEquals('<a href="/">Anchor Link!</a>' . PHP_EOL, $this->object->anchor('Anchor Link!', '/'));
 
@@ -29,11 +29,11 @@ class HtmlHelperTest extends TestCase {
         $this->assertEquals('<a class="className" href="/" id="id-name">Anchor</a>' . PHP_EOL, $this->object->anchor('Anchor', '/', Map {'id' => 'id-name', 'class' => 'className'}));
     }
 
-    public function testDoctype() {
+    public function testDoctype(): void {
         $this->assertEquals('<!DOCTYPE html>' . PHP_EOL, $this->object->doctype());
     }
 
-    public function testImage() {
+    public function testImage(): void {
         $this->assertEquals('<img alt="" src="image.png">' . PHP_EOL, $this->object->image('image.png'));
         $this->assertEquals('<img alt="Foobar" src="/some/path/image.JPG">' . PHP_EOL, $this->object->image('/some/path/image.JPG', Map {'alt' => 'Foobar'}));
         $this->assertEquals('<img alt="Foobar" src="invalid path/image.gif" title="&quot;Image&quot;">' . PHP_EOL, $this->object->image('invalid path/image.gif', Map {'alt' => 'Foobar', 'title' => '"Image"'}));
@@ -44,12 +44,12 @@ class HtmlHelperTest extends TestCase {
         $this->assertEquals('<a href="/users"><img alt="" src="image.png"></a>' . PHP_EOL, $this->object->image('image.png', Map {}, '/users'));
     }
 
-    public function testLink() {
+    public function testLink(): void {
         $this->assertEquals('<link href="style.css" media="screen" rel="stylesheet" type="text/css">' . PHP_EOL, $this->object->link('style.css'));
         $this->assertEquals('<link href="path/style.css" media="handheld" rel="stylesheet" type="text/css">' . PHP_EOL, $this->object->link('path/style.css', Map {'media' => 'handheld'}));
     }
 
-    public function testMailto() {
+    public function testMailto(): void {
         $domain = Crypt::obfuscate('test@domain.com');
 
         $this->assertEquals('<a href="mailto:' . $domain . '" title="">' . $domain . '</a>' . PHP_EOL, $this->object->mailto('test@domain.com'));
@@ -58,7 +58,7 @@ class HtmlHelperTest extends TestCase {
         $this->assertEquals('<a href="mailto:' . $domain . '" onclick="alert();" title="Email me!">' . $domain . '</a>' . PHP_EOL, $this->object->mailto('test@domain.com', Map {'title' => 'Email me!', 'onclick' => 'alert();'}));
     }
 
-    public function testMeta() {
+    public function testMeta(): void {
         $this->assertEquals('<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">' . PHP_EOL, $this->object->meta('Content-Type'));
         $this->assertEquals('<meta content="application/json" http-equiv="Content-Type">' . PHP_EOL, $this->object->meta('content-type', 'application/json'));
         $this->assertEquals('<meta content="text/javascript" http-equiv="Content-Script-Type">' . PHP_EOL, $this->object->meta('content-script-type'));
@@ -91,19 +91,19 @@ class HtmlHelperTest extends TestCase {
         }));
     }
 
-    public function testScript() {
+    public function testScript(): void {
         $this->assertEquals('<script src="script.js" type="text/javascript"></script>' . PHP_EOL, $this->object->script('script.js'));
         $this->assertEquals('<script src="path/script.js" type="text/javascript"></script>' . PHP_EOL, $this->object->script('path/script.js'));
         $this->assertEquals('<script type="text/javascript"><![CDATA[script.js]]></script>' . PHP_EOL, $this->object->script('script.js', true));
-        $this->assertEquals('<script type="text/javascript"><![CDATA[(function() { alert(); })();]]></script>' . PHP_EOL, $this->object->script('(function() { alert(); })();', true));
+        $this->assertEquals('<script type="text/javascript"><![CDATA[(function(): void { alert(); })();]]></script>' . PHP_EOL, $this->object->script('(function(): void { alert(); })();', true));
     }
 
-    public function testStyle() {
+    public function testStyle(): void {
         $this->assertEquals('<style type="text/css">#id { color: red; }</style>' . PHP_EOL, $this->object->style('#id { color: red; }'));
         $this->assertEquals('<style type="text/css">#id { color: red; }' . PHP_EOL . '.class { text-align: left; }</style>' . PHP_EOL, $this->object->style('#id { color: red; }' . PHP_EOL . '.class { text-align: left; }'));
     }
 
-    public function testTitle() {
+    public function testTitle(): void {
         $view = new EngineView(Vector {'/'});
         $this->object->setView($view);
 

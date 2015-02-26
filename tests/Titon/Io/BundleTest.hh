@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Io;
 
 use Titon\Io\Bundle\ResourceBundle;
@@ -11,7 +11,7 @@ use Titon\Test\TestCase;
  */
 class BundleTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new ResourceBundle();
@@ -20,7 +20,7 @@ class BundleTest extends TestCase {
         $this->vfs->createDirectory('/bundle/');
     }
 
-    public function testAddPath() {
+    public function testAddPath(): void {
         $this->assertEquals(Map {}, $this->object->getPaths());
 
         $this->object->addPath('foo', '/some/path');
@@ -30,7 +30,7 @@ class BundleTest extends TestCase {
         }, $this->object->getPaths());
     }
 
-    public function testAddPaths() {
+    public function testAddPaths(): void {
         $this->assertEquals(Map {}, $this->object->getPaths());
 
         $this->object->addPaths('foo', Vector {'/some/path', '/another/path'});
@@ -42,7 +42,7 @@ class BundleTest extends TestCase {
         }, $this->object->getPaths());
     }
 
-    public function testAddReader() {
+    public function testAddReader(): void {
         $this->assertEquals(Map {}, $this->object->getReaders());
 
         $reader = new PhpReader();
@@ -51,7 +51,7 @@ class BundleTest extends TestCase {
         $this->assertEquals(Map {'php' => $reader}, $this->object->getReaders());
     }
 
-    public function testGetContents() {
+    public function testGetContents(): void {
         $this->object->addPath('test', TEMP_DIR . '/io');
 
         $paths = $this->object->getContents('test');
@@ -67,7 +67,7 @@ class BundleTest extends TestCase {
         }, $paths);
     }
 
-    public function testGetDomains() {
+    public function testGetDomains(): void {
         $this->assertEquals(Vector {}, $this->object->getDomains());
 
         $this->object->addPath('foo', '/some/path');
@@ -76,7 +76,7 @@ class BundleTest extends TestCase {
         $this->assertEquals(Vector {'foo', 'bar'}, $this->object->getDomains());
     }
 
-    public function testGetDomainPaths() {
+    public function testGetDomainPaths(): void {
         $this->object->addPaths('foo', Vector {'/some/path', '/another/path'});
         $this->object->addPaths('bar', Vector {'/one/more/path'});
 
@@ -87,11 +87,11 @@ class BundleTest extends TestCase {
     /**
      * @expectedException \Titon\Io\Exception\MissingDomainException
      */
-    public function testGetDomainPathsErrorsOnMissing() {
+    public function testGetDomainPathsErrorsOnMissing(): void {
         $this->object->getDomainPaths('baz');
     }
 
-    public function testLoadResource() {
+    public function testLoadResource(): void {
         $this->vfs->createDirectory('/bundle/foo');
         $this->vfs->createFile('/bundle/foo/test.php', '<?php return ["foo" => "bar"];');
 
@@ -101,7 +101,7 @@ class BundleTest extends TestCase {
         $this->assertEquals(Map {'foo' => 'bar'}, $this->object->loadResource('foo', 'test'));
     }
 
-    public function testLoadResourceFromMultiplePaths() {
+    public function testLoadResourceFromMultiplePaths(): void {
         $this->vfs->createStructure([
             '/bundle/foo1' => [
                 'test.php' => '<?php return ["foo" => "bar"];'
@@ -120,7 +120,7 @@ class BundleTest extends TestCase {
         }, $this->object->loadResource('foo', 'test'));
     }
 
-    public function testLoadResourceUsingMultipleReaders() {
+    public function testLoadResourceUsingMultipleReaders(): void {
         $this->vfs->createStructure([
             '/bundle/foo1' => [
                 'test.php' => '<?php return ["foo" => "bar"];'

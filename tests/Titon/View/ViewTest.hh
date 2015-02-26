@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\View;
 
 use Titon\Common\DataMap;
@@ -13,7 +13,7 @@ use Titon\Test\TestCase;
  */
 class ViewTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
@@ -71,7 +71,7 @@ class ViewTest extends TestCase {
         ]);
     }
 
-    public function testPaths() {
+    public function testPaths(): void {
         $expected = Vector {
             $this->vfs->path('/views/'),
             $this->vfs->path('/views/fallback/'),
@@ -84,7 +84,7 @@ class ViewTest extends TestCase {
         $this->assertEquals($expected, $this->object->getPaths());
     }
 
-    public function testHelpers() {
+    public function testHelpers(): void {
         $form = new FormHelper();
         $html = new HtmlHelper();
 
@@ -107,11 +107,11 @@ class ViewTest extends TestCase {
     /**
      * @expectedException \Titon\View\Exception\MissingHelperException
      */
-    public function testHelperMissing() {
+    public function testHelperMissing(): void {
         $this->object->getHelper('foobar');
     }
 
-    public function testVariables() {
+    public function testVariables(): void {
         $expected = Map {};
         $this->assertEquals($expected, $this->object->getVariables());
 
@@ -130,7 +130,7 @@ class ViewTest extends TestCase {
         $this->assertEquals('bar', $this->object->getVariable('foo'));
     }
 
-    public function testLocateTemplate() {
+    public function testLocateTemplate(): void {
         $this->assertEquals($this->vfs->path('/views/public/index/add.tpl'), $this->object->locateTemplate('index/add'));
         $this->assertEquals($this->vfs->path('/views/public/index/add.tpl'), $this->object->locateTemplate('index\add'));
         $this->assertEquals($this->vfs->path('/views/public/index/add.tpl'), $this->object->locateTemplate('index/add.tpl'));
@@ -156,11 +156,11 @@ class ViewTest extends TestCase {
     /**
      * @expectedException \Titon\View\Exception\MissingTemplateException
      */
-    public function testLocateTemplateMissing() {
+    public function testLocateTemplateMissing(): void {
         $this->object->locateTemplate('index/missing');
     }
 
-    public function testLocateTemplateLocales() {
+    public function testLocateTemplateLocales(): void {
         $localePath = '';
         $rootPath = $this->vfs->path('/views/');
 

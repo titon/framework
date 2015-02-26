@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Utility;
 
 use Titon\Io\Reader\PhpReader;
@@ -30,7 +30,7 @@ class ConfigTest extends TestCase {
         'zero' => 0
     };
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
@@ -40,7 +40,7 @@ class ConfigTest extends TestCase {
         Config::set('test', $this->test);
     }
 
-    public function testAdd() {
+    public function testAdd(): void {
         $this->assertEquals('Titon', Config::get('app.name'));
 
         Config::add('app.name', 'Framework');
@@ -50,7 +50,7 @@ class ConfigTest extends TestCase {
         $this->assertEquals(Vector {'Titon'}, Config::get('app.foobar'));
     }
 
-    public function testAll() {
+    public function testAll(): void {
         $this->assertEquals(Map {
             'app' => $this->app,
             'debug' => $this->debug,
@@ -58,7 +58,7 @@ class ConfigTest extends TestCase {
         }, Config::all());
     }
 
-    public function testEncoding() {
+    public function testEncoding(): void {
         $this->assertEquals(Config::encoding(), 'UTF-8');
 
         Config::set('app.encoding', 'UTF-16');
@@ -68,7 +68,7 @@ class ConfigTest extends TestCase {
         $this->assertEquals(Config::encoding(), 'UTF-8');
     }
 
-    public function testFlush() {
+    public function testFlush(): void {
         $this->assertEquals(Map {
             'app' => $this->app,
             'debug' => $this->debug,
@@ -80,7 +80,7 @@ class ConfigTest extends TestCase {
         $this->assertEquals(Map {}, Config::all());
     }
 
-    public function testGet() {
+    public function testGet(): void {
         $this->assertEquals(Config::get('app.name'), $this->app['name']);
         $this->assertEquals(Config::get('app.seed'), $this->app['seed']);
 
@@ -107,7 +107,7 @@ class ConfigTest extends TestCase {
         $this->assertEquals('baz', Config::get('app.foo', 'bar'));
     }
 
-    public function testHas() {
+    public function testHas(): void {
         $this->assertTrue(Config::has('app.salt'));
         $this->assertTrue(Config::has('debug.email'));
         $this->assertTrue(Config::has('test.number'));
@@ -121,7 +121,7 @@ class ConfigTest extends TestCase {
         $this->assertFalse(Config::has('test.deep.deep.deep.deep.array'));
     }
 
-    public function testLoad() {
+    public function testLoad(): void {
         $data = <<<CFG
 <?php
 
@@ -159,7 +159,7 @@ CFG;
         }, Config::get('Php'));
     }
 
-    public function testName() {
+    public function testName(): void {
         $this->assertEquals(Config::name(), $this->app['name']);
 
         Config::set('app.name', 'TestName');
@@ -169,7 +169,7 @@ CFG;
         $this->assertEquals(Config::name(), '');
     }
 
-    public function testRemove() {
+    public function testRemove(): void {
         $this->assertTrue(Config::has('app.salt'));
         $this->assertTrue(Config::has('debug.email'));
 
@@ -179,7 +179,7 @@ CFG;
         $this->assertFalse(Config::has('debug.email'));
     }
 
-    public function testSalt() {
+    public function testSalt(): void {
         $this->assertEquals(Config::salt(), $this->app['salt']);
 
         Config::set('app.salt', md5('TestSalt'));
@@ -189,7 +189,7 @@ CFG;
         $this->assertEquals(Config::salt(), '');
     }
 
-    public function testSet() {
+    public function testSet(): void {
         Config::set('Set.level1', 1);
         $this->assertEquals(Config::get('Set.level1'), 1);
 

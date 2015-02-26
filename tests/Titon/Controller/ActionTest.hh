@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Controller;
 
 use Titon\Http\Server\Request;
@@ -8,7 +8,7 @@ use Titon\Utility\State\Server;
 
 class ActionTest extends TestCase {
 
-    public function testRun() {
+    public function testRun(): void {
         $controller = new ErrorController();
         $controller->setRequest(Request::createFromGlobals());
 
@@ -22,7 +22,7 @@ class ActionTest extends TestCase {
         $this->assertEquals('bar', $controller->foo);
     }
 
-    public function testRunWorksOnOtherHttpMethods() {
+    public function testRunWorksOnOtherHttpMethods(): void {
         $_SERVER['REQUEST_METHOD'] = 'HEAD';
         Server::initialize($_SERVER);
 

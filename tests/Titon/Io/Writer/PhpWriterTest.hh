@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Io\Writer;
 
 use Titon\Io\Writer\PhpWriter;
@@ -6,14 +6,14 @@ use Titon\Test\TestCase;
 
 class PhpWriterTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
         $this->vfs->createDirectory('/writer');
     }
 
-    public function testWriteResource() {
+    public function testWriteResource(): void {
         $path = $this->vfs->path('/writer/php.php');
 
         $writer = new PhpWriter($path, true);

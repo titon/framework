@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Context;
 
 use Titon\Test\Stub\Context\BarStub;
@@ -142,7 +142,7 @@ class DepositoryTest extends TestCase
 
     public function testClosureDependencyResolution()
     {
-        $bar = $this->container->make(function(FooStub $foo) {
+        $bar = $this->container->make(function(FooStub $foo): void {
             return new BarStub($foo);
         });
 

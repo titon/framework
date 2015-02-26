@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Common;
 
 use Titon\Test\Stub\Common\BagStub;
@@ -20,13 +20,13 @@ class BagTest extends TestCase {
         'vector' => Vector {1, 2, 3}
     };
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new BagStub($this->defaults);
     }
 
-    public function testAdd() {
+    public function testAdd(): void {
         $this->object->add(Map {
             'boolean' => false,
             'foo' => 'bar'
@@ -39,11 +39,11 @@ class BagTest extends TestCase {
         $this->assertEquals($defaults, $this->object->all());
     }
 
-    public function testAll() {
+    public function testAll(): void {
         $this->assertEquals($this->defaults, $this->object->all());
     }
 
-    public function testGet() {
+    public function testGet(): void {
         $this->assertEquals(true, $this->object->boolean);
         $this->assertEquals(true, $this->object->get('boolean'));
         $this->object->boolean = false;
@@ -63,11 +63,11 @@ class BagTest extends TestCase {
         $this->assertEquals(null, $this->object->get('fakeKey'));
     }
 
-    public function testKeys() {
+    public function testKeys(): void {
         $this->assertEquals(Vector {'boolean', 'integer', 'string', 'float', 'map', 'vector'}, $this->object->keys());
     }
 
-    public function testSet() {
+    public function testSet(): void {
         $this->object->set('boolean', false);
         $this->assertEquals(false, $this->object->boolean);
 
@@ -96,7 +96,7 @@ class BagTest extends TestCase {
         $this->assertEquals('test', $this->object->get('custom'));
     }
 
-    public function testHas() {
+    public function testHas(): void {
         $this->assertTrue($this->object->has('integer'));
         $this->assertTrue(isset($this->object->integer));
 
@@ -106,7 +106,7 @@ class BagTest extends TestCase {
         $this->assertFalse(isset($this->object->fakeKey));
     }
 
-    public function testRemove() {
+    public function testRemove(): void {
         $this->object->remove('string')->remove('map');
         $this->assertEquals(Map {
             'boolean' => true,
@@ -122,7 +122,7 @@ class BagTest extends TestCase {
         }, $this->object->all());
     }
 
-    public function testIterator() {
+    public function testIterator(): void {
         $config = Map {};
 
         foreach ($this->object as $key => $value) {
@@ -132,7 +132,7 @@ class BagTest extends TestCase {
         $this->assertEquals($this->defaults, $config);
     }
 
-    public function testCount() {
+    public function testCount(): void {
         $this->assertEquals(6, $this->object->count());
 
         unset($this->object->string);

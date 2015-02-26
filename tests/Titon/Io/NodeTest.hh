@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Io;
 
 use Titon\Test\TestCase;
@@ -6,7 +6,7 @@ use VirtualFileSystem\FileSystem;
 
 class NodeTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->vfs = new FileSystem();
@@ -14,7 +14,7 @@ class NodeTest extends TestCase {
         $this->vfs->createFile('/file');
     }
 
-    public function testDestroy() {
+    public function testDestroy(): void {
         $this->assertFalse(Node::destroy($this->vfs->path('missing')));
 
         $this->assertFileExists($this->vfs->path('folder'));
@@ -26,7 +26,7 @@ class NodeTest extends TestCase {
         $this->assertFileNotExists($this->vfs->path('file'));
     }
 
-    public function testLoad() {
+    public function testLoad(): void {
         $this->assertInstanceOf('Titon\Io\Folder', Node::load($this->vfs->path('folder')));
         $this->assertInstanceOf('Titon\Io\File', Node::load($this->vfs->path('file')));
     }
@@ -34,7 +34,7 @@ class NodeTest extends TestCase {
     /**
      * @expectedException \Titon\Common\Exception\MissingFileException
      */
-    public function testLoadMissingTarget() {
+    public function testLoadMissingTarget(): void {
         Node::load($this->vfs->path('missing'));
     }
 

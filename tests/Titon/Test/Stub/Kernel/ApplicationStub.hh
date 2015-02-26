@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Kernel;
 
 use Titon\Kernel\Application;

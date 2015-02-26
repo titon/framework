@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Debug;
 
 use Titon\Debug\Dumper\CliDumper;
@@ -8,7 +8,7 @@ use \ErrorException;
 
 class DebuggerTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
@@ -21,7 +21,7 @@ class DebuggerTest extends TestCase {
         set_exception_handler(class_meth('Titon\Debug\Debugger', 'handleException'));
     }
 
-    protected function tearDown() {
+    protected function tearDown(): void {
         parent::tearDown();
 
         // Reset back to old handlers
@@ -29,19 +29,19 @@ class DebuggerTest extends TestCase {
         set_exception_handler(null);
     }
 
-    public function testExport() {
+    public function testExport(): void {
         $this->assertEquals(123, Debugger::export(123));
         $this->assertEquals("[\n\t0 => 123,\n]", Debugger::export([123]));
         $this->assertEquals("array(\n\t0 => 123,\n)", Debugger::export([123], false));
     }
 
-    public function testGetError() {
+    public function testGetError(): void {
         $this->assertEquals('Error', Debugger::getError(E_ERROR));
         $this->assertEquals('Core Warning', Debugger::getError(E_CORE_WARNING));
         $this->assertEquals('Unknown Error', Debugger::getError(-123));
     }
 
-    public function testGetSetDumper() {
+    public function testGetSetDumper(): void {
         $dumper = new CliDumper();
 
         Debugger::setDumper($dumper);
@@ -49,15 +49,15 @@ class DebuggerTest extends TestCase {
         $this->assertEquals($dumper, Debugger::getDumper());
     }
 
-    public function testGetSetHandler() {
-        $handler = function() {};
+    public function testGetSetHandler(): void {
+        $handler = function(): void {};
 
         Debugger::setHandler($handler);
 
         $this->assertEquals($handler, Debugger::getHandler());
     }
 
-    public function testGetSetLogger() {
+    public function testGetSetLogger(): void {
         $logger = new Logger($this->vfs->path('/logs/'));
 
         Debugger::setLogger($logger);
@@ -65,7 +65,7 @@ class DebuggerTest extends TestCase {
         $this->assertEquals($logger, Debugger::getLogger());
     }
 
-    public function testHandleError() {
+    public function testHandleError(): void {
         ob_start();
         Debugger::handleError(E_WARNING, 'Message');
         $actual = ob_get_clean();
@@ -76,11 +76,11 @@ class DebuggerTest extends TestCase {
     /**
      * @expectedException \ErrorException
      */
-    public function testHandleErrorThrowsErrors() {
+    public function testHandleErrorThrowsErrors(): void {
         Debugger::handleError(E_ERROR, 'Message');
     }
 
-    public function testHandleErrorDoesntThrowsNotice() {
+    public function testHandleErrorDoesntThrowsNotice(): void {
         ob_start();
         Debugger::handleError(E_NOTICE, 'Message');
         $actual = ob_get_clean();
@@ -88,7 +88,7 @@ class DebuggerTest extends TestCase {
         $this->assertRegExp('/^ErrorException - Message/', $actual);
     }
 
-    public function testHandleErrorTriggered() {
+    public function testHandleErrorTriggered(): void {
         ob_start();
         strpos();
         $actual = ob_get_clean();
@@ -96,7 +96,7 @@ class DebuggerTest extends TestCase {
         $this->assertRegExp('/^ErrorException/', $actual);
     }
 
-    public function testHandleErrorTriggeredNoReporting() {
+    public function testHandleErrorTriggeredNoReporting(): void {
         Debugger::disable();
 
         $this->assertFileNotExists($this->vfs->path('/logs/warning-' . date('Y-m-d') . '.log'));
@@ -112,7 +112,7 @@ class DebuggerTest extends TestCase {
     /**
      * @expectedException \HH\InvariantException
      */
-    public function testHandleInvariant() {
+    public function testHandleInvariant(): void {
         $this->assertFileNotExists($this->vfs->path('/logs/info-' . date('Y-m-d') . '.log'));
 
         invariant_violation('Something failed!', 'foo', 'bar');
@@ -120,7 +120,7 @@ class DebuggerTest extends TestCase {
         $this->assertFileExists($this->vfs->path('/logs/info-' . date('Y-m-d') . '.log'));
     }
 
-    public function testLogException() {
+    public function testLogException(): void {
         $date = date('Y-m-d');
 
         $this->assertFileNotExists($this->vfs->path('/logs/error-' . $date . '.log'));
@@ -133,7 +133,7 @@ class DebuggerTest extends TestCase {
         $this->assertFileExists($this->vfs->path('/logs/notice-' . $date . '.log'));
     }
 
-    public function testMapErrorCode() {
+    public function testMapErrorCode(): void {
         $this->assertEquals(shape('error' => 'User Error', 'level' => 'error'), Debugger::mapErrorCode(E_USER_ERROR));
         $this->assertEquals(shape('error' => 'Core Warning', 'level' => 'warning'), Debugger::mapErrorCode(E_CORE_WARNING));
         $this->assertEquals(shape('error' => 'InvalidArgumentException', 'level' => 'debug'), Debugger::mapErrorCode(new \InvalidArgumentException()));
@@ -141,17 +141,17 @@ class DebuggerTest extends TestCase {
         $this->assertEquals(shape('error' => 'Strict Notice', 'level' => 'info'), Debugger::mapErrorCode(new ErrorException('Message', E_STRICT)));
     }
 
-    public function testParseType() {
+    public function testParseType(): void {
         $this->assertEquals('string', Debugger::parseType('foobar'));
         $this->assertEquals('integer', Debugger::parseType(123));
         $this->assertEquals('boolean', Debugger::parseType(true));
         $this->assertEquals('array', Debugger::parseType([]));
         $this->assertEquals('object', Debugger::parseType(new \stdClass()));
         $this->assertEquals('null', Debugger::parseType(null));
-        $this->assertEquals('callable', Debugger::parseType(function() {}));
+        $this->assertEquals('callable', Debugger::parseType(function(): void {}));
     }
 
-    public function testParseValue() {
+    public function testParseValue(): void {
         $this->assertEquals(12345, Debugger::parseValue('12345'));
         $this->assertEquals('true', Debugger::parseValue(true));
         $this->assertEquals('null', Debugger::parseValue(null));

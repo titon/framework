@@ -1,11 +1,11 @@
-<?hh
+<?hh // strict
 namespace Titon\Route;
 
 use Titon\Test\TestCase;
 
 class CallbackRouteTest extends TestCase {
 
-    public function testDispatch() {
+    public function testDispatch(): void {
         $route = new CallbackRoute('/{a}/{b}', function(string $a, string $b): string {
             return $a . $b;
         });
@@ -14,7 +14,7 @@ class CallbackRouteTest extends TestCase {
         $this->assertEquals('foobar', $route->dispatch());
     }
 
-    public function testDispatchOptional() {
+    public function testDispatchOptional(): void {
         $route = new CallbackRoute('/{a}/{b?}', function(string $a, string $b = 'baz'): string {
             return $a . $b;
         });
@@ -23,7 +23,7 @@ class CallbackRouteTest extends TestCase {
         $this->assertEquals('foobaz', $route->dispatch());
     }
 
-    public function testDispatchTypeHints() {
+    public function testDispatchTypeHints(): void {
         $route = new CallbackRoute('/{a}/[b]/(c)', function(string $a, int $b, string $c): string {
             return $a . $b . $c;
         });
@@ -35,7 +35,7 @@ class CallbackRouteTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\NoMatchException
      */
-    public function testDispatchNoMatch() {
+    public function testDispatchNoMatch(): void {
         $route = new CallbackRoute('/', () ==> '');
         $route->dispatch();
     }

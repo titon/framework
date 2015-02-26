@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Route;
 
 use Titon\Test\Stub\Route\TestRouteStub;
@@ -7,7 +7,7 @@ use Titon\Utility\State\Server;
 
 class RouteTest extends TestCase {
 
-    public function testAppendPrepend() {
+    public function testAppendPrepend(): void {
         $route = new Route('/', 'Controller@action');
 
         $this->assertEquals('/', $route->getPath());
@@ -31,14 +31,14 @@ class RouteTest extends TestCase {
         $this->assertEquals('/{prefix}/before/prepend/append/after/{suffix}', $route->getPath());
     }
 
-    public function testConditions() {
+    public function testConditions(): void {
         $route = new Route('/', 'Controller@action');
 
         $this->assertEquals(Vector {}, $route->getConditions());
 
-        $cond1 = function() {};
-        $cond2 = function() {};
-        $cond3 = function() {};
+        $cond1 = function(): void {};
+        $cond2 = function(): void {};
+        $cond3 = function(): void {};
 
         $route->addCondition($cond1);
         $route->addConditions(Vector {$cond3, $cond2});
@@ -50,7 +50,7 @@ class RouteTest extends TestCase {
         $this->assertEquals(Vector {$cond2}, $route->getConditions());
     }
 
-    public function testCompile() {
+    public function testCompile(): void {
         $moduleControllerActionExt = new Route('/{module}/{controller}/{action}.{ext}', 'Controller@action');
         $moduleControllerAction = new Route('/{module}/{controller}/{action}', 'Controller@action');
         $moduleController = new Route('/{module}/{controller}', 'Controller@action');
@@ -83,12 +83,12 @@ class RouteTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\MissingPatternException
      */
-    public function testCompileMissingPattern() {
+    public function testCompileMissingPattern(): void {
         $noPattern = new Route('<missing>', 'Controller@action');
         $noPattern->compile();
     }
 
-    public function testCompileOptionalToken() {
+    public function testCompileOptionalToken(): void {
         $route = new Route('/users/[id]', 'Controller@action');
 
         $this->assertEquals('\/users\/([0-9\.]+)\/?', $route->compile());
@@ -103,21 +103,21 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/users'));
     }
 
-    public function testDispatch() {
+    public function testDispatch(): void {
         $route = new Route('/{a}/{b}', 'Titon\Test\Stub\Route\DispatchRouteStub@noOptional');
         $route->isMatch('/foo/bar');
 
         $this->assertEquals('foobar', $route->dispatch());
     }
 
-    public function testDispatchOptional() {
+    public function testDispatchOptional(): void {
         $route = new Route('/{a}/{b?}', 'Titon\Test\Stub\Route\DispatchRouteStub@withOptional');
         $route->isMatch('/foo');
 
         $this->assertEquals('foobaz', $route->dispatch());
     }
 
-    public function testDispatchTypeHints() {
+    public function testDispatchTypeHints(): void {
         $route = new Route('/{a}/[b]/(c)', 'Titon\Test\Stub\Route\DispatchRouteStub@typeHints');
         $route->isMatch('/foo/123/bar_456');
 
@@ -127,12 +127,12 @@ class RouteTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\NoMatchException
      */
-    public function testDispatchNoMatch() {
+    public function testDispatchNoMatch(): void {
         $route = new Route('/{a}/{b}', 'Titon\Test\Stub\Route\DispatchRouteStub@noOptional');
         $route->dispatch();
     }
 
-    public function testFilters() {
+    public function testFilters(): void {
         $route = new Route('/', 'Controller@action');
 
         $this->assertEquals(Vector {}, $route->getFilters());
@@ -147,19 +147,19 @@ class RouteTest extends TestCase {
         $this->assertEquals(Vector {'baz'}, $route->getFilters());
     }
 
-    public function testGetAction() {
+    public function testGetAction(): void {
         $route = new Route('/', 'Controller@action');
 
         $this->assertEquals(shape('class' => 'Controller', 'action' => 'action'), $route->getAction());
     }
 
-    public function testGetPath() {
+    public function testGetPath(): void {
         $route = new Route('/users/profile/[id]', 'Controller@action');
 
         $this->assertEquals('/users/profile/[id]', $route->getPath());
     }
 
-    public function testIsMethod() {
+    public function testIsMethod(): void {
         $noMethod = new Route('/', 'Controller@action');
         $singleMethod = (new Route('/', 'Controller@action'))->addMethod('POST');
         $multiMethod = (new Route('/', 'Controller@action'))->setMethods(Vector {'post', 'put'});
@@ -186,7 +186,7 @@ class RouteTest extends TestCase {
         $this->assertTrue($multiMethod->isMethod());
     }
 
-    public function testIsSecure() {
+    public function testIsSecure(): void {
         $unsecureRoute = (new Route('/', 'Controller@action'))->setSecure(false);
         $secureRoute = (new Route('/', 'Controller@action'))->setSecure(true);
 
@@ -200,7 +200,7 @@ class RouteTest extends TestCase {
         $this->assertTrue($secureRoute->isSecure());
     }
 
-    public function testIsStatic() {
+    public function testIsStatic(): void {
         $route = (new Route('/', 'Controller@action'))->setStatic(false);
         $staticRoute = (new Route('/', 'Controller@action'))->setStatic(true);
         $tokenRoute = new Route('/{module}', 'Controller@action');
@@ -210,7 +210,7 @@ class RouteTest extends TestCase {
         $this->assertFalse($tokenRoute->isStatic());
     }
 
-    public function testIsMatch() {
+    public function testIsMatch(): void {
         $route = new Route('/{module}/{controller}/{action}.{ext}', 'Controller@action');
 
         $this->assertFalse($route->isMatch('/users'));
@@ -219,7 +219,7 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/users/profile/activity.json'));
     }
 
-    public function testIsMatchAlphaPattern() {
+    public function testIsMatchAlphaPattern(): void {
         $route = (new Route('/<alpha>', 'Controller@action'))->addPattern('alpha', Route::ALPHA);
 
         $this->assertTrue($route->isMatch('/FOO'));
@@ -230,7 +230,7 @@ class RouteTest extends TestCase {
         $this->assertFalse($route->isMatch('/foo123'));
     }
 
-    public function testIsMatchAlnumPattern() {
+    public function testIsMatchAlnumPattern(): void {
         $route = new Route('/{alpha}', 'Controller@action');
 
         $this->assertTrue($route->isMatch('/FOO'));
@@ -243,7 +243,7 @@ class RouteTest extends TestCase {
         $this->assertFalse($route->isMatch('/foo+123'));
     }
 
-    public function testIsMatchNumericPattern() {
+    public function testIsMatchNumericPattern(): void {
         $route = new Route('/[numeric]', 'Controller@action');
 
         $this->assertTrue($route->isMatch('/123'));
@@ -253,7 +253,7 @@ class RouteTest extends TestCase {
         $this->assertFalse($route->isMatch('/foo'));
     }
 
-    public function testIsMatchWildcardPattern() {
+    public function testIsMatchWildcardPattern(): void {
         $route = new Route('/(wild)', 'Controller@action');
 
         $this->assertTrue($route->isMatch('/FOO'));
@@ -267,7 +267,7 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/foo.123'));
     }
 
-    public function testIsMatchLocalePattern() {
+    public function testIsMatchLocalePattern(): void {
         $route = (new Route('/<locale>', 'Controller@action'))->addPattern('locale', Route::LOCALE);
 
         $this->assertTrue($route->isMatch('/en'));
@@ -276,7 +276,7 @@ class RouteTest extends TestCase {
         $this->assertFalse($route->isMatch('/eng'));
     }
 
-    public function testIsMatchMethod() {
+    public function testIsMatchMethod(): void {
         $route = new Route('/{module}', 'Controller@action');
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -293,7 +293,7 @@ class RouteTest extends TestCase {
         $this->assertFalse($route->isMatch('/foo'));
     }
 
-    public function testIsMatchSecure() {
+    public function testIsMatchSecure(): void {
         $route = new Route('/{module}', 'Controller@action');
 
         $_SERVER['HTTPS'] = 'off';
@@ -311,13 +311,13 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/foo'));
     }
 
-    public function testIsMatchDirectEqualPath() {
+    public function testIsMatchDirectEqualPath(): void {
         $route = new Route('/foo', 'Controller@action');
 
         $this->assertTrue($route->isMatch('/foo'));
     }
 
-    public function testIsMatchTrailingSlash() {
+    public function testIsMatchTrailingSlash(): void {
         $route = new Route('/{module}', 'Controller@action');
 
         $this->assertTrue($route->isMatch('/users'));
@@ -325,7 +325,7 @@ class RouteTest extends TestCase {
         $this->assertFalse($route->isMatch('/users//'));
     }
 
-    public function testIsMatchMultipleOptionals() {
+    public function testIsMatchMultipleOptionals(): void {
         $route = new Route('/{year}/{month?}/{day?}', 'Controller@action');
 
         $this->assertTrue($route->isMatch('/2014/01/01'));
@@ -333,7 +333,7 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/2014'));
     }
 
-    public function testIsMatchConditions() {
+    public function testIsMatchConditions(): void {
         $route = new Route('/{module}', 'Controller@action');
         $route->addCondition(function(): bool {
             return (strpos($_SERVER['HTTP_ACCEPT'], 'json') !== false);
@@ -348,7 +348,7 @@ class RouteTest extends TestCase {
         $this->assertTrue($route->isMatch('/users'));
     }
 
-    public function testMethods() {
+    public function testMethods(): void {
         $route = new Route('/', 'Controller@action');
 
         $this->assertEquals(Vector {}, $route->getMethods());
@@ -363,7 +363,7 @@ class RouteTest extends TestCase {
         $this->assertEquals(Vector {'put'}, $route->getMethods());
     }
 
-    public function testParams() {
+    public function testParams(): void {
         $route = new Route('/{module}/{controller}/{action}.{ext}', 'Controller@action');
         $route->isMatch('/users/profile/activity.json');
 
@@ -380,7 +380,7 @@ class RouteTest extends TestCase {
         $this->assertEquals(null, $route->getParam('hash'));
     }
 
-    public function testParamsOptional() {
+    public function testParamsOptional(): void {
         $route = new TestRouteStub('/blog/[year]/[month]/[day?]', 'Module\Controller@action');
         $route->isMatch('/blog/2014/02');
 
@@ -403,7 +403,7 @@ class RouteTest extends TestCase {
         }, $route->getParams());
     }
 
-    public function testPatterns() {
+    public function testPatterns(): void {
         $route = new Route('/', 'Controller@action');
 
         $this->assertEquals(Map {}, $route->getPatterns());
@@ -418,7 +418,7 @@ class RouteTest extends TestCase {
         $this->assertEquals(Map {'key' => '[A-Z]+'}, $route->getPatterns());
     }
 
-    public function testTokens() {
+    public function testTokens(): void {
         $route = new Route('/{string}', 'Controller@action');
         $this->assertEquals('\/([a-z0-9\_\-\.]+)\/?', $route->compile());
 
@@ -463,7 +463,7 @@ class RouteTest extends TestCase {
         $this->assertEquals('\/([^\/]+)\/([a-z0-9\_\-\.]+)\/([a-z]\-[A-Z])(?:\/([0-9\.]+))?\/?', $route->compile());
     }
 
-    public function testSerialize() {
+    public function testSerialize(): void {
         $route = new Route('/{module}/{controller}/{action}.{ext}', 'Controller@action');
         $route->addFilter('foo');
         $route->addMethod('post');

@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\View;
 
 use Titon\Test\Stub\View\EngineStub;
@@ -9,20 +9,20 @@ use Titon\Test\TestCase;
  */
 class EngineTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new EngineStub();
     }
 
-    public function testLayout() {
+    public function testLayout(): void {
         $this->assertEquals('default', $this->object->getLayout());
 
         $this->object->useLayout('alternate');
         $this->assertEquals('alternate', $this->object->getLayout());
     }
 
-    public function testWrappers() {
+    public function testWrappers(): void {
         $this->assertEquals(Vector {}, $this->object->getWrappers());
 
         $this->object->wrapWith('alternate');
@@ -32,7 +32,7 @@ class EngineTest extends TestCase {
         $this->assertEquals(Vector {'alternate', 'double'}, $this->object->getWrappers());
     }
 
-    public function testContent() {
+    public function testContent(): void {
         $this->assertEquals('', $this->object->getContent());
 
         $this->object->setContent('content');

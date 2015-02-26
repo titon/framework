@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Cache;
 
 use Titon\Test\TestCase;
@@ -9,20 +9,20 @@ use \DateTime;
  */
 class ItemTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new Item('foo', 'bar');
     }
 
-    public function testGetSetValue() {
+    public function testGetSetValue(): void {
         $this->assertEquals('bar', $this->object->get());
 
         $this->object->set(123);
         $this->assertEquals(123, $this->object->get());
     }
 
-    public function testGetSetExpiration() {
+    public function testGetSetExpiration(): void {
         $this->object->setExpiration();
         $this->assertEquals(new DateTime('@' . strtotime('+1 hour')), $this->object->getExpiration());
 
@@ -33,14 +33,14 @@ class ItemTest extends TestCase {
         $this->assertEquals(new DateTime('@' . strtotime('+5 days')), $this->object->getExpiration());
     }
 
-    public function testGetSetKey() {
+    public function testGetSetKey(): void {
         $this->assertEquals('foo', $this->object->getKey());
 
         $this->object->setKey('baz');
         $this->assertEquals('baz', $this->object->getKey());
     }
 
-    public function testIsHit() {
+    public function testIsHit(): void {
         $this->assertFalse($this->object->isHit());
 
         $hit = new HitItem('foo', 'bar');

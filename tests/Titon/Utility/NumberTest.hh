@@ -1,11 +1,11 @@
-<?hh
+<?hh // strict
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;
 
 class NumberTest extends TestCase {
 
-    public function testBytesFrom() {
+    public function testBytesFrom(): void {
         $this->assertEquals('0', Number::bytesFrom(''));
         $this->assertEquals('0', Number::bytesFrom('123AB'));
 
@@ -37,7 +37,7 @@ class NumberTest extends TestCase {
         // PHPUnit blows up on higher numbers
     }
 
-    public function testBytesTo() {
+    public function testBytesTo(): void {
         $this->assertEquals('1B', Number::bytesTo(1));
         $this->assertEquals('225B', Number::bytesTo(225, 1));
         $this->assertEquals('100B', Number::bytesTo(100, 2));
@@ -65,7 +65,7 @@ class NumberTest extends TestCase {
         // PHPUnit blows up on higher numbers
     }
 
-    public function testCurrency() {
+    public function testCurrency(): void {
         $this->assertEquals('$12,345.34', Number::currency(12345.34));
         $this->assertEquals('$734.00', Number::currency(734.00));
         $this->assertEquals('$84,283.38', Number::currency(84283.384));
@@ -90,7 +90,7 @@ class NumberTest extends TestCase {
         }));
     }
 
-    public function testIn() {
+    public function testIn(): void {
         $this->assertTrue(Number::in(5, 1, 10));
         $this->assertTrue(Number::in(6, 1, 10));
         $this->assertTrue(Number::in(3.3, 1, 10));
@@ -98,28 +98,28 @@ class NumberTest extends TestCase {
         $this->assertFalse(Number::in(0, 1, 10));
     }
 
-    public function testIsEven() {
+    public function testIsEven(): void {
         $this->assertTrue(Number::isEven(2));
         $this->assertTrue(Number::isEven(88));
         $this->assertFalse(Number::isEven(9));
         $this->assertFalse(Number::isEven(17));
     }
 
-    public function testIsNegative() {
+    public function testIsNegative(): void {
         $this->assertTrue(Number::isNegative(-1));
         $this->assertTrue(Number::isNegative(-384));
         $this->assertFalse(Number::isNegative(0));
         $this->assertFalse(Number::isNegative(34));
     }
 
-    public function testIsOdd() {
+    public function testIsOdd(): void {
         $this->assertFalse(Number::isOdd(2));
         $this->assertFalse(Number::isOdd(88));
         $this->assertTrue(Number::isOdd(9));
         $this->assertTrue(Number::isOdd(17));
     }
 
-    public function testIsPositive() {
+    public function testIsPositive(): void {
         $this->assertTrue(Number::isPositive(343));
         $this->assertTrue(Number::isPositive(79));
         $this->assertTrue(Number::isPositive(0));
@@ -127,32 +127,32 @@ class NumberTest extends TestCase {
         $this->assertFalse(Number::isPositive(-1));
     }
 
-    public function testLimit() {
+    public function testLimit(): void {
         $this->assertEquals(100, Number::limit(125, 50, 100));
         $this->assertEquals(50, Number::limit(45, 50, 100));
         $this->assertEquals(77, Number::limit(77, 50, 100));
     }
 
-    public function testMin() {
+    public function testMin(): void {
         $this->assertEquals(50, Number::min(12, 50));
         $this->assertEquals(55, Number::min(55, 50));
         $this->assertEquals(123, Number::min(123, 50));
     }
 
-    public function testMax() {
+    public function testMax(): void {
         $this->assertEquals(-15, Number::max(-15, 50));
         $this->assertEquals(12, Number::max(12, 50));
         $this->assertEquals(50, Number::max(55, 50));
         $this->assertEquals(50, Number::max(123, 50));
     }
 
-    public function testOut() {
+    public function testOut(): void {
         $this->assertTrue(Number::out(15, 5, 10));
         $this->assertTrue(Number::out(3, 5, 10));
         $this->assertFalse(Number::out(8, 5, 10));
     }
 
-    public function testPercentage() {
+    public function testPercentage(): void {
         $this->assertEquals('123%', Number::percentage(123, Map {'places' => 0}));
         $this->assertEquals('4,546%', Number::percentage(4546, Map {'places' => 0}));
         $this->assertEquals('92,378,453%', Number::percentage(92378453, Map {'places' => 0}));
@@ -168,7 +168,7 @@ class NumberTest extends TestCase {
         }));
     }
 
-    public function testPrecision() {
+    public function testPrecision(): void {
         $this->assertEquals('345654.00', Number::precision(345654));
         $this->assertEquals('345654.0', Number::precision(345654, 1));
         $this->assertEquals('345654', Number::precision(345654, 0));
@@ -178,7 +178,7 @@ class NumberTest extends TestCase {
         $this->assertEquals('7483.986', Number::precision(7483.9858, 3));
     }
 
-    public function testSignum() {
+    public function testSignum(): void {
         $this->assertEquals(-1, Number::signum(-1));
         $this->assertEquals(-1, Number::signum(-34));
         $this->assertEquals(-1, Number::signum(-9459334));
@@ -192,28 +192,28 @@ class NumberTest extends TestCase {
         $this->assertEquals(1, Number::signum(45454));
     }
 
-    public function testToBinary() {
+    public function testToBinary(): void {
         $this->assertEquals(10011010010, Number::toBinary(10011010010, Number::BINARY));
         $this->assertEquals(10011010010, Number::toBinary(2322, Number::OCTAL));
         $this->assertEquals(10011010010, Number::toBinary(1234, Number::DECIMAL));
         $this->assertEquals(10011010010, Number::toBinary('4d2', Number::HEX));
     }
 
-    public function testToDecimal() {
+    public function testToDecimal(): void {
         $this->assertEquals(1234, Number::toDecimal(10011010010, Number::BINARY));
         $this->assertEquals(1234, Number::toDecimal(2322, Number::OCTAL));
         $this->assertEquals(1234, Number::toDecimal(1234, Number::DECIMAL));
         $this->assertEquals(1234, Number::toDecimal('4d2', Number::HEX));
     }
 
-    public function testToHex() {
+    public function testToHex(): void {
         $this->assertEquals('4d2', Number::toHex(10011010010, Number::BINARY));
         $this->assertEquals('4d2', Number::toHex(2322, Number::OCTAL));
         $this->assertEquals('4d2', Number::toHex(1234, Number::DECIMAL));
         $this->assertEquals('4d2', Number::toHex('4d2', Number::HEX));
     }
 
-    public function testToOctal() {
+    public function testToOctal(): void {
         $this->assertEquals(2322, Number::toOctal(10011010010, Number::BINARY));
         $this->assertEquals(2322, Number::toOctal(2322, Number::OCTAL));
         $this->assertEquals(2322, Number::toOctal(1234, Number::DECIMAL));

@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Debug;
 
 use Titon\Annotation\WiresAnnotations;
@@ -7,7 +7,7 @@ use Titon\Annotation\WiresAnnotations;
 class DeprecatedClassStub {
     use WiresAnnotations;
 
-    public function __construct() {
+    public function __construct(): void {
         $this->wireClassAnnotation('Deprecated');
     }
 }

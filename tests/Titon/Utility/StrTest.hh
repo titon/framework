@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Utility;
 
 use Titon\Test\TestCase;
@@ -8,7 +8,7 @@ class StrTest extends TestCase {
     protected $string = 'Titon: A PHP Modular Framework';
     protected $lipsum = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eget tellus nibh.';
 
-    public function testCharAt() {
+    public function testCharAt(): void {
         $this->assertEquals('T', Str::charAt('Titon', 0));
         $this->assertEquals('i', Str::charAt('Titon', 1));
         $this->assertEquals('t', Str::charAt('Titon', 2));
@@ -18,7 +18,7 @@ class StrTest extends TestCase {
         $this->assertEquals(null, Str::charAt('Titon', -1));
     }
 
-    public function testCompare() {
+    public function testCompare(): void {
         $this->assertEquals('0', Str::compare('foo', 'foo'));
 
         $this->assertLessThan('0', Str::compare('foo', 'Foobar'));
@@ -28,7 +28,7 @@ class StrTest extends TestCase {
         $this->assertGreaterThan('0', Str::compare('foobar', 'Foo', 5));
     }
 
-    public function testContains() {
+    public function testContains(): void {
         $this->assertTrue(Str::contains($this->string, 'Titon'));
         $this->assertFalse(Str::contains($this->string, 'Zend'));
 
@@ -39,7 +39,7 @@ class StrTest extends TestCase {
         $this->assertFalse(Str::contains($this->string, 'Titon', true, 5));
     }
 
-    public function testEndsWith() {
+    public function testEndsWith(): void {
         $this->assertTrue(Str::endsWith($this->string, 'work'));
         $this->assertFalse(Str::endsWith($this->string, 'works'));
 
@@ -48,7 +48,7 @@ class StrTest extends TestCase {
         $this->assertFalse(Str::endsWith($this->string, 'WORKS', false));
     }
 
-    public function testExtract() {
+    public function testExtract(): void {
         $this->assertEquals('Titon: A PHP Modular Framework', Str::extract($this->string, 0));
         $this->assertEquals('Titon', Str::extract($this->string, 0, 5));
         $this->assertEquals('Framework', Str::extract($this->string, -9));
@@ -56,7 +56,7 @@ class StrTest extends TestCase {
         $this->assertEquals('Modular', Str::extract($this->string, 13, 7));
     }
 
-    public function testGenerate() {
+    public function testGenerate(): void {
         $this->assertNotEquals('ABCDEFGHIJ', Str::generate(10));
         $this->assertTrue(strlen(Str::generate(10)) == 10);
 
@@ -67,7 +67,7 @@ class StrTest extends TestCase {
         $this->assertTrue(strlen(Str::generate(5)) == 5);
     }
 
-    public function testIndexOf() {
+    public function testIndexOf(): void {
         $this->assertEquals(0, Str::indexOf($this->string, 'T'));
         $this->assertEquals(2, Str::indexOf($this->string, 't'));
         $this->assertEquals(7, Str::indexOf($this->string, 'A'));
@@ -86,7 +86,7 @@ class StrTest extends TestCase {
         $this->assertEquals(14, Str::indexOf($this->string, 'o', true, 5));
     }
 
-    public function testInsert() {
+    public function testInsert(): void {
         $this->assertEquals('Titon is the best PHP framework around!', Str::insert('{framework} is the best {lang} framework around!', Map {
             'framework' => 'Titon',
             'lang' => 'PHP'
@@ -101,7 +101,7 @@ class StrTest extends TestCase {
         }));
     }
 
-    public function testLastIndexOf() {
+    public function testLastIndexOf(): void {
         $this->assertEquals(0, Str::lastIndexOf($this->string, 'T'));
         $this->assertEquals(2, Str::lastIndexOf($this->string, 't'));
         $this->assertEquals(7, Str::lastIndexOf($this->string, 'A'));
@@ -121,7 +121,7 @@ class StrTest extends TestCase {
         $this->assertEquals(27, Str::lastIndexOf($this->string, 'o', true, 5));
     }
 
-    public function testListing() {
+    public function testListing(): void {
         $this->assertEquals('red, blue &amp; green', Str::listing(Vector {'red', 'blue', 'green'}));
         $this->assertEquals('red &amp; green', Str::listing(Vector {'red', 'green'}));
         $this->assertEquals('blue', Str::listing(Vector {'blue'}));
@@ -132,7 +132,7 @@ class StrTest extends TestCase {
         $this->assertEquals('red - blue and green', Str::listing(Vector {'red', 'blue', 'green'}, ' and ', ' - '));
     }
 
-    public function testShorten() {
+    public function testShorten(): void {
         $this->assertEquals('Lorem &hellip; nibh.', Str::shorten($this->lipsum, 10));
         $this->assertEquals('Lorem ipsum &hellip; tellus nibh.', Str::shorten($this->lipsum, 25));
         $this->assertEquals('Lorem ipsum dolor sit &hellip; Morbi eget tellus nibh.', Str::shorten($this->lipsum, 50));
@@ -142,7 +142,7 @@ class StrTest extends TestCase {
         $this->assertEquals('Lorem ... nibh.', Str::shorten($this->lipsum, 10, ' ... '));
     }
 
-    public function testStartsWith() {
+    public function testStartsWith(): void {
         $this->assertTrue(Str::startsWith($this->string, 'Titon'));
         $this->assertFalse(Str::startsWith($this->string, 'Titan'));
 
@@ -151,7 +151,7 @@ class StrTest extends TestCase {
         $this->assertFalse(Str::startsWith($this->string, 'TITAN', false));
     }
 
-    public function testTruncate() {
+    public function testTruncate(): void {
         $string = 'This has <a href="/" class="link">anchor tags</a> &amp; entities in it. It has &quot;quotes&quot; as well.';
 
         // Preserve HTML and word
@@ -190,7 +190,7 @@ class StrTest extends TestCase {
         $this->assertEquals('This has [url="/"]anchor tags[/url] &amp; entities in it. It has &quot;quotes&quot; as well.', Str::truncate($string, 0, Map {'open' => '[', 'close' => ']'}));
     }
 
-    public function testUuid() {
+    public function testUuid(): void {
         $this->assertRegExp('/^[a-f0-9]{8}\-[a-f0-9]{4}\-4[a-f0-9]{3}\-[89AB]{1}[a-f0-9]{3}\-[a-f0-9]{12}$/i', Str::uuid());
         $this->assertRegExp('/^[a-f0-9]{8}\-[a-f0-9]{4}\-4[a-f0-9]{3}\-[89AB]{1}[a-f0-9]{3}\-[a-f0-9]{12}$/i', Str::uuid());
         $this->assertRegExp('/^[a-f0-9]{8}\-[a-f0-9]{4}\-4[a-f0-9]{3}\-[89AB]{1}[a-f0-9]{3}\-[a-f0-9]{12}$/i', Str::uuid());

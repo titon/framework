@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
@@ -6,7 +6,7 @@ use Titon\Test\TestCase;
 
 class XmlResponseTest extends TestCase {
 
-    public function testSend() {
+    public function testSend(): void {
         $time = time();
         $response = new XmlResponse(['foo' => 'bar']);
         $response->debug();
@@ -32,7 +32,7 @@ class XmlResponseTest extends TestCase {
         , $body);
     }
 
-    public function testRoot() {
+    public function testRoot(): void {
         $time = time();
         $response = new XmlResponse(['foo' => 'bar'], 200, 'data');
         $response->debug();

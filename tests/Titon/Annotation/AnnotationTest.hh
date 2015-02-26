@@ -1,11 +1,11 @@
-<?hh
+<?hh // strict
 namespace Titon\Annotation;
 
 use Titon\Test\TestCase;
 
 class AnnotationTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         Registry::map('Foo', 'Titon\Test\Stub\Annotation\FooAnnotationStub');
@@ -13,7 +13,7 @@ class AnnotationTest extends TestCase {
         Registry::map('Baz', 'Titon\Test\Stub\Annotation\BazAnnotationStub');
     }
 
-    public function testGetSetName() {
+    public function testGetSetName(): void {
         $anno = new Annotation();
 
         $this->assertEquals('', $anno->getName());

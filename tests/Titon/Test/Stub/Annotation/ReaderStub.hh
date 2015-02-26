@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Annotation;
 
 <<Foo, Bar('abc', 123)>>

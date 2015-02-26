@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Http\Server;
 
 use Titon\Http\Http;
@@ -7,7 +7,7 @@ use Titon\Utility\State\Server;
 
 class DownloadResponseTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->setupVFS();
@@ -18,20 +18,20 @@ class DownloadResponseTest extends TestCase {
     /**
      * @expectedException \Titon\Common\Exception\MissingFileException
      */
-    public function testMissingFileErrors() {
+    public function testMissingFileErrors(): void {
         new DownloadResponse($this->vfs->path('/http/download-missing.txt'));
     }
 
     /**
      * @expectedException \Titon\Http\Exception\InvalidFileException
      */
-    public function testUnwritableFileErrors() {
+    public function testUnwritableFileErrors(): void {
         $this->vfs->createFile('/http/download-unwritable.txt', '')->chmod(0300);
 
         new DownloadResponse($this->vfs->path('/http/download-unwritable.txt'));
     }
 
-    public function testSend() {
+    public function testSend(): void {
         $time = time();
         $response = new DownloadResponse($this->vfs->path('/http/download.txt'));
         $response->prepare(Request::createFromGlobals());
@@ -55,7 +55,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('This will be downloaded! Let\'s fluff this file with even more data to increase the file size.', $body);
     }
 
-    public function testSendNoType() {
+    public function testSendNoType(): void {
         $this->vfs->createFile('/http/download', 'This will be downloaded! Let\'s fluff this file with even more data to increase the file size.');
 
         $time = time();
@@ -81,7 +81,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('This will be downloaded! Let\'s fluff this file with even more data to increase the file size.', $body);
     }
 
-    public function testSendConfig() {
+    public function testSendConfig(): void {
         $time = time();
         $response = Response::download($this->vfs->path('/http/download.txt'), 'custom-filename.txt', true, true);
         $response->prepare(Request::createFromGlobals());
@@ -107,7 +107,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('This will be downloaded! Let\'s fluff this file with even more data to increase the file size.', $body);
     }
 
-    public function testFileRange() {
+    public function testFileRange(): void {
         $_SERVER['HTTP_RANGE'] = 'bytes=0-5';
         Server::initialize($_SERVER);
 
@@ -123,7 +123,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals('bytes 0-5/93', $response->getHeader('Content-Range'));
     }
 
-    public function testInvalidFileRange() {
+    public function testInvalidFileRange(): void {
         $_SERVER['HTTP_RANGE'] = 'bytes=5-3';
         Server::initialize($_SERVER);
 
@@ -139,7 +139,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals(null, $response->getHeader('Content-Range'));
     }
 
-    public function testSetFileRange() {
+    public function testSetFileRange(): void {
         $_SERVER['HTTP_RANGE'] = 'bytes=0-19';
         Server::initialize($_SERVER);
 
@@ -199,7 +199,7 @@ class DownloadResponseTest extends TestCase {
         $this->assertEquals(416, $response->getStatusCode());
     }
 
-    public function testSetFileRangeIfRange() {
+    public function testSetFileRangeIfRange(): void {
         $_SERVER['HTTP_RANGE'] = 'bytes=0-19';
         $_SERVER['HTTP_IF_RANGE'] = 'ETAG';
         $_SERVER['HTTP_ETAG'] = 'ETAG';

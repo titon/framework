@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Common;
 
 use Titon\Test\TestCase;
@@ -10,28 +10,28 @@ use Titon\Utility\Path;
 
 class MacroableTest extends TestCase {
 
-    public function testHasMacro() {
+    public function testHasMacro(): void {
         $this->assertFalse(Number::hasMacro('toBinary'));
         $this->assertFalse(Number::hasMacro('toFloat'));
 
-        Number::macro('toFloat', function() {});
+        Number::macro('toFloat', function(): void {});
 
         $this->assertFalse(Number::hasMacro('toBinary'));
         $this->assertTrue(Number::hasMacro('toFloat'));
     }
 
-    public function testInheritance() {
+    public function testInheritance(): void {
         $this->assertFalse(Format::hasMacro('foobar'));
         $this->assertFalse(Path::hasMacro('foobar'));
 
-        Format::macro('foobar', function() {});
+        Format::macro('foobar', function(): void {});
 
         $this->assertTrue(Format::hasMacro('foobar'));
         $this->assertFalse(Path::hasMacro('foobar'));
     }
 
-    public function testMacro() {
-        Inflector::macro('caps', function($value) {
+    public function testMacro(): void {
+        Inflector::macro('caps', function($value): void {
             return strtoupper($value);
         });
 
@@ -41,16 +41,16 @@ class MacroableTest extends TestCase {
     /**
      * @expectedException \Titon\Common\Exception\MissingMacroException
      */
-    public function testMacroMissing() {
+    public function testMacroMissing(): void {
         Inflector::lowers('foObAr');
     }
 
-    public function testGetMacros() {
-        $lower = function($value) {
+    public function testGetMacros(): void {
+        $lower = function($value): void {
             return strtolower($value);
         };
 
-        $upper = function($value) {
+        $upper = function($value): void {
             return strtoupper($value);
         };
 

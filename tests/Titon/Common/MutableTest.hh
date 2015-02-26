@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Common;
 
 use Titon\Test\Stub\Common\MutableStub;
@@ -9,13 +9,13 @@ use Titon\Test\TestCase;
  */
 class MutableTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new MutableStub();
     }
 
-    public function testAddAll() {
+    public function testAddAll(): void {
         $this->object->set('foo', 'bar');
 
         $this->assertEquals(Map {'foo' => 'bar'}, $this->object->all());
@@ -31,7 +31,7 @@ class MutableTest extends TestCase {
         }, $this->object->all());
     }
 
-    public function testFlush() {
+    public function testFlush(): void {
         $this->object->set('foo', 'bar');
 
         $this->assertEquals(Map {'foo' => 'bar'}, $this->object->all());
@@ -41,7 +41,7 @@ class MutableTest extends TestCase {
         $this->assertEquals(Map {}, $this->object->all());
     }
 
-    public function testGet() {
+    public function testGet(): void {
         $this->object->set('foo', 'bar');
 
         $this->assertEquals('bar', $this->object->get('foo'));
@@ -50,7 +50,7 @@ class MutableTest extends TestCase {
         $this->assertEquals('default', $this->object->get('missing', 'default'));
     }
 
-    public function testHasRemove() {
+    public function testHasRemove(): void {
         $this->object->set('foo', 'bar');
         $this->object->set('key', 'value');
 
@@ -64,7 +64,7 @@ class MutableTest extends TestCase {
         $this->assertFalse(isset($this->object->key));
     }
 
-    public function testSet() {
+    public function testSet(): void {
         $this->object->set('a', 1);
         $this->object->b = 2;
         $this->object->c = 3;

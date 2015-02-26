@@ -1,4 +1,4 @@
-<?hh
+<?hh // strict
 namespace Titon\Test\Stub\Context;
 
 use Titon\Context\ClassList;
@@ -10,7 +10,7 @@ class FooServiceProviderStub extends AbstractServiceProvider {
         'Titon\Test\Stub\Context\FooStub'
     };
 
-    public function register() {
+    public function register(): void {
         $this->depository->register('foo', 'Titon\Test\Stub\Context\FooStub');
     }
 

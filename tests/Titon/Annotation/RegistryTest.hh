@@ -1,11 +1,11 @@
-<?hh
+<?hh // strict
 namespace Titon\Annotation;
 
 use Titon\Test\TestCase;
 
 class RegistryTest extends TestCase {
 
-    public function testMapAndFactory() {
+    public function testMapAndFactory(): void {
         $annotation = Registry::factory('Bar', ['This is the message!']);
 
         $this->assertInstanceOf('Titon\Annotation\Annotation', $annotation);
@@ -17,18 +17,18 @@ class RegistryTest extends TestCase {
     /**
      * @expectedException \Titon\Annotation\Exception\InvalidClassException
      */
-    public function testMapThrowsException() {
+    public function testMapThrowsException(): void {
         Registry::map('Qux', 'Titon\Annotation\Reader');
     }
 
     /**
      * @expectedException \Titon\Annotation\Exception\MissingAnnotationException
      */
-    public function testFactoryThrowsException() {
+    public function testFactoryThrowsException(): void {
         Registry::factory('Qux', []);
     }
 
-    public function testArgsArePassedToAnnotation() {
+    public function testArgsArePassedToAnnotation(): void {
         $bar = Registry::factory('Bar', ['abc']);
 
         $this->assertEquals('abc', $bar->string);

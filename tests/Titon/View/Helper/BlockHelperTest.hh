@@ -8,13 +8,13 @@ use Titon\Test\TestCase;
  */
 class BlockHelperTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new BlockHelper();
     }
 
-    public function testGetSetHas() {
+    public function testGetSetHas(): void {
         $this->assertFalse($this->object->has('block'));
         $this->assertEquals(null, $this->object->get('block'));
 
@@ -24,7 +24,7 @@ class BlockHelperTest extends TestCase {
         $this->assertEquals('contents', $this->object->get('block'));
     }
 
-    public function testAppendPrepend() {
+    public function testAppendPrepend(): void {
         $this->object->set('block', 'contents');
         $this->assertEquals('contents', $this->object->get('block'));
 
@@ -44,7 +44,7 @@ class BlockHelperTest extends TestCase {
         $this->assertTrue($this->object->has('block3'));
     }
 
-    public function testCapture() {
+    public function testCapture(): void {
         $this->assertEquals('', $this->object->get('block'));
 
         $this->object->start('block');
@@ -54,7 +54,7 @@ class BlockHelperTest extends TestCase {
         $this->assertEquals('foobar', $this->object->get('block'));
     }
 
-    public function testCaptureStateDetection() {
+    public function testCaptureStateDetection(): void {
         $this->object->start('block');
         $this->assertEquals('block', $this->object->active());
 
@@ -72,7 +72,7 @@ class BlockHelperTest extends TestCase {
         $this->assertEquals('whatwhat', $this->object->get('block'));
     }
 
-    public function testNestedCapture() {
+    public function testNestedCapture(): void {
         $this->object->start('first');
         echo 1;
         $this->object->start('second');
@@ -85,7 +85,7 @@ class BlockHelperTest extends TestCase {
         $this->assertEquals('2', $this->object->get('second'));
     }
 
-    public function testParentCapture() {
+    public function testParentCapture(): void {
         $this->object->start('block');
         echo 'PARENT';
         $this->object->stop();
@@ -97,7 +97,7 @@ class BlockHelperTest extends TestCase {
         $this->assertEquals('CHILD PARENT CHILD', $this->object->get('block'));
     }
 
-    public function testCaptureShow() {
+    public function testCaptureShow(): void {
         $this->object->start('block');
         echo 'foobar';
         $contents = $this->object->show();
@@ -105,7 +105,7 @@ class BlockHelperTest extends TestCase {
         $this->assertEquals('foobar', $contents);
     }
 
-    public function testStop() {
+    public function testStop(): void {
         $this->object->start('block');
         echo 'foobar';
         $this->object->stop();

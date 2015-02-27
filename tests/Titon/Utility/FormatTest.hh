@@ -5,27 +5,27 @@ use Titon\Test\TestCase;
 
 class FormatTest extends TestCase {
 
-    public function testAtom() {
+    public function testAtom(): void {
         $time = mktime(16, 35, 0, 2, 26, 1988);
 
         $this->assertEquals('1988-02-26T16:35:00+00:00', Format::atom($time));
     }
 
-    public function testDate() {
+    public function testDate(): void {
         $time = mktime(16, 35, 0, 2, 26, 1988);
 
         $this->assertEquals('1988-02-26', Format::date($time));
         $this->assertEquals('02/26/1988', Format::date($time, '%m/%d/%Y'));
     }
 
-    public function testDatetime() {
+    public function testDatetime(): void {
         $time = mktime(16, 35, 0, 2, 26, 1988);
 
         $this->assertEquals('1988-02-26 16:35:00', Format::datetime($time));
         $this->assertEquals('02/26/1988 04:35PM', Format::datetime($time, '%m/%d/%Y %I:%M%p'));
     }
 
-    public function testFormat() {
+    public function testFormat(): void {
         $this->assertEquals('(123) 456', Format::format('1234567890', '(###) ###'));
         $this->assertEquals('(123) 456-7890', Format::format('1234567890', '(###) ###-####'));
         $this->assertEquals('(123) 456-####', Format::format('123456', '(###) ###-####'));
@@ -44,13 +44,13 @@ class FormatTest extends TestCase {
         $this->assertEquals('3772-3483-0461-4543', Format::format('377234830461454313', '####-####-####-####'));
     }
 
-    public function testHttp() {
+    public function testHttp(): void {
         $time = mktime(16, 35, 0, 2, 26, 1988);
 
         $this->assertEquals('Fri, 26 Feb 1988 16:35:00 GMT', Format::http($time));
     }
 
-    public function testPhone() {
+    public function testPhone(): void {
         $formats = Map {
             7 => '###-####',
             10 => '(###) ###-####',
@@ -62,7 +62,7 @@ class FormatTest extends TestCase {
         $this->assertEquals('1 (888) 666-1337', Format::phone('+1 8886661337', $formats));
     }
 
-    public function testRelativeTime() {
+    public function testRelativeTime(): void {
         $time = mktime(16, 35, 0, 2, 26, 2012);
 
         // Current
@@ -102,17 +102,17 @@ class FormatTest extends TestCase {
         }));
     }
 
-    public function testRss() {
+    public function testRss(): void {
         $time = mktime(16, 35, 0, 2, 26, 1988);
 
         $this->assertEquals('Fri, 26 Feb 1988 16:35:00 +0000', Format::rss($time));
     }
 
-    public function testSsn() {
+    public function testSsn(): void {
         $this->assertEquals('998-29-3841', Format::ssn('998293841', '###-##-####'));
     }
 
-    public function testTime() {
+    public function testTime(): void {
         $time = mktime(16, 35, 0, 2, 26, 1988);
 
         $this->assertEquals('16:35:00', Format::time($time));

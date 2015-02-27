@@ -5,7 +5,7 @@ use Titon\Test\TestCase;
 
 class PostTest extends TestCase {
 
-    public function testClass() {
+    public function testClass(): void {
         $_POST = [
             'foo' => 123,
             'bar' => 'abc',

@@ -7,13 +7,13 @@ class ValidateTest extends TestCase {
 
     protected $image;
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->image = TEMP_DIR . '/utility/image.jpg';
     }
 
-    public function testAlpha() {
+    public function testAlpha(): void {
         $this->assertTrue(Validate::alpha('ahjsNKHAShksdnASQfgd'));
         $this->assertTrue(Validate::alpha('asdnasdsd.dfsdfdfsdfs;', '.;'));
 
@@ -22,7 +22,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::alpha('pkmpwij*39@0'));
     }
 
-    public function testAlphaNumeric() {
+    public function testAlphaNumeric(): void {
         $this->assertTrue(Validate::alphaNumeric('ahjsNKHAShksdnASQfgd'));
         $this->assertTrue(Validate::alphaNumeric('asdnasdsd.dfsdfdfsdfs;', '.;'));
         $this->assertTrue(Validate::alphaNumeric('asdjn1803201'));
@@ -31,14 +31,14 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::alphaNumeric('pkmpwij*39@0'));
     }
 
-    public function testBetween() {
+    public function testBetween(): void {
         $this->assertTrue(Validate::between('This is just the right length', 10, 30));
 
         $this->assertFalse(Validate::between('This is far too long because its more than 30 characters', 10, 30));
         $this->assertFalse(Validate::between('Too short', 10, 30));
     }
 
-    public function testBoolean() {
+    public function testBoolean(): void {
         $this->assertTrue(Validate::boolean(true));
         $this->assertTrue(Validate::boolean(false));
         $this->assertTrue(Validate::boolean(0));
@@ -52,17 +52,13 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::boolean('abc'));
     }
 
-    public function testCallback() {
-        $this->assertTrue(Validate::callback('123', function($value) {
-            return is_numeric($value);
-        }));
+    public function testCallback(): void {
+        $this->assertTrue(Validate::callback('123', ($value) ==> is_numeric($value)));
 
-        $this->assertFalse(Validate::callback('123abc', function($value) {
-            return is_numeric($value);
-        }));
+        $this->assertFalse(Validate::callback('123abc', ($value) ==> is_numeric($value)));
     }
 
-    public function testComparison() {
+    public function testComparison(): void {
         $this->assertTrue(Validate::comparison(15, 10, '>'));
         $this->assertFalse(Validate::comparison(5, 10, 'gt'));
 
@@ -85,11 +81,11 @@ class ValidateTest extends TestCase {
     /**
      * @expectedException \Titon\Common\Exception\InvalidArgumentException
      */
-    public function testComparisonInvalidOperator() {
+    public function testComparisonInvalidOperator(): void {
         Validate::comparison(10, 10, '><');
     }
 
-    public function testCreditCard() {
+    public function testCreditCard(): void {
         $this->assertTrue(Validate::creditCard('4916933155767'));
         $this->assertFalse(Validate::creditCard('2346533'));
 
@@ -163,11 +159,11 @@ class ValidateTest extends TestCase {
     /**
      * @expectedException \Titon\Utility\Exception\InvalidCreditCardException
      */
-    public function testCreditCardInvalidType() {
+    public function testCreditCardInvalidType(): void {
         Validate::creditCard('6334768185398134', 'fakeCard');
     }
 
-    public function testCurrency() {
+    public function testCurrency(): void {
         $this->assertTrue(Validate::currency('$1,000.00'));
         $this->assertTrue(Validate::currency('$343'));
         $this->assertTrue(Validate::currency('$193,482.33'));
@@ -178,12 +174,12 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::currency('$1923.2'));
     }
 
-    public function testCustom() {
+    public function testCustom(): void {
         $this->assertTrue(Validate::custom('abcdef', '/^abc/'));
         $this->assertFalse(Validate::custom('abcdef', '/abc$/'));
     }
 
-    public function testDate() {
+    public function testDate(): void {
         $this->assertTrue(Validate::date('2012-05-25'));
         $this->assertTrue(Validate::date('1946-09-11 12:03:43'));
         $this->assertTrue(Validate::date('March 25th 1993'));
@@ -192,7 +188,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::date('May 40th 2054'));
     }
 
-    public function testDecimal() {
+    public function testDecimal(): void {
         $this->assertTrue(Validate::decimal('2923.23'));
         $this->assertTrue(Validate::decimal('1454.04'));
         $this->assertTrue(Validate::decimal('849383.938', 3));
@@ -208,7 +204,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::decimal('849383.74235', 3));
     }
 
-    public function testDimensions() {
+    public function testDimensions(): void {
         $this->assertTrue(Validate::dimensions($this->image, 'width', 200));
         $this->assertTrue(Validate::dimensions($this->image, 'height', 267));
         $this->assertFalse(Validate::dimensions($this->image, 'foobar', 267));
@@ -217,7 +213,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::dimensions(['tmp_name' => 'fake.jpg', 'error' => 0], 'height', 267));
     }
 
-    public function testEmail() {
+    public function testEmail(): void {
         $this->assertTrue(Validate::email('email@titon.com', false));
         $this->assertTrue(Validate::email('email@sub.titon.com', false));
         $this->assertTrue(Validate::email('email+group@titon.com', false));
@@ -233,7 +229,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::email('email@somereallyfakedomain.com', true));
     }
 
-    public function testEqual() {
+    public function testEqual(): void {
         $this->assertTrue(Validate::equal('1', 1));
         $this->assertTrue(Validate::equal('abc', 'abc'));
         $this->assertTrue(Validate::equal(true, 1));
@@ -243,7 +239,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::equal(true, false));
     }
 
-    public function testExact() {
+    public function testExact(): void {
         $this->assertTrue(Validate::exact(1, 1));
         $this->assertTrue(Validate::exact('abc', 'abc'));
         $this->assertTrue(Validate::exact(true, true));
@@ -252,7 +248,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::exact(true, 1));
     }
 
-    public function testExt() {
+    public function testExt(): void {
         $this->assertTrue(Validate::ext('image.gif'));
         $this->assertTrue(Validate::ext('image.jpeg'));
         $this->assertTrue(Validate::ext('doc.pdf', Vector {'pdf'}));
@@ -263,11 +259,11 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::ext('web.XML', Vector {'html', 'xhtml'}));
     }
 
-    public function testExtFile() {
+    public function testExtFile(): void {
         $this->assertTrue(Validate::ext(['name' => 'image.gif', 'error' => 0, 'type' => 'image/gif']));
     }
 
-    public function testFile() {
+    public function testFile(): void {
         $this->assertTrue(Validate::file([
             'name' => 'file1.jpg',
             'type' => 'image/jpeg',
@@ -286,12 +282,12 @@ class ValidateTest extends TestCase {
         ]));
     }
 
-    public function testHeight() {
+    public function testHeight(): void {
         $this->assertTrue(Validate::height($this->image, 267));
         $this->assertFalse(Validate::height($this->image, 233));
     }
 
-    public function testInList() {
+    public function testInList(): void {
         $this->assertTrue(Validate::inList(1, Vector {1, '1', 'c'}));
         $this->assertTrue(Validate::inList('foo', Vector {'foo', 'BAR', 'wtf'}));
 
@@ -299,14 +295,14 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::inList('test', Vector {'foo', 'BAR', 'wtf'}));
     }
 
-    public function testInRange() {
+    public function testInRange(): void {
         $this->assertTrue(Validate::inRange(20, 10, 30));
 
         $this->assertFalse(Validate::inRange(35, 10, 30));
         $this->assertFalse(Validate::inRange(5, 10, 30));
     }
 
-    public function testIp() {
+    public function testIp(): void {
         // both v4 and v6
         $this->assertTrue(Validate::ip('0.0.0.0'));
         $this->assertTrue(Validate::ip('192.168.1.156'));
@@ -360,7 +356,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::ip('255.255.255.255', Validate::IPV6));
     }
 
-    public function testLuhn() {
+    public function testLuhn(): void {
         $this->assertTrue(Validate::luhn('370482756063980')); // American Express
         $this->assertTrue(Validate::luhn('5610745867413420')); // BankCard
         $this->assertTrue(Validate::luhn('30155483651028')); // Diners Club 14
@@ -387,7 +383,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::luhn('869940697287173'));
     }
 
-    public function testMimeType() {
+    public function testMimeType(): void {
         $this->assertTrue(Validate::mimeType($this->image, Vector {'image/jpeg', 'image/jpg'}));
         $this->assertFalse(Validate::mimeType($this->image, Vector {'image/gif'}));
 
@@ -395,7 +391,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::mimeType(['tmp_name' => 'fake.jpg', 'error' => 0], Vector {'image/gif'}));
     }
 
-    public function testMinFilesize() {
+    public function testMinFilesize(): void {
         $this->assertTrue(Validate::minFilesize($this->image, 13437));
         $this->assertTrue(Validate::minFilesize(['tmp_name' => $this->image, 'error' => 0, 'size' => 13437], 10000));
         $this->assertFalse(Validate::minFilesize($this->image, 15000));
@@ -403,26 +399,26 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::minFilesize('fake.jpg', 13458));
     }
 
-    public function testMinHeight() {
+    public function testMinHeight(): void {
         $this->assertTrue(Validate::minHeight($this->image, 267));
         $this->assertTrue(Validate::minHeight($this->image, 255));
         $this->assertFalse(Validate::minHeight($this->image, 300));
         $this->assertFalse(Validate::minHeight($this->image, 268));
     }
 
-    public function testMinLength() {
+    public function testMinLength(): void {
         $this->assertTrue(Validate::minLength('This string is enough', 20));
         $this->assertFalse(Validate::minLength('This is too short', 20));
     }
 
-    public function testMinWidth() {
+    public function testMinWidth(): void {
         $this->assertTrue(Validate::minWidth($this->image, 200));
         $this->assertTrue(Validate::minWidth($this->image, 155));
         $this->assertFalse(Validate::minWidth($this->image, 215));
         $this->assertFalse(Validate::minWidth($this->image, 355));
     }
 
-    public function testMaxFilesize() {
+    public function testMaxFilesize(): void {
         $this->assertTrue(Validate::maxFilesize($this->image, 13437));
         $this->assertTrue(Validate::maxFilesize(['tmp_name' => $this->image, 'error' => 0, 'size' => 13437], 15000));
         $this->assertFalse(Validate::maxFilesize($this->image, 13000));
@@ -430,26 +426,26 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::maxFilesize('fakq.jpg', 13000));
     }
 
-    public function testMaxHeight() {
+    public function testMaxHeight(): void {
         $this->assertTrue(Validate::maxHeight($this->image, 267));
         $this->assertTrue(Validate::maxHeight($this->image, 300));
         $this->assertFalse(Validate::maxHeight($this->image, 265));
         $this->assertFalse(Validate::maxHeight($this->image, 144));
     }
 
-    public function testMaxLength() {
+    public function testMaxLength(): void {
         $this->assertTrue(Validate::maxLength('This is just right', 20));
         $this->assertFalse(Validate::maxLength('This is too far too long', 20));
     }
 
-    public function testMaxWidth() {
+    public function testMaxWidth(): void {
         $this->assertTrue(Validate::maxWidth($this->image, 200));
         $this->assertTrue(Validate::maxWidth($this->image, 255));
         $this->assertFalse(Validate::maxWidth($this->image, 100));
         $this->assertFalse(Validate::maxWidth($this->image, 199));
     }
 
-    public function testNotEmpty() {
+    public function testNotEmpty(): void {
         $this->assertTrue(Validate::notEmpty('abc'));
         $this->assertTrue(Validate::notEmpty(123));
         $this->assertTrue(Validate::notEmpty(['foo', 'bar']));
@@ -462,13 +458,13 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::notEmpty(null));
     }
 
-    public function testNumeric() {
+    public function testNumeric(): void {
         $this->assertTrue(Validate::numeric('1234'));
         $this->assertTrue(Validate::numeric(456));
         $this->assertFalse(Validate::numeric('abc34f'));
     }
 
-    public function testPhone() {
+    public function testPhone(): void {
         $this->assertTrue(Validate::phone('666-1337'));
         $this->assertTrue(Validate::phone('(888)666-1337'));
         $this->assertTrue(Validate::phone('(888) 666-1337'));
@@ -481,7 +477,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::phone('666-ABMS'));
     }
 
-    public function testPostalCode() {
+    public function testPostalCode(): void {
         $this->assertTrue(Validate::postalCode('38842'));
         $this->assertTrue(Validate::postalCode('38842-0384'));
 
@@ -490,7 +486,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::postalCode('AksiS-0384'));
     }
 
-    public function testSsn() {
+    public function testSsn(): void {
         $this->assertTrue(Validate::ssn('666-10-1337'));
         $this->assertTrue(Validate::ssn('384-29-3481'));
 
@@ -500,7 +496,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::ssn('AHE-29-34P1'));
     }
 
-    public function testUuid() {
+    public function testUuid(): void {
         $this->assertTrue(Validate::uuid('a8293fde-ce92-9abe-83de-7294ab29cd03'));
 
         $this->assertFalse(Validate::uuid('a8293fde-ce92-83de-7294ab29cd03'));
@@ -508,7 +504,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::uuid('a8293kq-ce92-9abe-83de-729pdu29cd03'));
     }
 
-    public function testUrl() {
+    public function testUrl(): void {
         $this->assertTrue(Validate::url('http://titon'));
         $this->assertTrue(Validate::url('http://titon.com'));
         $this->assertTrue(Validate::url('http://titon.com?query=string'));
@@ -529,7 +525,7 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::url('www.titon.com'));
     }
 
-    public function testWidth() {
+    public function testWidth(): void {
         $this->assertTrue(Validate::width($this->image, 200));
         $this->assertFalse(Validate::width($this->image, 100));
     }

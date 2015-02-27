@@ -6,15 +6,14 @@ use Titon\Test\TestCase;
 
 class JsonWriterTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/writer');
+        $this->vfs()->createDirectory('/writer');
     }
 
-    public function testWriteResource() {
-        $path = $this->vfs->path('/writer/json.json');
+    public function testWriteResource(): void {
+        $path = $this->vfs()->path('/writer/json.json');
 
         $writer = new JsonWriter($path, true);
         $writer->writeResource(Map {

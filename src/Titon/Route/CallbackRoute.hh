@@ -9,8 +9,7 @@ namespace Titon\Route;
 
 use Titon\Route\Exception\NoMatchException;
 use \ReflectionFunction;
-
-newtype RouteCallback = (function(...): mixed);
+use \Closure;
 
 /**
  * The CallbackRoute works in a similar fashion to the default Route with the only difference being
@@ -23,17 +22,17 @@ class CallbackRoute extends Route {
     /**
      * The callback to execute during dispatch.
      *
-     * @var \Titon\Route\RouteCallback
+     * @var \Closure
      */
-    protected RouteCallback $callback;
+    protected Closure $callback;
 
     /**
      * Store the tokenized URL to match and the callback to dispatch to.
      *
      * @param string $path
-     * @param \Titon\Route\RouteCallback $callback
+     * @param \Closure $callback
      */
-    public function __construct(string $path, RouteCallback $callback) {
+    public function __construct(string $path, Closure $callback) {
         $this->callback = $callback;
 
         parent::__construct($path, 'CallbackRoute@noop');
@@ -55,19 +54,19 @@ class CallbackRoute extends Route {
     /**
      * Return the callback function.
      *
-     * @return \Titon\Route\RouteCallback
+     * @return \Closure
      */
-    public function getCallback(): RouteCallback {
+    public function getCallback(): Closure {
         return $this->callback;
     }
 
     /**
      * Set the callback function.
      *
-     * @param \Titon\Route\RouteCallback $callback
+     * @param \Closure $callback
      * @return $this
      */
-    public function setCallback(RouteCallback $callback): this {
+    public function setCallback(Closure $callback): this {
         $this->callback = $callback;
 
         return $this;

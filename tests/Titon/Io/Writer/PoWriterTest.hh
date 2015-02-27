@@ -6,15 +6,14 @@ use Titon\Test\TestCase;
 
 class PoWriterTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/writer');
+        $this->vfs()->createDirectory('/writer');
     }
 
-    public function testWriteResource() {
-        $path = $this->vfs->path('/writer/po.po');
+    public function testWriteResource(): void {
+        $path = $this->vfs()->path('/writer/po.po');
 
         $writer = new PoWriter($path, true);
         $writer->writeResource(Map {

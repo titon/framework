@@ -6,7 +6,7 @@ use Titon\Type\Xml\Element;
 
 class DocumentTest extends TestCase {
 
-    public function testBox() {
+    public function testBox(): void {
         $this->assertSame(123.45, Xml::box('123.45'));
         $this->assertSame(123.45, Xml::box('123.45'));
         $this->assertSame(123, Xml::box('123'));
@@ -16,7 +16,7 @@ class DocumentTest extends TestCase {
         $this->assertSame(null, Xml::box('null'));
     }
 
-    public function testUnbox() {
+    public function testUnbox(): void {
         $this->assertSame('123.45', Xml::unbox('123.45'));
         $this->assertSame('123.45', Xml::unbox(123.45));
         $this->assertSame('123', Xml::unbox('123'));
@@ -26,7 +26,7 @@ class DocumentTest extends TestCase {
         $this->assertSame('null', Xml::unbox(null));
     }
 
-    public function testFormatName() {
+    public function testFormatName(): void {
         $this->assertEquals('foo', Xml::formatName('foo'));
         $this->assertEquals('foobar', Xml::formatName('foo bar'));
         $this->assertEquals('ns:foo', Xml::formatName('ns:foo'));
@@ -37,7 +37,7 @@ class DocumentTest extends TestCase {
         $this->assertEquals('_-foo', Xml::formatName('-foo'));
     }
 
-    public function testFromMap() {
+    public function testFromMap(): void {
         $map = Map {
             'name' => 'Barbarian',
             'life' => 50,
@@ -115,7 +115,7 @@ XML;
         $this->assertEquals($this->nl($xml), Xml::fromMap('unit', $map)->toString());
     }
 
-    public function testFromMapWithAttributes() {
+    public function testFromMapWithAttributes(): void {
         $map = Map {
             'name' => 'Barbarian',
             'life' => Map {'@value' => 50},
@@ -208,7 +208,7 @@ XML;
         $this->assertEquals($this->nl($xml), Xml::fromMap('unit', $map)->toString());
     }
 
-    public function testFromMapWithCdata() {
+    public function testFromMapWithCdata(): void {
         $map = Map {
             'data' => Map {
                 '@value' => 'foobar',
@@ -232,37 +232,37 @@ XML;
         $this->assertEquals($this->nl($xml), Xml::fromMap('root', $map)->toString());
     }
 
-    public function testFromFile() {
+    public function testFromFile(): void {
         $xml = Xml::fromFile(TEMP_DIR . '/type/barbarian.xml');
 
         $expected = new Element('unit');
 
         $name = (new Element('name'))->setValue('Barbarian');
-        $life = (new Element('life', Map {'max' => 150}))->setValue('50');
-        $mana = (new Element('mana', Map {'max' => 250}))->setValue('100');
+        $life = (new Element('life', Map {'max' => '150'}))->setValue('50');
+        $mana = (new Element('mana', Map {'max' => '250'}))->setValue('100');
         $stamina = (new Element('stamina'))->setValue('15');
         $vitality = (new Element('vitality'))->setValue('20');
         $dexterity = new Element('dexterity', Map {'evade' => '5%', 'block' => '10%'});
         $agility = new Element('agility', Map {'turnRate' => '1.25', 'acceleration' => '5'});
-        $armors = new Element('armors', Map {'items' => 6});
+        $armors = new Element('armors', Map {'items' => '6'});
 
-            $armor1 = (new Element('armor', Map {'defense' => 15}))->setValue('Helmet');
-            $armor2 = (new Element('armor', Map {'defense' => 25}))->setValue('Shoulder Plates');
-            $armor3 = (new Element('armor', Map {'defense' => 50}))->setValue('Breast Plate');
-            $armor4 = (new Element('armor', Map {'defense' => 10}))->setValue('Greaves');
-            $armor5 = (new Element('armor', Map {'defense' => 10}))->setValue('Gloves');
-            $armor6 = (new Element('armor', Map {'defense' => 25}))->setValue('Shield');
+            $armor1 = (new Element('armor', Map {'defense' => '15'}))->setValue('Helmet');
+            $armor2 = (new Element('armor', Map {'defense' => '25'}))->setValue('Shoulder Plates');
+            $armor3 = (new Element('armor', Map {'defense' => '50'}))->setValue('Breast Plate');
+            $armor4 = (new Element('armor', Map {'defense' => '10'}))->setValue('Greaves');
+            $armor5 = (new Element('armor', Map {'defense' => '10'}))->setValue('Gloves');
+            $armor6 = (new Element('armor', Map {'defense' => '25'}))->setValue('Shield');
 
             $armors->addChildren(Vector {$armor1, $armor2, $armor3, $armor4, $armor5, $armor6});
 
-        $weapons = new Element('weapons', Map {'items' => 6});
+        $weapons = new Element('weapons', Map {'items' => '6'});
 
-            $sword1 = (new Element('sword', Map {'damage' => 25}))->setValue('Broadsword');
-            $sword2 = (new Element('sword', Map {'damage' => 30}))->setValue('Longsword');
-            $axe1 = (new Element('axe', Map {'damage' => 20}))->setValue('Heavy Axe');
-            $axe2 = (new Element('axe', Map {'damage' => 25}))->setValue('Double-edged Axe');
-            $polearm = (new Element('polearm', Map {'damage' => 50, 'range' => 3, 'speed' => 'slow'}))->setValue('Polearm');
-            $mace = (new Element('mace', Map {'damage' => 15, 'speed' => 'fast'}))->setValue('Mace');
+            $sword1 = (new Element('sword', Map {'damage' => '25'}))->setValue('Broadsword');
+            $sword2 = (new Element('sword', Map {'damage' => '30'}))->setValue('Longsword');
+            $axe1 = (new Element('axe', Map {'damage' => '20'}))->setValue('Heavy Axe');
+            $axe2 = (new Element('axe', Map {'damage' => '25'}))->setValue('Double-edged Axe');
+            $polearm = (new Element('polearm', Map {'damage' => '50', 'range' => '3', 'speed' => 'slow'}))->setValue('Polearm');
+            $mace = (new Element('mace', Map {'damage' => '15', 'speed' => 'fast'}))->setValue('Mace');
 
             $weapons->addChildren(Vector {$sword1, $sword2, $axe1, $axe2, $polearm, $mace});
 
@@ -285,7 +285,7 @@ XML;
             $food1 = (new Element('food'))->setValue('Fruit');
             $food2 = (new Element('food'))->setValue('Bread');
             $food3 = (new Element('food'))->setValue('Vegetables');
-            $scrap = (new Element('scrap', Map {'count' => 25}))->setValue('Scrap');
+            $scrap = (new Element('scrap', Map {'count' => '25'}))->setValue('Scrap');
 
             $items->addChildren(Vector {$potions, $keys, $food1, $food2, $food3, $scrap});
 
@@ -294,7 +294,7 @@ XML;
         $this->assertEquals($expected, $xml);
     }
 
-    public function testFromFileStringComparison() {
+    public function testFromFileStringComparison(): void {
         $path = TEMP_DIR . '/type/barbarian.xml';
         $xml = Xml::fromFile($path);
 
@@ -304,11 +304,11 @@ XML;
     /**
      * @expectedException \Titon\Common\Exception\MissingFileException
      */
-    public function testFromFileMissingFile() {
+    public function testFromFileMissingFile(): void {
         Xml::fromFile(TEMP_DIR . '/type/barbarian-missing.xml');
     }
 
-    public function testFromVector() {
+    public function testFromVector(): void {
         $list = Vector {'Helmet', 'Shoulder Plates', 'Breast Plate', 'Greaves', 'Gloves', 'Shield'};
 
         $xml = <<<XML
@@ -327,7 +327,7 @@ XML;
         $this->assertEquals($this->nl($xml), Xml::fromVector('armors', 'armor', $list)->toString());
     }
 
-    public function testFromVectorWithAttributes() {
+    public function testFromVectorWithAttributes(): void {
         $list = Vector {
             'Helmet',
             'Shoulder Plates',

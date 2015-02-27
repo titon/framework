@@ -6,7 +6,7 @@ use Titon\Test\TestCase;
 
 class JsonResponseTest extends TestCase {
 
-    public function testSend() {
+    public function testSend(): void {
         $time = time();
         $response = new JsonResponse(['foo' => 'bar']);
         $response->debug();
@@ -27,7 +27,7 @@ class JsonResponseTest extends TestCase {
         $this->assertEquals('{"foo":"bar"}', $body);
     }
 
-    public function testSendCallback() {
+    public function testSendCallback(): void {
         $time = time();
         $response = new JsonResponse(['foo' => 'bar']);
         $response->debug();
@@ -49,7 +49,7 @@ class JsonResponseTest extends TestCase {
         $this->assertEquals('Vendor.API.method({"foo":"bar"});', $body);
     }
 
-    public function testFlags() {
+    public function testFlags(): void {
         $time = time();
         $response = new JsonResponse(['Carets <>', 'Quotes ""', 'Ampersand &'], 200, JSON_HEX_QUOT);
         $response->debug();

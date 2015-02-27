@@ -8,6 +8,7 @@
 namespace Titon\Common;
 
 use Titon\Common\Exception\MissingMacroException;
+use Closure;
 
 /**
  * Provides a mechanism at runtime for defining static methods that can be triggered during __callStatic().
@@ -69,9 +70,9 @@ trait Macroable {
      * Define a custom macro, that will be triggered when a magic static method is called.
      *
      * @param string $key
-     * @param \Titon\Common\MacroCallback $callback
+     * @param \Closure $callback
      */
-    public static function macro(string $key, MacroCallback $callback): void {
+    public static function macro(string $key, Closure $callback): void {
         static::getMacros()->set($key, $callback);
     }
 

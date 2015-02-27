@@ -11,7 +11,7 @@ use Titon\Test\TestCase;
 
 class YamlReaderTest extends TestCase {
 
-    public function testReadResource() {
+    public function testReadResource(): void {
         if (!extension_loaded('yaml')) {
             $this->markTestSkipped('YAML extension must be installed to use the YamlReader');
         }

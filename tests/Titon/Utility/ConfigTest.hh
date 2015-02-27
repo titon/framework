@@ -6,19 +6,19 @@ use Titon\Test\TestCase;
 
 class ConfigTest extends TestCase {
 
-    protected $app = Map {
+    protected Map<string, string> $app = Map {
         'name' => 'Titon',
         'salt' => '66c63d989368170aff46040ab2353923',
         'seed' => 'nsdASDn7012dn1dsjSa',
         'encoding' => 'UTF-8'
     };
 
-    protected $debug = Map {
+    protected Map<string, mixed> $debug = Map {
         'level' => 2,
         'email' => ''
     };
 
-    protected $test = Map {
+    protected Map<string, mixed> $test = Map {
         'integer' => 1234567890,
         'number' => '1234567890',
         'string' => 'abcdefg',
@@ -30,17 +30,15 @@ class ConfigTest extends TestCase {
         'zero' => 0
     };
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
-
-        $this->setupVFS();
 
         Config::set('app', $this->app);
         Config::set('debug', $this->debug);
         Config::set('test', $this->test);
     }
 
-    public function testAdd() {
+    public function testAdd(): void {
         $this->assertEquals('Titon', Config::get('app.name'));
 
         Config::add('app.name', 'Framework');
@@ -50,7 +48,7 @@ class ConfigTest extends TestCase {
         $this->assertEquals(Vector {'Titon'}, Config::get('app.foobar'));
     }
 
-    public function testAll() {
+    public function testAll(): void {
         $this->assertEquals(Map {
             'app' => $this->app,
             'debug' => $this->debug,
@@ -58,7 +56,7 @@ class ConfigTest extends TestCase {
         }, Config::all());
     }
 
-    public function testEncoding() {
+    public function testEncoding(): void {
         $this->assertEquals(Config::encoding(), 'UTF-8');
 
         Config::set('app.encoding', 'UTF-16');
@@ -68,7 +66,7 @@ class ConfigTest extends TestCase {
         $this->assertEquals(Config::encoding(), 'UTF-8');
     }
 
-    public function testFlush() {
+    public function testFlush(): void {
         $this->assertEquals(Map {
             'app' => $this->app,
             'debug' => $this->debug,
@@ -80,14 +78,14 @@ class ConfigTest extends TestCase {
         $this->assertEquals(Map {}, Config::all());
     }
 
-    public function testGet() {
+    public function testGet(): void {
         $this->assertEquals(Config::get('app.name'), $this->app['name']);
         $this->assertEquals(Config::get('app.seed'), $this->app['seed']);
 
         $this->assertEquals(Config::get('debug'), $this->debug);
         $this->assertEquals(Config::get('debug.level'), $this->debug['level']);
 
-        $this->assertTrue(is_integer(Config::get('test.integer')));
+        $this->assertTrue(is_int(Config::get('test.integer')));
         $this->assertTrue(is_numeric(Config::get('test.number')));
         $this->assertTrue(is_string(Config::get('test.string')));
         $this->assertTrue(empty(Config::get('test.vector')));
@@ -107,7 +105,7 @@ class ConfigTest extends TestCase {
         $this->assertEquals('baz', Config::get('app.foo', 'bar'));
     }
 
-    public function testHas() {
+    public function testHas(): void {
         $this->assertTrue(Config::has('app.salt'));
         $this->assertTrue(Config::has('debug.email'));
         $this->assertTrue(Config::has('test.number'));
@@ -121,7 +119,7 @@ class ConfigTest extends TestCase {
         $this->assertFalse(Config::has('test.deep.deep.deep.deep.array'));
     }
 
-    public function testLoad() {
+    public function testLoad(): void {
         $data = <<<CFG
 <?php
 
@@ -139,9 +137,9 @@ return [
 CFG;
 
 
-        $this->vfs->createFile('/config.php', $data);
+        $this->vfs()->createFile('/config.php', $data);
 
-        $reader = new PhpReader($this->vfs->path('/config.php'));
+        $reader = new PhpReader($this->vfs()->path('/config.php'));
 
         Config::load('Php', $reader);
         $this->assertTrue(isset(Config::all()['Php']));
@@ -159,7 +157,7 @@ CFG;
         }, Config::get('Php'));
     }
 
-    public function testName() {
+    public function testName(): void {
         $this->assertEquals(Config::name(), $this->app['name']);
 
         Config::set('app.name', 'TestName');
@@ -169,7 +167,7 @@ CFG;
         $this->assertEquals(Config::name(), '');
     }
 
-    public function testRemove() {
+    public function testRemove(): void {
         $this->assertTrue(Config::has('app.salt'));
         $this->assertTrue(Config::has('debug.email'));
 
@@ -179,7 +177,7 @@ CFG;
         $this->assertFalse(Config::has('debug.email'));
     }
 
-    public function testSalt() {
+    public function testSalt(): void {
         $this->assertEquals(Config::salt(), $this->app['salt']);
 
         Config::set('app.salt', md5('TestSalt'));
@@ -189,7 +187,7 @@ CFG;
         $this->assertEquals(Config::salt(), '');
     }
 
-    public function testSet() {
+    public function testSet(): void {
         Config::set('Set.level1', 1);
         $this->assertEquals(Config::get('Set.level1'), 1);
 

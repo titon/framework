@@ -5,7 +5,7 @@ use Titon\Test\TestCase;
 
 class HttpTest extends TestCase {
 
-    public function testGetHeaderTypes() {
+    public function testGetHeaderTypes(): void {
         $this->assertEquals(Vector {
             'Accept',
             'Accept-Charset',
@@ -69,7 +69,7 @@ class HttpTest extends TestCase {
         }, Http::getHeaderTypes());
     }
 
-    public function testGetMethodTypes() {
+    public function testGetMethodTypes(): void {
         $this->assertEquals(Vector {
             'GET',
             'POST',
@@ -82,7 +82,7 @@ class HttpTest extends TestCase {
         }, Http::getMethodTypes());
     }
 
-    public function testGetStatusCodes() {
+    public function testGetStatusCodes(): void {
         $this->assertEquals(Map {
             100 => 'Continue',
             101 => 'Switching Protocols',
@@ -139,14 +139,14 @@ class HttpTest extends TestCase {
         }, Http::getStatusCodes());
     }
 
-    public function testGetStatusCode() {
+    public function testGetStatusCode(): void {
         $this->assertEquals('OK', Http::getStatusCode(200));
     }
 
     /**
      * @expectedException \Titon\Http\Exception\InvalidStatusException
      */
-    public function testGetStatusCodeInvalidCode() {
+    public function testGetStatusCodeInvalidCode(): void {
         Http::getStatusCode(999);
     }
 

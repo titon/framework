@@ -11,7 +11,7 @@ use Titon\Utility\Config;
  */
 abstract class AbstractStorageTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         // Assert true so we know cache is being written
@@ -20,14 +20,14 @@ abstract class AbstractStorageTest extends TestCase {
         $this->object->save(new Item('count', 1, '+5 minutes'));
     }
 
-    protected function tearDown() {
+    protected function tearDown(): void {
         if ($this->object) {
             $this->object->flush();
             unset($this->object);
         }
     }
 
-    public function testClear() {
+    public function testClear(): void {
         $this->assertTrue($this->object->has('foo'));
 
         $this->object->clear();
@@ -35,7 +35,7 @@ abstract class AbstractStorageTest extends TestCase {
         $this->assertFalse($this->object->has('foo'));
     }
 
-    public function testCommitDeferred() {
+    public function testCommitDeferred(): void {
         $this->assertEquals(Vector {}, $this->object->getDeferred());
 
         $item1 = new Item('baz', 123);
@@ -57,18 +57,18 @@ abstract class AbstractStorageTest extends TestCase {
         $this->assertTrue($this->object->has('qux'));
     }
 
-    public function testDecrement() {
+    public function testDecrement(): void {
         $this->assertEquals(1, $this->object->get('count'));
         $this->assertEquals(0, $this->object->decrement('count', 1));
         $this->assertEquals(-5, $this->object->decrement('count', 5));
     }
 
-    public function testDecrementInitialSet() {
+    public function testDecrementInitialSet(): void {
         $this->assertSame(-1, $this->object->decrement('missing'));
         $this->assertSame(-6, $this->object->decrement('missing', 5));
     }
 
-    public function testDeleteItem() {
+    public function testDeleteItem(): void {
         $this->assertTrue($this->object->has('foo'));
 
         $this->object->deleteItem('foo');
@@ -76,7 +76,7 @@ abstract class AbstractStorageTest extends TestCase {
         $this->assertFalse($this->object->has('foo'));
     }
 
-    public function testDeleteItems() {
+    public function testDeleteItems(): void {
         $this->assertTrue($this->object->has('foo'));
         $this->assertTrue($this->object->has('count'));
 
@@ -86,7 +86,7 @@ abstract class AbstractStorageTest extends TestCase {
         $this->assertFalse($this->object->has('count'));
     }
 
-    public function testFlush() {
+    public function testFlush(): void {
         $this->assertTrue($this->object->has('foo'));
 
         $this->object->flush();
@@ -94,7 +94,7 @@ abstract class AbstractStorageTest extends TestCase {
         $this->assertFalse($this->object->has('foo'));
     }
 
-    public function testGet() {
+    public function testGet(): void {
         $this->assertEquals(['username' => 'Titon'], $this->object->get('foo'));
         $this->assertEquals(1, $this->object->get('count'));
     }
@@ -102,23 +102,23 @@ abstract class AbstractStorageTest extends TestCase {
     /**
      * @expectedException \Titon\Cache\Exception\MissingItemException
      */
-    public function testGetMissingKey() {
+    public function testGetMissingKey(): void {
         $this->assertEquals(null, $this->object->get('bar'));
     }
 
-    public function testGetItem() {
+    public function testGetItem(): void {
         $this->assertEquals(new HitItem('foo', ['username' => 'Titon']), $this->object->getItem('foo'));
         $this->assertEquals(new HitItem('count', 1), $this->object->getItem('count'));
     }
 
-    public function testGetItemMissingKey() {
+    public function testGetItemMissingKey(): void {
         $item = $this->object->getItem('bar');
 
         $this->assertInstanceOf('Titon\Cache\MissItem', $item); // Expired
         $this->assertFalse($item->isHit());
     }
 
-    public function testGetSetPrefix() {
+    public function testGetSetPrefix(): void {
         $this->assertNotEquals('', $this->object->getPrefix()); // Set in constructor
 
         $this->object->setPrefix('prefix-');
@@ -132,23 +132,23 @@ abstract class AbstractStorageTest extends TestCase {
         Config::set('cache.prefix', '');
     }
 
-    public function testHas() {
+    public function testHas(): void {
         $this->assertTrue($this->object->has('foo'));
         $this->assertFalse($this->object->has('foobar'));
     }
 
-    public function testIncrement() {
+    public function testIncrement(): void {
         $this->assertEquals(1, $this->object->get('count'));
         $this->assertEquals(2, $this->object->increment('count', 1));
         $this->assertEquals(7, $this->object->increment('count', 5));
     }
 
-    public function testIncrementInitialSet() {
+    public function testIncrementInitialSet(): void {
         $this->assertSame(1, $this->object->increment('missing'));
         $this->assertSame(6, $this->object->increment('missing', 5));
     }
 
-    public function testRemove() {
+    public function testRemove(): void {
         $this->assertTrue($this->object->has('foo'));
 
         $this->object->remove('foo');
@@ -156,7 +156,7 @@ abstract class AbstractStorageTest extends TestCase {
         $this->assertFalse($this->object->has('foo'));
     }
 
-    public function testSave() {
+    public function testSave(): void {
         $this->assertFalse($this->object->has('bar'));
 
         $this->object->save(new Item('bar', 123));
@@ -164,7 +164,7 @@ abstract class AbstractStorageTest extends TestCase {
         $this->assertTrue($this->object->has('bar'));
     }
 
-    public function testSaveInvalidExpiration() {
+    public function testSaveInvalidExpiration(): void {
         $this->assertFalse($this->object->has('bar'));
 
         $this->object->save(new Item('bar', 123, new \DateTime()));
@@ -172,7 +172,7 @@ abstract class AbstractStorageTest extends TestCase {
         $this->assertFalse($this->object->has('bar'));
     }
 
-    public function testSet() {
+    public function testSet(): void {
         $this->assertEquals(['username' => 'Titon'], $this->object->get('foo'));
 
         $this->object->set('foo', ['username' => 'Titon Framework'], strtotime('+10 minutes'));
@@ -180,22 +180,16 @@ abstract class AbstractStorageTest extends TestCase {
         $this->assertEquals(['username' => 'Titon Framework'], $this->object->get('foo'));
     }
 
-    public function testStats() {
+    public function testStats(): void {
         $this->assertInstanceOf('HH\Map', $this->object->stats());
     }
 
-    public function testStore() {
-        $this->assertEquals('foo', $this->object->store('storeTest', function() {
-            return 'foo';
-        }));
+    public function testStore(): void {
+        $this->assertEquals('foo', $this->object->store('storeTest', () ==> 'foo'));
 
-        $this->assertEquals('foo', $this->object->store('storeTest', function() {
-            return 'bar';
-        }));
+        $this->assertEquals('foo', $this->object->store('storeTest', () ==> 'bar'));
 
-        $this->assertEquals('foo', $this->object->store('storeTest', function() {
-            return 'baz';
-        }));
+        $this->assertEquals('foo', $this->object->store('storeTest', () ==> 'baz'));
     }
 
 }

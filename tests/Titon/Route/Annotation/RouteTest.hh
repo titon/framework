@@ -2,15 +2,18 @@
 namespace Titon\Route\Annotation;
 
 use Titon\Annotation\Reader;
+use Titon\Test\Stub\Route\RouteAnnotatedStub;
 use Titon\Test\TestCase;
 
 class RouteTest extends TestCase {
 
-    public function testParamsAreSetOnRouteAnnotation() {
-        $reader = new Reader(new RouteStub());
+    public function testParamsAreSetOnRouteAnnotation(): void {
+        $reader = new Reader(new RouteAnnotatedStub());
 
         // Class
         $class = $reader->getClassAnnotation('Route');
+
+        invariant($class instanceof Route, 'Must be a Route annotation.');
 
         $this->assertEquals('parent', $class->getKey());
         $this->assertEquals('/controller', $class->getPath());
@@ -21,6 +24,8 @@ class RouteTest extends TestCase {
         // Foo
         $foo = $reader->getMethodAnnotation('foo', 'Route');
 
+        invariant($foo instanceof Route, 'Must be a Route annotation.');
+
         $this->assertEquals('foo', $foo->getKey());
         $this->assertEquals('/foo', $foo->getPath());
         $this->assertEquals(Vector {}, $foo->getMethods());
@@ -29,6 +34,8 @@ class RouteTest extends TestCase {
 
         // Bar
         $bar = $reader->getMethodAnnotation('bar', 'Route');
+
+        invariant($bar instanceof Route, 'Must be a Route annotation.');
 
         $this->assertEquals('bar', $bar->getKey());
         $this->assertEquals('/bar', $bar->getPath());
@@ -39,6 +46,8 @@ class RouteTest extends TestCase {
         // Baz
         $baz = $reader->getMethodAnnotation('baz', 'Route');
 
+        invariant($baz instanceof Route, 'Must be a Route annotation.');
+
         $this->assertEquals('baz', $baz->getKey());
         $this->assertEquals('/baz', $baz->getPath());
         $this->assertEquals(Vector {'get'}, $baz->getMethods());
@@ -48,28 +57,13 @@ class RouteTest extends TestCase {
         // Qux
         $qux = $reader->getMethodAnnotation('qux', 'Route');
 
+        invariant($qux instanceof Route, 'Must be a Route annotation.');
+
         $this->assertEquals('qux', $qux->getKey());
         $this->assertEquals('/qux', $qux->getPath());
         $this->assertEquals(Vector {'put', 'post'}, $qux->getMethods());
         $this->assertEquals(Vector {}, $qux->getFilters());
         $this->assertEquals(Map {'id' => '[1-8]+'}, $qux->getPatterns());
     }
-
-}
-
-<<Route('parent', '/controller')>>
-class RouteStub {
-
-    <<Route('foo', '/foo')>>
-    public function foo(): void {}
-
-    <<Route('bar', '/bar', 'POST')>>
-    public function bar(): void {}
-
-    <<Route('baz', '/baz', ['get'], ['auth', 'guest'])>>
-    public function baz(): void {}
-
-    <<Route('qux', '/qux', ['PUT', 'POST'], [], ['id' => '[1-8]+'])>>
-    public function qux(): void {}
 
 }

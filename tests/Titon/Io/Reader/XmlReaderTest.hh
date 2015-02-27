@@ -11,7 +11,7 @@ use Titon\Test\TestCase;
 
 class XmlReaderTest extends TestCase {
 
-    public function testReadResource() {
+    public function testReadResource(): void {
         $reader = new XmlReader(TEMP_DIR . '/io/xml.xml');
 
         $this->assertMapsEqual(Map {

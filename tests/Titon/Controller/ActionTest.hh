@@ -1,64 +1,36 @@
 <?hh
 namespace Titon\Controller;
 
-use Titon\Controller\Action\AbstractAction;
 use Titon\Http\Server\Request;
+use Titon\Test\Stub\Controller\ActionStub;
+use Titon\Test\Stub\Controller\ControllerStub;
 use Titon\Test\TestCase;
 use Titon\Utility\State\Server;
 
 class ActionTest extends TestCase {
 
-    public function testRun() {
-        $controller = new ErrorController();
+    public function testRun(): void {
+        $controller = new ControllerStub();
         $controller->setRequest(Request::createFromGlobals());
 
-        $this->assertObjectNotHasAttribute('foo', $controller);
+        $this->assertEquals('', $controller->value);
 
         $action = new ActionStub();
         $controller->runAction($action);
 
         $this->assertEquals($controller, $action->getController());
-        $this->assertObjectHasAttribute('foo', $controller);
-        $this->assertEquals('bar', $controller->foo);
+        $this->assertEquals('bar', $controller->value);
     }
 
-    public function testRunWorksOnOtherHttpMethods() {
+    public function testRunWorksOnOtherHttpMethods(): void {
         $_SERVER['REQUEST_METHOD'] = 'HEAD';
         Server::initialize($_SERVER);
 
-        $controller = new ErrorController();
+        $controller = new ControllerStub();
         $controller->setRequest(Request::createFromGlobals());
         $controller->runAction(new ActionStub());
 
-        $this->assertEquals('baz', $controller->foo);
-    }
-
-}
-
-class ActionStub extends AbstractAction {
-
-    public function get(): mixed {
-        $this->getController()->foo = 'bar';
-
-        return 'get';
-    }
-
-    public function post(): mixed {
-        return 'post';
-    }
-
-    public function delete(): mixed {
-        return 'delete';
-    }
-
-    public function put(): mixed {
-        return 'put';
-    }
-
-    public function head(): mixed {
-        $this->getController()->foo = 'baz';
-
-        return 'head';
+        $this->assertEquals('baz', $controller->value);
     }
 
 }

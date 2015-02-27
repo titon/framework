@@ -5,14 +5,14 @@ use Titon\Test\TestCase;
 
 class HostTest extends TestCase {
 
-    public function testGet() {
+    public function testGet(): void {
         $host = new Host(Server::DEV, ['dev', '123.0.0.0']);
 
         $this->assertEquals(Vector {'dev', '123.0.0.0'}, $host->getHostnames());
         $this->assertEquals(Server::DEV, $host->getType());
     }
 
-    public function testGetSetKey() {
+    public function testGetSetKey(): void {
         $host = new Host(Server::DEV, Vector {'dev', '123.0.0.0'});
         $this->assertEquals('', $host->getKey());
 
@@ -20,7 +20,7 @@ class HostTest extends TestCase {
         $this->assertEquals('prod', $host->getKey());
     }
 
-    public function testIsDevelopment() {
+    public function testIsDevelopment(): void {
         $host = new Host(Server::DEV, '127.0.0.1');
 
         $this->assertTrue($host->isDevelopment());
@@ -28,7 +28,7 @@ class HostTest extends TestCase {
         $this->assertFalse($host->isProduction());
     }
 
-    public function testIsStaging() {
+    public function testIsStaging(): void {
         $host = new Host(Server::STAGING, '127.0.0.1');
 
         $this->assertFalse($host->isDevelopment());
@@ -36,7 +36,7 @@ class HostTest extends TestCase {
         $this->assertFalse($host->isProduction());
     }
 
-    public function testIsProduction() {
+    public function testIsProduction(): void {
         $host = new Host(Server::PROD, '127.0.0.1');
 
         $this->assertFalse($host->isDevelopment());

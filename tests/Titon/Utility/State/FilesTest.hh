@@ -5,7 +5,7 @@ use Titon\Test\TestCase;
 
 class FilesTest extends TestCase {
 
-    public function testClass() {
+    public function testClass(): void {
         $_FILES = [
             'file' => [
                 'name' => 'file1.jpg',
@@ -44,7 +44,7 @@ class FilesTest extends TestCase {
         $this->assertFalse(Files::has('file.mime_type'));
     }
 
-    public function testPackage() {
+    public function testPackage(): void {
         $this->assertEquals(Map {
             'file' => Map {
                 'name' => 'file1.jpg',

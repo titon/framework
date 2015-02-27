@@ -5,7 +5,7 @@ use Titon\Test\TestCase;
 
 class RegistryTest extends TestCase {
 
-    public function testAll() {
+    public function testAll(): void {
         $base = new RegistryStub();
         $config = new Config();
         $registry = new Registry();
@@ -21,14 +21,14 @@ class RegistryTest extends TestCase {
         ]), Registry::all());
     }
 
-    public function testFactory() {
+    public function testFactory(): void {
         $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon\Utility\RegistryStub', [], false));
         $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon/Utility/RegistryStub', [], false));
         $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('Titon\Utility\RegistryStub', [], false));
         $this->assertInstanceOf('Titon\Utility\RegistryStub', Registry::factory('/Titon/Utility/RegistryStub', [], false));
     }
 
-    public function testFlushAndKeys() {
+    public function testFlushAndKeys(): void {
         $test = Vector {};
 
         for ($i = 1; $i <= 10; $i++) {
@@ -48,7 +48,7 @@ class RegistryTest extends TestCase {
         $this->assertEquals(0, count($registered));
     }
 
-    public function testHasAndSet() {
+    public function testHasAndSet(): void {
         for ($i = 1; $i <= 10; $i++) {
             Registry::set(new RegistryStub(), 'key' . $i);
         }
@@ -64,11 +64,11 @@ class RegistryTest extends TestCase {
     /**
      * @expectedException \Titon\Utility\Exception\InvalidObjectException
      */
-    public function testSetInvalidObject() {
+    public function testSetInvalidObject(): void {
         Registry::set(12345);
     }
 
-    public function testRemove() {
+    public function testRemove(): void {
         for ($i = 1; $i <= 10; $i++) {
             Registry::set(new RegistryStub(), 'key' . $i);
         }
@@ -86,8 +86,8 @@ class RegistryTest extends TestCase {
         $this->assertFalse(Registry::has('key8'));
     }
 
-    public function testRegisterAndGet() {
-        Registry::register('base', function() {
+    public function testRegisterAndGet(): void {
+        Registry::register('base', () ==> {
             $base = new RegistryStub();
             $base->key = 'registry';
 
@@ -105,11 +105,12 @@ class RegistryTest extends TestCase {
     /**
      * @expectedException \Titon\Utility\Exception\MissingObjectException
      */
-    public function testGetInvalidKey() {
+    public function testGetInvalidKey(): void {
         Registry::get('missingKey');
     }
 
 }
 
 class RegistryStub {
+    public string $key = '';
 }

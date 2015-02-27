@@ -2,6 +2,8 @@
 namespace Titon\Route;
 
 use Titon\Cache\Storage\MemoryStorage;
+use Titon\Test\Stub\Route\FilterStub;
+use Titon\Test\Stub\Route\TestRouteStub;
 use Titon\Test\TestCase;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
@@ -12,31 +14,36 @@ use Titon\Context\Depository;
  */
 class RouterTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $container = Depository::getInstance();
-
         $container->singleton('Titon\Route\Router');
-        $this->object = Depository::getInstance()->make('Titon\Route\Router');
-        $container->register('Titon\Route\UrlBuilder')->with($this->object);
-        $this->object->map('action.ext', new TestRoute('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
-        $this->object->map('action', new TestRoute('/{module}/{controller}/{action}', 'Module\Controller@action'));
-        $this->object->map('controller', new TestRoute('/{module}/{controller}', 'Module\Controller@action'));
-        $this->object->map('module', new TestRoute('/{module}', 'Module\Controller@action'));
-        $this->object->map('root', new TestRoute('/', 'Module\Controller@action'));
+
+        $this->object = $router = Depository::getInstance()->make('Titon\Route\Router');
+
+        invariant($router instanceof Router, 'Must be a Router.');
+
+        $container->register('Titon\Route\UrlBuilder')->with($router);
+
+        $this->object->map('action.ext', new TestRouteStub('/{module}/{controller}/{action}.{ext}', 'Module\Controller@action'));
+        $this->object->map('action', new TestRouteStub('/{module}/{controller}/{action}', 'Module\Controller@action'));
+        $this->object->map('controller', new TestRouteStub('/{module}/{controller}', 'Module\Controller@action'));
+        $this->object->map('module', new TestRouteStub('/{module}', 'Module\Controller@action'));
+        $this->object->map('root', new TestRouteStub('/', 'Module\Controller@action'));
     }
 
-    protected function tearDown() {
-        Depository::getInstance()->remove('Titon\Route\Router');
-        Depository::getInstance()->remove('Titon\Route\UrlBuilder');
+    protected function tearDown(): void {
+        Depository::getInstance()
+            ->remove('Titon\Route\Router')
+            ->remove('Titon\Route\UrlBuilder');
     }
 
-    public function testBuildAction() {
+    public function testBuildAction(): void {
         $this->assertEquals('Controller@action', Router::buildAction(shape('class' => 'Controller', 'action' => 'action')));
     }
 
-    public function testCaching() {
+    public function testCaching(): void {
         $storage = new MemoryStorage();
         $route1 = new Route('/{module}', 'Module\Controller@action');
         $route2 = new Route('/', 'Module\Controller@action');
@@ -65,22 +72,21 @@ class RouterTest extends TestCase {
         $this->assertEquals(Map {'module' => $route1, 'root' => $route2}, $router2->getRoutes());
 
         // The previous routes should be overwritten
-
         $this->assertEquals('/', $router2->getRoute('root')->getPath());
     }
 
-    public function testFilters() {
+    public function testFilters(): void {
         $stub = new FilterStub();
 
         $this->object->filter('test', $stub);
-        $this->object->filterCallback('test2', function() {});
+        $this->object->filterCallback('test2', () ==> {});
 
         $this->assertEquals(inst_meth($stub, 'filter'), $this->object->getFilter('test'));
         $this->assertEquals(Vector {'test', 'test2'}, $this->object->getFilters()->keys());
 
         // Filtering is passed to routes
         $this->object->map('f1', (new Route('/f1', 'Controller@action'))->addFilter('test2'));
-        $this->object->group(function(Router $router, Group $group) {
+        $this->object->group(($router, $group) ==> {
             $group->setFilters(Vector {'test'});
 
             $router->map('f2', new Route('/f2', 'Controller@action'));
@@ -97,11 +103,11 @@ class RouterTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\MissingFilterException
      */
-    public function testFilterMissingKey() {
+    public function testFilterMissingKey(): void {
         $this->object->getFilter('fakeKey');
     }
 
-    public function testFilterIsTriggered() {
+    public function testFilterIsTriggered(): void {
         $router = new Router();
         $count = 0;
 
@@ -110,7 +116,7 @@ class RouterTest extends TestCase {
         });
 
         $router->map('f1', (new Route('/f1', 'Controller@action'))->addFilter('test'));
-        $router->group(function(Router $router, Group $group) {
+        $router->group(($router, $group) ==> {
             $group->setFilters(Vector {'test'});
 
             $router->map('f2', new Route('/f2', 'Controller@action'));
@@ -130,8 +136,8 @@ class RouterTest extends TestCase {
     /**
      * @expectedException \Exception
      */
-    public function testFilterCanThrowException() {
-        $this->object->filterCallback('test', function() use (&$count) {
+    public function testFilterCanThrowException(): void {
+        $this->object->filterCallback('test', () ==> {
             throw new \Exception('Filter error!');
         });
 
@@ -140,8 +146,8 @@ class RouterTest extends TestCase {
         $this->object->match('/');
     }
 
-    public function testGroupPrefixing() {
-        $this->object->group(function(Router $router, Group $group) {
+    public function testGroupPrefixing(): void {
+        $this->object->group(($router, $group) ==> {
             $group->setPrefix('/pre/');
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
@@ -158,8 +164,8 @@ class RouterTest extends TestCase {
         $this->assertEquals('/solo', $routes['solo']->getPath());
     }
 
-    public function testGroupSuffixing() {
-        $this->object->group(function(Router $router, Group $group) {
+    public function testGroupSuffixing(): void {
+        $this->object->group(($router, $group) ==> {
             $group->setSuffix('/post/');
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
@@ -176,8 +182,8 @@ class RouterTest extends TestCase {
         $this->assertEquals('/solo', $routes['solo']->getPath());
     }
 
-    public function testGroupSecure() {
-        $this->object->group(function(Router $router, Group $group) {
+    public function testGroupSecure(): void {
+        $this->object->group(($router, $group) ==> {
             $group->setSecure(true);
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
@@ -194,8 +200,8 @@ class RouterTest extends TestCase {
         $this->assertEquals(false, $routes['solo']->getSecure());
     }
 
-    public function testGroupPatterns() {
-        $this->object->group(function(Router $router, Group $group) {
+    public function testGroupPatterns(): void {
+        $this->object->group(($router, $group) ==> {
             $group->setPrefix('<token>');
             $group->addPattern('token', '([abcd]+)');
 
@@ -218,11 +224,11 @@ class RouterTest extends TestCase {
         $this->assertEquals(Map {}, $routes['solo']->getPatterns());
     }
 
-    public function testGroupConditions() {
-        $cond1 = function() {};
-        $cond2 = function() {};
+    public function testGroupConditions(): void {
+        $cond1 = () ==> {};
+        $cond2 = () ==> {};
 
-        $this->object->group(function(Router $router, Group $group) use ($cond1, $cond2) {
+        $this->object->group(($router, $group) ==> {
             $group->setConditions(Vector {$cond1, $cond2});
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
@@ -239,13 +245,13 @@ class RouterTest extends TestCase {
         $this->assertEquals(Vector {}, $routes['solo']->getConditions());
     }
 
-    public function testGroupNesting() {
-        $this->object->group(function(Router $router, Group $group1) {
+    public function testGroupNesting(): void {
+        $this->object->group(($router, $group1) ==> {
             $group1->setPrefix('/pre/');
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
 
-            $router->group(function(Router $router, Group $group2) {
+            $router->group(($router, $group2) ==> {
                 $group2->setSuffix('/post');
 
                 $router->map('group2', new Route('/group-2', 'Controller@action'));
@@ -262,18 +268,18 @@ class RouterTest extends TestCase {
         $this->assertEquals('/solo', $routes['solo']->getPath());
     }
 
-    public function testGroupNestingInherits() {
-        $this->object->group(function(Router $router, Group $group1) {
+    public function testGroupNestingInherits(): void {
+        $this->object->group(($router, $group1) ==> {
             $group1->setFilters(Vector {'foo'})->setMethods(Vector {'get'});
 
             $router->map('group1', new Route('/group-1', 'Controller@action'));
 
-            $router->group(function(Router $router, Group $group2) {
+            $router->group(($router, $group2) ==> {
                 $group2->setFilters(Vector {'bar'});
 
                 $router->map('group2', new Route('/group-2', 'Controller@action'));
 
-                $router->group(function(Router $router, Group $group3) {
+                $router->group(($router, $group3) ==> {
                     $group3->setMethods(Vector {'post'});
 
                     $router->map('group3', new Route('/group-3', 'Controller@action'));
@@ -292,7 +298,7 @@ class RouterTest extends TestCase {
         $this->assertEquals(Vector {'get', 'post'}, $routes['group3']->getMethods());
     }
 
-    public function testHttpMapping() {
+    public function testHttpMapping(): void {
         $this->object->map('url1', new Route('/url', 'Controller@action'));
         $this->object->get('url2', new Route('/url', 'Controller@action'));
         $this->object->post('url3', new Route('/url', 'Controller@action'));
@@ -314,7 +320,7 @@ class RouterTest extends TestCase {
         $this->assertEquals(Vector {'get', 'post'}, $routes['url8']->getMethods());
     }
 
-    public function testLoopMatch() {
+    public function testLoopMatch(): void {
         $route = $this->object->match('/');
         $this->assertEquals('/', $route->getPath());
         $this->assertEquals($route, $this->object->current());
@@ -335,11 +341,11 @@ class RouterTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\NoMatchException
      */
-    public function testLoopMatchNoMatch() {
+    public function testLoopMatchNoMatch(): void {
         $this->object->match('/path~tilde');
     }
 
-    public function testParseAction() {
+    public function testParseAction(): void {
         $this->assertEquals(shape(
             'class' => 'Controller',
             'action' => 'action'
@@ -384,11 +390,11 @@ class RouterTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\InvalidRouteActionException
      */
-    public function testParseActionInvalidRoute() {
+    public function testParseActionInvalidRoute(): void {
         Router::parseAction('Broken+Route');
     }
 
-    public function testPrgMapping() {
+    public function testPrgMapping(): void {
         $this->object->prg('prg', (new Route('/foo', 'Controller@action'))->addFilter('auth'));
 
         $routes = $this->object->getRoutes();
@@ -415,7 +421,7 @@ class RouterTest extends TestCase {
         $this->assertEquals(Vector {'auth'}, $routes['prg.post']->getFilters());
     }
 
-    public function testResourceMap() {
+    public function testResourceMap(): void {
         $this->assertEquals(Map {
             'list' => 'index',
             'create' => 'create',
@@ -440,7 +446,7 @@ class RouterTest extends TestCase {
         }, $this->object->getResourceMap());
     }
 
-    public function testResourceMapping() {
+    public function testResourceMapping(): void {
         $this->object->resource('rest', new Route('/rest', 'Api\Rest@action'));
 
         $routes = $this->object->getRoutes();
@@ -475,7 +481,7 @@ class RouterTest extends TestCase {
         $this->assertEquals(Vector {'delete', 'post'}, $routes['rest.delete']->getMethods());
     }
 
-    public function testRoutes() {
+    public function TestRouteStubs(): void {
         $route = new Route('/', 'Controller@action');
         $router = new Router();
         $router->map('key', $route);
@@ -487,11 +493,11 @@ class RouterTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\MissingRouteException
      */
-    public function testRoutesMissingKey() {
+    public function TestRouteStubsMissingKey(): void {
         $this->object->getRoute('fakeKey');
     }
 
-    public function testSegments() {
+    public function testSegments(): void {
         $_SERVER['DOCUMENT_ROOT'] = '';
         $_SERVER['HTTP_HOST'] = 'localhost';
         $_SERVER['SCRIPT_FILENAME'] = '/index.php';
@@ -500,7 +506,6 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/', $router->base());
-        $this->assertEquals('http://localhost/', Depository::getInstance()->make('Titon\Route\UrlBuilder', $router)->url());
         $this->assertEquals('/', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -519,7 +524,6 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/', $router->base());
-        $this->assertEquals('http://domain.com/module/index', Depository::getInstance()->make('Titon\Route\UrlBuilder', $router)->url());
         $this->assertEquals('/module/index', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -538,7 +542,6 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/root/dir', $router->base());
-        $this->assertEquals('http://sub.domain.com/root/dir/module/controller/action.html', Depository::getInstance()->make('Titon\Route\UrlBuilder', $router)->url());
         $this->assertEquals('/module/controller/action.html', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -561,7 +564,6 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/rooter/root/dir', $router->base());
-        $this->assertEquals('https://subber.sub.domain.com/rooter/root/dir/module/controller/action.html?foo=bar&int=123', Depository::getInstance()->make('Titon\Route\UrlBuilder', $router)->url());
         $this->assertEquals('/module/controller/action.html', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -584,7 +586,6 @@ class RouterTest extends TestCase {
 
         $router = new Router();
         $this->assertEquals('/base/rooter/root/dir', $router->base());
-        $this->assertEquals('https://subbest.subber.sub.domain.com/base/rooter/root/dir/module/controller/action.html/123/abc?foo=bar&int=123', Depository::getInstance()->make('Titon\Route\UrlBuilder', $router)->url());
         $this->assertEquals('/module/controller/action.html/123/abc', $router->getSegment('path'));
         $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
         $this->assertEquals(Map {
@@ -599,12 +600,12 @@ class RouterTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\MissingSegmentException
      */
-    public function testSegmentsMissingKey() {
+    public function testSegmentsMissingKey(): void {
         $this->object->getSegment('fakeKey');
     }
 
-    public function testWireClassMapping() {
-        $this->object->wire('Titon\Route\AnnotationStub');
+    public function testWireClassMapping(): void {
+        $this->object->wire('Titon\Test\Stub\Route\RouteAnnotatedStub');
 
         $routes = $this->object->getRoutes();
 
@@ -617,18 +618,18 @@ class RouterTest extends TestCase {
         $this->assertTrue(isset($routes['parent.delete']));
 
         // Paths
-        $this->assertEquals('/parent', $routes['parent.list']->getPath());
-        $this->assertEquals('/parent', $routes['parent.create']->getPath());
-        $this->assertEquals('/parent/{id}', $routes['parent.read']->getPath());
-        $this->assertEquals('/parent/{id}', $routes['parent.update']->getPath());
-        $this->assertEquals('/parent/{id}', $routes['parent.delete']->getPath());
+        $this->assertEquals('/controller', $routes['parent.list']->getPath());
+        $this->assertEquals('/controller', $routes['parent.create']->getPath());
+        $this->assertEquals('/controller/{id}', $routes['parent.read']->getPath());
+        $this->assertEquals('/controller/{id}', $routes['parent.update']->getPath());
+        $this->assertEquals('/controller/{id}', $routes['parent.delete']->getPath());
 
         // Action
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'index'), $routes['parent.list']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'create'), $routes['parent.create']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'read'), $routes['parent.read']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'update'), $routes['parent.update']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'delete'), $routes['parent.delete']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'index'), $routes['parent.list']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'create'), $routes['parent.create']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'read'), $routes['parent.read']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'update'), $routes['parent.update']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'delete'), $routes['parent.delete']->getAction());
 
         // Method
         $this->assertEquals(Vector {'get'}, $routes['parent.list']->getMethods());
@@ -638,8 +639,8 @@ class RouterTest extends TestCase {
         $this->assertEquals(Vector {'delete', 'post'}, $routes['parent.delete']->getMethods());
     }
 
-    public function testWireMethodMapping() {
-        $this->object->wire('Titon\Route\AnnotationStub');
+    public function testWireMethodMapping(): void {
+        $this->object->wire('Titon\Test\Stub\Route\RouteAnnotatedStub');
 
         $routes = $this->object->getRoutes();
 
@@ -656,10 +657,10 @@ class RouterTest extends TestCase {
         $this->assertEquals('/qux', $routes['qux']->getPath());
 
         // Action
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'foo'), $routes['foo']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'bar'), $routes['bar']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'baz'), $routes['baz']->getAction());
-        $this->assertEquals(shape('class' => 'Titon\Route\AnnotationStub', 'action' => 'qux'), $routes['qux']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'foo'), $routes['foo']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'bar'), $routes['bar']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'baz'), $routes['baz']->getAction());
+        $this->assertEquals(shape('class' => 'Titon\Test\Stub\Route\RouteAnnotatedStub', 'action' => 'qux'), $routes['qux']->getAction());
 
         // Method
         $this->assertEquals(Vector {}, $routes['foo']->getMethods());
@@ -679,36 +680,5 @@ class RouterTest extends TestCase {
         $this->assertEquals(Map {}, $routes['baz']->getPatterns());
         $this->assertEquals(Map {'id' => '[1-8]+'}, $routes['qux']->getPatterns());
     }
-
-}
-
-class FilterStub implements Filter {
-    public function filter(Router $router, Route $route): void {
-        return;
-    }
-}
-
-class TestRoute extends Route {
-    public function __construct(string $path, string $action) {
-        parent::__construct($path, $action);
-
-        $this->compile();
-    }
-}
-
-<<Route('parent', '/parent')>>
-class AnnotationStub {
-
-    <<Route('foo', '/foo')>>
-    public function foo(): void {}
-
-    <<Route('bar', '/bar', 'POST')>>
-    public function bar(): void {}
-
-    <<Route('baz', '/baz', ['get'], ['auth', 'guest'])>>
-    public function baz(): void {}
-
-    <<Route('qux', '/qux', ['PUT', 'POST'], [], ['id' => '[1-8]+'])>>
-    public function qux(): void {}
 
 }

@@ -5,7 +5,7 @@ use \Memcached;
 
 class MemcacheStorageTest extends AbstractStorageTest {
 
-    protected function setUp() {
+    protected function setUp(): void {
         if (!extension_loaded('memcached')) {
             $this->markTestSkipped('Memcache is not installed or configured properly');
         }

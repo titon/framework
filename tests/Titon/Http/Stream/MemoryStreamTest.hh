@@ -8,23 +8,23 @@ use Titon\Test\TestCase;
  */
 class MemoryStreamTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new MemoryStream('foo');
     }
 
-    protected function tearDown() {
+    protected function tearDown(): void {
         parent::tearDown();
 
         $this->object->close();
     }
 
-    public function testToString() {
+    public function testToString(): void {
         $this->assertEquals('foo', (string) $this->object);
     }
 
-    public function testToStringRestoresSeek() {
+    public function testToStringRestoresSeek(): void {
         $this->object->seek(1);
 
         $this->assertEquals(1, $this->object->tell());
@@ -32,39 +32,39 @@ class MemoryStreamTest extends TestCase {
         $this->assertEquals(1, $this->object->tell());
     }
 
-    public function testClose() {
+    public function testClose(): void {
         $this->assertTrue($this->object->close());
         $this->assertFalse($this->object->close());
     }
 
-    public function testDetach() {
+    public function testDetach(): void {
         $this->assertTrue(is_resource($this->object->getStream()));
         $this->object->detach();
         $this->assertEquals(null, $this->object->getStream());
     }
 
-    public function testEof() {
+    public function testEof(): void {
         $this->assertFalse($this->object->eof());
         $this->object->read(3);
         $this->assertTrue($this->object->eof());
     }
 
-    public function testGetContents() {
+    public function testGetContents(): void {
         $this->assertEquals('foo', $this->object->getContents());
         $this->assertEquals('fo', $this->object->getContents(2));
     }
 
-    public function testGetSize() {
+    public function testGetSize(): void {
         $this->assertEquals(3, $this->object->getSize());
     }
 
-    public function testSizeIsConsistent() {
+    public function testSizeIsConsistent(): void {
         $this->assertEquals(3, $this->object->getSize());
         $this->object->write('bar');
         $this->assertEquals(6, $this->object->getSize());
     }
 
-    public function testRead() {
+    public function testRead(): void {
         $this->object->rewind();
         $this->assertEquals('fo', $this->object->read(2));
 
@@ -74,7 +74,7 @@ class MemoryStreamTest extends TestCase {
         $this->assertEquals('foo', $this->object->read(5));
     }
 
-    public function testSeekAndTell() {
+    public function testSeekAndTell(): void {
         $this->assertEquals(3, $this->object->tell());
 
         $this->object->seek(1);
@@ -84,7 +84,7 @@ class MemoryStreamTest extends TestCase {
         $this->assertEquals(5, $this->object->tell());
     }
 
-    public function testWrite() {
+    public function testWrite(): void {
         $this->assertEquals('foo', $this->object->getContents());
         $this->object->write('bar');
         $this->assertEquals('foobar', $this->object->getContents());

@@ -10,27 +10,31 @@ use Titon\Utility\Path;
 
 class MacroableTest extends TestCase {
 
-    public function testHasMacro() {
+    public function testHasMacro(): void {
         $this->assertFalse(Number::hasMacro('toBinary'));
         $this->assertFalse(Number::hasMacro('toFloat'));
 
-        Number::macro('toFloat', function() {});
+        Number::macro('toFloat', function() {
+            return 0.0;
+        });
 
         $this->assertFalse(Number::hasMacro('toBinary'));
         $this->assertTrue(Number::hasMacro('toFloat'));
     }
 
-    public function testInheritance() {
+    public function testInheritance(): void {
         $this->assertFalse(Format::hasMacro('foobar'));
         $this->assertFalse(Path::hasMacro('foobar'));
 
-        Format::macro('foobar', function() {});
+        Format::macro('foobar', function() {
+            return '';
+        });
 
         $this->assertTrue(Format::hasMacro('foobar'));
         $this->assertFalse(Path::hasMacro('foobar'));
     }
 
-    public function testMacro() {
+    public function testMacro(): void {
         Inflector::macro('caps', function($value) {
             return strtoupper($value);
         });
@@ -41,11 +45,11 @@ class MacroableTest extends TestCase {
     /**
      * @expectedException \Titon\Common\Exception\MissingMacroException
      */
-    public function testMacroMissing() {
+    public function testMacroMissing(): void {
         Inflector::lowers('foObAr');
     }
 
-    public function testGetMacros() {
+    public function testGetMacros(): void {
         $lower = function($value) {
             return strtolower($value);
         };

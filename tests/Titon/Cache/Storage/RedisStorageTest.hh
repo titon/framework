@@ -5,7 +5,7 @@ use \Redis;
 
 class RedisStorageTest extends AbstractStorageTest {
 
-    protected function setUp() {
+    protected function setUp(): void {
         if (!extension_loaded('redis')) {
             $this->markTestSkipped('Redis is not installed or configured properly');
         }

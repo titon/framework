@@ -5,19 +5,18 @@ use Titon\Test\TestCase;
 
 class YamlWriterTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         if (!extension_loaded('yaml')) {
             $this->markTestSkipped('YAML extension must be installed to use the YamlWriter');
         }
 
-        $this->setupVFS();
-        $this->vfs->createDirectory('/writer');
+        $this->vfs()->createDirectory('/writer');
     }
 
-    public function testWriteResource() {
-        $path = $this->vfs->path('/writer/yaml.yaml');
+    public function testWriteResource(): void {
+        $path = $this->vfs()->path('/writer/yaml.yaml');
 
         $writer = new YamlWriter($path, true);
         $writer->writeResource(Map {

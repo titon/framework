@@ -7,19 +7,19 @@ use Titon\Utility\State\Server;
 
 class RedirectorTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         Redirector::$exit = false;
     }
 
-    protected function tearDown() {
+    protected function tearDown(): void {
         parent::tearDown();
 
         Redirector::$exit = true;
     }
 
-    public function testBack() {
+    public function testBack(): void {
         $_SERVER['HTTP_REFERER'] = '/new/url';
         Server::initialize($_SERVER);
 
@@ -34,7 +34,7 @@ class RedirectorTest extends TestCase {
         ], $response->getHeaders());
     }
 
-    public function testHome() {
+    public function testHome(): void {
         $time = time();
         $response = Redirector::home();
         $response->date($time);
@@ -46,7 +46,7 @@ class RedirectorTest extends TestCase {
         ], $response->getHeaders());
     }
 
-    public function testRefresh() {
+    public function testRefresh(): void {
         $_SERVER['PATH_INFO'] = '/current/url';
         Server::initialize($_SERVER);
 
@@ -61,9 +61,9 @@ class RedirectorTest extends TestCase {
         ], $response->getHeaders());
     }
 
-    public function testTo() {
+    public function testTo(): void {
         $time = time();
-        $response = Redirector::to('/custom/url', 300, function(Response $response) {
+        $response = Redirector::to('/custom/url', 300, ($response) ==> {
             $response->setHeader('X-Test', 'Foobar');
         });
         $response->date($time);

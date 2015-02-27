@@ -1,24 +1,26 @@
 <?hh
 namespace Titon\Event;
 
+use Titon\Test\Stub\Event\ListenerStub;
+use Titon\Test\Stub\Event\SubjectStub;
 use Titon\Test\TestCase;
 
 /**
- * @property \Titon\Event\SubjectStub $object
+ * @property \Titon\Test\Stub\Event\SubjectStub $object
  */
 class SubjectTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new SubjectStub();
     }
 
-    public function testEmit() {
+    public function testEmit(): void {
         $this->assertInstanceOf('Titon\Event\Event', $this->object->emit('event.test', []));
     }
 
-    public function testEmitMany() {
+    public function testEmitMany(): void {
         $events = $this->object->emitMany('event.foo event.bar', []);
 
         $this->assertEquals(2, count($events));
@@ -26,8 +28,8 @@ class SubjectTest extends TestCase {
         $this->assertInstanceOf('Titon\Event\Event', $events['event.bar']);
     }
 
-    public function testOnAndOff() {
-        $callback = function(Event $event) { };
+    public function testOnAndOff(): void {
+        $callback = ($event) ==> { };
         $listener = new ListenerStub();
 
         $this->object->on('event.test1', $callback);
@@ -45,7 +47,7 @@ class SubjectTest extends TestCase {
         $this->assertEquals(Vector {}, $this->object->getEmitter()->getObservers('event.test1'));
     }
 
-    public function testOnce() {
+    public function testOnce(): void {
         $count = 0;
 
         $ob1 = function(Event $event, &$c) { $c++; };
@@ -67,8 +69,4 @@ class SubjectTest extends TestCase {
         $this->assertEquals(6, $count);
     }
 
-}
-
-class SubjectStub implements Subject {
-    use EmitsEvents;
 }

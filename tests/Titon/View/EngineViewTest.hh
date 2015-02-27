@@ -9,11 +9,10 @@ use Titon\Test\TestCase;
  */
 class EngineViewTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createStructure([
+        $this->vfs()->createStructure([
             '/views/' => [
                 'fallback/' => [
                     'private/' => [
@@ -56,12 +55,12 @@ class EngineViewTest extends TestCase {
         ]);
 
         $this->object = new EngineView([
-            $this->vfs->path('/views/'),
-            $this->vfs->path('/views/fallback/')
+            $this->vfs()->path('/views/'),
+            $this->vfs()->path('/views/fallback/')
         ]);
     }
 
-    public function testRender() {
+    public function testRender(): void {
         $this->assertEquals('<layout>edit.tpl</layout>', $this->object->render('index/edit'));
 
         $this->object->getEngine()->useLayout('fallback');
@@ -77,12 +76,12 @@ class EngineViewTest extends TestCase {
         $this->assertEquals('view.xml.tpl', $this->object->render('index/view.xml'));
     }
 
-    public function testRenderPrivate() {
+    public function testRenderPrivate(): void {
         $this->assertEquals('<layout>public/root.tpl</layout>', $this->object->render('root'));
         $this->assertEquals('<layout>private/root.tpl</layout>', $this->object->render('root', true));
     }
 
-    public function testRenderTemplate() {
+    public function testRenderTemplate(): void {
         $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/add')));
         $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/test-include')));
 
@@ -94,7 +93,7 @@ class EngineViewTest extends TestCase {
         }));
     }
 
-    public function testViewCaching() {
+    public function testViewCaching(): void {
         $storage = new MemoryStorage();
 
         $this->object->setStorage($storage);

@@ -5,7 +5,7 @@ use Titon\Test\TestCase;
 
 class BenchmarkTest extends TestCase {
 
-    public function testBenchmarking() {
+    public function testBenchmarking(): void {
         Benchmark::start('test');
 
         $benchmark = Benchmark::get('test');
@@ -30,7 +30,7 @@ class BenchmarkTest extends TestCase {
     /**
      * @expectedException \Titon\Debug\Exception\MissingBenchmarkException
      */
-    public function testGetInvalidKey() {
+    public function testGetInvalidKey(): void {
         Benchmark::get('fake');
     }
 

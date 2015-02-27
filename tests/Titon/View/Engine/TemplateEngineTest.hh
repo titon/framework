@@ -10,11 +10,10 @@ use Titon\Test\TestCase;
  */
 class TemplateEngineTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
-        $this->setupVFS();
-        $this->vfs->createStructure([
+        $this->vfs()->createStructure([
             '/views/' => [
                 'private/' => [
                     'partials/' => [
@@ -35,11 +34,11 @@ class TemplateEngineTest extends TestCase {
 
         $this->engine = new TemplateEngine();
 
-        $this->object = new EngineView([$this->vfs->path('/views')]);
+        $this->object = new EngineView([$this->vfs()->path('/views')]);
         $this->object->setEngine($this->engine);
     }
 
-    public function testOpen() {
+    public function testOpen(): void {
         $this->assertEquals('nested/include.tpl', $this->object->getEngine()->open('nested/include'));
         $this->assertEquals('nested/include.tpl', $this->object->getEngine()->open('nested/include.tpl'));
         $this->assertEquals('Titon - partial - variables.tpl', $this->object->getEngine()->open('variables', Map {
@@ -52,16 +51,16 @@ class TemplateEngineTest extends TestCase {
     /**
      * @expectedException \Titon\View\Exception\MissingTemplateException
      */
-    public function testOpenMissingFile() {
+    public function testOpenMissingFile(): void {
         $this->object->getEngine()->open('foobar');
     }
 
-    public function testRender() {
+    public function testRender(): void {
         $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/add')));
         $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/test-include')));
     }
 
-    public function testData() {
+    public function testData(): void {
         $this->assertEquals('add.tpl', $this->engine->render($this->object->locateTemplate('index/add'), Map {
             'foo' => 'bar'
         }));

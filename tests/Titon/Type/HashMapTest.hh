@@ -8,7 +8,7 @@ use Titon\Test\TestCase;
  */
 class HashMapTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new HashMap(Map {
@@ -18,7 +18,7 @@ class HashMapTest extends TestCase {
         });
     }
 
-    public function testIterator() {
+    public function testIterator(): void {
         $array = [];
 
         foreach ($this->object as $key => $value) {
@@ -28,14 +28,14 @@ class HashMapTest extends TestCase {
         $this->assertEquals(['A' => 'foo', 'B' => 'bar', 'C' => 'baz'], $array);
     }
 
-    public function testIndexishConstructors() {
+    public function testIndexishConstructors(): void {
         $this->assertEquals(new HashMap(Map {0 => 'foo'}), new HashMap(['foo']));
         $this->assertEquals(new HashMap(Map {0 => 'foo'}), new HashMap(Vector {'foo'}));
         $this->assertEquals(new HashMap(Map {'a' => 'foo'}), new HashMap(['a' => 'foo']));
         $this->assertEquals(new HashMap(Map {'a' => 'foo'}), new HashMap(Map {'a' => 'foo'}));
     }
 
-    public function testChainableMethods() {
+    public function testChainableMethods(): void {
         $this->assertEquals(new HashMap(Map {
             'a' => 'foo',
             'b' => 'bar',
@@ -57,7 +57,7 @@ class HashMapTest extends TestCase {
         }), $this->object);
     }
 
-    public function testImmutableMethods() {
+    public function testImmutableMethods(): void {
         $this->assertEquals(new HashMap(Map {
             'a' => 'foo',
             'b' => 'bar',
@@ -81,7 +81,7 @@ class HashMapTest extends TestCase {
         $this->assertNotSame($mapped, $this->object);
     }
 
-    public function testAdd() {
+    public function testAdd(): void {
         $this->assertEquals(new HashMap(Map {
             'a' => 'foo',
             'b' => 'bar',
@@ -100,7 +100,7 @@ class HashMapTest extends TestCase {
         }), $this->object);
     }
 
-    public function testAddAll() {
+    public function testAddAll(): void {
         $this->assertEquals(new HashMap(Map {
             'a' => 'foo',
             'b' => 'bar',
@@ -118,18 +118,18 @@ class HashMapTest extends TestCase {
         }), $this->object);
     }
 
-    public function testAt() {
+    public function testAt(): void {
         $this->assertEquals('bar', $this->object->at('b'));
     }
 
     /**
      * @expectedException \OutOfBoundsException
      */
-    public function testAtThrowsError() {
+    public function testAtThrowsError(): void {
         $this->assertEquals('bar', $this->object->at('z'));
     }
 
-    public function testChunk() {
+    public function testChunk(): void {
         $this->assertEquals(new ArrayList(Vector {
             new HashMap(Map {'a' => 'foo'}),
             new HashMap(Map {'b' => 'bar'}),
@@ -137,7 +137,7 @@ class HashMapTest extends TestCase {
         }), $this->object->chunk(1));
     }
 
-    public function testClean() {
+    public function testClean(): void {
         $list = new HashMap(Vector {1, 0, '0', false, true, null, 'foo', '', 0.0});
 
         $this->assertEquals(new HashMap(Map {
@@ -150,11 +150,11 @@ class HashMapTest extends TestCase {
         }), $list->clean());
     }
 
-    public function testClear() {
+    public function testClear(): void {
         $this->assertEquals(new HashMap(), $this->object->flush());
     }
 
-    public function testClone() {
+    public function testClone(): void {
         $map = Map {'a' => 'foo'};
         $list = new HashMap($map);
         $clone = clone $list;
@@ -162,7 +162,7 @@ class HashMapTest extends TestCase {
         $this->assertNotSame($map, $clone->value());
     }
 
-    public function testConcat() {
+    public function testConcat(): void {
         $list1 = $this->object->concat(new HashMap(Map {'x' => 1, 'y' => 2, 'z' => 3}));
 
         $this->assertEquals(new HashMap(Map {
@@ -188,58 +188,52 @@ class HashMapTest extends TestCase {
         $this->assertNotSame($list1, $this->object);
     }
 
-    public function testContains() {
+    public function testContains(): void {
         $this->assertTrue($this->object->contains('foo'));
         $this->assertFalse($this->object->contains(123));
     }
 
-    public function testCount() {
+    public function testCount(): void {
         $this->assertEquals(3, $this->object->count());
         $this->object->add(Pair {'d', 'fop'});
         $this->assertEquals(4, $this->object->count());
     }
 
-    public function testDepth() {
+    public function testDepth(): void {
         $this->assertEquals(1, $this->object->depth());
     }
 
-    public function testEach() {
-        $this->assertEquals(new HashMap(Map {'a' => 'FOO', 'b' => 'BAR', 'c' => 'BAZ'}), $this->object->each(function(string $key, string $value): string {
-            return strtoupper($value);
-        }));
+    public function testEach(): void {
+        $this->assertEquals(new HashMap(Map {'a' => 'FOO', 'b' => 'BAR', 'c' => 'BAZ'}), $this->object->each(($key, $value) ==> strtoupper($value)));
     }
 
-    public function testErase() {
+    public function testErase(): void {
         $this->assertEquals(new HashMap(Map {'b' => 'bar', 'c' => 'baz'}), $this->object->erase('foo'));
     }
 
-    public function testFilter() {
-        $this->assertEquals(new HashMap(Map {'b' => 'bar', 'c' => 'baz'}), $this->object->filter(function(string $value): bool {
-            return (strpos($value, 'b') !== false);
-        }));
+    public function testFilter(): void {
+        $this->assertEquals(new HashMap(Map {'b' => 'bar', 'c' => 'baz'}), $this->object->filter(($value) ==> (strpos($value, 'b') !== false)));
     }
 
-    public function testFilterWithKey() {
-        $this->assertEquals(new HashMap(Map {'c' => 'baz'}), $this->object->filterWithKey(function(string $index, string $value): bool {
-            return ($index === 'c');
-        }));
+    public function testFilterWithKey(): void {
+        $this->assertEquals(new HashMap(Map {'c' => 'baz'}), $this->object->filterWithKey(($index, $value) ==> ($index === 'c')));
     }
 
-    public function testFirst() {
+    public function testFirst(): void {
         $this->assertEquals('foo', $this->object->first());
         $this->assertEquals(null, (new HashMap())->first());
     }
 
-    public function testFlush() {
+    public function testFlush(): void {
         $this->assertEquals(new HashMap(), $this->object->flush());
     }
 
-    public function testGet() {
+    public function testGet(): void {
         $this->assertEquals('bar', $this->object->get('b'));
         $this->assertEquals(null, $this->object->get('z'));
     }
 
-    public function testGroupBy() {
+    public function testGroupBy(): void {
         $books = new HashMap([
             1 => Map {'id' => 1, 'series_id' => 1, 'name' => 'A Game of Thrones', 'isbn' => '0-553-10354-7', 'released' => '1996-08-02'},
             2 => Map {'id' => 2, 'series_id' => 1, 'name' => 'A Clash of Kings', 'isbn' => '0-553-10803-4', 'released' => '1999-02-25'},
@@ -280,87 +274,79 @@ class HashMapTest extends TestCase {
                 14 => Map {'id' => 14, 'series_id' => 3, 'name' => 'The Two Towers', 'isbn' => '', 'released' => '1954-11-11'},
                 15 => Map {'id' => 15, 'series_id' => 3, 'name' => 'The Return of the King', 'isbn' => '', 'released' => '1955-10-25'},
             ])
-        ]), $books->groupBy(function($item) {
-            return $item['series_id'];
-        }));
+        ]), $books->groupBy(($item, $key) ==> $item['series_id']));
     }
 
-    public function testHas() {
+    public function testHas(): void {
         $this->assertTrue($this->object->has('b'));
         $this->assertFalse($this->object->has('z'));
     }
 
-    public function testIndexOf() {
+    public function testIndexOf(): void {
         $this->assertEquals(0, $this->object->indexOf('a'));
         $this->assertEquals(2, $this->object->indexOf('c'));
         $this->assertEquals(-1, $this->object->indexOf('z'));
     }
 
-    public function testIsEmpty() {
+    public function testIsEmpty(): void {
         $this->assertFalse($this->object->isEmpty());
         $this->object->clear();
         $this->assertTrue($this->object->isEmpty());
     }
 
-    public function testJsonSerialize() {
+    public function testJsonSerialize(): void {
         $this->assertEquals(['a' => 'foo', 'b' => 'bar', 'c' => 'baz'], $this->object->jsonSerialize());
     }
 
-    public function testKeyOf() {
+    public function testKeyOf(): void {
         $this->assertEquals('c', $this->object->keyOf('baz'));
         $this->assertEquals(null, $this->object->keyOf('fop'));
     }
 
-    public function testKeys() {
+    public function testKeys(): void {
         $this->assertEquals(Vector {'a', 'b', 'c'}, $this->object->keys());
         $this->object->set('d', 'fop');
         $this->assertEquals(Vector {'a', 'b', 'c', 'd'}, $this->object->keys());
     }
 
-    public function testLast() {
+    public function testLast(): void {
         $this->assertEquals('baz', $this->object->last());
         $this->assertEquals(null, (new HashMap())->last());
     }
 
-    public function testLength() {
+    public function testLength(): void {
         $this->assertEquals(3, $this->object->length());
         $this->object->set('d', 'fop');
         $this->assertEquals(4, $this->object->length());
     }
 
-    public function testMap() {
-        $this->assertEquals(new HashMap(Map {'a' => 'Foo', 'b' => 'Bar', 'c' => 'Baz'}), $this->object->map(function(string $value): string {
-            return ucfirst($value);
-        }));
+    public function testMap(): void {
+        $this->assertEquals(new HashMap(Map {'a' => 'Foo', 'b' => 'Bar', 'c' => 'Baz'}), $this->object->map(($value) ==> ucfirst($value)));
     }
 
-    public function testMapWithKey() {
-        $this->assertEquals(new HashMap(Map {'a' => 'FooA', 'b' => 'BarB', 'c' => 'BazC'}), $this->object->mapWithKey(function(string $index, string $value): string {
-            return ucfirst($value) . strtoupper($index);
-        }));
+    public function testMapWithKey(): void {
+        $this->assertEquals(new HashMap(Map {'a' => 'FooA', 'b' => 'BarB', 'c' => 'BazC'}), $this->object->mapWithKey(($index, $value) ==> ucfirst($value) . strtoupper($index)));
     }
 
-    public function testMerge() {
+    public function testMerge(): void {
         $this->assertEquals(new HashMap(Map {'a' => 1, 'b' => 2, 'c' => 'baz'}), $this->object->merge(new HashMap(Map {'a' => 1, 'b' => 2})));
     }
 
-    public function testPluck() {
+    public function testPluck(): void {
         $list = new HashMap(Map {
             'a' => Map {'key' => 1},
             'b' => Map {'key' => 2},
             'c' => Map {'key' => 3},
         });
 
-        $this->assertEquals(Vector {1, 2, 3}, $list->pluck(function($value, $key) {
-            return $value['key'];
-        }));
+        $this->assertEquals(Vector {1, 2, 3}, $list->pluck(($value, $key) ==> $value['key']));
     }
 
-    public function testRemove() {
+    public function testRemove(): void {
         $this->assertEquals(new HashMap(Map {'b' => 'bar', 'c' => 'baz'}), $this->object->remove('a'));
     }
 
-    public function testReorder() {
+    public function testReorder(): void {
         $this->assertEquals(new HashMap([
             'YQ==' => 'foo',
             'Yg==' => 'bar',
@@ -368,7 +354,7 @@ class HashMapTest extends TestCase {
         ]), $this->object->reorder(($item, $key) ==> base64_encode($key)));
     }
 
-    public function testReorderComplex() {
+    public function testReorderComplex(): void {
         $map = new HashMap([
             'a' => Map {'id' => 5, 'name' => 'foo'},
             'b' => Map {'id' => 10, 'name' => 'bar'},
@@ -382,17 +368,17 @@ class HashMapTest extends TestCase {
         ]), $map->reorder(($item, $key) ==> $item['id']));
     }
 
-    public function testReverse() {
+    public function testReverse(): void {
         $this->assertEquals(new HashMap(Map {'a' => 'foo', 'b' => 'bar', 'c' => 'baz'}), $this->object);
         $this->assertEquals(new HashMap(Map {'c' => 'baz', 'b' => 'bar', 'a' => 'foo'}), $this->object->reverse());
     }
 
-    public function testSerialize() {
+    public function testSerialize(): void {
         $this->assertEquals('C:18:"Titon\Type\HashMap":71:{K:6:"HH\Map":3:{s:1:"a";s:3:"foo";s:1:"b";s:3:"bar";s:1:"c";s:3:"baz";}}', serialize($this->object));
         $this->assertEquals('K:6:"HH\Map":3:{s:1:"a";s:3:"foo";s:1:"b";s:3:"bar";s:1:"c";s:3:"baz";}', $this->object->serialize());
     }
 
-    public function testSet() {
+    public function testSet(): void {
         $this->assertEquals(new HashMap(Map {
             'a' => 'foo',
             'b' => 'bar',
@@ -408,7 +394,7 @@ class HashMapTest extends TestCase {
         }), $this->object);
     }
 
-    public function testSetAll() {
+    public function testSetAll(): void {
         $this->assertEquals(new HashMap(Map {
             'a' => 'foo',
             'b' => 'bar',
@@ -427,24 +413,20 @@ class HashMapTest extends TestCase {
         }), $this->object);
     }
 
-    public function testShuffle() {
+    public function testShuffle(): void {
         $vector = Vector {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         $list = new HashMap($vector);
 
         $this->assertNotEquals(new HashMap($vector), $list->shuffle());
     }
 
-    public function testSome() {
-        $this->assertTrue($this->object->some(function(string $key, mixed $value) {
-            return is_string($value);
-        }));
+    public function testSome(): void {
+        $this->assertTrue($this->object->some(($key, $value) ==> is_string($value)));
 
-        $this->assertFalse($this->object->some(function(string $key, mixed $value) {
-            return is_numeric($value);
-        }));
+        $this->assertFalse($this->object->some(($key, $value) ==> is_numeric($value)));
     }
 
-    public function testSort() {
+    public function testSort(): void {
         $map = new HashMap([
             'a' => 5,
             'b' => 3,
@@ -464,7 +446,7 @@ class HashMapTest extends TestCase {
         ]), $map2);
     }
 
-    public function testSortWithCallback() {
+    public function testSortWithCallback(): void {
         $map = new HashMap([
             'a' => 5,
             'b' => 3,
@@ -473,7 +455,7 @@ class HashMapTest extends TestCase {
             'e' => 2
         ]);
 
-        $callback = function($a, $b) {
+        $callback = ($a, $b) ==> {
             if ($a == $b) {
                 return 0;
             } else if ($a > $b) {
@@ -494,16 +476,16 @@ class HashMapTest extends TestCase {
         ]), $map2);
     }
 
-    public function testToArray() {
+    public function testToArray(): void {
         $this->assertEquals(['a' => 'foo', 'b' => 'bar', 'c' => 'baz'], $this->object->toArray());
     }
 
-    public function testToJson() {
+    public function testToJson(): void {
         $this->assertEquals('{"a":"foo","b":"bar","c":"baz"}', json_encode($this->object));
         $this->assertEquals('{"a":"foo","b":"bar","c":"baz"}', $this->object->toJson());
     }
 
-    public function testToXml() {
+    public function testToXml(): void {
         $this->assertEquals(
             '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
             '<document>' . PHP_EOL .
@@ -514,13 +496,13 @@ class HashMapTest extends TestCase {
             , $this->object->toXml());
     }
 
-    public function testUnserialize() {
+    public function testUnserialize(): void {
         $serialized = serialize($this->object);
 
         $this->assertEquals($this->object, unserialize($serialized));
     }
 
-    public function testUnique() {
+    public function testUnique(): void {
         $list = new HashMap(Vector {'foo', 'bar', 'baz', 'foo', 'baz', 'fop'});
 
         $this->assertEquals(new HashMap(Map {
@@ -531,7 +513,7 @@ class HashMapTest extends TestCase {
         }), $list->unique());
     }
 
-    public function testValue() {
+    public function testValue(): void {
         $this->assertEquals(Map {
             'a' => 'foo',
             'b' => 'bar',
@@ -539,7 +521,7 @@ class HashMapTest extends TestCase {
         }, $this->object->value());
     }
 
-    public function testValues() {
+    public function testValues(): void {
         $this->assertEquals(Vector {'foo', 'bar', 'baz'}, $this->object->values());
     }
 

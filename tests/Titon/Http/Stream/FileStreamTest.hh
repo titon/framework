@@ -8,13 +8,13 @@ use Titon\Test\TestCase;
  */
 class FileStreamTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new FileStream(TEMP_DIR . '/type/barbarian.xml');
     }
 
-    protected function tearDown() {
+    protected function tearDown(): void {
         parent::tearDown();
 
         $this->object->close();
@@ -23,19 +23,19 @@ class FileStreamTest extends TestCase {
     /**
      * @expectedException \Titon\Common\Exception\MissingFileException
      */
-    public function testConstructorErrorsOnInvalidPath() {
+    public function testConstructorErrorsOnInvalidPath(): void {
         new FileStream('foo');
     }
 
-    public function testGetMode() {
+    public function testGetMode(): void {
         $this->assertEquals('r+b', $this->object->getMode());
     }
 
-    public function testGetSize() {
+    public function testGetSize(): void {
         $this->assertGreaterThan(1300, $this->object->getSize()); // Depending on the lookup method, this value can change
     }
 
-    public function testIsLocal() {
+    public function testIsLocal(): void {
         $this->assertTrue($this->object->isLocal());
     }
 

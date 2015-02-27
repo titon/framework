@@ -10,32 +10,32 @@ use Exception;
  */
 class CliDumperTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new CliDumper();
     }
 
-    public function testBacktrace() {
+    public function testBacktrace(): void {
         $line = explode(PHP_EOL, $this->object->backtrace())[0];
 
         $this->assertEquals('#01: Titon\Debug\Dumper\CliDumper->backtrace() - [tests]Titon/Debug/Dumper/CliDumperTest.hh:20', $line);
     }
 
-    public function testBacktraceWithException() {
+    public function testBacktraceWithException(): void {
         $line = explode(PHP_EOL, $this->object->backtrace(new Exception('Systems critical!')))[0];
 
         $this->assertEquals('#01: Titon\Debug\Dumper\CliDumperTest->testBacktraceWithException() - [internal]:0', $line);
     }
 
-    public function testDebug() {
+    public function testDebug(): void {
         $this->assertEquals(
             '[tests]Titon/Debug/Dumper/CliDumperTest.hh:35' . PHP_EOL .
             '---------------------------------------------' . PHP_EOL .
             'foo', $this->object->debug('foo'));
     }
 
-    public function testDebugWithMultipleVariables() {
+    public function testDebugWithMultipleVariables(): void {
         $this->assertEquals(
             '[tests]Titon/Debug/Dumper/CliDumperTest.hh:44' . PHP_EOL .
             '---------------------------------------------' . PHP_EOL .
@@ -44,14 +44,14 @@ class CliDumperTest extends TestCase {
             '123', $this->object->debug('foo', 123));
     }
 
-    public function testDump() {
+    public function testDump(): void {
         $this->assertEquals(
             '[tests]Titon/Debug/Dumper/CliDumperTest.hh:51' . PHP_EOL .
             '---------------------------------------------' . PHP_EOL .
             'string(3) "foo"', $this->object->dump('foo'));
     }
 
-    public function testDumpWithMultipleVariables() {
+    public function testDumpWithMultipleVariables(): void {
         $this->assertEquals(
             '[tests]Titon/Debug/Dumper/CliDumperTest.hh:60' . PHP_EOL .
             '---------------------------------------------' . PHP_EOL .
@@ -60,7 +60,7 @@ class CliDumperTest extends TestCase {
             'int(123)', $this->object->dump('foo', 123));
     }
 
-    public function testInspect() {
+    public function testInspect(): void {
         $line = explode(PHP_EOL, $this->object->inspect(new FatalErrorException('Systems critical!')))[0];
 
         $this->assertEquals('Titon\Debug\Exception\FatalErrorException - Systems critical!', $line);

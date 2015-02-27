@@ -12,7 +12,7 @@ use Titon\Utility\State\Server;
  */
 class FormHelperTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $_SERVER['HTTP_USER_AGENT'] = 'browser';
@@ -26,12 +26,12 @@ class FormHelperTest extends TestCase {
         $this->object->open('/');
     }
 
-    public function testValueAttributeEscaping() {
+    public function testValueAttributeEscaping(): void {
         $this->assertEquals('<input id="text" name="text" type="text" value="">' . PHP_EOL, $this->object->text('text'));
         $this->assertEquals('<input id="text" name="text" type="text" value="Value with &quot;quotes&quot;">' . PHP_EOL, $this->object->text('text', 'Value with "quotes"'));
     }
 
-    public function testValueOverrides() {
+    public function testValueOverrides(): void {
         if (!class_exists('Titon\Model\Model')) {
             $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
         }
@@ -61,7 +61,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="model-text" name="text" type="text" value="model">' . PHP_EOL, $this->object->text('text', 'default'));
     }
 
-    public function testBinary() {
+    public function testBinary(): void {
         $this->assertEquals('<input id="binary-hidden" name="binary" type="hidden" value="0">' . PHP_EOL .
             '<input id="binary" name="binary" type="checkbox" value="1">' . PHP_EOL, $this->object->binary('binary'));
 
@@ -73,7 +73,7 @@ class FormHelperTest extends TestCase {
             '<input checked="checked" id="binary" name="binary" type="checkbox" value="1">' . PHP_EOL, $this->object->binary('binary'));
     }
 
-    public function testCheckbox() {
+    public function testCheckbox(): void {
         $this->assertEquals('<input id="checkbox" name="checkbox" type="checkbox" value="1">' . PHP_EOL, $this->object->checkbox('checkbox'));
 
         // tiered depth
@@ -103,7 +103,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input checked="checked" id="test-checkbox" name="Test[checkbox]" type="checkbox" value="1">' . PHP_EOL, $this->object->checkbox('Test.checkbox'));
     }
 
-    public function testCheckboxes() {
+    public function testCheckboxes(): void {
         $options = Vector {'red', 'blue', 'green'};
 
         // regular
@@ -148,11 +148,11 @@ class FormHelperTest extends TestCase {
         }, $this->object->checkboxes('Test.checkboxes_multi', $options, Map {'default' => 'blue'}));
     }
 
-    public function testClose() {
+    public function testClose(): void {
         $this->assertEquals('</form>' . PHP_EOL, $this->object->close());
     }
 
-    public function testDay() {
+    public function testDay(): void {
         $this->assertEquals(
             '<select id="day" name="day">' . PHP_EOL .
             '<option value="1">1</option>' . PHP_EOL .
@@ -304,7 +304,7 @@ class FormHelperTest extends TestCase {
         , $this->object->day('Test.day', Map {'defaultDay' => 13}));
     }
 
-    public function testDate() {
+    public function testDate(): void {
         $this->assertEquals(
             '<select id="created-month" name="created[month]">' . PHP_EOL .
             '<option value="1">January</option>' . PHP_EOL .
@@ -367,7 +367,7 @@ class FormHelperTest extends TestCase {
         }));
     }
 
-    public function testDateTime() {
+    public function testDateTime(): void {
         $this->object->use12Hour();
 
         $this->assertEquals(
@@ -574,7 +574,7 @@ class FormHelperTest extends TestCase {
         }));
     }
 
-    public function testEmail() {
+    public function testEmail(): void {
         $this->assertEquals('<input id="email" name="email" type="email" value="">' . PHP_EOL, $this->object->email('email'));
 
         // with data
@@ -586,21 +586,21 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="test-email" name="Test[email]" type="email" value="email@domain.com">' . PHP_EOL, $this->object->email('Test.email'));
     }
 
-    public function testFile() {
+    public function testFile(): void {
         $this->assertEquals('<input id="file" name="file" type="file">' . PHP_EOL, $this->object->file('file'));
 
         // no value
         $this->assertEquals('<input id="file" name="file" type="file">' . PHP_EOL, $this->object->file('file', Map {'value' => 'none'}));
     }
 
-    public function testFormatID() {
+    public function testFormatID(): void {
         $this->assertEquals('key', $this->object->formatID('key'));
         $this->assertEquals('key-nested', $this->object->formatID('key.nested'));
         $this->assertEquals('key-nested-again', $this->object->formatID('key.nested.again'));
         $this->assertEquals('key-nested-again', $this->object->formatID('key.nested.again..'));
     }
 
-    public function testFormatIDWithModel() {
+    public function testFormatIDWithModel(): void {
         if (!class_exists('Titon\Model\Model')) {
             $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
         }
@@ -613,7 +613,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('model-key-nested-again', $this->object->formatID('key.nested.again..'));
     }
 
-    public function testFormatName() {
+    public function testFormatName(): void {
         $this->assertEquals('key', $this->object->formatName('key'));
         $this->assertEquals('key[nested]', $this->object->formatName('key.nested'));
         $this->assertEquals('key[nested][again]', $this->object->formatName('key.nested.again'));
@@ -622,12 +622,12 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('key[nested][again][0]', $this->object->formatName('key.nested.again.[0]'));
     }
 
-    public function testGetDefaultValue() {
+    public function testGetDefaultValue(): void {
         $this->assertEquals(null, $this->object->getDefaultValue(Map {}));
         $this->assertEquals('foo', $this->object->getDefaultValue(Map {'default' => 'foo'}));
     }
 
-    public function testGetRequestValue() {
+    public function testGetRequestValue(): void {
         $this->assertEquals(null, $this->object->getRequestValue('foo'));
 
         $_POST['foo'] = 'bar';
@@ -646,7 +646,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('baz', $this->object->getRequestValue('Test.foo'));
     }
 
-    public function testGetValueModel() {
+    public function testGetValueModel(): void {
         if (!class_exists('Titon\Model\Model')) {
             $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
         }
@@ -664,7 +664,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('baz', $this->object->getValue('Test.foo'));
     }
 
-    public function testGetValue() {
+    public function testGetValue(): void {
         $this->assertEquals(null, $this->object->getValue('foo'));
         $this->assertEquals('bar', $this->object->getValue('foo', Map {'default' => 'bar'}));
 
@@ -674,7 +674,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('baz', $this->object->getValue('foo', Map {'default' => 'bar'}));
     }
 
-    public function testHidden() {
+    public function testHidden(): void {
         $this->assertEquals('<input id="hidden" name="hidden" type="hidden" value="">' . PHP_EOL, $this->object->hidden('hidden'));
         $this->assertEquals('<input id="hidden" name="hidden" type="hidden" value="foobar">' . PHP_EOL, $this->object->hidden('hidden', 'foobar'));
 
@@ -687,7 +687,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="test-hidden" name="Test[hidden]" type="hidden" value="yes">' . PHP_EOL, $this->object->hidden('Test.hidden', 'no'));
     }
 
-    public function testHour() {
+    public function testHour(): void {
         $this->object->use12Hour();
 
         $this->assertEquals(
@@ -843,7 +843,7 @@ class FormHelperTest extends TestCase {
         , $this->object->hour('Test.hour24', Map {'defaultHour' => 2}));
     }
 
-    public function testIsChecked() {
+    public function testIsChecked(): void {
         $this->assertFalse($this->object->isChecked(null, 'foo'));
         $this->assertFalse($this->object->isChecked(false, 'foo'));
         $this->assertFalse($this->object->isChecked('bar', 'foo'));
@@ -854,7 +854,7 @@ class FormHelperTest extends TestCase {
         $this->assertTrue($this->object->isChecked(['bar', 'foo'], 'foo'));
     }
 
-    public function testIsSelected() {
+    public function testIsSelected(): void {
         $this->assertFalse($this->object->isSelected(null, 'foo'));
         $this->assertFalse($this->object->isSelected('bar', 'foo'));
         $this->assertFalse($this->object->isSelected(['bar'], 'foo'));
@@ -863,7 +863,7 @@ class FormHelperTest extends TestCase {
         $this->assertTrue($this->object->isSelected(['bar', 'foo'], 'foo'));
     }
 
-    public function testLabel() {
+    public function testLabel(): void {
         $this->assertEquals('<label for="label">Title</label>' . PHP_EOL, $this->object->label('label', 'Title'));
 
         // escaping
@@ -876,7 +876,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<label for="label"><input id="label" name="label" type="checkbox" value="1">' . PHP_EOL . '</label>' . PHP_EOL, $this->object->label('label', $this->object->checkbox('label'), Map {'escape' => false}));
     }
 
-    public function testMeridiem() {
+    public function testMeridiem(): void {
         $this->assertEquals(
             '<select id="meridiem" name="meridiem">' . PHP_EOL .
             '<option value="am">AM</option>' . PHP_EOL .
@@ -903,7 +903,7 @@ class FormHelperTest extends TestCase {
         , $this->object->meridiem('Test.meridiem', Map {'defaultMeridiem' => 'pm'}));
     }
 
-    public function testMinute() {
+    public function testMinute(): void {
         $this->assertEquals(
             '<select id="minute" name="minute">' . PHP_EOL .
             '<option value="0">00</option>' . PHP_EOL .
@@ -1105,7 +1105,7 @@ class FormHelperTest extends TestCase {
         , $this->object->minute('Test.minute', Map {'defaultMinute' => 38}));
     }
 
-    public function testModel() {
+    public function testModel(): void {
         if (!class_exists('Titon\Model\Model')) {
             $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
         }
@@ -1116,7 +1116,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals($model, $this->object->getModel());
     }
 
-    public function testMonth() {
+    public function testMonth(): void {
         $this->assertEquals(
             '<select id="month" name="month">' . PHP_EOL .
             '<option value="1">January</option>' . PHP_EOL .
@@ -1174,7 +1174,7 @@ class FormHelperTest extends TestCase {
         , $this->object->month('Test.month', Map {'defaultMonth' => 8, 'monthFormat' => 'm'}));
     }
 
-    public function testOpen() {
+    public function testOpen(): void {
         $this->assertEquals('<form accept-charset="UTF-8" action="/" enctype="application/x-www-form-urlencoded" id="form-2" method="POST">' . PHP_EOL, $this->object->open('/'));
 
         // file
@@ -1184,7 +1184,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<form accept-charset="UTF-8" action="/search" enctype="application/x-www-form-urlencoded" id="form-4" method="GET">' . PHP_EOL, $this->object->open('/search', Map {'method' => 'get'}));
     }
 
-    public function testPassword() {
+    public function testPassword(): void {
         $this->assertEquals('<input id="password" name="password" type="password">' . PHP_EOL, $this->object->password('password'));
 
         // no value
@@ -1197,7 +1197,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="test-password" name="Test[password]" type="password">' . PHP_EOL, $this->object->password('Test.password'));
     }
 
-    public function testPrepareAttributes() {
+    public function testPrepareAttributes(): void {
         $this->assertEquals(Map {
             'name' => 'foo[bar]',
             'multiple' => 'multiple',
@@ -1217,7 +1217,7 @@ class FormHelperTest extends TestCase {
         }, $this->object->prepareAttributes(Map {'name' => 'foo.bar', 'id' => 'custom-id'}, Map {'empty' => true}));
     }
 
-    public function testRadio() {
+    public function testRadio(): void {
         $this->assertEquals('<input id="radio" name="radio" type="radio" value="1">' . PHP_EOL, $this->object->radio('radio', '1'));
 
         // tiered depth
@@ -1244,7 +1244,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input checked="checked" id="test-radio" name="Test[radio]" type="radio" value="yes">' . PHP_EOL, $this->object->radio('Test.radio', 'yes'));
     }
 
-    public function testRadios() {
+    public function testRadios(): void {
         $options = Vector {'red', 'blue', 'green'};
 
         // regular
@@ -1272,7 +1272,7 @@ class FormHelperTest extends TestCase {
         }, $this->object->radios('Test.radio', $options));
     }
 
-    public function testReset() {
+    public function testReset(): void {
         $this->assertEquals('<button id="form-1-reset" type="reset">Title</button>' . PHP_EOL, $this->object->reset('Title'));
 
         // escaping
@@ -1282,7 +1282,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<button class="reset" id="reset" type="reset">Title</button>' . PHP_EOL, $this->object->reset('Title', Map {'class' => 'reset', 'id' => 'reset'}));
     }
 
-    public function testSecond() {
+    public function testSecond(): void {
         $this->assertEquals(
             '<select id="second" name="second">' . PHP_EOL .
             '<option value="0">00</option>' . PHP_EOL .
@@ -1484,7 +1484,7 @@ class FormHelperTest extends TestCase {
         , $this->object->second('Test.second', Map {'defaultSecond' => 58}));
     }
 
-    public function testSelect() {
+    public function testSelect(): void {
         $options = Map {'warrior' => 'Warrior', 'ranger' => 'Ranger', 'mage' => 'Mage'};
 
         $this->assertEquals(
@@ -1623,7 +1623,7 @@ class FormHelperTest extends TestCase {
         , $this->object->select('Test.select_group', $optgroup, Map {'multiple' => true}));
     }
 
-    public function testSubmit() {
+    public function testSubmit(): void {
         $this->assertEquals('<button id="form-1-submit" type="submit">Title</button>' . PHP_EOL, $this->object->submit('Title'));
 
         // escaping
@@ -1633,7 +1633,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<button class="reset" id="submit" type="submit">Title</button>' . PHP_EOL, $this->object->submit('Title', Map {'class' => 'reset', 'id' => 'submit'}));
     }
 
-    public function testText() {
+    public function testText(): void {
         $this->assertEquals('<input id="text" name="text" type="text" value="">' . PHP_EOL, $this->object->text('text'));
         $this->assertEquals('<input class="input" id="text" name="text" placeholder="Testing &quot;quotes&quot; placeholder" readonly="readonly" type="text" value="">' . PHP_EOL, $this->object->text('text', '', Map {
             'placeholder' => 'Testing "quotes" placeholder',
@@ -1650,7 +1650,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="test-text" name="Test[text]" type="text" value="bar">' . PHP_EOL, $this->object->text('Test.text', 'foo'));
     }
 
-    public function testTextarea() {
+    public function testTextarea(): void {
         $this->assertEquals('<textarea cols="25" id="textarea" name="textarea" rows="5"></textarea>' . PHP_EOL, $this->object->textarea('textarea'));
         $this->assertEquals('<textarea class="input" cols="50" disabled="disabled" id="textarea" name="textarea" rows="10"></textarea>' . PHP_EOL, $this->object->textarea('textarea', '', Map {
             'class' => 'input',
@@ -1668,7 +1668,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<textarea cols="25" id="test-textarea" name="Test[textarea]" rows="5">bar</textarea>' . PHP_EOL, $this->object->textarea('Test.textarea', 'foo'));
     }
 
-    public function testTime() {
+    public function testTime(): void {
         $this->object->use12Hour();
 
         $this->assertEquals('<select id="created-hour" name="created[hour]">' . PHP_EOL .
@@ -1970,11 +1970,11 @@ class FormHelperTest extends TestCase {
         , $this->object->time('created'));
     }
 
-    public function testToken() {
+    public function testToken(): void {
         $this->assertEquals('<input id="token" name="_token" type="hidden" value="AJW9120SJ">' . PHP_EOL, $this->object->token('AJW9120SJ'));
     }
 
-    public function testUrl() {
+    public function testUrl(): void {
         $this->assertEquals('<input id="url" name="url" type="url" value="">' . PHP_EOL, $this->object->url('url'));
 
         // with data
@@ -1986,7 +1986,7 @@ class FormHelperTest extends TestCase {
         $this->assertEquals('<input id="test-url" name="Test[url]" type="url" value="http://domain.com">' . PHP_EOL, $this->object->url('Test.url'));
     }
 
-    public function testYear() {
+    public function testYear(): void {
         $this->assertEquals(
             '<select id="year" name="year">' . PHP_EOL .
             '<option value="2005">2005</option>' . PHP_EOL .

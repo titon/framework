@@ -5,7 +5,7 @@ use Titon\Test\TestCase;
 
 class EnvTest extends TestCase {
 
-    public function testClass() {
+    public function testClass(): void {
         $oldEnv = $_ENV;
 
         $_ENV = [

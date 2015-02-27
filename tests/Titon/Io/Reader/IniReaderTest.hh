@@ -11,7 +11,7 @@ use Titon\Test\TestCase;
 
 class IniReaderTest extends TestCase {
 
-    public function testReadResource() {
+    public function testReadResource(): void {
         $reader = new IniReader(TEMP_DIR . '/io/ini.ini');
 
         $this->assertMapsEqual(Map {

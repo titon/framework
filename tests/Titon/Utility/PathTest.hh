@@ -5,26 +5,26 @@ use Titon\Test\TestCase;
 
 class PathTest extends TestCase {
 
-    public function testAlias() {
+    public function testAlias(): void {
         $this->assertEquals('[internal]', Path::alias(''));
         $this->assertEquals('[vendor]Titon/Debug/Debugger.php', Path::alias(VENDOR_DIR . '/Titon/Debug/Debugger.php'));
         $this->assertEquals('[src]Titon/Debug/Debugger.php', Path::alias(dirname(TEST_DIR) . '/src/Titon/Debug/Debugger.php'));
         $this->assertEquals('[app]some/file.txt', Path::alias('/app/some/file.txt', Map {'app' => '/app'}));
     }
 
-    public function testClassName() {
+    public function testClassName(): void {
         $this->assertEquals('ClassName', Path::className('\test\namespace\ClassName'));
         $this->assertEquals('ClassName', Path::className('test:namespace:ClassName', ':'));
         $this->assertEquals('ClassName', Path::className('test/namespace/ClassName', '/'));
         $this->assertEquals('ClassName', Path::className('test.namespace.ClassName', '.'));
     }
 
-    public function testPackageName() {
+    public function testPackageName(): void {
         $this->assertEquals('test\namespace', Path::packageName('\test\namespace\ClassName'));
         $this->assertEquals('test/namespace', Path::packageName('/test/namespace/ClassName', '/'));
     }
 
-    public function testDs() {
+    public function testDs(): void {
         // linux
         $this->assertEquals('/some/fake/folder/path/fileName.php', Path::ds('/some/fake/folder/path/fileName.php'));
         $this->assertEquals('/some/fake/folder/path/fileName.php', Path::ds('/some\fake/folder\path/fileName.php'));
@@ -42,7 +42,7 @@ class PathTest extends TestCase {
         $this->assertEquals('C:/some/fake/folder/path/fileName/', Path::ds('C:\some/fake\folder/path\fileName\\'));
     }
 
-    public function testIncludePath() {
+    public function testIncludePath(): void {
         $baseIncludePath = get_include_path();
         $selfPath1 = '/fake/test/1';
         $selfPath2 = '/fake/test/2';
@@ -57,7 +57,7 @@ class PathTest extends TestCase {
         $this->assertEquals($baseIncludePath . PATH_SEPARATOR . $selfPath1 . PATH_SEPARATOR . $selfPath2 . PATH_SEPARATOR . $selfPath3, get_include_path());
     }
 
-    public function testIsAbsolute() {
+    public function testIsAbsolute(): void {
         $this->assertTrue(Path::isAbsolute('/root/path'));
         $this->assertTrue(Path::isAbsolute('\root\path'));
         $this->assertTrue(Path::isAbsolute('C:\root\path'));
@@ -68,7 +68,7 @@ class PathTest extends TestCase {
         $this->assertFalse(Path::isAbsolute('../sub/'));
     }
 
-    public function testIsRelative() {
+    public function testIsRelative(): void {
         $this->assertFalse(Path::isRelative('/root/path'));
         $this->assertFalse(Path::isRelative('\root\path'));
         $this->assertFalse(Path::isRelative('C:\root\path'));
@@ -79,7 +79,7 @@ class PathTest extends TestCase {
         $this->assertTrue(Path::isRelative('../sub/'));
     }
 
-    public function testJoin() {
+    public function testJoin(): void {
         $this->assertEquals('foo/bar', Path::join(Vector {'foo', 'bar'}));
         $this->assertEquals('foo/bar', Path::join(Vector {'foo/', '/bar/'}));
         $this->assertEquals('foo/baz', Path::join(Vector {'foo/', '/bar/', '..', '//baz'}));
@@ -90,7 +90,7 @@ class PathTest extends TestCase {
         $this->assertEquals(Vector {'foo', 'baz'}, Path::join(Vector {'foo/', '/bar/', '..', '//baz'}, true, false));
     }
 
-    public function testRelativeTo() {
+    public function testRelativeTo(): void {
         $this->assertEquals('./', Path::relativeTo('/foo/bar', '/foo/bar'));
         $this->assertEquals('../', Path::relativeTo('/foo/bar', '/foo'));
         $this->assertEquals('./baz/', Path::relativeTo('/foo/bar', '/foo/bar/baz'));
@@ -100,11 +100,11 @@ class PathTest extends TestCase {
     /**
      * @expectedException \Titon\Common\Exception\InvalidArgumentException
      */
-    public function testRelativeToErrorsOnAbsolute() {
+    public function testRelativeToErrorsOnAbsolute(): void {
         Path::relativeTo('/abs', '../rel');
     }
 
-    public function testStripExt() {
+    public function testStripExt(): void {
         $this->assertEquals('NoExt', Path::stripExt('NoExt'));
         $this->assertEquals('ClassName', Path::stripExt('ClassName.php'));
         $this->assertEquals('File_Name', Path::stripExt('File_Name.php'));
@@ -116,7 +116,7 @@ class PathTest extends TestCase {
         $this->assertEquals('/test/file/path/File/Name', Path::stripExt('/test/file/path/File/Name.php'));
     }
 
-    public function testToNamespace() {
+    public function testToNamespace(): void {
         $this->assertEquals('test\file\path\FileName', Path::toNamespace('/test/file/path/FileName.php'));
         $this->assertEquals('test\file\path\File\Name', Path::toNamespace('/test/file/path/File/Name.php'));
 
@@ -124,7 +124,7 @@ class PathTest extends TestCase {
         $this->assertEquals('Titon\test\file\path\File\Name', Path::toNamespace('vendors/src/Titon/test/file/path/File/Name.php'));
     }
 
-    public function testToPath() {
+    public function testToPath(): void {
         $this->assertEquals('/test/namespace/ClassName.php', Path::toPath('\test\namespace\ClassName'));
         $this->assertEquals('/test/namespace/Class/Name.php', Path::toPath('\test\namespace\Class_Name'));
 

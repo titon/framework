@@ -6,7 +6,7 @@ use Titon\Test\TestCase;
 
 class CookieBagTest extends TestCase {
 
-    public function testMapItemsAreConvertedToClasses() {
+    public function testMapItemsAreConvertedToClasses(): void {
         $bag = new CookieBag(Map {
             'foo' => '123',
             'bar' => '456',

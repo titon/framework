@@ -5,14 +5,14 @@ use Titon\Test\TestCase;
 
 class ColTest extends TestCase {
 
-    public function testDepth() {
+    public function testDepth(): void {
         $this->assertEquals(0, Col::depth(Map {}));
         $this->assertEquals(1, Col::depth(Map {'one' => 1}));
         $this->assertEquals(3, Col::depth(Map {'one' => Map {'two' => Map {'three' => 3}}}));
         $this->assertEquals(4, Col::depth(Map {'one' => ['two' => Map {'three' => Vector {4}}]}));
     }
 
-    public function testEachMap() {
+    public function testEachMap(): void {
         $this->assertEquals(Map {
             1 => 'FOO',
             2 => 123,
@@ -21,12 +21,10 @@ class ColTest extends TestCase {
             1 => 'foo',
             2 => 123,
             3 => 'bar'
-        }, function($key, $value) {
-            return is_string($value) ? strtoupper($value) : $value;
-        }));
+        }, ($key, $value) ==> is_string($value) ? strtoupper($value) : $value));
     }
 
-    public function testEachVector() {
+    public function testEachVector(): void {
         $this->assertEquals(Vector {
             'FOO',
             123,
@@ -35,34 +33,28 @@ class ColTest extends TestCase {
             'foo',
             123,
             'bar'
-        }, function($key, $value) {
-            return is_string($value) ? strtoupper($value) : $value;
-        }));
+        }, ($key, $value) ==> is_string($value) ? strtoupper($value) : $value));
     }
 
-    public function testEveryMap() {
-        $callback = function($key, $value) {
-            return is_int($value);
-        };
+    public function testEveryMap(): void {
+        $callback = ($key, $value) ==> is_int($value);
 
         $this->assertTrue(Col::every(Map {1 => 123, 2 => 456, 3 => 789}, $callback));
         $this->assertFalse(Col::every(Map {1 => 123, 2 => 456, 3 => '789'}, $callback));
     }
 
-    public function testEveryVector() {
-        $callback = function($key, $value) {
-            return is_int($value);
-        };
+    public function testEveryVector(): void {
+        $callback = ($key, $value) ==> is_int($value);
 
         $this->assertTrue(Col::every(Vector {123, 456, 789}, $callback));
         $this->assertFalse(Col::every(Vector {123, 456, '789'}, $callback));
     }
 
-    public function testExclude() {
+    public function testExclude(): void {
         $this->assertEquals(Map {1 => 'bar'}, Col::exclude(Map {0 => 'foo', 1 => 'bar'}, Vector {0}));
     }
 
-    public function testExpand() {
+    public function testExpand(): void {
         $this->assertEquals(Map {
             'app' => Map {
                 'name' => 'Titon',
@@ -80,7 +72,7 @@ class ColTest extends TestCase {
         }));
     }
 
-    public function testExtract() {
+    public function testExtract(): void {
         $map = Map {
             'number' => 123,
             'string' => 'foo',
@@ -105,7 +97,7 @@ class ColTest extends TestCase {
         }, Col::extract($map, 'one.two'));
     }
 
-    public function testFlatten() {
+    public function testFlatten(): void {
         $this->assertEquals(Map {
             'app.name' => 'Titon',
             'app.paths.root' => '/',
@@ -123,7 +115,7 @@ class ColTest extends TestCase {
         }));
     }
 
-    public function testGet() {
+    public function testGet(): void {
         $map = Map {
             'number' => 123,
             'string' => 'foo'
@@ -138,7 +130,7 @@ class ColTest extends TestCase {
         }, Col::get($map, ''));
     }
 
-    public function testHas() {
+    public function testHas(): void {
         $map = Map {
             'number' => 123,
             'string' => 'foo',
@@ -158,7 +150,7 @@ class ColTest extends TestCase {
         $this->assertFalse(Col::has($map, 'one.two.three'));
     }
 
-    public function testInject() {
+    public function testInject(): void {
         $map = Map {
             'number' => 123,
             'string' => 'foo',
@@ -181,7 +173,7 @@ class ColTest extends TestCase {
         }, $map);
     }
 
-    public function testInsert() {
+    public function testInsert(): void {
         $map = Map {
             'number' => 123,
             'string' => 'foo',
@@ -227,7 +219,7 @@ class ColTest extends TestCase {
         }, $map);
     }
 
-    public function testIsAlphaMap() {
+    public function testIsAlphaMap(): void {
         $map = Map {
             1 => 'foo',
             2 => 'bar',
@@ -238,7 +230,7 @@ class ColTest extends TestCase {
         $this->assertFalse(Col::isAlpha($map));
     }
 
-    public function testIsAlphaVector() {
+    public function testIsAlphaVector(): void {
         $vector = Vector {
             'foo',
             'bar',
@@ -249,7 +241,7 @@ class ColTest extends TestCase {
         $this->assertFalse(Col::isAlpha($vector));
     }
 
-    public function testIsNumericMap() {
+    public function testIsNumericMap(): void {
         $this->assertTrue(Col::isNumeric(Map {
             1 => 123,
             2 => '456',
@@ -263,7 +255,7 @@ class ColTest extends TestCase {
         }));
     }
 
-    public function testIsNumericVectorp() {
+    public function testIsNumericVectorp(): void {
         $this->assertTrue(Col::isNumeric(Vector {
             123,
             '456',
@@ -277,7 +269,7 @@ class ColTest extends TestCase {
         }));
     }
 
-    public function testKeyOfMap() {
+    public function testKeyOfMap(): void {
         $map = Map {
             'number' => 123,
             'string' => 'foo',
@@ -295,7 +287,7 @@ class ColTest extends TestCase {
         $this->assertEquals('one.two.number', Col::keyOf($map, 789));
     }
 
-    public function testKeyOfVector() {
+    public function testKeyOfVector(): void {
         $vector = Vector {
             123,
             'foo',
@@ -313,7 +305,7 @@ class ColTest extends TestCase {
         $this->assertEquals('2.2.number', Col::keyOf($vector, 789));
     }
 
-    public function testMerge() {
+    public function testMerge(): void {
         $one = Map {
             'a' => 1,
             'b' => 2,
@@ -331,7 +323,7 @@ class ColTest extends TestCase {
         }, Col::merge($one, $two));
     }
 
-    public function testMergeMultiple() {
+    public function testMergeMultiple(): void {
         $one = Map {
             'a' => 1,
             'b' => 2,
@@ -354,7 +346,7 @@ class ColTest extends TestCase {
         }, Col::merge($one, $two, $three));
     }
 
-    public function testMergeRecursive() {
+    public function testMergeRecursive(): void {
         $one = Map {
             'a' => 1,
             'b' => Map {
@@ -385,7 +377,7 @@ class ColTest extends TestCase {
         }, Col::merge($one, $two));
     }
 
-    public function testMergeWithVector() {
+    public function testMergeWithVector(): void {
         $one = Map {
             'a' => 1,
             'b' => 2,
@@ -403,7 +395,7 @@ class ColTest extends TestCase {
         }, Col::merge($one, $two));
     }
 
-    public function testPluck() {
+    public function testPluck(): void {
         $map = Map {
             0 => Map {'name' => 'foo'},
             1 => Map {'key' => 'value'},
@@ -422,7 +414,7 @@ class ColTest extends TestCase {
         $this->assertEquals(Vector {1, 2, 3}, Col::pluck($map, 'meta.id'));
     }
 
-    public function testReduce() {
+    public function testReduce(): void {
         $map = Map {
             'number' => 123,
             'string' => 'foo',
@@ -436,7 +428,7 @@ class ColTest extends TestCase {
         }, Col::reduce($map, Vector {'number', 'float'}));
     }
 
-    public function testRemove() {
+    public function testRemove(): void {
         $map = Map {
             'number' => 123,
             'string' => 'foo',
@@ -485,7 +477,7 @@ class ColTest extends TestCase {
         }, $map);
     }
 
-    public function testSet() {
+    public function testSet(): void {
         $map = Map {};
 
         $map = Col::set($map, 'string', 'foo');
@@ -514,27 +506,19 @@ class ColTest extends TestCase {
         }, $map);
     }
 
-    public function testSomeMap() {
-        $this->assertTrue(Col::some(Map {0 => 'foo', 1 => 123, 2 => true}, function($key, $value) {
-            return is_numeric($value);
-        }));
+    public function testSomeMap(): void {
+        $this->assertTrue(Col::some(Map {0 => 'foo', 1 => 123, 2 => true}, ($key, $value) ==> is_numeric($value)));
 
-        $this->assertFalse(Col::some(Map {0 => 'foo', 1 => 123, 2 => true}, function($key, $value) {
-            return is_float($value);
-        }));
+        $this->assertFalse(Col::some(Map {0 => 'foo', 1 => 123, 2 => true}, ($key, $value) ==> is_float($value)));
     }
 
-    public function testSomeVector() {
-        $this->assertTrue(Col::some(Vector {'foo', 123, true}, function($key, $value) {
-            return is_numeric($value);
-        }));
+    public function testSomeVector(): void {
+        $this->assertTrue(Col::some(Vector {'foo', 123, true}, ($key, $value) ==> is_numeric($value)));
 
-        $this->assertFalse(Col::some(Vector {'foo', 123, true}, function($key, $value) {
-            return is_float($value);
-        }));
+        $this->assertFalse(Col::some(Vector {'foo', 123, true}, ($key, $value) ==> is_float($value)));
     }
 
-    public function testToArray() {
+    public function testToArray(): void {
         $map = Map {
             'foo' => 'bar',
             'map' => Map {'baz' => 'qux'},
@@ -552,7 +536,7 @@ class ColTest extends TestCase {
         $this->assertEquals(['foo'], Col::toArray('foo'));
     }
 
-    public function testToArrayRecursive() {
+    public function testToArrayRecursive(): void {
         $actual = Map {
             'foo' => 'bar',
             'array' => Vector {1, 2, 3},
@@ -592,7 +576,7 @@ class ColTest extends TestCase {
         $this->assertEquals($expected, Col::toArray($actual));
     }
 
-    public function testToMap() {
+    public function testToMap(): void {
         $this->assertEquals(Map {}, Col::toMap(Vector {}));
         $this->assertEquals(Map {0 => 'foo'}, Col::toMap(Vector {'foo'}));
         $this->assertEquals(Map {}, Col::toMap([]));
@@ -604,7 +588,7 @@ class ColTest extends TestCase {
         $this->assertEquals(Map {'foo' => 'bar'}, Col::toMap(Map {'foo' => 'bar'}));
     }
 
-    public function testToMapRecursive() {
+    public function testToMapRecursive(): void {
         $actual = [
             'foo' => 'bar',
             'array' => [1, 2, 3],
@@ -644,7 +628,7 @@ class ColTest extends TestCase {
         $this->assertEquals($expected, Col::toMap($actual));
     }
 
-    public function testToVector() {
+    public function testToVector(): void {
         $this->assertEquals(Vector {}, Col::toVector(Vector {}));
         $this->assertEquals(Vector {'foo'}, Col::toVector(Vector {'foo'}));
         $this->assertEquals(Vector {}, Col::toVector([]));
@@ -655,7 +639,7 @@ class ColTest extends TestCase {
         $this->assertEquals(Vector {'bar'}, Col::toVector(Map {'foo' => 'bar'}));
     }
 
-    public function testToVectorRecursive() {
+    public function testToVectorRecursive(): void {
         $actual = [
             'foo' => 'bar',
             'array' => [1, 2, 3],

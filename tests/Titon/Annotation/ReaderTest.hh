@@ -1,6 +1,10 @@
 <?hh
 namespace Titon\Annotation;
 
+use Titon\Test\Stub\Annotation\BarAnnotationStub;
+use Titon\Test\Stub\Annotation\BazAnnotationStub;
+use Titon\Test\Stub\Annotation\FooAnnotationStub;
+use Titon\Test\Stub\Annotation\ReaderStub;
 use Titon\Test\TestCase;
 
 /**
@@ -8,70 +12,61 @@ use Titon\Test\TestCase;
  */
 class ReaderTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new Reader(new ReaderStub());
     }
 
-    public function testGetAnnotatedMethods() {
+    public function testGetAnnotatedMethods(): void {
         $this->assertEquals(Map {
             'hasAnno' => Map {
-                'Baz' => (new BazAnnotation(['a' => 1]))->setName('Baz')
+                'Baz' => (new BazAnnotationStub(['a' => 1]))->setName('Baz')
             }
         }, $this->object->getAnnotatedMethods());
     }
 
-    public function testGetClassAnnotation() {
-        $this->assertEquals((new FooAnnotation())->setName('Foo'), $this->object->getClassAnnotation('Foo'));
-        $this->assertEquals((new BarAnnotation('abc', 123))->setName('Bar'), $this->object->getClassAnnotation('Bar'));
+    public function testGetClassAnnotation(): void {
+        $this->assertEquals((new FooAnnotationStub())->setName('Foo'), $this->object->getClassAnnotation('Foo'));
+        $this->assertEquals((new BarAnnotationStub('abc', 123))->setName('Bar'), $this->object->getClassAnnotation('Bar'));
     }
 
     /**
      * @expectedException \Titon\Annotation\Exception\MissingAnnotationException
      */
-    public function testGetClassAnnotationThrowsMissingError() {
+    public function testGetClassAnnotationThrowsMissingError(): void {
         $this->object->getClassAnnotation('Baz');
     }
 
-    public function testGetClassAnnotations() {
+    public function testGetClassAnnotations(): void {
         $this->assertEquals(Map {
-            'Foo' => (new FooAnnotation())->setName('Foo'),
-            'Bar' => (new BarAnnotation('abc', 123))->setName('Bar')
+            'Foo' => (new FooAnnotationStub())->setName('Foo'),
+            'Bar' => (new BarAnnotationStub('abc', 123))->setName('Bar')
         }, $this->object->getClassAnnotations());
     }
 
-    public function testGetMethodAnnotation() {
-        $this->assertEquals((new BazAnnotation(['a' => 1]))->setName('Baz'), $this->object->getMethodAnnotation('hasAnno', 'Baz'));
+    public function testGetMethodAnnotation(): void {
+        $this->assertEquals((new BazAnnotationStub(['a' => 1]))->setName('Baz'), $this->object->getMethodAnnotation('hasAnno', 'Baz'));
     }
 
     /**
      * @expectedException \Titon\Annotation\Exception\MissingAnnotationException
      */
-    public function testGetMethodAnnotationThrowsMissingError() {
+    public function testGetMethodAnnotationThrowsMissingError(): void {
         $this->object->getMethodAnnotation('hasAnno', 'Foo');
     }
 
-    public function testGetMethodAnnotations() {
+    public function testGetMethodAnnotations(): void {
         $this->assertEquals(Map {
-            'Baz' => (new BazAnnotation(['a' => 1]))->setName('Baz')
+            'Baz' => (new BazAnnotationStub(['a' => 1]))->setName('Baz')
         }, $this->object->getMethodAnnotations('hasAnno'));
     }
 
     /**
      * @expectedException \ReflectionException
      */
-    public function testGetMethodAnnotationsInvalidMethod() {
+    public function testGetMethodAnnotationsInvalidMethod(): void {
         $this->object->getMethodAnnotations('invalid');
     }
 
-}
-
-<<Foo, Bar('abc', 123)>>
-class ReaderStub {
-
-    <<Baz(['a' => 1])>>
-    public function hasAnno(): void {}
-
-    public function noAnno(): void {}
 }

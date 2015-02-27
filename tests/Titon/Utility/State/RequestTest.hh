@@ -5,7 +5,7 @@ use Titon\Test\TestCase;
 
 class RequestTest extends TestCase {
 
-    public function testClass() {
+    public function testClass(): void {
         $_REQUEST = [
             'foo' => 123,
             'bar' => 'abc',
@@ -41,7 +41,7 @@ class RequestTest extends TestCase {
         $this->assertFalse(Request::has('map.d'));
     }
 
-    public function testStatesDontCollide() {
+    public function testStatesDontCollide(): void {
         Get::initialize(['foo' => 1]);
         Post::initialize(['bar' => 2]);
         Server::initialize(['baz' => 3]);

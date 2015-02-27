@@ -8,13 +8,13 @@ use Titon\Test\TestCase;
  */
 class GroupTest extends TestCase {
 
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->object = new Group();
     }
 
-    public function testPrefixing() {
+    public function testPrefixing(): void {
         $this->assertEquals('', $this->object->getPrefix());
 
         $this->object->setPrefix('foo');
@@ -22,7 +22,7 @@ class GroupTest extends TestCase {
         $this->assertEquals('foo', $this->object->getPrefix());
     }
 
-    public function testSuffixing() {
+    public function testSuffixing(): void {
         $this->assertEquals('', $this->object->getSuffix());
 
         $this->object->setSuffix('bar');

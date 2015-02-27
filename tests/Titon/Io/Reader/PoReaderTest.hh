@@ -11,7 +11,7 @@ use Titon\Test\TestCase;
 
 class PoReaderTest extends TestCase {
 
-    public function testReadResource() {
+    public function testReadResource(): void {
         $reader = new PoReader(TEMP_DIR . '/io/po.po');
 
         $this->assertMapsEqual(Map {

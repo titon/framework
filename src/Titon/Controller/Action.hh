@@ -33,7 +33,7 @@ interface Action {
      *
      * @return \Titon\Controller\Controller
      */
-    public function getController(): Controller;
+    public function getController(): ?Controller;
 
     /**
      * Set the parent controller.

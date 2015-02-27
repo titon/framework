@@ -5,7 +5,7 @@ use Titon\Test\TestCase;
 
 class SessionTest extends TestCase {
 
-    public function testClass() {
+    public function testClass(): void {
         $_SESSION = [
             'foo' => 123,
             'bar' => 'abc',

@@ -5,7 +5,7 @@ use Titon\Test\TestCase;
 
 class InflectorTest extends TestCase {
 
-    public function testCamelCase() {
+    public function testCamelCase(): void {
         $camelCase = [
             'foo Bar', 'fOo Bar', 'foo_Bar', ' foo-_--_BAR',
             'foo-BAR', 'FOO-BAR', 'foo     bar   '
@@ -16,7 +16,7 @@ class InflectorTest extends TestCase {
         }
     }
 
-    public function testFileName() {
+    public function testFileName(): void {
         $this->assertEquals('camel-Case.php', Inflector::fileName('camel Case'));
         $this->assertEquals('StuDly-CaSe.php', Inflector::fileName('StuDly CaSe'));
         $this->assertEquals('Title-Case.php', Inflector::fileName('Title Case'));
@@ -30,13 +30,13 @@ class InflectorTest extends TestCase {
         $this->assertEquals('lots-of-white-space.php', Inflector::fileName('lots  of     white space'));
     }
 
-    public function testFileNameReplaceExt() {
+    public function testFileNameReplaceExt(): void {
         $this->assertEquals('foo.xml', Inflector::fileName('foo.php', 'xml'));
         $this->assertEquals('foo.bar.xml', Inflector::fileName('foo.bar.php', 'xml'));
         $this->assertEquals('foo.bar.xml', Inflector::fileName('foo.bar.xml', 'xml'));
     }
 
-    public function testClassName() {
+    public function testClassName(): void {
         $this->assertEquals('CamelCase', Inflector::className('camel Case'));
         $this->assertEquals('StudlyCase', Inflector::className('StuDly CaSe'));
         $this->assertEquals('TitleCase', Inflector::className('Title Case'));
@@ -50,7 +50,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('LotsOfWhiteSpace', Inflector::className('lots  of     white space'));
     }
 
-    public function testHyphenate() {
+    public function testHyphenate(): void {
         $this->assertEquals('camel-Case', Inflector::hyphenate('camel Case'));
         $this->assertEquals('StuDly-CaSe', Inflector::hyphenate('StuDly CaSe'));
         $this->assertEquals('Title-Case', Inflector::hyphenate('Title Case'));
@@ -64,7 +64,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('lots-of-white-space', Inflector::hyphenate('lots  of     white space'));
     }
 
-    public function testNormalCase() {
+    public function testNormalCase(): void {
         $this->assertEquals('This is a string with studly case', Inflector::normalCase('This is A sTring wIth sTudly cAse'));
         $this->assertEquals('And this one has underscores', Inflector::normalCase('and_this_ONE_has_underscores'));
         $this->assertEquals('While this one contains -- dashes', Inflector::normalCase('WHILE this one contains -- DASHES'));
@@ -72,7 +72,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('Lastly, this string contains "punctuation"!', Inflector::normalCase('LaStlY, this STRING contains "punctuation"!'));
     }
 
-    public function testRoute() {
+    public function testRoute(): void {
         $this->assertEquals('camel-case', Inflector::route('camel Case'));
         $this->assertEquals('studly-case', Inflector::route('StuDly CaSe'));
         $this->assertEquals('title-case', Inflector::route('Title Case'));
@@ -86,7 +86,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('lots-of-white-space', Inflector::route('lots  of     white space'));
     }
 
-    public function testSlug() {
+    public function testSlug(): void {
         $this->assertEquals('this-is-a-string-with-studly-case', Inflector::slug('This is A sTring wIth sTudly cAse'));
         $this->assertEquals('andthisonehasunderscores', Inflector::slug('and_this_ONE_has_underscores'));
         $this->assertEquals('while-this-one-contains-__-dashes', Inflector::slug('WHILE this one contains -- DASHES'));
@@ -94,7 +94,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('lastly-this-string-contains-punctuation', Inflector::slug('LaStlY, this STRING contains "punctuation"!'));
     }
 
-    public function testSnakeCase() {
+    public function testSnakeCase(): void {
         $this->assertEquals('camel_case', Inflector::snakeCase('camel Case'));
         $this->assertEquals('stu_dly_ca_se', Inflector::snakeCase('StuDly CaSe'));
         $this->assertEquals('title_case', Inflector::snakeCase('Title Case'));
@@ -108,7 +108,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('lots_of_white_space', Inflector::snakeCase('lots  of     white space'));
     }
 
-    public function testTableName() {
+    public function testTableName(): void {
         $this->assertEquals('camelCase', Inflector::tableName('camel Case'));
         $this->assertEquals('studlyCase', Inflector::tableName('StuDly CaSe'));
         $this->assertEquals('titleCase', Inflector::tableName('Title Case'));
@@ -122,7 +122,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('lotsOfWhiteSpace', Inflector::tableName('lots  of     white space'));
     }
 
-    public function testTitleCase() {
+    public function testTitleCase(): void {
         $this->assertEquals('This Is A String With Studly Case', Inflector::titleCase('This is A sTring wIth sTudly cAse'));
         $this->assertEquals('And This One Has Underscores', Inflector::titleCase('and_this_ONE_has_underscores'));
         $this->assertEquals('While This One Contains -- Dashes', Inflector::titleCase('WHILE this one contains -- DASHES'));
@@ -130,7 +130,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('Lastly, This String Contains "punctuation"!', Inflector::titleCase('LaStlY, this STRING contains "punctuation"!'));
     }
 
-    public function testUnderscore() {
+    public function testUnderscore(): void {
         $this->assertEquals('camel_case', Inflector::underscore('camel Case'));
         $this->assertEquals('stu_dly_ca_se', Inflector::underscore('StuDly CaSe'));
         $this->assertEquals('title_case', Inflector::underscore('Title Case'));
@@ -144,7 +144,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('lots_of_white_space', Inflector::underscore('lots  of     white space'));
     }
 
-    public function testVariable() {
+    public function testVariable(): void {
         $this->assertEquals('camelCase', Inflector::variable('camel Case'));
         $this->assertEquals('StuDlyCaSe', Inflector::variable('StuDly CaSe'));
         $this->assertEquals('TitleCase', Inflector::variable('Title Case'));

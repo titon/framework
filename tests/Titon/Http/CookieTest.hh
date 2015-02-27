@@ -8,7 +8,7 @@ class CookieTest extends TestCase {
     public function testSetupState(): void {
         $cookie = new Cookie('foo', 'bar', '+10 minutes', '/baz', 'domain.com');
 
-        $this->assertEquals('foo=5hxAThObwiiTyh0mhfxIKw%3D%3D; Expires=' . gmdate('D, d M Y H:i:s T', strtotime('+10 minutes')) . '; Path=/baz; Domain=domain.com; HttpOnly', (string) $cookie);
+        $this->assertEquals('foo=5hxAThObwiiTyh0mhfxIKw%3D%3D; Expires=' . gmdate('D, d M Y H:i:s T', $cookie->getExpires()) . '; Path=/baz; Domain=domain.com; HttpOnly', (string) $cookie);
     }
 
     public function testValueCanBeEncryptedAndDecrypted(): void {
@@ -28,7 +28,7 @@ class CookieTest extends TestCase {
         $cookie->setExpires('-10 minutes');
         $cookie->setSecure(true);
 
-        $this->assertEquals('foo=deleted; Expires=' . gmdate('D, d M Y H:i:s T', strtotime('-10 minutes')) . '; Path=/; Secure; HttpOnly', (string) $cookie);
+        $this->assertEquals('foo=deleted; Expires=' . gmdate('D, d M Y H:i:s T', $cookie->getExpires()) . '; Path=/; Secure; HttpOnly', (string) $cookie);
     }
 
     /**

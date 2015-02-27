@@ -23,18 +23,16 @@ class HelpScreen {
 
     protected ?ArgumentBag $options;
 
-    public function __construct(string $name, string $description = '', ?Arguments $arguments = null) {
+    public function __construct(string $name, string $description = '', ?Input $input = null) {
         $this->name = $name;
         $this->description = $description;
 
-        if (is_null($arguments)) {
+        if (is_null($input)) {
             $this->arguments = new ArgumentBag();
             $this->flags = new ArgumentBag();
             $this->options = new ArgumentBag();
         } else {
-            $this->arguments = $arguments->getArguments();
-            $this->flags = $arguments->getFlags();
-            $this->options = $arguments->getOptions();
+            $this->setInput($input);
         }
     }
 
@@ -138,14 +136,14 @@ class HelpScreen {
         return join(" ", $usage);
     }
 
-    public function setCommand(Command $command): this {
-        $this->command = $command;
+    public function setArguments(Arguments $arguments): this {
+        $this->arguments = $arguments;
 
         return $this;
     }
 
-    public function setArguments(Arguments $arguments): this {
-        $this->arguments = $arguments;
+    public function setCommand(Command $command): this {
+        $this->command = $command;
 
         return $this;
     }
@@ -154,6 +152,12 @@ class HelpScreen {
         $this->flags = $flags;
 
         return $this;
+    }
+
+    public function setInput(Input $input): this {
+        $this->arguments = $arguments->getArguments();
+        $this->flags = $arguments->getFlags();
+        $this->options = $arguments->getOptions();
     }
 
     public function setOptions(ArgumentBag $options): this {

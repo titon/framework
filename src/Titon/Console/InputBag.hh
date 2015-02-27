@@ -9,9 +9,9 @@ namespace Titon\Console;
 
 use Titon\Common\Bag\AbstractBag;
 
-class InputBag<Tv> extends AbstractBag<string, Tv> {
+class InputBag<T as InputDefinition> extends AbstractBag<string, T> {
 
-    public function get(string $key, ?Tv $default = null): ?Tv {
+    public function get(string $key, ?T $default = null): ?T {
         $arg = null;
         if (is_null($arg = parent::get($key))) {
             foreach ($this as $val) {

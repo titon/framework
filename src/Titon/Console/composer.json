@@ -20,7 +20,9 @@
     "source": "https://github.com/titon/console"
   },
   "require": {
-    "hhvm": ">=3.4.0"
+    "hhvm": ">=3.4.0",
+    "titon/common": "*",
+    "titon/utility": "*",
   },
   "autoload": {
     "psr-4": {

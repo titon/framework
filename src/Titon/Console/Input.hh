@@ -8,10 +8,12 @@
 namespace Titon\Console;
 
 use Titon\Common\ArgumentList;
+use Titon\Utility\State\Server;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\Exception\MissingValueException;
+
 
 class Input {
 
@@ -27,9 +29,14 @@ class Input {
 
     protected InputBag<Option> $options;
 
+    /**
+     * Construct a new instance of Input
+     *
+     * @param ?array<mixed> $args
+     */
     public function __construct(?array<string> $args = null) {
         if (is_null($args)) {
-            $args = array_slice($_SERVER['argv'], 1);
+            $args = array_slice(Server::get('argv'), 1);
         }
 
         $this->input = new InputLexer($args);
@@ -38,66 +45,125 @@ class Input {
         $this->arguments = new InputBag();
     }
 
+    /**
+     * Add a new `Argument` candidate to be parsed from input.
+     *
+     * @param Argument $argument
+     *
+     * @return $this
+     */
     public function addArgument(Argument $argument): this {
         $this->arguments->set($argument->getName(), $argument);
 
         return $this;
     }
 
+    public function addCommand(Command $command): this {
+        $command->configure();
+        $this->commands[$command->getName()] = $command;
+
+        return $this;
+    }
+
+    /**
+     * Add a new `Flag` candidate to be parsed from input.
+     *
+     * @param Flag $flag
+     *
+     * @return $this
+     */
     public function addFlag(Flag $flag): this {
         $this->flags->set($flag->getName(), $flag);
 
         return $this;
     }
 
+    /**
+     * Add a new `Option` candidate to be parsed from input.
+     *
+     * @param Option $option
+     *
+     * @return $this
+     */
     public function addOption(Option $option): this {
         $this->options->set($option->getName(), $option);
 
         return $this;
     }
 
+    /**
+     * Retrieve an `Argument` by its key or alias. Returns null if none exists.
+     *
+     * @param string $key The key or alias of the `Argument`
+     *
+     * @return Argument|null
+     */
     public function getArgument(string $key): ?Argument {
-        if (!is_null($argument = $this->arguments->get($key))) {
-            return $argument;
-        }
-
-        return null;
+        return $this->arguments->get($key);
     }
 
+    /**
+     * Retrieve all `Argument` candidates.
+     *
+     * @return InputBag<Argument>
+     */
     public function getArguments(): InputBag<Argument> {
         return $this->arguments;
     }
 
-    public function getFlag(string $key): ?Flag {
-        if (!is_null($flag = $this->flags->get($key))) {
-            return $flag;
-        }
-
-        foreach ($this->flags as $flag) {
-            if ($key === $flag->getName() || $key === $flag->getAlias()) {
-                return $flag;
-            }
-        }
-
-        return null;
+    public function getCommand(string $key): ?Command {
+        return $this->commands->get($key);
     }
 
+    public function getCommands(): CommandMap {
+        return $this->commands;
+    }
+
+    /**
+     * Retrieve a `Flag` by its key or alias. Returns null if none exists.
+     *
+     * @param string $key The key or alias of the `Flag`
+     *
+     * @return Flag|null
+     */
+    public function getFlag(string $key): ?Flag {
+        return $this->flags->get($key);
+    }
+
+    /**
+     * Retrieve all `Flag` candidates.
+     *
+     * @return InputBag<Flag>
+     */
     public function getFlags(): InputBag<Flag> {
         return $this->flags;
     }
 
+    /**
+     * Retrieve an `Option` by its key or alias. Returns null if none exists.
+     *
+     * @param string $key The key or alias of the `Option`
+     *
+     * @return Option|null
+     */
     public function getOption(string $key): ?Option {
-        if (!is_null($option = $this->options->get($key))) {
-            return $option;
-        }
-
-        return null;
+        return $this->options->get($key);
     }
 
+    /**
+     * Retrieve all `Option` candidates.
+     *
+     * @return InputBag<Option>
+     */
     public function getOptions(): InputBag<Option> {
         return $this->options;
     }
 
+    /**
+     * Parse input for all `Flag`, `Option`, and `Argument` candidates.
+     *
+     * @return void
+     */
     public function parse(): void {
         foreach ($this->input as $val) {
             if ($this->parseFlag($val)) {
@@ -114,10 +180,18 @@ class Input {
         }
     }
 
-    protected function parseArgument(RawInput $key): bool {
+    /**
+     * Determine if a RawInput matches an `Argument` candidate. If so, save its
+     * value.
+     *
+     * @param RawInput $key
+     *
+     * @return bool
+     */
+    protected function parseArgument(RawInput $input): bool {
         foreach ($this->arguments as $argument) {
             if (is_null($argument->getValue())) {
-                $argument->setValue($key['raw']);
+                $argument->setValue($input['raw']);
 
                 return true;
             }
@@ -126,8 +200,16 @@ class Input {
         return false;
     }
 
-    protected function parseFlag(RawInput $key): bool {
-        $key = $key['value'];
+    /**
+     * Determine if a RawInput matches a `Flag` candidate. If so, save its
+     * value.
+     *
+     * @param RawInput $key
+     *
+     * @return bool
+     */
+    protected function parseFlag(RawInput $input): bool {
+        $key = $input['value'];
         if (is_null($flag = $this->flags->get($key))) {
             return false;
         }
@@ -143,8 +225,16 @@ class Input {
         return true;
     }
 
-    protected function parseOption(RawInput $key): bool {
-        $key = $key['value'];
+    /**
+     * Determine if a RawInput matches an `Option` candidate. If so, save its
+     * value.
+     *
+     * @param RawInput $key
+     *
+     * @return bool
+     */
+    protected function parseOption(RawInput $input): bool {
+        $key = $input['value'];
         if (is_null($option = $this->options->get($key))) {
             return false;
         }

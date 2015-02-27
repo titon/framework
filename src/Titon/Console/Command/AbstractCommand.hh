@@ -35,12 +35,6 @@ abstract class AbstractCommand implements Command {
         $this->options = new InputBag();
     }
 
-    public function setInput(Input $input): this {
-        $this->input = $input;
-
-        return $this;
-    }
-
     public function addArgument(Argument $argument): this {
         $this->arguments->set($argument->getName(), $argument);
 
@@ -113,6 +107,24 @@ abstract class AbstractCommand implements Command {
         foreach ($this->options as $name => $option) {
             $this->input->addOption($option);
         }
+
+        return $this;
+    }
+
+    public function setDescription(string $description): this {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function setInput(Input $input): this {
+        $this->input = $input;
+
+        return $this;
+    }
+
+    public function setName(string $name): this {
+        $this->name = $name;
 
         return $this;
     }

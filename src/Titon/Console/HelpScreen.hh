@@ -18,31 +18,25 @@ class HelpScreen {
 
     protected ?Command $command;
 
-    protected string $description;
+    protected CommandMap $commands;
 
     protected InputBag<Flag> $flags;
 
-    protected string $name;
+    protected ?string $name;
 
     protected InputBag<Option> $options;
 
-    public function __construct(string $name, string $description = '', ?Input $input = null) {
-        $this->name = $name;
-        $this->description = $description;
-
-        if (is_null($input)) {
-            $this->arguments = new InputBag();
-            $this->flags = new InputBag();
-            $this->options = new InputBag();
-        } else {
-            $this->arguments = $input->getArguments();
-            $this->flags = $input->getFlags();
-            $this->options = $input->getOptions();
-        }
+    public function __construct(Input $input) {
+        $this->commands = $input->getCommands();
+        $this->arguments = $input->getArguments();
+        $this->flags = $input->getFlags();
+        $this->options = $input->getOptions();
     }
 
     public function render(): string {
         $retval = Vector {};
+
+        $retval[] = $this->renderHeading();
 
         $retval[] = $this->renderUsage();
 
@@ -61,8 +55,87 @@ class HelpScreen {
                 $retval[] = "Options\n$output";
             }
         }
+        if (is_null($this->command)) {
+            if (!$this->commands->isEmpty()) {
+                $retval[] = $this->renderCommands();
+            }
+        }
 
         return join($retval, "\n\n");
+    }
+
+    protected function renderCommands(): string {
+        ksort($this->commands);
+
+        $maxLength = max(array_map(function(string $key): int {
+            $indentation = substr_count($key, ':');
+            $key = str_repeat('  ', $indentation) . $key;
+
+            return strlen($key);
+        }, $this->commands->keys()));
+        $descriptionLength = 80 - 4 - $maxLength;
+
+        $output = Vector {};
+        $nestedNames = Vector {};
+        foreach ($this->commands as $name => $command) {
+            $nested = explode(':', $name);
+            array_pop($nested);
+
+            if (count($nested) > 0) {
+                $nest = '';
+                foreach ($nested as $piece) {
+                    $nest = $nest ? ":$piece" : $piece;
+
+                    if ($nestedNames->linearSearch($nest) < 0) {
+                        // If we get here, then we need to list the name, but it isn't
+                        // actually a command, so subtract substr_count by 1.
+                        $nestedNames[] = $nest;
+
+                        $indentation = substr_count($name, ':') - 1;
+                        $output[] = str_repeat('  ', $indentation) . str_pad($nest, $maxLength);
+                    }
+                }
+            } else {
+                $nestedNames[] = $name;
+            }
+
+            $indentation = substr_count($name, ':');
+            $formatted = str_repeat('  ', $indentation) . str_pad($name, $maxLength - (2 * $indentation));
+
+            $description = explode('{{BREAK}}', wordwrap($command->getDescription(), $descriptionLength, "{{BREAK}}"));
+            $formatted .= '  ' . array_shift($description);
+
+            $pad = str_repeat(' ', $maxLength + 4);
+            while ($desc = array_shift($description)) {
+                $formatted .= "\n$pad$desc";
+            }
+
+            $formatted = "$formatted";
+
+            array_push($output, $formatted);
+        }
+
+        return join($output, "\n");
+    }
+
+    protected function renderHeading(): string {
+        $retval = '';
+
+        if (!is_null($this->command)) {
+            $command = $this->command;
+
+            invariant(!is_null($command), "Must be a command.");
+
+            if ($description = $command->getDescription()) {
+                $retval = $command->getName() . ' - ' . $description;
+            } else {
+                $retval = $command->getName();
+            }
+        } else if (!is_null($this->name)) {
+            $retval = $this->name;
+        }
+
+        return $retval;
     }
 
     protected function renderSection<T as InputDefinition>(InputBag<T> $arguments): string {
@@ -77,7 +150,7 @@ class HelpScreen {
 
         $maxLength = max(array_map(function(string $key): int {
             return strlen($key);
-        }, $entries->keys()->toArray()));
+        }, $entries->keys()));
         $descriptionLength = 80 - 4 - $maxLength;
 
         $output = Vector {};
@@ -145,7 +218,7 @@ class HelpScreen {
             }
         }
 
-        return join(" ", $usage);
+        return "Usage\n  " . join(" ", $usage);
     }
 
     public function setArguments(InputBag<Argument> $arguments): this {
@@ -160,6 +233,12 @@ class HelpScreen {
         return $this;
     }
 
+    public function setCommands(CommandMap $commands): this {
+        $this->commands = $commands;
+
+        return $this;
+    }
+
     public function setFlags(InputBag<Flag> $flags): this {
         $this->flags = $flags;
 
@@ -167,9 +246,16 @@ class HelpScreen {
     }
 
     public function setInput(Input $input): this {
+        $this->commands = $input->getCommands();
         $this->arguments = $input->getArguments();
         $this->flags = $input->getFlags();
         $this->options = $input->getOptions();
+
+        return $this;
+    }
+
+    public function setName(string $name): this {
+        $this->name = $name;
 
         return $this;
     }

@@ -47,13 +47,13 @@ abstract class AbstractCommand implements Command {
         return $this;
     }
 
-        public function addFlag(Flag $flag): this {
+    public function addFlag(Flag $flag): this {
         $this->flags->set($flag->getName(), $flag);
 
         return $this;
     }
 
-        public function addOption(Option $option): this {
+    public function addOption(Option $option): this {
         $this->options->set($option->getName(), $option);
 
         return $this;

@@ -15,27 +15,27 @@ use Titon\Console\Exception\MissingValueException;
 
 class Input {
 
-    protected ArgumentBag $arguments;
+    protected InputBag<Argument> $arguments;
 
     protected CommandMap $commands = Map {};
 
-    protected ArgumentBag $flags;
+    protected InputBag<Flag> $flags;
 
     protected InputLexer $input;
 
     protected Vector<RawInput> $invalid = Vector {};
 
-    protected ArgumentBag $options;
+    protected InputBag<Option> $options;
 
-    public function __construct(?ArgumentList $args = null) {
+    public function __construct(?array<string> $args = null) {
         if (is_null($args)) {
             $args = array_slice($_SERVER['argv'], 1);
         }
 
         $this->input = new InputLexer($args);
-        $this->flags = new ArgumentBag();
-        $this->options = new ArgumentBag();
-        $this->arguments = new ArgumentBag();
+        $this->flags = new InputBag();
+        $this->options = new InputBag();
+        $this->arguments = new InputBag();
     }
 
     public function addArgument(Argument $argument): this {
@@ -64,7 +64,7 @@ class Input {
         return null;
     }
 
-    public function getArguments(): ArgumentBag {
+    public function getArguments(): InputBag<Argument> {
         return $this->arguments;
     }
 
@@ -82,7 +82,7 @@ class Input {
         return null;
     }
 
-    public function getFlags(): ArgumentBag {
+    public function getFlags(): InputBag<Flag> {
         return $this->flags;
     }
 
@@ -94,11 +94,11 @@ class Input {
         return null;
     }
 
-    public function getOptions(): ArgumentBag {
+    public function getOptions(): InputBag<Option> {
         return $this->options;
     }
 
-    public function parse() {
+    public function parse(): void {
         foreach ($this->input as $val) {
             if ($this->parseFlag($val)) {
                 continue;
@@ -114,7 +114,7 @@ class Input {
         }
     }
 
-    public function parseArgument(RawInput $key): bool {
+    protected function parseArgument(RawInput $key): bool {
         foreach ($this->arguments as $argument) {
             if (is_null($argument->getValue())) {
                 $argument->setValue($key['raw']);
@@ -126,29 +126,36 @@ class Input {
         return false;
     }
 
-    public function parseFlag(RawInput $key): bool {
+    protected function parseFlag(RawInput $key): bool {
         $key = $key['value'];
         if (is_null($flag = $this->flags->get($key))) {
             return false;
         }
 
-        if ($this->flags->get($key)->isStackable()) {
-            $this->flags->get($key)->increaseValue();
+        invariant($flag instanceof Flag, "Must be a Flag.");
+
+        if ($flag->isStackable()) {
+            $flag->increaseValue();
         } else {
-            $this->flags->get($key)->setValue(1);
+            $flag->setValue(1);
         }
 
         return true;
     }
 
-    public function parseOption(RawInput $key): bool {
+    protected function parseOption(RawInput $key): bool {
         $key = $key['value'];
         if (is_null($option = $this->options->get($key))) {
             return false;
         }
 
+        invariant(!is_null($option), "Must not be null.");
+
         // Peak ahead to make sure we get a value.
         $nextValue = $this->input->peek();
+
+        invariant(!is_null($nextValue), "Must be RawInput.");
+
         if (!$this->input->end() && $this->input->isArgument($nextValue['raw'])) {
             throw new MissingValueException("No value is present for option $key");
         }

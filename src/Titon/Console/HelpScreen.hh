@@ -7,32 +7,37 @@
 
 namespace Titon\Console;
 
+use Titon\Console\InputDefinition\Argument;
+use Titon\Console\InputDefinition\Flag;
+use Titon\Console\InputDefinition\Option;
 use Titon\Console\InputDefinition\AbstractInputDefinition;
 
 class HelpScreen {
 
-    protected ?ArgumentBag $arguments;
+    protected InputBag<Argument> $arguments;
 
     protected ?Command $command;
 
     protected string $description;
 
-    protected ?ArgumentBag $flags;
+    protected InputBag<Flag> $flags;
 
     protected string $name;
 
-    protected ?ArgumentBag $options;
+    protected InputBag<Option> $options;
 
     public function __construct(string $name, string $description = '', ?Input $input = null) {
         $this->name = $name;
         $this->description = $description;
 
         if (is_null($input)) {
-            $this->arguments = new ArgumentBag();
-            $this->flags = new ArgumentBag();
-            $this->options = new ArgumentBag();
+            $this->arguments = new InputBag();
+            $this->flags = new InputBag();
+            $this->options = new InputBag();
         } else {
-            $this->setInput($input);
+            $this->arguments = $input->getArguments();
+            $this->flags = $input->getFlags();
+            $this->options = $input->getOptions();
         }
     }
 
@@ -60,7 +65,7 @@ class HelpScreen {
         return join($retval, "\n\n");
     }
 
-    protected function renderSection(ArgumentBag $arguments): string {
+    protected function renderSection(InputBag $arguments): string {
         $entries = Map {};
         foreach ($arguments as $argument) {
             $name = $argument->getFormattedName($argument->getName());
@@ -70,7 +75,8 @@ class HelpScreen {
             $entries[$name] = $argument->getDescription();
         }
 
-        $maxLength = max(array_map('strlen', $entries->keys()));
+        $keys = $entries->keys()->toArray();
+        $maxLength = max(array_map('strlen', $keys));
         $descriptionLength = 80 - 4 - $maxLength;
 
         $output = Vector {};
@@ -81,7 +87,7 @@ class HelpScreen {
 
             $pad = str_repeat(' ', $maxLength + 4);
             while ($desc = array_shift($description)) {
-                $formatted .= "\n${pad}${desc}";
+                $formatted .= "\n$pad$desc";
             }
 
             $formatted = "$formatted";
@@ -95,15 +101,20 @@ class HelpScreen {
     protected function renderUsage(): string {
         $usage = Vector {};
         if (!is_null($this->command)) {
-            $usage[] = $this->command->getName();
+            $command = $this->command;
 
-            foreach ($this->command->getArguments() as $argument) {
+            // Setting local variable and `invariant`ing it to quiet type checker
+            invariant(!is_null($command), "Must be a Command.");
+
+            $usage[] = $command->getName();
+
+            foreach ($command->getArguments() as $argument) {
                 $arg = $argument->getName();
                 if ($argument->getMode() === AbstractInputDefinition::VALUE_OPTIONAL) {
                     $usage[] = "[$arg]";
                 }
             }
-            foreach ($this->command->getArguments() as $argument) {
+            foreach ($command->getArguments() as $argument) {
                 $arg = $argument->getName();
                 if ($argument->getAlias()) {
                     $arg = "$arg|{$argument->getAlias()}";
@@ -112,7 +123,7 @@ class HelpScreen {
                     $usage[] = "[$arg]";
                 }
             }
-            foreach ($this->command->getArguments() as $argument) {
+            foreach ($command->getArguments() as $argument) {
                 $arg = $argument->getName();
                 if ($argument->getAlias()) {
                     $arg = "$arg|{$argument->getAlias()}";
@@ -136,7 +147,7 @@ class HelpScreen {
         return join(" ", $usage);
     }
 
-    public function setArguments(Arguments $arguments): this {
+    public function setArguments(InputBag<Argument> $arguments): this {
         $this->arguments = $arguments;
 
         return $this;
@@ -148,19 +159,21 @@ class HelpScreen {
         return $this;
     }
 
-    public function setFlags(ArgumentBag $flags): this {
+    public function setFlags(InputBag<Flag> $flags): this {
         $this->flags = $flags;
 
         return $this;
     }
 
     public function setInput(Input $input): this {
-        $this->arguments = $arguments->getArguments();
-        $this->flags = $arguments->getFlags();
-        $this->options = $arguments->getOptions();
+        $this->arguments = $input->getArguments();
+        $this->flags = $input->getFlags();
+        $this->options = $input->getOptions();
+
+        return $this;
     }
 
-    public function setOptions(ArgumentBag $options): this {
+    public function setOptions(InputBag<Option> $options): this {
         $this->options = $options;
 
         return $this;

@@ -25,5 +25,7 @@ class Option extends AbstractInputDefinition {
 
     public function setValue(string $value): this {
         $this->value = $value;
+
+        return $this;
     }
 }

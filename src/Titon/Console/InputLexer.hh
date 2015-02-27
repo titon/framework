@@ -9,21 +9,25 @@ namespace Titon\Console;
 
 use Titon\Common\ArgumentList;
 
-class InputLexer<RawInput> implements Iterator<Tv> {
+class InputLexer implements Iterator<RawInput> {
 
-    public array<string> $items = array();
+    public array<string> $items;
 
     protected int $position = 0;
 
     protected int $length = 0;
 
-    protected ?string $current;
+    protected RawInput $current;
 
     protected bool $first = true;
 
-    public function __construct(ArgumentList $items) {
+    public function __construct(array<string> $items) {
         $this->items = $items;
         $this->length = count($items);
+        $this->current = shape(
+            'value' => '',
+            'raw'   => ''
+        );
     }
 
     public function current(): RawInput {
@@ -36,13 +40,15 @@ class InputLexer<RawInput> implements Iterator<Tv> {
 
     private function explode(): void {
         if (!$this->isShort($this->current['raw']) || strlen($this->current['value']) <= 1) {
-            return false;
+            return;
         }
 
         $exploded = str_split($this->current['value']);
 
-        $this->current['value'] = array_pop($exploded);
-        $this->current['raw'] = '-' . $this->current['value'];
+        $this->current = shape(
+            'value' => array_pop($exploded),
+            'raw'   => '-' . $this->current['value']
+        );
 
         foreach ($exploded as $piece) {
             $this->unshift('-' . $piece);
@@ -72,7 +78,7 @@ class InputLexer<RawInput> implements Iterator<Tv> {
     }
 
     public function peek(): ?RawInput {
-        if (!empty($this->items)) {
+        if (count($this->items) > 0) {
             return $this->processInput($this->items[0]);
         }
 

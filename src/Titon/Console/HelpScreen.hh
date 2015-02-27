@@ -65,7 +65,7 @@ class HelpScreen {
         return join($retval, "\n\n");
     }
 
-    protected function renderSection(InputBag $arguments): string {
+    protected function renderSection<T as InputDefinition>(InputBag<T> $arguments): string {
         $entries = Map {};
         foreach ($arguments as $argument) {
             $name = $argument->getFormattedName($argument->getName());

@@ -75,8 +75,9 @@ class HelpScreen {
             $entries[$name] = $argument->getDescription();
         }
 
-        $keys = $entries->keys()->toArray();
-        $maxLength = max(array_map('strlen', $keys));
+        $maxLength = max(array_map(function(string $key): int {
+            return strlen($key);
+        }, $entries->keys()->toArray()));
         $descriptionLength = 80 - 4 - $maxLength;
 
         $output = Vector {};

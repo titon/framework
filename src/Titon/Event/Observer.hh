@@ -8,7 +8,6 @@
 namespace Titon\Event;
 
 use Titon\Common\ArgumentList;
-use \Closure;
 use \ReflectionFunction;
 use \ReflectionMethod;
 
@@ -113,12 +112,13 @@ class Observer {
      * @return string
      */
     public function getCaller(): string {
-        $caller = '{closure}';
+        $caller = '';
         $callback = $this->getCallback();
 
-        // Use `is_callable()` to fetch the callable name
-        if (!$callback instanceof Closure) {
-            is_callable($callback, true, $caller);
+        is_callable($callback, true, $caller);
+
+        if ($caller === 'Closure::__invoke') {
+            $caller = '{closure}';
         }
 
         return $caller;

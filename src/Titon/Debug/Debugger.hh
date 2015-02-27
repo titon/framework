@@ -1,4 +1,5 @@
-<?hh // strict
+<?hh // partial
+// Because of PSR.
 /**
  * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -185,7 +186,7 @@ class Debugger {
             return self::$dumper;
         }
 
-        if (substr(PHP_SAPI, 0, 3) === 'cli') {
+        if (php_sapi_name() === 'cli') {
             self::$dumper = new CliDumper();
         } else {
             self::$dumper = new HtmlDumper();

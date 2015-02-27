@@ -1,8 +1,8 @@
 <?hh
 
-use Titon\Test\TestCase;
+namespace Titon\Console;
 
-use Titon\Console\Arguments;
+use Titon\Test\TestCase;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\InputDefinition\Argument;
@@ -10,7 +10,7 @@ use Titon\Console\InputDefinition\Argument;
 class CommandTest extends TestCase {
 
     public function testAddArguments() {
-        $args = new Arguments([
+        $args = new Input([
             '-v'
         ]);
         $args->addFlag(new Flag('help', 'Show this help screen'));

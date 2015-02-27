@@ -13,7 +13,7 @@ use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\Exception\MissingValueException;
 
-class Arguments {
+class Input {
 
     protected ArgumentBag $arguments;
 
@@ -21,9 +21,9 @@ class Arguments {
 
     protected ArgumentBag $flags;
 
-    protected ArgumentLexer $input;
+    protected InputLexer $input;
 
-    protected Vector<string> $invalid = Vector {};
+    protected Vector<RawInput> $invalid = Vector {};
 
     protected ArgumentBag $options;
 
@@ -32,7 +32,7 @@ class Arguments {
             $args = array_slice($_SERVER['argv'], 1);
         }
 
-        $this->input = new ArgumentLexer($args);
+        $this->input = new InputLexer($args);
         $this->flags = new ArgumentBag();
         $this->options = new ArgumentBag();
         $this->arguments = new ArgumentBag();
@@ -114,7 +114,7 @@ class Arguments {
         }
     }
 
-    public function parseArgument(Input $key): bool {
+    public function parseArgument(RawInput $key): bool {
         foreach ($this->arguments as $argument) {
             if (is_null($argument->getValue())) {
                 $argument->setValue($key['raw']);
@@ -126,7 +126,7 @@ class Arguments {
         return false;
     }
 
-    public function parseFlag(Input $key): bool {
+    public function parseFlag(RawInput $key): bool {
         $key = $key['value'];
         if (is_null($flag = $this->flags->get($key))) {
             return false;
@@ -141,7 +141,7 @@ class Arguments {
         return true;
     }
 
-    public function parseOption(Input $key): bool {
+    public function parseOption(RawInput $key): bool {
         $key = $key['value'];
         if (is_null($option = $this->options->get($key))) {
             return false;

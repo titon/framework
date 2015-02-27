@@ -9,7 +9,7 @@ namespace Titon\Console;
 
 use Titon\Common\ArgumentList;
 
-class ArgumentLexer<Tv> implements Iterator<Tv> {
+class InputLexer<RawInput> implements Iterator<Tv> {
 
     public array<string> $items = array();
 
@@ -26,7 +26,7 @@ class ArgumentLexer<Tv> implements Iterator<Tv> {
         $this->length = count($items);
     }
 
-    public function current(): Tv {
+    public function current(): RawInput {
         return $this->current;
     }
 
@@ -71,7 +71,7 @@ class ArgumentLexer<Tv> implements Iterator<Tv> {
         }
     }
 
-    public function peek(): ?Input {
+    public function peek(): ?RawInput {
         if (!empty($this->items)) {
             return $this->processInput($this->items[0]);
         }
@@ -79,7 +79,7 @@ class ArgumentLexer<Tv> implements Iterator<Tv> {
         return null;
     }
 
-    public function processInput(string $input): Input {
+    public function processInput(string $input): RawInput {
         $raw = $input;
         $value = $input;
 

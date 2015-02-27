@@ -14,12 +14,8 @@
  */
 
 namespace Titon\Console {
-    use Titon\Console\Command;
-    use Titon\Console\InputDefinition\Flag;
-    use Titon\Console\InputDefinition\Option;
-    use Titon\Console\InputDefinition\Argument;
 
-    type Input = shape(
+    type RawInput = shape(
         'raw'   => string,
         'value' => string
     );

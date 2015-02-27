@@ -9,7 +9,7 @@ namespace Titon\Console\Command;
 
 use Titon\Console\ArgumentBag;
 use Titon\Console\Command;
-use Titon\Console\Arguments;
+use Titon\Console\Input;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
@@ -18,7 +18,7 @@ abstract class AbstractCommand implements Command {
 
     protected ArgumentBag $arguments;
 
-    protected ?Arguments $input;
+    protected ?Input $input;
 
     protected ?string $description;
 
@@ -34,7 +34,7 @@ abstract class AbstractCommand implements Command {
         $this->options = new ArgumentBag();
     }
 
-    public function setInput(Arguments $input): this {
+    public function setInput(Input $input): this {
         $this->input = $input;
 
         return $this;

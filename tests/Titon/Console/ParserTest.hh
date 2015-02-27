@@ -1,8 +1,8 @@
 <?hh
 
-use Titon\Test\TestCase;
+namespace Titon\Console;
 
-use Titon\Console\Arguments;
+use Titon\Test\TestCase;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\InputDefinition\Argument;
@@ -13,7 +13,7 @@ class ArgumentParserTest extends TestCase {
         /*
          * Check basic flag
          */
-        $args = new Arguments([
+        $args = new Input([
             '--foo',
         ]);
         $args->addFlag((new Flag('foo'))->alias('f'));
@@ -22,7 +22,7 @@ class ArgumentParserTest extends TestCase {
         $this->assertEquals(1, $args->getFlag('foo')->getValue());
         $this->assertEquals(1, $args->getFlag('f')->getValue());
 
-        $args = new Arguments([
+        $args = new Input([
             '-f',
         ]);
         $args->addFlag((new Flag('foo'))->alias('f'));
@@ -34,7 +34,7 @@ class ArgumentParserTest extends TestCase {
         /*
          * Check stacked, but different, flags
          */
-        $args = new Arguments([
+        $args = new Input([
             '-fb',
         ]);
         $args->addFlag((new Flag('foo'))->alias('f'));
@@ -47,7 +47,7 @@ class ArgumentParserTest extends TestCase {
         /*
          * Check stacked flag
          */
-        $args = new Arguments([
+        $args = new Input([
             '-vvv',
         ]);
         $args->addFlag((new Flag('v'))->setStackable(true));
@@ -57,7 +57,7 @@ class ArgumentParserTest extends TestCase {
     }
 
     public function testParseOptions() {
-        $args = new Arguments([
+        $args = new Input([
             '--name',
             'Alex Phillips',
         ]);
@@ -68,7 +68,7 @@ class ArgumentParserTest extends TestCase {
         $this->assertEquals('Alex Phillips', $args->getOption('name')->getValue());
         $this->assertEquals('Alex Phillips', $args->getOption('n')->getValue());
 
-        $args = new Arguments([
+        $args = new Input([
             '--name',
             'Alex Phillips',
         ]);
@@ -79,7 +79,7 @@ class ArgumentParserTest extends TestCase {
         $this->assertEquals('Alex Phillips', $args->getOption('name')->getValue());
         $this->assertEquals('Alex Phillips', $args->getOption('n')->getValue());
 
-        $args = new Arguments([
+        $args = new Input([
             '-n',
             'Alex Phillips',
         ]);
@@ -90,7 +90,7 @@ class ArgumentParserTest extends TestCase {
         $this->assertEquals('Alex Phillips', $args->getOption('name')->getValue());
         $this->assertEquals('Alex Phillips', $args->getOption('n')->getValue());
 
-        $args = new Arguments([
+        $args = new Input([
             '--name="Alex Phillips"',
         ]);
         $args->addOption((new Option('name'))->alias('n'));
@@ -102,7 +102,7 @@ class ArgumentParserTest extends TestCase {
     }
 
     public function testParseArguments() {
-        $args = new Arguments([
+        $args = new Input([
             'Alex Phillips',
         ]);
         $args->addArgument(new Argument('name'));
@@ -112,7 +112,7 @@ class ArgumentParserTest extends TestCase {
     }
 
     public function testMixedArguments() {
-        $args = new Arguments([
+        $args = new Input([
             'Alex Phillips',
             '-fb',
             '--baz="woot"',

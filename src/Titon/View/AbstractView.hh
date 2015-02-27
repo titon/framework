@@ -241,7 +241,7 @@ abstract class AbstractView implements View, Subject {
      * {@inheritdoc}
      */
     public function locateTemplate(string $template, Template $type = Template::OPEN): string {
-        return (string) $this->cache([__METHOD__, $template, $type], (AbstractView $view) ==> {
+        return (string) $this->cache([__METHOD__, $template, $type], ($view) ==> {
             $template = $view->formatPath($template);
             $paths = $view->getPaths();
 

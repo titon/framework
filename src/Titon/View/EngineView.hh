@@ -54,7 +54,7 @@ class EngineView extends AbstractView {
      * {@inheritdoc}
      */
     public function render(string $template, bool $private = false): string {
-        return (string) $this->cache([__METHOD__, $template, $private], (EngineView $view) ==> {
+        return (string) $this->cache([__METHOD__, $template, $private], ($view) ==> {
             $view->emit('view.rendering', [$view, &$template]);
 
             $engine = $view->getEngine();

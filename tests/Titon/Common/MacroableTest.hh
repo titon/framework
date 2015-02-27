@@ -14,7 +14,9 @@ class MacroableTest extends TestCase {
         $this->assertFalse(Number::hasMacro('toBinary'));
         $this->assertFalse(Number::hasMacro('toFloat'));
 
-        Number::macro('toFloat', () ==> 0.0);
+        Number::macro('toFloat', function() {
+            return 0.0;
+        });
 
         $this->assertFalse(Number::hasMacro('toBinary'));
         $this->assertTrue(Number::hasMacro('toFloat'));
@@ -24,14 +26,16 @@ class MacroableTest extends TestCase {
         $this->assertFalse(Format::hasMacro('foobar'));
         $this->assertFalse(Path::hasMacro('foobar'));
 
-        Format::macro('foobar', () ==> '');
+        Format::macro('foobar', function() {
+            return '';
+        });
 
         $this->assertTrue(Format::hasMacro('foobar'));
         $this->assertFalse(Path::hasMacro('foobar'));
     }
 
     public function testMacro(): void {
-        Inflector::macro('caps', ($value) ==> {
+        Inflector::macro('caps', function($value) {
             return strtoupper($value);
         });
 
@@ -46,8 +50,13 @@ class MacroableTest extends TestCase {
     }
 
     public function testGetMacros(): void {
-        $lower = ($value) ==> strtolower($value);
-        $upper = ($value) ==> strtoupper($value);
+        $lower = function($value) {
+            return strtolower($value);
+        };
+
+        $upper = function($value) {
+            return strtoupper($value);
+        };
 
         Crypt::macro('lower', $lower);
         Crypt::macro('upper', $upper);

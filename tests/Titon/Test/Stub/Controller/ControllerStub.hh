@@ -5,6 +5,8 @@ use Titon\Controller\AbstractController;
 
 class ControllerStub extends AbstractController {
 
+    public string $value = '';
+
     public function actionWithArgs(mixed $arg1, mixed $arg2 = 0): mixed {
         return strval((int) $arg1 + (int) $arg2);
     }

@@ -14,6 +14,8 @@
  */
 
 namespace Titon\Common {
+    use Closure;
+
     type ArgumentList = array<mixed>;
     type CacheMap = Map<string, mixed>;
     type DataMap = Map<string, mixed>;

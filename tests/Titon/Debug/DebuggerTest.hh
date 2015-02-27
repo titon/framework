@@ -88,6 +88,7 @@ class DebuggerTest extends TestCase {
     }
 
     public function testHandleErrorTriggered(): void {
+        // UNSAFE
         ob_start();
         strpos();
         $actual = ob_get_clean();
@@ -96,6 +97,7 @@ class DebuggerTest extends TestCase {
     }
 
     public function testHandleErrorTriggeredNoReporting(): void {
+        // UNSAFE
         Debugger::disable();
 
         $this->assertFileNotExists($this->vfs()->path('/logs/warning-' . date('Y-m-d') . '.log'));

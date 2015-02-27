@@ -7,7 +7,7 @@ class ActionStub extends AbstractAction {
 
     public function get(): mixed {
         // UNSAFE
-        $this->getController()->foo = 'bar';
+        $this->getController()->value = 'bar';
 
         return 'get';
     }
@@ -26,7 +26,7 @@ class ActionStub extends AbstractAction {
 
     public function head(): mixed {
         // UNSAFE
-        $this->getController()->foo = 'baz';
+        $this->getController()->value = 'baz';
 
         return 'head';
     }

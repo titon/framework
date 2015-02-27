@@ -83,18 +83,18 @@ namespace {
     /**
      * @see Titon\Debug\Debugger::debug()
      */
-    function debug(): void {
+    function debug(/* HH_FIXME[4033]: variadic + strict */ ...$vars): void {
         if (Debugger::isOn()) {
-            echo call_user_func_array(class_meth('Titon\Debug\Debugger', 'debug'), func_get_args());
+            echo call_user_func_array(class_meth('Titon\Debug\Debugger', 'debug'), $vars);
         }
     }
 
     /**
      * @see Titon\Debug\Debugger::dump()
      */
-    function dump(): void {
+    function dump(/* HH_FIXME[4033]: variadic + strict */ ...$vars): void {
         if (Debugger::isOn()) {
-            echo call_user_func_array(class_meth('Titon\Debug\Debugger', 'dump'), func_get_args());
+            echo call_user_func_array(class_meth('Titon\Debug\Debugger', 'dump'), $vars);
         }
     }
 }

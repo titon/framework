@@ -1,5 +1,5 @@
 <?hh
-namespace Titon\Cache\Storage;
+/*namespace Titon\Cache\Storage;
 
 use Titon\Db\Query;
 use Titon\Test\Stub\Repository\Cache;
@@ -24,4 +24,4 @@ class DatabaseStorageTest extends AbstractStorageTest {
         $this->unloadFixtures('Cache');
     }
 
-}
+}*/

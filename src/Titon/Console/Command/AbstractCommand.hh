@@ -7,7 +7,7 @@
 
 namespace Titon\Console\Command;
 
-use Titon\Console\ArgumentBag;
+use Titon\Console\InputBag;
 use Titon\Console\Command;
 use Titon\Console\Input;
 use Titon\Console\InputDefinition\Argument;
@@ -16,22 +16,23 @@ use Titon\Console\InputDefinition\Option;
 
 abstract class AbstractCommand implements Command {
 
-    protected ArgumentBag $arguments;
+    protected InputBag<Argument> $arguments;
 
-    protected ?Input $input;
+    protected Input $input;
 
-    protected ?string $description;
+    protected string $description;
 
-    protected ArgumentBag $flags;
+    protected InputBag<Flag> $flags;
 
     protected string $name;
 
-    protected ArgumentBag $options;
+    protected InputBag<Option> $options;
 
     public function __construct() {
-        $this->arguments = new ArgumentBag();
-        $this->flags = new ArgumentBag();
-        $this->options = new ArgumentBag();
+        $this->input = new Input();
+        $this->arguments = new InputBag();
+        $this->flags = new InputBag();
+        $this->options = new InputBag();
     }
 
     public function setInput(Input $input): this {
@@ -58,7 +59,7 @@ abstract class AbstractCommand implements Command {
         return $this;
     }
 
-    protected function getArgument(string $key): ?string {
+    protected function getArgument(string $key): mixed {
         if ($argument = $this->input->getArgument($key)) {
             return $argument->getValue();
         }
@@ -66,8 +67,12 @@ abstract class AbstractCommand implements Command {
         return null;
     }
 
-    protected function getArguments(): ArgumentBag {
+    public function getArguments(): InputBag<Argument> {
         return $this->arguments;
+    }
+
+    public function getDescription(): string {
+        return $this->description;
     }
 
     protected function getFlag(string $key): ?int {
@@ -78,11 +83,15 @@ abstract class AbstractCommand implements Command {
         return null;
     }
 
-    protected function getFlags(): ArgumentBag {
+    public function getFlags(): InputBag<Flag> {
         return $this->flags;
     }
 
-    protected function getOption(string $key): ?string {
+    public function getName(): string {
+        return $this->name;
+    }
+
+    protected function getOption(string $key): mixed {
         if ($option = $this->input->getOption($key)) {
             return $option->getValue();
         }
@@ -90,7 +99,7 @@ abstract class AbstractCommand implements Command {
         return null;
     }
 
-    protected function getOptions(): ArgumentBag {
+    public function getOptions(): InputBag<Option> {
         return $this->options;
     }
 
@@ -104,5 +113,7 @@ abstract class AbstractCommand implements Command {
         foreach ($this->options as $name => $option) {
             $this->input->addOption($option);
         }
+
+        return $this;
     }
 }

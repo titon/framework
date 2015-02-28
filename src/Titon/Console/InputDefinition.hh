@@ -9,6 +9,8 @@ namespace Titon\Console;
 
 interface InputDefinition {
 
+    public function getAlias(): string;
+
     public function getDescription(): string;
 
     public function getName(): string;

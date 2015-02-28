@@ -13,11 +13,14 @@ use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\Exception\MissingValueException;
+use Titon\Console\Exception\InvalidCommandException;
 
 
 class Input {
 
     protected InputBag<Argument> $arguments;
+
+    protected ?Command $command;
 
     protected CommandMap $commands = Map {};
 
@@ -139,6 +142,12 @@ class Input {
         return $this->flags;
     }
 
+    public function setInput(array<string> $args): this {
+        $this->input = new InputLexer($args);
+
+        return $this;
+    }
+
     /**
      * Retrieve an `Option` by its key or alias. Returns null if none exists.
      *
@@ -189,6 +198,17 @@ class Input {
      * @return bool
      */
     protected function parseArgument(RawInput $input): bool {
+        // The first `argument` parsed needs to be a valid command
+        if (is_null($this->command)) {
+            if (!$this->commands->contains($input['raw'])) {
+                throw new InvalidCommandException("Command `{$input['raw']}` is not a valid command.");
+            }
+
+            $this->command = $this->commands->get($input['raw']);
+
+            return true;
+        }
+
         foreach ($this->arguments as $argument) {
             if (is_null($argument->getValue())) {
                 $argument->setValue($input['raw']);

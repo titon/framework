@@ -9,7 +9,7 @@ namespace Titon\Console\Tree;
 
 class MarkdownTree extends AbstractTree {
 
-    protected function build(?array<string> $tree = null, string $prefix = ''): string {
+    protected function build(array<string> $tree, string $prefix = ''): string {
         if (is_null($tree)) {
             $tree = $this->data;
         }

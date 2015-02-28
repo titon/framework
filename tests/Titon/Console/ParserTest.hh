@@ -2,132 +2,152 @@
 
 namespace Titon\Console;
 
+use Titon\Test\Stub\Console\CommandStub;
+use Titon\Test\Stub\Console\EmptyCommandStub;
 use Titon\Test\TestCase;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\InputDefinition\Argument;
 
+/**
+ * @property \Titon\Console\Input $input
+ */
 class ArgumentParserTest extends TestCase {
 
-    public function testParseFlags() {
+    public function setUp() {
+        $this->input = new Input();
+        $this->input->addCommand(new EmptyCommandStub());
+    }
+
+    public function testParseFlags(): void {
         /*
          * Check basic flag
          */
-        $args = new Input([
+        $this->input->setInput([
+            'command',
             '--foo',
         ]);
-        $args->addFlag((new Flag('foo'))->alias('f'));
-        $args->parse();
+        $this->input->addFlag((new Flag('foo'))->alias('f'));
+        $this->input->parse();
 
-        $this->assertEquals(1, $args->getFlag('foo')->getValue());
-        $this->assertEquals(1, $args->getFlag('f')->getValue());
+        $this->assertEquals(1, $this->input->getFlag('foo')->getValue());
+        $this->assertEquals(1, $this->input->getFlag('f')->getValue());
 
-        $args = new Input([
+        $this->input->setInput([
+            'command',
             '-f',
         ]);
-        $args->addFlag((new Flag('foo'))->alias('f'));
-        $args->parse();
+        $this->input->addFlag((new Flag('foo'))->alias('f'));
+        $this->input->parse();
 
-        $this->assertEquals(1, $args->getFlag('foo')->getValue());
-        $this->assertEquals(1, $args->getFlag('f')->getValue());
+        $this->assertEquals(1, $this->input->getFlag('foo')->getValue());
+        $this->assertEquals(1, $this->input->getFlag('f')->getValue());
 
         /*
          * Check stacked, but different, flags
          */
-        $args = new Input([
+        $this->input->setInput([
+            'command',
             '-fb',
         ]);
-        $args->addFlag((new Flag('foo'))->alias('f'));
-        $args->addFlag((new Flag('bar'))->alias('b'));
-        $args->parse();
+        $this->input->addFlag((new Flag('foo'))->alias('f'));
+        $this->input->addFlag((new Flag('bar'))->alias('b'));
+        $this->input->parse();
 
-        $this->assertEquals(1, $args->getFlag('foo')->getValue());
-        $this->assertEquals(1, $args->getFlag('bar')->getValue());
+        $this->assertEquals(1, $this->input->getFlag('foo')->getValue());
+        $this->assertEquals(1, $this->input->getFlag('bar')->getValue());
 
         /*
          * Check stacked flag
          */
-        $args = new Input([
+        $this->input->SetInput([
+            'command',
             '-vvv',
         ]);
-        $args->addFlag((new Flag('v'))->setStackable(true));
-        $args->parse();
+        $this->input->addFlag((new Flag('v'))->setStackable(true));
+        $this->input->parse();
 
-        $this->assertEquals(3, $args->getFlag('v')->getValue());
+        $this->assertEquals(3, $this->input->getFlag('v')->getValue());
     }
 
-    public function testParseOptions() {
-        $args = new Input([
+    public function testParseOptions(): void {
+        $this->input->setInput([
+            'command',
             '--name',
             'Alex Phillips',
         ]);
-        $args->addOption((new Option('name'))->alias('n'));
-        $args->addArgument(new Argument('bar', 'Bar!'));
-        $args->parse();
+        $this->input->addOption((new Option('name'))->alias('n'));
+        $this->input->addArgument(new Argument('bar', 'Bar!'));
+        $this->input->parse();
 
-        $this->assertEquals('Alex Phillips', $args->getOption('name')->getValue());
-        $this->assertEquals('Alex Phillips', $args->getOption('n')->getValue());
+        $this->assertEquals('Alex Phillips', $this->input->getOption('name')->getValue());
+        $this->assertEquals('Alex Phillips', $this->input->getOption('n')->getValue());
 
-        $args = new Input([
+        $this->input->setInput([
             '--name',
             'Alex Phillips',
+            'command',
         ]);
-        $args->addOption((new Option('name'))->alias('n'));
-        $args->addArgument(new Argument('bar', 'Bar!'));
-        $args->parse();
+        $this->input->addOption((new Option('name'))->alias('n'));
+        $this->input->addArgument(new Argument('bar', 'Bar!'));
+        $this->input->parse();
 
-        $this->assertEquals('Alex Phillips', $args->getOption('name')->getValue());
-        $this->assertEquals('Alex Phillips', $args->getOption('n')->getValue());
+        $this->assertEquals('Alex Phillips', $this->input->getOption('name')->getValue());
+        $this->assertEquals('Alex Phillips', $this->input->getOption('n')->getValue());
 
-        $args = new Input([
+        $this->input->setInput([
+            'command',
             '-n',
             'Alex Phillips',
         ]);
-        $args->addOption((new Option('name'))->alias('n'));
-        $args->addArgument(new Argument('bar', 'Bar!'));
-        $args->parse();
+        $this->input->addOption((new Option('name'))->alias('n'));
+        $this->input->addArgument(new Argument('bar', 'Bar!'));
+        $this->input->parse();
 
-        $this->assertEquals('Alex Phillips', $args->getOption('name')->getValue());
-        $this->assertEquals('Alex Phillips', $args->getOption('n')->getValue());
+        $this->assertEquals('Alex Phillips', $this->input->getOption('name')->getValue());
+        $this->assertEquals('Alex Phillips', $this->input->getOption('n')->getValue());
 
-        $args = new Input([
+        $this->input->setInput([
+            'command',
             '--name="Alex Phillips"',
         ]);
-        $args->addOption((new Option('name'))->alias('n'));
-        $args->addArgument(new Argument('bar', 'Bar!'));
-        $args->parse();
+        $this->input->addOption((new Option('name'))->alias('n'));
+        $this->input->addArgument(new Argument('bar', 'Bar!'));
+        $this->input->parse();
 
-        $this->assertEquals('Alex Phillips', $args->getOption('name')->getValue());
-        $this->assertEquals('Alex Phillips', $args->getOption('n')->getValue());
+        $this->assertEquals('Alex Phillips', $this->input->getOption('name')->getValue());
+        $this->assertEquals('Alex Phillips', $this->input->getOption('n')->getValue());
     }
 
-    public function testParseArguments() {
-        $args = new Input([
+    public function testParseArguments(): void {
+        $this->input->setInput([
+            'command',
             'Alex Phillips',
         ]);
-        $args->addArgument(new Argument('name'));
-        $args->parse();
+        $this->input->addArgument(new Argument('name'));
+        $this->input->parse();
 
-        $this->assertEquals('Alex Phillips', $args->getArgument('name')->getValue());
+        $this->assertEquals('Alex Phillips', $this->input->getArgument('name')->getValue());
     }
 
-    public function testMixedArguments() {
-        $args = new Input([
+    public function testMixedArguments(): void {
+        $this->input->setInput([
+            'command',
             'Alex Phillips',
             '-fb',
             '--baz="woot"',
         ]);
-        $args->addFlag((new Flag('bar'))->alias('b'));
-        $args->addOption(new Option('baz'));
-        $args->addFlag((new Flag('foo'))->alias('f'));
-        $args->addArgument(new Argument('name'));
-        $args->parse();
+        $this->input->addFlag((new Flag('bar'))->alias('b'));
+        $this->input->addOption(new Option('baz'));
+        $this->input->addFlag((new Flag('foo'))->alias('f'));
+        $this->input->addArgument(new Argument('name'));
+        $this->input->parse();
 
-        $this->assertEquals('Alex Phillips', $args->getArgument('name')->getValue());
-        $this->assertEquals(1, $args->getFlag('foo')->getValue());
-        $this->assertEquals(1, $args->getFlag('f')->getValue());
-        $this->assertEquals(1, $args->getFlag('bar')->getValue());
-        $this->assertEquals(1, $args->getFlag('b')->getValue());
-        $this->assertEquals('woot', $args->getOption('baz')->getValue());
+        $this->assertEquals('Alex Phillips', $this->input->getArgument('name')->getValue());
+        $this->assertEquals(1, $this->input->getFlag('foo')->getValue());
+        $this->assertEquals(1, $this->input->getFlag('f')->getValue());
+        $this->assertEquals(1, $this->input->getFlag('bar')->getValue());
+        $this->assertEquals(1, $this->input->getFlag('b')->getValue());
+        $this->assertEquals('woot', $this->input->getOption('baz')->getValue());
     }
 }

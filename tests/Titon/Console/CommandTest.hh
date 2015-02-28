@@ -3,19 +3,20 @@
 namespace Titon\Console;
 
 use Titon\Test\TestCase;
+use Titon\Test\Stub\Console\CommandStub;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\InputDefinition\Argument;
 
 class CommandTest extends TestCase {
 
-    public function testAddArguments() {
+    public function testAddArguments(): void {
         $args = new Input([
             '-v'
         ]);
         $args->addFlag(new Flag('help', 'Show this help screen'));
 
-        $command = new TestCommand();
+        $command = new CommandStub();
         $command->setInput($args);
         $command->configure();
         $command->registerInput();
@@ -24,16 +25,5 @@ class CommandTest extends TestCase {
 
         $this->assertEquals(2, count($args->getFlags()));
         $this->assertEquals(1, $args->getFlag('v')->getValue());
-    }
-}
-
-class TestCommand extends \Titon\Console\Command\AbstractCommand {
-
-    public function configure() {
-        $this->addFlag((new Flag('verbose', 'Set command verbosity'))->alias('v'));
-    }
-
-    public function run() {
-
     }
 }

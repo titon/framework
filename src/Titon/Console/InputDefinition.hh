@@ -13,6 +13,10 @@ interface InputDefinition {
 
     public function getDescription(): string;
 
+    public function getFormattedName(string $name): string;
+
+    public function getMode(): int;
+
     public function getName(): string;
 
     public function getValue(): mixed;

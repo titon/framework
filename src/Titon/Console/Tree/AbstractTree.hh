@@ -20,7 +20,7 @@ class AbstractTree {
     }
 
     public function render(): string {
-        return $this->build($this->data, '');
+        return $this->build($this->data);
     }
 
     public function setData(array<string> $data): this {

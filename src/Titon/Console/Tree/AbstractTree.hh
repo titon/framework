@@ -7,13 +7,17 @@
 
 namespace Titon\Console\Tree;
 
-class AbstractTree {
+use Titon\Console\Tree;
+
+abstract class AbstractTree implements Tree {
 
     protected array<string> $data = [];
 
     public function __construct(array<string> $data = []) {
         $this->data = $data;
     }
+
+    abstract protected function build(array<string> $tree, string $prefix = ''): string;
 
     public function getData(): array<string> {
         return $this->data;

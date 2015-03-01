@@ -5,13 +5,13 @@
  * @link        http://titon.io
  */
 
-interface Tree {
+namespace Titon\Console;
 
-    protected function build(?array<string> $tree = null, string $prefix = ''): string;
+interface Tree {
 
     public function getData(): array<string>;
 
     public function render(): string;
 
-    public function setData(): this;
+    public function setData(array<string> $data): this;
 }

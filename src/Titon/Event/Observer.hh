@@ -80,9 +80,8 @@ class Observer {
      */
     public async function asyncExecute(Event $event): Awaitable<mixed> {
         $this->executed = true;
-        $callback = $this->getCallback();
 
-        return await $callback($event);
+        return await call_user_func($this->getCallback(), $event);
     }
 
     /**
@@ -93,9 +92,8 @@ class Observer {
      */
     public function execute(Event $event): mixed {
         $this->executed = true;
-        $callback = $this->getCallback();
 
-        return $callback($event);
+        return call_user_func($this->getCallback(), $event);
     }
 
     /**

@@ -197,10 +197,12 @@ class Router implements Subject {
      * Cache the currently mapped routes.
      * This method is automatically called during the `matched` event.
      *
-     * @param \Titon\Route\Event\MatchedEvent $event
+     * @param \Titon\Event\Event $event
      * @return mixed
      */
-    public function doCacheRoutes(MatchedEvent $event): mixed {
+    public function doCacheRoutes(Event $event): mixed {
+        invariant($event instanceof MatchedEvent, 'Must be a MatchedEvent.');
+
         $router = $event->getRouter();
 
         if ($router->isCached()) {
@@ -223,10 +225,12 @@ class Router implements Subject {
     /**
      * Loop through and execute for every filter defined in the matched route.
      *
-     * @param \Titon\Route\Event\MatchedEvent $event
+     * @param \Titon\Event\Event $event
      * @return mixed
      */
-    public function doRunFilters(MatchedEvent $event): mixed {
+    public function doRunFilters(Event $event): mixed {
+        invariant($event instanceof MatchedEvent, 'Must be a MatchedEvent.');
+
         $router = $event->getRouter();
         $route = $event->getRoute();
 
@@ -242,10 +246,12 @@ class Router implements Subject {
      * Load routes from the cache if they exist.
      * This method is automatically called during the `matching` event.
      *
-     * @param \Titon\Route\Event\MatchingEvent $event
+     * @param \Titon\Event\Event $event
      * @return mixed
      */
-    public function doLoadRoutes(MatchingEvent $event): mixed {
+    public function doLoadRoutes(Event $event): mixed {
+        invariant($event instanceof MatchingEvent, 'Must be a MatchingEvent.');
+
         $item = $event->getRouter()->getStorage()?->getItem('routes');
 
         if ($item !== null && $item->isHit()) {

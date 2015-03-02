@@ -468,7 +468,7 @@ class StringBuffer implements Serializable {
      *
      * @param string $value
      */
-    public function unserialize(/* HH_FIXME[2049]: no type hint */ $value): void {
+    public function unserialize(/* HH_FIXME[4032]: no type hint */ $value): void {
         $this->write(unserialize($value));
     }
 

@@ -121,10 +121,12 @@ class Environment implements Subject {
      * Loop through all the bootstrappers and trigger the bootstrapping process.
      * This method is automatically called during the `initialized` event.
      *
-     * @param \Titon\Environment\Event\InitializedEvent $event
+     * @param \Titon\Event\Event $event
      * @return mixed
      */
-    public function doBootstrap(InitializedEvent $event): mixed {
+    public function doBootstrap(Event $event): mixed {
+        invariant($event instanceof InitializedEvent, 'Must be an InitializedEvent.');
+
         foreach ($event->getEnvironment()->getBootstrappers() as $bootstrapper) {
             $bootstrapper->bootstrap($event->getHost());
         }
@@ -136,10 +138,12 @@ class Environment implements Subject {
      * Attempt to load secure variables from the lookup path.
      * This method is automatically called during the `initialized` event.
      *
-     * @param \Titon\Environment\Event\InitializedEvent $event
+     * @param \Titon\Event\Event $event
      * @return mixed
      */
-    public function doLoadSecureVars(InitializedEvent $event): mixed {
+    public function doLoadSecureVars(Event $event): mixed {
+        invariant($event instanceof InitializedEvent, 'Must be an InitializedEvent.');
+
         $path = $event->getEnvironment()->getSecurePath();
         $variables = [];
 

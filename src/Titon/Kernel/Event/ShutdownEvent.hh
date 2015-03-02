@@ -17,28 +17,28 @@ use Titon\Kernel\Output;
  *
  * @package Titon\Kernel\Event
  */
-class ShutdownEvent extends Event {
+class ShutdownEvent<Ti as Input, To as Output> extends Event {
 
     /**
      * The input instance.
      *
      * @var \Titon\Kernel\Input
      */
-    protected Input $input;
+    protected Ti $input;
 
     /**
      * The kernel instance.
      *
      * @var \Titon\Kernel\Kernel
      */
-    protected Kernel $kernel;
+    protected Kernel<Ti, To> $kernel;
 
     /**
      * The output instance.
      *
      * @var \Titon\Kernel\Output
      */
-    protected Output $output;
+    protected To $output;
 
     /**
      * Store the event settings.
@@ -47,7 +47,7 @@ class ShutdownEvent extends Event {
      * @param \Titon\Kernel\Input $input
      * @param \Titon\Kernel\Output $output
      */
-    public function __construct(Kernel $kernel, Input $input, Output $output) {
+    public function __construct(Kernel<Ti, To> $kernel, Ti $input, To $output) {
         $this->kernel = $kernel;
         $this->input = $input;
         $this->output = $output;
@@ -60,7 +60,7 @@ class ShutdownEvent extends Event {
      *
      * @return \Titon\Kernel\Input
      */
-    public function getInput(): Input {
+    public function getInput(): Ti {
         return $this->input;
     }
 
@@ -69,7 +69,7 @@ class ShutdownEvent extends Event {
      *
      * @return \Titon\Kernel\Kernel
      */
-    public function getKernel(): Kernel {
+    public function getKernel(): Kernel<Ti, To> {
         return $this->kernel;
     }
 
@@ -78,7 +78,7 @@ class ShutdownEvent extends Event {
      *
      * @return \Titon\Kernel\Output
      */
-    public function getOutput(): Output {
+    public function getOutput(): To {
         return $this->output;
     }
 

@@ -145,7 +145,12 @@ abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, T
      * {@inheritdoc}
      */
     public function terminate(): void {
-        $this->emit(new TerminateEvent($this, $this->getInput(), $this->getOutput()));
+        $input = $this->getInput();
+        $output = $this->getOutput();
+
+        invariant($input !== null && $output !== null, 'Input and Output must not be null.');
+
+        $this->emit(new TerminateEvent($this, $input, $output));
 
         exit(0);
     }
@@ -154,14 +159,24 @@ abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, T
      * Triggered after the pipeline is handled but before the output is sent.
      */
     protected function shutdown(): void {
-        $this->emit(new ShutdownEvent($this, $this->getInput(), $this->getOutput()));
+        $input = $this->getInput();
+        $output = $this->getOutput();
+
+        invariant($input !== null && $output !== null, 'Input and Output must not be null.');
+
+        $this->emit(new ShutdownEvent($this, $input, $output));
     }
 
     /**
      * Triggered before the pipeline is handled.
      */
     protected function startup(): void {
-        $this->emit(new StartupEvent($this, $this->getInput(), $this->getOutput()));
+        $input = $this->getInput();
+        $output = $this->getOutput();
+
+        invariant($input !== null && $output !== null, 'Input and Output must not be null.');
+
+        $this->emit(new StartupEvent($this, $input, $output));
     }
 
 }

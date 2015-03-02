@@ -16,8 +16,7 @@
         "source": "https://github.com/titon/event"
     },
     "require": {
-        "hhvm": ">=3.4.0",
-        "titon/common": "*"
+        "hhvm": ">=3.4.0"
     },
     "suggest": {
         "titon/annotation": "Wire Observer annotations using the Annotation package"

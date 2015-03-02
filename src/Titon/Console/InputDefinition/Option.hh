@@ -9,14 +9,6 @@ namespace Titon\Console\InputDefinition;
 
 class Option extends AbstractInputDefinition {
 
-    public function getValue(mixed $default = null): mixed {
-        if (!is_null($this->value)) {
-            return $this->value;
-        }
-
-        return $default;
-    }
-
     public function setDefault(string $default): this {
         $this->default = $default;
 

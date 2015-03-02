@@ -69,7 +69,7 @@ abstract class AbstractCommand implements Command {
         return $this->description;
     }
 
-    protected function getFlag(string $key): ?int {
+    protected function getFlag(string $key): mixed {
         if ($flag = $this->input->getFlag($key)) {
             return $flag->getValue();
         }

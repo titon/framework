@@ -9,6 +9,7 @@ namespace Titon\Console\InputDefinition;
 
 class Argument extends AbstractInputDefinition {
 
+    <<Override>>
     public function getFormattedName(string $name): string {
         return $name;
     }

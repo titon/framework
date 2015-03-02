@@ -9,13 +9,15 @@ namespace Titon\Console\Table;
 
 class AsciiTable extends AbstractTable {
 
-    protected Map<string, string> $characters = array(
-        'corner'      => '+',
-        'line'        => '-',
+    protected ?string $border;
+
+    protected Map<string, string> $characters = Map {
+        'corner' => '+',
+        'line' => '-',
         'header_line' => '=',
-        'border'      => '|',
-        'padding'     => ' ',
-    );
+        'border' => '|',
+        'padding' => ' ',
+    };
 
     protected ?int $rowWidth;
 
@@ -24,53 +26,38 @@ class AsciiTable extends AbstractTable {
     }
 
     protected function buildBorder(bool $header = false): string {
-        if ($header) {
-            return str_repeat($this->characters['header_line'], $this->getRowWidth());
+        if (is_null($this->border)) {
+            $this->border = '+';
+            foreach ($this->columnWidths as $width) {
+                $this->border .= $this->characters['padding'];
+                $this->border .= str_repeat('-', $width);
+                $this->border .= $this->characters['padding'];
+                $this->border .= '+';
+            }
         }
 
-        return str_repeat($this->characters['line'], $this->getRowWidth());
+        return $this->border;
     }
 
     protected function buildCell(string $value, int $key): string {
         return $this->pad(str_pad($value, $this->columnWidths->get($key)), $this->characters['padding']);
     }
 
-    protected function buildHeader(): string {
-        $retval = Vector {};
-
-        if (!$this->headers->isEmpty()) {
-            $headers = [];
-            foreach ($this->headers as $index => $column) {
-                $headers[] = $this->characters['padding'] . str_pad($column, $this->columnWidths->get($index)) . $this->characters['padding'];
-            }
-            $headers = implode($this->characters['border'], $headers);
-            if ($headers) {
-                $headers = $this->pad($headers, $this->characters['border']);
-                $border = $this->buildBorder(true);
-                $retval[] = $border;
-                $retval[] = $headers;
-                $retval[] = $border;
-            }
-        } else {
-            $retval[] = $this->buildBorder();
-        }
-
-        return implode("\n", $retval);
-    }
-
     protected function buildRow(Vector<string> $data): string {
-            $row = [];
-            foreach ($data as $index => $value) {
-                $row[] = $this->buildCell($value, $index);
-            }
-            $row = $this->pad(implode($this->characters['border'], $row), $this->characters['border']);
+        $row = [];
+        foreach ($data as $index => $value) {
+            $row[] = $this->buildCell($value, $index);
+        }
+        $row = $this->pad(implode($this->characters['border'], $row), $this->characters['border']);
 
-            return $row;
+        return $row;
     }
 
     protected function getRowWidth(): int {
         if (is_null($this->rowWidth)) {
-            $this->rowWidth = strlen($this->buildRow($this->rows->get(0)));
+            if (!is_null($this->rows[0])) {
+                $this->rowWidth = strlen($this->buildRow($row));
+            }
         }
 
         return $this->rowWidth;
@@ -79,12 +66,18 @@ class AsciiTable extends AbstractTable {
     public function render(): string {
         $retval = Vector {};
 
-        $retval[] = $this->buildHeader();
+        if ($header = $this->buildRow($this->headers)) {
+            $retval[] = $this->buildBorder();
+            $retval[] = $header;
+        }
+
+        $retval[] = $this->buildBorder();
 
         foreach ($this->rows as $row) {
             $retval[] = $this->buildRow($row);
-            $retval[] = $this->buildBorder();
         }
+
+        $retval[] = $this->buildBorder();
 
         return implode("\n", $retval);
     }

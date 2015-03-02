@@ -14,7 +14,7 @@ abstract class AbstractInputDefinition implements InputDefinition {
     const VALUE_OPTIONAL = 0;
     const VALUE_REQUIRED = 1;
 
-    protected ?string $alias;
+    protected string $alias = '';
 
     protected mixed $default;
 
@@ -44,7 +44,7 @@ abstract class AbstractInputDefinition implements InputDefinition {
         return true;
     }
 
-    public function getAlias(): ?string {
+    public function getAlias(): string {
         return $this->alias;
     }
 
@@ -62,6 +62,10 @@ abstract class AbstractInputDefinition implements InputDefinition {
         }
 
         return "--$name";
+    }
+
+    public function getMode(): int {
+        return $this->mode;
     }
 
     public function getName(): string {

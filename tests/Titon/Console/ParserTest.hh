@@ -68,6 +68,18 @@ class ArgumentParserTest extends TestCase {
         $this->input->parse();
 
         $this->assertEquals(3, $this->input->getFlag('v')->getValue());
+
+        /*
+         * Check inverse flags
+         */
+        $this->input->setInput([
+            '--no-foo',
+        ]);
+
+        $this->input->addFlag(new Flag('foo'));
+        $this->input->parse();
+
+        $this->assertEquals(0, $this->input->getFlag('foo')->getValue());
     }
 
     public function testParseOptions(): void {

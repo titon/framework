@@ -230,19 +230,29 @@ class Input {
      */
     protected function parseFlag(RawInput $input): bool {
         $key = $input['value'];
-        if (is_null($flag = $this->flags->get($key))) {
-            return false;
+        if (!is_null($flag = $this->flags->get($key))) {
+            invariant($flag instanceof Flag, "Must be a Flag.");
+
+            if ($flag->isStackable()) {
+                $flag->increaseValue();
+            } else {
+                $flag->setValue(1);
+            }
+
+            return true;
         }
 
-        invariant($flag instanceof Flag, "Must be a Flag.");
+        foreach ($this->flags as $name => $flag) {
+            if ($key === $flag->getNegativeAlias()) {
+                invariant($flag instanceof Flag, "Must be a Flag.");
 
-        if ($flag->isStackable()) {
-            $flag->increaseValue();
-        } else {
-            $flag->setValue(1);
+                $flag->setValue(0);
+
+                return true;
+            }
         }
 
-        return true;
+        return false;
     }
 
     /**

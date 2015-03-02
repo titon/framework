@@ -197,17 +197,17 @@ class Router implements Subject {
      * Cache the currently mapped routes.
      * This method is automatically called during the `matched` event.
      *
-     * @param \Titon\Event\Event $event
-     * @param \Titon\Route\Router $router
-     * @param \Titon\Route\Route $route
+     * @param \Titon\Route\Event\MatchedEvent $event
      * @return mixed
      */
-    public function doCacheRoutes(Event $event, Router $router, Route $route): mixed {
-        if ($this->isCached()) {
+    public function doCacheRoutes(MatchedEvent $event): mixed {
+        $router = $event->getRouter();
+
+        if ($router->isCached()) {
             return true;
         }
 
-        if (($storage = $this->getStorage()) && ($routes = $this->getRoutes())) {
+        if (($storage = $router->getStorage()) && ($routes = $router->getRoutes())) {
             // Before caching, make sure all routes are compiled
             foreach ($routes as $route) {
                 $route->compile();
@@ -223,14 +223,16 @@ class Router implements Subject {
     /**
      * Loop through and execute for every filter defined in the matched route.
      *
-     * @param \Titon\Event\Event $event
-     * @param \Titon\Route\Router $router
-     * @param \Titon\Route\Route $route
+     * @param \Titon\Route\Event\MatchedEvent $event
      * @return mixed
      */
-    public function doRunFilters(Event $event, Router $router, Route $route): mixed {
+    public function doRunFilters(MatchedEvent $event): mixed {
+        $router = $event->getRouter();
+        $route = $event->getRoute();
+
         foreach ($route->getFilters() as $filter) {
-            call_user_func_array($this->getFilter($filter), [$router, $route]);
+            $callback = $this->getFilter($filter);
+            $callback($router, $route);
         }
 
         return true;
@@ -240,13 +242,11 @@ class Router implements Subject {
      * Load routes from the cache if they exist.
      * This method is automatically called during the `matching` event.
      *
-     * @param \Titon\Event\Event $event
-     * @param \Titon\Route\Router $router
-     * @param string $url
+     * @param \Titon\Route\Event\MatchingEvent $event
      * @return mixed
      */
-    public function doLoadRoutes(Event $event, Router $router, string $url): mixed {
-        $item = $this->getStorage()?->getItem('routes');
+    public function doLoadRoutes(MatchingEvent $event): mixed {
+        $item = $event->getRouter()->getStorage()?->getItem('routes');
 
         if ($item !== null && $item->isHit()) {
             $this->routes = unserialize($item->get());

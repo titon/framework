@@ -91,6 +91,10 @@ class Event {
      * @return mixed
      */
     public function getData(string $key = ''): mixed {
+        if (!$key) {
+            return $this->data;
+        }
+
         return $this->data->get($key);
     }
 

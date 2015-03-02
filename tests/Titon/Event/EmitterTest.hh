@@ -1,7 +1,9 @@
 <?hh
 namespace Titon\Event;
 
+use Titon\Test\Stub\Event\CounterEventStub;
 use Titon\Test\Stub\Event\ListenerStub;
+use Titon\Test\Stub\Event\ListEventStub;
 use Titon\Test\TestCase;
 
 /**
@@ -119,24 +121,25 @@ class EmitterTest extends TestCase {
     }
 
     public function testExit(): void {
-        $n = 0;
-        $ob1 = function(Event $event, &$i) { $i++; };
-        $ob2 = function(Event $event, &$i) { $i++; return true; };
-        $ob3 = function(Event $event, &$i) { $i++; return false; };
-        $ob4 = function(Event $event, &$i) { $i++; };
+        $event = new CounterEventStub('event.test');
+
+        $ob1 = ($event) ==> { $event->count++; };
+        $ob2 = ($event) ==> { $event->count++; return true; };
+        $ob3 = ($event) ==> { $event->count++; return false; };
+        $ob4 = ($event) ==> { $event->count++; };
 
         $this->object->subscribe('event.test', $ob1);
         $this->object->subscribe('event.test', $ob2);
         $this->object->subscribe('event.test', $ob3);
         $this->object->subscribe('event.test', $ob4);
 
-        $this->object->emit('event.test', [&$n]);
+        $this->object->emit($event);
 
-        $this->assertEquals(3, $n);
+        $this->assertEquals(3, $event->count);
     }
 
     public function testData(): void {
-        $ob1 = ($event) ==> { $event->setData('key', $event->getData('key') + 1); };
+        $ob1 = ($event) ==> { $event->setData('key', 1); };
         $ob2 = ($event) ==> { $event->setData('key', $event->getData('key') + 1); };
         $ob3 = ($event) ==> { $event->setData('key', $event->getData('key') + 1); };
         $ob4 = ($event) ==> { $event->setData('key', $event->getData('key') + 1); };
@@ -146,7 +149,7 @@ class EmitterTest extends TestCase {
         $this->object->subscribe('event.test', $ob3);
         $this->object->subscribe('event.test', $ob4);
 
-        $event = $this->object->emit('event.test', []);
+        $event = $this->object->emit(new Event('event.test'));
 
         $this->assertEquals(4, $event->getData('key'));
         $this->assertEquals(Map {'key' => 4}, $event->getData());
@@ -199,53 +202,52 @@ class EmitterTest extends TestCase {
         $this->object->subscribe('event.test', $ob2);
         $this->object->subscribe('event.test', [$ob3, 'noop3']);
 
-        $event = $this->object->emit('event.test', []);
+        $event = $this->object->emit(new Event('event.test'));
 
         $this->assertTrue($event->isStopped());
         $this->assertEquals(1, $event->getIndex());
     }
 
     public function testEmitNoObservers(): void {
-        $event = $this->object->emit('fake.event', []);
+        $event = $this->object->emit(new Event('event.fake'));
 
         $this->assertInstanceOf('Titon\Event\Event', $event);
         $this->assertEquals(Vector {}, $event->getCallStack());
     }
 
     public function testEmitParams(): void {
+        $event = new CounterEventStub('event.test');
+
         $ob1 = new ListenerStub();
-        $ob2 = function(Event $event, &$int, $object) { $int++; };
-        $ob3 = function(Event $event, &$int, $object) { $int += 5; };
+        $ob2 = ($event) ==> { $event->count++; };
+        $ob3 = ($event) ==> { $event->count += 5; };
 
         $this->object->subscribe('event.test', [$ob1, 'noop3']);
         $this->object->subscribe('event.test', $ob2);
         $this->object->subscribe('event.test', $ob3);
 
-        $int = 0;
-        $object = new \stdClass();
-        $object->foo = 'baz';
+        $this->object->emit($event);
 
-        $this->object->emit('event.test', [&$int, $object]);
-
-        $this->assertEquals('bar', $object->foo);
-        $this->assertEquals(6, $int);
+        $this->assertEquals('bar', $event->key);
+        $this->assertEquals(6, $event->count);
     }
 
     public function testEmitReturnState(): void {
-        $count = 0;
-        $ob1 = function($event) use (&$count) { $count++; }; // Void, will continue
-        $ob2 = function($event) use (&$count) { $count++; return true; }; // True, will continue
-        $ob3 = function($event) use (&$count) { $count++; return ['foo' => 'bar']; }; // Has a value, will stop
-        $ob4 = function($event) use (&$count) { $count++; return 'foobar'; }; // Will not be reached
+        $event = new CounterEventStub('event.test');
+
+        $ob1 = ($event) ==> { $event->count++; }; // Void, will continue
+        $ob2 = ($event) ==> { $event->count++; return true; }; // True, will continue
+        $ob3 = ($event) ==> { $event->count++; return ['foo' => 'bar']; }; // Has a value, will stop
+        $ob4 = ($event) ==> { $event->count++; return 'foobar'; }; // Will not be reached
 
         $this->object->subscribe('event.test', $ob1);
         $this->object->subscribe('event.test', $ob2);
         $this->object->subscribe('event.test', $ob3);
         $this->object->subscribe('event.test', $ob4);
 
-        $event = $this->object->emit('event.test', []);
+        $this->object->emit($event);
 
-        $this->assertEquals(3, $count);
+        $this->assertEquals(3, $event->count);
         $this->assertEquals(['foo' => 'bar'], $event->getState());
     }
 
@@ -258,27 +260,14 @@ class EmitterTest extends TestCase {
         $this->object->subscribe('event.test', $ob2);
         $this->object->listen($ob3);
 
-        $events = $this->object->emitMany('event.test event.test1', []);
+        $events = $this->object->emitMany([new Event('event.test'), new Event('event.test.2')]);
 
         $this->assertEquals(2, count($events));
     }
 
-    public function testEmitManyWildcard(): void {
-        $ob1 = ($event) ==> { };
-        $ob2 = ($event) ==> { $event->stop(); };
-        $ob3 = new ListenerStub();
-
-        $this->object->subscribe('event.cb1', $ob1);
-        $this->object->subscribe('event.cb2', $ob2);
-        $this->object->listen($ob3);
-
-        $events = $this->object->emitMany('event.*', []);
-        $this->assertEquals(5, count($events));
-    }
-
     public function testEmitAsyncs(): void {
+        $event = new ListEventStub('event.test');
         $stub = new ListenerStub();
-        $list = [];
 
         $this->object->subscribe('event.test', [$stub, 'asyncNoop1']);
         $this->object->subscribe('event.test', [$stub, 'asyncNoop2']);
@@ -289,10 +278,10 @@ class EmitterTest extends TestCase {
 
         $this->assertEquals(6, count($this->object->getObservers('event.test')));
 
-        $this->object->emit('event.test', [&$list]);
+        $this->object->emit($event);
 
-        $this->assertEquals(6, count($list));
-        $this->assertNotEquals([1, 2, 3, 1, 2, 3], $list);
+        $this->assertEquals(6, count($event->list));
+        $this->assertNotEquals([1, 2, 3, 1, 2, 3], $event->list);
     }
 
 }

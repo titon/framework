@@ -121,14 +121,12 @@ class Environment implements Subject {
      * Loop through all the bootstrappers and trigger the bootstrapping process.
      * This method is automatically called during the `initialized` event.
      *
-     * @param \Titon\Event\Event $event
-     * @param \Titon\Environment\Environment $env
-     * @param \Titon\Environment\Host $host
+     * @param \Titon\Environment\Event\InitializedEvent $event
      * @return mixed
      */
-    public function doBootstrap(Event $event, Environment $env, Host $host): mixed {
-        foreach ($this->getBootstrappers() as $bootstrapper) {
-            $bootstrapper->bootstrap($host);
+    public function doBootstrap(InitializedEvent $event): mixed {
+        foreach ($event->getEnvironment()->getBootstrappers() as $bootstrapper) {
+            $bootstrapper->bootstrap($event->getHost());
         }
 
         return true;
@@ -138,20 +136,18 @@ class Environment implements Subject {
      * Attempt to load secure variables from the lookup path.
      * This method is automatically called during the `initialized` event.
      *
-     * @param \Titon\Event\Event $event
-     * @param \Titon\Environment\Environment $env
-     * @param \Titon\Environment\Host $host
+     * @param \Titon\Environment\Event\InitializedEvent $event
      * @return mixed
      */
-    public function doLoadSecureVars(Event $event, Environment $env, Host $host): mixed {
-        $path = $this->securePath;
+    public function doLoadSecureVars(InitializedEvent $event): mixed {
+        $path = $event->getEnvironment()->getSecurePath();
         $variables = [];
 
         if (!$path) {
             return true;
         }
 
-        foreach (['.env.php', sprintf('.env.%s.php', $host->getKey())] as $file) {
+        foreach (['.env.php', sprintf('.env.%s.php', $event->getHost()->getKey())] as $file) {
             if (file_exists($path . $file)) {
                 $variables = array_merge($variables, include_file($path . $file));
             }
@@ -202,6 +198,15 @@ class Environment implements Subject {
      */
     public function getHosts(): HostMap {
         return $this->hosts;
+    }
+
+    /**
+     * Return the secure lookup path.
+     *
+     * @return string
+     */
+    public function getSecurePath(): string {
+        return $this->securePath;
     }
 
     /**

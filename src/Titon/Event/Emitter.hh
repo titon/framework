@@ -7,8 +7,6 @@
 
 namespace Titon\Event;
 
-use Titon\Common\ArgumentList;
-
 /**
  * The Emitter manages the subscribing and removing of observers (and listeners).
  * An emitted event will cycle through and trigger all observers.
@@ -29,20 +27,15 @@ class Emitter {
 
     /**
      * Notify all synchronous and asynchronous observers, sorted by priority, about an event.
-     * A list of parameters can be defined that will be passed to each observer.
      *
      * @param \Titon\Event\Event $event
-     * @param \Titon\Common\ArgumentList $args
      * @return \Titon\Event\Event
      */
-    public function dispatch(Event $event, ArgumentList $args): Event {
+    public function emit(Event $event): Event {
         $key = $event->getKey();
 
         // Set call stack
         $event->setCallStack($this->getCallStack($key));
-
-        // Add event as the 1st param
-        array_unshift($args, $event);
 
         // Group the observers
         $observers = $this->getSortedObservers($key);
@@ -58,38 +51,23 @@ class Emitter {
         }
 
         // Notify observers
-        $this->notifyObservers($syncObservers, $event, $args);
-        $this->notifyObserversAsync($asyncObservers, $event, $args)->getWaitHandle()->join();
+        $this->notifyObservers($syncObservers, $event);
+        $this->notifyObserversAsync($asyncObservers, $event)->getWaitHandle()->join();
 
         return $event;
     }
 
     /**
-     * Emit a single event defined by an event name. Can pass an optional list of parameters.
+     * Emit multiple events at once by passing a list of event objects.
      *
-     * @uses Titon\Event\Event
-     *
-     * @param string $event
-     * @param \Titon\Common\ArgumentList $args
-     * @return \Titon\Event\Event
-     */
-    public function emit(string $event, ArgumentList $args): Event {
-        return $this->dispatch(new Event($event), $args);
-    }
-
-    /**
-     * Emit multiple events at once by passing a list of event names, or event names separated by a space.
-     * If a `*` is provided in the key, a wildcard match will occur.
-     *
-     * @param mixed $event
-     * @param \Titon\Common\ArgumentList $args
+     * @param \Titon\Event\EventList $events
      * @return \Titon\Event\EventMap
      */
-    public function emitMany(mixed $event, ArgumentList $args): EventMap {
+    public function emitMany(EventList $events): EventMap {
         $objects = Map {};
 
-        foreach ($this->resolveEventKeys($event) as $event) {
-            $objects[$event] = $this->emit($event, $args);
+        foreach ($events as $event) {
+            $objects[$event->getKey()] = $this->emit($event);
         }
 
         return $objects;
@@ -160,7 +138,7 @@ class Emitter {
         $observers = $this->getObservers($event);
 
         if ($observers) {
-            usort($observers, (Observer $a, Observer $b) ==> {
+            usort($observers, ($a, $b) ==> {
                 if ($a->getPriority() == $b->getPriority()) {
                     return 0;
                 }
@@ -272,10 +250,9 @@ class Emitter {
      *
      * @param \Titon\Event\Observer $observer
      * @param \Titon\Event\Event $event
-     * @param \Titon\Common\ArgumentList $args
      * @return bool
      */
-    protected function executeObserver(Observer $observer, Event $event, ArgumentList $args): bool {
+    protected function executeObserver(Observer $observer, Event $event): bool {
         if ($event->isStopped()) {
             return false;
 
@@ -283,7 +260,7 @@ class Emitter {
             return true;
         }
 
-        return $this->handleExecution($event, $observer->execute($args));
+        return $this->handleExecution($event, $observer->execute($event));
     }
 
     /**
@@ -291,10 +268,9 @@ class Emitter {
      *
      * @param \Titon\Event\Observer $observer
      * @param \Titon\Event\Event $event
-     * @param \Titon\Common\ArgumentList $args
      * @return bool
      */
-    protected async function executeObserverAsync(Observer $observer, Event $event, ArgumentList $args): Awaitable<bool> {
+    protected async function executeObserverAsync(Observer $observer, Event $event): Awaitable<bool> {
         if ($event->isStopped()) {
             return false;
 
@@ -302,7 +278,7 @@ class Emitter {
             return true;
         }
 
-        $response = await $observer->asyncExecute($args);
+        $response = await $observer->asyncExecute($event);
 
         return $this->handleExecution($event, $response);
     }
@@ -331,12 +307,11 @@ class Emitter {
      *
      * @param \Titon\Event\ObserverList $observers
      * @param \Titon\Event\Event $event
-     * @param \Titon\Common\ArgumentList $args
      * @return bool
      */
-    protected function notifyObservers(ObserverList $observers, Event $event, ArgumentList $args): bool {
+    protected function notifyObservers(ObserverList $observers, Event $event): bool {
         foreach ($observers as $observer) {
-            $this->executeObserver($observer, $event, $args);
+            $this->executeObserver($observer, $event);
 
             if ($event->isStopped()) {
                 return false;
@@ -351,10 +326,9 @@ class Emitter {
      *
      * @param \Titon\Event\ObserverList $observers
      * @param \Titon\Event\Event $event
-     * @param \Titon\Common\ArgumentList $args
      * @return Awaitable<mixed>
      */
-    protected async function notifyObserversAsync(ObserverList $observers, Event $event, ArgumentList $args): Awaitable<mixed> {
+    protected async function notifyObserversAsync(ObserverList $observers, Event $event): Awaitable<mixed> {
         if ($event->isStopped()) {
             return false; // Exit early if non-async stopped propagation
         }
@@ -362,7 +336,7 @@ class Emitter {
         $handles = Vector {};
 
         foreach ($observers as $observer) {
-            $handles[] = $this->executeObserverAsync($observer, $event, $args)->getWaitHandle();
+            $handles[] = $this->executeObserverAsync($observer, $event)->getWaitHandle();
         }
 
         await GenVectorWaitHandle::create($handles);
@@ -403,36 +377,6 @@ class Emitter {
         }
 
         return $parsed;
-    }
-
-    /**
-     * Resolve an event key into multiple events by checking for space delimiters and wildcard matches.
-     *
-     * @param mixed $events
-     * @return Vector<string>
-     */
-    protected function resolveEventKeys(mixed $events): Vector<string> {
-        $found = Vector {};
-
-        if (!$events instanceof Traversable) {
-            $events = explode(' ', (string) $events);
-        }
-
-        foreach ($events as $event) {
-            if (strpos($event, '*') !== false) {
-                $pattern = '/^' . str_replace('*', '([-\w]+)', $event) . '$/i';
-
-                foreach ($this->observers as $eventKey => $observers) {
-                    if (preg_match($pattern, $eventKey)) {
-                        $found[] = $eventKey;
-                    }
-                }
-            } else {
-                $found[] = $event;
-            }
-        }
-
-        return $found;
     }
 
 }

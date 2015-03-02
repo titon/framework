@@ -15,12 +15,13 @@
 
 namespace Titon\Event {
     type CallStackList = Vector<string>;
+    type EventList = Vector<Event>;
     type EventMap = Map<string, Event>;
     type ListenerMap = Map<string, mixed>;
     type ListenerOption = shape('method' => string, 'priority' => int, 'once' => bool);
     type ObserverList = Vector<Observer>;
     type ObserverContainer = Map<string, ObserverList>;
-    type ObserverCallback = (function(...): mixed);
+    type ObserverCallback = (function(Event): mixed);
 }
 
 /**

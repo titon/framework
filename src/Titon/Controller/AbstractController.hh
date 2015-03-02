@@ -8,6 +8,9 @@
 namespace Titon\Controller;
 
 use Titon\Common\ArgumentList;
+use Titon\Controller\Event\ErrorEvent;
+use Titon\Controller\Event\ProcessedEvent;
+use Titon\Controller\Event\ProcessingEvent;
 use Titon\Controller\Exception\InvalidActionException;
 use Titon\Event\EmitsEvents;
 use Titon\Event\Subject;
@@ -30,10 +33,6 @@ use \Exception;
  * overwrite the View and Engine configuration, attach helpers, etc.
  *
  * @package Titon\Controller
- * @events
- *      controller.processing(Controller $con, string $action, Vector<mixed> $args)
- *      controller.processed(Controller $con, string $action, string $response)
- *      controller.error(Controller $con, Exception $e)
  */
 abstract class AbstractController implements Controller, Subject {
     use EmitsEvents, IncomingRequestAware, OutgoingResponseAware;
@@ -85,7 +84,7 @@ abstract class AbstractController implements Controller, Subject {
         }
 
         if ($emit) {
-            $this->emit('controller.processing', [$this, $action, $args]);
+            $this->emit(new ProcessingEvent($this, $action, $args));
         }
 
         // Calling `missingAction()` if the action does not exist
@@ -97,11 +96,13 @@ abstract class AbstractController implements Controller, Subject {
 
             // UNSAFE
             // Since inst_meth() requires literal strings and we are passing variables
-            $response = call_user_func_array(inst_meth($this, $action), $args);
+            $handler = inst_meth($this, $action);
+            $response = $handler(...$args);
         }
 
         if ($emit) {
-            $this->emit('controller.processed', [$this, $action, &$response]);
+            $this->emit(new ProcessedEvent($this, $action, $this->getResponse()));
+            // todo - HANDLE the response correctly
         }
 
         return $response;
@@ -171,7 +172,8 @@ abstract class AbstractController implements Controller, Subject {
         $template = (error_reporting() <= 0) ? 'http' : 'error';
         $status = ($exception instanceof HttpException) ? $exception->getCode() : 500;
 
-        $this->emit('controller.error', [$this, $exception]);
+        // Emit an event
+        $this->emit(new ErrorEvent($this, $exception));
 
         // Render the view
         $output = '';

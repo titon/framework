@@ -14,6 +14,8 @@ use Titon\Event\EmitsEvents;
 use Titon\Event\Event;
 use Titon\Event\Subject;
 use Titon\Route\Annotation\Route as RouteAnnotation;
+use Titon\Route\Event\MatchedEvent;
+use Titon\Route\Event\MatchingEvent;
 use Titon\Route\Exception\InvalidRouteActionException;
 use Titon\Route\Exception\MissingFilterException;
 use Titon\Route\Exception\MissingSegmentException;
@@ -503,7 +505,7 @@ class Router implements Subject {
      * @throws \Titon\Route\Exception\NoMatchException
      */
     public function match(string $url): Route {
-        $this->emit('route.matching', [$this, $url]);
+        $this->emit(new MatchingEvent($this, $url));
 
         $match = $this->getMatcher()->match($url, $this->getRoutes());
 
@@ -513,7 +515,7 @@ class Router implements Subject {
 
         $this->current = $match;
 
-        $this->emit('route.matched', [$this, $match]);
+        $this->emit(new MatchedEvent($this, $match));
 
         return $match;
     }

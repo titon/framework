@@ -7,6 +7,8 @@
 
 namespace Titon\Environment;
 
+use Titon\Environment\Event\InitializedEvent;
+use Titon\Environment\Event\InitializingEvent;
 use Titon\Environment\Exception\MissingHostException;
 use Titon\Environment\Exception\NoHostMatchException;
 use Titon\Event\EmitsEvents;
@@ -21,9 +23,6 @@ use Titon\Utility\State\Server as ServerGlobal;
  * which can be detected and initialized at runtime.
  *
  * @package Titon\Environment
- * @events
- *      env.initializing(Environment $env)
- *      env.initialized(Environment $env, Host $host)
  */
 class Environment implements Subject {
     use EmitsEvents;
@@ -234,7 +233,7 @@ class Environment implements Subject {
             return;
         }
 
-        $this->emit('env.initializing', [$this]);
+        $this->emit(new InitializingEvent($this));
 
         // First attempt to match using environment variables
         $current = $this->matchWithVar();
@@ -255,7 +254,7 @@ class Environment implements Subject {
             throw new NoHostMatchException('No environment host matched');
         }
 
-        $this->emit('env.initialized', [$this, $current]);
+        $this->emit(new InitializedEvent($this, $current));
     }
 
     /**

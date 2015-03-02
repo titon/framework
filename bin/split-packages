@@ -17,7 +17,6 @@ init()
 # Set directories
 TARGET_DIR = '/home/vagrant/packages/'
 SOURCE_DIR = '/vagrant/src/Titon/'
-CONFIG_DIR = '/vagrant/confs/'
 
 # Define class
 class PackageSplitter:

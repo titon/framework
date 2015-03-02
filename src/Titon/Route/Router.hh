@@ -33,9 +33,6 @@ use Titon\Utility\Registry;
  * a URL based on the current environment settings.
  *
  * @package Titon\Route
- * @events
- *      route.matching(Router $router, string $url)
- *      route.matched(Router $router, Route $route)
  */
 class Router implements Subject {
     use EmitsEvents;

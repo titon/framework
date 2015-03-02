@@ -83,6 +83,7 @@ abstract class AbstractController implements Controller, Subject {
             $action = lcfirst(Inflector::camelCase($action));
         }
 
+        // Emit before event
         if ($emit) {
             $this->emit(new ProcessingEvent($this, $action, $args));
         }
@@ -100,9 +101,11 @@ abstract class AbstractController implements Controller, Subject {
             $response = $handler(...$args);
         }
 
+        // Emit after event
         if ($emit) {
-            $this->emit(new ProcessedEvent($this, $action, $this->getResponse()));
-            // todo - HANDLE the response correctly
+            $event = new ProcessedEvent($this, $action, $this->getResponse());
+            $this->emit($event);
+            //$response = $event->getResponse();
         }
 
         return $response;

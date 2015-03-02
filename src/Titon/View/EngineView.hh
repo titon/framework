@@ -10,6 +10,10 @@ namespace Titon\View;
 use Titon\Common\DataMap;
 use Titon\View\Engine;
 use Titon\View\Engine\TemplateEngine;
+use Titon\View\Event\RenderedEvent;
+use Titon\View\Event\RenderedTemplateEvent;
+use Titon\View\Event\RenderingEvent;
+use Titon\View\Event\RenderingTemplateEvent;
 
 /**
  * Adds support for rendering engines which handle the basics of rendering a template.
@@ -55,13 +59,15 @@ class EngineView extends AbstractView {
      */
     public function render(string $template, bool $private = false): string {
         return (string) $this->cache([__METHOD__, $template, $private], ($view) ==> {
-            $view->emit('view.rendering', [$view, &$template]);
-
             $engine = $view->getEngine();
-            $type = $private ? Template::CLOSED : Template::OPEN;
+
+            // Emit before event
+            $event = new RenderingEvent($view, $template);
+            $view->emit($event);
+            $template = $event->getTemplate();
 
             // Render template
-            $view->renderLoop($template, $type);
+            $view->renderLoop($template, $private ? Template::CLOSED : Template::OPEN);
 
             // Apply wrappers
             foreach ($engine->getWrappers() as $wrapper) {
@@ -73,11 +79,11 @@ class EngineView extends AbstractView {
                 $view->renderLoop($layout, Template::LAYOUT);
             }
 
-            $response = $engine->getContent();
+            // Emit after event
+            $event = new RenderedEvent($view, $engine->getContent());
+            $view->emit($event);
 
-            $view->emit('view.rendered', [$view, &$response]);
-
-            return $response;
+            return $event->getContent();
         });
     }
 
@@ -91,22 +97,24 @@ class EngineView extends AbstractView {
     public function renderLoop(string $template, Template $type): this {
         $engine = $this->getEngine();
 
-        if ($type === Template::LAYOUT) {
-            $event = 'layout';
-        } else if ($type === Template::WRAPPER) {
-            $event = 'wrapper';
-        } else {
-            $event = 'template';
-        }
+        // Emit before event
+        $event = new RenderingTemplateEvent($this, $template, $type);
+        $this->emit($event);
+        $template = $event->getTemplate();
 
-        $this->emit('view.rendering.' . $event, [$this, &$template, $type]);
-
-        $engine->setContent($this->renderTemplate(
+        // Render content
+        $content = $this->renderTemplate(
             $this->locateTemplate($template, $type),
             $this->getVariables()
-        ));
+        );
 
-        $this->emit('view.rendered.' . $event, [$this, &$template, $type]);
+        // Emit after event
+        $event = new RenderedTemplateEvent($this, $content, $type);
+        $this->emit($event);
+        $content = $event->getContent();
+
+        // Set content
+        $engine->setContent($content);
 
         return $this;
     }

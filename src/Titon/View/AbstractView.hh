@@ -245,8 +245,6 @@ abstract class AbstractView implements View, Subject {
             $template = $view->formatPath($template);
             $paths = $view->getPaths();
 
-            $view->emit('view.locating', [&$template, $type, &$paths]);
-
             // Prepend parent path
             switch ($type) {
                 case Template::LAYOUT:
@@ -298,8 +296,6 @@ abstract class AbstractView implements View, Subject {
             if (!$absPath) {
                 throw new MissingTemplateException(sprintf('View template `%s` does not exist', $template));
             }
-
-            $view->emit('view.located', [&$absPath, $type]);
 
             return $absPath;
         });

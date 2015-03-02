@@ -9,6 +9,9 @@ namespace Titon\Kernel;
 
 use Titon\Event\EmitsEvents;
 use Titon\Event\Subject;
+use Titon\Kernel\Event\ShutdownEvent;
+use Titon\Kernel\Event\StartupEvent;
+use Titon\Kernel\Event\TerminateEvent;
 use Titon\Kernel\Middleware\Pipeline;
 
 /**
@@ -16,10 +19,6 @@ use Titon\Kernel\Middleware\Pipeline;
  * All child kernels must implement the `handle()` method to customize the input and output handling process.
  *
  * @package Titon\Kernel
- * @events
- *      kernel.startup(Kernel $kernel, Input $input, Output $output)
- *      kernel.shutdown(Kernel $kernel, Input $input, Output $output)
- *      kernel.terminate(Kernel $kernel, Input $input, Output $output)
  */
 abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, To>, Subject {
     use EmitsEvents;
@@ -146,7 +145,7 @@ abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, T
      * {@inheritdoc}
      */
     public function terminate(): void {
-        $this->emit('kernel.terminate', [$this, $this->getInput(), $this->getOutput()]);
+        $this->emit(new TerminateEvent($this, $this->getInput(), $this->getOutput()));
 
         exit(0);
     }
@@ -155,14 +154,14 @@ abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, T
      * Triggered after the pipeline is handled but before the output is sent.
      */
     protected function shutdown(): void {
-        $this->emit('kernel.shutdown', [$this, $this->getInput(), $this->getOutput()]);
+        $this->emit(new ShutdownEvent($this, $this->getInput(), $this->getOutput()));
     }
 
     /**
      * Triggered before the pipeline is handled.
      */
     protected function startup(): void {
-        $this->emit('kernel.startup', [$this, $this->getInput(), $this->getOutput()]);
+        $this->emit(new StartupEvent($this, $this->getInput(), $this->getOutput()));
     }
 
 }

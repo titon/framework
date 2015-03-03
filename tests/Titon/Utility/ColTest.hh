@@ -124,10 +124,6 @@ class ColTest extends TestCase {
         $this->assertEquals(123, Col::get($map, 'number'));
         $this->assertEquals(null, Col::get($map, 'boolean'));
         $this->assertEquals(false, Col::get($map, 'boolean', false));
-        $this->assertEquals(Map {
-            'number' => 123,
-            'string' => 'foo'
-        }, Col::get($map, ''));
     }
 
     public function testHas(): void {
@@ -523,14 +519,16 @@ class ColTest extends TestCase {
             'foo' => 'bar',
             'map' => Map {'baz' => 'qux'},
             'vector' => Vector {1, 2, 3},
-            'array' => [1, 2, 'a' => 'b']
+            'array' => [1, 2],
+            'array-map' => ['a' => 'b']
         };
 
         $this->assertEquals([
             'foo' => 'bar',
             'map' => ['baz' => 'qux'],
             'vector' => [1, 2, 3],
-            'array' => [1, 2, 'a' => 'b']
+            'array' => [1, 2],
+            'array-map' => ['a' => 'b']
         ], Col::toArray($map));
 
         $this->assertEquals(['foo'], Col::toArray('foo'));

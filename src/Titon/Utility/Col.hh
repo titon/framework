@@ -119,7 +119,7 @@ class Col {
      * @return Tv
      */
     public static function extract<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): ?Tv {
-        $paths = explode('.', $path);
+        $paths = explode('.', (string) $path);
         $key = array_shift($paths);
 
         // Index does not exist
@@ -169,11 +169,13 @@ class Col {
             }
         }
 
+        // UNSAFE
+        // Because we are returning a map with a key of type `string` instead of `Tk`
         return $data;
     }
 
     /**
-     * Get a value from a map. If they path doesn't exist, return null, or if the path is empty, return the whole map.
+     * Get a value from a map. If the path doesn't exist, return null, or a default value.
      *
      * @param Map<Tk, Tv> $map
      * @param Tk $path
@@ -181,10 +183,6 @@ class Col {
      * @return Tv
      */
     public static function get<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, ?Tv $default = null): ?Tv {
-        if (!$path) {
-            return $map; // Allow whole collection to be returned
-        }
-
         $value = static::extract($map, $path);
 
         if ($value === null) {
@@ -202,7 +200,7 @@ class Col {
      * @return bool
      */
     public static function has<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): bool {
-        $paths = explode('.', $path);
+        $paths = explode('.', (string) $path);
         $key = array_shift($paths);
 
         // Index does not exist
@@ -245,7 +243,7 @@ class Col {
      * @return Map<Tk, Tv>
      */
     public static function insert<Tk, Tv>(Map<Tk, Tv> $map, Tk $path, Tv $value): Map<Tk, Tv> {
-        $paths = explode('.', $path);
+        $paths = explode('.', (string) $path);
         $key = array_shift($paths);
 
         // In the last path so set the value
@@ -257,6 +255,8 @@ class Col {
 
         // Index does not exist
         if (!$map->contains($key) || !$map[$key] instanceof Map) {
+            // UNSAFE
+            // Since we are setting a `Map` instead of `Tv`
             $map[$key] = Map {};
         }
 
@@ -359,6 +359,8 @@ class Col {
             }
         }
 
+        // UNSAFE
+        // Since we are returning values of `Map` instead of `Tv`
         return $base;
     }
 
@@ -414,7 +416,7 @@ class Col {
      * @return Map<Tk, Tv>
      */
     public static function remove<Tk, Tv>(Map<Tk, Tv> $map, Tk $path): Map<Tk, Tv> {
-        $paths = explode('.', $path);
+        $paths = explode('.', (string) $path);
         $key = array_shift($paths);
 
         // In the last path so remove the value
@@ -450,7 +452,8 @@ class Col {
             foreach ($path as $key => $value) {
                 $map = static::insert($map, $key, $value);
             }
-        } else {
+
+        } else if ($value !== null) {
             $map = static::insert($map, $path, $value);
         }
 
@@ -485,6 +488,8 @@ class Col {
             return $resource->toArray();
 
         } else if (!$resource instanceof Indexish) {
+            // UNSAFE
+            // Since we are returning an `int` instead of `Tk`
             return [$resource];
         }
 
@@ -515,9 +520,9 @@ class Col {
             return $resource->toMap();
 
         } else if (!$resource instanceof Indexish) {
-            $map = new Map([$resource]);
-
-            return $map;
+            // UNSAFE
+            // Since we are returning a `Tr` instead of `Tv`
+            return new Map([$resource]);
         }
 
         invariant($resource instanceof Indexish, 'Resource must be traversable');
@@ -536,6 +541,8 @@ class Col {
             }
         }
 
+        // UNSAFE
+        // Since the values in the map are more than just `Tv`
         return $map;
     }
 
@@ -550,9 +557,9 @@ class Col {
             return $resource->toVector();
 
         } else if (!$resource instanceof Indexish) {
-            $vector = new Vector([$resource]);
-
-            return $vector;
+            // UNSAFE
+            // Since we are returning a `Tr` instead of `Tv`
+            return new Vector([$resource]);
         }
 
         invariant($resource instanceof Indexish, 'Resource must be traversable');
@@ -571,6 +578,8 @@ class Col {
             }
         }
 
+        // UNSAFE
+        // Since the values in the vector are more than just `Tv`
         return $vector;
     }
 

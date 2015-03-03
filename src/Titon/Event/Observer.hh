@@ -81,6 +81,8 @@ class Observer {
     public async function asyncExecute(Event $event): Awaitable<mixed> {
         $this->executed = true;
 
+        // UNSAFE
+        // As the callback return type is not Awaitable<mixed> but simply mixed
         return await call_user_func($this->getCallback(), $event);
     }
 

@@ -7,10 +7,10 @@
 
 namespace Titon\Context\Definition;
 
-use Closure;
 use Titon\Context\Depository;
 use Titon\Context\Definition;
 use Titon\Context\Exception\ItemNotDefinableException;
+use Closure;
 
 /**
  * The DefinitionFactory aids in the creation of definition instances.
@@ -30,12 +30,16 @@ class DefinitionFactory {
      * @param Depository $depository    The depository object the definition is
      *                                  contained in
      *
-     * @return Definition   The definition object for fluent method chaining
+     * @return \Titon\Context\Definition
      * @throws \Titon\Context\Exception\ItemNotDefinableException
      */
     public static function factory(string $key, mixed $concrete, Depository $depository): Definition {
         if ($concrete instanceof Closure) {
             return new ClosureDefinition($key, $concrete, $depository);
+        }
+
+        if (is_object($concrete)) {
+            return new ObjectDefinition($key, $concrete, $depository);
         }
 
         if (is_string($concrete) && class_exists($concrete)) {
@@ -57,7 +61,7 @@ class DefinitionFactory {
             return new CallableDefinition($key, $class, (string) $function, $depository);
         }
 
-        throw new ItemNotDefinableException("Cannot create a definition from " . print_r($concrete, true));
+        throw new ItemNotDefinableException(sprintf('Cannot create a definition for %s', $key));
     }
 
 }

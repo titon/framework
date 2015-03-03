@@ -82,4 +82,16 @@ class ProcessedEvent extends Event {
         return $this->response;
     }
 
+    /**
+     * Set a new response.
+     *
+     * @param \Psr\Http\Message\OutgoingResponseInterface $response
+     * @return $this
+     */
+    public function setResponse(OutgoingResponseInterface $response): this {
+        $this->response = $response;
+
+        return $this;
+    }
+
 }

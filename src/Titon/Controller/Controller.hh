@@ -28,32 +28,32 @@ interface Controller {
      * @param string $action
      * @param \Titon\Common\ArgumentList $args
      * @param bool $emit
-     * @return string
+     * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): string;
+    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): OutgoingResponseInterface;
 
     /**
      * Forward the current request to a new action, instead of doing an additional HTTP request.
      *
      * @param string $action
      * @param \Titon\Common\ArgumentList $args
-     * @return string
+     * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function forwardTo(string $action, ArgumentList $args): string;
+    public function forwardTo(string $action, ArgumentList $args): OutgoingResponseInterface;
 
     /**
      * Return the request object.
      *
      * @return \Psr\Http\Message\IncomingRequestInterface
      */
-    public function getRequest(): ?IncomingRequestInterface;
+    public function getRequest(): IncomingRequestInterface;
 
     /**
      * Return the response object.
      *
      * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function getResponse(): ?OutgoingResponseInterface;
+    public function getResponse(): OutgoingResponseInterface;
 
     /**
      * Return the view object.
@@ -65,34 +65,34 @@ interface Controller {
     /**
      * Method to be called when an action is missing.
      *
-     * @return string
+     * @return mixed
      */
-    public function missingAction(): string;
+    public function missingAction(): mixed;
 
     /**
      * Render the view template for an error/exception.
      * This will automatically set the body of the response.
      *
      * @param \Exception $exception
-     * @return string
+     * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function renderError(Exception $exception): string;
+    public function renderError(Exception $exception): OutgoingResponseInterface;
 
     /**
      * Render the view templates and return the output.
      * This will automatically set the body of the response.
      *
-     * @return string
+     * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function renderView(): string;
+    public function renderView(): OutgoingResponseInterface;
 
     /**
-     * Trigger a custom Action class.
+     * Trigger a custom action class. The action should either return a string, or a response object.
      *
      * @param \Titon\Controller\Action $action
-     * @return string
+     * @return mixed
      */
-    public function runAction(Action $action): string;
+    public function runAction(Action $action): mixed;
 
     /**
      * Set the request object.

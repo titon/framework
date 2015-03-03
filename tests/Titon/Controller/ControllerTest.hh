@@ -40,26 +40,18 @@ class ControllerTest extends TestCase {
         $view = new EngineView($this->vfs()->path('/views/'));
         $view->setEngine(new TemplateEngine());
 
-        $this->object = new ControllerStub();
-        $this->object->setRequest(Request::createFromGlobals());
-        $this->object->setResponse(new Response());
+        $this->object = new ControllerStub(Request::createFromGlobals(), new Response());
         $this->object->setView($view);
     }
 
-    public function testBuildViewPath(): void {
-        $this->assertEquals('stub/index', $this->object->buildViewPath('index'));
-        $this->assertEquals('stub/action-no-args', $this->object->buildViewPath('actionNoArgs'));
-        $this->assertEquals('stub/action-with-args', $this->object->buildViewPath('actionWithArgs'));
-    }
-
     public function testDispatchTo(): void {
-        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('action-no-args', []));
-        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('actionNoArgs', []));
-        $this->assertEquals('actionNoArgs', $this->object->dispatchTo('actionNoArgs', ['foo', 'bar']));
-        $this->assertEquals(125, $this->object->dispatchTo('actionWithArgs', [125]));
-        $this->assertEquals(555, $this->object->dispatchTo('actionWithArgs', [505, 50]));
-        $this->assertEquals(335, $this->object->dispatchTo('actionWithArgs', [335]));
-        $this->assertEquals(0, $this->object->dispatchTo('actionWithArgs', ['foo', 'bar']));
+        $this->assertEquals('actionNoArgs', (string) $this->object->dispatchTo('action-no-args', [])->getBody());
+        $this->assertEquals('actionNoArgs', (string) $this->object->dispatchTo('actionNoArgs', [])->getBody());
+        $this->assertEquals('actionNoArgs', (string) $this->object->dispatchTo('actionNoArgs', ['foo', 'bar'])->getBody());
+        $this->assertEquals(125, (string) $this->object->dispatchTo('actionWithArgs', [125])->getBody());
+        $this->assertEquals(555, (string) $this->object->dispatchTo('actionWithArgs', [505, 50])->getBody());
+        $this->assertEquals(335, (string) $this->object->dispatchTo('actionWithArgs', [335])->getBody());
+        $this->assertEquals('', (string) $this->object->dispatchTo('actionWithArgs', ['foo', 'bar'])->getBody());
     }
 
     /**
@@ -94,7 +86,7 @@ class ControllerTest extends TestCase {
     public function testRenderErrorWithNoReporting(): void {
         $old = error_reporting(0);
 
-        $this->assertEquals('404: Not Found', $this->object->renderError(new NotFoundException('Not Found')));
+        $this->assertEquals('404: Not Found', $this->object->renderError(new NotFoundException('Not Found'))->getBody());
         $this->assertEquals(404, $this->object->getResponse()->getStatusCode());
 
         error_reporting($old);
@@ -103,17 +95,17 @@ class ControllerTest extends TestCase {
     public function testRenderErrorWithReporting(): void {
         $old = error_reporting(E_ALL);
 
-        $this->assertEquals('Message', $this->object->renderError(new \Exception('Message')));
+        $this->assertEquals('Message', $this->object->renderError(new \Exception('Message'))->getBody());
         $this->assertEquals(500, $this->object->getResponse()->getStatusCode());
 
         error_reporting($old);
     }
 
     public function testRenderView(): void {
-        $this->assertEquals('stub:index', $this->object->renderView());
+        $this->assertEquals('stub:index', $this->object->renderView()->getBody());
 
         $this->object->dispatchTo('actionNoArgs', []);
-        $this->assertEquals('stub:action-no-args', $this->object->renderView());
+        $this->assertEquals('stub:action-no-args', $this->object->renderView()->getBody());
     }
 
     /**
@@ -125,13 +117,13 @@ class ControllerTest extends TestCase {
     }
 
     public function testGetSetView(): void {
-        $stub = new ControllerStub();
-        $view = new EngineView($this->vfs()->path('/views/'));
+        $view = new EngineView($this->vfs()->path('/other-views/'));
 
-        $this->assertEquals(null, $stub->getView());
+        $this->assertNotEquals($view, $this->object->getView());
 
-        $stub->setView($view);
-        $this->assertEquals($view, $stub->getView());
+        $this->object->setView($view);
+
+        $this->assertEquals($view, $this->object->getView());
     }
 
 }

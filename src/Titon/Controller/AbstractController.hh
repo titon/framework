@@ -1,4 +1,5 @@
-<?hh // strict
+<?hh // partial
+// Because of PSR HTTP Message
 /**
  * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -7,6 +8,8 @@
 
 namespace Titon\Controller;
 
+use Psr\Http\Message\IncomingRequestInterface;
+use Psr\Http\Message\OutgoingResponseInterface;
 use Titon\Common\ArgumentList;
 use Titon\Controller\Event\ErrorEvent;
 use Titon\Controller\Event\ProcessedEvent;
@@ -16,8 +19,6 @@ use Titon\Event\EmitsEvents;
 use Titon\Event\Subject;
 use Titon\Http\Exception\HttpException;
 use Titon\Http\Http;
-use Titon\Http\IncomingRequestAware;
-use Titon\Http\OutgoingResponseAware;
 use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Inflector;
 use Titon\Utility\Path;
@@ -35,7 +36,7 @@ use \Exception;
  * @package Titon\Controller
  */
 abstract class AbstractController implements Controller, Subject {
-    use EmitsEvents, IncomingRequestAware, OutgoingResponseAware;
+    use EmitsEvents;
 
     /**
      * The currently dispatched action.
@@ -53,6 +54,20 @@ abstract class AbstractController implements Controller, Subject {
     protected ActionMap $arguments = Map {};
 
     /**
+     * Request object.
+     *
+     * @var \Psr\Http\Message\IncomingRequestInterface
+     */
+    protected IncomingRequestInterface $request;
+
+    /**
+     * Response object.
+     *
+     * @var \Psr\Http\Message\OutgoingResponseInterface
+     */
+    protected OutgoingResponseInterface $response;
+
+    /**
      * View instance.
      *
      * @var \Titon\View\View
@@ -60,21 +75,20 @@ abstract class AbstractController implements Controller, Subject {
     protected ?View $view;
 
     /**
-     * Return a probable path to a view template that matches the current controller and action.
+     * Store the request and response.
      *
-     * @param string $action
-     * @return string
+     * @param \Psr\Http\Message\IncomingRequestInterface $request
+     * @param \Psr\Http\Message\OutgoingResponseInterface $response
      */
-    public function buildViewPath(string $action): string {
-        $prepare = ($path) ==> trim(str_replace(['_', 'controller'], ['-', ''], Inflector::underscore($path)), '-');
-
-        return sprintf('%s/%s', $prepare(Path::className(static::class)), $prepare($action));
+    public function __construct(IncomingRequestInterface $request, OutgoingResponseInterface $response) {
+        $this->request = $request;
+        $this->response = $response;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): string {
+    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): OutgoingResponseInterface {
         $this->action = $action;
         $this->arguments[$action] = $args;
 
@@ -94,18 +108,20 @@ abstract class AbstractController implements Controller, Subject {
 
         // Trigger action and generate response from view templates
         } else {
-
             // UNSAFE
             // Since inst_meth() requires literal strings and we are passing variables
             $handler = inst_meth($this, $action);
             $response = $handler(...$args);
         }
 
+        // Handle the response
+        $response = $this->handleResponse($response);
+
         // Emit after event
         if ($emit) {
-            $event = new ProcessedEvent($this, $action, $this->getResponse());
+            $event = new ProcessedEvent($this, $action, $response);
             $this->emit($event);
-            //$response = $event->getResponse();
+            $response = $event->getResponse();
         }
 
         return $response;
@@ -114,7 +130,7 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function forwardTo(string $action, ArgumentList $args): string {
+    public function forwardTo(string $action, ArgumentList $args): OutgoingResponseInterface {
         return $this->dispatchTo($action, $args, false);
     }
 
@@ -153,6 +169,20 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
+    public function getRequest(): IncomingRequestInterface {
+        return $this->request;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getResponse(): OutgoingResponseInterface {
+        return $this->response;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getView(): ?View {
         return $this->view;
     }
@@ -162,7 +192,7 @@ abstract class AbstractController implements Controller, Subject {
      *
      * @throws \Titon\Controller\Exception\InvalidActionException
      */
-    public function missingAction(): string {
+    public function missingAction(): mixed {
         throw new InvalidActionException(sprintf('Your action %s does not exist. Supply your own `missingAction()` method to customize this error or view.', $this->getCurrentAction()));
     }
 
@@ -171,7 +201,7 @@ abstract class AbstractController implements Controller, Subject {
      *
      * @uses Titon\Http\Http
      */
-    public function renderError(Exception $exception): string {
+    public function renderError(Exception $exception): OutgoingResponseInterface {
         $template = (error_reporting() <= 0) ? 'http' : 'error';
         $status = ($exception instanceof HttpException) ? $exception->getCode() : 500;
 
@@ -179,57 +209,65 @@ abstract class AbstractController implements Controller, Subject {
         $this->emit(new ErrorEvent($this, $exception));
 
         // Render the view
-        $output = '';
+        $response = 'Internal server error.';
 
         if ($view = $this->getView()) {
-            $output = $view
+            $response = $view
                 ->setVariables(Map {
                     'pageTitle' => Http::getStatusCode($status),
                     'error' => $exception,
                     'code' => $status,
                     'message' => $exception->getMessage(),
-                    'url' => $this->getRequest()?->getUrl() ?: ''
+                    'url' => $this->getRequest()->getUrl()
                 })
                 ->render('errors/' . $template, true);
         }
 
-        if (!$output) {
-            $output = 'Internal server error.';
-        }
+        // Set the response status code
+        $this->getResponse()->setStatus($status);
 
-        // Set the response status code and body
-        if ($response = $this->getResponse()) {
-            $response
-                ->setStatus($status)
-                ->setBody(new MemoryStream($output));
-        }
-
-        return (string) $output;
+        return $this->handleResponse($response);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderView(): string {
-        $output = $this->getView()?->render($this->buildViewPath($this->getCurrentAction()));
+    public function renderView(): OutgoingResponseInterface {
+        $response = $this->getView()?->render($this->buildViewPath($this->getCurrentAction()));
 
-        // Set the response body
-        if ($output !== null && ($response = $this->getResponse())) {
-            $response->setBody(new MemoryStream($output));
-        }
-
-        return (string) $output;
+        return $this->handleResponse($response);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function runAction(Action $action): string {
+    public function runAction(Action $action): mixed {
         $action->setController($this);
 
         // UNSAFE
         // Since inst_meth() requires literal strings and we are passing variables.
-        return call_user_func_array(inst_meth($action, strtolower($this->getRequest()->getMethod())), $this->getCurrentArguments());
+        $callback = inst_meth($action, strtolower($this->getRequest()->getMethod()));
+        $arguments = $this->getCurrentArguments();
+
+        return $callback(...$arguments);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setRequest(IncomingRequestInterface $request): this {
+        $this->request = $request;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setResponse(OutgoingResponseInterface $response): this {
+        $this->response = $response;
+
+        return $this;
     }
 
     /**
@@ -239,6 +277,43 @@ abstract class AbstractController implements Controller, Subject {
         $this->view = $view;
 
         return $this;
+    }
+
+    /**
+     * Return a probable path to a view template that matches the current controller and action.
+     *
+     * @param string $action
+     * @return string
+     */
+    protected function buildViewPath(string $action): string {
+        $prepare = ($path) ==> trim(str_replace(['_', 'controller'], ['-', ''], Inflector::underscore($path)), '-');
+
+        return sprintf('%s/%s', $prepare(Path::className(static::class)), $prepare($action));
+    }
+
+    /**
+     * Handle the response of an action by either setting the body on the response object,
+     * or setting a new response.
+     *
+     * @param mixed $output
+     * @return \Psr\Http\Message\OutgoingResponseInterface
+     */
+    protected function handleResponse(mixed $output): OutgoingResponseInterface {
+
+        // If the return of an action is a response object
+        // We should overwrite the original one and return the new one
+        if ($output instanceof OutgoingResponseInterface) {
+            $this->setResponse($output);
+
+            return $output;
+        }
+
+        // Else the output is a string (or should be cast to one)
+        // So set the body on the current response and return it
+        $response = $this->getResponse();
+        $response->setBody(new MemoryStream((string) $output));
+
+        return $response;
     }
 
 }

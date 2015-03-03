@@ -1,5 +1,5 @@
-<?hh  // partial
-// Because it extends a non-strict PHP file.
+<?hh // partial
+// Because of PSR HTTP Message
 /**
  * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php

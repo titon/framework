@@ -9,8 +9,6 @@ namespace Titon\Http\Server;
 
 use Titon\Http\Http;
 
-newtype RedirectCallback = (function(Response): void);
-
 /**
  * The Redirector bundles convenience methods for redirecting to new URLs using HTTP headers.
  * This class should only be used in instances where the Response object cannot be modified directly.

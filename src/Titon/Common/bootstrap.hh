@@ -22,8 +22,9 @@ namespace Titon\Common {
     type OptionMap = Map<string, mixed>;
 
     // Macros
+    type MacroCallback = (function(...): mixed);
     type MacroContainer = Map<string, MacroMap>;
-    type MacroMap = Map<string, Closure>;
+    type MacroMap = Map<string, MacroCallback>;
 }
 
 /**

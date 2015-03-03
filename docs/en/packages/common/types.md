@@ -58,8 +58,15 @@ Each alias has a specific use case that should be followed accordingly.
             <td colspan="3">Macros</td>
         </tr>
         <tr>
+            <td>Titon\Common\MacroCallback</td>
+            <td>(function(...): mixed)</td>
+            <td>
+                A callable that defines the arguments and return type for macros.
+            </td>
+        </tr>
+        <tr>
             <td>Titon\Common\MacroMap</td>
-            <td>Map&lt;string, Closure&gt;</td>
+            <td>Map&lt;string, Titon\Common\MacroCallback&gt;</td>
             <td>
                 Maps custom macros by name to their callable definition.
             </td>

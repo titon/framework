@@ -335,7 +335,7 @@ class RouteTest extends TestCase {
 
     public function testIsMatchConditions(): void {
         $route = new Route('/{module}', 'Controller@action');
-        $route->addCondition(() ==> (strpos($_SERVER['HTTP_ACCEPT'], 'json') !== false));
+        $route->addCondition(($route) ==> (strpos($_SERVER['HTTP_ACCEPT'], 'json') !== false));
 
         $_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
 

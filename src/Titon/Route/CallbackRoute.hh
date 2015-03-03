@@ -8,12 +8,11 @@
 namespace Titon\Route;
 
 use Titon\Route\Exception\NoMatchException;
-use \ReflectionFunction;
-use \Closure;
+use ReflectionFunction;
 
 /**
  * The CallbackRoute works in a similar fashion to the default Route with the only difference being
- * that a callback (Closure, etc) is used for dispatching instead of an action.
+ * that a callback is used for dispatching instead of an action.
  *
  * @package Titon\Route
  */
@@ -22,17 +21,17 @@ class CallbackRoute extends Route {
     /**
      * The callback to execute during dispatch.
      *
-     * @var \Closure
+     * @var \Titon\Route\RouteCallback
      */
-    protected Closure $callback;
+    protected RouteCallback $callback;
 
     /**
      * Store the tokenized URL to match and the callback to dispatch to.
      *
      * @param string $path
-     * @param \Closure $callback
+     * @param \Titon\Route\RouteCallback $callback
      */
-    public function __construct(string $path, Closure $callback) {
+    public function __construct(string $path, RouteCallback $callback) {
         $this->callback = $callback;
 
         parent::__construct($path, 'CallbackRoute@noop');
@@ -54,19 +53,19 @@ class CallbackRoute extends Route {
     /**
      * Return the callback function.
      *
-     * @return \Closure
+     * @return \Titon\Route\RouteCallback
      */
-    public function getCallback(): Closure {
+    public function getCallback(): RouteCallback {
         return $this->callback;
     }
 
     /**
      * Set the callback function.
      *
-     * @param \Closure $callback
+     * @param \Titon\Route\RouteCallback $callback
      * @return $this
      */
-    public function setCallback(Closure $callback): this {
+    public function setCallback(RouteCallback $callback): this {
         $this->callback = $callback;
 
         return $this;

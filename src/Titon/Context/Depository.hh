@@ -247,16 +247,21 @@ class Depository {
      * @return mixed The concrete object
      */
     public function makeSingleton(string $alias, mixed $concrete = null): mixed {
+        if ($this->singletons->contains($alias)) {
+            return $this->singletons[$alias];
+        }
+
         if ($this->aliases->contains($alias)) {
             return $this->makeSingleton($this->aliases[$alias]);
         }
 
+        // Item exists, mark as singleton
         if ($this->items->contains($alias)) {
             $this->items[$alias]['singleton'] = true;
-        }
 
-        if ($this->singletons->contains($alias)) {
-            return $this->singletons[$alias];
+        // Item doesn't exist, register it
+        } else {
+            $this->singleton($alias, $concrete);
         }
 
         return $this->make($alias);

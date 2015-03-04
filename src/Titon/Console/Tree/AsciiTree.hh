@@ -17,7 +17,7 @@ class AsciiTree extends AbstractTree {
     /**
      * {@inheritdoc}
      */
-    protected function build(array<string> $tree, string $prefix = ''): string {
+    protected function build(Vector<mixed> $tree, string $prefix = ''): string {
         if (is_null($tree)) {
             $tree = $this->data;
         }
@@ -28,12 +28,12 @@ class AsciiTree extends AbstractTree {
         $branch = array_values($tree);
         for ($i = 0, $count = count($branch); $i < $count; ++$i) {
             if (is_array($branch[$i])) {
-                $retval[] = $prefix . '+-' . $keys[$i];
+                $retval[] = $prefix . '+-' . (string)$keys[$i];
             } else {
-                $retval[] = $prefix . '+-' . $branch[$i];
+                $retval[] = $prefix . '+-' . (string)$branch[$i];
             }
 
-            if (is_array($branch[$i])) {
+            if ($branch[$i] instanceof Vector) {
                 $retval[] = $this->build($branch[$i], $prefix . ($i == $count - 1 ? '  ' : '| '));
             }
         }

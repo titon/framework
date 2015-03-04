@@ -22,14 +22,14 @@ abstract class AbstractTree implements Tree {
      *
      * @var array<mixed>
      */
-    protected array<mixed> $data = [];
+    protected Vector<mixed> $data = Vector {};
 
     /**
      * Construct a new instance of a tree.
      *
      * @param array<mixed> $data    The data to render
      */
-    public function __construct(array<mixed> $data = []) {
+    public function __construct(Vector<mixed> $data = Vector {}) {
         $this->data = $data;
     }
 
@@ -42,14 +42,14 @@ abstract class AbstractTree implements Tree {
      *
      * @retun string
      */
-    abstract protected function build(array<mixed> $tree, string $prefix = ''): string;
+    abstract protected function build(Vector<mixed> $tree, string $prefix = ''): string;
 
     /**
      * Retrieve the data of the tree.
      *
      * @return array<mixed>
      */
-    public function getData(): array<mixed> {
+    public function getData(): Vector<mixed> {
         return $this->data;
     }
 
@@ -65,7 +65,7 @@ abstract class AbstractTree implements Tree {
     /**
      * {@inheritdoc}
      */
-    public function setData(array<mixed> $data): this {
+    public function setData(Vector<mixed> $data): this {
         $this->data = $data;
 
         return $this;

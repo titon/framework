@@ -17,7 +17,7 @@ class MarkdownTree extends AbstractTree {
     /**
      * {@inheritdoc}
      */
-    protected function build(array<string> $tree, string $prefix = ''): string {
+    protected function build(Vector<mixed> $tree, string $prefix = ''): string {
         if (is_null($tree)) {
             $tree = $this->data;
         }
@@ -31,7 +31,7 @@ class MarkdownTree extends AbstractTree {
 
             $retval[] = "$prefix- $label";
 
-            if (is_array($branch)) {
+            if ($branch instanceof Vector) {
                 $retval[] = $this->build($branch, "$prefix  ");
             }
         }

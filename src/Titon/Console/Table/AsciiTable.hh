@@ -98,7 +98,7 @@ class AsciiTable extends AbstractTable {
     protected function buildRow(Vector<mixed> $data): string {
         $row = [];
         foreach ($data as $index => $value) {
-            $row[] = $this->buildCell($value, $index);
+            $row[] = $this->buildCell((string)$value, $index);
         }
         $row = $this->pad(implode($this->characters['border'], $row), $this->characters['border']);
 

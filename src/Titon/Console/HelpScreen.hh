@@ -184,7 +184,7 @@ class HelpScreen {
 
             foreach ($command->getArguments() as $argument) {
                 $arg = $argument->getName();
-                if ($argument->getMode() === AbstractInputDefinition::VALUE_OPTIONAL) {
+                if ($argument->getMode() === AbstractInputDefinition::MODE_OPTIONAL) {
                     $usage[] = "[$arg]";
                 }
             }
@@ -193,7 +193,7 @@ class HelpScreen {
                 if ($argument->getAlias()) {
                     $arg = "$arg|{$argument->getAlias()}";
                 }
-                if ($argument->getMode() === AbstractInputDefinition::VALUE_OPTIONAL) {
+                if ($argument->getMode() === AbstractInputDefinition::MODE_OPTIONAL) {
                     $usage[] = "[$arg]";
                 }
             }
@@ -204,7 +204,7 @@ class HelpScreen {
                 }
 
                 $arg = "$arg=\"...\"";
-                if ($argument->getMode() === AbstractInputDefinition::VALUE_OPTIONAL) {
+                if ($argument->getMode() === AbstractInputDefinition::MODE_OPTIONAL) {
                     $usage[] = "[$arg]";
                 }
             }

@@ -13,7 +13,7 @@ class Flag extends AbstractInputDefinition {
 
     protected bool $stackable = false;
 
-    public function __construct(string $name, string $description = '', int $mode = self::VALUE_OPTIONAL, bool $stackable = false) {
+    public function __construct(string $name, string $description = '', int $mode = self::MODE_OPTIONAL, bool $stackable = false) {
         parent::__construct($name, $description, $mode);
 
         if (strlen($name) > 1) {

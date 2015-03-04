@@ -7,11 +7,37 @@
 
 namespace Titon\Console;
 
+/**
+ * A `Table` object will construct the markup for a human readable (or otherwise
+ * parsable) representation of tabular data.
+ *
+ * @package Titon\Console
+ */
 interface Table {
 
-    public function addRow(Vector<string> $row): this;
+    /**
+     * Add a row of data to the end of the existing data.
+     *
+     * @param Vector<mixed> $row    A Vector containing the row of data
+     *
+     * @return $this
+     */
+    public function addRow(Vector<mixed> $row): this;
 
+    /**
+     * Build and return the markup for the `Table`.
+     *
+     * @return string
+     */
     public function render(): string;
 
-    public function setRows(Vector<Vector<string>> $rows): this;
+    /**
+     * Set the data for the rows in the table with a Vector containing a Vector
+     * for each row in the table.
+     *
+     * @param Vector<Vector<mixed> The Vector containin the row data
+     *
+     * @return $this
+     */
+    public function setRows(Vector<Vector<mixed>> $rows): this;
 }

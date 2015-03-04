@@ -7,13 +7,28 @@
 
 namespace Titon\Console\InputDefinition;
 
+/**
+ * An `Argument` is a parameter specified by the user that does not use any
+ * notation (i.e., --foo, -f).
+ *
+ * @package Titon\Console\InputDefinition
+ */
 class Argument extends AbstractInputDefinition {
 
-    <<Override>>
-    public function getFormattedName(string $name): string {
+    /**
+     * {@inheritdoc}
+     */
+    <<Override>> public function getFormattedName(string $name): string {
         return $name;
     }
 
+    /**
+     * Set the value of the `Argument`.
+     *
+     * @param string $value The value given to the `Argument`
+     *
+     * @return $this
+     */
     public function setValue(string $value): this {
         $this->value = $value;
 

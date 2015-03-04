@@ -7,8 +7,16 @@
 
 namespace Titon\Console\Tree;
 
+/**
+ * Build a human readable ASCII tree given an infinitely nested data structure.
+ *
+ * @package Titon\Console\Tree
+ */
 class AsciiTree extends AbstractTree {
 
+    /**
+     * {@inheritdoc}
+     */
     protected function build(array<string> $tree, string $prefix = ''): string {
         if (is_null($tree)) {
             $tree = $this->data;

@@ -14,20 +14,60 @@ use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 
+/**
+ * A Command is a class that configures necessary command line inputs from the
+ * user and executes its `run` command when called.
+ *
+ * @package Titon\Console\Command
+ */
 abstract class AbstractCommand implements Command {
 
+    /**
+     * Bag container holding all registered `Argument` objects
+     *
+     * @var \Titon\Console\InputBag<Argument>
+     */
     protected InputBag<Argument> $arguments;
 
+    /**
+     * The `Input` object containing all registered and parsed command line
+     * parameters.
+     *
+     * @var \Titon\Console\Input
+     */
     protected Input $input;
 
+    /**
+     * The description of the command used when rendering its help screen.
+     *
+     * @var string
+     */
     protected string $description;
 
+    /**
+     * Bag container holding all registered `Flag` objects
+     *
+     * @var \Titon\Console\InputBag<Flag>
+     */
     protected InputBag<Flag> $flags;
 
+    /**
+     * The name of the command passed into the command line.
+     *
+     * @var string
+     */
     protected string $name;
 
+    /**
+     * Bag container holding all registered `Option` objects
+     *
+     * @var \Titon\Console\InputBag<Option>
+     */
     protected InputBag<Option> $options;
 
+    /**
+     * Construct a new instance of a command.
+     */
     public function __construct() {
         $this->input = new Input();
         $this->arguments = new InputBag();
@@ -35,24 +75,52 @@ abstract class AbstractCommand implements Command {
         $this->options = new InputBag();
     }
 
+    /**
+     * Add a new `Argument` to be registered and parsed with the `Input`.
+     *
+     * @param \Titon\Console\Argument $argument
+     *
+     * @return $this
+     */
     public function addArgument(Argument $argument): this {
         $this->arguments->set($argument->getName(), $argument);
 
         return $this;
     }
 
+    /**
+     * Add a new `Flag` to be registered and parsed with the `Input`.
+     *
+     * @param \Titon\Console\Flag $flag
+     *
+     * @return $this
+     */
     public function addFlag(Flag $flag): this {
         $this->flags->set($flag->getName(), $flag);
 
         return $this;
     }
 
+    /**
+     * Add a new `Option` to be registered and parsed with the `Input`.
+     *
+     * @param \Titon\Console\Option $option
+     *
+     * @return $this
+     */
     public function addOption(Option $option): this {
         $this->options->set($option->getName(), $option);
 
         return $this;
     }
 
+    /**
+     * Retrieve an `Argument` value by key.
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
     protected function getArgument(string $key): mixed {
         if ($argument = $this->input->getArgument($key)) {
             return $argument->getValue();
@@ -61,14 +129,31 @@ abstract class AbstractCommand implements Command {
         return null;
     }
 
+    /**
+     * Retrieve all `Argument` objects registered specifically to this command.
+     *
+     * @return \Titon\Console\InputBag<Argument>
+     */
     public function getArguments(): InputBag<Argument> {
         return $this->arguments;
     }
 
+    /**
+     * Retrieve the command's description.
+     *
+     * @return string
+     */
     public function getDescription(): string {
         return $this->description;
     }
 
+    /**
+     * Retrieve a `Flag` value by key.
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
     protected function getFlag(string $key): mixed {
         if ($flag = $this->input->getFlag($key)) {
             return $flag->getValue();
@@ -77,14 +162,31 @@ abstract class AbstractCommand implements Command {
         return null;
     }
 
+    /**
+     * Retrieve all `Flag` objects registered specifically to this command.
+     *
+     * @return \Titon\Console\InputBag<Flag>
+     */
     public function getFlags(): InputBag<Flag> {
         return $this->flags;
     }
 
+    /**
+     * Retrieve the command's name.
+     *
+     * @return  string
+     */
     public function getName(): string {
         return $this->name;
     }
 
+    /**
+     * Retrieve an `Option` value by key.
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
     protected function getOption(string $key): mixed {
         if ($option = $this->input->getOption($key)) {
             return $option->getValue();
@@ -93,10 +195,22 @@ abstract class AbstractCommand implements Command {
         return null;
     }
 
+    /**
+     * Retrieve all `Option` objects registered specifically to this command.
+     *
+     * @return \Titon\Console\InputBag<Option>
+     */
     public function getOptions(): InputBag<Option> {
         return $this->options;
     }
 
+    /**
+     * This method prepares the command for execution by registering all of its
+     * command-specific argumenets, flags, and options with the `Input` before
+     * parsing.
+     *
+     * @return $this
+     */
     public function registerInput(): this {
         foreach ($this->arguments as $name => $argument) {
             $this->input->addArgument($argument);
@@ -111,18 +225,39 @@ abstract class AbstractCommand implements Command {
         return $this;
     }
 
+    /**
+     * Set the command's description.
+     *
+     * @param string $description The description for the command
+     *
+     * @return $this
+     */
     public function setDescription(string $description): this {
         $this->description = $description;
 
         return $this;
     }
 
+    /**
+     * Set the `Input` objet for the commandd.
+     *
+     * @param \Titon\Console\Input $input The `Input` object
+     *
+     * @return $this
+     */
     public function setInput(Input $input): this {
         $this->input = $input;
 
         return $this;
     }
 
+    /**
+     * Set the command's name.
+     *
+     * @param string $name The name of the command
+     *
+     * @return $this
+     */
     public function setName(string $name): this {
         $this->name = $name;
 

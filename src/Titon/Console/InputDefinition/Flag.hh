@@ -7,12 +7,36 @@
 
 namespace Titon\Console\InputDefinition;
 
+/**
+ * A `Flag` is a boolean parameter (denoted by an integer) specified by a user.
+ *
+ * @package Titon\Console\InputDefinition
+ */
 class Flag extends AbstractInputDefinition {
 
+    /**
+     * The negative alias of the `Flag` (i.e., --no-foo for -foo). A negative
+     * value is only available if a 'long' `Flag` name is available.
+     *
+     * @var ?string
+     */
     protected ?string $negativeAlias;
 
+    /**
+     * Whether the flag is stackable or not (i.e., -fff is given a value of 3).
+     *
+     * @var bool
+     */
     protected bool $stackable = false;
 
+    /**
+     * Construct a new `Flag` object
+     *
+     * @param string $name          The name the flag should be specified with
+     * @param string $description   The description of the flag
+     * @param int    $mode          The mode of the flag
+     * @param bool   $stackable     Whether the flag is stackable or not
+     */
     public function __construct(string $name, string $description = '', int $mode = self::MODE_OPTIONAL, bool $stackable = false) {
         parent::__construct($name, $description, $mode);
 
@@ -24,10 +48,21 @@ class Flag extends AbstractInputDefinition {
         $this->stackable = $stackable;
     }
 
+    /**
+     * Retrieve the negative alias of the `Flag` or null of none.
+     *
+     * @return string|null
+     */
     public function getNegativeAlias(): ?string {
         return $this->negativeAlias;
     }
 
+    /**
+     * If the `Flag` is stackable, increase its value for each occurrence of the
+     * flag.
+     *
+     * @return $this
+     */
     public function increaseValue(): this {
         if ($this->stackable) {
             if (is_null($this->value)) {
@@ -42,10 +77,24 @@ class Flag extends AbstractInputDefinition {
         return $this;
     }
 
+    /**
+     * Retrieve whether the `Flag` is stackable or not.
+     *
+     * @return bool
+     */
     public function isStackable(): bool {
         return $this->stackable;
     }
 
+    /**
+     * Set an alias for the `Flag`. If the 'name' given at construction is a short
+     * name and the alias set is long, the 'alias' given here will serve as the
+     * 'name' and the original name will be set to the 'alias'.
+     *
+     * @param string $alias The alias for the `Flag`
+     *
+     * @return $this
+     */
     public function setAlias(string $alias): this {
         parent::setAlias($alias);
 
@@ -56,12 +105,39 @@ class Flag extends AbstractInputDefinition {
         return $this;
     }
 
+    /**
+     * Set the default value for the `Flag` if no value is give.
+     *
+     * @param int $default  The default value
+     *
+     * @return $this
+     */
+    public function setDefault(int $default): this {
+        $this->default = $default;
+
+        return $this;
+    }
+
+    /**
+     * Set whether the `Flag` is stackable or not.
+     *
+     * @param bool $stackable
+     *
+     * @return $this
+     */
     public function setStackable(bool $stackable): this {
         $this->stackable = $stackable;
 
         return $this;
     }
 
+    /**
+     * Set the value of the `Flag`.
+     *
+     * @param int $value The value given to the `Flag`
+     *
+     * @return $this
+     */
     public function setValue(int $value): this {
         $this->value = $value;
 

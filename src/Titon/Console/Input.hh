@@ -15,29 +15,78 @@ use Titon\Console\InputDefinition\Option;
 use Titon\Console\Exception\MissingValueException;
 use Titon\Console\Exception\InvalidCommandException;
 
-
+/**
+ * The `Input` class contains all available `Flag`, `Argument`, `Option`, and
+ * `Command` objects available to parse given the provided input.
+ *
+ * @package Titon\Console
+ */
 class Input {
 
+    /**
+     * Bag container holding all registered `Argument` objects
+     *
+     * @var \Titon\Console\InputBag<Argument>
+     */
     protected InputBag<Argument> $arguments;
 
+    /**
+     * The `Command` (if any) that is parsed from the provided input.
+     *
+     * @var \Titon\Console\Command
+     */
     protected ?Command $command;
 
+    /**
+     * All available `Command` candidates to parse from the input.
+     *
+     * @var \Titon\Console\CommandMap
+     */
     protected CommandMap $commands = Map {};
 
+    /**
+     * Bag container holding all registered `Flag` objects
+     *
+     * @var \Titon\Console\InputBag<Flag>
+     */
     protected InputBag<Flag> $flags;
 
+    /**
+     * The `InputLexer` that will traverse and help parse the provided input.
+     *
+     * @var \Titon\Console\InputLexer
+     */
     protected InputLexer $input;
 
+    /**
+     * All parameters provided in the input that do not match a given `Command`
+     * or `InputDefinition`.
+     *
+     * @var Vector<\Titon\Console\RawInput>
+     */
     protected Vector<RawInput> $invalid = Vector {};
 
+    /**
+     * Bag container holding all registered `Option` objects
+     *
+     * @var \Titon\Console\InputBag<Option>
+     */
     protected InputBag<Option> $options;
+
+    /**
+     * The 'strict' value of the `Input` object. If set to `true`, then any invalid
+     * parameters found in the input will throw an exception.
+     *
+     * @var bool
+     */
+    protected bool $strict = false;
 
     /**
      * Construct a new instance of Input
      *
      * @param ?array<mixed> $args
      */
-    public function __construct(?array<string> $args = null) {
+    public function __construct(?array<string> $args = null, bool $strict = false) {
         if (is_null($args)) {
             $args = array_slice(Server::get('argv'), 1);
         }
@@ -46,12 +95,13 @@ class Input {
         $this->flags = new InputBag();
         $this->options = new InputBag();
         $this->arguments = new InputBag();
+        $this->strict = $strict;
     }
 
     /**
      * Add a new `Argument` candidate to be parsed from input.
      *
-     * @param Argument $argument
+     * @param \Titon\Console\Argument $argument The `Argument` to add
      *
      * @return $this
      */
@@ -61,6 +111,13 @@ class Input {
         return $this;
     }
 
+    /**
+     * Add a new `Command` candidate to be parsed from input.
+     *
+     * @param \Titon\Console\Command $command   The `Command` to add
+     *
+     * @return $this
+     */
     public function addCommand(Command $command): this {
         $command->configure();
         $this->commands[$command->getName()] = $command;
@@ -71,7 +128,7 @@ class Input {
     /**
      * Add a new `Flag` candidate to be parsed from input.
      *
-     * @param Flag $flag
+     * @param \Titon\Console\Flag $flag The `Flag` to add
      *
      * @return $this
      */
@@ -84,7 +141,7 @@ class Input {
     /**
      * Add a new `Option` candidate to be parsed from input.
      *
-     * @param Option $option
+     * @param \Titon\Console\Option $option The `Option` to add
      *
      * @return $this
      */
@@ -99,7 +156,7 @@ class Input {
      *
      * @param string $key The key or alias of the `Argument`
      *
-     * @return Argument|null
+     * @return \Titon\Console\Argument|null
      */
     public function getArgument(string $key): ?Argument {
         return $this->arguments->get($key);
@@ -108,16 +165,28 @@ class Input {
     /**
      * Retrieve all `Argument` candidates.
      *
-     * @return InputBag<Argument>
+     * @return \Titon\Console\InputBag<Argument>
      */
     public function getArguments(): InputBag<Argument> {
         return $this->arguments;
     }
 
-    public function getCommand(string $key): ?Command {
-        return $this->commands->get($key);
+    /**
+     * Retrieve a `Command` candidate by its name.
+     *
+     * @param string $key   The name of the `Command`
+     *
+     * @return \Titon\Console\Command|null
+     */
+    public function getCommand(string $name): ?Command {
+        return $this->commands->get($name);
     }
 
+    /**
+     * Retrieve all `Command` candidates.
+     *
+     * @return \Titon\Console\CommandMap
+     */
     public function getCommands(): CommandMap {
         return $this->commands;
     }
@@ -127,7 +196,7 @@ class Input {
      *
      * @param string $key The key or alias of the `Flag`
      *
-     * @return Flag|null
+     * @return \Titon\Console\Flag|null
      */
     public function getFlag(string $key): ?Flag {
         return $this->flags->get($key);
@@ -136,16 +205,10 @@ class Input {
     /**
      * Retrieve all `Flag` candidates.
      *
-     * @return InputBag<Flag>
+     * @return \Titon\Console\InputBag<Flag>
      */
     public function getFlags(): InputBag<Flag> {
         return $this->flags;
-    }
-
-    public function setInput(array<string> $args): this {
-        $this->input = new InputLexer($args);
-
-        return $this;
     }
 
     /**
@@ -153,7 +216,7 @@ class Input {
      *
      * @param string $key The key or alias of the `Option`
      *
-     * @return Option|null
+     * @return \Titon\Console\Option|null
      */
     public function getOption(string $key): ?Option {
         return $this->options->get($key);
@@ -162,10 +225,19 @@ class Input {
     /**
      * Retrieve all `Option` candidates.
      *
-     * @return InputBag<Option>
+     * @return \Titon\Console\InputBag<Option>
      */
     public function getOptions(): InputBag<Option> {
         return $this->options;
+    }
+
+    /**
+     * Return whether the `Input` is running in `strict` mode or not.
+     *
+     * @return bool
+     */
+    public function getStrict(): bool {
+        return $this->strict;
     }
 
     /**
@@ -193,7 +265,7 @@ class Input {
      * Determine if a RawInput matches an `Argument` candidate. If so, save its
      * value.
      *
-     * @param RawInput $key
+     * @param \Titon\Console\RawInput $key
      *
      * @return bool
      */
@@ -224,7 +296,7 @@ class Input {
      * Determine if a RawInput matches a `Flag` candidate. If so, save its
      * value.
      *
-     * @param RawInput $key
+     * @param \Titon\Console\RawInput $key
      *
      * @return bool
      */
@@ -259,7 +331,7 @@ class Input {
      * Determine if a RawInput matches an `Option` candidate. If so, save its
      * value.
      *
-     * @param RawInput $key
+     * @param \Titon\Console\RawInput $key
      *
      * @return bool
      */
@@ -295,5 +367,31 @@ class Input {
         $option->setValue($value);
 
         return true;
+    }
+
+    /**
+     * Set the input to be parsed.
+     *
+     * @param array<string> $args   The input to be parsed
+     *
+     * @return $this
+     */
+    public function setInput(array<string> $args): this {
+        $this->input = new InputLexer($args);
+
+        return $this;
+    }
+
+    /**
+     * Set the strict value of the `Input`
+     *
+     * @param bool $strict  Boolean if the `Input` should run strictly or not
+     *
+     * @return $this
+     */
+    public function setStrict(bool $strict): this {
+        $this->strict = $strict;
+
+        return $this;
     }
 }

@@ -12,20 +12,64 @@ use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\InputDefinition\AbstractInputDefinition;
 
+/**
+ * The `HelpScreen` class renders out a usage screen given the available `Flag`,
+ * `Option`, and `Argument` objects avaiable as well as available commands that
+ * can be executed.
+ *
+ * @package Titon\Console
+ */
 class HelpScreen {
 
+    /**
+     * The available `Argument` objects accepted.
+     *
+     * @var \Titon\Console\InputBag<Argument>
+     */
     protected InputBag<Argument> $arguments;
 
+    /**
+     * The current `Command` the `HelpScreen` refers to.
+     *
+     * @var \Titon\Console\Command|null
+     */
     protected ?Command $command;
 
+    /**
+     * The available `Command` objects available.
+     *
+     * @var CommandMap
+     */
     protected CommandMap $commands;
 
+    /**
+     * The available `Flag` objects accepted.
+     *
+     * @var \Titon\Console\InputBag<Flag>
+     */
     protected InputBag<Flag> $flags;
 
+    /**
+     * The optional `name` of the application when not outputting a `HelpScreen`
+     * for a specific `Command`.
+     *
+     * @var string|null
+     */
     protected ?string $name;
 
+    /**
+     * The available `Option` objects accepted.
+     *
+     * @var \Titon\Console\InputBag<Option>
+     */
     protected InputBag<Option> $options;
 
+    /**
+     * Construct a new instance of the `HelpScreen`.
+     *
+     * @param \Titon\Console\Input $input   The `Input` to read all available
+     *                                      parameters from
+     */
     public function __construct(Input $input) {
         $this->commands = $input->getCommands();
         $this->arguments = $input->getArguments();
@@ -33,6 +77,11 @@ class HelpScreen {
         $this->options = $input->getOptions();
     }
 
+    /**
+     * Build and return the markup for the `HelpScreen`.
+     *
+     * @return string
+     */
     public function render(): string {
         $retval = Vector {};
 
@@ -64,6 +113,12 @@ class HelpScreen {
         return join($retval, "\n\n");
     }
 
+    /**
+     * Build the list of available `Command` objects that can be called and their
+     * descriptions.
+     *
+     * @return string
+     */
     protected function renderCommands(): string {
         ksort($this->commands);
 
@@ -118,6 +173,13 @@ class HelpScreen {
         return join($output, "\n");
     }
 
+    /**
+     * Build and return the markup for the heading of the `HelpScreen`. This is
+     * either the name of the application (when not rendering for a specific
+     * `Command`) or the name and description of the `Command`.
+     *
+     * @return string
+     */
     protected function renderHeading(): string {
         $retval = '';
 
@@ -138,6 +200,14 @@ class HelpScreen {
         return $retval;
     }
 
+    /**
+     * Build and return a specific section of available `Input` objects the user
+     * may specify.
+     *
+     * @param \Titon\Console\InputBag<T> $arguments The parameters to build information for
+     *
+     * @return string
+     */
     protected function renderSection<T as InputDefinition>(InputBag<T> $arguments): string {
         $entries = Map {};
         foreach ($arguments as $argument) {
@@ -172,6 +242,11 @@ class HelpScreen {
         return join($output, "\n");
     }
 
+    /**
+     * When rendering a for a `Command`, this method builds and returns the usage.
+     *
+     * @return string
+     */
     protected function renderUsage(): string {
         $usage = Vector {};
         if (!is_null($this->command)) {
@@ -221,30 +296,67 @@ class HelpScreen {
         return "Usage\n  " . join(" ", $usage);
     }
 
+    /**
+     * Set the `Argument` objects to render information for.
+     *
+     * @param \Titon\Console\InputBag<Argument> $arguments The `Argument` objects avaiable
+     *
+     * @return $this
+     */
     public function setArguments(InputBag<Argument> $arguments): this {
         $this->arguments = $arguments;
 
         return $this;
     }
 
+    /**
+     * Set the `Command` to render a the help screen for.
+     *
+     * @param \Titon\Console\InputBag<Argument> $arguments The `Command` object
+     *
+     * @return $this
+     */
     public function setCommand(Command $command): this {
         $this->command = $command;
 
         return $this;
     }
 
+    /**
+     * Set the `Command` objects to render information for.
+     *
+     * @param \Titon\Console\CommandMap $arguments The `Command` objects avaiable
+     *
+     * @return $this
+     */
     public function setCommands(CommandMap $commands): this {
         $this->commands = $commands;
 
         return $this;
     }
 
+    /**
+     * Set the `Flag` objects to render information for.
+     *
+     * @param \Titon\Console\InputBag<Flag> $arguments The `Flag` objects avaiable
+     *
+     * @return $this
+     */
     public function setFlags(InputBag<Flag> $flags): this {
         $this->flags = $flags;
 
         return $this;
     }
 
+    /**
+     * Set the `Input` the help screen should read all avaiable parameters and
+     * commands from.
+     *
+     * @param \Titon\Console\Input $input   The `Input` object with all available
+     *                                      parameters and commands
+     *
+     * @return $this
+     */
     public function setInput(Input $input): this {
         $this->commands = $input->getCommands();
         $this->arguments = $input->getArguments();
@@ -254,12 +366,26 @@ class HelpScreen {
         return $this;
     }
 
+    /**
+     * Set the name of the application
+     *
+     * @param string $name  The name (and other information) of the console application
+     *
+     * @return $this
+     */
     public function setName(string $name): this {
         $this->name = $name;
 
         return $this;
     }
 
+    /**
+     * Set the `Option` objects to render information for.
+     *
+     * @param \Titon\Console\InputBag<Option> $arguments The `Option` objects avaiable
+     *
+     * @return $this
+     */
     public function setOptions(InputBag<Option> $options): this {
         $this->options = $options;
 

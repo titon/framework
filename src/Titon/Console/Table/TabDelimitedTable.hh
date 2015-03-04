@@ -7,8 +7,19 @@
 
 namespace Titon\Console\Table;
 
+/**
+ * The `TabDelimitedTable` class builds and outputs a table with values tab-delimited
+ * for use in other applications.
+ *
+ * @package Titon\Console\Table
+ */
 class TabDelimitedTable extends AbstractTable {
 
+    /**
+     * Build the table and return its markup.
+     *
+     * @return string
+     */
     public function render(): string {
         $retval = Vector {};
 

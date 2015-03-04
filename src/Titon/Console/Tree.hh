@@ -7,11 +7,33 @@
 
 namespace Titon\Console;
 
+/**
+ * A `Tree` object will construct the markup for a human readable of nested data.
+ *
+ * @package Titon\Console
+ */
 interface Tree {
 
-    public function getData(): array<string>;
+    /**
+     * Retrieve the data structure of the `Tree`.
+     *
+     * @return array<mixed>
+     */
+    public function getData(): array<mixed>;
 
+    /**
+     * Build and return the markup for the `Tree`.
+     *
+     * @return string
+     */
     public function render(): string;
 
-    public function setData(array<string> $data): this;
+    /**
+     * Set the data for the tree.
+     *
+     * @param array<mixed> $data    The data for the tree
+     *
+     * @return $this
+     */
+    public function setData(array<mixed> $data): this;
 }

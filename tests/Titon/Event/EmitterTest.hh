@@ -260,7 +260,7 @@ class EmitterTest extends TestCase {
         $this->object->subscribe('event.test', $ob2);
         $this->object->listen($ob3);
 
-        $events = $this->object->emitMany([new Event('event.test'), new Event('event.test.2')]);
+        $events = $this->object->emitMany(Vector {new Event('event.test'), new Event('event.test.2')});
 
         $this->assertEquals(2, count($events));
     }

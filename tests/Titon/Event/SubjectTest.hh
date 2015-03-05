@@ -22,7 +22,7 @@ class SubjectTest extends TestCase {
     }
 
     public function testEmitMany(): void {
-        $events = $this->object->emitMany([new Event('event.foo'), new Event('event.bar')]);
+        $events = $this->object->emitMany(Vector {new Event('event.foo'), new Event('event.bar')});
 
         $this->assertEquals(2, count($events));
         $this->assertInstanceOf('Titon\Event\Event', $events['event.foo']);

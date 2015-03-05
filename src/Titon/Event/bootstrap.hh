@@ -16,7 +16,7 @@
 namespace Titon\Event {
     type CallStackList = Vector<string>;
     type DataMap = Map<string, mixed>;
-    type EventList = array<Event>;
+    type EventList = Vector<Event>;
     type EventMap = Map<string, Event>;
     type ListenerMap = Map<string, mixed>;
     type ListenerOption = shape('method' => string, 'priority' => int, 'once' => bool);

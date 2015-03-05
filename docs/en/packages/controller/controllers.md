@@ -11,13 +11,13 @@ class ExampleController extends Titon\Controller\AbstractController {
     // ...
 }
 
-$controller = new ExampleController();
+$controller = new ExampleController($request, $response);
 ```
 
 ## Request & Response ##
 
 The primary role of a controller is to receive an HTTP request and to return an HTTP response. 
-A controller cannot fulfill this without a request and response object -- which can be set using `setRequest()` and `setResponse()`. 
+A controller cannot fulfill this without a request and response object -- which can be set through the constructor. 
 These methods support the [PHP-FIG HTTP Message specification](https://github.com/php-fig/http-message) 
 and will accept any object that implements the PSR interfaces `Psr\Http\Message\IncomingRequestInterface` and 
 `Psr\Http\Message\OutgoingResponseInterface`.
@@ -25,15 +25,16 @@ and will accept any object that implements the PSR interfaces `Psr\Http\Message\
 One such library that implements the PSR is the [HTTP package](../http/index.md), which can be used like so.
 
 ```hack
-$controller->setRequest(Titon\Http\Server\Request::createFromGlobals());
-$controller->setResponse(Titon\Http\Server\Response::factory());
+$request = Titon\Http\Server\Request::createFromGlobals();
+$response = new Titon\Http\Server\Response();
+$controller = new ExampleController($request, $response);
 ```
 
 ## Creating Actions ##
 
 An action handles the processing of a request and is represented by a method in a controller. 
 The action can do anything it needs to -- query the database, load configuration, process forms, call APIs, 
-render templates -- but it should always return a response. 
+render templates, etc -- but it should always return a response. 
 
 ```hack
 class ExampleController extends Titon\Controller\AbstractController {
@@ -44,7 +45,7 @@ class ExampleController extends Titon\Controller\AbstractController {
 ```
 
 <div class="notice is-info">
-    An action should always return <code>mixed</code> or <code>void</code>.
+    An action should always return <code>mixed</code>.
 </div>
 
 ### Returning A Response ###
@@ -53,7 +54,6 @@ There are many ways to set the response, most of which require custom implementa
 but we'll get to that in a moment.
 
 The first option is by returning a string, which is usually reserved for any text or HTML. 
-The string will need to be set in the response outside of the controller.
 
 ```hack
 public function foo(): mixed {
@@ -61,7 +61,7 @@ public function foo(): mixed {
 }
 ```
 
-To simplify this, we can use the `renderView()` method. More information can be found on this below.
+To simplify this, we can use the `renderView()` method. More information on this can be found below.
 
 ```hack
 public function foo(): mixed {
@@ -101,7 +101,7 @@ and an optional list of arguments can be passed as the 2nd argument.
 
 ```hack
 $controller->dispatchTo('action-name');
-$controller->dispatchTo('action-name', Vector {'foo', 'bar'});
+$controller->dispatchTo('action-name', ['foo', 'bar']);
 ```
 
 The previous example will dispatch and execute the `actionName()` method on the controller.
@@ -129,6 +129,8 @@ class ExampleController extends Titon\Controller\AbstractController {
     }
 }
 ```
+
+Both of these methods will return a `Psr\Http\Message\OutgoingResponseInterface` object.
 
 ### Missing Actions ###
 

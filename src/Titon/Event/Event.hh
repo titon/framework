@@ -90,11 +90,7 @@ class Event {
      * @param string $key
      * @return mixed
      */
-    public function getData(string $key = ''): mixed {
-        if (!$key) {
-            return $this->data;
-        }
-
+    public function getData(string $key): mixed {
         return $this->data->get($key);
     }
 

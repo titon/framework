@@ -152,7 +152,6 @@ class EmitterTest extends TestCase {
         $event = $this->object->emit(new Event('event.test'));
 
         $this->assertEquals(4, $event->getData('key'));
-        $this->assertEquals(Map {'key' => 4}, $event->getData());
     }
 
     public function testSubscribeAndUnsubscribe(): void {

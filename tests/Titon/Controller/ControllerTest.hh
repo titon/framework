@@ -30,6 +30,7 @@ class ControllerTest extends TestCase {
                 ],
                 'public/' => [
                     'stub/' => [
+                        'returns-nothing.tpl' => 'This view was automatically rendered.',
                         'action-no-args.tpl' => 'stub:action-no-args',
                         'index.tpl' => 'stub:index'
                     ]
@@ -54,11 +55,35 @@ class ControllerTest extends TestCase {
         $this->assertEquals('', (string) $this->object->dispatchTo('actionWithArgs', ['foo', 'bar'])->getBody());
     }
 
-    /**
-     * @expectedException \Titon\Controller\Exception\InvalidActionException
-     */
-    public function testDispatchToMissingAction(): void {
-        $this->object->dispatchTo('noAction', []);
+    public function testDispatchToCatchesExceptions(): void {
+        $this->assertEquals('Your action noAction does not exist. Supply your own `missingAction()` method to customize this error or view.', (string) $this->object->dispatchTo('noAction', [])->getBody()); // Missing action
+    }
+
+    public function testDispatchToSetsStreams(): void {
+        $oldResponse = $this->object->getResponse();
+
+        $this->assertEquals('', (string) $oldResponse->getBody());
+
+        $newResponse = $this->object->dispatchTo('returnsStream', []);
+
+        $this->assertEquals('returnsStream', (string) $newResponse->getBody());
+        $this->assertSame($oldResponse, $newResponse);
+    }
+
+    public function testDispatchToSetsNewResponses(): void {
+        $oldResponse = $this->object->getResponse();
+
+        $this->assertEquals('', (string) $oldResponse->getBody());
+
+        $newResponse = $this->object->dispatchTo('returnsResponse', []);
+
+        $this->assertEquals('["returnsResponse"]', (string) $newResponse->getBody());
+        $this->assertNotSame($oldResponse, $newResponse);
+        $this->assertSame($newResponse, $this->object->getResponse());
+    }
+
+    public function testDispatchToAutoRendersView(): void {
+        $this->assertEquals('This view was automatically rendered.', (string) $this->object->dispatchTo('returnsNothing', [])->getBody());
     }
 
     public function testForwardTo(): void {
@@ -86,7 +111,7 @@ class ControllerTest extends TestCase {
     public function testRenderErrorWithNoReporting(): void {
         $old = error_reporting(0);
 
-        $this->assertEquals('404: Not Found', $this->object->renderError(new NotFoundException('Not Found'))->getBody());
+        $this->assertEquals('404: Not Found', $this->object->renderError(new NotFoundException('Not Found')));
         $this->assertEquals(404, $this->object->getResponse()->getStatusCode());
 
         error_reporting($old);
@@ -95,17 +120,17 @@ class ControllerTest extends TestCase {
     public function testRenderErrorWithReporting(): void {
         $old = error_reporting(E_ALL);
 
-        $this->assertEquals('Message', $this->object->renderError(new \Exception('Message'))->getBody());
+        $this->assertEquals('Message', $this->object->renderError(new \Exception('Message')));
         $this->assertEquals(500, $this->object->getResponse()->getStatusCode());
 
         error_reporting($old);
     }
 
     public function testRenderView(): void {
-        $this->assertEquals('stub:index', $this->object->renderView()->getBody());
+        $this->assertEquals('stub:index', $this->object->renderView());
 
         $this->object->dispatchTo('actionNoArgs', []);
-        $this->assertEquals('stub:action-no-args', $this->object->renderView()->getBody());
+        $this->assertEquals('stub:action-no-args', $this->object->renderView());
     }
 
     /**

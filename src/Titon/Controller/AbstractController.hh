@@ -10,6 +10,7 @@ namespace Titon\Controller;
 
 use Psr\Http\Message\IncomingRequestInterface;
 use Psr\Http\Message\OutgoingResponseInterface;
+use Psr\Http\Message\StreamableInterface;
 use Titon\Common\ArgumentList;
 use Titon\Controller\Event\ErrorEvent;
 use Titon\Controller\Event\ProcessedEvent;
@@ -102,16 +103,29 @@ abstract class AbstractController implements Controller, Subject {
             $this->emit(new ProcessingEvent($this, $action, $args));
         }
 
-        // Calling `missingAction()` if the action does not exist
-        if (!method_exists($this, $action)) {
-            $response = $this->missingAction();
+        // Attempt to dispatch to an action
+        try {
 
-        // Trigger action and generate response from view templates
-        } else {
-            // UNSAFE
-            // Since inst_meth() requires literal strings and we are passing variables
-            $handler = inst_meth($this, $action);
-            $response = $handler(...$args);
+            // Call `missingAction()` if the action does not exist
+            if (!method_exists($this, $action)) {
+                $response = $this->missingAction();
+
+            // Trigger action and generate response
+            } else {
+                // UNSAFE
+                // Since `inst_meth()` requires literal strings and we are passing variables
+                $handler = inst_meth($this, $action);
+                $response = $handler(...$args);
+            }
+
+            // If response is empty, render a view
+            if ($response === null) {
+                $response = $this->renderView();
+            }
+
+        // If an action throws an exception, render an error
+        } catch (Exception $e) {
+            $response = $this->renderError($e);
         }
 
         // Handle the response
@@ -201,7 +215,7 @@ abstract class AbstractController implements Controller, Subject {
      *
      * @uses Titon\Http\Http
      */
-    public function renderError(Exception $exception): OutgoingResponseInterface {
+    public function renderError(Exception $exception): string {
         $template = (error_reporting() <= 0) ? 'http' : 'error';
         $status = ($exception instanceof HttpException) ? $exception->getCode() : 500;
 
@@ -226,16 +240,14 @@ abstract class AbstractController implements Controller, Subject {
         // Set the response status code
         $this->getResponse()->setStatus($status);
 
-        return $this->handleResponse($response);
+        return $response;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderView(): OutgoingResponseInterface {
-        $response = $this->getView()?->render($this->buildViewPath($this->getCurrentAction()));
-
-        return $this->handleResponse($response);
+    public function renderView(): string {
+        return (string) $this->getView()?->render($this->buildViewPath($this->getCurrentAction()));
     }
 
     /**
@@ -299,6 +311,7 @@ abstract class AbstractController implements Controller, Subject {
      * @return \Psr\Http\Message\OutgoingResponseInterface
      */
     protected function handleResponse(mixed $output): OutgoingResponseInterface {
+        $response = $this->getResponse();
 
         // If the return of an action is a response object
         // We should overwrite the original one and return the new one
@@ -308,9 +321,16 @@ abstract class AbstractController implements Controller, Subject {
             return $output;
         }
 
+        // If the return of an action is a stream object
+        // Set the body of the response directly
+        if ($output instanceof StreamableInterface) {
+            $response->setBody($output);
+
+            return $response;
+        }
+
         // Else the output is a string (or should be cast to one)
         // So set the body on the current response and return it
-        $response = $this->getResponse();
         $response->setBody(new MemoryStream((string) $output));
 
         return $response;

@@ -1,10 +1,8 @@
 # Actions #
 
-An action class is a sub-routine of the parent controller and is packaged as a stand-alone object instead of a controller method.
-The class gives you the flexibility of re-using actions and specific logic across multiple controllers.
+An action class is a sub-routine of the parent controller and is packaged as a stand-alone object instead of a controller method. The class gives you the flexibility of re-using actions and specific logic across multiple controllers.
 
-To use an action class, extend the `Titon\Controller\Action\AbstractAction` base class or implement the 
-`Titon\Controller\Action` interface.
+To use an action class, extend the `Titon\Controller\Action\AbstractAction` base class or implement the `Titon\Controller\Action` interface.
 
 ```hack
 class ExampleAction extends Titon\Controller\Action\AbstractAction {
@@ -16,8 +14,7 @@ class ExampleAction extends Titon\Controller\Action\AbstractAction {
 
 ## Mapping Requests ##
 
-The `Action` interface defines 4 methods that map to HTTP methods, they are `get()`, `post()`, `put()`, and `delete()`. 
-The type of action method executed will be determined by the HTTP method used in the request.
+The `Action` interface defines 4 methods that map to HTTP methods, they are `get()`, `post()`, `put()`, and `delete()`. The type of action method executed will be determined by the HTTP method used in the request.
 
 A typical CRUD (create, read, update, delete) action would be implemented like so.
 
@@ -41,13 +38,11 @@ class CrudAction extends Titon\Controller\Action\AbstractAction {
 }
 ```
 
-The remaining HTTP methods -- OPTIONS, PATCH, HEAD, TRACE, CONNECT -- will still be executed by the action, 
-but are not required by the interface.
+The remaining HTTP methods -- OPTIONS, PATCH, HEAD, TRACE, CONNECT -- will still be executed by the action, but are not required by the interface.
 
 ## Running An Action ##
 
-To execute an action object, call the `runAction()` method within a controller method. 
-Action classes will still require an action method within a controller.
+To execute an action object, call the `runAction()` method within a controller method. Action classes will still require an action method within a controller.
 
 ```hack
 class ExampleController extends Titon\Controller\AbstractController {
@@ -59,9 +54,7 @@ class ExampleController extends Titon\Controller\AbstractController {
 
 ## Accessing The Controller ##
 
-The parent controller in which the action was ran can be accessed with `getController()`. 
-This is helpful in accessing methods, properties, or data that is required by the action, 
-like the request and response objects.
+The parent controller in which the action was ran can be accessed with `getController()`. This is helpful in accessing methods, properties, or data that is required by the action, like the request and response objects.
 
 ```hack
 public function get(): mixed {

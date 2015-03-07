@@ -109,7 +109,7 @@ class ValidatorTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Common\Exception\InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testAddRuleInvalidField(): void {
         $this->object->addRule('field', 'rule', 'message');

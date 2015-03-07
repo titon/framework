@@ -29,11 +29,6 @@ class Constraint extends Validate implements ConstraintProvider {
             $constraints[$method] = class_meth($class, $method);
         }
 
-        // Wrap macros in a lambda as callback definitions are different
-        foreach (static::getMacros() as $macro => $callback) {
-            $constraints[$macro] = ($input) ==> call_user_func_array($callback, func_get_args());
-        }
-
         return $constraints;
     }
 

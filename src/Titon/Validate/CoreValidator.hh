@@ -7,8 +7,6 @@
 
 namespace Titon\Validate;
 
-use Titon\Common\DataMap;
-
 /**
  * Core instanceable class for providing validation.
  *
@@ -19,7 +17,7 @@ class CoreValidator extends AbstractValidator {
     /**
      * Store the data to validate and load the default set of constraints.
      *
-     * @param \Titon\Common\DataMap $data
+     * @param \Titon\Validate\DataMap $data
      */
     public function __construct(DataMap $data = Map {}) {
         parent::__construct($data);

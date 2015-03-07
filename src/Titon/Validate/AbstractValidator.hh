@@ -7,13 +7,12 @@
 
 namespace Titon\Validate;
 
-use Titon\Common\DataMap;
-use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Validate\Exception\MissingConstraintException;
 use Titon\Validate\Exception\MissingMessageException;
 use Titon\Utility\Str;
 use \Indexish;
 use \ReflectionClass;
+use \InvalidArgumentException;
 
 /**
  * Defines shared functionality for validators.
@@ -32,7 +31,7 @@ abstract class AbstractValidator implements Validator {
     /**
      * Data to validate against.
      *
-     * @var \Titon\Common\DataMap
+     * @var \Titon\Validate\DataMap
      */
     protected DataMap $data = Map {};
 
@@ -67,7 +66,7 @@ abstract class AbstractValidator implements Validator {
     /**
      * Store the data to validate.
      *
-     * @param \Titon\Common\DataMap $data
+     * @param \Titon\Validate\DataMap $data
      */
     public function __construct(DataMap $data = Map {}) {
         $this->setData($data);
@@ -127,7 +126,7 @@ abstract class AbstractValidator implements Validator {
     /**
      * {@inheritdoc}
      *
-     * @throws \Titon\Common\Exception\InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     public function addRule(string $field, string $rule, string $message, OptionList $options = Vector{}): this {
         if (!$this->fields->contains($field)) {
@@ -286,7 +285,7 @@ abstract class AbstractValidator implements Validator {
     /**
      * Create a validator instance from a set of shorthand or expanded rule sets.
      *
-     * @param \Titon\Common\DataMap $data
+     * @param \Titon\Validate\DataMap $data
      * @param Map<string, mixed> $fields
      * @return $this
      */

@@ -7,10 +7,9 @@
 
 namespace Titon\Annotation;
 
-use Titon\Common\ArgumentList;
 use Titon\Annotation\Exception\InvalidClassException;
 use Titon\Annotation\Exception\MissingAnnotationException;
-use Titon\Utility\Registry as ClassRegistry;
+use ReflectionClass;
 
 /**
  * The Registry maps annotation names to annotation classes and provides a way
@@ -42,7 +41,7 @@ class Registry {
         if ($annos->contains($name)) {
 
             /** @var \Titon\Annotation\Annotation $object */
-            $object = ClassRegistry::factory($annos[$name], $args, false);
+            $object = (new ReflectionClass($annos[$name]))->newInstanceArgs($args);
             $object->setName($name);
 
             return $object;

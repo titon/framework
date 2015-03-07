@@ -15,6 +15,7 @@
 
 namespace Titon\Annotation {
     type AnnotationMap = Map<string, Annotation>;
+    type ArgumentList = array<mixed>;
     type MethodAnnotationMap = Map<string, AnnotationMap>;
     type RegistryMap = Map<string, string>;
 }

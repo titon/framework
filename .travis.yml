@@ -1,11 +1,15 @@
 language: php
 
 php:
+  - hhvm-3.4
+  - hhvm-3.5
+  - hhvm-3.6
   - hhvm
   - hhvm-nightly
 
 matrix:
   allow_failures:
+    - php: hhvm-nightly
 
 services:
   - memcached

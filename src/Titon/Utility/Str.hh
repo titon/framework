@@ -161,7 +161,7 @@ class Str {
         })->setAll($options);
 
         foreach ($data as $key => $value) {
-            $string = str_replace((string) $options['before'] . $key . (string) $options['after'], $value, $string);
+            $string = str_replace((string) $options['before'] . (string) $key . (string) $options['after'], $value, $string);
         }
 
         if ($options['escape']) {

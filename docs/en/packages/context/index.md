@@ -1,6 +1,6 @@
 # Context Package #
 
-The Context package provides dependency injection and auto-resolution of necessary arguments for simple decoupling of components.
+The context package provides dependency injection and service providers, which allow for easy decoupling of components.
 
 ### Installation ###
 

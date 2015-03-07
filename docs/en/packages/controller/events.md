@@ -33,7 +33,7 @@ The `controller.processing` event, represented by `Titon\Controller\Event\Proces
         </tr>
         <tr>
             <td>Arguments</td>
-            <td>Titon\Common\ArgumentList</td>
+            <td>Titon\Controller\ArgumentList</td>
             <td>getArguments()</td>
             <td></td>
             <td>The arguments to pass to the action.</td>

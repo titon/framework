@@ -108,20 +108,6 @@ class InflectorTest extends TestCase {
         $this->assertEquals('lots_of_white_space', Inflector::snakeCase('lots  of     white space'));
     }
 
-    public function testTableName(): void {
-        $this->assertEquals('camelCase', Inflector::tableName('camel Case'));
-        $this->assertEquals('studlyCase', Inflector::tableName('StuDly CaSe'));
-        $this->assertEquals('titleCase', Inflector::tableName('Title Case'));
-        $this->assertEquals('normalCase', Inflector::tableName('Normal case'));
-        $this->assertEquals('lowercase', Inflector::tableName('lowercase'));
-        $this->assertEquals('uppercase', Inflector::tableName('UPPERCASE'));
-        $this->assertEquals('underScore', Inflector::tableName('under_score'));
-        $this->assertEquals('dashEs', Inflector::tableName('dash-es'));
-        $this->assertEquals('123Numbers', Inflector::tableName('123 numbers'));
-        $this->assertEquals('withExtxml', Inflector::tableName('with EXT.xml'));
-        $this->assertEquals('lotsOfWhiteSpace', Inflector::tableName('lots  of     white space'));
-    }
-
     public function testTitleCase(): void {
         $this->assertEquals('This Is A String With Studly Case', Inflector::titleCase('This is A sTring wIth sTudly cAse'));
         $this->assertEquals('And This One Has Underscores', Inflector::titleCase('and_this_ONE_has_underscores'));

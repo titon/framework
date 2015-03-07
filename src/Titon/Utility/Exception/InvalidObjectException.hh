@@ -10,7 +10,7 @@ namespace Titon\Utility\Exception;
 /**
  * Exception thrown when an object is expected as an argument.
  *
- * @package Titon\Common\Exception
+ * @package Titon\Utility\Exception
  */
 class InvalidObjectException extends \InvalidArgumentException {
 

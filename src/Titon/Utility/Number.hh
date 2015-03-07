@@ -7,9 +7,6 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\OptionMap;
-use Titon\Common\Macroable;
-
 /**
  * The Number utility allows for the twiddling and calculation of numbers and floats.
  * Provides helper methods to ease in the evaluation of numbers within context.
@@ -17,7 +14,6 @@ use Titon\Common\Macroable;
  * @package Titon\Utility
  */
 class Number {
-    use Macroable;
 
     /**
      * Bases.
@@ -105,7 +101,7 @@ class Number {
      * Allow for overrides through an options array.
      *
      * @param int|float $number
-     * @param \Titon\Common\OptionMap $options {
+     * @param \Titon\Utility\OptionMap $options {
      *      @var string $thousands Character used for thousands place
      *      @var string $decimals  Character used for decimal
      *      @var int $places       Decimal (cent) limit
@@ -255,7 +251,7 @@ class Number {
      * Convert a number to a percentage string with decimal and comma separations.
      *
      * @param int|float $number
-     * @param \Titon\Common\OptionMap $options {
+     * @param \Titon\Utility\OptionMap $options {
      *      @var string $thousands Character used for thousands place
      *      @var string $decimals  Character used for decimal
      *      @var int $places       Decimal (cent) limit

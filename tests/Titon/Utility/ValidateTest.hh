@@ -79,7 +79,7 @@ class ValidateTest extends TestCase {
     }
 
     /**
-     * @expectedException \Titon\Common\Exception\InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testComparisonInvalidOperator(): void {
         Validate::comparison(10, 10, '><');

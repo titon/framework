@@ -7,17 +7,12 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\DataMap;
-use Titon\Common\OptionMap;
-use Titon\Common\Macroable;
-
 /**
  * Specific methods that deal with string manipulation, truncation, formation, etc.
  *
  * @package Titon\Utility
  */
 class Str {
-    use Macroable;
 
     /**
      * Generator types.
@@ -150,15 +145,15 @@ class Str {
      * @uses Titon\Utility\Sanitize
      *
      * @param string $string
-     * @param \Titon\Common\DataMap $data
-     * @param \Titon\Common\OptionMap $options {
+     * @param Map<Tk, Tv> $data
+     * @param \Titon\Utility\OptionMap $options {
      *      @var string $before    Opening variable delimiter
      *      @var string $after     Closing variable delimiter
      *      @var bool $escape      Escape the string
      * }
      * @return string
      */
-    public static function insert(string $string, DataMap $data, OptionMap $options = Map {}): string {
+    public static function insert<Tk, Tv>(string $string, Map<Tk, Tv> $data, OptionMap $options = Map {}): string {
         $options = (Map {
             'before' => '{',
             'after' => '}',
@@ -275,7 +270,7 @@ class Str {
      *
      * @param string $string
      * @param int $limit
-     * @param \Titon\Common\OptionMap $options {
+     * @param \Titon\Utility\OptionMap $options {
      *      @var bool $html        True to preserve HTML tags
      *      @var bool $word        True to preserve trailing words
      *      @var string $suffix    Will be appended to the end of the output

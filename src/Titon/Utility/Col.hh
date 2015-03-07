@@ -7,7 +7,6 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\Macroable;
 use Titon\Common\Arrayable;
 use Titon\Common\Mapable;
 use Titon\Common\Vectorable;
@@ -20,7 +19,6 @@ use \Indexish;
  * @package Titon\Utility
  */
 class Col {
-    use Macroable;
 
     /**
      * Determines the total depth of a collection.

@@ -7,8 +7,6 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\Macroable;
-
 /**
  * Crypt provides methods for encrypting and decrypting data using popular algorithms like Rijndael, Blowfish and DES.
  * Also provides convenience methods for basic hashing and obfuscation that utilizes configuration settings like salts.
@@ -16,7 +14,6 @@ use Titon\Common\Macroable;
  * @package Titon\Utility
  */
 class Crypt {
-    use Macroable;
 
     /**
      * Default ciphers.

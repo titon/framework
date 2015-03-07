@@ -7,7 +7,6 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\Macroable;
 use Titon\Io\Reader;
 
 /**
@@ -18,7 +17,6 @@ use Titon\Io\Reader;
  * @package Titon\Utility
  */
 class Config {
-    use Macroable;
 
     /**
      * Current loaded configuration.

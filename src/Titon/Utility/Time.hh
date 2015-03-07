@@ -7,7 +7,6 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\Macroable;
 use \DateTime;
 use \DateTimeZone;
 
@@ -17,7 +16,6 @@ use \DateTimeZone;
  * @package Titon\Utility
  */
 class Time {
-    use Macroable;
 
     /**
      * Time constants represented as seconds.

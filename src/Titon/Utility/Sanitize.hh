@@ -7,16 +7,12 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\OptionMap;
-use Titon\Common\Macroable;
-
 /**
  * Makes dirty values clean! Sanitize will process an input and return a safe output depending on the scope of the cleaner.
  *
  * @package Titon\Utility
  */
 class Sanitize {
-    use Macroable;
 
     /**
      * Sanitize an email by removing all characters except letters, digits and !#$%&'*+-/=?^_`{|}~@.[].
@@ -33,7 +29,7 @@ class Sanitize {
      * Escape a string using the apps encoding.
      *
      * @param string $value
-     * @param \Titon\Common\OptionMap $options {
+     * @param \Titon\Utility\OptionMap $options {
      *      @var string $encoding  Character encoding set; defaults to UTF-8
      *      @var int $flags        Encoding flags; defaults to ENT_QUOTES
      *      @var bool $double      Will double escape existing entities
@@ -64,7 +60,7 @@ class Sanitize {
      * Sanitize a string by removing xor escaping HTML characters and entities.
      *
      * @param string $value
-     * @param \Titon\Common\OptionMap $options {
+     * @param \Titon\Utility\OptionMap $options {
      *      @var bool $strip       Will remove HTML tags
      *      @var string $whitelist List of tags to not strip
      * }
@@ -98,7 +94,7 @@ class Sanitize {
      * Sanitize a string by removing excess CRLF characters.
      *
      * @param string $value
-     * @param \Titon\Common\OptionMap $options {
+     * @param \Titon\Utility\OptionMap $options {
      *      @var bool $cr      Will remove carriage returns \r
      *      @var bool $lf      Will remove line feeds \n
      *      @var bool $crlf    Will remove CRLF \r\n
@@ -159,7 +155,7 @@ class Sanitize {
      * Sanitize a string by removing excess whitespace and tab characters.
      *
      * @param string $value
-     * @param \Titon\Common\OptionMap $options {
+     * @param \Titon\Utility\OptionMap $options {
      *      @var bool $space   Will remove white space
      *      @var bool $tab     Will remove tabs
      *      @var bool $strip   Will remove non-standard white space character
@@ -210,7 +206,7 @@ class Sanitize {
      * Will bubble up to html() and escape().
      *
      * @param string $value
-     * @param \Titon\Common\OptionMap $options {
+     * @param \Titon\Utility\OptionMap $options {
      *      @var bool $strip   Remove HTML tags
      * }
      * @return string

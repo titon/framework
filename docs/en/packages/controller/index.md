@@ -14,4 +14,6 @@ composer require titon/controller:*
 
 * [Actions](actions.md)
 * [Controllers](controllers.md)
+
+* [Events](events.md)
 * [Type Aliases](types.md)

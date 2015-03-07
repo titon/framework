@@ -15,5 +15,7 @@ composer require titon/env:*
 
 * [Environment Detection](environments.md)
 * [Bootstrapping](bootstrapping.md)
+
+* [Events](events.md)
 * [Global Functions](functions.md)
 * [Type Aliases](types.md)

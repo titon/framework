@@ -21,5 +21,6 @@ composer require titon/core:*
 * [Macros](macros.md)
 * [Memoization](memoization.md)
 * [Traits](traits.md)
+
 * [Global Functions](functions.md)
 * [Type Aliases](types.md)

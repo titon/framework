@@ -15,5 +15,6 @@ composer require titon/event:*
 * [Event Dispatching](emitting.md)
 * [Listeners](listeners.md)
 * [Subjects](subjects.md)
+
 * [Annotations](annotations.md)
 * [Type Aliases](types.md)

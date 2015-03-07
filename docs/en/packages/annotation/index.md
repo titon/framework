@@ -14,4 +14,5 @@ composer require titon/annotation:*
 
 * [Annotating](annotating.md)
 * [Wiring](wiring.md)
+
 * [Type Aliases](types.md)

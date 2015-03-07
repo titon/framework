@@ -7,10 +7,10 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Common\Exception\MissingExtensionException;
 use Titon\Io\ResourceMap;
 use Titon\Io\Exception\ReadErrorException;
 use Titon\Utility\Col;
+use RuntimeException;
 
 /**
  * A reader that loads its configuration from an YAML file.
@@ -32,12 +32,12 @@ class YamlReader extends AbstractReader {
      *
      * @uses Titon\Utility\Col
      *
-     * @throws \Titon\Common\Exception\MissingExtensionException
+     * @throws \RuntimeException
      * @throws \Titon\Io\Exception\ReadErrorException
      */
     public function readResource(): ResourceMap {
         if (!extension_loaded('yaml')) {
-            throw new MissingExtensionException('YAML extension must be enabled using `hhvm.enable_zend_compat = true`');
+            throw new RuntimeException('YAML extension must be enabled using `hhvm.enable_zend_compat = true`');
         }
 
         if ($this->exists()) {

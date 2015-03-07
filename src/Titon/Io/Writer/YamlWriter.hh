@@ -7,9 +7,9 @@
 
 namespace Titon\Io\Writer;
 
-use Titon\Common\Exception\MissingExtensionException;
 use Titon\Io\ResourceMap;
 use Titon\Utility\Col;
+use RuntimeException;
 
 /**
  * A file writer that generates YAML files.
@@ -28,11 +28,11 @@ class YamlWriter extends AbstractWriter {
     /**
      * {@inheritdoc}
      *
-     * @throws \Titon\Common\Exception\MissingExtensionException
+     * @throws \RuntimeException
      */
     public function writeResource(ResourceMap $data): bool {
         if (!extension_loaded('yaml')) {
-            throw new MissingExtensionException('YAML extension must be enabled using `hhvm.enable_zend_compat = true`');
+            throw new RuntimeException('YAML extension must be enabled using `hhvm.enable_zend_compat = true`');
         }
 
         return $this->write(yaml_emit(Col::toArray($data), YAML_UTF8_ENCODING));

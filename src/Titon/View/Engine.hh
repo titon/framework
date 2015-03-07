@@ -7,7 +7,6 @@
 
 namespace Titon\View;
 
-use Titon\Common\DataMap;
 use Titon\View\Engine\WrapperList;
 
 /**
@@ -59,7 +58,7 @@ interface Engine {
      * Can optionally pass in a list of variables that is accessible in the template.
      *
      * @param string $partial
-     * @param \Titon\Common\DataMap $variables
+     * @param \Titon\View\DataMap $variables
      * @return string
      */
     public function open(string $partial, DataMap $variables = Map {}): string;
@@ -69,7 +68,7 @@ interface Engine {
      * Can optionally pass in a list of variables that is accessible in the template.
      *
      * @param string $path
-     * @param \Titon\Common\DataMap $variables
+     * @param \Titon\View\DataMap $variables
      * @return string
      */
     public function render(string $path, DataMap $variables = Map {}): string;

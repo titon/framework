@@ -7,7 +7,6 @@
 
 namespace Titon\View;
 
-use Titon\Common\DataMap;
 use Titon\View\Engine;
 use Titon\View\Engine\TemplateEngine;
 use Titon\View\Event\RenderedEvent;
@@ -19,9 +18,6 @@ use Titon\View\Event\RenderingTemplateEvent;
  * Adds support for rendering engines which handle the basics of rendering a template.
  *
  * @package Titon\View\View
- * @events
- *      view.rendering.layout|wrapper|template(View $engine, string $template, Template $type)
- *      view.rendered.layout|wrapper|template(View $engine, string $template, Template $type)
  */
 class EngineView extends AbstractView {
 
@@ -58,33 +54,31 @@ class EngineView extends AbstractView {
      * {@inheritdoc}
      */
     public function render(string $template, bool $private = false): string {
-        return (string) $this->cache([__METHOD__, $template, $private], ($view) ==> {
-            $engine = $view->getEngine();
+        $engine = $this->getEngine();
 
-            // Emit before event
-            $event = new RenderingEvent($view, $template);
-            $view->emit($event);
-            $template = $event->getTemplate();
+        // Emit before event
+        $event = new RenderingEvent($this, $template);
+        $this->emit($event);
+        $template = $event->getTemplate();
 
-            // Render template
-            $view->renderLoop($template, $private ? Template::CLOSED : Template::OPEN);
+        // Render template
+        $this->renderLoop($template, $private ? Template::CLOSED : Template::OPEN);
 
-            // Apply wrappers
-            foreach ($engine->getWrappers() as $wrapper) {
-                $view->renderLoop($wrapper, Template::WRAPPER);
-            }
+        // Apply wrappers
+        foreach ($engine->getWrappers() as $wrapper) {
+            $this->renderLoop($wrapper, Template::WRAPPER);
+        }
 
-            // Apply layout
-            if ($layout = $engine->getLayout()) {
-                $view->renderLoop($layout, Template::LAYOUT);
-            }
+        // Apply layout
+        if ($layout = $engine->getLayout()) {
+            $this->renderLoop($layout, Template::LAYOUT);
+        }
 
-            // Emit after event
-            $event = new RenderedEvent($view, $engine->getContent());
-            $view->emit($event);
+        // Emit after event
+        $event = new RenderedEvent($this, $engine->getContent());
+        $this->emit($event);
 
-            return $event->getContent();
-        });
+        return $event->getContent();
     }
 
     /**

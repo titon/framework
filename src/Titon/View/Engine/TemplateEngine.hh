@@ -8,7 +8,7 @@
 
 namespace Titon\View\Engine;
 
-use Titon\Common\DataMap;
+use Titon\View\DataMap;
 
 /**
  * Standard engine used for rendering templates. Uses raw PHP code.

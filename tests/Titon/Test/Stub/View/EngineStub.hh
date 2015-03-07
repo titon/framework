@@ -1,7 +1,7 @@
 <?hh // strict
 namespace Titon\Test\Stub\View;
 
-use Titon\Common\DataMap;
+use Titon\View\DataMap;
 use Titon\View\Engine\AbstractEngine;
 
 class EngineStub extends AbstractEngine {

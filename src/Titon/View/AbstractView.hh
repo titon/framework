@@ -8,8 +8,6 @@
 namespace Titon\View;
 
 use Titon\Cache\Storage;
-use Titon\Common\Cacheable;
-use Titon\Common\DataMap;
 use Titon\Event\EmitsEvents;
 use Titon\Event\Listener;
 use Titon\Event\Subject;
@@ -28,12 +26,12 @@ use Titon\View\Helper;
  * @package Titon\View\View
  */
 abstract class AbstractView implements View, Subject {
-    use Cacheable, EmitsEvents;
+    use EmitsEvents;
 
     /**
      * Variable data for templates.
      *
-     * @var \Titon\Common\DataMap
+     * @var \Titon\View\DataMap
      */
     protected DataMap $data = Map {};
 
@@ -240,65 +238,64 @@ abstract class AbstractView implements View, Subject {
     /**
      * {@inheritdoc}
      */
+    <<__Memoize>>
     public function locateTemplate(string $template, Template $type = Template::OPEN): string {
-        return (string) $this->cache([__METHOD__, $template, $type], ($view) ==> {
-            $template = $view->formatPath($template);
-            $paths = $view->getPaths();
+        $template = $this->formatPath($template);
+        $paths = $this->getPaths();
 
-            // Prepend parent path
-            switch ($type) {
-                case Template::LAYOUT:
-                    $template = sprintf('private/layouts/%s', $template);
-                break;
-                case Template::WRAPPER:
-                    $template = sprintf('private/wrappers/%s', $template);
-                break;
-                case Template::PARTIAL:
-                    $template = sprintf('private/partials/%s', $template);
-                break;
-                case Template::OPEN:
-                    $template = sprintf('public/%s', $template);
-                break;
-                case Template::CLOSED:
-                    $template = sprintf('private/%s', $template);
+        // Prepend parent path
+        switch ($type) {
+            case Template::LAYOUT:
+                $template = sprintf('private/layouts/%s', $template);
+            break;
+            case Template::WRAPPER:
+                $template = sprintf('private/wrappers/%s', $template);
+            break;
+            case Template::PARTIAL:
+                $template = sprintf('private/partials/%s', $template);
+            break;
+            case Template::OPEN:
+                $template = sprintf('public/%s', $template);
+            break;
+            case Template::CLOSED:
+                $template = sprintf('private/%s', $template);
+            break;
+        }
+
+        // Generate a list of locale appended templates
+        $templates = Vector {};
+        $locales = $this->getLocales();
+        $ext = $this->getExtension();
+
+        if ($locales) {
+            foreach ($locales as $locale) {
+                $templates[] = $template . '.' . $locale . '.' . $ext;
+            }
+        }
+
+        $templates[] = $template . '.' . $ext;
+
+        // Locate absolute path
+        $absPath = '';
+
+        foreach ($paths as $path) {
+            if ($absPath) {
                 break;
             }
 
-            // Generate a list of locale appended templates
-            $templates = Vector {};
-            $locales = $view->getLocales();
-            $ext = $view->getExtension();
-
-            if ($locales) {
-                foreach ($locales as $locale) {
-                    $templates[] = $template . '.' . $locale . '.' . $ext;
-                }
-            }
-
-            $templates[] = $template . '.' . $ext;
-
-            // Locate absolute path
-            $absPath = '';
-
-            foreach ($paths as $path) {
-                if ($absPath) {
+            foreach ($templates as $template) {
+                if (file_exists($path . $template)) {
+                    $absPath = $path . $template;
                     break;
                 }
-
-                foreach ($templates as $template) {
-                    if (file_exists($path . $template)) {
-                        $absPath = $path . $template;
-                        break;
-                    }
-                }
             }
+        }
 
-            if (!$absPath) {
-                throw new MissingTemplateException(sprintf('View template `%s` does not exist', $template));
-            }
+        if (!$absPath) {
+            throw new MissingTemplateException(sprintf('View template `%s` does not exist', $template));
+        }
 
-            return $absPath;
-        });
+        return $absPath;
     }
 
     /**

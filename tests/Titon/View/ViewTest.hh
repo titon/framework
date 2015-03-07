@@ -162,20 +162,20 @@ class ViewTest extends TestCase {
     public function testLocateTemplateLocales(): void {
         $rootPath = $this->vfs()->path('/views/');
 
-        $this->object->setLocales(Vector {});
-        $this->object->flushCache();
+        $view1 = new ViewStub([$rootPath]);
+        $view1->setLocales(Vector {});
 
-        $this->assertEquals($rootPath . 'public/lang/index.tpl', $this->object->locateTemplate('lang/index'));
+        $this->assertEquals($rootPath . 'public/lang/index.tpl', $view1->locateTemplate('lang/index'));
 
-        $this->object->setLocales(Vector {'en-us'});
-        $this->object->flushCache();
+        $view2 = new ViewStub([$rootPath]);
+        $view2->setLocales(Vector {'en-us'});
 
-        $this->assertEquals($rootPath . 'public/lang/index.en-us.tpl', $this->object->locateTemplate('lang/index'));
+        $this->assertEquals($rootPath . 'public/lang/index.en-us.tpl', $view2->locateTemplate('lang/index'));
 
-        $this->object->setLocales(Vector {'en', 'fr'});
-        $this->object->flushCache();
+        $view3 = new ViewStub([$rootPath]);
+        $view3->setLocales(Vector {'en', 'fr'});
 
-        $this->assertEquals($rootPath . 'public/lang/index.fr.tpl', $this->object->locateTemplate('lang/index'));
+        $this->assertEquals($rootPath . 'public/lang/index.fr.tpl', $view3->locateTemplate('lang/index'));
     }
 
 }

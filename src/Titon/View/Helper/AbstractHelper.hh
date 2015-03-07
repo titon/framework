@@ -7,12 +7,12 @@
 
 namespace Titon\View\Helper;
 
-use Titon\Common\DataMap;
 use Titon\Event\Event;
 use Titon\Event\ListenerMap;
 use Titon\Utility\Registry;
 use Titon\Utility\Sanitize;
 use Titon\Utility\Str;
+use Titon\View\DataMap;
 use Titon\View\Exception\MissingTagException;
 use Titon\View\Helper;
 use Titon\View\View;
@@ -206,7 +206,7 @@ abstract class AbstractHelper implements Helper {
      * Generates an HTML tag by interpolating variables into the markup.
      *
      * @param string $tag
-     * @param \Titon\Common\DataMap $params
+     * @param \Titon\View\DataMap $params
      * @return string
      */
     public function tag(string $tag, DataMap $params = Map {}): string {

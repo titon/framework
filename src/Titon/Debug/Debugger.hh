@@ -13,7 +13,6 @@ use Titon\Debug\Dumper\CliDumper;
 use Titon\Debug\Dumper\HtmlDumper;
 use Titon\Debug\Exception\FatalErrorException;
 use Titon\Debug\Exception\InternalErrorException;
-use Titon\Type\Type;
 use Titon\Utility\Sanitize;
 use \Exception;
 use \ErrorException;
@@ -436,11 +435,34 @@ class Debugger {
     /**
      * Parse a value and return a string for the type of value.
      *
-     * @param mixed $value
+     * @param mixed $data
      * @return string
      */
-    public static function parseType(mixed $value): string {
-        return Type::is($value);
+    public static function parseType(mixed $data): string {
+        if (is_array($data)) {
+            return 'array';
+
+        } else if ($data instanceof Map) {
+            return 'map';
+
+        } else if ($data instanceof Vector) {
+            return 'vector';
+
+        } else if ($data instanceof Set) {
+            return 'set';
+
+        } else if ($data instanceof Pair) {
+            return 'pair';
+
+        } else if (is_callable($data)) {
+            return 'callable';
+
+        } else if (is_object($data)) {
+            return 'object';
+        }
+
+        // Attempt other types
+        return strtolower(gettype($data));
     }
 
     /**

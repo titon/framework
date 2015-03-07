@@ -7,7 +7,6 @@
 
 namespace Titon\Event;
 
-use Titon\Common\ArgumentList;
 use Titon\Event\Exception\InvalidObserverException;
 
 /**
@@ -28,15 +27,15 @@ trait EmitsEvents {
     /**
      * @see \Titon\Event\Emitter::emit()
      */
-    public function emit(string $event, ArgumentList $args): Event {
-        return $this->getEmitter()->emit($event, $args);
+    public function emit(Event $event): Event {
+        return $this->getEmitter()->emit($event);
     }
 
     /**
      * @see \Titon\Event\Emitter::emit()
      */
-    public function emitMany(mixed $event, ArgumentList $args): EventMap {
-        return $this->getEmitter()->emitMany($event, $args);
+    public function emitMany(EventList $events): EventMap {
+        return $this->getEmitter()->emitMany($events);
     }
 
     /**

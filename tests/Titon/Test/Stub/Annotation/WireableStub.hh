@@ -3,7 +3,7 @@ namespace Titon\Test\Stub\Annotation;
 
 use Titon\Annotation\WiresAnnotations;
 
-<<Wire('class', 'This is a class annotation')>>
+<<Wire('This is a class annotation')>>
 class WireableStub {
     use WiresAnnotations;
 
@@ -21,6 +21,6 @@ class WireableStub {
         }
     }
 
-    <<Wire('method', 'This is a method annotation')>>
+    <<Wire('This is a method annotation')>>
     public function doAction(): void {}
 }

@@ -26,10 +26,13 @@ class DepositoryTest extends TestCase
     }
 
     public function testRegisterInstance(): void {
-        $this->container->register('foo', new FooStub());
+        $definition = $this->container->register('foo', new FooStub());
+
+        $this->assertInstanceOf('Titon\Context\Definition\ObjectDefinition', $definition);
         $this->assertInstanceOf('Titon\Test\Stub\Context\FooStub', $this->container->make('foo'));
         $this->assertTrue($this->container->isSingleton('foo'));
         $this->assertSame($this->container->make('foo'), $this->container->make('Titon\Test\Stub\Context\FooStub'));
+        $this->assertSame($this->container->make('foo'), $definition->get());
     }
 
     public function testRegisterClosure(): void {

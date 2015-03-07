@@ -19,3 +19,7 @@ namespace Titon\Http {
     type MimeMap = Map<string, string>;
     type StatusCodeMap = Map<int, string>;
 }
+
+namespace Titon\Http\Server {
+    type RedirectCallback = (function(Response): void);
+}

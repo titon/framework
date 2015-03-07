@@ -14,7 +14,7 @@ class MacroableTest extends TestCase {
         $this->assertFalse(Number::hasMacro('toBinary'));
         $this->assertFalse(Number::hasMacro('toFloat'));
 
-        Number::macro('toFloat', function() {
+        Number::macro('toFloat',/* HH_FIXME[4039] variable # args */ function() {
             return 0.0;
         });
 
@@ -26,7 +26,7 @@ class MacroableTest extends TestCase {
         $this->assertFalse(Format::hasMacro('foobar'));
         $this->assertFalse(Path::hasMacro('foobar'));
 
-        Format::macro('foobar', function() {
+        Format::macro('foobar',/* HH_FIXME[4039] variable # args */ function() {
             return '';
         });
 
@@ -35,7 +35,7 @@ class MacroableTest extends TestCase {
     }
 
     public function testMacro(): void {
-        Inflector::macro('caps', function($value) {
+        Inflector::macro('caps',/* HH_FIXME[4039] variable # args */ function($value) {
             return strtoupper($value);
         });
 
@@ -58,8 +58,8 @@ class MacroableTest extends TestCase {
             return strtoupper($value);
         };
 
-        Crypt::macro('lower', $lower);
-        Crypt::macro('upper', $upper);
+        Crypt::macro('lower',/* HH_FIXME[4039] variable # args */ $lower);
+        Crypt::macro('upper',/* HH_FIXME[4039] variable # args */ $upper);
 
         $this->assertEquals(Map {
             'lower' => $lower,

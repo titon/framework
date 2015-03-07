@@ -1,7 +1,6 @@
 # Listeners #
 
-A listener is an interface that defines a mapping of observers that will be subscribed to events.
-To utilize this functionality, implement the `Titon\Event\Listener` interface and the `subscribeToEvents()` method.
+A listener is an interface that defines a mapping of observers to subscribe to events. To utilize this functionality, implement the `Titon\Event\Listener` interface and the `subscribeToEvents()` method.
 
 ```hack
 class ExampleListener implements Titon\Event\Listener {
@@ -13,9 +12,7 @@ class ExampleListener implements Titon\Event\Listener {
 
 ## Defining Observers ##
 
-This method should return a map that relates observers (the value) to an event (the key). Each observer 
-declaration should reference a method in the current class. Furthermore, the declaration supports both a single observer, 
-or multiple observers through a vector.
+This method should return a map that relates observers (the value) to an event (the key). Each observer declaration should reference a method in the current class. Furthermore, the declaration supports both a single observer, or multiple observers through a vector.
 
 ```hack
 use Titon\Event\Event;
@@ -44,8 +41,7 @@ class ExampleListener implements Titon\Event\Listener {
 
 ## Configuring Observers ##
 
-To pass a [priority level](emitting.md#priority-queue) or a [once flag](emitting.md#one-time-notifications), 
-a map of key-values can be passed in place of the method name.
+To pass a [priority level](emitting.md#priority-queue) or a [once flag](emitting.md#one-time-notifications), a map of key-values can be passed in place of the method name.
 
 ```hack
 public function subscribeToEvents(): Titon\Event\ListenerMap {

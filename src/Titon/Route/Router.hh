@@ -14,6 +14,8 @@ use Titon\Event\EmitsEvents;
 use Titon\Event\Event;
 use Titon\Event\Subject;
 use Titon\Route\Annotation\Route as RouteAnnotation;
+use Titon\Route\Event\MatchedEvent;
+use Titon\Route\Event\MatchingEvent;
 use Titon\Route\Exception\InvalidRouteActionException;
 use Titon\Route\Exception\MissingFilterException;
 use Titon\Route\Exception\MissingSegmentException;
@@ -31,9 +33,6 @@ use Titon\Utility\Registry;
  * a URL based on the current environment settings.
  *
  * @package Titon\Route
- * @events
- *      route.matching(Router $router, string $url)
- *      route.matched(Router $router, Route $route)
  */
 class Router implements Subject {
     use EmitsEvents;
@@ -199,16 +198,18 @@ class Router implements Subject {
      * This method is automatically called during the `matched` event.
      *
      * @param \Titon\Event\Event $event
-     * @param \Titon\Route\Router $router
-     * @param \Titon\Route\Route $route
      * @return mixed
      */
-    public function doCacheRoutes(Event $event, Router $router, Route $route): mixed {
-        if ($this->isCached()) {
+    public function doCacheRoutes(Event $event): mixed {
+        invariant($event instanceof MatchedEvent, 'Must be a MatchedEvent.');
+
+        $router = $event->getRouter();
+
+        if ($router->isCached()) {
             return true;
         }
 
-        if (($storage = $this->getStorage()) && ($routes = $this->getRoutes())) {
+        if (($storage = $router->getStorage()) && ($routes = $router->getRoutes())) {
             // Before caching, make sure all routes are compiled
             foreach ($routes as $route) {
                 $route->compile();
@@ -225,13 +226,17 @@ class Router implements Subject {
      * Loop through and execute for every filter defined in the matched route.
      *
      * @param \Titon\Event\Event $event
-     * @param \Titon\Route\Router $router
-     * @param \Titon\Route\Route $route
      * @return mixed
      */
-    public function doRunFilters(Event $event, Router $router, Route $route): mixed {
+    public function doRunFilters(Event $event): mixed {
+        invariant($event instanceof MatchedEvent, 'Must be a MatchedEvent.');
+
+        $router = $event->getRouter();
+        $route = $event->getRoute();
+
         foreach ($route->getFilters() as $filter) {
-            call_user_func_array($this->getFilter($filter), [$router, $route]);
+            $callback = $this->getFilter($filter);
+            $callback($router, $route);
         }
 
         return true;
@@ -242,12 +247,12 @@ class Router implements Subject {
      * This method is automatically called during the `matching` event.
      *
      * @param \Titon\Event\Event $event
-     * @param \Titon\Route\Router $router
-     * @param string $url
      * @return mixed
      */
-    public function doLoadRoutes(Event $event, Router $router, string $url): mixed {
-        $item = $this->getStorage()?->getItem('routes');
+    public function doLoadRoutes(Event $event): mixed {
+        invariant($event instanceof MatchingEvent, 'Must be a MatchingEvent.');
+
+        $item = $event->getRouter()->getStorage()?->getItem('routes');
 
         if ($item !== null && $item->isHit()) {
             $this->routes = unserialize($item->get());
@@ -503,7 +508,7 @@ class Router implements Subject {
      * @throws \Titon\Route\Exception\NoMatchException
      */
     public function match(string $url): Route {
-        $this->emit('route.matching', [$this, $url]);
+        $this->emit(new MatchingEvent($this, $url));
 
         $match = $this->getMatcher()->match($url, $this->getRoutes());
 
@@ -513,7 +518,7 @@ class Router implements Subject {
 
         $this->current = $match;
 
-        $this->emit('route.matched', [$this, $match]);
+        $this->emit(new MatchedEvent($this, $match));
 
         return $match;
     }

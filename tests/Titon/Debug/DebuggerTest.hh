@@ -49,7 +49,7 @@ class DebuggerTest extends TestCase {
     }
 
     public function testGetSetHandler(): void {
-        $handler = () ==> {};
+        $handler = ($exception) ==> {};
 
         Debugger::setHandler($handler);
 

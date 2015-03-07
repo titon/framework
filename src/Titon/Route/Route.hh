@@ -475,7 +475,7 @@ class Route implements Serializable {
      *
      * @param mixed $data
      */
-    public function unserialize($data): void { // TODO - Type hint
+    public function unserialize(/* HH_FIXME[4032]: no type hint */ $data): void {
         $data = unserialize($data);
 
         $this->path = $data['path'];

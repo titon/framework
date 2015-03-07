@@ -2,6 +2,7 @@
 namespace Titon\Controller;
 
 use Titon\Http\Server\Request;
+use Titon\Http\Server\Response;
 use Titon\Test\Stub\Controller\ActionStub;
 use Titon\Test\Stub\Controller\ControllerStub;
 use Titon\Test\TestCase;
@@ -10,8 +11,7 @@ use Titon\Utility\State\Server;
 class ActionTest extends TestCase {
 
     public function testRun(): void {
-        $controller = new ControllerStub();
-        $controller->setRequest(Request::createFromGlobals());
+        $controller = new ControllerStub(Request::createFromGlobals(), new Response());
 
         $this->assertEquals('', $controller->value);
 
@@ -26,8 +26,7 @@ class ActionTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = 'HEAD';
         Server::initialize($_SERVER);
 
-        $controller = new ControllerStub();
-        $controller->setRequest(Request::createFromGlobals());
+        $controller = new ControllerStub(Request::createFromGlobals(), new Response());
         $controller->runAction(new ActionStub());
 
         $this->assertEquals('baz', $controller->value);

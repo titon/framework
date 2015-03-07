@@ -111,7 +111,7 @@ class RouterTest extends TestCase {
         $router = new Router();
         $count = 0;
 
-        $router->filterCallback('test', function() use (&$count) {
+        $router->filterCallback('test', function($router, $route) use (&$count) {
             $count++;
         });
 

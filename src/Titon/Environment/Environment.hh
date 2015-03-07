@@ -7,6 +7,8 @@
 
 namespace Titon\Environment;
 
+use Titon\Environment\Event\InitializedEvent;
+use Titon\Environment\Event\InitializingEvent;
 use Titon\Environment\Exception\MissingHostException;
 use Titon\Environment\Exception\NoHostMatchException;
 use Titon\Event\EmitsEvents;
@@ -21,9 +23,6 @@ use Titon\Utility\State\Server as ServerGlobal;
  * which can be detected and initialized at runtime.
  *
  * @package Titon\Environment
- * @events
- *      env.initializing(Environment $env)
- *      env.initialized(Environment $env, Host $host)
  */
 class Environment implements Subject {
     use EmitsEvents;
@@ -123,13 +122,13 @@ class Environment implements Subject {
      * This method is automatically called during the `initialized` event.
      *
      * @param \Titon\Event\Event $event
-     * @param \Titon\Environment\Environment $env
-     * @param \Titon\Environment\Host $host
      * @return mixed
      */
-    public function doBootstrap(Event $event, Environment $env, Host $host): mixed {
-        foreach ($this->getBootstrappers() as $bootstrapper) {
-            $bootstrapper->bootstrap($host);
+    public function doBootstrap(Event $event): mixed {
+        invariant($event instanceof InitializedEvent, 'Must be an InitializedEvent.');
+
+        foreach ($event->getEnvironment()->getBootstrappers() as $bootstrapper) {
+            $bootstrapper->bootstrap($event->getHost());
         }
 
         return true;
@@ -140,19 +139,19 @@ class Environment implements Subject {
      * This method is automatically called during the `initialized` event.
      *
      * @param \Titon\Event\Event $event
-     * @param \Titon\Environment\Environment $env
-     * @param \Titon\Environment\Host $host
      * @return mixed
      */
-    public function doLoadSecureVars(Event $event, Environment $env, Host $host): mixed {
-        $path = $this->securePath;
+    public function doLoadSecureVars(Event $event): mixed {
+        invariant($event instanceof InitializedEvent, 'Must be an InitializedEvent.');
+
+        $path = $event->getEnvironment()->getSecurePath();
         $variables = [];
 
         if (!$path) {
             return true;
         }
 
-        foreach (['.env.php', sprintf('.env.%s.php', $host->getKey())] as $file) {
+        foreach (['.env.php', sprintf('.env.%s.php', $event->getHost()->getKey())] as $file) {
             if (file_exists($path . $file)) {
                 $variables = array_merge($variables, include_file($path . $file));
             }
@@ -206,6 +205,15 @@ class Environment implements Subject {
     }
 
     /**
+     * Return the secure lookup path.
+     *
+     * @return string
+     */
+    public function getSecurePath(): string {
+        return $this->securePath;
+    }
+
+    /**
      * Return the value of a secure variable defined by key.
      *
      * @param string $key
@@ -234,7 +242,7 @@ class Environment implements Subject {
             return;
         }
 
-        $this->emit('env.initializing', [$this]);
+        $this->emit(new InitializingEvent($this));
 
         // First attempt to match using environment variables
         $current = $this->matchWithVar();
@@ -255,7 +263,7 @@ class Environment implements Subject {
             throw new NoHostMatchException('No environment host matched');
         }
 
-        $this->emit('env.initialized', [$this, $current]);
+        $this->emit(new InitializedEvent($this, $current));
     }
 
     /**

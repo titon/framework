@@ -15,11 +15,6 @@ use Titon\Cache\Storage;
  * It manages a list of lookup paths, which it uses to locate templates for rendering.
  *
  * @package Titon\View
- * @events
- *      view.rendering(View $view, string $template)
- *      view.rendered(View $view, string $response)
- *      view.locating(string $template, Template $type, Vector<string> $paths)
- *      view.located(string $path, Template $type)
  */
 interface View {
 

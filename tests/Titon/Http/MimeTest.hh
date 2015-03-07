@@ -33,7 +33,7 @@ class MimeTest extends TestCase {
      * @expectedException \Titon\Http\Exception\InvalidExtensionException
      */
     public function testGetTypeByExtInvalidExt(): void {
-        Mime::getTypeByExt('image/gif', Mime::getTypeByExt('gf'));
+        Mime::getTypeByExt('image/gif');
     }
 
 }

@@ -1,6 +1,7 @@
 <?hh
 namespace Titon\Event;
 
+use Titon\Test\Stub\Event\CounterEventStub;
 use Titon\Test\Stub\Event\ListenerStub;
 use Titon\Test\Stub\Event\SubjectStub;
 use Titon\Test\TestCase;
@@ -17,11 +18,11 @@ class SubjectTest extends TestCase {
     }
 
     public function testEmit(): void {
-        $this->assertInstanceOf('Titon\Event\Event', $this->object->emit('event.test', []));
+        $this->assertInstanceOf('Titon\Event\Event', $this->object->emit(new Event('event.test')));
     }
 
     public function testEmitMany(): void {
-        $events = $this->object->emitMany('event.foo event.bar', []);
+        $events = $this->object->emitMany(Vector {new Event('event.foo'), new Event('event.bar')});
 
         $this->assertEquals(2, count($events));
         $this->assertInstanceOf('Titon\Event\Event', $events['event.foo']);
@@ -48,11 +49,11 @@ class SubjectTest extends TestCase {
     }
 
     public function testOnce(): void {
-        $count = 0;
+        $event = new CounterEventStub('event.test');
 
-        $ob1 = function(Event $event, &$c) { $c++; };
+        $ob1 = function(CounterEventStub $event) { $event->count++; };
         $ob2 = [new ListenerStub(), 'counter'];
-        $ob3 = function(Event $event, &$c) { $c++; };
+        $ob3 = function(CounterEventStub $event) { $event->count++; };
         $ob4 = [new ListenerStub(), 'counter'];
 
         $this->object->once('event.test', $ob1, 20);
@@ -60,13 +61,13 @@ class SubjectTest extends TestCase {
         $this->object->on('event.test', $ob3, 5, true);
         $this->object->on('event.test', $ob4, 75);
 
-        $this->object->emit('event.test', [&$count]);
+        $this->object->emit($event);
 
-        $this->assertEquals(4, $count);
+        $this->assertEquals(4, $event->count);
 
-        $this->object->emit('event.test', [&$count]);
+        $this->object->emit($event);
 
-        $this->assertEquals(6, $count);
+        $this->assertEquals(6, $event->count);
     }
 
 }

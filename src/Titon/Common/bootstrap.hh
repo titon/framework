@@ -21,13 +21,10 @@ namespace Titon\Common {
     type DataMap = Map<string, mixed>;
     type OptionMap = Map<string, mixed>;
 
-    // Instanceable
-    type InstanceContainer<T> = Map<string, InstanceMap<T>>;
-    type InstanceMap<T> = Map<string, T>;
-
     // Macros
+    type MacroCallback = (function(...): mixed);
     type MacroContainer = Map<string, MacroMap>;
-    type MacroMap = Map<string, Closure>;
+    type MacroMap = Map<string, MacroCallback>;
 }
 
 /**

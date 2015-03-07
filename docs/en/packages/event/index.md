@@ -1,7 +1,6 @@
 # Event Package #
 
-The Event package provides an implementation of the observer pattern, which permits objects to subscribe to events,
-and to be notified when an event has been dispatched by an emitter.
+The Event package provides an implementation of the observer pattern, which permits objects to subscribe to events, and to be notified when an event has been dispatched by an emitter.
 
 ### Installation ###
 
@@ -16,5 +15,6 @@ composer require titon/event:*
 * [Event Dispatching](emitting.md)
 * [Listeners](listeners.md)
 * [Subjects](subjects.md)
+
 * [Annotations](annotations.md)
 * [Type Aliases](types.md)

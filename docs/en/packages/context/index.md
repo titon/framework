@@ -1,6 +1,6 @@
 # Context Package #
 
-The Context package provides dependency injection and auto-resolution of necessary arguments for simple decoupling of components
+The Context package provides dependency injection and auto-resolution of necessary arguments for simple decoupling of components.
 
 ### Installation ###
 
@@ -16,5 +16,6 @@ composer require titon/context:*
 * [Constructor & Method Injection](injection.md)
 * [Auto-Dependency Resolution](resolution.md)
 * [Service Providers](service-providers.md)
+
 * [Type Aliases](types.md)
 

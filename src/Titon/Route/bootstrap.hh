@@ -24,6 +24,7 @@ namespace Titon\Route {
     type ParamMap = Map<string, mixed>;
     type QueryMap = Map<string, mixed>;
     type ResourceMap = Map<string, string>;
+    type RouteCallback = (function(...): mixed);
     type RouteMap = Map<string, Route>;
     type SegmentMap = Map<string, mixed>;
     type Token = shape('token' => string, 'optional' => bool);

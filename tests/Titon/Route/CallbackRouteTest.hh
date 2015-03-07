@@ -6,7 +6,7 @@ use Titon\Test\TestCase;
 class CallbackRouteTest extends TestCase {
 
     public function testDispatch(): void {
-        $route = new CallbackRoute('/{a}/{b}', function(string $a, string $b): string {
+        $route = new CallbackRoute('/{a}/{b}', /* HH_FIXME[4039] variable # args */ function(string $a, string $b): string {
             return $a . $b;
         });
         $route->isMatch('/foo/bar');
@@ -15,7 +15,7 @@ class CallbackRouteTest extends TestCase {
     }
 
     public function testDispatchOptional(): void {
-        $route = new CallbackRoute('/{a}/{b?}', function(string $a, string $b = 'baz'): string {
+        $route = new CallbackRoute('/{a}/{b?}', /* HH_FIXME[4039] variable # args */ function(string $a, string $b = 'baz'): string {
             return $a . $b;
         });
         $route->isMatch('/foo');
@@ -24,7 +24,7 @@ class CallbackRouteTest extends TestCase {
     }
 
     public function testDispatchTypeHints(): void {
-        $route = new CallbackRoute('/{a}/[b]/(c)', function(string $a, int $b, string $c): string {
+        $route = new CallbackRoute('/{a}/[b]/(c)', /* HH_FIXME[4039] variable # args */ function(string $a, int $b, string $c): string {
             return $a . $b . $c;
         });
         $route->isMatch('/foo/123/bar_456');
@@ -36,7 +36,7 @@ class CallbackRouteTest extends TestCase {
      * @expectedException \Titon\Route\Exception\NoMatchException
      */
     public function testDispatchNoMatch(): void {
-        $route = new CallbackRoute('/', () ==> '');
+        $route = new CallbackRoute('/', /* HH_FIXME[4039] variable # args */ () ==> '');
         $route->dispatch();
     }
 

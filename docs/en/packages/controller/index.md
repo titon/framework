@@ -1,7 +1,6 @@
 # Controller Package #
 
-The Controller package provides MVC styled controllers and actions to handle the HTTP request and response cycle. 
-They can also be coupled with the [View package](../view/index.md) for convenient template rendering.
+The Controller package provides MVC styled controllers and actions to handle the HTTP request and response cycle. They can also be coupled with the [View package](../view/index.md) for convenient template rendering.
 
 ### Installation ###
 
@@ -15,4 +14,6 @@ composer require titon/controller:*
 
 * [Actions](actions.md)
 * [Controllers](controllers.md)
+
+* [Events](events.md)
 * [Type Aliases](types.md)

@@ -69,7 +69,7 @@ $foo = $container->make('foo');
 
 ### A Callable ###
 
-Registering a closure acts as a form of a factory, in which the closure returns the instance of another object. The return value of the closure will be returned when `make()` is called.
+Registering a closure acts like a factory, in which the closure returns the instance of another object. The return value of the closure will be returned when `make()` is called.
 
 ```hack
 $container->register('foo', function() {

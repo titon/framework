@@ -18,4 +18,5 @@ composer require titon/io:*
 * [Bundles](bundles.md)
 * [Readers](readers.md)
 * [Writers](writers.md)
+
 * [Type Aliases](types.md)

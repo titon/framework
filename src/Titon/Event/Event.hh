@@ -7,9 +7,6 @@
 
 namespace Titon\Event;
 
-use Titon\Common\DataMap;
-use Titon\Utility\Col;
-
 /**
  * An object representing the current event being dispatched.
  * The event can be stopped at any time during the cycle.
@@ -21,7 +18,7 @@ class Event {
     /**
      * Data to persist between observers.
      *
-     * @var \Titon\Common\DataMap
+     * @var \Titon\Event\DataMap
      */
     protected DataMap $data = Map {};
 
@@ -93,8 +90,8 @@ class Event {
      * @param string $key
      * @return mixed
      */
-    public function getData(string $key = ''): mixed {
-        return Col::get($this->data, $key);
+    public function getData(string $key): mixed {
+        return $this->data->get($key);
     }
 
     /**
@@ -175,7 +172,7 @@ class Event {
      * @return $this
      */
     public function setData(string $key, mixed $value): this {
-        Col::set($this->data, $key, $value);
+        $this->data[$key] = $value;
 
         return $this;
     }

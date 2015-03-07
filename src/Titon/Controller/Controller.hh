@@ -1,4 +1,5 @@
-<?hh // strict
+<?hh // partial
+// Because of PSR.
 /**
  * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -22,37 +23,38 @@ use \Exception;
 interface Controller {
 
     /**
-     * Dispatch the request to the correct controller action. Checks to see if the action exists and is not protected.
+     * Dispatch to an action with a list of arguments and use the output as the HTTP response.
+     * If an exception is thrown within an action, or an action returns void, automatically render a view.
      *
      * @param string $action
      * @param \Titon\Common\ArgumentList $args
      * @param bool $emit
-     * @return string
+     * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): string;
+    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): OutgoingResponseInterface;
 
     /**
      * Forward the current request to a new action, instead of doing an additional HTTP request.
      *
      * @param string $action
      * @param \Titon\Common\ArgumentList $args
-     * @return string
+     * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function forwardTo(string $action, ArgumentList $args): string;
+    public function forwardTo(string $action, ArgumentList $args): OutgoingResponseInterface;
 
     /**
      * Return the request object.
      *
      * @return \Psr\Http\Message\IncomingRequestInterface
      */
-    public function getRequest(): ?IncomingRequestInterface;
+    public function getRequest(): IncomingRequestInterface;
 
     /**
      * Return the response object.
      *
      * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function getResponse(): ?OutgoingResponseInterface;
+    public function getResponse(): OutgoingResponseInterface;
 
     /**
      * Return the view object.
@@ -64,13 +66,12 @@ interface Controller {
     /**
      * Method to be called when an action is missing.
      *
-     * @return string
+     * @return mixed
      */
-    public function missingAction(): string;
+    public function missingAction(): mixed;
 
     /**
-     * Render the view template for an error/exception.
-     * This will automatically set the body of the response.
+     * Render a view template for an error/exception and return the output.
      *
      * @param \Exception $exception
      * @return string
@@ -78,20 +79,19 @@ interface Controller {
     public function renderError(Exception $exception): string;
 
     /**
-     * Render the view templates and return the output.
-     * This will automatically set the body of the response.
+     * Render a view template and return the output.
      *
      * @return string
      */
     public function renderView(): string;
 
     /**
-     * Trigger a custom Action class.
+     * Trigger a custom action class that should either return a string or a response object.
      *
      * @param \Titon\Controller\Action $action
-     * @return string
+     * @return mixed
      */
-    public function runAction(Action $action): string;
+    public function runAction(Action $action): mixed;
 
     /**
      * Set the request object.
@@ -110,7 +110,7 @@ interface Controller {
     public function setResponse(OutgoingResponseInterface $response): this;
 
     /**
-     * Set the view instance.
+     * Set the view object.
      *
      * @param \Titon\View\View $view
      * @return $this

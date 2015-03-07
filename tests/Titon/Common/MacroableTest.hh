@@ -10,8 +10,8 @@ class MacroableTest extends TestCase {
         $this->assertFalse(MacroableStub::hasMacro('upper'));
         $this->assertFalse(MacroableStub::hasMacro('lower'));
 
-        $lower = (...$args) ==> strtolower($args[0]);
-        $upper = (...$args) ==> strtoupper($args[0]);
+        $lower = function(...$args) { return strtolower($args[0]); };
+        $upper = function(...$args) { return strtoupper($args[0]); };
 
         MacroableStub::macro('lower', /* HH_FIXME[4039]: variadic + strict */ $lower);
 
@@ -30,7 +30,7 @@ class MacroableTest extends TestCase {
     }
 
     public function testMacroCallback(): void {
-        MacroableStub::macro('caps', /* HH_FIXME[4039]: variadic + strict */ (...$args) ==> strtoupper($args[0]));
+        MacroableStub::macro('caps', /* HH_FIXME[4039]: variadic + strict */ function(...$args) { return strtoupper($args[0]); });
 
         $this->assertEquals('FOOBAR', MacroableStub::caps('foObAr'));
     }

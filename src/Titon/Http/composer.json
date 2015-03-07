@@ -19,6 +19,7 @@
         "hhvm": ">=3.4.0",
         "ext-mbstring": "*",
         "titon/common": "*",
+        "titon/utility": "*",
         "psr/http-message": "~0.5.0"
     },
     "suggest": {

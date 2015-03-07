@@ -7,7 +7,7 @@
 
 namespace Titon\Controller\Event;
 
-use Titon\Common\ArgumentList;
+use Titon\Controller\ArgumentList;
 use Titon\Controller\Controller;
 use Titon\Event\Event;
 
@@ -28,7 +28,7 @@ class ProcessingEvent extends Event {
     /**
      * The arguments for the action.
      *
-     * @var \Titon\Common\ArgumentList
+     * @var \Titon\Controller\ArgumentList
      */
     protected ArgumentList $args;
 
@@ -44,7 +44,7 @@ class ProcessingEvent extends Event {
      *
      * @param \Titon\Controller\Controller $controller
      * @param string $action
-     * @param \Titon\Common\ArgumentList $args
+     * @param \Titon\Controller\ArgumentList $args
      */
     public function __construct(Controller $controller, string $action, ArgumentList $args) {
         $this->controller = $controller;
@@ -66,7 +66,7 @@ class ProcessingEvent extends Event {
     /**
      * Return the action arguments.
      *
-     * @return \Titon\Common\ArgumentList
+     * @return \Titon\Controller\ArgumentList
      */
     public function getArguments(): ArgumentList {
         return $this->args;

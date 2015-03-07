@@ -104,7 +104,7 @@ The `controller.error` event, represented by `Titon\Controller\Event\ErrorEvent`
         </tr>
         <tr>
             <td>Exception</td>
-            <td>Exception</td>
+            <td>Titon\Http\Exception\HttpException</td>
             <td>getException()</td>
             <td></td>
             <td>The exception thrown to trigger the error.</td>

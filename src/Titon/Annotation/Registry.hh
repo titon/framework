@@ -31,7 +31,7 @@ class Registry {
      * The arguments are usually parsed from the <<>> attribute declaration.
      *
      * @param string $name
-     * @param \Titon\Common\ArgumentList $args
+     * @param \Titon\Annotation\ArgumentList $args
      * @return \Titon\Annotation\Annotation
      * @throws \Titon\Annotation\Exception\MissingAnnotationException
      */

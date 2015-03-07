@@ -8,7 +8,6 @@
 
 namespace Titon\Controller;
 
-use Titon\Common\ArgumentList;
 use Psr\Http\Message\OutgoingResponseInterface;
 use Psr\Http\Message\IncomingRequestInterface;
 use Titon\Controller\Action;
@@ -27,7 +26,7 @@ interface Controller {
      * If an exception is thrown within an action, or an action returns void, automatically render a view.
      *
      * @param string $action
-     * @param \Titon\Common\ArgumentList $args
+     * @param \Titon\Controller\ArgumentList $args
      * @param bool $emit
      * @return \Psr\Http\Message\OutgoingResponseInterface
      */
@@ -37,7 +36,7 @@ interface Controller {
      * Forward the current request to a new action, instead of doing an additional HTTP request.
      *
      * @param string $action
-     * @param \Titon\Common\ArgumentList $args
+     * @param \Titon\Controller\ArgumentList $args
      * @return \Psr\Http\Message\OutgoingResponseInterface
      */
     public function forwardTo(string $action, ArgumentList $args): OutgoingResponseInterface;

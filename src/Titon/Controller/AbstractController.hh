@@ -11,14 +11,13 @@ namespace Titon\Controller;
 use Psr\Http\Message\IncomingRequestInterface;
 use Psr\Http\Message\OutgoingResponseInterface;
 use Psr\Http\Message\StreamableInterface;
-use Titon\Common\ArgumentList;
 use Titon\Controller\Event\ErrorEvent;
 use Titon\Controller\Event\ProcessedEvent;
 use Titon\Controller\Event\ProcessingEvent;
-use Titon\Controller\Exception\InvalidActionException;
 use Titon\Event\EmitsEvents;
 use Titon\Event\Subject;
 use Titon\Http\Exception\HttpException;
+use Titon\Http\Exception\NotFoundException;
 use Titon\Http\Http;
 use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Inflector;
@@ -124,7 +123,7 @@ abstract class AbstractController implements Controller, Subject {
             }
 
         // If an action throws an exception, render an error
-        } catch (Exception $e) {
+        } catch (HttpException $e) {
             $response = $this->renderError($e);
         }
 
@@ -152,7 +151,7 @@ abstract class AbstractController implements Controller, Subject {
      * Return the currently defined arguments for a specific action.
      *
      * @param string $action
-     * @return \Titon\Common\ArgumentList
+     * @return \Titon\Controller\ArgumentList
      */
     public function getActionArguments(string $action): ArgumentList {
         if ($this->arguments->contains($action)) {
@@ -174,7 +173,7 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * Return the arguments for the current action.
      *
-     * @return \Titon\Common\ArgumentList
+     * @return \Titon\Controller\ArgumentList
      */
     public function getCurrentArguments(): ArgumentList {
         return $this->getActionArguments($this->getCurrentAction());
@@ -207,7 +206,7 @@ abstract class AbstractController implements Controller, Subject {
      * @throws \Titon\Controller\Exception\InvalidActionException
      */
     public function missingAction(): mixed {
-        throw new InvalidActionException(sprintf('Your action %s does not exist. Supply your own `missingAction()` method to customize this error or view.', $this->getCurrentAction()));
+        throw new NotFoundException(sprintf('Your action %s does not exist. Supply your own `missingAction()` method to customize this error or view.', $this->getCurrentAction()));
     }
 
     /**

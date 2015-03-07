@@ -18,7 +18,8 @@
     "require": {
         "hhvm": ">=3.4.0",
         "ext-mbstring": "*",
-        "titon/common": "*"
+        "titon/common": "*",
+        "titon/utility": "*"
     },
     "suggest": {
         "ext-simplexml": "Read and Write XML files using the Type\\Xml classes"

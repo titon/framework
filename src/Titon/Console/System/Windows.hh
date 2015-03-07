@@ -9,26 +9,28 @@ namespace Titon\Console\System;
 
 class Windows extends AbstractSystem {
 
-    protected Map<string, string> $modeOutput = Map {};
+    protected Vector<string> $modeOutput = Vector {};
 
     public function getHeight(): int {
         $this->getStats();
 
-        return $this->modeOutput[0];
+        return (int)$this->modeOutput[0];
     }
 
     public function getWidth(): int {
         $this->getStats();
 
-        return $this->modeOutput[1];
+        return (int)$this->modeOutput[1];
     }
 
-    public function getStats(): Map<string, string> {
+    public function getStats(): Vector<string> {
         if ($this->modeOutput->isEmpty()) {
+            $output = '';
             exec('mode', $output);
             $output = implode("\n", $output);
+            $matches = [];
             preg_match_all('/.*:\s*(\d+)/', $output, $matches);
-            $this->modeOutput = (!empty($matches[1])) ? $matches[1] : [];
+            $this->modeOutput = new Vector((count($matches[1]) > 0) ? $matches[1] : []);
         }
 
         return $this->modeOutput;

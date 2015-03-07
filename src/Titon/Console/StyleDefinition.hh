@@ -54,14 +54,14 @@ class StyleDefinition {
         'conceal'   => 8,
     };
 
-    public function __construct($fgColor, $bgColor = '', Vector<string> $effects = Vector {}) {
+    public function __construct(string $fgColor, string $bgColor = '', Vector<string> $effects = Vector {}) {
         $this->fgColor = $fgColor;
         $this->bgColor = $bgColor;
         $this->effectsList = $effects;
     }
 
     public function format(string $xmlTag, string $value): string {
-        $values = XmlParser::getValueBetweenTags($xmlTag, $value);
+        $values = $this->getValueBetweenTags($xmlTag, $value);
         $retval = $value;
         foreach ($values as $val) {
             $valueReplaced = '<' . $xmlTag . '>' . $val . '</' . $xmlTag . '>';
@@ -73,24 +73,28 @@ class StyleDefinition {
         return $retval;
     }
 
-    private function replaceTagColors(string $text): string {
-        $colors = $this->getBgColorCode() . ';' . $this->getFgColorCode();
-        $effects = $this->getParsedStringEffects();
-        $effectsCodeString = $effects ? ';' . $effects : '';
-
-        return sprintf("\033[%sm%s\033[0m", $colors . $effectsCodeString, $text);
-    }
-
     public function getBgColorCode(): string {
-        if ($bgColor = $this->bgColorsMap->get($this->bgColor)) {
+        if (!is_null($bgColor = $this->bgColorsMap->get($this->bgColor))) {
+            invariant(is_string($bgColor), "Must be a string.");
+
             return $bgColor;
         }
 
         return '';
     }
 
+    public function getEffectCode(string $effect): int {
+        return $this->effectsMap[$effect];
+    }
+
+    public function getEndCode(): string {
+        return "\033[0m";
+    }
+
     public function getFgColorCode(): string {
-        if ($fgColor = $this->fgColorsMap->get($this->fgColor)) {
+        if (!is_null($fgColor = $this->fgColorsMap->get($this->fgColor))) {
+            invariant(is_string($fgColor), "Must be a string.");
+
             return $fgColor;
         }
 
@@ -100,7 +104,7 @@ class StyleDefinition {
     public function getParsedStringEffects(): string {
         $effects = Vector {};
 
-        if (!empty($this->effectsList->isEmpty())) {
+        if ($this->effectsList->isEmpty()) {
             foreach ($this->effectsList as $effect) {
                 $effects[] = $this->getEffectCode($effect);
             }
@@ -109,7 +113,23 @@ class StyleDefinition {
         return implode(';', $effects);
     }
 
-    public function getEffectCode(string $effect): int {
-        return $this->effectsMap[$effect];
+    public function getStartCode(): string {
+        $colors = $this->getBgColorCode() . ';' . $this->getFgColorCode();
+        $effects = $this->getParsedStringEffects();
+        $effects = $effects ? ';' . $effects : '';
+
+        return sprintf("\033[%sm", $colors . $effects);
+    }
+
+    public function getValueBetweenTags(string $tag, string $stringToParse): array<string> {
+        $regexp = '#<' . $tag . '>(.*?)</' . $tag . '>#s';
+        $valuesMatched = [];
+        preg_match_all($regexp, $stringToParse, $valuesMatched);
+
+        return $valuesMatched[1];
+    }
+
+    protected function replaceTagColors(string $text): string {
+        return sprintf("%s%s%s", $this->getStartCode(), $text, $this->getEndCode());
     }
 }

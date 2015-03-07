@@ -33,8 +33,9 @@ class AsciiTree extends AbstractTree {
                 $retval[] = $prefix . '+-' . (string)$branch[$i];
             }
 
-            if ($branch[$i] instanceof Vector) {
-                $retval[] = $this->build($branch[$i], $prefix . ($i == $count - 1 ? '  ' : '| '));
+            $next = $branch[$i];
+            if ($next instanceof Vector) {
+                $retval[] = $this->build($next, $prefix . ($i == $count - 1 ? '  ' : '| '));
             }
         }
 

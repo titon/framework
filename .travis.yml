@@ -1,9 +1,6 @@
 language: php
 
 php:
-  - hhvm-3.4
-  - hhvm-3.5
-  - hhvm-3.6
   - hhvm
   - hhvm-nightly
 

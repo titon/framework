@@ -29,7 +29,7 @@ abstract class AbstractTable implements Table {
      *
      * @var Vector<string>
      */
-    protected Vector<string> $headers = Vector {};
+    protected Vector<mixed> $headers = Vector {};
 
     /**
      * Data structure holding the data for each row in the table.
@@ -63,7 +63,9 @@ abstract class AbstractTable implements Table {
     protected function setColumnWidths(Vector<mixed> $row): void {
         foreach ($row as $index => $value) {
             $width = strlen($value);
-            if (is_null($currentWidth = $this->columnWidths->get($index)) || $width > $currentWidth) {
+            $currentWidth = $this->columnWidths[$index] ?: 0;
+
+            if ($width > $currentWidth) {
                 if ($this->columnWidths->count() === $index) {
                     $this->columnWidths[] = $width;
                 } else {
@@ -108,7 +110,7 @@ abstract class AbstractTable implements Table {
      *
      * @return $this
      */
-    public function setHeaders(Vector<string> $headers): this {
+    public function setHeaders(Vector<mixed> $headers): this {
         $this->setColumnWidths($headers);
         $this->headers = $headers;
 

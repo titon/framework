@@ -28,19 +28,19 @@ class AsciiTable extends AbstractTable {
      * @var Map<string, string>
      */
     protected Map<string, string> $characters = Map {
-        'corner' => '+',
-        'line' => '-',
+        'corner'      => '+',
+        'line'        => '-',
         'header_line' => '=',
-        'border' => '|',
-        'padding' => ' ',
+        'border'      => '|',
+        'padding'     => ' ',
     };
 
     /**
      * The integer length of the width each row should be.
      *
-     * @var ?int
+     * @var int|null
      */
-    protected ?int $rowWidth;
+    protected int $rowWidth = 0;
 
     /**
      * Given a string value and a padding string, return the value with the pad

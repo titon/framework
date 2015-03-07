@@ -9,18 +9,20 @@ namespace Titon\Console;
 
 class Output {
 
-    const VERBOSITY_QUIET = 0;
-    const VERBOSITY_NORMAL = 1;
-    const VERBOSITY_VERBOSE = 3;
-    const STREAM_STDOUT = 'php://stdout';
-    const STREAM_STDERR = 'php://stderr';
-    const ANSI_CLEAR_LINE = "\033[K";
+    const int VERBOSITY_QUIET = 0;
+    const int VERBOSITY_NORMAL = 1;
+    const int VERBOSITY_VERBOSE = 3;
+    const string STREAM_STDOUT = 'php://stdout';
+    const string STREAM_STDERR = 'php://stderr';
+    const string ANSI_CLEAR_LINE = "\033[K";
+    const string LF = PHP_EOL;
+    const string CR = "\r";
 
     protected resource $stderr;
 
     protected resource $stdout;
 
-    protected Map<sting, StyleFormatter> $styles = Map {};
+    protected Map<string, StyleDefinition> $styles = Map {};
 
     protected int $systemVerbosity;
 
@@ -30,7 +32,7 @@ class Output {
         $this->systemVerbosity = $verbosity;
     }
 
-    public function error(string $output, int $verbosity = Output::VERBOSITY_NORMAL, int $newLines = 1): void {
+    public function error(string $output = '', int $verbosity = Output::VERBOSITY_NORMAL, int $newLines = 1): void {
         if (!$this->shouldOutput($verbosity)) {
             return;
         }
@@ -38,38 +40,52 @@ class Output {
         $output = $this->format($output);
         $output .= str_repeat("\n", $newLines);
 
-        fwrite($this->stderr, $output);
-    }
-
-    public function out(string $output, int $verbosity = Output::VERBOSITY_NORMAL, int $newLines = 1): void {
-        if (!$this->shouldOutput($verbosity)) {
-            return;
-        }
-
-        $output = $this->format($output);
-        $output .= str_repeat("\n", $newLines);
-
-        fwrite($this->stdout, $output);
+        $this->send($output, $this->stderr);
     }
 
     public function format(string $message): string {
-        $parsedTags = array_unique(XmlParser::parseTags($message));
-        $formatMessage = $message;
+        $parsedTags = array_unique($this->parseTags($message));
+        $retval = $message;
         foreach ($parsedTags as $xmlTag) {
-            if (!empty($this->styles[$xmlTag])) {
-                $formatter = $this->styles[$xmlTag];
-                $formatMessage = $formatter->format($xmlTag, $formatMessage);
-                $formatMessage = preg_replace_callback('#<[\w-]+?>.*<\/[\w-]+?>#', function($matches) use ($formatter) {
-                    return $formatter->getEndCode() . $this->format($matches[0]) . $formatter->getStartCode();
-                }, $formatMessage);
+            if (!is_null($this->styles[$xmlTag])) {
+                $style = $this->styles[$xmlTag];
+                $retval = $style->format($xmlTag, $retval);
+                $matches = [];
+                $retval = preg_replace_callback('#<[\w-]+?>.*<\/[\w-]+?>#', ($matches) ==> {
+                    return sprintf("%s%s%s", $style->getEndCode(), $this->format($matches[0]), $style->getStartCode());
+                }, $retval);
             }
         }
 
-        return $formatMessage;
+        return $retval;
+    }
+
+    public function out(string $output = '', int $verbosity = Output::VERBOSITY_NORMAL, int $newLines = 1, string $newlineChar = Output::LF): void {
+        if (!$this->shouldOutput($verbosity)) {
+            return;
+        }
+
+        $output = $this->format($output);
+        $output .= str_repeat($newlineChar, $newLines);
+
+        $this->send($output, $this->stdout);
+    }
+
+    protected function parseTags(string $stringToParse): array<string> {
+        $tagsMatched = [];
+        preg_match_all('#<([\w-]*?)>#', $stringToParse, $tagsMatched);
+
+        return $tagsMatched[1];
     }
 
     public function setFormat(string $element, StyleDefinition $format): this {
         $this->styles[$element] = $format;
+
+        return $this;
+    }
+
+    protected function send(string $response, resource $stream): void {
+        fwrite($stream, $response);
     }
 
     protected function shouldOutput(int $verbosity): bool {

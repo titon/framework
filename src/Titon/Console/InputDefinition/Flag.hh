@@ -18,7 +18,7 @@ class Flag extends AbstractInputDefinition {
      * The negative alias of the `Flag` (i.e., --no-foo for -foo). A negative
      * value is only available if a 'long' `Flag` name is available.
      *
-     * @var ?string
+     * @var string|null
      */
     protected ?string $negativeAlias;
 

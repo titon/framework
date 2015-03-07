@@ -7,7 +7,6 @@
 
 namespace Titon\Route;
 
-use Titon\Common\ArgumentList;
 use Titon\Route\Exception\MissingPatternException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Mixin\ConditionMixin;
@@ -235,7 +234,7 @@ class Route implements Serializable {
     /**
      * Return the type casted arguments for the defined action method.
      *
-     * @return \Titon\Common\ArgumentList
+     * @return \Titon\Route\ArgumentList
      */
     public function getActionArguments(): ArgumentList {
         $action = $this->getAction();
@@ -504,7 +503,7 @@ class Route implements Serializable {
      * Furthermore, loop through and set any default values using reflection, and type cast appropriately.
      *
      * @param \ReflectionFunctionAbstract $method
-     * @return \Titon\Common\ArgumentList
+     * @return \Titon\Route\ArgumentList
      */
     protected function getArguments(ReflectionFunctionAbstract $method): ArgumentList {
         $tokens = $this->getTokens();

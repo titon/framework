@@ -59,6 +59,9 @@ class Output {
             if (!empty($this->styles[$xmlTag])) {
                 $formatter = $this->styles[$xmlTag];
                 $formatMessage = $formatter->format($xmlTag, $formatMessage);
+                $formatMessage = preg_replace_callback('#<[\w-]+?>.*<\/[\w-]+?>#', function($matches) use ($formatter) {
+                    return $formatter->getEndCode() . $this->format($matches[0]) . $formatter->getStartCode();
+                }, $formatMessage);
             }
         }
 

@@ -21,8 +21,22 @@ abstract class AbstractUserInput implements UserInput {
 
     protected Output $output;
 
+    protected bool $strict = true;
+
     public function __construct() {
         $this->input = new Input();
         $this->output = new Output();
+    }
+
+    public function setDefault(string $default): this {
+        $this->default = $default;
+
+        return $this;
+    }
+
+    public function setStrict(bool $strict): this {
+        $this->strict = $strict;
+
+        return $this;
     }
 }

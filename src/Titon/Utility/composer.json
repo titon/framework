@@ -20,12 +20,12 @@
     },
     "require": {
         "hhvm": ">=3.4.0",
-        "ext-mbstring": "*",
-        "titon/common": "*"
+        "ext-mbstring": "*"
     },
     "suggest": {
         "ext-mcrypt": "Encrypt and decrypt data with the Utility\\Crypt class",
         "ext-fileinfo": "Validate file mime types with the Utility\\Validate class",
+        "titon/common": "Convert from maps, arrays, and vectors using the Common package",
         "titon/io": "Load configuration files using an Io\\Reader class"
     },
     "autoload": {

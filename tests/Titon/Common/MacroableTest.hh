@@ -1,70 +1,45 @@
 <?hh
 namespace Titon\Common;
 
+use Titon\Test\Stub\Common\MacroableStub;
 use Titon\Test\TestCase;
-use Titon\Utility\Crypt;
-use Titon\Utility\Format;
-use Titon\Utility\Inflector;
-use Titon\Utility\Number;
-use Titon\Utility\Path;
 
 class MacroableTest extends TestCase {
 
-    public function testHasMacro(): void {
-        $this->assertFalse(Number::hasMacro('toBinary'));
-        $this->assertFalse(Number::hasMacro('toFloat'));
+    public function testGetHasMacro(): void {
+        $this->assertFalse(MacroableStub::hasMacro('upper'));
+        $this->assertFalse(MacroableStub::hasMacro('lower'));
 
-        Number::macro('toFloat',/* HH_FIXME[4039] variable # args */ function() {
-            return 0.0;
-        });
+        $lower = function(...$args) { return strtolower($args[0]); };
+        $upper = function(...$args) { return strtoupper($args[0]); };
 
-        $this->assertFalse(Number::hasMacro('toBinary'));
-        $this->assertTrue(Number::hasMacro('toFloat'));
+        MacroableStub::macro('lower', /* HH_FIXME[4039]: variadic + strict */ $lower);
+
+        $this->assertFalse(MacroableStub::hasMacro('upper'));
+        $this->assertTrue(MacroableStub::hasMacro('lower'));
+
+        MacroableStub::macro('upper', /* HH_FIXME[4039]: variadic + strict */ $upper);
+
+        $this->assertEquals(Map {
+            'lower' => $lower,
+            'upper' => $upper
+        }, MacroableStub::getMacros());
+
+        $this->assertTrue(MacroableStub::hasMacro('upper'));
+        $this->assertTrue(MacroableStub::hasMacro('lower'));
     }
 
-    public function testInheritance(): void {
-        $this->assertFalse(Format::hasMacro('foobar'));
-        $this->assertFalse(Path::hasMacro('foobar'));
+    public function testMacroCallback(): void {
+        MacroableStub::macro('caps', /* HH_FIXME[4039]: variadic + strict */ function(...$args) { return strtoupper($args[0]); });
 
-        Format::macro('foobar',/* HH_FIXME[4039] variable # args */ function() {
-            return '';
-        });
-
-        $this->assertTrue(Format::hasMacro('foobar'));
-        $this->assertFalse(Path::hasMacro('foobar'));
-    }
-
-    public function testMacro(): void {
-        Inflector::macro('caps',/* HH_FIXME[4039] variable # args */ function($value) {
-            return strtoupper($value);
-        });
-
-        $this->assertEquals('FOOBAR', Inflector::caps('foObAr'));
+        $this->assertEquals('FOOBAR', MacroableStub::caps('foObAr'));
     }
 
     /**
      * @expectedException \Titon\Common\Exception\MissingMacroException
      */
     public function testMacroMissing(): void {
-        Inflector::lowers('foObAr');
-    }
-
-    public function testGetMacros(): void {
-        $lower = function($value) {
-            return strtolower($value);
-        };
-
-        $upper = function($value) {
-            return strtoupper($value);
-        };
-
-        Crypt::macro('lower',/* HH_FIXME[4039] variable # args */ $lower);
-        Crypt::macro('upper',/* HH_FIXME[4039] variable # args */ $upper);
-
-        $this->assertEquals(Map {
-            'lower' => $lower,
-            'upper' => $upper
-        }, Crypt::getMacros());
+        MacroableStub::lowers('foObAr');
     }
 
 }

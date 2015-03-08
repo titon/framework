@@ -7,12 +7,10 @@
 
 namespace Titon\Validate;
 
-use Titon\Common\DataMap;
-
 /**
  * The Validator allows for quick validation against a defined set of rules and fields.
  *
- * @package Titon\Common
+ * @package Titon\Validate
  */
 interface Validator {
 
@@ -81,7 +79,7 @@ interface Validator {
     /**
      * Return the currently set data.
      *
-     * @return \Titon\Common\DataMap
+     * @return \Titon\Validate\DataMap
      */
     public function getData(): DataMap;
 
@@ -123,7 +121,7 @@ interface Validator {
     /**
      * Set the data to validate against.
      *
-     * @param \Titon\Common\DataMap $data
+     * @param \Titon\Validate\DataMap $data
      * @return $this
      */
     public function setData(DataMap $data): this;
@@ -131,7 +129,7 @@ interface Validator {
     /**
      * Validate the data against the rules schema. Return true if all fields passed validation.
      *
-     * @param \Titon\Common\DataMap $data
+     * @param \Titon\Validate\DataMap $data
      * @return bool
      */
     public function validate(DataMap $data = Map {}): bool;

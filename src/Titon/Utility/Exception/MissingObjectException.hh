@@ -10,7 +10,7 @@ namespace Titon\Utility\Exception;
 /**
  * Exception thrown when an object doesn't exist in the registry.
  *
- * @package Titon\Common\Exception
+ * @package Titon\Utility\Exception
  */
 class MissingObjectException extends \OutOfBoundsException {
 

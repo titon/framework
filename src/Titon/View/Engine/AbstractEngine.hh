@@ -7,7 +7,7 @@
 
 namespace Titon\View\Engine;
 
-use Titon\Common\DataMap;
+use Titon\View\DataMap;
 use Titon\View\Exception\MissingViewException;
 use Titon\View\View;
 use Titon\View\Engine;
@@ -39,7 +39,7 @@ abstract class AbstractEngine implements Engine {
     /**
      * Variables currently bound to the engine.
      *
-     * @var \Titon\Common\DataMap
+     * @var \Titon\View\DataMap
      */
     protected DataMap $variables = Map {};
 

@@ -7,9 +7,8 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\Macroable;
-use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Utility\Exception\InvalidCreditCardException;
+use \InvalidArgumentException;
 use \Indexish;
 
 /**
@@ -19,7 +18,6 @@ use \Indexish;
  * @package Titon\Utility
  */
 class Validate {
-    use Macroable;
 
     /**
      * IP version constants.
@@ -108,7 +106,7 @@ class Validate {
      * @param int $check
      * @param string $mode
      * @return bool
-     * @throws \Titon\Common\Exception\InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     public static function comparison(int $input, int $check, string $mode): bool {
         switch (strtolower($mode)) {

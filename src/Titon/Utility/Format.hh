@@ -7,8 +7,6 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\OptionMap;
-use Titon\Common\Macroable;
 use \DateTime;
 use \Indexish;
 
@@ -18,7 +16,6 @@ use \Indexish;
  * @package Titon\Utility
  */
 class Format {
-    use Macroable;
 
     /**
      * Format a date string to an Atom feed format.
@@ -146,7 +143,7 @@ class Format {
      * @uses Titon\Utility\Time
      *
      * @param string|int $time
-     * @param \Titon\Common\OptionMap $options
+     * @param \Titon\Utility\OptionMap $options
      * @param Map<string, Map<int, string>> $messages
      * @return string
      */

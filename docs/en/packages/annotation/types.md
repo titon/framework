@@ -20,6 +20,11 @@ The following type aliases are available in the annotation package.
             </td>
         </tr>
         <tr>
+            <td>Titon\Annotation\ArgumentList</td>
+            <td>array&lt;mixed&gt;</td>
+            <td>A list of arguments passed to an annotation during instantiation.</td>
+        </tr>
+        <tr>
             <td>Titon\Annotation\MethodAnnotationMap</td>
             <td>Map&lt;string, Titon\Annotation\AnnotationMap&gt;</td>
             <td>

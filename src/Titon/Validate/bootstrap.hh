@@ -16,6 +16,7 @@
 namespace Titon\Validate {
     type ConstraintCallback = (function(mixed): bool);
     type ConstraintMap = Map<string, ConstraintCallback>;
+    type DataMap = Map<string, mixed>;
     type ErrorMap = Map<string, string>;
     type FieldMap = Map<string, string>;
     type MessageMap = Map<string, string>;

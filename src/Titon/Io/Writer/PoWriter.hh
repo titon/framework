@@ -34,7 +34,7 @@ class PoWriter extends AbstractWriter {
     /**
      * Process an array into a PO format taking into account multi-line and plurals.
      *
-     * @uses Titon\Common\Config
+     * @uses Titon\Utility\Config
      *
      * @param \Titon\Io\ResourceMap $data
      * @return string

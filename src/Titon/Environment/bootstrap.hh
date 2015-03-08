@@ -32,15 +32,16 @@ namespace Titon\Environment {
 
 namespace {
     use Titon\Context\Depository;
+    use Titon\Environment\Environment;
 
     /**
      * @see Titon\Environment\Environment::getVariable()
      */
     function env(string $key): string {
-        // UNSAFE
-        // Since we're not type checking the response from the container.
-        return Depository::getInstance()
-            ->make('Titon\Environment\Environment')
-            ->getVariable($key);
+        $env = Depository::getInstance()->make('Titon\Environment\Environment');
+
+        invariant($env instanceof Environment, 'Must be an Environment.');
+
+        return $env->getVariable($key);
     }
 }

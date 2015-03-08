@@ -17,6 +17,7 @@ namespace Titon\Route {
     use Titon\Route\Group as RouteGroup;
 
     type Action = shape('class' => string, 'action' => string);
+    type ArgumentList = array<mixed>;
     type FilterCallback = (function(Router, Route): void);
     type FilterMap = Map<string, FilterCallback>;
     type GroupCallback = (function(Router, RouteGroup): void);
@@ -69,26 +70,27 @@ namespace {
     use Titon\Route\ParamMap;
     use Titon\Route\QueryMap;
     use Titon\Context\Depository;
+    use Titon\Route\UrlBuilder;
 
     /**
      * @see Titon\Route\UrlBuilder::build()
      */
     function link_to(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        // UNSAFE
-        // Since we're not type checking the response from the container.
-        return Depository::getInstance()
-            ->make('Titon\Route\UrlBuilder')
-            ->build($key, $params, $query);
+        $builder = Depository::getInstance()->make('Titon\Route\UrlBuilder');
+
+        invariant($builder instanceof UrlBuilder, 'Must be a UrlBuilder.');
+
+        return $builder->build($key, $params, $query);
     }
 
     /**
      * @see Titon\Route\UrlBuilder::url()
      */
     function url(): string {
-        // UNSAFE
-        // Since we're not type checking the response from the container.
-        return Depository::getInstance()
-            ->make('Titon\Route\UrlBuilder')
-            ->url();
+        $builder = Depository::getInstance()->make('Titon\Route\UrlBuilder');
+
+        invariant($builder instanceof UrlBuilder, 'Must be a UrlBuilder.');
+
+        return $builder->url();
     }
 }

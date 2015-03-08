@@ -17,8 +17,8 @@
     },
     "require": {
         "hhvm": ">=3.4.0",
-        "titon/common": "*",
-        "titon/event": "*"
+        "titon/event": "*",
+        "titon/utility": "*"
     },
     "suggest": {
         "titon/cache": "Cache rendered templates using the Cache package",

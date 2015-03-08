@@ -17,12 +17,13 @@
     },
     "require": {
         "hhvm": ">=3.4.0",
-        "titon/common": "*"
+        "titon/utility": "*"
     },
     "suggest": {
         "ext-apc": "Cache data using APC",
         "ext-redis": "Cache data using Redis",
         "ext-memcached": "Cache data using Memcache",
+        "titon/common": "Cache data in memory using the Common package",
         "titon/io": "Cache data to the filesystem using the IO package",
         "titon/db": "Cache data to a database using the DB package"
     },

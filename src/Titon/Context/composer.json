@@ -1,7 +1,7 @@
 {
     "name": "titon/context",
     "type": "library",
-    "description": "The context package provides dependency injection, allowing for easy decoupling of components.",
+    "description": "The context package provides dependency injection and service providers, which allow for easy decoupling of components.",
     "keywords": ["titon", "context", "depository", "container", "dependency", "injection", "di"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
@@ -24,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Titon\\Context\\": "src/"
+            "Titon\\Context\\": ""
         },
         "files": [
             "src/Titon/Context/bootstrap.hh"

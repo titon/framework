@@ -14,6 +14,7 @@
  */
 
 namespace Titon\View {
+    type DataMap = Map<string, mixed>;
     type HelperMap = Map<string, Helper>;
     type LocaleList = Vector<string>;
     type PathList = Vector<string>;
@@ -26,6 +27,7 @@ namespace Titon\View\Engine {
 namespace Titon\View\Helper {
     type AttributeMap = Map<string, mixed>;
     type TagMap = Map<string, string>;
+    type OptionMap = Map<string, mixed>;
 
     // Asset
     type Asset = shape('path' => string, 'env' => string, 'attributes' => AttributeMap);

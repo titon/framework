@@ -7,8 +7,6 @@
 
 namespace Titon\Utility;
 
-use Titon\Common\Macroable;
-use Titon\Common\ArgumentList;
 use Titon\Utility\Exception\InvalidObjectException;
 use Titon\Utility\Exception\MissingObjectException;
 use \ReflectionClass;
@@ -20,7 +18,6 @@ use \ReflectionClass;
  * @package Titon\Utility
  */
 class Registry<T> {
-    use Macroable;
 
     /**
      * Objects that have been registered into memory. The array index is represented by the namespace convention,
@@ -45,7 +42,7 @@ class Registry<T> {
      * @uses Titon\Utility\Path
      *
      * @param string $key
-     * @param \Titon\Common\ArgumentList $args
+     * @param \Titon\Utility\ArgumentList $args
      * @param bool $store
      * @return T
      */

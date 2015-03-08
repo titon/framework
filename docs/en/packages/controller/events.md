@@ -33,7 +33,7 @@ The `controller.processing` event, represented by `Titon\Controller\Event\Proces
         </tr>
         <tr>
             <td>Arguments</td>
-            <td>Titon\Common\ArgumentList</td>
+            <td>Titon\Controller\ArgumentList</td>
             <td>getArguments()</td>
             <td></td>
             <td>The arguments to pass to the action.</td>
@@ -104,7 +104,7 @@ The `controller.error` event, represented by `Titon\Controller\Event\ErrorEvent`
         </tr>
         <tr>
             <td>Exception</td>
-            <td>Exception</td>
+            <td>Titon\Http\Exception\HttpException</td>
             <td>getException()</td>
             <td></td>
             <td>The exception thrown to trigger the error.</td>

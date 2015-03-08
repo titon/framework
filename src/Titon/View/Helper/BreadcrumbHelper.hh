@@ -7,7 +7,6 @@
 
 namespace Titon\View\Helper;
 
-use Titon\Common\OptionMap;
 use Titon\Type\ArrayList;
 
 /**
@@ -139,7 +138,7 @@ class BreadcrumbHelper extends AbstractHelper {
      * Generate a page title based off the current crumbs.
      *
      * @param string $base
-     * @param \Titon\Common\OptionMap $options
+     * @param \Titon\View\OptionMap $options
      * @return string
      */
     public function title(string $base = '', OptionMap $options = Map {}): string {

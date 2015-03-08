@@ -17,8 +17,8 @@
     },
     "require": {
         "hhvm": ">=3.4.0",
-        "titon/common": "*",
-        "titon/event": "*"
+        "titon/event": "*",
+        "titon/utility": "*"
     },
     "suggest": {
         "titon/annotation": "Wire Route annotations using the Annotation package",

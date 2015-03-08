@@ -16,8 +16,7 @@
         "source": "https://github.com/titon/annotation"
     },
     "require": {
-        "hhvm": ">=3.4.0",
-        "titon/common": "*"
+        "hhvm": ">=3.4.0"
     },
     "autoload": {
         "psr-4": {

@@ -7,7 +7,7 @@
 
 namespace Titon\Io\Reader;
 
-use Titon\Common\Exception\MissingFileException;
+use Titon\Io\Exception\MissingFileException;
 use Titon\Io\File;
 use Titon\Io\Reader;
 
@@ -23,7 +23,7 @@ abstract class AbstractReader extends File implements Reader {
      * The path is optional as we don't want to create the file under some situations.
      *
      * @param string $path
-     * @throws \Titon\Common\Exception\MissingFileException
+     * @throws \Titon\Io\Exception\MissingFileException
      */
     public function __construct(string $path = '') {
         if ($path && !file_exists($path)) {

@@ -14,7 +14,9 @@
  */
 
 namespace Titon\Utility {
+    type ArgumentList = array<mixed>;
     type ConfigMap = Map<string, mixed>;
+    type OptionMap = Map<string, mixed>;
     type RegistryCallback<T> = (function(): T);
     type RegistryMap<T> = Map<string, T>;
 }
@@ -61,7 +63,7 @@ namespace {
  */
 
 namespace {
-    use Titon\Common\ArgumentList;
+    use Titon\Utility\ArgumentList;
     use Titon\Utility\Col;
     use Titon\Utility\Config;
     use Titon\Utility\Inflector;

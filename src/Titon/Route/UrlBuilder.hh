@@ -7,7 +7,6 @@
 
 namespace Titon\Route;
 
-use Titon\Common\Cacheable;
 use Titon\Route\Exception\MissingTokenException;
 use Titon\Utility\Config;
 use Titon\Utility\Inflector;
@@ -19,7 +18,6 @@ use Titon\Utility\Inflector;
  * @package Titon\Route
  */
 class UrlBuilder {
-    use Cacheable;
 
     /**
      * Router instance.
@@ -47,42 +45,39 @@ class UrlBuilder {
      * @return string
      * @throws \Titon\Route\Exception\MissingTokenException
      */
+    <<__Memoize>>
     public function build(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        $url = (string) $this->cache([__METHOD__, $key, $params], function(UrlBuilder $builder) use ($key, $params) {
-            $router = $builder->getRouter();
-            $route = $router->getRoute($key);
-            $base = $router->base();
-            $url = str_replace([']', ')', '>'], '}', str_replace(['[', '(', '<'], '{', $route->getPath()));
+        $router = $this->getRouter();
+        $route = $router->getRoute($key);
+        $base = $router->base();
+        $url = str_replace([']', ')', '>'], '}', str_replace(['[', '(', '<'], '{', $route->getPath()));
 
-            // Set the locale if it is missing
-            if (!$params->contains('locale')) {
-                $params['locale'] = Config::get('titon.locale.current');
+        // Set the locale if it is missing
+        if (!$params->contains('locale')) {
+            $params['locale'] = Config::get('titon.locale.current');
+        }
+
+        // Replace tokens in the path with values from the parameters
+        foreach ($route->getTokens() as $token) {
+            $tokenKey = $token['token'];
+
+            if ($params->contains($tokenKey) || $token['optional']) {
+                $url = str_replace(sprintf('{%s}', $tokenKey . ($token['optional'] ? '?' : '')), Inflector::route((string) $params->get($tokenKey) ?: ''), $url);
+
+            } else {
+                throw new MissingTokenException(sprintf('Missing %s parameter for the %s route', $tokenKey, $key));
             }
+        }
 
-            // Replace tokens in the path with values from the parameters
-            foreach ($route->getTokens() as $token) {
-                $tokenKey = $token['token'];
+        // Prepend base folder
+        if ($base !== '/') {
+            $url = $base . $url;
+        }
 
-                if ($params->contains($tokenKey) || $token['optional']) {
-                    $url = str_replace(sprintf('{%s}', $tokenKey . ($token['optional'] ? '?' : '')), Inflector::route((string) $params->get($tokenKey) ?: ''), $url);
-
-                } else {
-                    throw new MissingTokenException(sprintf('Missing %s parameter for the %s route', $tokenKey, $key));
-                }
-            }
-
-            // Prepend base folder
-            if ($base !== '/') {
-                $url = $base . $url;
-            }
-
-            // Trim trailing slash
-            if ($url !== '/') {
-                $url = rtrim($url, '/');
-            }
-
-            return $url;
-        });
+        // Trim trailing slash
+        if ($url !== '/') {
+            $url = rtrim($url, '/');
+        }
 
         // Append query string and fragment
         $fragment = $query->get('#');
@@ -115,24 +110,22 @@ class UrlBuilder {
      * @return string
      */
     public function url(): string {
-        return (string) $this->cache(__METHOD__, ($builder) ==> {
-            $router = $builder->getRouter();
-            $segments = $router->getSegments();
-            $base = $router->base();
-            $url = (string) $segments['scheme'] . '://' . (string) $segments['host'];
+        $router = $this->getRouter();
+        $segments = $router->getSegments();
+        $base = $router->base();
+        $url = (string) $segments['scheme'] . '://' . (string) $segments['host'];
 
-            if ($base !== '/') {
-                $url .= $base;
-            }
+        if ($base !== '/') {
+            $url .= $base;
+        }
 
-            $url .= (string) $segments['path'];
+        $url .= (string) $segments['path'];
 
-            if ($segments['query']) {
-                $url .= '?' . http_build_query($segments['query']);
-            }
+        if ($segments['query']) {
+            $url .= '?' . http_build_query($segments['query']);
+        }
 
-            return $url;
-        });
+        return $url;
     }
 
 }

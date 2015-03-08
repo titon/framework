@@ -17,9 +17,9 @@
     },
     "require": {
         "hhvm": ">=3.4.0",
-        "titon/common": "*",
-        "titon/http": "*",
         "titon/event": "*",
+        "titon/http": "*",
+        "titon/utility": "*",
         "psr/http-message": "~0.5.0"
     },
     "suggest": {

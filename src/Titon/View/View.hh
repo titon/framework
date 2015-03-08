@@ -7,7 +7,6 @@
 
 namespace Titon\View;
 
-use Titon\Common\DataMap;
 use Titon\Cache\Storage;
 
 /**
@@ -91,7 +90,7 @@ interface View {
     /**
      * Return all variables.
      *
-     * @return \Titon\Common\DataMap
+     * @return \Titon\View\DataMap
      */
     public function getVariables(): DataMap;
 
@@ -121,7 +120,7 @@ interface View {
      * Can optionally pass in a list of variables that is accessible in the template.
      *
      * @param string $path
-     * @param \Titon\Common\DataMap $variables
+     * @param \Titon\View\DataMap $variables
      * @return string
      */
     public function renderTemplate(string $path, DataMap $variables = Map {}): string;
@@ -154,7 +153,7 @@ interface View {
     /**
      * Set multiple view variables.
      *
-     * @param \Titon\Common\DataMap $data
+     * @param \Titon\View\DataMap $data
      * @return $this
      */
     public function setVariables(DataMap $data): this;

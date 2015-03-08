@@ -15,9 +15,11 @@
 
 namespace Titon\Console {
 
+    type ArgumentList = array<mixed>;
     type RawInput = shape(
         'raw'   => string,
         'value' => string
     );
+    type StyleMap = Map<string, StyleDefinition>;
     type CommandMap = Map<string, Command>;
 }

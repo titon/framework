@@ -9,10 +9,27 @@ namespace Titon\Console\UserInput;
 
 use Titon\Console\Output;
 
+/**
+ * The `Prompt` class presents the user with a basic prompt and accepts any input
+ * unless predetermined choices are given.
+ *
+ * @package Titon\Console\UserInput
+ */
 class Prompt extends AbstractUserInput {
 
+    /**
+     * If the prompt is set to show value hints, this string contains those hints
+     * to output when presenting the user with the prompt.
+     *
+     * @var string
+     */
     protected string $hint = '';
 
+    /**
+     * Construct a new `Prompt` object with accepted values (if any).
+     *
+     * @param Map<mixed, mixed> $choices    Predetermined accepted choices
+     */
     public function __construct(Map<mixed, mixed> $choices = Map {}, ?string $default = null) {
         parent::__construct();
 
@@ -20,6 +37,9 @@ class Prompt extends AbstractUserInput {
         $this->acceptedValues = $choices;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function prompt(string $message): mixed {
         $keys = $this->acceptedValues->keys();
         $values = $this->acceptedValues->values();
@@ -65,6 +85,14 @@ class Prompt extends AbstractUserInput {
         }
     }
 
+    /**
+     * Set whether the message presented at the prompt should show the predetermined
+     * accepted values (if any).
+     *
+     * @param bool $showHint    Boolean to show the hints or not
+     *
+     * @return $this
+     */
     public function showHints(bool $showHint = true): this {
         if ($showHint === true) {
             $retval = Vector {};

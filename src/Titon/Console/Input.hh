@@ -7,13 +7,12 @@
 
 namespace Titon\Console;
 
-use Titon\Common\ArgumentList;
 use Titon\Utility\State\Server;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\Exception\MissingValueException;
-use Titon\Console\Exception\InvalidCommandException;
+use Titon\Console\Exception\InvalidNumberOfCommandsException;
 
 /**
  * The `Input` class contains all available `Flag`, `Argument`, `Option`, and
@@ -61,6 +60,13 @@ class Input {
     protected InputLexer $input;
 
     /**
+     * The singleton instance.
+     *
+     * @var \Titon\Console\Input|null
+     */
+    protected static ?Input $instance;
+
+    /**
      * All parameters provided in the input that do not match a given `Command`
      * or `InputDefinition`.
      *
@@ -74,6 +80,8 @@ class Input {
      * @var \Titon\Console\InputBag<Option>
      */
     protected InputBag<Option> $options;
+
+    protected array<string> $rawInput;
 
     /**
      * Stream handle for user input.
@@ -100,6 +108,7 @@ class Input {
             $args = array_slice(Server::get('argv'), 1);
         }
 
+        $this->rawInput = $args;
         $this->input = new InputLexer($args);
         $this->flags = new InputBag();
         $this->options = new InputBag();
@@ -159,6 +168,30 @@ class Input {
         $this->options->set($option->getName(), $option);
 
         return $this;
+    }
+
+    /**
+     * Parse and retrieve the active command from the raw input.
+     *
+     * @return \Titon\Console\Command|null
+     */
+    public function getActiveCommand(): ?Command {
+        if (!is_null($this->command)) {
+            return $this->command;
+        }
+
+        $input = $this->rawInput;
+        foreach ($input as $index => $value) {
+            if ($command = $this->commands[$value]) {
+                $this->command = $command;
+                unset($input[$index]);
+                $this->setInput($input);
+
+                return $this->command;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -222,6 +255,19 @@ class Input {
     }
 
     /**
+     * Create and return the singleton instance.
+     *
+     * @return \Titon\Console\Input
+     */
+    public static function getInstance(): Input {
+        if (is_null(self::$instance)) {
+            self::$instance = new Input();
+        }
+
+        return self::$instance;
+    }
+
+    /**
      * Retrieve an `Option` by its key or alias. Returns null if none exists.
      *
      * @param string $key The key or alias of the `Option`
@@ -276,6 +322,17 @@ class Input {
                 continue;
             }
 
+            if (is_null($this->command)) {
+                if (!is_null($command = $this->commands[$val['value']])) {
+                    $this->command = $command;
+                    continue;
+                }
+            } else {
+                if (!is_null($command = $this->commands[$val['value']])) {
+                    throw new InvalidNumberOfCommandsException("Multiple commands are not supported.");
+                }
+            }
+
             $this->invalid[] = $val;
         }
     }
@@ -289,17 +346,6 @@ class Input {
      * @return bool
      */
     protected function parseArgument(RawInput $input): bool {
-        // The first `argument` parsed needs to be a valid command
-        if (is_null($this->command)) {
-            if (!$this->commands->contains($input['raw'])) {
-                throw new InvalidCommandException("Command `{$input['raw']}` is not a valid command.");
-            }
-
-            $this->command = $this->commands->get($input['raw']);
-
-            return true;
-        }
-
         foreach ($this->arguments as $argument) {
             if (is_null($argument->getValue())) {
                 $argument->setValue($input['raw']);

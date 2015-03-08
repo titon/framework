@@ -18,7 +18,8 @@ class Argument extends AbstractInputDefinition {
     /**
      * {@inheritdoc}
      */
-    <<Override>> public function getFormattedName(string $name): string {
+    <<__Override>>
+    public function getFormattedName(string $name): string {
         return $name;
     }
 

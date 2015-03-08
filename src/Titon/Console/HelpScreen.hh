@@ -86,7 +86,6 @@ class HelpScreen {
         $retval = Vector {};
 
         $retval[] = $this->renderHeading();
-
         $retval[] = $this->renderUsage();
 
         if (!$this->arguments->all()->isEmpty()) {
@@ -170,7 +169,7 @@ class HelpScreen {
             array_push($output, $formatted);
         }
 
-        return join($output, "\n");
+        return "Available Commands:\n" . join($output, "\n");
     }
 
     /**
@@ -257,17 +256,22 @@ class HelpScreen {
 
             $usage[] = $command->getName();
 
-            foreach ($command->getArguments() as $argument) {
-                $arg = $argument->getName();
+            foreach ($command->getFlags() as $argument) {
+                $arg = $argument->getFormattedName($argument->getName());
+                if ($alias = $argument->getFormattedName($argument->getAlias())) {
+                    $arg .= "|$alias";
+                }
+
                 if ($argument->getMode() === AbstractInputDefinition::MODE_OPTIONAL) {
                     $usage[] = "[$arg]";
                 }
             }
-            foreach ($command->getArguments() as $argument) {
-                $arg = $argument->getName();
-                if ($argument->getAlias()) {
-                    $arg = "$arg|{$argument->getAlias()}";
+            foreach ($command->getOptions() as $argument) {
+                $arg = $argument->getFormattedName($argument->getName());
+                if ($alias = $argument->getFormattedName($argument->getAlias())) {
+                    $arg .= "|$alias";
                 }
+
                 if ($argument->getMode() === AbstractInputDefinition::MODE_OPTIONAL) {
                     $usage[] = "[$arg]";
                 }

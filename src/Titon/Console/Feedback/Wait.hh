@@ -10,8 +10,16 @@ namespace Titon\Console\Feedback;
 use Titon\Console\Output;
 use Titon\Console\System\SystemFactory;
 
+/**
+ * The `Wait` class displays feedback by cycling through a series of characters.
+ *
+ * @package Titon\Console\Feedback
+ */
 class Wait extends AbstractFeedback {
 
+    /**
+     * {@inheritdoc}
+     */
     protected Vector<string> $characterSequence = Vector {
         '-',
         '\\',
@@ -19,18 +27,27 @@ class Wait extends AbstractFeedback {
         '/'
     };
 
-    protected int $iteration = 0;
-
-    protected int $maxLength = 1;
-
+    /**
+     * {@inheritdoc}
+     */
     protected string $prefix = " {:message}";
 
+    /**
+     * {@inheritdoc}
+     */
     protected string $suffix = "";
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct(int $total = 0, string $message = '', int $interval = 100) {
         parent::__construct($total, $message, $interval);
+        $this->iteration = 0;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function display(bool $finish = false): void {
         $variables = $this->buildOutputVariables();
 
@@ -54,20 +71,5 @@ class Wait extends AbstractFeedback {
             Output::VERBOSITY_NORMAL,
             Output::CR
         );
-    }
-
-    public function setCharacterSequence(Vector<string> $characters): this {
-        $this->characterSequence = $characters;
-        $this->setMaxLength();
-
-        return $this;
-    }
-
-    protected function setMaxLength(): this {
-        $this->maxLength = max(array_map(($key) ==> {
-            return strlen($key);
-        }, $this->characterSequence));
-
-        return $this;
     }
 }

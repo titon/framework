@@ -10,14 +10,38 @@ namespace Titon\Console\Feedback;
 use Titon\Console\Output;
 use Titon\Console\System\SystemFactory;
 
+/**
+ * The `ProgressBar` class displays feedback information with a progress bar.
+ * Additional information including percentage done, time elapsed, and time
+ * remaining is included by default.
+ *
+ * @package Titon\Console\Feedback
+ */
 class ProgressBar extends AbstractFeedback {
 
-    protected string $bar = '=>';
+    /**
+     * The 2-string character format to use when constructing the displayed bar.
+     *
+     * @var string
+     */
+    protected Vector<string> $characterSequence = Vector {
+        '=',
+        '>'
+    };
 
+    /**
+     * {@inheritdoc}
+     */
     protected string $prefix = '{:message}  {:percent}% [';
 
+    /**
+     * {@inheritdoc}
+     */
     protected string $suffix = '] {:elapsed} / {:estimated}';
 
+    /**
+     * {@inheritdoc}
+     */
     protected function display(bool $finish = false): void {
         $completed = $this->getPercentageComplete();
         $variables = $this->buildOutputVariables();
@@ -34,7 +58,7 @@ class ProgressBar extends AbstractFeedback {
         }
 
         // substr is needed to trim off the bar cap at 100%
-        $bar = str_repeat($this->bar[0], floor($completed * $size)) . $this->bar[1];
+        $bar = str_repeat($this->characterSequence[0], floor($completed * $size)) . $this->characterSequence[1];
         $bar = substr(str_pad($bar, $size, ' '), 0, $size);
 
         $variables = Map {
@@ -44,5 +68,16 @@ class ProgressBar extends AbstractFeedback {
         };
 
         $this->output->out($this->format($this->format, $variables), Output::VERBOSITY_NORMAL, 1, Output::CR);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setCharacterSequence(Vector<string> $characters): this {
+        if ($characters->count() !== 2) {
+            throw new InvalidCharacterSequence("Display bar must only contain 2 values");
+        }
+
+        parent::setCharacterSequence($characters);
     }
 }

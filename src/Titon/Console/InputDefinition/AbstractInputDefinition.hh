@@ -65,9 +65,9 @@ abstract class AbstractInputDefinition implements InputDefinition {
     /**
      * Cosntruct a new instance of an `InputDefinition`.
      *
-     * @param string $name
-     * @param string $description
-     * @param int    $mode
+     * @param string $name          The name of the parameter
+     * @param string $description   The description used in displaying usage
+     * @param int    $mode          The mode of the definition
      */
     public function __construct(string $name, string $description = '', int $mode = self::MODE_OPTIONAL) {
         $this->name = $name;

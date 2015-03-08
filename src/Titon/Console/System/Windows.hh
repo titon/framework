@@ -7,22 +7,44 @@
 
 namespace Titon\Console\System;
 
+/**
+ * Windows-specific information
+ *
+ * @package Titon\Console\System
+ */
 class Windows extends AbstractSystem {
 
+    /**
+     * Data structure containing the relevant output from the `mode` command.
+     *
+     * @var Vector<string>
+     */
     protected Vector<string> $modeOutput = Vector {};
 
+    /**
+     * {@inheritdoc}
+     */
     public function getHeight(): int {
         $this->getStats();
 
         return (int)$this->modeOutput[0];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getWidth(): int {
         $this->getStats();
 
         return (int)$this->modeOutput[1];
     }
 
+    /**
+     * Get the width and height of the current terminal window from the `mode`
+     * command.
+     *
+     * @return Vector<string>
+     */
     public function getStats(): Vector<string> {
         if ($this->modeOutput->isEmpty()) {
             $output = '';
@@ -36,6 +58,9 @@ class Windows extends AbstractSystem {
         return $this->modeOutput;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function supportsAnsi(): bool {
         return (getenv('ANSICON') === true || getenv('ConEmuANSI') === 'ON');
     }

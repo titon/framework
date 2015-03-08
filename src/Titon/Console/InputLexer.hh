@@ -8,7 +8,6 @@
 namespace Titon\Console;
 
 use Iterator;
-use Titon\Common\ArgumentList;
 
 /**
  * The `InputLexer` handles all parsing and pairing of the provided input.
@@ -127,7 +126,7 @@ class InputLexer implements Iterator<RawInput> {
      * @return bool
      */
     public function isLong(string $value): bool {
-         return (0 == strncmp($value, '--', 2));
+         return (0 === strncmp($value, '--', 2));
     }
 
     /**
@@ -138,7 +137,7 @@ class InputLexer implements Iterator<RawInput> {
      * @return bool
      */
     public function isShort(string $value): bool {
-        return !$this->isLong($value) && (0 == strncmp($value, '-', 1));
+        return !$this->isLong($value) && (0 === strncmp($value, '-', 1));
     }
 
     /**

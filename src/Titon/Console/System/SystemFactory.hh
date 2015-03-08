@@ -7,8 +7,19 @@
 
 namespace Titon\Console\System;
 
+/**
+ * Factory class for returning the proper `System` based on the operating system
+ * the application is running on.
+ *
+ * @package Titon\Console\System
+ */
 class SystemFactory {
 
+    /**
+     * Return the proper `System` class based on the system's operating system.
+     *
+     * @return \Titon\Console\System\Linux|\Titon\Console\System\Windows
+     */
     public static function factory() {
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             return new Windows();

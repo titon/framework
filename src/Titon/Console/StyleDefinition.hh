@@ -7,8 +7,18 @@
 
 namespace Titon\Console;
 
+/**
+ * A `StyleDefinition` defines how to style output it applies to.
+ *
+ * @package Titon\Console
+ */
 class StyleDefinition {
 
+    /**
+     * The background color to apply.
+     *
+     * @var string
+     */
     private string $bgColor;
 
     protected Map<string, int> $bgColorsMap = Map {
@@ -22,8 +32,18 @@ class StyleDefinition {
         'white'   => 47,
     };
 
+    /**
+     * The foreground color to apply.
+     *
+     * @var string
+     */
     private string $fgColor;
 
+    /**
+     * Data structure containing available foreground colors.
+     *
+     * @var Map<string, string>
+     */
     protected Map<string, string> $fgColorsMap = Map {
         'black'        => '0;30',
         'dark_gray'    => '1;30',
@@ -43,8 +63,18 @@ class StyleDefinition {
         'white'        => '1;37',
     };
 
+    /**
+     * The various effects to apply.
+     *
+     * @var Vector<string>
+     */
     private Vector<string> $effectsList;
 
+    /**
+     * Data structure containing available effects.
+     *
+     * @var Map<string, int>
+     */
     protected Map<string, int> $effectsMap = Map {
         'defaults'  => 0,
         'bold'      => 1,
@@ -54,12 +84,27 @@ class StyleDefinition {
         'conceal'   => 8,
     };
 
+    /**
+     * Create a new `StyleDefinition`.
+     *
+     * @param string $fgColor           The foreground color of the style
+     * @param string $bgColor           The background color of the style
+     * @param Vector<string> $effects   The effects of the style
+     */
     public function __construct(string $fgColor, string $bgColor = '', Vector<string> $effects = Vector {}) {
         $this->fgColor = $fgColor;
         $this->bgColor = $bgColor;
         $this->effectsList = $effects;
     }
 
+    /**
+     * Format the contents between the given XML tag with the style definition.
+     *
+     * @param string $xmlTag    The XML tag
+     * @param string $value     The contents to format
+     *
+     * @return string
+     */
     public function format(string $xmlTag, string $value): string {
         $values = $this->getValueBetweenTags($xmlTag, $value);
         $retval = $value;
@@ -73,6 +118,11 @@ class StyleDefinition {
         return $retval;
     }
 
+    /**
+     * Retrieve the background color code of the `StyleDefinition`.
+     *
+     * @return string
+     */
     public function getBgColorCode(): string {
         if (!is_null($bgColor = $this->bgColorsMap->get($this->bgColor))) {
             invariant(is_string($bgColor), "Must be a string.");
@@ -83,14 +133,29 @@ class StyleDefinition {
         return '';
     }
 
+    /**
+     * Retrieve the effects code of the `StyleDefinition`.
+     *
+     * @return string
+     */
     public function getEffectCode(string $effect): int {
         return $this->effectsMap[$effect];
     }
 
+    /**
+     * Retrieve the code to end the `StyleDefinition`.
+     *
+     * @return string
+     */
     public function getEndCode(): string {
         return "\033[0m";
     }
 
+    /**
+     * Retrieve the foreground color code of the `StyleDefinition`.
+     *
+     * @return string
+     */
     public function getFgColorCode(): string {
         if (!is_null($fgColor = $this->fgColorsMap->get($this->fgColor))) {
             invariant(is_string($fgColor), "Must be a string.");
@@ -101,6 +166,11 @@ class StyleDefinition {
         return '';
     }
 
+    /**
+     * Retrieve the string of effects to apply for the  `StyleDefinition`.
+     *
+     * @return string
+     */
     public function getParsedStringEffects(): string {
         $effects = Vector {};
 
@@ -113,6 +183,11 @@ class StyleDefinition {
         return implode(';', $effects);
     }
 
+    /**
+     * Retrieve the start code of the `StyleDefinition`.
+     *
+     * @return string
+     */
     public function getStartCode(): string {
         $colors = $this->getBgColorCode() . ';' . $this->getFgColorCode();
         $effects = $this->getParsedStringEffects();
@@ -121,6 +196,11 @@ class StyleDefinition {
         return sprintf("\033[%sm", $colors . $effects);
     }
 
+    /**
+     * Parse and return contents between the given XML tag.
+     *
+     * @return string
+     */
     public function getValueBetweenTags(string $tag, string $stringToParse): array<string> {
         $regexp = '#<' . $tag . '>(.*?)</' . $tag . '>#s';
         $valuesMatched = [];
@@ -129,6 +209,13 @@ class StyleDefinition {
         return $valuesMatched[1];
     }
 
+    /**
+     * Return the styled text.
+     *
+     * @param string $text  The text to style
+     *
+     * @return string
+     */
     protected function replaceTagColors(string $text): string {
         return sprintf("%s%s%s", $this->getStartCode(), $text, $this->getEndCode());
     }

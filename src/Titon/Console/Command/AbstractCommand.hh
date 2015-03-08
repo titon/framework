@@ -13,10 +13,11 @@ use Titon\Console\Input;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
+use Titon\Console\Output;
 
 /**
- * A Command is a class that configures necessary command line inputs from the
- * user and executes its `run` command when called.
+ * A `Command` is a class that configures necessary command line inputs from the
+ * user and executes its `run` method when called.
  *
  * @package Titon\Console\Command
  */
@@ -30,19 +31,11 @@ abstract class AbstractCommand implements Command {
     protected InputBag<Argument> $arguments;
 
     /**
-     * The `Input` object containing all registered and parsed command line
-     * parameters.
-     *
-     * @var \Titon\Console\Input
-     */
-    protected Input $input;
-
-    /**
      * The description of the command used when rendering its help screen.
      *
      * @var string
      */
-    protected string $description;
+    protected string $description = '';
 
     /**
      * Bag container holding all registered `Flag` objects
@@ -50,6 +43,14 @@ abstract class AbstractCommand implements Command {
      * @var \Titon\Console\InputBag<Flag>
      */
     protected InputBag<Flag> $flags;
+
+    /**
+     * The `Input` object containing all registered and parsed command line
+     * parameters.
+     *
+     * @var \Titon\Console\Input
+     */
+    protected Input $input;
 
     /**
      * The name of the command passed into the command line.
@@ -65,6 +66,8 @@ abstract class AbstractCommand implements Command {
      */
     protected InputBag<Option> $options;
 
+    protected Output $output;
+
     /**
      * Construct a new instance of a command.
      */
@@ -73,6 +76,8 @@ abstract class AbstractCommand implements Command {
         $this->arguments = new InputBag();
         $this->flags = new InputBag();
         $this->options = new InputBag();
+
+        $this->output = Output::getInstance();
     }
 
     /**

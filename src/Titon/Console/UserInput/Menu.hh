@@ -9,10 +9,26 @@ namespace Titon\Console\UserInput;
 
 use Titon\Console\Output;
 
+/**
+ * The `Menu` class presents the user with a prompt and a list of available
+ * options to choose from.
+ *
+ * @package Titon\Console\UserInput
+ */
 class Menu extends AbstractUserInput {
 
+    /**
+     * The message to present at the prompt.
+     *
+     * @var string
+     */
     protected string $message;
 
+    /**
+     * Construct a new `Menu` with the available choices.
+     *
+     * @param Map<mixed, mixed> $choices    Available choices accepted
+     */
     public function __construct(Map<mixed, mixed> $choices, string $message = '') {
         parent::__construct();
 
@@ -20,6 +36,9 @@ class Menu extends AbstractUserInput {
         $this->message = $message;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function prompt(string $prompt): mixed {
         $keys = $this->acceptedValues->keys();
         $values = $this->acceptedValues->values();

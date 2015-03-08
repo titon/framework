@@ -13,7 +13,7 @@ use Titon\Console\UserInput;
 
 abstract class AbstractUserInput implements UserInput {
 
-    protected Vector<string> $acceptedValues = Vector {};
+    protected Map<mixed, mixed> $acceptedValues = Map {};
 
     protected ?string $default;
 

@@ -11,14 +11,16 @@ use Titon\Console\Output;
 
 class Confirm extends AbstractUserInput {
 
+    protected string $message;
+
     public function __construct(?string $default = null) {
         parent::__construct();
 
-        $this->acceptedValues = Vector {
-            'y',
-            'yes',
-            'n',
-            'no'
+        $this->acceptedValues = Map {
+            0 => 'y',
+            1 => 'yes',
+            2 => 'n',
+            3 => 'no'
         };
 
         switch (strtolower($default)) {
@@ -40,8 +42,8 @@ class Confirm extends AbstractUserInput {
         $this->message = $message;
     }
 
-    public function confirmed(): bool {
-        $input = $this->prompt();
+    public function confirmed(string $message): bool {
+        $input = $this->prompt($message);
 
         switch (strtolower($input)) {
             case 'y':
@@ -55,7 +57,7 @@ class Confirm extends AbstractUserInput {
     }
 
     public function prompt(string $message): string {
-        $this->message = "$message $this->message";
+        $message = "$message $this->message";
 
         do {
             $this->output->out("$this->message ", Output::VERBOSITY_NORMAL, 0);
@@ -63,7 +65,7 @@ class Confirm extends AbstractUserInput {
             if ($input === '' && !is_null($this->default)) {
                 $input = $this->default;
             }
-        } while ($this->acceptedValues->linearSearch(strtolower($input)) < 0);
+        } while (!$this->acceptedValues->contains($input));
 
         return $input;
     }

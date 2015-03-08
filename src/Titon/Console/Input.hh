@@ -23,6 +23,8 @@ use Titon\Console\Exception\InvalidCommandException;
  */
 class Input {
 
+    const string STREAM_STDIN = 'php://stdin';
+
     /**
      * Bag container holding all registered `Argument` objects
      *
@@ -74,6 +76,13 @@ class Input {
     protected InputBag<Option> $options;
 
     /**
+     * Stream handle for user input.
+     *
+     * @var resource
+     */
+    protected resource $stdin;
+
+    /**
      * The 'strict' value of the `Input` object. If set to `true`, then any invalid
      * parameters found in the input will throw an exception.
      *
@@ -84,7 +93,7 @@ class Input {
     /**
      * Construct a new instance of Input
      *
-     * @param ?array<mixed> $args
+     * @param array<mixed>|null $args
      */
     public function __construct(?array<string> $args = null, bool $strict = false) {
         if (is_null($args)) {
@@ -96,6 +105,7 @@ class Input {
         $this->options = new InputBag();
         $this->arguments = new InputBag();
         $this->strict = $strict;
+        $this->stdin = fopen(Input::STREAM_STDIN, 'r');
     }
 
     /**
@@ -238,6 +248,15 @@ class Input {
      */
     public function getStrict(): bool {
         return $this->strict;
+    }
+
+    /**
+     * Read in and return input from the user.
+     *
+     * @return string
+     */
+    public function getUserInput(): string {
+        return trim(fgets($this->stdin));
     }
 
     /**

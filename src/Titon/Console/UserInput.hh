@@ -9,5 +9,5 @@ namespace Titon\Console;
 
 interface UserInput {
 
-    public function prompt(string $message): string;
+    public function prompt(string $message): mixed;
 }

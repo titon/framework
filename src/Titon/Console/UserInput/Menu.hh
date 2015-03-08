@@ -11,8 +11,6 @@ use Titon\Console\Output;
 
 class Menu extends AbstractUserInput {
 
-    protected Map<mixed, mixed> $acceptedValues;
-
     protected string $message;
 
     public function __construct(Map<mixed, mixed> $choices, string $message = '') {
@@ -22,7 +20,7 @@ class Menu extends AbstractUserInput {
         $this->message = $message;
     }
 
-    public function prompt(string $prompt): string {
+    public function prompt(string $prompt): mixed {
         $keys = $this->acceptedValues->keys();
         $values = $this->acceptedValues->values();
 
@@ -40,6 +38,7 @@ class Menu extends AbstractUserInput {
             $input = $this->input->getUserInput();
 
             if (is_numeric($input)) {
+                $input = (int)$input;
                 $input--;
                 if (!is_null($values[$input])) {
                     return $keys[$input];

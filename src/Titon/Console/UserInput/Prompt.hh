@@ -11,8 +11,6 @@ use Titon\Console\Output;
 
 class Prompt extends AbstractUserInput {
 
-    protected Map<mixed, mixed> $acceptedValues = Map {};
-
     protected string $hint = '';
 
     public function __construct(Map<mixed, mixed> $choices = Map {}, ?string $default = null) {
@@ -22,7 +20,7 @@ class Prompt extends AbstractUserInput {
         $this->acceptedValues = $choices;
     }
 
-    public function prompt(string $message): string {
+    public function prompt(string $message): mixed {
         $keys = $this->acceptedValues->keys();
         $values = $this->acceptedValues->values();
         if ($this->hint !== '') {
@@ -42,6 +40,7 @@ class Prompt extends AbstractUserInput {
             }
 
             if (is_numeric($input)) {
+                $input = (int)$input;
                 $input--;
                 if (!is_null($values[$input])) {
                     return $keys[$input];

@@ -11,7 +11,7 @@ use Titon\Console\Output;
 
 class Confirm extends AbstractUserInput {
 
-    public function __construct(string $message, ?string $default = null) {
+    public function __construct(?string $default = null) {
         parent::__construct();
 
         $this->acceptedValues = Vector {
@@ -25,15 +25,15 @@ class Confirm extends AbstractUserInput {
             case 'y':
             case 'yes':
                 $this->default = $default;
-                $message .= " [Y/n]";
+                $message = " [Y/n]";
                 break;
             case 'n':
             case 'no':
                 $this->default = $default;
-                $message .= " [y/N]";
+                $message = " [y/N]";
                 break;
             default:
-                $message .= " [y/n]";
+                $message = " [y/n]";
                 break;
         }
 
@@ -54,7 +54,9 @@ class Confirm extends AbstractUserInput {
         }
     }
 
-    public function prompt(): string {
+    public function prompt(string $message): string {
+        $this->message = "$message $this->message";
+
         do {
             $this->output->out("$this->message ", Output::VERBOSITY_NORMAL, 0);
             $input = $this->input->getUserInput();

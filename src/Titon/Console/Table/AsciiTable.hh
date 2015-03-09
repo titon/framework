@@ -113,7 +113,7 @@ class AsciiTable extends AbstractTable {
     protected function getRowWidth(): int {
         if (is_null($this->rowWidth)) {
             if (!is_null($this->rows[0])) {
-                $this->rowWidth = strlen($this->buildRow($row));
+                $this->rowWidth = strlen($this->buildRow($this->rows[0]));
             }
         }
 

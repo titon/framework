@@ -9,6 +9,7 @@ namespace Titon\Console\Feedback;
 
 use Titon\Console\Output;
 use Titon\Console\System\SystemFactory;
+use Titon\Console\Exception\InvalidCharacterSequence;
 
 /**
  * The `ProgressBar` class displays feedback information with a progress bar.

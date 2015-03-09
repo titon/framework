@@ -66,6 +66,11 @@ abstract class AbstractCommand implements Command {
      */
     protected InputBag<Option> $options;
 
+    /**
+     * The `Output` object to handle output to the user.
+     *
+     * @var \Titon\Console\Output
+     */
     protected Output $output;
 
     /**

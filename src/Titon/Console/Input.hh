@@ -81,6 +81,11 @@ class Input {
      */
     protected InputBag<Option> $options;
 
+    /**
+     * Raw input used at creation of the `Input` object.
+     *
+     * @var array<string>
+     */
     protected array<string> $rawInput;
 
     /**
@@ -182,7 +187,7 @@ class Input {
 
         $input = $this->rawInput;
         foreach ($input as $index => $value) {
-            if ($command = $this->commands[$value]) {
+            if (!is_null($command = $this->commands->get($value))) {
                 $this->command = $command;
                 unset($input[$index]);
                 $this->setInput($input);
@@ -323,12 +328,15 @@ class Input {
             }
 
             if (is_null($this->command)) {
-                if (!is_null($command = $this->commands[$val['value']])) {
+                // If we haven't parsed a command yet, see if we have a match.
+                if (!is_null($command = $this->commands->get($val['value']))) {
                     $this->command = $command;
                     continue;
                 }
             } else {
-                if (!is_null($command = $this->commands[$val['value']])) {
+                // If we have parsed a command and another valid command is present,
+                // throw an exception.
+                if (!is_null($command = $this->commands->get($val['value'])) && $command->getName() !== $this->command->getName()) {
                     throw new InvalidNumberOfCommandsException("Multiple commands are not supported.");
                 }
             }
@@ -442,7 +450,9 @@ class Input {
      * @return $this
      */
     public function setInput(array<string> $args): this {
+        $this->rawInput = $args;
         $this->input = new InputLexer($args);
+        $this->command = null;
 
         return $this;
     }

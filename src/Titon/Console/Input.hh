@@ -84,9 +84,9 @@ class Input {
     /**
      * Raw input used at creation of the `Input` object.
      *
-     * @var array<string>
+     * @var Vector<string>
      */
-    protected array<string> $rawInput;
+    protected Vector<string> $rawInput;
 
     /**
      * Stream handle for user input.
@@ -106,11 +106,11 @@ class Input {
     /**
      * Construct a new instance of Input
      *
-     * @param array<mixed>|null $args
+     * @param Vector<string>|null $args
      */
-    public function __construct(?array<string> $args = null, bool $strict = false) {
+    public function __construct(?Vector<string> $args = null, bool $strict = false) {
         if (is_null($args)) {
-            $args = array_slice(Server::get('argv'), 1);
+            $args = new Vector(array_slice(Server::get('argv'), 1));
         }
 
         $this->rawInput = $args;
@@ -185,11 +185,11 @@ class Input {
             return $this->command;
         }
 
-        $input = $this->rawInput;
+        $input = new Vector($this->rawInput);
         foreach ($input as $index => $value) {
             if (!is_null($command = $this->commands->get($value))) {
                 $this->command = $command;
-                unset($input[$index]);
+                $input->removeKey($index);
                 $this->setInput($input);
 
                 return $this->command;
@@ -334,11 +334,7 @@ class Input {
                     continue;
                 }
             } else {
-                // If we have parsed a command and another valid command is present,
-                // throw an exception.
-                if (!is_null($command = $this->commands->get($val['value'])) && $command->getName() !== $this->command->getName()) {
-                    throw new InvalidNumberOfCommandsException("Multiple commands are not supported.");
-                }
+                throw new InvalidNumberOfCommandsException("Multiple commands are not supported.");
             }
 
             $this->invalid[] = $val;
@@ -445,11 +441,11 @@ class Input {
     /**
      * Set the input to be parsed.
      *
-     * @param array<string> $args   The input to be parsed
+     * @param Vector<string> $args   The input to be parsed
      *
      * @return $this
      */
-    public function setInput(array<string> $args): this {
+    public function setInput(Vector<string> $args): this {
         $this->rawInput = $args;
         $this->input = new InputLexer($args);
         $this->command = null;

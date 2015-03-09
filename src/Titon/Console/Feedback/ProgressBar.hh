@@ -79,5 +79,7 @@ class ProgressBar extends AbstractFeedback {
         }
 
         parent::setCharacterSequence($characters);
+
+        return $this;
     }
 }

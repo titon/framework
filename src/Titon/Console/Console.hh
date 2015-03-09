@@ -69,7 +69,13 @@ class Console {
      * settings.
      */
     protected function bootstrap(): void {
-        $this->input->addFlag((new Flag('help', 'Display this help screen.'))->alias('h'));
+        $this->input->addFlag((new Flag('help', 'Display this help screen.'))
+            ->alias('h'));
+        $this->input->addFlag((new Flag('quiet', 'Suppress all output.'))
+            ->alias('q'));
+        $this->input->addFlag((new Flag('verbose', 'Set the verbosity of the application\'s output.'))
+            ->alias('v')
+            ->setStackable(true));
     }
 
     /**
@@ -95,9 +101,37 @@ class Console {
         $command->registerInput();
         $this->input->parse();
 
-        if (!is_null($this->input->getFlag('help')) && $this->input->getFlag('help')->getValue() === 1) {
-            $this->renderHelpScreen($command);
+        if (!is_null($flag = $this->input->getFlag('help'))) {
+            invariant($flag instanceof Flag, "Must be a Flag.");
+
+            if ($flag->getValue() === 1) {
+                $this->renderHelpScreen($command);
+            }
         } else {
+            $flag = $this->input->getFlag('quiet');
+
+            $verbositySet = false;
+            if (!is_null($flag)) {
+                invariant($flag instanceof Flag, "Must be a Flag.");
+
+                if (!is_null($verbosity = (int)$flag->getValue())) {
+                    $verbositySet = true;
+                    $this->output->setVerbosity($verbosity);
+                }
+            }
+
+            if ($verbositySet === false) {
+                $flag = $this->input->getFlag('verbose');
+
+                if (!is_null($flag)) {
+                    invariant($flag instanceof Flag, "Must be a Flag.");
+
+                    if (!is_null($verbosity = (int)$flag->getValue())) {
+                        $this->output->setVerbosity($verbosity);
+                    }
+                }
+            }
+
             $command->run();
         }
     }

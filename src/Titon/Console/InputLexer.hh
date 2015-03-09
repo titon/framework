@@ -21,7 +21,7 @@ class InputLexer implements Iterator<RawInput> {
      *
      * @var array<string>
      */
-    public array<string> $items;
+    public Vector<string> $items;
 
     /**
      * The current position in the `items` of the lexer.
@@ -56,9 +56,9 @@ class InputLexer implements Iterator<RawInput> {
      *
      * @param array<string> $items  The items to traverse through
      */
-    public function __construct(array<string> $items) {
+    public function __construct(Vector<string> $items) {
         $this->items = $items;
-        $this->length = count($items);
+        $this->length = $items->count();
         $this->current = shape(
             'value' => '',
             'raw'   => ''

@@ -23,7 +23,7 @@ abstract class AbstractFeedback implements Feedback {
      *
      * @var string
      */
-    protected Vector<string> $characterSequence;
+    protected Vector<string> $characterSequence = Vector {};
 
     /**
      * The current cycle out of the given total.
@@ -44,7 +44,7 @@ abstract class AbstractFeedback implements Feedback {
      *
      * @var int
      */
-    protected int $interation = 0;
+    protected int $iteration = 0;
 
     /**
      * The interval (in miliseconds) between updates of the indicator.
@@ -240,11 +240,13 @@ abstract class AbstractFeedback implements Feedback {
      * @var int
      */
     protected function getElapsedTime(): int {
-        if (is_null($this->start)) {
+        if (is_null($start = $this->start)) {
             return 0;
         }
 
-        return (time() - $this->start);
+        invariant(!is_null($start), "Must not be null.");
+
+        return (time() - $start);
     }
 
     /**
@@ -271,12 +273,15 @@ abstract class AbstractFeedback implements Feedback {
             return 0.0;
         }
 
-        if (is_null($this->tick)) {
+        if (is_null($tick = $this->tick)) {
             $this->tick = $this->start;
+            $tick = $this->tick;
         }
 
+        invariant(!is_null($tick), "Must not be null.");
+
         $now = microtime(true);
-        $span = $now - $this->tick;
+        $span = $now - $tick;
         if ($span > 1) {
             $this->iteration++;
             $this->tick = $now;

@@ -56,7 +56,7 @@ class Output {
      *
      * @var int
      */
-    protected int $systemVerbosity;
+    protected int $verbosity;
 
     /**
      * Construct a new `Output` object.
@@ -66,7 +66,7 @@ class Output {
     public function __construct(int $verbosity = self::VERBOSITY_NORMAL) {
         $this->stderr = fopen(Output::STREAM_STDERR, 'w');
         $this->stdout = fopen(Output::STREAM_STDOUT, 'w');
-        $this->systemVerbosity = $verbosity;
+        $this->verbosity = $verbosity;
 
         if (is_null(self::$instance)) {
             self::$instance = $this;
@@ -205,7 +205,7 @@ class Output {
      * @return bool
      */
     protected function shouldOutput(int $verbosity): bool {
-        if ($verbosity <= $this->systemVerbosity) {
+        if ($verbosity <= $this->verbosity) {
             return true;
         }
 

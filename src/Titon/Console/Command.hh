@@ -10,6 +10,7 @@ namespace Titon\Console;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
+use Titon\Console\Input;
 
 /**
  * A `Command` is a user-defined class that can to register user input and run
@@ -64,9 +65,27 @@ interface Command {
     public function getOptions(): InputBag<Option>;
 
     /**
+     * This method prepares the command for execution by registering all of its
+     * command-specific argumenets, flags, and options with the `Input` before
+     * parsing.
+     *
+     * @return $this
+     */
+    public function registerInput(): this;
+
+    /**
      * The method that stores the code to be executed when the `Command` is run.
      *
      * @return void
      */
     public function run(): void;
+
+    /**
+     * Set the `Input` objet for the commandd.
+     *
+     * @param \Titon\Console\Input $input The `Input` object
+     *
+     * @return $this
+     */
+    public function setInput(Input $input): this;
 }

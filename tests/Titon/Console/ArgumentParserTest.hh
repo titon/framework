@@ -137,6 +137,7 @@ class ArgumentParserTest extends TestCase {
             'Alex Phillips',
         ]);
         $this->input->addArgument(new Argument('name'));
+        $this->input->getActiveCommand();
         $this->input->parse();
 
         $this->assertEquals('Alex Phillips', $this->input->getArgument('name')->getValue());
@@ -153,6 +154,8 @@ class ArgumentParserTest extends TestCase {
         $this->input->addOption(new Option('baz'));
         $this->input->addFlag((new Flag('foo'))->alias('f'));
         $this->input->addArgument(new Argument('name'));
+
+        $this->input->getActiveCommand();
         $this->input->parse();
 
         $this->assertEquals('Alex Phillips', $this->input->getArgument('name')->getValue());

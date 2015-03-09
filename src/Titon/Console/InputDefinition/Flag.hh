@@ -12,7 +12,7 @@ namespace Titon\Console\InputDefinition;
  *
  * @package Titon\Console\InputDefinition
  */
-class Flag extends AbstractInputDefinition {
+class Flag extends AbstractInputDefinition<int> {
 
     /**
      * The negative alias of the `Flag` (i.e., --no-foo for -foo). A negative
@@ -106,19 +106,6 @@ class Flag extends AbstractInputDefinition {
     }
 
     /**
-     * Set the default value for the `Flag` if no value is give.
-     *
-     * @param int $default  The default value
-     *
-     * @return $this
-     */
-    public function setDefault(int $default): this {
-        $this->default = $default;
-
-        return $this;
-    }
-
-    /**
      * Set whether the `Flag` is stackable or not.
      *
      * @param bool $stackable
@@ -127,19 +114,6 @@ class Flag extends AbstractInputDefinition {
      */
     public function setStackable(bool $stackable): this {
         $this->stackable = $stackable;
-
-        return $this;
-    }
-
-    /**
-     * Set the value of the `Flag`.
-     *
-     * @param int $value The value given to the `Flag`
-     *
-     * @return $this
-     */
-    public function setValue(int $value): this {
-        $this->value = $value;
 
         return $this;
     }

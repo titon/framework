@@ -15,7 +15,7 @@ use Titon\Console\InputDefinition;
  *
  * @package Titon\Console\InputDefinition
  */
-abstract class AbstractInputDefinition implements InputDefinition {
+abstract class AbstractInputDefinition<T> implements InputDefinition {
 
     const int MODE_OPTIONAL = 0;
     const int MODE_REQUIRED = 1;
@@ -30,9 +30,9 @@ abstract class AbstractInputDefinition implements InputDefinition {
     /**
      * The default value given to the input if not specified by the user.
      *
-     * @var mixed
+     * @var T|null
      */
-    protected mixed $default;
+    protected ?T $default;
 
     /**
      * The description of the input.
@@ -58,9 +58,9 @@ abstract class AbstractInputDefinition implements InputDefinition {
     /**
      * The value the user has given the input.
      *
-     * @var mixed
+     * @var T|null
      */
-    protected mixed $value;
+    protected ?T $value;
 
     /**
      * Cosntruct a new instance of an `InputDefinition`.
@@ -109,7 +109,7 @@ abstract class AbstractInputDefinition implements InputDefinition {
      *
      * @return mixed
      */
-    public function getDefault(): mixed {
+    public function getDefault(): ?T {
         return $this->default;
     }
 
@@ -161,7 +161,7 @@ abstract class AbstractInputDefinition implements InputDefinition {
      *
      * @return mixed
      */
-    public function getValue(): mixed {
+    public function getValue(): ?T {
         if (!is_null($this->value)) {
             return $this->value;
         }
@@ -183,6 +183,32 @@ abstract class AbstractInputDefinition implements InputDefinition {
         } else {
             $this->alias = $alias;
         }
+
+        return $this;
+    }
+
+    /**
+     * Set the default value for the `Flag` if no value is give.
+     *
+     * @param int $default  The default value
+     *
+     * @return $this
+     */
+    public function setDefault(T $default): this {
+        $this->default = $default;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of the `Flag`.
+     *
+     * @param int $value The value given to the `Flag`
+     *
+     * @return $this
+     */
+    public function setValue(T $value): this {
+        $this->value = $value;
 
         return $this;
     }

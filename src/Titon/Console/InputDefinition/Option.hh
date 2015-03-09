@@ -12,31 +12,6 @@ namespace Titon\Console\InputDefinition;
  *
  * @package Titon\Console\InputDefinition
  */
-class Option extends AbstractInputDefinition {
+class Option extends AbstractInputDefinition<string> {
 
-    /**
-     * Set the default value for the `Option` if no value is give.
-     *
-     * @param int $default  The default value
-     *
-     * @return $this
-     */
-    public function setDefault(string $default): this {
-        $this->default = $default;
-
-        return $this;
-    }
-
-    /**
-     * Set the value of the `Option`.
-     *
-     * @param string $value The value given to the `Option`
-     *
-     * @return $this
-     */
-    public function setValue(string $value): this {
-        $this->value = $value;
-
-        return $this;
-    }
 }

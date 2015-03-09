@@ -13,7 +13,7 @@ namespace Titon\Console\InputDefinition;
  *
  * @package Titon\Console\InputDefinition
  */
-class Argument extends AbstractInputDefinition {
+class Argument extends AbstractInputDefinition<string> {
 
     /**
      * {@inheritdoc}
@@ -21,18 +21,5 @@ class Argument extends AbstractInputDefinition {
     <<__Override>>
     public function getFormattedName(string $name): string {
         return $name;
-    }
-
-    /**
-     * Set the value of the `Argument`.
-     *
-     * @param string $value The value given to the `Argument`
-     *
-     * @return $this
-     */
-    public function setValue(string $value): this {
-        $this->value = $value;
-
-        return $this;
     }
 }

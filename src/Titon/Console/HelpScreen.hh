@@ -85,7 +85,9 @@ class HelpScreen {
     public function render(): string {
         $retval = Vector {};
 
-        $retval[] = $this->renderHeading();
+        if ($heading = $this->renderHeading()) {
+            $retval[] = $this->renderHeading();
+        }
         $retval[] = $this->renderUsage();
 
         if (!$this->arguments->all()->isEmpty()) {
@@ -145,7 +147,7 @@ class HelpScreen {
                         // actually a command, so subtract substr_count by 1.
                         $nestedNames[] = $nest;
 
-                        $indentation = substr_count($name, ':') - 1;
+                        $indentation = substr_count($name, ':');
                         $output[] = str_repeat('  ', $indentation) . str_pad($nest, $maxLength);
                     }
                 }
@@ -164,7 +166,7 @@ class HelpScreen {
                 $formatted .= "\n$pad$desc";
             }
 
-            $formatted = "$formatted";
+            $formatted = "  $formatted";
 
             array_push($output, $formatted);
         }

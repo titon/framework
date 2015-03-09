@@ -8,7 +8,7 @@
 namespace Titon\Console\InputDefinition;
 
 /**
- * A `Flag` is a value parameter specified by a user.
+ * An `Option` is a value parameter specified by a user.
  *
  * @package Titon\Console\InputDefinition
  */

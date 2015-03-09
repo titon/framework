@@ -3,7 +3,6 @@
 namespace Titon\Console;
 
 use Titon\Test\Stub\Console\CommandStub;
-use Titon\Test\Stub\Console\EmptyCommandStub;
 use Titon\Test\TestCase;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
@@ -16,7 +15,7 @@ class ArgumentParserTest extends TestCase {
 
     public function setUp() {
         $this->input = new Input();
-        $this->input->addCommand(new EmptyCommandStub());
+        $this->input->addCommand(new CommandStub());
     }
 
     public function testParseFlags(): void {

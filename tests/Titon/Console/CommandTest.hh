@@ -11,9 +11,9 @@ use Titon\Console\InputDefinition\Argument;
 class CommandTest extends TestCase {
 
     public function testAddArguments(): void {
-        $args = new Input([
+        $args = new Input(Vector {
             '-v'
-        ]);
+        });
         $args->addFlag(new Flag('help', 'Show this help screen'));
 
         $command = new CommandStub();

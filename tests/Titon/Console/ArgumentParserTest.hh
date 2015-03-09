@@ -22,20 +22,20 @@ class ArgumentParserTest extends TestCase {
         /*
          * Check basic flag
          */
-        $this->input->setInput([
+        $this->input->setInput(Vector {
             'command',
-            '--foo',
-        ]);
+            '--foo'
+        });
         $this->input->addFlag((new Flag('foo'))->alias('f'));
         $this->input->parse();
 
         $this->assertEquals(1, $this->input->getFlag('foo')->getValue());
         $this->assertEquals(1, $this->input->getFlag('f')->getValue());
 
-        $this->input->setInput([
+        $this->input->setInput(Vector {
             'command',
-            '-f',
-        ]);
+            '-f'
+        });
         $this->input->addFlag((new Flag('foo'))->alias('f'));
         $this->input->parse();
 
@@ -45,10 +45,10 @@ class ArgumentParserTest extends TestCase {
         /*
          * Check stacked, but different, flags
          */
-        $this->input->setInput([
+        $this->input->setInput(Vector {
             'command',
-            '-fb',
-        ]);
+            '-fb'
+        });
         $this->input->addFlag((new Flag('foo'))->alias('f'));
         $this->input->addFlag((new Flag('bar'))->alias('b'));
         $this->input->parse();
@@ -59,10 +59,10 @@ class ArgumentParserTest extends TestCase {
         /*
          * Check stacked flag
          */
-        $this->input->SetInput([
+        $this->input->SetInput(Vector {
             'command',
-            '-vvv',
-        ]);
+            '-vvv'
+        });
         $this->input->addFlag((new Flag('v'))->setStackable(true));
         $this->input->parse();
 
@@ -71,9 +71,9 @@ class ArgumentParserTest extends TestCase {
         /*
          * Check inverse flags
          */
-        $this->input->setInput([
-            '--no-foo',
-        ]);
+        $this->input->setInput(Vector {
+            '--no-foo'
+        });
 
         $this->input->addFlag(new Flag('foo'));
         $this->input->parse();
@@ -82,11 +82,11 @@ class ArgumentParserTest extends TestCase {
     }
 
     public function testParseOptions(): void {
-        $this->input->setInput([
+        $this->input->setInput(Vector {
             'command',
             '--name',
-            'Alex Phillips',
-        ]);
+            'Alex Phillips'
+        });
         $this->input->addOption((new Option('name'))->alias('n'));
         $this->input->addArgument(new Argument('bar', 'Bar!'));
         $this->input->parse();
@@ -94,11 +94,11 @@ class ArgumentParserTest extends TestCase {
         $this->assertEquals('Alex Phillips', $this->input->getOption('name')->getValue());
         $this->assertEquals('Alex Phillips', $this->input->getOption('n')->getValue());
 
-        $this->input->setInput([
+        $this->input->setInput(Vector {
             '--name',
             'Alex Phillips',
-            'command',
-        ]);
+            'command'
+        });
         $this->input->addOption((new Option('name'))->alias('n'));
         $this->input->addArgument(new Argument('bar', 'Bar!'));
         $this->input->parse();
@@ -106,11 +106,11 @@ class ArgumentParserTest extends TestCase {
         $this->assertEquals('Alex Phillips', $this->input->getOption('name')->getValue());
         $this->assertEquals('Alex Phillips', $this->input->getOption('n')->getValue());
 
-        $this->input->setInput([
+        $this->input->setInput(Vector {
             'command',
             '-n',
-            'Alex Phillips',
-        ]);
+            'Alex Phillips'
+        });
         $this->input->addOption((new Option('name'))->alias('n'));
         $this->input->addArgument(new Argument('bar', 'Bar!'));
         $this->input->parse();
@@ -118,10 +118,10 @@ class ArgumentParserTest extends TestCase {
         $this->assertEquals('Alex Phillips', $this->input->getOption('name')->getValue());
         $this->assertEquals('Alex Phillips', $this->input->getOption('n')->getValue());
 
-        $this->input->setInput([
+        $this->input->setInput(Vector {
             'command',
-            '--name="Alex Phillips"',
-        ]);
+            '--name="Alex Phillips"'
+        });
         $this->input->addOption((new Option('name'))->alias('n'));
         $this->input->addArgument(new Argument('bar', 'Bar!'));
         $this->input->parse();
@@ -131,10 +131,10 @@ class ArgumentParserTest extends TestCase {
     }
 
     public function testParseArguments(): void {
-        $this->input->setInput([
+        $this->input->setInput(Vector {
             'command',
-            'Alex Phillips',
-        ]);
+            'Alex Phillips'
+        });
         $this->input->addArgument(new Argument('name'));
         $this->input->getActiveCommand();
         $this->input->parse();
@@ -143,12 +143,12 @@ class ArgumentParserTest extends TestCase {
     }
 
     public function testMixedArguments(): void {
-        $this->input->setInput([
+        $this->input->setInput(Vector {
             'command',
             'Alex Phillips',
             '-fb',
-            '--baz="woot"',
-        ]);
+            '--baz="woot"'
+        });
         $this->input->addFlag((new Flag('bar'))->alias('b'));
         $this->input->addOption(new Option('baz'));
         $this->input->addFlag((new Flag('foo'))->alias('f'));

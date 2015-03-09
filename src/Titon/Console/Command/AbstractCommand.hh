@@ -210,11 +210,7 @@ abstract class AbstractCommand implements Command {
     }
 
     /**
-     * This method prepares the command for execution by registering all of its
-     * command-specific argumenets, flags, and options with the `Input` before
-     * parsing.
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function registerInput(): this {
         foreach ($this->arguments as $name => $argument) {
@@ -244,11 +240,7 @@ abstract class AbstractCommand implements Command {
     }
 
     /**
-     * Set the `Input` objet for the commandd.
-     *
-     * @param \Titon\Console\Input $input The `Input` object
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setInput(Input $input): this {
         $this->input = $input;

@@ -7,10 +7,11 @@
 
 namespace Titon\Console;
 
+use Titon\Console\Input;
+use Titon\Console\Output;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
-use Titon\Console\Input;
 
 /**
  * A `Command` is a user-defined class that can to register user input and run
@@ -81,11 +82,20 @@ interface Command {
     public function run(): void;
 
     /**
-     * Set the `Input` objet for the commandd.
+     * Set the `Input` object for the commandd.
      *
      * @param \Titon\Console\Input $input The `Input` object
      *
      * @return $this
      */
     public function setInput(Input $input): this;
+
+    /**
+     * Set the `Output` object for the commandd.
+     *
+     * @param \Titon\Console\Output $input The `Output` object
+     *
+     * @return $this
+     */
+    public function setOutput(Output $output): this;
 }

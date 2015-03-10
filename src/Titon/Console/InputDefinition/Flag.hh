@@ -18,9 +18,9 @@ class Flag extends AbstractInputDefinition<int> {
      * The negative alias of the `Flag` (i.e., --no-foo for -foo). A negative
      * value is only available if a 'long' `Flag` name is available.
      *
-     * @var string|null
+     * @var string
      */
-    protected ?string $negativeAlias;
+    protected string $negativeAlias = '';
 
     /**
      * Whether the flag is stackable or not (i.e., -fff is given a value of 3).
@@ -51,9 +51,9 @@ class Flag extends AbstractInputDefinition<int> {
     /**
      * Retrieve the negative alias of the `Flag` or null of none.
      *
-     * @return string|null
+     * @return string
      */
-    public function getNegativeAlias(): ?string {
+    public function getNegativeAlias(): string {
         return $this->negativeAlias;
     }
 

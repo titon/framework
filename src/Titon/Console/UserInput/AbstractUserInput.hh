@@ -29,9 +29,9 @@ abstract class AbstractUserInput implements UserInput {
     /**
      * Default value if input given is empty.
      *
-     * @var string|null
+     * @var string
      */
-    protected ?string $default;
+    protected string $default = '';
 
     /**
      * `Input` object used for retrieving user input.
@@ -57,9 +57,9 @@ abstract class AbstractUserInput implements UserInput {
     /**
      * Construct a new `UserInput` object.
      */
-    public function __construct() {
-        $this->input = Input::getInstance();
-        $this->output = Output::getInstance();
+    public function __construct(Input $input, Output $output) {
+        $this->input = $input;
+        $this->output = $output;
     }
 
     /**

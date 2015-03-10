@@ -30,7 +30,7 @@ class Prompt extends AbstractUserInput {
      *
      * @param Map<mixed, mixed> $choices    Predetermined accepted choices
      */
-    public function __construct(Map<mixed, mixed> $choices = Map {}, ?string $default = null) {
+    public function __construct(Map<mixed, mixed> $choices = Map {}, string $default = '') {
         parent::__construct();
 
         $this->default = $default;
@@ -51,7 +51,7 @@ class Prompt extends AbstractUserInput {
             $this->output->out("$message: ", Output::VERBOSITY_NORMAL, 0);
             $input = $this->input->getUserInput();
 
-            if ($input === '' && !is_null($this->default)) {
+            if ($input === '' && $this->default !== '') {
                 $input = $this->default;
             }
 

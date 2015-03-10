@@ -154,7 +154,7 @@ class InputTest extends TestCase {
         $this->input->addFlag((new Flag('foo'))->alias('f'));
         $this->input->addArgument(new Argument('name'));
 
-        $test = $this->input->getActiveCommand();
+        $this->input->getActiveCommand();
         $this->input->parse();
 
         $this->assertEquals('command', $this->input->getActiveCommand()->getName());

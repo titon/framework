@@ -63,7 +63,11 @@ abstract class AbstractTable implements Table {
     protected function setColumnWidths(Vector<mixed> $row): void {
         foreach ($row as $index => $value) {
             $width = strlen($value);
-            $currentWidth = $this->columnWidths[$index] ?: 0;
+
+            $currentWidth = 0;
+            if ($this->columnWidths->containsKey($index)) {
+                $currentWidth = $this->columnWidths[$index];
+            }
 
             if ($width > $currentWidth) {
                 if ($this->columnWidths->count() === $index) {
@@ -76,13 +80,7 @@ abstract class AbstractTable implements Table {
     }
 
     /**
-     * Set the data of the table with a Vector of column name and value Maps.
-     * This method overwrites any existing rows in the table.
-     *
-     * @param Vector<Map<string, string>> $data A Vector containing Maps of column
-     *                                          name and data key-value pairs.
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setData(Vector<Map<string, mixed>> $data): this {
         $rows = Vector {};
@@ -104,11 +102,7 @@ abstract class AbstractTable implements Table {
     }
 
     /**
-     * Set the column names for the table.
-     *
-     * @param Vector<string> $headers   A Vector containing column names
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setHeaders(Vector<mixed> $headers): this {
         $this->setColumnWidths($headers);

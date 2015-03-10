@@ -74,6 +74,19 @@ class Output {
     }
 
     /**
+     * Remove a specific element's style.
+     *
+     * @param string $element   The element to remove
+     *
+     * @return $this
+     */
+    public function clearStyle(string $element): this {
+        $this->styles->remove($element);
+
+        return $this;
+    }
+
+    /**
      * Send output to the error stream.
      *
      * @param string $output        The contents to output
@@ -178,7 +191,7 @@ class Output {
      * @param string          $element  The element to assign
      * @param StyleDefinition $format   The style to apply to the given tag
      */
-    public function setFormat(string $element, StyleDefinition $format): this {
+    public function setStyle(string $element, StyleDefinition $format): this {
         $this->styles[$element] = $format;
 
         return $this;

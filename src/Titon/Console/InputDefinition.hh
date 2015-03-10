@@ -16,6 +16,13 @@ namespace Titon\Console;
 interface InputDefinition {
 
     /**
+     * Returns if the `InputDefinition` has been assigned a value by the parser.
+     *
+     * @return bool
+     */
+    public function exists(): bool;
+
+    /**
      * Retrieve the alias of the `InputDefinition`.
      *
      * @return string
@@ -57,4 +64,13 @@ interface InputDefinition {
      * @return mixed
      */
     public function getValue(): mixed;
+
+    /**
+     * Set if the `InputDefinition` has been assigned a value.
+     *
+     * @param bool $exists  If a value exists
+     *
+     * @return $this
+     */
+    public function setExists(bool $exists): this;
 }

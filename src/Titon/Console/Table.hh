@@ -32,6 +32,26 @@ interface Table {
     public function render(): string;
 
     /**
+     * Set the data of the table with a Vector of column name and value Maps.
+     * This method overwrites any existing rows in the table.
+     *
+     * @param Vector<Map<string, string>> $data A Vector containing Maps of column
+     *                                          name and data key-value pairs.
+     *
+     * @return $this
+     */
+    public function setData(Vector<Map<string, mixed>> $data): this;
+
+    /**
+     * Set the column names for the table.
+     *
+     * @param Vector<string> $headers   A Vector containing column names
+     *
+     * @return $this
+     */
+    public function setHeaders(Vector<mixed> $headers): this;
+
+    /**
      * Set the data for the rows in the table with a Vector containing a Vector
      * for each row in the table.
      *

@@ -7,14 +7,14 @@
 
 namespace Titon\Console\Exception;
 
-use InvalidArgumentException;
+use RuntimeException;
 
 /**
- * Exception thrown when parameters are passed in the input that do not belong
- * to registered input definitions.
+ * Exception thrown when an `InputDefinition` is requested that hasn't been
+ * registered.
  *
  * @package Titon\Console\Exception
  */
-class InvalidNumberOfArgumentsException extends InvalidArgumentException {
+class InvalidInputDefinitionException extends RuntimeException {
 
 }

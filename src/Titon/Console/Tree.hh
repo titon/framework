@@ -19,7 +19,7 @@ interface Tree {
      *
      * @return array<mixed>
      */
-    public function getData(): Vector<mixed>;
+    public function getData(): array<mixed>;
 
     /**
      * Build and return the markup for the `Tree`.
@@ -35,5 +35,5 @@ interface Tree {
      *
      * @return $this
      */
-    public function setData(Vector<mixed> $data): this;
+    public function setData(array<mixed> $data): this;
 }

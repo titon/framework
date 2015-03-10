@@ -15,7 +15,7 @@ use Titon\Console\Output;
  *
  * @package Titon\Console\UserInput
  */
-class Menu extends AbstractUserInput {
+class Menu extends AbstractUserInput<string> {
 
     /**
      * The message to present at the prompt.
@@ -41,7 +41,7 @@ class Menu extends AbstractUserInput {
         $this->output->out();
 
         while (true) {
-            $this->output->out("$prompt: ", Output::VERBOSITY_NORMAL, 0);
+            $this->output->out("$prompt ", Output::VERBOSITY_NORMAL, 0);
             $input = $this->input->getUserInput();
 
             if (is_numeric($input)) {

@@ -14,6 +14,7 @@ use Titon\Console\Output;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
+use Titon\Console\UserInput\Confirm;
 use Titon\Console\UserInput\Menu;
 use Titon\Console\UserInput\Prompt;
 
@@ -132,13 +133,13 @@ abstract class AbstractCommand implements Command {
      * @param Map<mixed, mixed> $choices    Accepted values
      * @param string $message               The message to display before the choices
      *
-     * @return \Titon\Console\UserInput\Menu
+     * @return \Titon\Console\UserInput\Confirm
      */
-    protected function confirm(Map<mixed, mixed> $choices, string $message = ''): Menu {
-        $menu = new Menu($this->input, $this->output);
-        $menu->setAcceptedValues($choices)->setMessage($message);
+    protected function confirm(string $default = ''): Confirm {
+        $confirm = new Confirm($this->input, $this->output);
+        $confirm->setDefault($default);
 
-        return $menu;
+        return $confirm;
     }
 
     /**
@@ -157,12 +158,8 @@ abstract class AbstractCommand implements Command {
      *
      * @return mixed
      */
-    protected function getArgument(string $key): ?string {
-        if ($argument = $this->input->getArgument($key)) {
-            return $argument->getValue();
-        }
-
-        return null;
+    protected function getArgument(string $key, ?string $default = null): ?string {
+        return $this->input->getArgument($key)->getValue($default);
     }
 
     /**
@@ -190,12 +187,8 @@ abstract class AbstractCommand implements Command {
      *
      * @return mixed
      */
-    protected function getFlag(string $key): ?int {
-        if ($flag = $this->input->getFlag($key)) {
-            return $flag->getValue();
-        }
-
-        return null;
+    protected function getFlag(string $key, ?int $default = null): ?int {
+        return $this->input->getFlag($key)->getValue($default);
     }
 
     /**
@@ -223,12 +216,8 @@ abstract class AbstractCommand implements Command {
      *
      * @return mixed
      */
-    protected function getOption(string $key): ?string {
-        if ($option = $this->input->getOption($key)) {
-            return $option->getValue();
-        }
-
-        return null;
+    protected function getOption(string $key, ?string $default = null): ?string {
+        return $this->input->getOption($key)->getValue($default);
     }
 
     /**
@@ -249,7 +238,7 @@ abstract class AbstractCommand implements Command {
      *
      * @return \Titon\Console\UserInput\Menu
      */
-    protected function menu(Map<mixed, mixed> $choices, string $message = ''): Menu {
+    protected function menu(Map<string, string> $choices, string $message = ''): Menu {
         $menu = new Menu($this->input, $this->output);
         $menu->setAcceptedValues($choices)->setMessage($message);
 
@@ -274,7 +263,7 @@ abstract class AbstractCommand implements Command {
      *
      * @return \Titon\Console\UserInput\Prompt
      */
-    protected function prompt(Map<mixed, mixed> $choices = Map {}, string $default = ''): Prompt {
+    protected function prompt(Map<string, string> $choices = Map {}, string $default = ''): Prompt {
         $prompt = new Prompt($this->input, $this->output);
         $prompt->setAcceptedValues($choices)->setDefault($default);
 

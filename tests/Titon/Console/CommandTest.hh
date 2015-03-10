@@ -12,9 +12,8 @@ class CommandTest extends TestCase {
 
     public function testAddArguments(): void {
         $args = new Input(Vector {
-            '-v'
+            '--table'
         });
-        $args->addFlag(new Flag('help', 'Show this help screen'));
 
         $command = new CommandStub($args, new Output());
         $command->setInput($args);
@@ -23,7 +22,9 @@ class CommandTest extends TestCase {
 
         $args->parse();
 
-        $this->assertEquals(2, count($args->getFlags()));
-        $this->assertEquals(1, $args->getFlag('v')->getValue());
+        $this->assertEquals(3, count($args->getFlags()));
+        $this->assertEquals(2, count($args->getOptions()));
+        $this->assertEquals(1, count($args->getArguments()));
+        $this->assertEquals(1, $args->getFlag('table')->getValue());
     }
 }

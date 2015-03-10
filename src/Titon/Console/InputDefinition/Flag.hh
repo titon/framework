@@ -44,7 +44,6 @@ class Flag extends AbstractInputDefinition<int> {
             $this->negativeAlias = "no-$name";
         }
 
-        $this->default = 0;
         $this->stackable = $stackable;
     }
 

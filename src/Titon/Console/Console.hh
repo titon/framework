@@ -43,9 +43,17 @@ class Console {
     /**
      * Construct a new `Console` application.
      */
-    public function __construct() {
-        $this->input = Input::getInstance();
-        $this->output = Output::getInstance();
+    public function __construct(?Input $input = null, ?Output $output = null) {
+        if (is_null($input)) {
+            $input = new Input();
+        }
+
+        if (is_null($output)) {
+            $output = new Output();
+        }
+
+        $this->input = $input;
+        $this->output = $output;
     }
 
     /**
@@ -57,7 +65,7 @@ class Console {
      */
     public function addCommand(Command $command): this {
         $command->setInput($this->input);
-        $command->configure();
+        $command->setOutput($this->output);
 
         $this->input->addCommand($command);
 

@@ -91,9 +91,9 @@ abstract class AbstractFeedback implements Feedback {
     /**
      * The time the feedback started.
      *
-     * @var int|null
+     * @var int
      */
-    protected ?int $start;
+    protected int $start = -1;
 
     /**
      * The template used to suffix the output.
@@ -105,16 +105,16 @@ abstract class AbstractFeedback implements Feedback {
     /**
      * The current tick used to calculate the speed.
      *
-     * @var int|null
+     * @var int
      */
-    protected ?int $tick;
+    protected int $tick = -1;
 
     /**
      * The feedback running time.
      *
-     * @var int|null
+     * @var int
      */
-    protected ?int $timer;
+    protected int $timer = -1;
 
     /**
      * The total number of cycles expected for the feedback to take until finished.
@@ -154,7 +154,7 @@ abstract class AbstractFeedback implements Feedback {
      *
      * @return Map<string, mixed>
      */
-    protected function buildOutputVariables(): Map<string, mixed> {
+    protected function buildOutputVariables(): FeedbackVariables {
         $message = $this->message;
         $percent = str_pad(floor($this->getPercentageComplete() * 100), 3);;
         $estimated = $this->formatTime((int)$this->estimateTimeRemaining());
@@ -162,12 +162,12 @@ abstract class AbstractFeedback implements Feedback {
             $this->formatTime($this->getElapsedTime()), strlen($estimated)
         );
 
-        $variables = Map {
+        $variables = shape(
             'message'   => $message,
             'percent'   => $percent,
             'elapsed'   => $elapsed,
             'estimated' => $estimated,
-        };
+        );
 
         return $variables;
     }
@@ -240,11 +240,9 @@ abstract class AbstractFeedback implements Feedback {
      * @var int
      */
     protected function getElapsedTime(): int {
-        if (is_null($start = $this->start)) {
+        if ($this->start < 0) {
             return 0;
         }
-
-        invariant(!is_null($start), "Must not be null.");
 
         return (time() - $start);
     }
@@ -269,19 +267,16 @@ abstract class AbstractFeedback implements Feedback {
      * @return float
      */
     protected function getSpeed(): float {
-        if (is_null($this->start)) {
+        if ($this->start < 0) {
             return 0.0;
         }
 
-        if (is_null($tick = $this->tick)) {
+        if ($this->tick < 0) {
             $this->tick = $this->start;
-            $tick = $this->tick;
         }
 
-        invariant(!is_null($tick), "Must not be null.");
-
         $now = microtime(true);
-        $span = $now - $tick;
+        $span = $now - $this->tick;
         if ($span > 1) {
             $this->iteration++;
             $this->tick = $now;
@@ -329,9 +324,9 @@ abstract class AbstractFeedback implements Feedback {
      * @return $this
      */
     protected function setMaxLength(): this {
-        $this->maxLength = max(array_map(($key) ==> {
-            return strlen($key);
-        }, $this->characterSequence));
+        $this->maxLength = max(
+            $this->characterSequence->map(($key) ==> strlen($key))->toArray()
+        );
 
         return $this;
     }
@@ -381,7 +376,7 @@ abstract class AbstractFeedback implements Feedback {
     protected function shouldUpdate(): bool {
         $now = microtime(true) * 1000;
 
-        if (is_null($this->timer)) {
+        if ($this->timer < 0) {
             $this->start = (int)(($this->timer = $now) / 1000);
 
             return true;

@@ -53,9 +53,9 @@ class HelpScreen {
      * The optional `name` of the application when not outputting a `HelpScreen`
      * for a specific `Command`.
      *
-     * @var string|null
+     * @var string
      */
-    protected ?string $name;
+    protected string $name = '';
 
     /**
      * The available `Option` objects accepted.
@@ -123,12 +123,16 @@ class HelpScreen {
     protected function renderCommands(): string {
         ksort($this->commands);
 
-        $maxLength = max(array_map(function(string $key): int {
-            $indentation = substr_count($key, ':');
-            $key = str_repeat('  ', $indentation) . $key;
+        $maxLength = max(
+            $this->comamands->keys()->map(
+                ($key) ==> {
+                    $indentation = substr_count($key, ':');
+                    $key = str_repeat('  ', $indentation) . $key;
 
-            return strlen($key);
-        }, $this->commands->keys()));
+                    return strlen($key);
+                }
+            )
+        );
         $descriptionLength = 80 - 4 - $maxLength;
 
         $output = Vector {};
@@ -194,7 +198,7 @@ class HelpScreen {
             } else {
                 $retval = $command->getName();
             }
-        } else if (!is_null($this->name)) {
+        } else if ($this->name !== '') {
             $retval = $this->name;
         }
 

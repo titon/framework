@@ -10,10 +10,10 @@ namespace Titon\Console\Command;
 use Titon\Console\InputBag;
 use Titon\Console\Command;
 use Titon\Console\Input;
+use Titon\Console\Output;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
-use Titon\Console\Output;
 
 /**
  * A `Command` is a class that configures necessary command line inputs from the
@@ -81,8 +81,6 @@ abstract class AbstractCommand implements Command {
         $this->arguments = new InputBag();
         $this->flags = new InputBag();
         $this->options = new InputBag();
-
-        $this->output = Output::getInstance();
     }
 
     /**
@@ -122,6 +120,15 @@ abstract class AbstractCommand implements Command {
         $this->options->set($option->getName(), $option);
 
         return $this;
+    }
+
+    /**
+     * Alias method for sending output through STDERROR.
+     *
+     * @param string $output    The message to send
+     */
+    protected function out(string $output): void {
+        $this->output->error($output);
     }
 
     /**
@@ -215,6 +222,15 @@ abstract class AbstractCommand implements Command {
     }
 
     /**
+     * Alias method for sending output through STDOUT.
+     *
+     * @param string $output    The message to send
+     */
+    protected function out(string $output): void {
+        $this->output->out($output);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function registerInput(): this {
@@ -262,6 +278,15 @@ abstract class AbstractCommand implements Command {
      */
     public function setName(string $name): this {
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setOutput(Output $output): this {
+        $this->output = $output;
 
         return $this;
     }

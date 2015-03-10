@@ -13,7 +13,7 @@ class Confirm extends AbstractUserInput {
 
     protected string $message;
 
-    public function __construct(?string $default = null) {
+    public function __construct(string $default = '') {
         parent::__construct();
 
         $this->acceptedValues = Map {
@@ -62,10 +62,10 @@ class Confirm extends AbstractUserInput {
         do {
             $this->output->out("$this->message ", Output::VERBOSITY_NORMAL, 0);
             $input = $this->input->getUserInput();
-            if ($input === '' && !is_null($this->default)) {
+            if ($input === '' && $this->default !== '') {
                 $input = $this->default;
             }
-        } while (!$this->acceptedValues->contains($input));
+        } while (!$this->acceptedValues->contains(strtolower($input)));
 
         return $input;
     }

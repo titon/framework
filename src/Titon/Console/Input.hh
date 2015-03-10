@@ -7,6 +7,7 @@
 
 namespace Titon\Console;
 
+use Titon\Console\InputDefinition\AbstractInputDefinition;
 use Titon\Utility\State\Server;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
@@ -80,6 +81,13 @@ class Input {
      * @var \Titon\Console\InputBag<Option>
      */
     protected InputBag<Option> $options;
+
+    /**
+     * Boolean if the provided input has already been parsed or not.
+     *
+     * @var bool
+     */
+    protected bool $parsed = false;
 
     /**
      * Raw input used at creation of the `Input` object.
@@ -181,6 +189,10 @@ class Input {
      * @return \Titon\Console\Command|null
      */
     public function getActiveCommand(): ?Command {
+        if ($this->parsed === true) {
+            return $this->command;
+        }
+
         if (!is_null($this->command)) {
             return $this->command;
         }
@@ -333,12 +345,54 @@ class Input {
                     $this->command = $command;
                     continue;
                 }
-            } else {
-                throw new InvalidNumberOfCommandsException("Multiple commands are not supported.");
+            } else if (!is_null($this->commands->get($val['value']))) {
+                if ($this->strict === true) {
+                    throw new InvalidNumberOfCommandsException("Multiple commands are not supported.");
+                }
+            }
+
+            if ($this->strict === true) {
+                throw new InvalidNumberOfArguments(sprintf("No parameter registered for value %s", $val['value']));
             }
 
             $this->invalid[] = $val;
         }
+
+        if (is_null($this->command) && $this->strict === true) {
+            throw new InvalidNumberOfCommandsException("No command was parsed from the input.");
+        }
+
+        foreach ($this->flags as $name => $flag) {
+            if ($flag->getMode() !== AbstractInputDefinition::MODE_REQUIRED) {
+                continue;
+            }
+
+            if (is_null($flag->getValue())) {
+                throw new MissingValueException(sprintf("Required flag `%s` is not present.", $flag->getName()));
+            }
+        }
+
+        foreach ($this->options as $name => $option) {
+            if ($option->getMode() !== AbstractInputDefinition::MODE_REQUIRED) {
+                continue;
+            }
+
+            if (is_null($option->getValue())) {
+                throw new MissingValueException(sprintf("No value present for required option %s", $option->getName()));
+            }
+        }
+
+        foreach ($this->arguments as $name => $argument) {
+            if ($argument->getMode() !== AbstractInputDefinition::MODE_REQUIRED) {
+                continue;
+            }
+
+            if (is_null($argument->getValue())) {
+                throw new MissingValueException(sprintf("No value present for required argument %s", $argument->getName()));
+            }
+        }
+
+        $this->parsed = true;
     }
 
     /**
@@ -448,6 +502,7 @@ class Input {
     public function setInput(Vector<string> $args): this {
         $this->rawInput = $args;
         $this->input = new InputLexer($args);
+        $this->parsed = false;
         $this->command = null;
 
         return $this;

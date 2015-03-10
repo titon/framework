@@ -17,14 +17,14 @@ use Titon\Console\UserInput;
  *
  * @package Titon\Console\UserInput
  */
-abstract class AbstractUserInput implements UserInput {
+abstract class AbstractUserInput<T> implements UserInput {
 
     /**
      * Input values accepted to continue.
      *
-     * @var Map<mixed, mixed>
+     * @var Map<string, T>
      */
-    protected Map<mixed, mixed> $acceptedValues = Map {};
+    protected Map<string, T> $acceptedValues = Map {};
 
     /**
      * Default value if input given is empty.
@@ -65,11 +65,11 @@ abstract class AbstractUserInput implements UserInput {
     /**
      * Set the values accepted by the user.
      *
-     * @param Map<mixed, mixed> $choices    Accepted values
+     * @param Map<string, T> $choices    Accepted values
      *
      * @return $this
      */
-    public function setAcceptedValues(Map<mixed, mixed> $choices = Map {}): this {
+    public function setAcceptedValues(Map<string, T> $choices = Map {}): this {
         $this->acceptedValues = $choices;
 
         return $this;

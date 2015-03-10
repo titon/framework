@@ -7,13 +7,13 @@
 
 namespace Titon\Console\Exception;
 
-use RuntimeException;
+use OutOfBoundsException;
 
 /**
  * Exception thrown when the command used in the application doesn't exist.
  *
  * @package Titon\Console\Exception
  */
-class InvalidCommandException extends RuntimeException {
+class InvalidCommandException extends OutOfBoundsException {
 
 }

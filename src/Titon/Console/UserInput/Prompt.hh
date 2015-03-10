@@ -15,7 +15,7 @@ use Titon\Console\Output;
  *
  * @package Titon\Console\UserInput
  */
-class Prompt extends AbstractUserInput {
+class Prompt extends AbstractUserInput<string> {
 
     /**
      * If the prompt is set to show value hints, this string contains those hints

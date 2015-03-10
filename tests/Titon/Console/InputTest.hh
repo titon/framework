@@ -23,7 +23,7 @@ class InputTest extends TestCase {
          * Check basic flag
          */
         $this->input->setInput(Vector {
-            'command',
+            'demo',
             '--foo'
         });
         $this->input->addFlag((new Flag('foo'))->alias('f'));
@@ -33,7 +33,7 @@ class InputTest extends TestCase {
         $this->assertEquals(1, $this->input->getFlag('f')->getValue());
 
         $this->input->setInput(Vector {
-            'command',
+            'demo',
             '-f'
         });
         $this->input->addFlag((new Flag('foo'))->alias('f'));
@@ -46,7 +46,7 @@ class InputTest extends TestCase {
          * Check stacked, but different, flags
          */
         $this->input->setInput(Vector {
-            'command',
+            'demo',
             '-fb'
         });
         $this->input->addFlag((new Flag('foo'))->alias('f'));
@@ -60,7 +60,7 @@ class InputTest extends TestCase {
          * Check stacked flag
          */
         $this->input->SetInput(Vector {
-            'command',
+            'demo',
             '-vvv'
         });
         $this->input->addFlag((new Flag('v'))->setStackable(true));
@@ -83,7 +83,7 @@ class InputTest extends TestCase {
 
     public function testParseOptions(): void {
         $this->input->setInput(Vector {
-            'command',
+            'demo',
             '--name',
             'Alex Phillips'
         });
@@ -97,7 +97,7 @@ class InputTest extends TestCase {
         $this->input->setInput(Vector {
             '--name',
             'Alex Phillips',
-            'command'
+            'demo'
         });
         $this->input->addOption((new Option('name'))->alias('n'));
         $this->input->addArgument(new Argument('bar', 'Bar!'));
@@ -107,7 +107,7 @@ class InputTest extends TestCase {
         $this->assertEquals('Alex Phillips', $this->input->getOption('n')->getValue());
 
         $this->input->setInput(Vector {
-            'command',
+            'demo',
             '-n',
             'Alex Phillips'
         });
@@ -119,7 +119,7 @@ class InputTest extends TestCase {
         $this->assertEquals('Alex Phillips', $this->input->getOption('n')->getValue());
 
         $this->input->setInput(Vector {
-            'command',
+            'demo',
             '--name="Alex Phillips"'
         });
         $this->input->addOption((new Option('name'))->alias('n'));
@@ -132,7 +132,7 @@ class InputTest extends TestCase {
 
     public function testParseArguments(): void {
         $this->input->setInput(Vector {
-            'command',
+            'demo',
             'Alex Phillips'
         });
         $this->input->addArgument(new Argument('name'));
@@ -144,7 +144,7 @@ class InputTest extends TestCase {
 
     public function testMixedArguments(): void {
         $this->input->setInput(Vector {
-            'command',
+            'demo',
             'Alex Phillips',
             '-fb',
             '--baz="woot"'
@@ -157,7 +157,7 @@ class InputTest extends TestCase {
         $this->input->getActiveCommand();
         $this->input->parse();
 
-        $this->assertEquals('command', $this->input->getActiveCommand()->getName());
+        $this->assertEquals('demo', $this->input->getActiveCommand()->getName());
         $this->assertEquals('Alex Phillips', $this->input->getArgument('name')->getValue());
         $this->assertEquals(1, $this->input->getFlag('foo')->getValue());
         $this->assertEquals(1, $this->input->getFlag('f')->getValue());

@@ -28,18 +28,18 @@ abstract class AbstractInputDefinition<T> implements InputDefinition {
     protected string $alias = '';
 
     /**
-     * The default value given to the input if not specified by the user.
-     *
-     * @var T|null
-     */
-    protected ?T $default;
-
-    /**
      * The description of the input.
      *
      * @var string
      */
     protected string $description;
+
+    /**
+     * Flag if the `InputDefinition` has been assigned a value.
+     *
+     * @var bool
+     */
+    protected bool $exists = false;
 
     /**
      * The mode of the input to determine if it should be required by the user.
@@ -87,12 +87,10 @@ abstract class AbstractInputDefinition<T> implements InputDefinition {
     }
 
     /**
-     * Method to return if the `InputDefinition` was specified by the user.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function exists(): bool {
-        return !is_null($this->value);
+        return $this->exists;
     }
 
     /**
@@ -102,15 +100,6 @@ abstract class AbstractInputDefinition<T> implements InputDefinition {
      */
     public function getAlias(): string {
         return $this->alias;
-    }
-
-    /**
-     * Retrieve the default value of the `InputDefinition`.
-     *
-     * @return mixed
-     */
-    public function getDefault(): ?T {
-        return $this->default;
     }
 
     /**
@@ -159,14 +148,14 @@ abstract class AbstractInputDefinition<T> implements InputDefinition {
      * Retrieve the value as specified by the user for the `InputDefinition`. If
      * the user has not specified the value, the default value is returned.
      *
-     * @return mixed
+     * @return T|null
      */
-    public function getValue(): ?T {
+    public function getValue(?T $default = null): ?T {
         if (!is_null($this->value)) {
             return $this->value;
         }
 
-        return $this->default;
+        return $default;
     }
 
     /**
@@ -188,14 +177,10 @@ abstract class AbstractInputDefinition<T> implements InputDefinition {
     }
 
     /**
-     * Set the default value for the `Flag` if no value is give.
-     *
-     * @param int $default  The default value
-     *
-     * @return $this
+     * {@inheritdoc}
      */
-    public function setDefault(T $default): this {
-        $this->default = $default;
+    public function setExists(bool $exists): this {
+        $this->exists = $exists;
 
         return $this;
     }

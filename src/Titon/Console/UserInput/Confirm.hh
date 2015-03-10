@@ -7,9 +7,10 @@
 
 namespace Titon\Console\UserInput;
 
+use Titon\Console\Input;
 use Titon\Console\Output;
 
-class Confirm extends AbstractUserInput {
+class Confirm extends AbstractUserInput<bool> {
 
     /**
      * The message to be appened to the prompt message containing the accepted
@@ -18,6 +19,17 @@ class Confirm extends AbstractUserInput {
      * @var string
      */
     protected string $message = '';
+
+    public function __construct(Input $input, Output $output) {
+        parent::__construct($input, $output);
+
+        $this->acceptedValues = Map {
+            'y'   => true,
+            'yes' => true,
+            'n'   => false,
+            'no'  => false
+        };
+    }
 
     /**
      * Prompt the user for input and return the boolean value if the user has
@@ -29,16 +41,11 @@ class Confirm extends AbstractUserInput {
      */
     public function confirmed(string $message): bool {
         $input = $this->prompt($message);
+        $retval = $this->acceptedValues[strtolower($input)];
 
-        switch (strtolower($input)) {
-            case 'y':
-            case 'yes':
-                return true;
-            case 'n':
-            case 'no':
-            default:
-                return false;
-        }
+        invariant(is_bool($retval), "Must be a boolean value.");
+
+        return $retval;
     }
 
     /**
@@ -48,7 +55,7 @@ class Confirm extends AbstractUserInput {
         $message = "$message $this->message";
 
         do {
-            $this->output->out("$this->message ", Output::VERBOSITY_NORMAL, 0);
+            $this->output->out("$message ", Output::VERBOSITY_NORMAL, 0);
             $input = $this->input->getUserInput();
             if ($input === '' && $this->default !== '') {
                 $input = $this->default;

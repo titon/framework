@@ -15,6 +15,7 @@ use Titon\Console\InputDefinition\Option;
 use Titon\Console\Exception\MissingValueException;
 use Titon\Console\Exception\InvalidNumberOfCommandsException;
 use Titon\Console\Exception\InvalidNumberOfArgumentsException;
+use Titon\Console\Exception\InvalidInputDefinitionException;
 
 /**
  * The `Input` class contains all available `Flag`, `Argument`, `Option`, and
@@ -217,10 +218,16 @@ class Input {
      *
      * @param string $key The key or alias of the `Argument`
      *
-     * @return \Titon\Console\Argument|null
+     * @return \Titon\Console\Argument
      */
-    public function getArgument(string $key): ?Argument {
-        return $this->arguments->get($key);
+    public function getArgument(string $key): Argument {
+        if (is_null($argument = $this->arguments->get($key))) {
+            throw new InvalidInputDefinitionException(sprintf("The argument %s doesn't exist.", $key));
+        }
+
+        invariant($argument instanceof Argument, "Must be an `Argument`.");
+
+        return $argument;
     }
 
     /**
@@ -257,10 +264,16 @@ class Input {
      *
      * @param string $key The key or alias of the `Flag`
      *
-     * @return \Titon\Console\Flag|null
+     * @return \Titon\Console\Flag
      */
-    public function getFlag(string $key): ?Flag {
-        return $this->flags->get($key);
+    public function getFlag(string $key): Flag {
+        if (is_null($flag = $this->flags->get($key))) {
+            throw new InvalidInputDefinitionException(sprintf("The flag %s doesn't exist.", $key));
+        }
+
+        invariant($flag instanceof Flag, "Must be a `Flag`.");
+
+        return $flag;
     }
 
     /**
@@ -290,10 +303,16 @@ class Input {
      *
      * @param string $key The key or alias of the `Option`
      *
-     * @return \Titon\Console\Option|null
+     * @return \Titon\Console\Option
      */
-    public function getOption(string $key): ?Option {
-        return $this->options->get($key);
+    public function getOption(string $key): Option {
+        if (is_null($option = $this->options->get($key))) {
+            throw new InvalidInputDefinitionException(sprintf("The option %s doesn't exist.", $key));
+        }
+
+        invariant($option instanceof Option, "Must be an `Option`.");
+
+        return $option;
     }
 
     /**
@@ -409,6 +428,7 @@ class Input {
         foreach ($this->arguments as $argument) {
             if (is_null($argument->getValue())) {
                 $argument->setValue($input['raw']);
+                $argument->setExists(true);
 
                 return true;
             }
@@ -436,6 +456,8 @@ class Input {
                 $flag->setValue(1);
             }
 
+            $flag->setExists(true);
+
             return true;
         }
 
@@ -444,6 +466,7 @@ class Input {
                 invariant($flag instanceof Flag, "Must be a Flag.");
 
                 $flag->setValue(0);
+                $flag->setExists(true);
 
                 return true;
             }
@@ -490,6 +513,7 @@ class Input {
         }
 
         $option->setValue($value);
+        $option->setExists(true);
 
         return true;
     }

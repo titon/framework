@@ -11,7 +11,7 @@ use Titon\Console\InputDefinition\Argument;
 /**
  * @property \Titon\Console\Input $input
  */
-class ArgumentParserTest extends TestCase {
+class InputTest extends TestCase {
 
     public function setUp() {
         $this->input = new Input();
@@ -154,9 +154,10 @@ class ArgumentParserTest extends TestCase {
         $this->input->addFlag((new Flag('foo'))->alias('f'));
         $this->input->addArgument(new Argument('name'));
 
-        $this->input->getActiveCommand();
+        $test = $this->input->getActiveCommand();
         $this->input->parse();
 
+        $this->assertEquals('command', $this->input->getActiveCommand()->getName());
         $this->assertEquals('Alex Phillips', $this->input->getArgument('name')->getValue());
         $this->assertEquals(1, $this->input->getFlag('foo')->getValue());
         $this->assertEquals(1, $this->input->getFlag('f')->getValue());

@@ -86,7 +86,7 @@ abstract class AbstractCommand implements Command {
     /**
      * Add a new `Argument` to be registered and parsed with the `Input`.
      *
-     * @param \Titon\Console\Argument $argument
+     * @param \Titon\Console\InputDefinition\Argument $argument
      *
      * @return $this
      */
@@ -99,7 +99,7 @@ abstract class AbstractCommand implements Command {
     /**
      * Add a new `Flag` to be registered and parsed with the `Input`.
      *
-     * @param \Titon\Console\Flag $flag
+     * @param \Titon\Console\InputDefinition\Flag $flag
      *
      * @return $this
      */
@@ -112,7 +112,7 @@ abstract class AbstractCommand implements Command {
     /**
      * Add a new `Option` to be registered and parsed with the `Input`.
      *
-     * @param \Titon\Console\Option $option
+     * @param \Titon\Console\InputDefinition\Option $option
      *
      * @return $this
      */
@@ -127,7 +127,7 @@ abstract class AbstractCommand implements Command {
      *
      * @param string $output    The message to send
      */
-    protected function out(string $output): void {
+    protected function error(string $output): void {
         $this->output->error($output);
     }
 
@@ -138,7 +138,7 @@ abstract class AbstractCommand implements Command {
      *
      * @return mixed
      */
-    protected function getArgument(string $key): mixed {
+    protected function getArgument(string $key): ?string {
         if ($argument = $this->input->getArgument($key)) {
             return $argument->getValue();
         }
@@ -171,7 +171,7 @@ abstract class AbstractCommand implements Command {
      *
      * @return mixed
      */
-    protected function getFlag(string $key): mixed {
+    protected function getFlag(string $key): ?int {
         if ($flag = $this->input->getFlag($key)) {
             return $flag->getValue();
         }
@@ -204,7 +204,7 @@ abstract class AbstractCommand implements Command {
      *
      * @return mixed
      */
-    protected function getOption(string $key): mixed {
+    protected function getOption(string $key): ?string {
         if ($option = $this->input->getOption($key)) {
             return $option->getValue();
         }

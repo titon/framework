@@ -200,9 +200,9 @@ class Input {
         $input = new Vector($this->rawInput);
         foreach ($input as $index => $value) {
             if (!is_null($command = $this->commands->get($value))) {
-                $this->command = $command;
                 $input->removeKey($index);
                 $this->setInput($input);
+                $this->command = $command;
 
                 return $this->command;
             }
@@ -335,9 +335,6 @@ class Input {
             if ($this->parseOption($val)) {
                 continue;
             }
-            if ($this->parseArgument($val)) {
-                continue;
-            }
 
             if (is_null($this->command)) {
                 // If we haven't parsed a command yet, see if we have a match.
@@ -349,6 +346,10 @@ class Input {
                 if ($this->strict === true) {
                     throw new InvalidNumberOfCommandsException("Multiple commands are not supported.");
                 }
+            }
+
+            if ($this->parseArgument($val)) {
+                continue;
             }
 
             if ($this->strict === true) {

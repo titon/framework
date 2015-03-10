@@ -22,19 +22,7 @@ class Menu extends AbstractUserInput {
      *
      * @var string
      */
-    protected string $message;
-
-    /**
-     * Construct a new `Menu` with the available choices.
-     *
-     * @param Map<mixed, mixed> $choices    Available choices accepted
-     */
-    public function __construct(Map<mixed, mixed> $choices, string $message = '') {
-        parent::__construct();
-
-        $this->acceptedValues = $choices;
-        $this->message = $message;
-    }
+    protected string $message = '';
 
     /**
      * {@inheritdoc}
@@ -68,5 +56,18 @@ class Menu extends AbstractUserInput {
                 }
             }
         }
+    }
+
+    /**
+     * Set the message presented to the user before the options are displayed.
+     *
+     * @param string $message   The message to display
+     *
+     * @return $this
+     */
+    public function setMessage(string $message): this {
+        $this->message = $message;
+
+        return $this;
     }
 }

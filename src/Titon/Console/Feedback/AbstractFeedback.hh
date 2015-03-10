@@ -154,7 +154,7 @@ abstract class AbstractFeedback implements Feedback {
      *
      * @return Map<string, mixed>
      */
-    protected function buildOutputVariables(): FeedbackVariables {
+    protected function buildOutputVariables(): Map<string, mixed> {
         $message = $this->message;
         $percent = str_pad(floor($this->getPercentageComplete() * 100), 3);;
         $estimated = $this->formatTime((int)$this->estimateTimeRemaining());
@@ -162,12 +162,12 @@ abstract class AbstractFeedback implements Feedback {
             $this->formatTime($this->getElapsedTime()), strlen($estimated)
         );
 
-        $variables = shape(
+        $variables = Map {
             'message'   => $message,
             'percent'   => $percent,
             'elapsed'   => $elapsed,
             'estimated' => $estimated,
-        );
+        };
 
         return $variables;
     }
@@ -244,7 +244,7 @@ abstract class AbstractFeedback implements Feedback {
             return 0;
         }
 
-        return (time() - $start);
+        return (time() - $this->start);
     }
 
     /**

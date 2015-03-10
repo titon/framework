@@ -123,8 +123,9 @@ class HelpScreen {
     protected function renderCommands(): string {
         ksort($this->commands);
 
+        $indentation = 0;
         $maxLength = max(
-            $this->comamands->keys()->map(
+            $this->commands->keys()->map(
                 ($key) ==> {
                     $indentation = substr_count($key, ':');
                     $key = str_repeat('  ', $indentation) . $key;

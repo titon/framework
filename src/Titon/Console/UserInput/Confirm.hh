@@ -11,18 +11,58 @@ use Titon\Console\Output;
 
 class Confirm extends AbstractUserInput {
 
-    protected string $message;
+    /**
+     * The message to be appened to the prompt message containing the accepted
+     * values.
+     *
+     * @var string
+     */
+    protected string $message = '';
 
-    public function __construct(string $default = '') {
-        parent::__construct();
+    /**
+     * Prompt the user for input and return the boolean value if the user has
+     * confirmed or not.
+     *
+     * @param string $message   The message to prompt the user with
+     *
+     * @return bool
+     */
+    public function confirmed(string $message): bool {
+        $input = $this->prompt($message);
 
-        $this->acceptedValues = Map {
-            0 => 'y',
-            1 => 'yes',
-            2 => 'n',
-            3 => 'no'
-        };
+        switch (strtolower($input)) {
+            case 'y':
+            case 'yes':
+                return true;
+            case 'n':
+            case 'no':
+            default:
+                return false;
+        }
+    }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function prompt(string $message): string {
+        $message = "$message $this->message";
+
+        do {
+            $this->output->out("$this->message ", Output::VERBOSITY_NORMAL, 0);
+            $input = $this->input->getUserInput();
+            if ($input === '' && $this->default !== '') {
+                $input = $this->default;
+            }
+        } while (!$this->acceptedValues->contains(strtolower($input)));
+
+        return $input;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    <<__Override>>
+    public function setDefault(string $default = ''): this {
         switch (strtolower($default)) {
             case 'y':
             case 'yes':
@@ -40,33 +80,7 @@ class Confirm extends AbstractUserInput {
         }
 
         $this->message = $message;
-    }
 
-    public function confirmed(string $message): bool {
-        $input = $this->prompt($message);
-
-        switch (strtolower($input)) {
-            case 'y':
-            case 'yes':
-                return true;
-            case 'n':
-            case 'no':
-            default:
-                return false;
-        }
-    }
-
-    public function prompt(string $message): string {
-        $message = "$message $this->message";
-
-        do {
-            $this->output->out("$this->message ", Output::VERBOSITY_NORMAL, 0);
-            $input = $this->input->getUserInput();
-            if ($input === '' && $this->default !== '') {
-                $input = $this->default;
-            }
-        } while (!$this->acceptedValues->contains(strtolower($input)));
-
-        return $input;
+        return $this;
     }
 }

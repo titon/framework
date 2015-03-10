@@ -15,6 +15,9 @@ namespace Titon\Console;
  */
 interface InputDefinition {
 
+    const int MODE_OPTIONAL = 0;
+    const int MODE_REQUIRED = 1;
+
     /**
      * Returns if the `InputDefinition` has been assigned a value by the parser.
      *

@@ -17,9 +17,6 @@ use Titon\Console\InputDefinition;
  */
 abstract class AbstractInputDefinition<T> implements InputDefinition {
 
-    const int MODE_OPTIONAL = 0;
-    const int MODE_REQUIRED = 1;
-
     /**
      * An alternate notation to specify the input as.
      *

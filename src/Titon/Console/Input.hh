@@ -384,7 +384,7 @@ class Input {
         }
 
         foreach ($this->flags as $name => $flag) {
-            if ($flag->getMode() !== AbstractInputDefinition::MODE_REQUIRED) {
+            if ($flag->getMode() !== InputDefinition::MODE_REQUIRED) {
                 continue;
             }
 
@@ -394,7 +394,7 @@ class Input {
         }
 
         foreach ($this->options as $name => $option) {
-            if ($option->getMode() !== AbstractInputDefinition::MODE_REQUIRED) {
+            if ($option->getMode() !== InputDefinition::MODE_REQUIRED) {
                 continue;
             }
 
@@ -404,7 +404,7 @@ class Input {
         }
 
         foreach ($this->arguments as $name => $argument) {
-            if ($argument->getMode() !== AbstractInputDefinition::MODE_REQUIRED) {
+            if ($argument->getMode() !== InputDefinition::MODE_REQUIRED) {
                 continue;
             }
 

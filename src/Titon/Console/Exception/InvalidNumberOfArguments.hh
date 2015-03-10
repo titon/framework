@@ -13,7 +13,7 @@ use RuntimeException;
  * Exception thrown when parameters are passed in the input that do not belong
  * to registered input definitions.
  *
- * @package Titon\Context\Exception
+ * @package Titon\Console\Exception
  */
 class InvalidNumberOfCommandsException extends RuntimeException {
 

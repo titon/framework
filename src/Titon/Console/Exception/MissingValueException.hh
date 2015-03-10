@@ -13,7 +13,7 @@ use RuntimeException;
  * Exception thrown when a value is required and not present. This can be the
  * case with options or arguments.
  *
- * @package Titon\Context\Exception
+ * @package Titon\Console\Exception
  */
 class MissingValueException extends RuntimeException {
 

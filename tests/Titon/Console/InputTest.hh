@@ -15,7 +15,7 @@ class InputTest extends TestCase {
 
     public function setUp() {
         $this->input = new Input();
-        $this->input->addCommand(new CommandStub());
+        $this->input->addCommand('\Titon\Test\Stub\CommandStub');
     }
 
     public function testParseFlags(): void {

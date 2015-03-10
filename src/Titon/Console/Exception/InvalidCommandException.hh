@@ -12,7 +12,7 @@ use RuntimeException;
 /**
  * Exception thrown when the command used in the application doesn't exist.
  *
- * @package Titon\Context\Exception
+ * @package Titon\Console\Exception
  */
 class InvalidCommandException extends RuntimeException {
 

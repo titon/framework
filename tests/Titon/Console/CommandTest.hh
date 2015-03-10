@@ -16,7 +16,7 @@ class CommandTest extends TestCase {
         });
         $args->addFlag(new Flag('help', 'Show this help screen'));
 
-        $command = new CommandStub();
+        $command = new CommandStub($args, new Output());
         $command->setInput($args);
         $command->configure();
         $command->registerInput();

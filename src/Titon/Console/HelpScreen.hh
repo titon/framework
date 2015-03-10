@@ -265,8 +265,8 @@ class HelpScreen {
 
             foreach ($command->getFlags() as $argument) {
                 $arg = $argument->getFormattedName($argument->getName());
-                if ($alias = $argument->getFormattedName($argument->getAlias())) {
-                    $arg .= "|$alias";
+                if ($argument->getAlias() !== '') {
+                    $arg .= "|" . $argument->getFormattedName($argument->getAlias());
                 }
 
                 if ($argument->getMode() === AbstractInputDefinition::MODE_OPTIONAL) {
@@ -275,8 +275,8 @@ class HelpScreen {
             }
             foreach ($command->getOptions() as $argument) {
                 $arg = $argument->getFormattedName($argument->getName());
-                if ($alias = $argument->getFormattedName($argument->getAlias())) {
-                    $arg .= "|$alias";
+                if ($argument->getAlias() !== '') {
+                    $arg .= "|" . $argument->getFormattedName($argument->getAlias());
                 }
 
                 if ($argument->getMode() === AbstractInputDefinition::MODE_OPTIONAL) {

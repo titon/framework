@@ -10,6 +10,7 @@ namespace Titon\Console;
 use Titon\Console\Input;
 use Titon\Console\Output;
 use Titon\Console\InputDefinition\Flag;
+use ReflectionClass;
 
 /**
  * The `Console` class bootstraps and handles Input and Output to process and
@@ -63,9 +64,9 @@ class Console {
      *
      * @return $this
      */
-    public function addCommand(Command $command): this {
-        $command->setInput($this->input);
-        $command->setOutput($this->output);
+    public function addCommand(string $command): this {
+        $command = new ReflectionClass($command);
+        $command = $command->newInstance($this->input, $this->output);
 
         $this->input->addCommand($command);
 

@@ -63,6 +63,19 @@ abstract class AbstractUserInput implements UserInput {
     }
 
     /**
+     * Set the values accepted by the user.
+     *
+     * @param Map<mixed, mixed> $choices    Accepted values
+     *
+     * @return $this
+     */
+    public function setAcceptedValues(Map<mixed, mixed> $choices = Map {}): this {
+        $this->acceptedValues = $choices;
+
+        return $this;
+    }
+
+    /**
      * Set the default value to use when input is empty.
      *
      * @param string $default   The default value

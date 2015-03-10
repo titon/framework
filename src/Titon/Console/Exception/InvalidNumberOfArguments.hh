@@ -15,6 +15,6 @@ use RuntimeException;
  *
  * @package Titon\Console\Exception
  */
-class InvalidNumberOfCommandsException extends RuntimeException {
+class InvalidNumberOfArgumentsException extends RuntimeException {
 
 }

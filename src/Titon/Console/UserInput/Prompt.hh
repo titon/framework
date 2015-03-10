@@ -26,18 +26,6 @@ class Prompt extends AbstractUserInput {
     protected string $hint = '';
 
     /**
-     * Construct a new `Prompt` object with accepted values (if any).
-     *
-     * @param Map<mixed, mixed> $choices    Predetermined accepted choices
-     */
-    public function __construct(Map<mixed, mixed> $choices = Map {}, string $default = '') {
-        parent::__construct();
-
-        $this->default = $default;
-        $this->acceptedValues = $choices;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function prompt(string $message): mixed {

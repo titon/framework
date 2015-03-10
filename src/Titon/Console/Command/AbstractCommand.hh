@@ -14,6 +14,8 @@ use Titon\Console\Output;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
+use Titon\Console\UserInput\Menu;
+use Titon\Console\UserInput\Prompt;
 
 /**
  * A `Command` is a class that configures necessary command line inputs from the
@@ -57,7 +59,7 @@ abstract class AbstractCommand implements Command {
      *
      * @var string
      */
-    protected string $name;
+    protected string $name = '';
 
     /**
      * Bag container holding all registered `Option` objects
@@ -76,8 +78,9 @@ abstract class AbstractCommand implements Command {
     /**
      * Construct a new instance of a command.
      */
-    public function __construct() {
-        $this->input = new Input();
+    public function __construct(Input $input, Output $output) {
+        $this->input = $input;
+        $this->output = $output;
         $this->arguments = new InputBag();
         $this->flags = new InputBag();
         $this->options = new InputBag();
@@ -120,6 +123,22 @@ abstract class AbstractCommand implements Command {
         $this->options->set($option->getName(), $option);
 
         return $this;
+    }
+
+    /**
+     * Construct and return a new `Menu` object given the choices and display
+     * message.
+     *
+     * @param Map<mixed, mixed> $choices    Accepted values
+     * @param string $message               The message to display before the choices
+     *
+     * @return \Titon\Console\UserInput\Menu
+     */
+    protected function confirm(Map<mixed, mixed> $choices, string $message = ''): Menu {
+        $menu = new Menu($this->input, $this->output);
+        $menu->setAcceptedValues($choices)->setMessage($message);
+
+        return $menu;
     }
 
     /**
@@ -222,12 +241,44 @@ abstract class AbstractCommand implements Command {
     }
 
     /**
+     * Construct and return a new `Menu` object given the choices and display
+     * message.
+     *
+     * @param Map<mixed, mixed> $choices    Accepted values
+     * @param string $message               The message to display before the choices
+     *
+     * @return \Titon\Console\UserInput\Menu
+     */
+    protected function menu(Map<mixed, mixed> $choices, string $message = ''): Menu {
+        $menu = new Menu($this->input, $this->output);
+        $menu->setAcceptedValues($choices)->setMessage($message);
+
+        return $menu;
+    }
+
+    /**
      * Alias method for sending output through STDOUT.
      *
      * @param string $output    The message to send
      */
     protected function out(string $output): void {
         $this->output->out($output);
+    }
+
+    /**
+     * Construct and return a new `Prompt` object given the accepted choices and
+     * default value.
+     *
+     * @param Map<mixed, mixed> $choices    Accepted values
+     * @param string $default               Default value
+     *
+     * @return \Titon\Console\UserInput\Prompt
+     */
+    protected function prompt(Map<mixed, mixed> $choices = Map {}, string $default = ''): Prompt {
+        $prompt = new Prompt($this->input, $this->output);
+        $prompt->setAcceptedValues($choices)->setDefault($default);
+
+        return $prompt;
     }
 
     /**

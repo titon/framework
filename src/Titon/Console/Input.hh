@@ -14,6 +14,7 @@ use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\Exception\MissingValueException;
 use Titon\Console\Exception\InvalidNumberOfCommandsException;
+use Titon\Console\Exception\InvalidNumberOfArgumentsException;
 
 /**
  * The `Input` class contains all available `Flag`, `Argument`, `Option`, and
@@ -353,7 +354,7 @@ class Input {
             }
 
             if ($this->strict === true) {
-                throw new InvalidNumberOfArguments(sprintf("No parameter registered for value %s", $val['value']));
+                throw new InvalidNumberOfArgumentsException(sprintf("No parameter registered for value %s", $val['value']));
             }
 
             $this->invalid[] = $val;

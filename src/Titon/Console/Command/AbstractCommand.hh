@@ -7,6 +7,8 @@
 
 namespace Titon\Console\Command;
 
+use Titon\Console\Feedback\ProgressBar;
+use Titon\Console\Feedback\Wait;
 use Titon\Console\InputBag;
 use Titon\Console\Command;
 use Titon\Console\Input;
@@ -254,6 +256,10 @@ abstract class AbstractCommand implements Command {
         $this->output->out($output);
     }
 
+    protected function progressBar(int $total = 0, string $message = '', int $interval = 100): ProgressBar {
+        return new ProgressBar($this->output, $total, $message, $interval);
+    }
+
     /**
      * Construct and return a new `Prompt` object given the accepted choices and
      * default value.
@@ -329,5 +335,9 @@ abstract class AbstractCommand implements Command {
         $this->output = $output;
 
         return $this;
+    }
+
+    protected function wait(int $total = 0, string $message = '', int $interval = 100): Wait {
+        return new  Wait($this->output, $total, $message, $interval);
     }
 }

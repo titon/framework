@@ -57,9 +57,9 @@ class CommandStub extends AbstractCommand {
 
     protected function runFeedbackExample(string $type): void {
         if ($type === 'progress') {
-            $feedback = new ProgressBar(100, 'Please wait');
+            $feedback = $this->progressBar(100, 'Please wait');
         } else if ($type === 'spinner') {
-            $feedback = new Wait(100, 'Please wait ');
+            $feedback = $this->wait(100, 'Please wait ');
         } else {
             return;
         }
@@ -68,7 +68,6 @@ class CommandStub extends AbstractCommand {
             $feedback->advance();
             usleep(10000);
         }
-        $feedback->finish();
     }
 
     protected function runTableExample(): void {

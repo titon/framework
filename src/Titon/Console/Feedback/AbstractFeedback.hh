@@ -37,7 +37,7 @@ abstract class AbstractFeedback implements Feedback {
      *
      * @var string
      */
-    protected string $format = '{:prefix}{:feedback}{:suffix}';
+    protected string $format = '{prefix}{feedback}{suffix}';
 
     /**
      * The current iteration of the feedback used to calculate the speed.
@@ -79,7 +79,7 @@ abstract class AbstractFeedback implements Feedback {
      *
      * @var string
      */
-    protected string $prefix = '{:message}  {:percent}% [';
+    protected string $prefix = '{message}  {percent}% [';
 
     /**
      * The current speed of the feedback.
@@ -100,7 +100,7 @@ abstract class AbstractFeedback implements Feedback {
      *
      * @var string
      */
-    protected string $suffix = '] {:elapsed} / {:estimated}';
+    protected string $suffix = '] {elapsed} / {estimated}';
 
     /**
      * The current tick used to calculate the speed.
@@ -130,8 +130,8 @@ abstract class AbstractFeedback implements Feedback {
      * @param string $message   The message to be displayed with the feedback
      * @param int    $interval  The interval the feedback should update in
      */
-    public function __construct(int $total = 0, string $message = '', int $interval = 100) {
-        $this->output = Output::getInstance();
+    public function __construct(Output $output, int $total = 0, string $message = '', int $interval = 100) {
+        $this->output = $output;
         $this->message = $message;
         $this->interval = $interval;
         $this->setTotal($total);
@@ -145,6 +145,11 @@ abstract class AbstractFeedback implements Feedback {
 
         if ($this->shouldUpdate()) {
             $this->display();
+        }
+
+        if ($this->current === $this->total) {
+            $this->display(true);
+            $this->output->out();
         }
     }
 

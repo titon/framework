@@ -7,6 +7,7 @@
 
 namespace Titon\Console\Feedback;
 
+use Titon\Utility\Str;
 use Titon\Console\Output;
 use Titon\Console\System\SystemFactory;
 
@@ -30,7 +31,7 @@ class Wait extends AbstractFeedback {
     /**
      * {@inheritdoc}
      */
-    protected string $prefix = " {:message}";
+    protected string $prefix = " {message}";
 
     /**
      * {@inheritdoc}
@@ -40,8 +41,8 @@ class Wait extends AbstractFeedback {
     /**
      * {@inheritdoc}
      */
-    public function __construct(int $total = 0, string $message = '', int $interval = 100) {
-        parent::__construct($total, $message, $interval);
+    public function __construct(Output $output, int $total = 0, string $message = '', int $interval = 100) {
+        parent::__construct($output, $total, $message, $interval);
         $this->iteration = 0;
     }
 
@@ -54,8 +55,8 @@ class Wait extends AbstractFeedback {
         $index = $this->iteration++ % $this->characterSequence->count();
         $feedback = str_pad($this->characterSequence[$index], $this->maxLength + 1);
 
-        $prefix = $this->format($this->prefix, $variables);
-        $suffix = $this->format($this->suffix, $variables);
+        $prefix = Str::insert($this->prefix, $variables);
+        $suffix = Str::insert($this->suffix, $variables);
 
         $variables = Map {
             'prefix'   => $prefix,
@@ -64,7 +65,7 @@ class Wait extends AbstractFeedback {
         };
 
         $this->output->out(
-            str_pad($this->format(
+            str_pad(Str::insert(
                 $this->format, $variables
             ), SystemFactory::factory()->getWidth()),
             1,

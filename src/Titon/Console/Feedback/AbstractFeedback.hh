@@ -209,26 +209,6 @@ abstract class AbstractFeedback implements Feedback {
     }
 
     /**
-     * Format the given template to replace denoted variables with their values.
-     *
-     * @param string $message   The template to format
-     * @param        Map $      The variables available
-     *
-     * @return string
-     */
-    protected function format(string $message, Map<string, mixed> $args = Map {}): string {
-        if ($args->isEmpty()) {
-            return $message;
-        }
-
-        foreach ($args as $key => $value) {
-            $message = str_replace('{:' . $key . '}', $value, $message);
-        }
-
-        return $message;
-    }
-
-    /**
      * Format the given time for output.
      *
      * @param int $time The timestamp to format

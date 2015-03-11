@@ -492,7 +492,9 @@ class Input {
         invariant(!is_null($option), "Must not be null.");
 
         // Peak ahead to make sure we get a value.
-        $nextValue = $this->input->peek();
+        if (is_null($nextValue = $this->input->peek())) {
+            throw new MissingValueException(sprintf("No value given for the option %s.", $input['value']));
+        }
 
         invariant(!is_null($nextValue), "Must be RawInput.");
 

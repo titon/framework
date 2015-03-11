@@ -21,6 +21,11 @@ class StyleDefinition {
      */
     private string $bgColor;
 
+    /**
+     * Data structure containing available background colors.
+     *
+     * @var Map<string, int>
+     */
     protected Map<string, int> $bgColorsMap = Map {
         'black'   => 40,
         'red'     => 41,

@@ -7,6 +7,7 @@
 
 namespace Titon\Console;
 
+use Exception;
 use Titon\Console\System\SystemFactory;
 
 /**
@@ -118,7 +119,7 @@ class Output {
         $parsedTags = array_unique($this->parseTags($message));
         $retval = $message;
         foreach ($parsedTags as $xmlTag) {
-            if (!is_null($this->styles[$xmlTag])) {
+            if (!is_null($this->styles->get($xmlTag))) {
                 $style = $this->styles[$xmlTag];
                 $retval = $style->format($xmlTag, $retval);
                 $matches = [];
@@ -179,6 +180,32 @@ class Output {
         preg_match_all('#<([\w-]*?)>#', $stringToParse, $tagsMatched);
 
         return $tagsMatched[1];
+    }
+
+    /**
+     * Basic `Exception` renderer to handle outputting of uncaught exceptions
+     * thrown in `Command` objects.
+     *
+     * @param Exception $exception  The `Exception` thrown
+     */
+    public function renderException(Exception $exception): void {
+        $class = explode("\\", get_class($exception));
+        $class = $class[count($class) - 1];
+
+        $message = explode('{{BREAK}}', wordwrap($exception->getMessage(), 40, "{{BREAK}}"));
+        array_unshift($message, "[$class]");
+        $elen = max(array_map('strlen', $message));
+
+        $this->error(Output::LF);
+        $this->error("<exception>  " . str_pad("", $elen) . "  </exception>");
+
+        foreach ($message as $line) {
+            $line = str_pad($line, $elen);
+            $this->error("<exception>  $line  </exception>");
+        }
+
+        $this->error("<exception>  " . str_pad("", $elen) . "  </exception>");
+        $this->error(Output::LF);
     }
 
     /**

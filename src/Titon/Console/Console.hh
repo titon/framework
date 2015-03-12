@@ -7,6 +7,7 @@
 
 namespace Titon\Console;
 
+use Exception;
 use Titon\Console\Input;
 use Titon\Console\Output;
 use Titon\Console\InputDefinition\Flag;
@@ -19,6 +20,13 @@ use ReflectionClass;
  * @package Titon\Console
  */
 class Console {
+
+    /**
+     * A decorator banner to `brand` the application.
+     *
+     * @var string
+     */
+    protected string $banner = '';
 
     /**
      * The `Command` object to run
@@ -35,11 +43,25 @@ class Console {
     protected Input $input;
 
     /**
+     * The name of the application.
+     *
+     * @var string
+     */
+    protected string $name = '';
+
+    /**
      * The `Output` object used to send response data to the user.
      *
      * @var \Titon\Console\Output
      */
     protected Output $output;
+
+    /**
+     * The version of the application.
+     *
+     * @var string
+     */
+    protected string $version = '';
 
     /**
      * Construct a new `Console` application.
@@ -68,7 +90,12 @@ class Console {
         $command = new ReflectionClass($command);
         $command = $command->newInstance($this->input, $this->output);
 
-        $this->input->addCommand($command);
+        try {
+            $this->input->addCommand($command);
+        } catch (Exception $e) {
+            $this->output->renderException($e);
+            $this->shutdown();
+        }
 
         return $this;
     }
@@ -95,6 +122,52 @@ class Console {
         $this->output->setStyle('info', new StyleDefinition('green'));
         $this->output->setStyle('warning', new StyleDefinition('yellow'));
         $this->output->setStyle('error', new StyleDefinition('red'));
+        $this->output->setStyle('exception', new StyleDefinition('white', 'red'));
+    }
+
+    /**
+     * Retrieve the application's banner.
+     *
+     * @return string
+     */
+    public function getBanner(): string {
+        return $this->banner;
+    }
+
+    /**
+     * Retrieve the console's `Input` object.
+     *
+     * @return \Titon\Console\Input
+     */
+    public function getInput(): Input {
+        return $this->input;
+    }
+
+    /**
+     * Retrieve the application's name.
+     *
+     * @return string
+     */
+    public function getName(): string {
+        return $this->name;
+    }
+
+    /**
+     * Retrieve the console's `Output` object.
+     *
+     * @return \Titon\Console\Output
+     */
+    public function getOutput(): Output {
+        return $this->output;
+    }
+
+    /**
+     * Retrieve the application's version.
+     *
+     * @return string
+     */
+    public function getVersion(): string {
+        return $this->version;
     }
 
     /**
@@ -109,6 +182,8 @@ class Console {
         } else {
             $this->runCommand($this->command);
         }
+
+        $this->shutdown();
     }
 
     /**
@@ -145,7 +220,12 @@ class Console {
             $this->output->setVerbosity($verbosity);
         }
 
-        $command->run();
+        try {
+            $command->run();
+        } catch (Exception $e) {
+            $this->output->renderException($e);
+            $this->shutdown();
+        }
     }
 
     /**
@@ -154,11 +234,57 @@ class Console {
      * @param \Titon\Console\Command|null $command  The `Command` to render usage for
      */
     public function renderHelpScreen(?Command $command = null): void {
-        $helpScreen = new HelpScreen($this->input);
+        $helpScreen = new HelpScreen($this);
         if (!is_null($command)) {
             $helpScreen->setCommand($command);
         }
 
         $this->output->out($helpScreen->render());
+    }
+
+    /**
+     * Set the banner of the application.
+     *
+     * @param string $banner    The banner decorator
+     *
+     * @return $this
+     */
+    public function setBanner(string $banner): this {
+        $this->banner = $banner;
+
+        return $this;
+    }
+
+    /**
+     * Set the name of the application.
+     *
+     * @param string $name  The name of the application
+     *
+     * @return $this
+     */
+    public function setName(string $name): this {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Set the version of the application.
+     *
+     * @param string $version   The version of the application
+     *
+     * @return $this
+     */
+    public function setVersion(string $version): this {
+        $this->version = $version;
+
+        return $this;
+    }
+
+    /**
+     * Shutdown method executed at the end of the application's run.
+     */
+    protected function shutdown(): void {
+        exit(1);
     }
 }

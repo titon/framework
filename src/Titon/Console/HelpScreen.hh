@@ -43,6 +43,13 @@ class HelpScreen {
     protected CommandMap $commands;
 
     /**
+     * The `Console` object to render a help screen for.
+     *
+     * @var \Titon\Console\Console
+     */
+    protected Console $console;
+
+    /**
      * The available `Flag` objects accepted.
      *
      * @var \Titon\Console\InputBag<Flag>
@@ -67,10 +74,12 @@ class HelpScreen {
     /**
      * Construct a new instance of the `HelpScreen`.
      *
-     * @param \Titon\Console\Input $input   The `Input` to read all available
-     *                                      parameters from
+     * @param \Titon\Console\Input $input   The `Console` application
      */
-    public function __construct(Input $input) {
+    public function __construct(Console $console) {
+        $this->console = $console;
+
+        $input = $console->getInput();
         $this->commands = $input->getCommands();
         $this->arguments = $input->getArguments();
         $this->flags = $input->getFlags();
@@ -187,23 +196,31 @@ class HelpScreen {
      * @return string
      */
     protected function renderHeading(): string {
-        $retval = '';
+        $retval = Vector {};
 
-        if (!is_null($this->command)) {
-            $command = $this->command;
+        if (!is_null($command = $this->command)) {
 
             invariant(!is_null($command), "Must be a command.");
 
             if ($description = $command->getDescription()) {
-                $retval = $command->getName() . ' - ' . $description;
+                $retval[] = $command->getName() . ' - ' . $description;
             } else {
-                $retval = $command->getName();
+                $retval[] = $command->getName();
             }
-        } else if ($this->name !== '') {
-            $retval = $this->name;
+        } else if ($this->console->getName() !== '') {
+            if (($banner = $this->console->getBanner()) !== '') {
+                $retval[] = $banner;
+            }
+
+            $name = $this->console->getName();
+            if (($version = $this->console->getVersion()) !== '') {
+                $name .= " version $version";
+            }
+
+            $retval[] = $name;
         }
 
-        return $retval;
+        return implode("\n", $retval);
     }
 
     /**

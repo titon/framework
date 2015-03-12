@@ -64,13 +64,18 @@ class Wait extends AbstractFeedback {
             'suffix'   => $suffix
         };
 
+        $eol = Output::CR;
+        if ($finish === true) {
+            $eol = Output::LF;
+        }
+
         $this->output->out(
             str_pad(Str::insert(
                 $this->format, $variables
             ), SystemFactory::factory()->getWidth()),
             1,
             Output::VERBOSITY_NORMAL,
-            Output::CR
+            $eol
         );
     }
 }

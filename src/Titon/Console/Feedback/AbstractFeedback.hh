@@ -149,7 +149,6 @@ abstract class AbstractFeedback implements Feedback {
 
         if ($this->current === $this->total) {
             $this->display(true);
-            $this->output->out();
         }
     }
 

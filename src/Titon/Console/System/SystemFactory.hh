@@ -24,9 +24,9 @@ class SystemFactory {
      */
     public static function factory(): System {
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            return new Windows();
+            return new WindowsSystem();
         }
 
-        return new Linux();
+        return new LinuxSystem();
     }
 }

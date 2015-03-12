@@ -13,13 +13,13 @@ use Titon\Console\System\SystemFactory;
 use Titon\Console\Exception\InvalidCharacterSequence;
 
 /**
- * The `ProgressBar` class displays feedback information with a progress bar.
+ * The `ProgressBarFeedback` class displays feedback information with a progress bar.
  * Additional information including percentage done, time elapsed, and time
  * remaining is included by default.
  *
  * @package Titon\Console\Feedback
  */
-class ProgressBar extends AbstractFeedback {
+class ProgressBarFeedback extends AbstractFeedback {
 
     /**
      * The 2-string character format to use when constructing the displayed bar.

@@ -12,7 +12,7 @@ namespace Titon\Console\System;
  *
  * @package Titon\Console\System
  */
-class Windows extends AbstractSystem {
+class WindowsSystem extends AbstractSystem {
 
     /**
      * Data structure containing the relevant output from the `mode` command.

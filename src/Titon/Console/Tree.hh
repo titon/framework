@@ -17,9 +17,9 @@ interface Tree {
     /**
      * Retrieve the data structure of the `Tree`.
      *
-     * @return array<mixed>
+     * @return \Titon\Console\TreeData
      */
-    public function getData(): array<mixed>;
+    public function getData(): TreeData;
 
     /**
      * Build and return the markup for the `Tree`.
@@ -31,9 +31,9 @@ interface Tree {
     /**
      * Set the data for the tree.
      *
-     * @param array<mixed> $data    The data for the tree
+     * @param \Titon\Console\TreeData $data The data for the tree
      *
      * @return $this
      */
-    public function setData(array<mixed> $data): this;
+    public function setData(TreeData $data): this;
 }

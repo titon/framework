@@ -8,6 +8,7 @@
 namespace Titon\Console\Tree;
 
 use Titon\Console\Tree;
+use Titon\Console\TreeData;
 
 /**
  * The `AbstractTree` class provides core functionality for building a tree given
@@ -20,36 +21,38 @@ abstract class AbstractTree implements Tree {
     /**
      * The data for the tree.
      *
-     * @var array<mixed>
+     * @var \Titon\Console\TreeData
      */
-    protected array<mixed> $data = [];
+    protected TreeData $data = [];
 
     /**
      * Construct a new instance of a tree.
      *
-     * @param array<mixed> $data    The data to render
+     * @param \Titon\Console\TreeData $data The data to render
      */
-    public function __construct(array<mixed> $data = []) {
-        $this->data = $data;
+    public function __construct(?TreeData $data = null) {
+        if (!is_null($data)) {
+            $this->data = $data;
+        }
     }
 
     /**
      * Recursively build the tree and each branch and prepend necessary markup
      * for the output.
      *
-     * @param array<mixed> $tree    The tree or branch to build
+     * @param \Titon\Console\TreeData $tree The tree or branch to build
      * @param string $prefix        The markup prefix for the tree / branch
      *
      * @retun string
      */
-    abstract protected function build(array<mixed> $tree, string $prefix = ''): string;
+    abstract protected function build(TreeData $tree, string $prefix = ''): string;
 
     /**
      * Retrieve the data of the tree.
      *
-     * @return array<mixed>
+     * @return \Titon\Console\TreeData
      */
-    public function getData(): array<mixed> {
+    public function getData(): TreeData {
         return $this->data;
     }
 
@@ -65,7 +68,7 @@ abstract class AbstractTree implements Tree {
     /**
      * {@inheritdoc}
      */
-    public function setData(array<mixed> $data): this {
+    public function setData(TreeData $data): this {
         $this->data = $data;
 
         return $this;

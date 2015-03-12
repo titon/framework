@@ -64,7 +64,7 @@ class ProgressBarFeedback extends AbstractFeedback {
             $eol = Output::LF;
         }
 
-        $this->output->out(Str::insert($this->format, $variables, Map {'escape' => false}), Output::VERBOSITY_NORMAL, 1, $eol);
+        $this->output->out(Output::ANSI_CLEAR_LINE . Str::insert($this->format, $variables, Map {'escape' => false}), Output::VERBOSITY_NORMAL, 1, $eol);
     }
 
     /**

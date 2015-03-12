@@ -7,8 +7,8 @@
 
 namespace Titon\Console\Command;
 
-use Titon\Console\Feedback\ProgressBar;
-use Titon\Console\Feedback\Wait;
+use Titon\Console\Feedback\ProgressBarFeedback;
+use Titon\Console\Feedback\WaitFeedback;
 use Titon\Console\InputBag;
 use Titon\Console\Command;
 use Titon\Console\Input;
@@ -256,8 +256,17 @@ abstract class AbstractCommand implements Command {
         $this->output->out($output);
     }
 
-    protected function progressBar(int $total = 0, string $message = '', int $interval = 100): ProgressBar {
-        return new ProgressBar($this->output, $total, $message, $interval);
+    /**
+     * Construct and return a new instance of `ProgressBarFeedback`.
+     *
+     * @param int    $total
+     * @param string $message
+     * @param int    $interval
+     *
+     * @return \Titon\Console\Feedback\ProgressBarFeedback
+     */
+    protected function progressBar(int $total = 0, string $message = '', int $interval = 100): ProgressBarFeedback {
+        return new ProgressBarFeedback($this->output, $total, $message, $interval);
     }
 
     /**
@@ -337,7 +346,14 @@ abstract class AbstractCommand implements Command {
         return $this;
     }
 
-    protected function wait(int $total = 0, string $message = '', int $interval = 100): Wait {
-        return new  Wait($this->output, $total, $message, $interval);
+    /**
+     * Construct and return a new `WaitFeedback` object.
+     *
+     * @param int    $total     The total number of cycles of the process
+     * @param string $message   The message presented with the feedback
+     * @param int    $interval  The time inverval the feedback should update
+     */
+    protected function wait(int $total = 0, string $message = '', int $interval = 100): WaitFeedback {
+        return new  WaitFeedback($this->output, $total, $message, $interval);
     }
 }

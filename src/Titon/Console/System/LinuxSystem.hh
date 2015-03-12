@@ -12,7 +12,7 @@ namespace Titon\Console\System;
  *
  * @package Titon\Console\System
  */
-class Linux extends AbstractSystem {
+class LinuxSystem extends AbstractSystem {
 
     /**
      * {@inheritdoc}

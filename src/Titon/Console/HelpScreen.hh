@@ -38,7 +38,7 @@ class HelpScreen {
     /**
      * The available `Command` objects available.
      *
-     * @var CommandMap
+     * @var \Titon\Console\CommandMap
      */
     protected CommandMap $commands;
 
@@ -340,7 +340,7 @@ class HelpScreen {
     /**
      * Set the `Command` to render a the help screen for.
      *
-     * @param \Titon\Console\InputBag<Argument> $arguments The `Command` object
+     * @param \Titon\Console\Command $command   The `Command` object
      *
      * @return $this
      */

@@ -12,11 +12,11 @@ use Titon\Console\Output;
 use Titon\Console\System\SystemFactory;
 
 /**
- * The `Wait` class displays feedback by cycling through a series of characters.
+ * The `WaitFeedback` class displays feedback by cycling through a series of characters.
  *
  * @package Titon\Console\Feedback
  */
-class Wait extends AbstractFeedback {
+class WaitFeedback extends AbstractFeedback {
 
     /**
      * {@inheritdoc}

@@ -183,9 +183,9 @@ abstract class AbstractInputDefinition<T> implements InputDefinition {
     }
 
     /**
-     * Set the value of the `Flag`.
+     * Set the value of the `InputDefinition`.
      *
-     * @param int $value The value given to the `Flag`
+     * @param int $value The value given to the `InputDefinition`
      *
      * @return $this
      */

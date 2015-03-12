@@ -27,4 +27,5 @@ namespace Titon\Console {
         'value' => string
     );
     type StyleMap = Map<string, StyleDefinition>;
+    type TreeData = array<mixed>;
 }

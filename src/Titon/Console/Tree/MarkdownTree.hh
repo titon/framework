@@ -7,6 +7,8 @@
 
 namespace Titon\Console\Tree;
 
+use Titon\Console\TreeData;
+
 /**
  * Build a tree given an infinitely nested data structure using Markdown syntax.
  *
@@ -17,7 +19,7 @@ class MarkdownTree extends AbstractTree {
     /**
      * {@inheritdoc}
      */
-    protected function build(array<mixed> $tree, string $prefix = ''): string {
+    protected function build(TreeData $tree, string $prefix = ''): string {
         if (is_null($tree)) {
             $tree = $this->data;
         }

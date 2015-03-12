@@ -194,17 +194,20 @@ class Output {
 
         $message = explode('{{BREAK}}', wordwrap($exception->getMessage(), 40, "{{BREAK}}"));
         array_unshift($message, "[$class]");
-        $elen = max(array_map('strlen', $message));
+
+        $length = max(array_map(($key) ==> {
+            return strlen($key);
+        }, $message));
 
         $this->error(Output::LF);
-        $this->error("<exception>  " . str_pad("", $elen) . "  </exception>");
+        $this->error("<exception>  " . str_pad("", $length) . "  </exception>");
 
         foreach ($message as $line) {
-            $line = str_pad($line, $elen);
+            $line = str_pad($line, $length);
             $this->error("<exception>  $line  </exception>");
         }
 
-        $this->error("<exception>  " . str_pad("", $elen) . "  </exception>");
+        $this->error("<exception>  " . str_pad("", $length) . "  </exception>");
         $this->error(Output::LF);
     }
 

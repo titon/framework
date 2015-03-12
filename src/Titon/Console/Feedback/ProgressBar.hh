@@ -59,7 +59,12 @@ class ProgressBar extends AbstractFeedback {
             'suffix'   => $suffix
         };
 
-        $this->output->out(Str::insert($this->format, $variables, Map {'escape' => false}), Output::VERBOSITY_NORMAL, 1, Output::CR);
+        $eol = Output::CR;
+        if ($finish === true) {
+            $eol = Output::LF;
+        }
+
+        $this->output->out(Str::insert($this->format, $variables, Map {'escape' => false}), Output::VERBOSITY_NORMAL, 1, $eol);
     }
 
     /**

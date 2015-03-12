@@ -26,15 +26,15 @@ class StyleDefinition {
      *
      * @var Map<string, int>
      */
-    protected Map<string, int> $bgColorsMap = Map {
-        'black'   => 40,
-        'red'     => 41,
-        'green'   => 42,
-        'brown'   => 43,
-        'blue'    => 44,
-        'magenta' => 45,
-        'cyan'    => 46,
-        'white'   => 47,
+    protected Map<string, string> $bgColorsMap = Map {
+        'black'   => "40",
+        'red'     => "41",
+        'green'   => "42",
+        'brown'   => "43",
+        'blue'    => "44",
+        'magenta' => "45",
+        'cyan'    => "46",
+        'white'   => "47",
     };
 
     /**
@@ -129,13 +129,7 @@ class StyleDefinition {
      * @return string
      */
     public function getBgColorCode(): string {
-        if (!is_null($bgColor = $this->bgColorsMap->get($this->bgColor))) {
-            invariant(is_string($bgColor), "Must be a string.");
-
-            return $bgColor;
-        }
-
-        return '';
+        return $this->bgColorsMap->get($this->bgColor) ?: '';
     }
 
     /**
@@ -162,13 +156,7 @@ class StyleDefinition {
      * @return string
      */
     public function getFgColorCode(): string {
-        if (!is_null($fgColor = $this->fgColorsMap->get($this->fgColor))) {
-            invariant(is_string($fgColor), "Must be a string.");
-
-            return $fgColor;
-        }
-
-        return '';
+        return $this->fgColorsMap->get($this->fgColor) ?: '';
     }
 
     /**

@@ -462,9 +462,9 @@ class Input {
         }
 
         foreach ($this->flags as $name => $flag) {
-            if ($key === $flag->getNegativeAlias()) {
-                invariant($flag instanceof Flag, "Must be a Flag.");
+            invariant($flag instanceof Flag, "Must be a Flag.");
 
+            if ($key === $flag->getNegativeAlias()) {
                 $flag->setValue(0);
                 $flag->setExists(true);
 
@@ -485,18 +485,16 @@ class Input {
      */
     protected function parseOption(RawInput $input): bool {
         $key = $input['value'];
-        if (is_null($option = $this->options->get($key))) {
+        $option = $this->options->get($key);
+        if (is_null($option)) {
             return false;
         }
 
-        invariant(!is_null($option), "Must not be null.");
-
         // Peak ahead to make sure we get a value.
-        if (is_null($nextValue = $this->input->peek())) {
+        $nextValue = $this->input->peek();
+        if (is_null($nextValue)) {
             throw new MissingValueException(sprintf("No value given for the option %s.", $input['value']));
         }
-
-        invariant(!is_null($nextValue), "Must be RawInput.");
 
         if (!$this->input->end() && $this->input->isArgument($nextValue['raw'])) {
             throw new MissingValueException("No value is present for option $key");

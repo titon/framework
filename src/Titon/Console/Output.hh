@@ -7,6 +7,8 @@
 
 namespace Titon\Console;
 
+use Titon\Console\System\SystemFactory;
+
 /**
  * The `Output` class handles formatting and sending data to the ouput stream.
  *
@@ -121,7 +123,11 @@ class Output {
                 $retval = $style->format($xmlTag, $retval);
                 $matches = [];
                 $retval = preg_replace_callback('#<[\w-]+?>.*<\/[\w-]+?>#', ($matches) ==> {
-                    return sprintf("%s%s%s", $style->getEndCode(), $this->format($matches[0]), $style->getStartCode());
+                    if (SystemFactory::factory()->supportsAnsi() === true) {
+                        return sprintf("%s%s%s", $style->getEndCode(), $this->format($matches[0]), $style->getStartCode());
+                    }
+
+                    return sprintf("%s", $this->format($matches[0]));
                 }, $retval);
             }
         }

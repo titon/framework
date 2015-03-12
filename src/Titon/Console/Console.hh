@@ -115,6 +115,10 @@ class Console {
         $this->input->addFlag((new Flag('verbose', 'Set the verbosity of the application\'s output.'))
             ->alias('v')
             ->setStackable(true));
+        $this->input->addFlag((new Flag('version', "Display the application's version"))
+            ->alias('V'));
+        $this->input->addFlag(new Flag('ansi', "Force ANSI output"));
+        $this->input->addFlag(new Flag('no-ansi', "Disable ANSI output"));
 
         /*
          * Add default styles
@@ -195,11 +199,20 @@ class Console {
         $command->registerInput();
         $this->input->parse();
 
-        $flag = $this->input->getFlag('help');
-
-        if ($flag->getValue() === 1) {
+        if ($this->input->getFlag('help')->getValue() === 1) {
             $this->renderHelpScreen($command);
             return;
+        }
+
+        if ($this->input->getFlag('version')->getValue() === 1) {
+            $this->output->out("{$this->getName()} version {$this->getVersion()}");
+            return;
+        }
+
+        if ($this->input->getFlag('ansi')->getValue() === 1) {
+            $this->output->setForceAnsi(true);
+        } else if ($this->input->getFlag('no-ansi')->getValue() === 1) {
+            $this->output->setSuppressAnsi(true);
         }
 
         $flag = $this->input->getFlag('quiet');

@@ -107,14 +107,21 @@ class StyleDefinition {
      *
      * @param string $xmlTag    The XML tag
      * @param string $value     The contents to format
+     * @param bool $ansiSupport If we should style the output with ANSI output
      *
      * @return string
      */
-    public function format(string $xmlTag, string $value): string {
+    public function format(string $xmlTag, string $value, bool $ansiSupport = true): string {
         $values = $this->getValueBetweenTags($xmlTag, $value);
         $retval = $value;
         foreach ($values as $val) {
             $valueReplaced = '<' . $xmlTag . '>' . $val . '</' . $xmlTag . '>';
+
+            if ($ansiSupport === false) {
+                $retval = str_replace($valueReplaced, $val, $retval);
+                continue;
+            }
+
             $valueResult = $this->replaceTagColors($val);
 
             $retval = str_replace($valueReplaced, $valueResult, $retval);

@@ -27,6 +27,13 @@ class Output {
     const string CR = "\r";
 
     /**
+     * Flag to determine if we should always output ANSI.
+     *
+     * @var bool
+     */
+    protected bool $forceAnsi = false;
+
+    /**
      * The singleton instance.
      *
      * @var \Titon\Console\Output|null
@@ -53,6 +60,13 @@ class Output {
      * @var \Titon\Console\StyleMap
      */
     protected StyleMap $styles = Map {};
+
+    /**
+     * Flag to determine if we should never output ANSI.
+     *
+     * @var bool
+     */
+    protected bool $suppressAnsi = false;
 
     /**
      * The global verbosity level for the `Output`.
@@ -109,6 +123,19 @@ class Output {
     }
 
     /**
+     * Set flag if ANSI output should be forced.
+     *
+     * @param bool $suppress    If ANSI should be forced
+     *
+     * @return $this
+     */
+        public function setForceAnsi(bool $force): this {
+        $this->forceAnsi = $force;
+
+        return $this;
+    }
+
+    /**
      * Format contents by parsing the style tags and applying necessary formatting.
      *
      * @param string $message   The message to format
@@ -120,11 +147,21 @@ class Output {
         $retval = $message;
         foreach ($parsedTags as $xmlTag) {
             if (!is_null($this->styles->get($xmlTag))) {
+                $outputAnsi = false;
+                if ($this->forceAnsi === true) {
+                    $outputAnsi = true;
+                } else if ($this->suppressAnsi === true) {
+                    $outputAnsi = false;
+                } else if (SystemFactory::factory()->supportsAnsi() === true) {
+                    $outputAnsi = true;
+                }
+
                 $style = $this->styles[$xmlTag];
-                $retval = $style->format($xmlTag, $retval);
+                $retval = $style->format($xmlTag, $retval, $outputAnsi);
+
                 $matches = [];
                 $retval = preg_replace_callback('#<[\w-]+?>.*<\/[\w-]+?>#', ($matches) ==> {
-                    if (SystemFactory::factory()->supportsAnsi() === true) {
+                    if ($outputAnsi === true) {
                         return sprintf("%s%s%s", $style->getEndCode(), $this->format($matches[0]), $style->getStartCode());
                     }
 
@@ -229,6 +266,19 @@ class Output {
      */
     public function setStyle(string $element, StyleDefinition $format): this {
         $this->styles[$element] = $format;
+
+        return $this;
+    }
+
+    /**
+     * Set flag if ANSI output should be suppressed.
+     *
+     * @param bool $suppress    If ANSI should be suppressed
+     *
+     * @return $this
+     */
+    public function setSuppressAnsi(bool $suppress): this {
+        $this->suppressAnsi = $suppress;
 
         return $this;
     }

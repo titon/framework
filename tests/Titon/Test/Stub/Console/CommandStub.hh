@@ -52,6 +52,8 @@ class CommandStub extends AbstractCommand {
             $this->runFeedbackExample($type);
         } else if ($this->getFlag('menu')) {
             $this->runUserInputExamples();
+        } else {
+            $this->runUserInputExamples();
         }
     }
 

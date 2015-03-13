@@ -22,7 +22,7 @@ class Output {
     const int VERBOSITY_VERBOSE = 3;
     const string STREAM_STDOUT = 'php://stdout';
     const string STREAM_STDERR = 'php://stderr';
-    const string ANSI_CLEAR_LINE = "\033[K";
+    const string ANSI_CLEAR_LINE = "\e[K";
     const string LF = PHP_EOL;
     const string CR = "\r";
 

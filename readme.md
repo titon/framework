@@ -30,16 +30,15 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 
 Upcoming features and release plan.
 
-* February
-    * Kernel package - Application foundation [COMPLETE]
 * March
     * Console package - Command line tools [IN PROGRESS]
-    * Cleaned up unit tests [IN PROGRESS]
+    * Cleaned up unit tests [COMPLETE]
+    * SOLID audits [IN PROGRESS]
 * April
     * [MVC package](https://github.com/titon/mvc) - Model-view-controller application
-    * [G11N package](https://github.com/titon/g11n) - Internationalization and localization
-* May - June
     * CommandBus package - Command bus layer
+* May - June
+    * [G11N package](https://github.com/titon/g11n) - Internationalization and localization
     * [DB package](https://github.com/titon/db) - Database abstraction layer
 * July
     * [Model package](https://github.com/titon/model) - Object relational mapper and active record for DB entities

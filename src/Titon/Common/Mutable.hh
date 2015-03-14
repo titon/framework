@@ -180,15 +180,6 @@ trait Mutable<Tk, Tv> {
     }
 
     /**
-     * Return the data as an array.
-     *
-     * @return array<Tk, Tv>
-     */
-    public function toArray(): array<Tk, Tv> {
-        return $this->all()->toArray();
-    }
-
-    /**
      * Return the count of the collection.
      *
      * @return int

@@ -1,7 +1,6 @@
 <?hh
 namespace Titon\Http\Bag;
 
-use Titon\Http\Cookie;
 use Titon\Test\TestCase;
 
 class CookieBagTest extends TestCase {
@@ -13,11 +12,9 @@ class CookieBagTest extends TestCase {
             'baz' => '789'
         });
 
-        $this->assertEquals(Map {
-            'foo' => new Cookie('foo', '123'),
-            'bar' => new Cookie('bar', '456'),
-            'baz' => new Cookie('baz', '789'),
-        }, $bag->all());
+        foreach ($bag->all() as $cookie) {
+            $this->assertInstanceOf('Titon\Http\Cookie', $cookie);
+        }
     }
 
 }

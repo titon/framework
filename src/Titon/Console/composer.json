@@ -22,6 +22,7 @@
   "require": {
     "hhvm": ">=3.4.0",
     "titon/utility": "*",
+    "titon/kernel": "*"
   },
   "autoload": {
     "psr-4": {

@@ -59,6 +59,10 @@ class ProgressBarFeedback extends AbstractFeedback {
             'suffix'   => $suffix
         };
 
+        if ($this->output->getAnsiAllowed() === false) {
+            return;
+        }
+
         $eol = Output::CR;
         if ($finish === true) {
             $eol = Output::LF;

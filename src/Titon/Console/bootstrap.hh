@@ -16,6 +16,7 @@
 namespace Titon\Console {
 
     type CommandMap = Map<string, Command>;
+    type CommandList = Vector<Command>;
     type FeedbackVariables = shape(
         'message'   => string,
         'percent'   => int,

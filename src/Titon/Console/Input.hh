@@ -7,8 +7,9 @@
 
 namespace Titon\Console;
 
-use Titon\Console\InputDefinition\AbstractInputDefinition;
 use Titon\Utility\State\Server;
+use Titon\Kernel\Input as KernelInput;
+use Titon\Console\InputDefinition\AbstractInputDefinition;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
@@ -23,7 +24,7 @@ use Titon\Console\Exception\InvalidInputDefinitionException;
  *
  * @package Titon\Console
  */
-class Input {
+class Input implements KernelInput {
 
     const string STREAM_STDIN = 'php://stdin';
 

@@ -12,6 +12,7 @@ use Titon\Console\Input;
 use Titon\Console\Output;
 use Titon\Console\InputDefinition\Flag;
 use ReflectionClass;
+use Titon\Kernel\Application;
 
 /**
  * The `Console` class bootstraps and handles Input and Output to process and
@@ -19,7 +20,7 @@ use ReflectionClass;
  *
  * @package Titon\Console
  */
-class Console {
+class Console implements Application {
 
     /**
      * A decorator banner to `brand` the application.
@@ -34,6 +35,13 @@ class Console {
      * @var \Titon\Console\Command|null
      */
     protected ?Command $command;
+
+    /**
+     * Store added commands until we inject them into the `Input` at runtime.
+     *
+     * @var Vector<\Titon\Console\Command>
+     */
+    protected CommandList $commands = Vector {};
 
     /**
      * The `Input` object used to retrieve parsed parameters and commands.
@@ -65,6 +73,9 @@ class Console {
 
     /**
      * Construct a new `Console` application.
+     *
+     * @param \Titon\Console\Input|null $input  The `Input` object to inject
+     * @param \Titon\Console\Output|null $input The `Output` object to inject
      */
     public function __construct(?Input $input = null, ?Output $output = null) {
         if (is_null($input)) {
@@ -82,20 +93,12 @@ class Console {
     /**
      * Add a `Command` to the application to be parsed by the `Input`.
      *
-     * @param Command $command  The `Command` object to add
+     * @param \Titon\Console\Command $command   The `Command` object to add
      *
      * @return $this
      */
-    public function addCommand(string $command): this {
-        $command = new ReflectionClass($command);
-        $command = $command->newInstance($this->input, $this->output);
-
-        try {
-            $this->input->addCommand($command);
-        } catch (Exception $e) {
-            $this->output->renderException($e);
-            $this->shutdown();
-        }
+    public function addCommand(Command $command): this {
+        $this->commands[] = $command;
 
         return $this;
     }
@@ -105,6 +108,18 @@ class Console {
      * settings.
      */
     protected function bootstrap(): void {
+        foreach ($this->commands as $command) {
+            $command->setInput($this->input);
+            $command->setOutput($this->output);
+
+            try {
+                $this->input->addCommand($command);
+            } catch (Exception $e) {
+                $this->output->renderException($e);
+                $this->terminate();
+            }
+        }
+
         /*
          * Add global flags
          */
@@ -176,8 +191,18 @@ class Console {
 
     /**
      * Run the `Console` application.
+     *
+     * @param \Titon\Console\Input|null $input  The `Input` object to inject
+     * @param \Titon\Console\Output|null $input The `Output` object to inject
      */
-    public function run(): void {
+    public function run(?Input $input = null, ?Output $output = null): void {
+        if (!is_null($input)) {
+            $this->input = $input;
+        }
+        if (!is_null($output)) {
+            $this->output = $output;
+        }
+
         $this->bootstrap();
         $this->command = $this->input->getActiveCommand();
         if (is_null($this->command)) {
@@ -187,7 +212,7 @@ class Console {
             $this->runCommand($this->command);
         }
 
-        $this->shutdown();
+        $this->terminate();
     }
 
     /**
@@ -237,7 +262,7 @@ class Console {
             $command->run();
         } catch (Exception $e) {
             $this->output->renderException($e);
-            $this->shutdown();
+            $this->terminate();
         }
     }
 
@@ -295,9 +320,9 @@ class Console {
     }
 
     /**
-     * Shutdown method executed at the end of the application's run.
+     * Termination method executed at the end of the application's run.
      */
-    protected function shutdown(): void {
+    protected function terminate(): void {
         exit(1);
     }
 }

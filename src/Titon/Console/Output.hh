@@ -8,6 +8,7 @@
 namespace Titon\Console;
 
 use Exception;
+use Titon\Kernel\Output as KernelOutput;
 use Titon\Console\System\SystemFactory;
 
 /**
@@ -15,7 +16,7 @@ use Titon\Console\System\SystemFactory;
  *
  * @package Titon\Console
  */
-class Output {
+class Output implements KernelOutput {
 
     const int VERBOSITY_QUIET = 0;
     const int VERBOSITY_NORMAL = 1;
@@ -119,7 +120,7 @@ class Output {
         $output = $this->format($output);
         $output .= str_repeat("\n", $newLines);
 
-        $this->send($output, $this->stderr);
+        fwrite($this->stderr, $output);
     }
 
     /**
@@ -147,14 +148,7 @@ class Output {
         $retval = $message;
         foreach ($parsedTags as $xmlTag) {
             if (!is_null($this->styles->get($xmlTag))) {
-                $outputAnsi = false;
-                if ($this->forceAnsi === true) {
-                    $outputAnsi = true;
-                } else if ($this->suppressAnsi === true) {
-                    $outputAnsi = false;
-                } else if (SystemFactory::factory()->supportsAnsi() === true) {
-                    $outputAnsi = true;
-                }
+                $outputAnsi = $this->getAnsiAllowed();
 
                 $style = $this->styles[$xmlTag];
                 $retval = $style->format($xmlTag, $retval, $outputAnsi);
@@ -171,6 +165,19 @@ class Output {
         }
 
         return $retval;
+    }
+
+    public function getAnsiAllowed(): bool {
+        $allowed = false;
+        if ($this->forceAnsi === true) {
+            $allowed = true;
+        } else if ($this->suppressAnsi === true) {
+            $allowed = false;
+        } else if (SystemFactory::factory()->supportsAnsi() === true) {
+            $allowed = true;
+        }
+
+        return $allowed;
     }
 
     /**
@@ -202,7 +209,7 @@ class Output {
         $output = $this->format($output);
         $output .= str_repeat($newlineChar, $newLines);
 
-        $this->send($output, $this->stdout);
+        fwrite($this->stdout, $output);
     }
 
     /**
@@ -249,13 +256,10 @@ class Output {
     }
 
     /**
-     * Send the response through the given output stream.
-     *
-     * @param string   $response    The contents to send
-     * @param resource $stream      The output stream
+     * Currently unused: Send the response through the given output stream.
      */
-    protected function send(string $response, resource $stream): void {
-        fwrite($stream, $response);
+    public function send(): void {
+
     }
 
     /**

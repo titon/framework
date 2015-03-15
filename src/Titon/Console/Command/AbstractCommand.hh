@@ -80,8 +80,18 @@ abstract class AbstractCommand implements Command {
 
     /**
      * Construct a new instance of a command.
+     *
+     * @param \Titon\Console\Input|null $input  The `Input` object to inject
+     * @param \Titon\Console\Output|null $input The `Output` object to inject
      */
-    public function __construct(Input $input, Output $output) {
+    public function __construct(?Input $input = null, ?Output $output = null) {
+        if (is_null($input)) {
+            $input = new Input();
+        }
+        if (is_null($output)) {
+            $output = new Output();
+        }
+
         $this->input = $input;
         $this->output = $output;
         $this->arguments = new InputBag();

@@ -16,7 +16,7 @@ use Titon\Kernel\Middleware\Next;
  *
  * @package Titon\Kernel
  */
-interface Middleware {
+interface Middleware<Ti as Input, To as Output> {
 
     /**
      * Handle the current input and output and then process the next middleware in the stack.
@@ -26,6 +26,6 @@ interface Middleware {
      * @param \Titon\Kernel\Middleware\Next $next
      * @return \Titon\Kernel\Output
      */
-    public function handle<Ti, To>(Ti $input, To $output, Next $next): To;
+    public function handle(Ti $input, To $output, Next<Ti, To> $next): To;
 
 }

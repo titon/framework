@@ -14,7 +14,7 @@ namespace Titon\Kernel;
  *
  * @package Titon\Kernel
  */
-interface Kernel<Ti as Input, To as Output> extends Middleware {
+interface Kernel<Ti as Input, To as Output> extends Middleware<Ti, To> {
 
     /**
      * Return the current application.
@@ -43,7 +43,7 @@ interface Kernel<Ti as Input, To as Output> extends Middleware {
      * @param \Titon\Kernel\Middleware $middleware
      * @return $this
      */
-    public function pipe(Middleware $middleware): this;
+    public function pipe(Middleware<Ti, To> $middleware): this;
 
     /**
      * Run the startup, pipeline, and shutdown processes.

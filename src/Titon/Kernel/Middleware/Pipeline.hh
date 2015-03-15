@@ -8,7 +8,6 @@
 namespace Titon\Kernel\Middleware;
 
 use Titon\Kernel\Input;
-use Titon\Kernel\Kernel;
 use Titon\Kernel\Middleware;
 use Titon\Kernel\Output;
 use SplQueue;
@@ -25,7 +24,7 @@ class Pipeline<Ti as Input, To as Output> {
      *
      * @var \SplQueue
      */
-    protected SplQueue<Middleware> $pipeline;
+    protected SplQueue<Middleware<Ti, To>> $pipeline;
 
     /**
      * Create a new queue to store middleware.
@@ -52,7 +51,7 @@ class Pipeline<Ti as Input, To as Output> {
      * @param \Titon\Kernel\Middleware $middleware
      * @return $this
      */
-    public function through(Middleware $middleware): this {
+    public function through(Middleware<Ti, To> $middleware): this {
         $this->pipeline->enqueue($middleware);
 
         return $this;

@@ -112,7 +112,7 @@ abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, T
     /**
      * {@inheritdoc}
      */
-    public function pipe(Middleware $middleware): this {
+    public function pipe(Middleware<Ti, To> $middleware): this {
         $this->pipeline->through($middleware);
 
         return $this;

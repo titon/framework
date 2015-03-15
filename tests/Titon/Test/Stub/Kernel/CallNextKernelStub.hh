@@ -4,7 +4,7 @@ namespace Titon\Test\Stub\Kernel;
 use Titon\Kernel\Middleware\Next;
 
 class CallNextKernelStub extends KernelStub {
-    public function handle<Ti, To>(Ti $input, To $output, Next $next): To {
+    public function handle(InputStub $input, OutputStub $output, Next<InputStub, OutputStub> $next): OutputStub {
         $next->handle($input, $output);
 
         if ($output instanceof OutputStub) {

@@ -7,7 +7,9 @@
 
 namespace Titon\Kernel\Middleware;
 
+use Titon\Kernel\Input;
 use Titon\Kernel\Middleware;
+use Titon\Kernel\Output;
 use SplQueue;
 
 /**
@@ -15,21 +17,21 @@ use SplQueue;
  *
  * @package Titon\Kernel\Middleware
  */
-class Next {
+class Next<Ti as Input, To as Output> {
 
     /**
      * The middleware in the pipeline to execute.
      *
      * @var \SplQueue
      */
-    protected SplQueue<Middleware> $pipeline;
+    protected SplQueue<Middleware<Ti, To>> $pipeline;
 
     /**
      * Store the pipeline to handle.
      *
      * @param \SplQueue $pipeline
      */
-    public function __construct(SplQueue<Middleware> $pipeline) {
+    public function __construct(SplQueue<Middleware<Ti, To>> $pipeline) {
         $this->pipeline = $pipeline;
     }
 
@@ -41,7 +43,7 @@ class Next {
      * @param \Titon\Kernel\Output $output
      * @return \Titon\Kernel\Output
      */
-    public function handle<Ti, To>(Ti $input, To $output): To {
+    public function handle(Ti $input, To $output): To {
         if (count($this->pipeline) <= 0) {
             return $output;
         }

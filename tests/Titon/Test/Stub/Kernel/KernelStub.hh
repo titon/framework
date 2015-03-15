@@ -9,7 +9,6 @@ class KernelStub extends AbstractKernel<ApplicationStub, InputStub, OutputStub> 
         $input->stack[] = 'kernel';
         $output->ran = true;
 
-        // UNSAFE
         return $output;
     }
 }

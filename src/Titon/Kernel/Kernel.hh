@@ -14,14 +14,14 @@ namespace Titon\Kernel;
  *
  * @package Titon\Kernel
  */
-interface Kernel<Ti as Input, To as Output> extends Middleware<Ti, To> {
+interface Kernel<Ta as Application, Ti as Input, To as Output> extends Middleware<Ti, To> {
 
     /**
      * Return the current application.
      *
      * @return \Titon\Kernel\Application
      */
-    public function getApplication(): Application;
+    public function getApplication(): Ta;
 
     /**
      * Return the contextual input object.

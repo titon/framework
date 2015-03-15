@@ -20,7 +20,7 @@ use Titon\Kernel\Middleware\Pipeline;
  *
  * @package Titon\Kernel
  */
-abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, To>, Subject {
+abstract class AbstractKernel<Ta as Application, Ti as Input, To as Output> implements Kernel<Ta, Ti, To>, Subject {
     use EmitsEvents;
 
     /**
@@ -28,7 +28,7 @@ abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, T
      *
      * @var \Titon\Kernel\Application
      */
-    protected Application $app;
+    protected Ta $app;
 
     /**
      * The contextual input object.
@@ -64,7 +64,7 @@ abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, T
      * @param \Titon\Kernel\Application $app
      * @param \Titon\Kernel\Middleware\Pipeline $pipeline
      */
-    public function __construct(Application $app, Pipeline<Ti, To> $pipeline) {
+    public function __construct(Ta $app, Pipeline<Ti, To> $pipeline) {
         $this->app = $app;
         $this->pipeline = $pipeline;
         $this->startTime = microtime(true);
@@ -73,7 +73,7 @@ abstract class AbstractKernel<Ti as Input, To as Output> implements Kernel<Ti, T
     /**
      * {@inheritdoc}
      */
-    public function getApplication(): Application {
+    public function getApplication(): Ta {
         return $this->app;
     }
 

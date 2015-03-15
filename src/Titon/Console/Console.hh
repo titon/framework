@@ -111,13 +111,7 @@ class Console implements Application {
         foreach ($this->commands as $command) {
             $command->setInput($this->input);
             $command->setOutput($this->output);
-
-            try {
-                $this->input->addCommand($command);
-            } catch (Exception $e) {
-                $this->output->renderException($e);
-                $this->terminate();
-            }
+            $this->input->addCommand($command);
         }
 
         /*
@@ -195,7 +189,7 @@ class Console implements Application {
      * @param \Titon\Console\Input|null $input  The `Input` object to inject
      * @param \Titon\Console\Output|null $input The `Output` object to inject
      */
-    public function run(?Input $input = null, ?Output $output = null): void {
+    public function run(?Input $input = null, ?Output $output = null): int {
         if (!is_null($input)) {
             $this->input = $input;
         }
@@ -203,16 +197,23 @@ class Console implements Application {
             $this->output = $output;
         }
 
-        $this->bootstrap();
-        $this->command = $this->input->getActiveCommand();
-        if (is_null($this->command)) {
-            $this->input->parse();
-            $this->renderHelpScreen();
-        } else {
-            $this->runCommand($this->command);
+        try {
+            $this->bootstrap();
+            $this->command = $this->input->getActiveCommand();
+
+            if (is_null($this->command)) {
+                $this->input->parse();
+                $this->renderHelpScreen();
+            } else {
+                $this->runCommand($this->command);
+            }
+        } catch (Exception $e) {
+            $this->output->renderException($e);
+
+            return $this->shutdown(1);
         }
 
-        $this->terminate();
+        return $this->shutdown(0);
     }
 
     /**
@@ -258,12 +259,7 @@ class Console implements Application {
             $this->output->setVerbosity($verbosity);
         }
 
-        try {
-            $command->run();
-        } catch (Exception $e) {
-            $this->output->renderException($e);
-            $this->terminate();
-        }
+        $command->run()
     }
 
     /**
@@ -322,7 +318,7 @@ class Console implements Application {
     /**
      * Termination method executed at the end of the application's run.
      */
-    protected function terminate(): void {
-        exit(1);
+    protected function shutdown(int $exitCode): int {
+        return $exitCode;
     }
 }

@@ -8,12 +8,16 @@
 namespace Titon\Console;
 
 use Titon\Kernel\AbstractKernel;
+use Titon\Kernel\Middleware\Next;
 
-class Kernel extends AbstractKernel<Input, Output> {
+class Kernel extends AbstractKernel<Console, Input, Output> {
+    public function handle(Input $input, Output $output, Next<Input, Output> $next): Output {
+        $input->stack[] = 'kernel';
+        $output->ran = true;
 
-    public function handle(): void {
-        $this->getApplication()->run();
+        $this->exitCode = $this->getApplication()->run($input, $output);
 
-        return $this->getApplication()->getOutput();
+        // UNSAFE
+        return $output;
     }
 }

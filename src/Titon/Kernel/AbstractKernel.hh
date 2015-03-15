@@ -31,6 +31,13 @@ abstract class AbstractKernel<Ta as Application, Ti as Input, To as Output> impl
     protected Ta $app;
 
     /**
+     * The CLI exit code to terminate with.
+     *
+     * @var int
+     */
+    protected int $exitCode = 0;
+
+    /**
      * The contextual input object.
      *
      * @var \Titon\Kernel\Input
@@ -152,7 +159,7 @@ abstract class AbstractKernel<Ta as Application, Ti as Input, To as Output> impl
 
         $this->emit(new TerminateEvent($this, $input, $output));
 
-        exit(0);
+        exit($this->exitCode);
     }
 
     /**

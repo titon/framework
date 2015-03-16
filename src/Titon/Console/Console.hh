@@ -259,7 +259,7 @@ class Console implements Application {
             $this->output->setVerbosity($verbosity);
         }
 
-        $command->run()
+        $command->run();
     }
 
     /**

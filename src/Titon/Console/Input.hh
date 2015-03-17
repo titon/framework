@@ -520,6 +520,32 @@ class Input implements KernelInput {
     }
 
     /**
+     * Set the arguments of the `Input`. This will override all existing arguments.
+     *
+     * @param InputBag<Argument> $options The arguments to set
+     *
+     * @return $this
+     */
+    public function setArguments(InputBag<Argument> $arguments): this {
+        $this->arguments = $arguments;
+
+        return $this;
+    }
+
+    /**
+     * Set the flags of the `Input`. This will override all existing flags.
+     *
+     * @param InputBag<Flag> $options   The flags to set
+     *
+     * @return $this
+     */
+    public function setFlags(InputBag<Flag> $flags): this {
+        $this->flags = $flags;
+
+        return $this;
+    }
+
+    /**
      * Set the input to be parsed.
      *
      * @param Vector<string> $args   The input to be parsed
@@ -531,6 +557,19 @@ class Input implements KernelInput {
         $this->input = new InputLexer($args);
         $this->parsed = false;
         $this->command = null;
+
+        return $this;
+    }
+
+    /**
+     * Set the options of the `Input`. This will override all existing options.
+     *
+     * @param InputBag<Option> $options The options to set
+     *
+     * @return $this
+     */
+    public function setOptions(InputBag<Option> $options): this {
+        $this->options = $options;
 
         return $this;
     }

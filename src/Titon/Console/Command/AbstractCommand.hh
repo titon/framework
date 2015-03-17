@@ -299,15 +299,23 @@ abstract class AbstractCommand implements Command {
      * {@inheritdoc}
      */
     public function registerInput(): this {
-        foreach ($this->arguments as $name => $argument) {
-            $this->input->addArgument($argument);
+        $arguments = (new InputBag())->add($this->arguments->all());
+        foreach ($this->input->getArguments() as $name => $argument) {
+            $arguments[$name] = $argument;
         }
-        foreach ($this->flags as $name => $flag) {
-            $this->input->addFlag($flag);
+        $this->input->setArguments($arguments);
+
+        $flags = (new InputBag())->add($this->flags->all());
+        foreach ($this->input->getFlags() as $name => $flag) {
+            $flags->set($name, $flag);
         }
-        foreach ($this->options as $name => $option) {
-            $this->input->addOption($option);
+        $this->input->setFlags($flags);
+
+        $options = (new InputBag())->add($this->options->all());
+        foreach ($this->input->getOptions() as $name => $option) {
+            $options->set($name, $option);
         }
+        $this->input->setOptions($options);
 
         return $this;
     }

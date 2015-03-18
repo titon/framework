@@ -31,7 +31,7 @@ class WaitFeedback extends AbstractFeedback {
     /**
      * {@inheritdoc}
      */
-    protected string $prefix = " {message}";
+    protected string $prefix = "{message}";
 
     /**
      * {@inheritdoc}

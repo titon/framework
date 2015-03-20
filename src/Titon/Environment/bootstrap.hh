@@ -16,9 +16,6 @@ use Titon\Environment\Environment;
  */
 
 namespace Titon\Environment {
-    type BootstrapperList = Vector<Bootstrapper>;
-    type HostMap = Map<string, Host>;
-    type HostnameList = Vector<string>;
     type VariableMap = Map<string, string>;
 }
 

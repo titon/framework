@@ -13,7 +13,7 @@ namespace Titon\Environment;
  *
  * @package Titon\Environment
  */
-class Environment {
+class Detector {
 
     /**
      * The name of the environment variable which holds the type of environment it is.

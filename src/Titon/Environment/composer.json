@@ -1,8 +1,8 @@
 {
     "name": "titon/env",
     "type": "library",
-    "description": "The environment package provides multiple host environment configuration and bootstrapping.",
-    "keywords": ["titon", "environment", "host", "server", "detector", "bootstrap"],
+    "description": "The environment package provides secure environment variable management and detection.",
+    "keywords": ["titon", "environment", "env", "dotenv", "variable", "detector", "security"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
     "authors": [

@@ -5,8 +5,6 @@
  * @link        http://titon.io
  */
 
-use Titon\Environment\Environment;
-
 /**
  * --------------------------------------------------------------
  *  Type Aliases
@@ -29,16 +27,28 @@ namespace Titon\Environment {
 
 namespace {
     use Titon\Context\Depository;
-    use Titon\Environment\Environment;
+    use Titon\Environment\Detector;
 
     /**
-     * @see Titon\Environment\Environment::getVariable()
+     * @see Titon\Environment\Detector::getVariable()
      */
     function env(string $key): string {
-        $env = Depository::getInstance()->make('Titon\Environment\Environment');
+        $env = Depository::getInstance()->make('Titon\Environment\Detector');
 
-        invariant($env instanceof Environment, 'Must be an Environment.');
+        invariant($env instanceof Detector, 'Must be an environment Detector.');
 
         return $env->getVariable($key);
     }
+
+    /**
+     * @see Titon\Environment\Detector::is()
+     */
+    function is_env(string $key): string {
+        $env = Depository::getInstance()->make('Titon\Environment\Detector');
+
+        invariant($env instanceof Detector, 'Must be an environment Detector.');
+
+        return $env->is($key);
+    }
+
 }

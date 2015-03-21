@@ -7,9 +7,10 @@
 
 namespace Titon\Environment;
 
+use Titon\Environment\Exception\NoDotEnvConfigException;
+
 /**
- * A hub that allows you to store different environment host configurations,
- * which can be detected and initialized at runtime.
+ * TODO
  *
  * @package Titon\Environment
  */
@@ -23,7 +24,7 @@ class Detector {
     protected string $envVarName;
 
     /**
-     * Directory path to the secure variables directory.
+     * Directory path where the `.env` files are located.
      *
      * @var string
      */
@@ -37,12 +38,13 @@ class Detector {
     protected VariableMap $variables = Map {};
 
     /**
-     * Set the `.env` lookup path.
+     * Set the variable lookup path and var name.
      *
      * @param string $path
+     * @param string $envVarName
      */
     public function __construct(string $path, string $envVarName = 'APP_ENV') {
-        $this->lookupPath = Path::ds($path, true);
+        $this->lookupPath = rtrim($path, '/') . '/';
         $this->envVarName = $envVarName;
     }
 
@@ -56,7 +58,7 @@ class Detector {
     }
 
     /**
-     * Return the secure lookup path.
+     * Return the variable lookup path.
      *
      * @return string
      */
@@ -65,7 +67,7 @@ class Detector {
     }
 
     /**
-     * Return the value of a secure variable defined by key.
+     * Return the value of a variable defined by key.
      *
      * @param string $key
      * @return string
@@ -75,7 +77,7 @@ class Detector {
     }
 
     /**
-     * Return all loaded secure variables.
+     * Return all loaded variables.
      *
      * @return \Titon\Environment\VariableMap
      */
@@ -84,22 +86,36 @@ class Detector {
     }
 
     /**
-     * Initialize the environment by matching based on server variables or hostnames.
+     * Detect the environment by locating and loading all `.env` files at the defined lookup path.
      *
-     * @throws \Titon\Environment\Exception\NoHostMatchException
+     * @throws \Titon\Environment\Exception\NoDotEnvConfigException
      */
     public function initialize(): void {
+        $path = $this->getLookupPath();
 
+        // Load the base config
+        if (file_exists($path . '.env')) {
+            $this->variables = (new Loader($path . '.env'))->getVariables();
+        } else {
+            throw new NoDotEnvConfigException(sprintf('No .env file exists at lookup path %s', $path));
+        }
+
+        // Load environment specific config
+        $current = $this->getEnvironment();
+
+        if (file_exists($path . '.env.' . $current)) {
+            $this->variables = (new Loader($path . '.env.' . $current, $this->variables))->getVariables();
+        }
     }
 
     /**
-     * Does the current environment match the passed key?
+     * Does the current environment match?
      *
-     * @param string $key
+     * @param string $type
      * @return bool
      */
-    public function is(string $key): bool {
-        return ($this->getEnvironment() === $key);
+    public function is(string $type): bool {
+        return ($this->getEnvironment() === $type);
     }
 
 }

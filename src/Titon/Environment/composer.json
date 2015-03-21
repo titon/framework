@@ -1,7 +1,7 @@
 {
     "name": "titon/env",
     "type": "library",
-    "description": "The environment package provides secure environment variable management and detection.",
+    "description": "The environment package provides environment detection and secure environment variable management.",
     "keywords": ["titon", "environment", "env", "dotenv", "variable", "detector", "security"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",

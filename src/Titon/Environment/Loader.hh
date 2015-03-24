@@ -8,7 +8,7 @@
 namespace Titon\Environment;
 
 /**
- * TODO
+ * The Loader handles the parsing and packaging of variables found in `.env` files.
  *
  * @package Titon\Environment
  */
@@ -29,11 +29,7 @@ class Loader {
      */
     public function __construct(string $path, VariableMap $variables = Map {}) {
         $this->variables = $variables;
-
-        foreach (parse_ini_file($path) as $key => $value) {
-            $this->addVariable($key, $value);
-        }
-
+        $this->parseFile($path);
         $this->interpolateVariables();
     }
 
@@ -46,6 +42,11 @@ class Loader {
      */
     public function addVariable(string $key, string $value): this {
         $key = preg_replace('/[^A-Z0-9_]+/', '', strtoupper($key));
+
+        // Don't override the environment
+        if ($key === 'APP_ENV' && $this->variables->contains('APP_ENV')) {
+            return $this;
+        }
 
         $this->variables[$key] = $value;
 
@@ -72,7 +73,27 @@ class Loader {
         $vars = $this->variables;
 
         foreach ($vars as $key => $value) {
-            $this->variables[$key] = preg_replace_callback('/\{([A-Z0-9_]+)\}/g', ($matches) => $vars->get($matches[1]) ?: '', $value);
+            $this->variables[$key] = preg_replace_callback('/\{([A-Z0-9_]+)\}/', ($matches) ==> $vars->get($matches[1]) ?: '', $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Parse the contents of the environment file by removing comments and extracting variables.
+     *
+     * @param string $path
+     * @return $this
+     */
+    public function parseFile(string $path): this {
+        $content = file_get_contents($path);
+
+        // Remove custom comments
+        $content = preg_replace('/(#|\/\/)[^\r\n]*/', '', $content);
+
+        // Extract variables
+        foreach (parse_ini_string($content) as $key => $value) {
+            $this->addVariable($key, $value);
         }
 
         return $this;

@@ -10,18 +10,12 @@ namespace Titon\Environment;
 use Titon\Environment\Exception\NoDotEnvConfigException;
 
 /**
- * TODO
+ * The Detector provides a direct hub for loading and parsing `.env` files for variables,
+ * as well as simple environment detection by name.
  *
  * @package Titon\Environment
  */
 class Detector {
-
-    /**
-     * The name of the environment variable which holds the type of environment it is.
-     *
-     * @var string
-     */
-    protected string $envVarName;
 
     /**
      * Directory path where the `.env` files are located.
@@ -33,19 +27,17 @@ class Detector {
     /**
      * Secure variables loaded on initialization.
      *
-     * @var \Titon\Environment\VariableMap
+     * @var \Titon\Environment\ImmutableVariableMap
      */
-    protected VariableMap $variables = Map {};
+    protected ImmutableVariableMap $variables = ImmMap {};
 
     /**
      * Set the variable lookup path and var name.
      *
      * @param string $path
-     * @param string $envVarName
      */
-    public function __construct(string $path, string $envVarName = 'APP_ENV') {
+    public function __construct(string $path) {
         $this->lookupPath = rtrim($path, '/') . '/';
-        $this->envVarName = $envVarName;
     }
 
     /**
@@ -54,7 +46,7 @@ class Detector {
      * @return string
      */
     public function getEnvironment(): string {
-        return $this->getVariable($this->envVarName) ?: getenv($this->envVarName);
+        return $this->getVariable('APP_ENV') ?: getenv('APP_ENV');
     }
 
     /**
@@ -79,9 +71,9 @@ class Detector {
     /**
      * Return all loaded variables.
      *
-     * @return \Titon\Environment\VariableMap
+     * @return \Titon\Environment\ImmutableVariableMap
      */
-    public function getVariables(): VariableMap {
+    public function getVariables(): ImmutableVariableMap {
         return $this->variables;
     }
 
@@ -92,20 +84,24 @@ class Detector {
      */
     public function initialize(): void {
         $path = $this->getLookupPath();
+        $envPath = $path . '.env';
+        $variables = Map {};
 
         // Load the base config
-        if (file_exists($path . '.env')) {
-            $this->variables = (new Loader($path . '.env'))->getVariables();
+        if (file_exists($envPath) && is_readable($envPath)) {
+            $variables = (new Loader($envPath))->getVariables();
         } else {
-            throw new NoDotEnvConfigException(sprintf('No .env file exists at lookup path %s', $path));
+            throw new NoDotEnvConfigException(sprintf('Environment file %s does not exist or is not readable', $path));
         }
 
         // Load environment specific config
         $current = $this->getEnvironment();
 
-        if (file_exists($path . '.env.' . $current)) {
-            $this->variables = (new Loader($path . '.env.' . $current, $this->variables))->getVariables();
+        if ($current && file_exists($path . '.env.' . $current)) {
+            $variables = (new Loader($path . '.env.' . $current, $variables))->getVariables();
         }
+
+        $this->variables = $variables->toImmMap();
     }
 
     /**

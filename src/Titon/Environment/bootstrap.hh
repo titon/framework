@@ -14,6 +14,7 @@
  */
 
 namespace Titon\Environment {
+    type ImmutableVariableMap = ImmMap<string, string>;
     type VariableMap = Map<string, string>;
 }
 

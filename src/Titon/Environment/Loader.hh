@@ -15,6 +15,13 @@ namespace Titon\Environment;
 class Loader {
 
     /**
+     * Variables that should be immutable once loaded.
+     *
+     * @var \Titon\Environment\VariableMap
+     */
+    protected static VariableMap $immutable = Map {'APP_ENV' => 'true'};
+
+    /**
      * Variables loaded from the defined `.env` file.
      *
      * @var \Titon\Environment\VariableMap
@@ -43,8 +50,7 @@ class Loader {
     public function addVariable(string $key, string $value): this {
         $key = preg_replace('/[^A-Z0-9_]+/', '', strtoupper($key));
 
-        // Don't override the environment
-        if ($key === 'APP_ENV' && $this->variables->contains('APP_ENV')) {
+        if (static::isImmutable($key) && $this->variables->contains($key)) {
             return $this;
         }
 
@@ -53,6 +59,16 @@ class Loader {
         putenv("$key=$value");
 
         return $this;
+    }
+
+    /**
+     * Return the value of a variable defined by key.
+     *
+     * @param string $key
+     * @return string
+     */
+    public function getVariable(string $key): string {
+        return $this->getVariables()->get($key) ?: '';
     }
 
     /**
@@ -80,6 +96,25 @@ class Loader {
     }
 
     /**
+     * Check if a variable is immutable by name.
+     *
+     * @param string $key
+     * @return bool
+     */
+    public static function isImmutable(string $key): bool {
+        return static::$immutable->contains($key);
+    }
+
+    /**
+     * Lock a variable and make it immutable.
+     *
+     * @param string $key
+     */
+    public static function lock(string $key): void {
+        static::$immutable[$key] = 'true';
+    }
+
+    /**
      * Parse the contents of the environment file by removing comments and extracting variables.
      *
      * @param string $path
@@ -97,6 +132,15 @@ class Loader {
         }
 
         return $this;
+    }
+
+    /**
+     * Unlock a variable and make it mutable.
+     *
+     * @param string $key
+     */
+    public static function unlock(string $key): void {
+        static::$immutable->remove($key);
     }
 
 }

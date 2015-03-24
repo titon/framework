@@ -44,7 +44,7 @@ namespace {
     /**
      * @see Titon\Environment\Detector::is()
      */
-    function is_env(string $key): string {
+    function is_env(string $key): bool {
         $env = Depository::getInstance()->make('Titon\Environment\Detector');
 
         invariant($env instanceof Detector, 'Must be an environment Detector.');

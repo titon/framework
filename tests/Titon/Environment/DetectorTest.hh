@@ -55,7 +55,7 @@ class DetectorTest extends TestCase {
     /**
      * @expectedException \Titon\Environment\Exception\NoDotEnvConfigException
      */
-    public function testMissingEnvFileThrowsException() {
+    public function testMissingEnvFileThrowsException(): void {
         $detector = new Detector(TEMP_DIR . '/environment/fake/path');
         $detector->initialize();
     }

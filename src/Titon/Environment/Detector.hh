@@ -46,7 +46,7 @@ class Detector {
      * @return string
      */
     public function getEnvironment(): string {
-        return $this->getVariable('APP_ENV') ?: getenv('APP_ENV');
+        return $this->getVariable('APP_ENV') ?: getenv('APP_ENV') ?: 'prod';
     }
 
     /**
@@ -91,11 +91,11 @@ class Detector {
         if (file_exists($envPath) && is_readable($envPath)) {
             $variables = (new Loader($envPath))->getVariables();
         } else {
-            throw new NoDotEnvConfigException(sprintf('Environment file %s does not exist or is not readable', $path));
+            throw new NoDotEnvConfigException(sprintf('Environment file %s does not exist or is not readable', $envPath));
         }
 
         // Load environment specific config
-        $current = $this->getEnvironment();
+        $current = $variables->get('APP_ENV') ?: getenv('APP_ENV');
 
         if ($current && file_exists($path . '.env.' . $current)) {
             $variables = (new Loader($path . '.env.' . $current, $variables))->getVariables();

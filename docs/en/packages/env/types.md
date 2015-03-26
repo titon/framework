@@ -12,24 +12,19 @@ The following type aliases are available in the Environment package.
     </thead>
     <tbody>
         <tr>
-            <td>Titon\Environment\BootstrapperList</td>
-            <td>Vector&lt;Titon\Environment\Bootstrapper&gt;</td>
-            <td>A list of <code>Titon\Environment\Bootstrapper</code> objects used in bootstrapping.</td>
-        </tr>
-        <tr>
-            <td>Titon\Environment\HostMap</td>
-            <td>Map&lt;string, Titon\Environment\Host&gt;</td>
-            <td>A mapping of <code>Titon\Environment\Host</code> objects to a unique key.</td>
-        </tr>
-        <tr>
-            <td>Titon\Environment\HostnameList</td>
+            <td>Titon\Environment\ImmutableList</td>
             <td>Vector&lt;string&gt;</td>
-            <td>A list of hostnames defined for a <code>Titon\Environment\Host</code>.</td>
+            <td>A list of environment variable names that should be immutable.</td>
         </tr>
         <tr>
             <td>Titon\Environment\VariableMap</td>
-            <td>Map&lt;string, string&gt;</td>
-            <td>A mapping of secure variable key-value pairs.</td>
+            <td>Map&lt;string, mixed&gt;</td>
+            <td>A mapping of environment variable key-value pairs.</td>
+        </tr>
+        <tr>
+            <td>Titon\Environment\ImmutableVariableMap</td>
+            <td>ImmMap&lt;string, mixed&gt;</td>
+            <td>An immutable version of <code>Titon\Environment\VariableMap</code>.</td>
         </tr>
     </tbody>
 </table>

@@ -1,7 +1,6 @@
 # Environment Package #
 
-The Environment package provides a robust environment detection and bootstrapping architecture. 
-Environments are mapped through host classes, which define hostnames and unique keys to match against.
+The Environment package provides environment detection and secure environment variable management.
 
 ### Installation ###
 
@@ -13,9 +12,8 @@ composer require titon/env:*
 
 ### Documentation ###
 
-* [Environment Detection](environments.md)
-* [Bootstrapping](bootstrapping.md)
+* [Environment Detection](detection.md)
+* [Secure Variables](variables.md)
 
-* [Events](events.md)
 * [Global Functions](functions.md)
 * [Type Aliases](types.md)

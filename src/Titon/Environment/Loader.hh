@@ -17,9 +17,9 @@ class Loader {
     /**
      * Variables that should be immutable once loaded.
      *
-     * @var \Titon\Environment\VariableMap
+     * @var \Titon\Environment\ImmutableList
      */
-    protected static VariableMap $immutable = Map {'APP_ENV' => 'true'};
+    protected static ImmutableList $immutable = Vector {'APP_ENV'};
 
     /**
      * Variables loaded from the defined `.env` file.
@@ -47,16 +47,34 @@ class Loader {
      * @param string $value
      * @return $this
      */
-    public function addVariable(string $key, string $value): this {
+    public function addVariable(string $key, mixed $value): this {
         $key = preg_replace('/[^A-Z0-9_]+/', '', strtoupper($key));
 
+        // Don't overwrite immutable keys
         if (static::isImmutable($key) && $this->variables->contains($key)) {
             return $this;
         }
 
+        // Box the value
+        if (is_array($value)) {
+            $value = new ImmMap($value);
+
+        } else if (is_numeric($value)) {
+            $value = (strpos($value, '.') !== false) ? (float) $value : (int) $value;
+
+        } else if ($value === 'true' || $value === '1') {
+            $value = true;
+
+        } else if ($value === 'false' || $value === '') {
+            $value = false;
+        }
+
         $this->variables[$key] = $value;
 
-        putenv("$key=$value");
+        // Only non traversables should be set
+        if (!$value instanceof ImmMap) {
+            putenv("$key=$value");
+        }
 
         return $this;
     }
@@ -65,9 +83,9 @@ class Loader {
      * Return the value of a variable defined by key.
      *
      * @param string $key
-     * @return string
+     * @return mixed
      */
-    public function getVariable(string $key): string {
+    public function getVariable(string $key): mixed {
         return $this->getVariables()->get($key) ?: '';
     }
 
@@ -89,7 +107,9 @@ class Loader {
         $vars = $this->variables;
 
         foreach ($vars as $key => $value) {
-            $this->variables[$key] = preg_replace_callback('/\{([A-Z0-9_]+)\}/', ($matches) ==> $vars->get($matches[1]) ?: '', $value);
+            if (is_string($value)) {
+                $this->variables[$key] = preg_replace_callback('/\{([A-Z0-9_]+)\}/', ($matches) ==> $vars->get($matches[1]) ?: '', $value);
+            }
         }
 
         return $this;
@@ -102,7 +122,7 @@ class Loader {
      * @return bool
      */
     public static function isImmutable(string $key): bool {
-        return static::$immutable->contains($key);
+        return (static::$immutable->linearSearch($key) >= 0);
     }
 
     /**
@@ -111,7 +131,7 @@ class Loader {
      * @param string $key
      */
     public static function lock(string $key): void {
-        static::$immutable[$key] = 'true';
+        static::$immutable[] = $key;
     }
 
     /**
@@ -140,7 +160,11 @@ class Loader {
      * @param string $key
      */
     public static function unlock(string $key): void {
-        static::$immutable->remove($key);
+        $index = static::$immutable->linearSearch($key);
+
+        if ($index >= 0) {
+            static::$immutable->removeKey($index);
+        }
     }
 
 }

@@ -24,15 +24,26 @@ class LoaderTest extends TestCase {
             'STRING_NOQ' => 'string without quotes',
             'STRING_SQ' => 'string with single quotes',
             'STRING_DQ' => 'string with double quotes',
-            'INTEGER' => '123456',
-            'BOOL_TRUE' => '1',
-            'BOOL_FALSE' => '',
+            'INTEGER' => 123456,
+            'FLOAT' => 123.456,
+            'BOOL_TRUE' => true,
+            'BOOL_FALSE' => false,
+            'LIST' => ImmMap {0 => 'foo', 1 => 'bar', 2 => 'baz'},
+            'MAP' => ImmMap {'foo' => 'bar'}
         }, $this->object->getVariables());
     }
 
     public function testVariableIsSetWithPutenv(): void {
         $this->assertEquals('foo', $this->object->getVariable('FOO'));
         $this->assertEquals('foo', getenv('FOO'));
+
+        // integers
+        $this->assertEquals('123456', $this->object->getVariable('INTEGER'));
+        $this->assertEquals('123456', getenv('INTEGER'));
+
+        // bools
+        $this->assertEquals('1', getenv('BOOL_TRUE'));
+        $this->assertEquals('', getenv('BOOL_FALSE'));
     }
 
     public function testVariableInterpolation(): void {
@@ -57,9 +68,12 @@ class LoaderTest extends TestCase {
             'STRING_NOQ' => 'string without quotes',
             'STRING_SQ' => 'string with single quotes',
             'STRING_DQ' => 'string with double quotes',
-            'INTEGER' => '123456',
-            'BOOL_TRUE' => '1',
-            'BOOL_FALSE' => '',
+            'INTEGER' => 123456,
+            'FLOAT' => 123.456,
+            'BOOL_TRUE' => true,
+            'BOOL_FALSE' => false,
+            'LIST' => ImmMap {0 => 'foo', 1 => 'bar', 2 => 'baz'},
+            'MAP' => ImmMap {'foo' => 'bar'},
             'INTERPOLATE' => 'Woah, qux and testing',
         }, $loader->getVariables());
     }

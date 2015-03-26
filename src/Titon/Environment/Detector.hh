@@ -62,9 +62,9 @@ class Detector {
      * Return the value of a variable defined by key.
      *
      * @param string $key
-     * @return string
+     * @return mixed
      */
-    public function getVariable(string $key): string {
+    public function getVariable(string $key): mixed {
         return $this->getVariables()->get($key) ?: '';
     }
 

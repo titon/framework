@@ -73,7 +73,7 @@ class Loader {
 
         // Only non traversables should be set
         if (!$value instanceof ImmMap) {
-            putenv("$key=$value");
+            putenv($key . '=' . (string) $value);
         }
 
         return $this;

@@ -34,7 +34,7 @@ namespace {
     /**
      * @see Titon\Environment\Detector::getVariable()
      */
-    function env(string $key): string {
+    function env(string $key): mixed {
         $env = Depository::getInstance()->make('Titon\Environment\Detector');
 
         invariant($env instanceof Detector, 'Must be an environment Detector.');

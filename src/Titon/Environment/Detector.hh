@@ -46,7 +46,7 @@ class Detector {
      * @return string
      */
     public function getEnvironment(): string {
-        return $this->getVariable('APP_ENV') ?: getenv('APP_ENV') ?: 'prod';
+        return (string) $this->getVariable('APP_ENV') ?: getenv('APP_ENV') ?: 'prod';
     }
 
     /**
@@ -95,7 +95,7 @@ class Detector {
         }
 
         // Load environment specific config
-        $current = $variables->get('APP_ENV') ?: getenv('APP_ENV');
+        $current = (string) $variables->get('APP_ENV') ?: getenv('APP_ENV');
 
         if ($current && file_exists($path . '.env.' . $current)) {
             $variables = (new Loader($path . '.env.' . $current, $variables))->getVariables();

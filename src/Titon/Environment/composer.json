@@ -1,8 +1,8 @@
 {
     "name": "titon/env",
     "type": "library",
-    "description": "The environment package provides multiple host environment configuration and bootstrapping.",
-    "keywords": ["titon", "environment", "host", "server", "detector", "bootstrap"],
+    "description": "The environment package provides environment detection and secure environment variable management.",
+    "keywords": ["titon", "environment", "env", "dotenv", "variable", "detector", "security"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
     "authors": [
@@ -16,9 +16,7 @@
         "source": "https://github.com/titon/env"
     },
     "require": {
-        "hhvm": ">=3.4.0",
-        "titon/event": "*",
-        "titon/utility": "*"
+        "hhvm": ">=3.4.0"
     },
     "suggest": {
         "titon/context": "Utilize global environment functions using the Context package"

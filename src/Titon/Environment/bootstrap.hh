@@ -5,8 +5,6 @@
  * @link        http://titon.io
  */
 
-use Titon\Environment\Environment;
-
 /**
  * --------------------------------------------------------------
  *  Type Aliases
@@ -16,10 +14,9 @@ use Titon\Environment\Environment;
  */
 
 namespace Titon\Environment {
-    type BootstrapperList = Vector<Bootstrapper>;
-    type HostMap = Map<string, Host>;
-    type HostnameList = Vector<string>;
-    type VariableMap = Map<string, string>;
+    type ImmutableList = Vector<string>;
+    type ImmutableVariableMap = ImmMap<string, mixed>;
+    type VariableMap = Map<string, mixed>;
 }
 
 /**
@@ -32,16 +29,28 @@ namespace Titon\Environment {
 
 namespace {
     use Titon\Context\Depository;
-    use Titon\Environment\Environment;
+    use Titon\Environment\Detector;
 
     /**
-     * @see Titon\Environment\Environment::getVariable()
+     * @see Titon\Environment\Detector::getVariable()
      */
-    function env(string $key): string {
-        $env = Depository::getInstance()->make('Titon\Environment\Environment');
+    function env(string $key): mixed {
+        $env = Depository::getInstance()->make('Titon\Environment\Detector');
 
-        invariant($env instanceof Environment, 'Must be an Environment.');
+        invariant($env instanceof Detector, 'Must be an environment Detector.');
 
         return $env->getVariable($key);
     }
+
+    /**
+     * @see Titon\Environment\Detector::is()
+     */
+    function is_env(string $key): bool {
+        $env = Depository::getInstance()->make('Titon\Environment\Detector');
+
+        invariant($env instanceof Detector, 'Must be an environment Detector.');
+
+        return $env->is($key);
+    }
+
 }

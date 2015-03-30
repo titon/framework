@@ -8,10 +8,10 @@
 namespace Titon\Environment\Exception;
 
 /**
- * Exception thrown when a host could not be found based on hostname matching.
+ * Exception thrown when a `.env` file does not exist.
  *
  * @package Titon\Environment\Exception
  */
-class NoHostMatchException extends \RuntimeException {
+class NoDotEnvConfigException extends \RuntimeException {
 
 }

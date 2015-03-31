@@ -14,7 +14,7 @@ use Titon\Console\InputDefinition\AbstractInputDefinition;
 
 /**
  * The `HelpScreen` class renders out a usage screen given the available `Flag`,
- * `Option`, and `Argument` objects avaiable as well as available commands that
+ * `Option`, and `Argument` objects available as well as available commands that
  * can be executed.
  *
  * @package Titon\Console
@@ -45,9 +45,9 @@ class HelpScreen {
     /**
      * The `Console` object to render a help screen for.
      *
-     * @var \Titon\Console\Console
+     * @var \Titon\Console\Application
      */
-    protected Console $console;
+    protected Application $app;
 
     /**
      * The available `Flag` objects accepted.
@@ -74,12 +74,12 @@ class HelpScreen {
     /**
      * Construct a new instance of the `HelpScreen`.
      *
-     * @param \Titon\Console\Input $input   The `Console` application
+     * @param \Titon\Console\Application $app   The `Console` application
      */
-    public function __construct(Console $console) {
-        $this->console = $console;
+    public function __construct(Application $app) {
+        $this->app = $app;
 
-        $input = $console->getInput();
+        $input = $app->getInput();
         $this->commands = $input->getCommands();
         $this->arguments = $input->getArguments();
         $this->flags = $input->getFlags();
@@ -207,13 +207,13 @@ class HelpScreen {
             } else {
                 $retval[] = $command->getName();
             }
-        } else if ($this->console->getName() !== '') {
-            if (($banner = $this->console->getBanner()) !== '') {
+        } else if ($this->app->getName() !== '') {
+            if (($banner = $this->app->getBanner()) !== '') {
                 $retval[] = $banner;
             }
 
-            $name = $this->console->getName();
-            if (($version = $this->console->getVersion()) !== '') {
+            $name = $this->app->getName();
+            if (($version = $this->app->getVersion()) !== '') {
                 $name .= " version $version";
             }
 

@@ -6,16 +6,6 @@ All user input is handled by the `Input` class. This is where you define all inp
 
 Parameters are any input given by the user into the command line application. The supported types of parameters are flags, options, arguments, and commands.
 
-#### Default Values ####
-
-All parameters share many attributes and functionality. A default value (initially `null`), can be assigned to each parameter that will pose as its returned value if no input is given by the user.
-
-```hack
-$param->setDefault('yes');
-```
-
-Using `getValue` on any parameter will return the default value assigned if no value is given. An easy way to determine if a parameter has been specified by the user is to use the `exists` method. This will return true if a value has been assigned to the parameter by the user, false otherwise.
-
 #### Description ####
 
 The (optional) description of each parameter can also be set either in its constructor or via a `setter` method. This description is used when rendering the help screen.
@@ -34,7 +24,7 @@ $param = (new Flag('foo'))->alias('f');
 
 #### Mode ####
 
-The `mode` of a parameter applies to all types: flags, options, and arguments. The mode determines if user input is required for the paramter. If no input is given and the mode is set to be required, then an exception will be thrown.
+The `mode` determines if user input is required for the paramter. If no input is given and the mode is set to be required, then an exception will be thrown.
 
 The `mode` is set at construction or through a `setter` method. By default, all parameters are set to optional.
 
@@ -44,9 +34,9 @@ $param->setMode(AbstractInputDefinition::MODE_REQUIRED);
 
 ### Flags ###
 
-A `Flag` is a `boolean` flag that is only checked by the parser for its existence. If the flag is present, it is given a value of 1 and a value of 0 is given if it is not.
+A `Flag` is a boolean flag that is only checked by the parser for its existence. If the flag is present, it is given a value of 1 and a value of 0 is given if it is not.
 
-**NOTE:** Although we say its a `boolean` parameter, that only means the parser does not attempt to give the parameter a value read from the user input. The `value` assigned to flags are actually numeric to allow for stackable flags.
+**NOTE:** Although we say its a `boolean` parameter, that only means the parser does not attempt to give the parameter a value read from the user input. It only checks for the parameter's existence. The `value` assigned to flags are actually numeric to allow for stackable flags.
 
 A flag is added to the `Input` object via the `addFlag` method.
 

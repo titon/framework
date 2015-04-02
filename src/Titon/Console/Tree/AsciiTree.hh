@@ -29,13 +29,29 @@ class AsciiTree extends AbstractTree {
         $keys = array_keys($tree);
         $branch = array_values($tree);
         for ($i = 0, $count = count($branch); $i < $count; ++$i) {
-            if (is_array($branch[$i])) {
-                $retval[] = $prefix . '+-' . (string)$keys[$i];
+            $itemPrefix = $prefix;
+            $next = $branch[$i];
+
+            if ($i === $count - 1) {
+                if (is_array($next)) {
+                    $itemPrefix .= '└─┬';
+                } else {
+                    $itemPrefix .= '└──';
+                }
             } else {
-                $retval[] = $prefix . '+-' . (string)$branch[$i];
+                if (is_array($next)) {
+                    $itemPrefix .= '├─┬';
+                } else {
+                    $itemPrefix .= '├──';
+                }
             }
 
-            $next = $branch[$i];
+            if (is_array($branch[$i])) {
+                $retval[] = $itemPrefix . (string)$keys[$i];
+            } else {
+                $retval[] = $itemPrefix . (string)$branch[$i];
+            }
+
             if (is_array($next)) {
                 $retval[] = $this->build($next, $prefix . ($i == $count - 1 ? '  ' : '| '));
             }

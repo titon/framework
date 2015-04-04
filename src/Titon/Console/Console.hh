@@ -12,6 +12,9 @@ use Titon\Kernel\Middleware\Next;
 
 class Console extends AbstractKernel<Application, Input, Output> {
 
+    /**
+     * {@inheritdoc}
+     */
     public function handle(Input $input, Output $output, Next<Input, Output> $next): Output {
         $input->stack[] = 'kernel';
         $output->ran = true;

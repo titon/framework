@@ -203,7 +203,11 @@ class Application implements KernelApplication {
 
             if (is_null($this->command)) {
                 $this->input->parse();
-                $this->renderHelpScreen();
+                if ($this->input->getFlag('version')->getValue() === 1) {
+                    $this->renderVersionInformation();
+                } else {
+                    $this->renderHelpScreen();
+                }
             } else {
                 $this->runCommand($this->command);
             }
@@ -231,7 +235,8 @@ class Application implements KernelApplication {
         }
 
         if ($this->input->getFlag('version')->getValue() === 1) {
-            $this->output->out("{$this->getName()} version {$this->getVersion()}");
+            $this->renderVersionInformation();
+
             return;
         }
 
@@ -274,6 +279,15 @@ class Application implements KernelApplication {
         }
 
         $this->output->out($helpScreen->render());
+    }
+
+    /**
+     * Output version information of the current `Application`.
+     */
+    public function renderVersionInformation(): void {
+        if ($this->getVersion()) {
+            $this->output->out("{$this->getName()} version {$this->getVersion()}");
+        }
     }
 
     /**

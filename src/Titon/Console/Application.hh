@@ -286,7 +286,7 @@ class Application implements KernelApplication {
      */
     public function renderVersionInformation(): void {
         if ($this->getVersion()) {
-            $this->output->out("{$this->getName()} version {$this->getVersion()}");
+            $this->output->out("{$this->getName()} v{$this->getVersion()}");
         }
     }
 

@@ -8,8 +8,8 @@
 namespace Titon\Test\Stub\Console;
 
 use Titon\Console\Command\AbstractCommand;
-use Titon\Console\Feedback\ProgressBar;
-use Titon\Console\Feedback\Wait;
+use Titon\Console\Feedback\ProgressBarFeedback;
+use Titon\Console\Feedback\WaitFeedback;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Option;
 use Titon\Console\InputDefinition\Flag;
@@ -30,25 +30,25 @@ class CommandStub extends AbstractCommand {
         $this->addFlag(new Flag('greet', 'Output a friendly greeting!'));
         $this->addArgument(new Argument('name', 'The name of the person I am greeting.'));
 
-        $this->addOption(new Option('feedback', "Display either a `progress` bar or a `spinner`."));
+        $this->addOption(new Option('feedback', 'Display either a `progress` bar or a `spinner`.'));
 
         $this->addFlag(new Flag('menu', 'Present a menu to help guide you through the examples.'));
     }
 
     public function run(): void {
         if (($type = $this->getOption('tree', '')) !== '') {
-            invariant(is_string($type), "Must be a string.");
+            invariant(is_string($type), 'Must be a string.');
             $this->runTreeExample($type);
         } else if ($this->getFlag('table') === 1) {
             $this->runTableExample();
         } else if ($this->getFlag('greet')) {
             if (($name = $this->getArgument('name', '')) !== '') {
-                $this->out(sprintf("Hello, %s!", $name));
+                $this->out(sprintf('Hello, %s!', $name));
             } else {
-                $this->out("Hello, world!");
+                $this->out('Hello, world!');
             }
         } else if (($type = $this->getOption('feedback', '')) !== '') {
-            invariant(is_string($type), "Must be a string.");
+            invariant(is_string($type), 'Must be a string.');
             $this->runFeedbackExample($type);
         } else if ($this->getFlag('menu')) {
             $this->runUserInputExamples();
@@ -123,7 +123,7 @@ class CommandStub extends AbstractCommand {
         } else if ($type === 'markdown') {
             $tree = new MarkdownTree($data);
         } else {
-            $this->error(sprintf("The table type %s is not supported.", $type));
+            $this->error(sprintf('The table type %s is not supported.', $type));
 
             return;
         }
@@ -138,16 +138,17 @@ class CommandStub extends AbstractCommand {
         }
 
         $menu = $this->menu(Map {
-            "0" => 'ASCII Tree',
-            "1" => 'Markdown Tree',
-            "2" => 'Table',
-            "3" => 'Gretting',
-            "4" => 'Progress bar',
-            "5" => 'Spinner',
-            "6" => 'Repeat this menu',
-            "7" => 'Quit'
-        }, "Please select from the options below");
-        $answer = $menu->prompt("Enter a selection");
+            '0' => 'ASCII Tree',
+            '1' => 'Markdown Tree',
+            '2' => 'Table',
+            '3' => 'Greeting',
+            '4' => 'Progress bar',
+            '5' => 'Spinner',
+            '6' => 'Repeat this menu',
+            '7' => 'Quit'
+        }, 'Please select from the options below');
+
+        $answer = $menu->prompt('Enter a selection:');
 
         switch ((int)$answer) {
             case 0:
@@ -160,7 +161,7 @@ class CommandStub extends AbstractCommand {
                 $this->runTableExample();
                 break;
             case 3:
-                $this->out("Hello, world!");
+                $this->out('Hello, world!');
                 break;
             case 4:
                 $this->runFeedbackExample('progress');

@@ -34,15 +34,15 @@ class AsciiTree extends AbstractTree {
 
             if ($i === $count - 1) {
                 if (is_array($next)) {
-                    $itemPrefix .= '└─┬';
+                    $itemPrefix .= '└─┬ ';
                 } else {
-                    $itemPrefix .= '└──';
+                    $itemPrefix .= '└── ';
                 }
             } else {
                 if (is_array($next)) {
-                    $itemPrefix .= '├─┬';
+                    $itemPrefix .= '├─┬ ';
                 } else {
-                    $itemPrefix .= '├──';
+                    $itemPrefix .= '├── ';
                 }
             }
 

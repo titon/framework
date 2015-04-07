@@ -214,7 +214,7 @@ class HelpScreen {
 
             $name = $this->app->getName();
             if (($version = $this->app->getVersion()) !== '') {
-                $name .= " version $version";
+                $name .= " v$version";
             }
 
             $retval[] = $name;

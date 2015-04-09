@@ -11,13 +11,9 @@ use Titon\Cache\Storage;
 use Titon\Event\EmitsEvents;
 use Titon\Event\Listener;
 use Titon\Event\Subject;
-use Titon\Utility\Config;
-use Titon\Utility\Col;
 use Titon\Utility\Inflector;
-use Titon\Utility\Path;
 use Titon\Utility\Registry;
 use Titon\View\Exception\MissingHelperException;
-use Titon\View\Exception\MissingTemplateException;
 use Titon\View\Helper;
 
 /**
@@ -36,32 +32,11 @@ abstract class AbstractView implements View, Subject {
     protected DataMap $data = Map {};
 
     /**
-     * The extension used for templates.
-     *
-     * @var string
-     */
-    protected string $extension = 'tpl';
-
-    /**
      * List of helpers.
      *
      * @var \Titon\View\HelperMap
      */
     protected HelperMap $helpers = Map {};
-
-    /**
-     * List of locales to use during template locating.
-     *
-     * @var \Titon\View\LocaleList
-     */
-    protected LocaleList $locales = Vector {};
-
-    /**
-     * List of lookup paths.
-     *
-     * @var \Titon\View\PathList
-     */
-    protected PathList $paths = Vector {};
 
     /**
      * Storage engine.
@@ -71,111 +46,12 @@ abstract class AbstractView implements View, Subject {
     protected ?Storage $storage;
 
     /**
-     * Add lookup paths through the constructor and set the extension.
-     * Furthermore, if any Titon configuration paths and locales are defined,
-     * load those in.
+     * Set the template locator through the constructor.
      *
-     * @param string|Traversable $paths
-     * @param string $ext
+     * @param \Titon\View\Locator $locator
      */
-    public function __construct(mixed $paths, string $ext = 'tpl') {
-        if ($paths) {
-            $this->addPaths(Col::toVector($paths));
-        }
-
-        if ($paths = Config::get('titon.path.views')) {
-            $this->addPaths(Col::toVector($paths));
-        }
-
-        if ($locales = Config::get('titon.locale.cascade')) {
-            $this->addLocales(Col::toVector($locales));
-        }
-
-        if ($ext) {
-            $this->setExtension($ext);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addHelper(string $key, Helper $helper): this {
-        $helper->setView($this);
-
-        $this->helpers[$key] = $helper;
-
-        if ($helper instanceof Listener) {
-            $this->on($helper);
-        }
-
-        $this->setVariable($key, $helper);
-
-        // Store so helpers can use helpers
-        Registry::set($helper);
-
-        return $this;
-    }
-
-    /**
-     * Add a locale lookup.
-     *
-     * @param string $locale
-     * @return $this
-     */
-    public function addLocale(string $locale): this {
-        if (!in_array($locale, $this->locales)) {
-            $this->locales[] = $locale;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add multiple locale lookups.
-     *
-     * @param \Titon\View\LocaleList $locales
-     * @return $this
-     */
-    public function addLocales(LocaleList $locales): this {
-        foreach ($locales as $locale) {
-            $this->addLocale($locale);
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addPath(string $path): this {
-        $this->paths[] = Path::ds($path, true);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addPaths(PathList $paths): this {
-        foreach ($paths as $path) {
-            $this->addPath($path);
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function formatPath(string $template): string {
-        return trim(str_replace(['\\', '.' . $this->getExtension()], ['/', ''], $template), '/');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getExtension(): string {
-        return $this->extension;
+    public function __construct(Locator $locator) {
+        $this->locator = $locator;
     }
 
     /**
@@ -197,19 +73,10 @@ abstract class AbstractView implements View, Subject {
     }
 
     /**
-     * Return all locales.
-     *
-     * @return \Titon\View\LocaleList
-     */
-    public function getLocales(): LocaleList {
-        return $this->locales;
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function getPaths(): PathList {
-        return $this->paths;
+    public function getLocator(): Locator {
+        return $this->locator;
     }
 
     /**
@@ -238,92 +105,19 @@ abstract class AbstractView implements View, Subject {
     /**
      * {@inheritdoc}
      */
-    <<__Memoize>>
-    public function locateTemplate(string $template, Template $type = Template::OPEN): string {
-        $template = $this->formatPath($template);
-        $paths = $this->getPaths();
+    public function setHelper(string $key, Helper $helper): this {
+        $helper->setView($this);
 
-        // Prepend parent path
-        switch ($type) {
-            case Template::LAYOUT:
-                $template = sprintf('private/layouts/%s', $template);
-            break;
-            case Template::WRAPPER:
-                $template = sprintf('private/wrappers/%s', $template);
-            break;
-            case Template::PARTIAL:
-                $template = sprintf('private/partials/%s', $template);
-            break;
-            case Template::OPEN:
-                $template = sprintf('public/%s', $template);
-            break;
-            case Template::CLOSED:
-                $template = sprintf('private/%s', $template);
-            break;
+        $this->helpers[$key] = $helper;
+
+        if ($helper instanceof Listener) {
+            $this->on($helper);
         }
 
-        // Generate a list of locale appended templates
-        $templates = Vector {};
-        $locales = $this->getLocales();
-        $ext = $this->getExtension();
+        $this->setVariable($key, $helper);
 
-        if ($locales) {
-            foreach ($locales as $locale) {
-                $templates[] = $template . '.' . $locale . '.' . $ext;
-            }
-        }
-
-        $templates[] = $template . '.' . $ext;
-
-        // Locate absolute path
-        $absPath = '';
-
-        foreach ($paths as $path) {
-            if ($absPath) {
-                break;
-            }
-
-            foreach ($templates as $template) {
-                if (file_exists($path . $template)) {
-                    $absPath = $path . $template;
-                    break;
-                }
-            }
-        }
-
-        if (!$absPath) {
-            throw new MissingTemplateException(sprintf('View template `%s` does not exist', $template));
-        }
-
-        return $absPath;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setExtension(string $ext): this {
-        $this->extension = $ext;
-
-        return $this;
-    }
-
-    /**
-     * Set a list of locales and overwrite any previously defined paths.
-     *
-     * @param \Titon\View\LocaleList $locales
-     * @return $this
-     */
-    public function setLocales(LocaleList $locales): this {
-        $this->locales = $locales;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPaths(PathList $paths): this {
-        $this->paths = $paths;
+        // Store so helpers can use helpers
+        Registry::set($helper);
 
         return $this;
     }

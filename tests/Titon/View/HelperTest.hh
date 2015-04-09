@@ -4,6 +4,7 @@ namespace Titon\View;
 use Titon\Test\Stub\View\HelperStub;
 use Titon\Test\TestCase;
 use Titon\View\Helper\TagMap;
+use Titon\View\Locator\TemplateLocator;
 
 /**
  * @property \Titon\View\Helper $object
@@ -58,7 +59,7 @@ class HelperTest extends TestCase {
     }
 
     public function testGetSetView(): void {
-        $view = new EngineView(Vector {'/'});
+        $view = new EngineView(new TemplateLocator('/'));
         $this->assertEquals(null, $this->object->getView());
 
         $this->object->setView($view);

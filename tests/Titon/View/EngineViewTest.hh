@@ -3,6 +3,7 @@ namespace Titon\View;
 
 use Titon\Cache\Storage\MemoryStorage;
 use Titon\Test\TestCase;
+use Titon\View\Locator\TemplateLocator;
 
 /**
  * @property \Titon\View\EngineView $object
@@ -12,52 +13,12 @@ class EngineViewTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->vfs()->createStructure([
-            '/views/' => [
-                'fallback/' => [
-                    'private/' => [
-                        'layouts/' => [
-                            'fallback.tpl' => '<fallbackLayout><?php echo $this->getContent(); ?></fallbackLayout>'
-                        ],
-                        'wrappers/' => [
-                            'fallback.tpl' => '<fallbackWrapper><?php echo $this->getContent(); ?></fallbackWrapper>'
-                        ]
-                    ]
-                ],
-                'private/' => [
-                    'layouts/' => [
-                        'default.tpl' => '<layout><?php echo $this->getContent(); ?></layout>'
-                    ],
-                    'partials/' => [
-                        'nested/' => [
-                            'include.tpl' => 'nested/include.tpl'
-                        ],
-                        'variables.tpl' => '<?php echo $name; ?> - <?php echo $type; ?> - <?php echo $filename; ?>'
-                    ],
-                    'wrappers/' => [
-                        'wrapper.tpl' => '<wrapper><?php echo $this->getContent(); ?></wrapper>'
-                    ],
-                    'root.tpl' => 'private/root.tpl'
-                ],
-                'public/' => [
-                    'index/' => [
-                        'add.tpl' => 'add.tpl',
-                        'edit.tpl' => 'edit.tpl',
-                        'index.tpl' => 'index.tpl',
-                        'test-include.tpl' => 'test-include.tpl <?php echo $this->open(\'nested/include\'); ?>',
-                        'view.tpl' => 'view.tpl',
-                        'view.xml.tpl' => 'view.xml.tpl'
-                    ],
-                    'root.tpl' => 'public/root.tpl'
-                ]
-            ],
-            '/cache/' => []
-        ]);
+        $this->vfs()->createStructure(ViewTest::generateViewStructure());
 
-        $this->object = new EngineView([
+        $this->object = new EngineView(new TemplateLocator([
             $this->vfs()->path('/views/'),
             $this->vfs()->path('/views/fallback/')
-        ]);
+        ]));
     }
 
     public function testRender(): void {
@@ -82,11 +43,11 @@ class EngineViewTest extends TestCase {
     }
 
     public function testRenderTemplate(): void {
-        $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/add')));
-        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/test-include')));
+        $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->getLocator()->locate('index/add')));
+        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->getLocator()->locate('index/test-include')));
 
         // variables
-        $this->assertEquals('Titon - partial - variables.tpl', $this->object->renderTemplate($this->object->locateTemplate('variables', Template::PARTIAL), Map {
+        $this->assertEquals('Titon - partial - variables.tpl', $this->object->renderTemplate($this->object->getLocator()->locate('variables', Template::PARTIAL), Map {
             'name' => 'Titon',
             'type' => 'partial',
             'filename' => 'variables.tpl'
@@ -98,7 +59,7 @@ class EngineViewTest extends TestCase {
 
         $this->object->setStorage($storage);
 
-        $path = $this->object->locateTemplate('index/test-include');
+        $path = $this->object->getLocator()->locate('index/test-include');
         $key = md5($path);
 
         $this->assertFalse($storage->has($key));

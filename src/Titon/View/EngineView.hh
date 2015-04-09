@@ -31,14 +31,17 @@ class EngineView extends AbstractView {
     /**
      * Set the default rendering engine.
      *
-     * @param mixed $paths
-     * @param string $ext
+     * @param \Titon\View\Locator $locator
+     * @param \Titon\View\Engine $engine
      */
-    public function __construct(mixed $paths, string $ext = 'tpl') {
-        parent::__construct($paths, $ext);
+    public function __construct(Locator $locator, Engine $engine = null) {
+        parent::__construct($locator);
 
-        $this->engine = new TemplateEngine();
-        $this->engine->setView($this);
+        if ($engine === null) {
+            $engine = new TemplateEngine();
+        }
+
+        $this->engine = $engine->setView($this);
     }
 
     /**
@@ -98,7 +101,7 @@ class EngineView extends AbstractView {
 
         // Render content
         $content = $this->renderTemplate(
-            $this->locateTemplate($template, $type),
+            $this->getLocator()->locate($template, $type),
             $this->getVariables()
         );
 
@@ -118,16 +121,13 @@ class EngineView extends AbstractView {
      */
     public function renderTemplate(string $path, DataMap $variables = Map {}): string {
         $expires = $variables->get('cache') ?: '+1 day';
-
-        $callback = function() use ($path, $variables) {
-            return $this->getEngine()->render($path, $variables);
-        };
+        $callback = () ==> $this->getEngine()->render($path, $variables);
 
         if ($storage = $this->getStorage()) {
             return (string) $storage->store(md5($path), $callback, $expires);
         }
 
-        return (string) call_user_func($callback);
+        return (string) $callback();
     }
 
     /**

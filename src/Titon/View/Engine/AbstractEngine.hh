@@ -103,7 +103,7 @@ abstract class AbstractEngine implements Engine {
         }
 
         return $this->render(
-            $view->locateTemplate($partial, Template::PARTIAL),
+            $view->getLocator()->locate($partial, Template::PARTIAL),
             $view->getVariables()->toMap()->setAll($variables)
         );
     }

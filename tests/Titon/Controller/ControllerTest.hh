@@ -8,6 +8,7 @@ use Titon\Test\Stub\Controller\ControllerStub;
 use Titon\Test\TestCase;
 use Titon\View\Engine\TemplateEngine;
 use Titon\View\EngineView;
+use Titon\View\Locator\TemplateLocator;
 
 /**
  * @property \Titon\Test\Stub\Controller\ControllerStub $object
@@ -21,11 +22,11 @@ class ControllerTest extends TestCase {
             '/views/' => [
                 'private/' => [
                     'errors/' => [
-                        'error.tpl' => '<?php echo $message; ?>',
-                        'http.tpl' => '<?php echo $code . \': \' . $message; ?>'
+                        'error.tpl' => '<?= $message; ?>',
+                        'http.tpl' => '<?= $code . \': \' . $message; ?>'
                     ],
                     'layouts/' => [
-                        'default.tpl' => '<?php echo $this->getContent(); ?>'
+                        'default.tpl' => '<?= $this->getContent(); ?>'
                     ]
                 ],
                 'public/' => [
@@ -38,7 +39,7 @@ class ControllerTest extends TestCase {
             ]
         ]);
 
-        $view = new EngineView($this->vfs()->path('/views/'));
+        $view = new EngineView(new TemplateLocator($this->vfs()->path('/views/')));
         $view->setEngine(new TemplateEngine());
 
         $this->object = new ControllerStub(Request::createFromGlobals(), new Response());
@@ -142,7 +143,7 @@ class ControllerTest extends TestCase {
     }
 
     public function testGetSetView(): void {
-        $view = new EngineView($this->vfs()->path('/other-views/'));
+        $view = new EngineView(new TemplateLocator($this->vfs()->path('/other-views/')));
 
         $this->assertNotEquals($view, $this->object->getView());
 

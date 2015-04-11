@@ -11,6 +11,11 @@ use Titon\Utility\Config;
 use Titon\Utility\Col;
 use Titon\View\Locator;
 
+/**
+ * An extension of the base `TemplateLocator` that provides locale aware lookups.
+ *
+ * @package Titon\View\Locator
+ */
 class LocaleTemplateLocator extends TemplateLocator {
 
     /**
@@ -20,6 +25,14 @@ class LocaleTemplateLocator extends TemplateLocator {
      */
     protected LocaleList $locales = Vector {};
 
+    /**
+     * Store the lookup paths, locales, and template extension.
+     * If locales are defined in the config, also store them.
+     *
+     * @param mixed $paths
+     * @param mixed $locales
+     * @param string $ext
+     */
     public function __construct(mixed $paths, mixed $locales, string $ext = 'tpl') {
         parent::__construct($paths, $ext);
 
@@ -33,7 +46,7 @@ class LocaleTemplateLocator extends TemplateLocator {
     }
 
     /**
-     * Add a locale lookup.
+     * Add a locale.
      *
      * @param string $locale
      * @return $this
@@ -47,7 +60,7 @@ class LocaleTemplateLocator extends TemplateLocator {
     }
 
     /**
-     * Add multiple locale lookups.
+     * Add multiple locales.
      *
      * @param \Titon\View\LocaleList $locales
      * @return $this
@@ -61,6 +74,24 @@ class LocaleTemplateLocator extends TemplateLocator {
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function buildTemplateLookup(string $template): PathList {
+        $paths = Vector {};
+        $ext = $this->getExtension();
+
+        if ($locales = $this->getLocales()) {
+            foreach ($locales as $locale) {
+                $paths[] = $template . '.' . $locale . '.' . $ext;
+           }
+        }
+
+        $paths[] = $template . '.' . $ext;
+
+        return $paths;
+    }
+
+    /**
      * Return all locales.
      *
      * @return \Titon\View\LocaleList
@@ -70,13 +101,15 @@ class LocaleTemplateLocator extends TemplateLocator {
     }
 
     /**
-     * Set a list of locales and overwrite any previously defined paths.
+     * Set a list of locales and overwrite any previously defined locales.
      *
      * @param \Titon\View\LocaleList $locales
      * @return $this
      */
     public function setLocales(LocaleList $locales): this {
-        $this->locales = $locales;
+        $this->locales->clear();
+
+        $this->addLocales($locales);
 
         return $this;
     }

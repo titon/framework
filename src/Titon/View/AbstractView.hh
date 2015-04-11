@@ -39,6 +39,13 @@ abstract class AbstractView implements View, Subject {
     protected HelperMap $helpers = Map {};
 
     /**
+     * Template locator instance.
+     *
+     * @var \Titon\View\Locator
+     */
+    protected Locator $locator;
+
+    /**
      * Storage engine.
      *
      * @var \Titon\Cache\Storage

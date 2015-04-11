@@ -34,14 +34,15 @@ class EngineView extends AbstractView {
      * @param \Titon\View\Locator $locator
      * @param \Titon\View\Engine $engine
      */
-    public function __construct(Locator $locator, Engine $engine = null) {
+    public function __construct(Locator $locator, ?Engine $engine = null) {
         parent::__construct($locator);
 
         if ($engine === null) {
             $engine = new TemplateEngine();
         }
 
-        $this->engine = $engine->setView($this);
+        $this->engine = $engine;
+        $this->engine->setView($this);
     }
 
     /**

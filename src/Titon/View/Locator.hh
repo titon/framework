@@ -7,6 +7,13 @@
 
 namespace Titon\View;
 
+use Titon\View\Locator\PathList;
+
+/**
+ * The Locator provides an interface for locating a defined template within a list of lookup paths.
+ *
+ * @package Titon\View
+ */
 interface Locator {
 
     /**
@@ -24,14 +31,6 @@ interface Locator {
      * @return $this
      */
     public function addPaths(PathList $paths): this;
-
-    /**
-     * Format the current template path by converting slashes and removing extensions.
-     *
-     * @param string $template
-     * @return string
-     */
-    public function formatPath(string $template): string;
 
     /**
      * Return the template file extension.

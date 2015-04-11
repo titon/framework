@@ -13,8 +13,12 @@ use Titon\Utility\Path;
 use Titon\View\Exception\MissingTemplateException;
 use Titon\View\Locator;
 use Titon\View\Template;
-use Titon\View\PathList;
 
+/**
+ * Defines shared functionality for template locators.
+ *
+ * @package Titon\View\Locator
+ */
 abstract class AbstractLocator implements Locator {
 
     /**
@@ -31,12 +35,19 @@ abstract class AbstractLocator implements Locator {
      */
     protected PathList $paths = Vector {};
 
+    /**
+     * Store the lookup paths and template extension.
+     * If paths are defined in the config, also store them.
+     *
+     * @param mixed $paths
+     * @param string $ext
+     */
     public function __construct(mixed $paths, string $ext = 'tpl') {
         if ($paths) {
             $this->addPaths(Col::toVector($paths));
         }
 
-        if ($paths = Config::get('titon.path.views')) {
+        if ($paths = Config::get('titon.paths.views')) {
             $this->addPaths(Col::toVector($paths));
         }
 
@@ -64,9 +75,25 @@ abstract class AbstractLocator implements Locator {
     }
 
     /**
-     * {@inheritdoc}
+     * Generate a list of template names to look for within the list of paths.
+     *
+     * @param string $template
+     * @return \Titon\View\PathList
      */
-    public function formatPath(string $template): string {
+    public function buildTemplateLookup(string $template): PathList {
+        $paths = Vector {};
+        $paths[] = $template . '.' . $this->getExtension();
+
+        return $paths;
+    }
+
+    /**
+     * Format the current template path by converting slashes and removing extensions.
+     *
+     * @param string $template
+     * @return string
+     */
+    public function formatTemplate(string $template): string {
         return trim(str_replace(['.' . $this->getExtension(), '\\'], ['', '/'], $template), '/');
     }
 
@@ -89,7 +116,7 @@ abstract class AbstractLocator implements Locator {
      */
     <<__Memoize>>
     public function locate(string $template, Template $type = Template::OPEN): string {
-        $template = $this->formatPath($template);
+        $template = $this->formatTemplate($template);
         $paths = $this->getPaths();
 
         // Prepend parent path
@@ -111,20 +138,8 @@ abstract class AbstractLocator implements Locator {
             break;
         }
 
-        // Generate a list of locale appended templates
-        $templates = Vector {};
-        //$locales = $this->getLocales();
-        $ext = $this->getExtension();
-
-        //if ($locales) {
-        //    foreach ($locales as $locale) {
-        //        $templates[] = $template . '.' . $locale . '.' . $ext;
-        //   }
-        //}
-
-        $templates[] = $template . '.' . $ext;
-
-        // Locate absolute path
+        // Attempt to find the template in the list of paths
+        $templates = $this->buildTemplateLookup($template);
         $absPath = '';
 
         foreach ($paths as $path) {
@@ -151,7 +166,7 @@ abstract class AbstractLocator implements Locator {
      * {@inheritdoc}
      */
     public function setExtension(string $ext): this {
-        $this->extension = $ext;
+        $this->extension = trim($ext, '.');
 
         return $this;
     }
@@ -160,7 +175,9 @@ abstract class AbstractLocator implements Locator {
      * {@inheritdoc}
      */
     public function setPaths(PathList $paths): this {
-        $this->paths = $paths;
+        $this->paths->clear();
+
+        $this->addPaths($paths);
 
         return $this;
     }

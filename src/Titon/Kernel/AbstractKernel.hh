@@ -71,7 +71,7 @@ abstract class AbstractKernel<Ta as Application, Ti as Input, To as Output> impl
      * @param \Titon\Kernel\Application $app
      * @param \Titon\Kernel\Middleware\Pipeline $pipeline
      */
-    public function __construct(Ta $app, Pipeline<Ti, To> $pipeline = null) {
+    public function __construct(Ta $app, ?Pipeline<Ti, To> $pipeline = null) {
         if ($pipeline === null) {
             $pipeline = new Pipeline();
         }

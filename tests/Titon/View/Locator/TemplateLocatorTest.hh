@@ -8,7 +8,7 @@ use Titon\View\ViewTest;
 /**
  * @property \Titon\View\Locator\TemplateLocator $object
  */
-class AssetHelperTest extends TestCase {
+class TemplateLocatorTest extends TestCase {
 
     protected function setUp(): void {
         parent::setUp();
@@ -17,8 +17,20 @@ class AssetHelperTest extends TestCase {
 
         $this->object = new TemplateLocator([
             $this->vfs()->path('/views'),
-            $this->vfs()->path('/views/fallback')
+            $this->vfs()->path('/views-fallback')
         ]);
+    }
+
+    public function testFormatTemplate(): void {
+        $this->assertEquals('foo/bar', $this->object->formatTemplate('foo/bar'));
+        $this->assertEquals('foo/bar', $this->object->formatTemplate('foo\\bar'));
+        $this->assertEquals('foo/bar', $this->object->formatTemplate('foo\\bar.tpl'));
+        $this->assertEquals('foo/bar', $this->object->formatTemplate('/foo/bar'));
+        $this->assertEquals('foo/bar', $this->object->formatTemplate('foo/bar/'));
+    }
+
+    public function testBuildTemplateLookup(): void {
+        $this->assertEquals(Vector {'foo/bar.tpl'}, $this->object->buildTemplateLookup('foo/bar'));
     }
 
     public function testLocate(): void {
@@ -33,15 +45,15 @@ class AssetHelperTest extends TestCase {
 
         // wrapper
         $this->assertEquals($this->vfs()->path('/views/private/wrappers/wrapper.tpl'), $this->object->locate('wrapper', Template::WRAPPER));
-        $this->assertEquals($this->vfs()->path('/views/fallback/private/wrappers/fallback.tpl'), $this->object->locate('fallback', Template::WRAPPER));
+        $this->assertEquals($this->vfs()->path('/views-fallback/private/wrappers/fallback.tpl'), $this->object->locate('fallback', Template::WRAPPER));
 
         // layout
         $this->assertEquals($this->vfs()->path('/views/private/layouts/default.tpl'), $this->object->locate('default', Template::LAYOUT));
-        $this->assertEquals($this->vfs()->path('/views/fallback/private/layouts/fallback.tpl'), $this->object->locate('fallback', Template::LAYOUT));
+        $this->assertEquals($this->vfs()->path('/views-fallback/private/layouts/fallback.tpl'), $this->object->locate('fallback', Template::LAYOUT));
 
         // private
         $this->assertEquals($this->vfs()->path('/views/private/errors/404.tpl'), $this->object->locate('errors/404', Template::CLOSED));
-        $this->assertEquals($this->vfs()->path('/views/fallback/private/emails/example.html.tpl'), $this->object->locate('emails/example.html', Template::CLOSED));
+        $this->assertEquals($this->vfs()->path('/views-fallback/private/emails/example.html.tpl'), $this->object->locate('emails/example.html', Template::CLOSED));
     }
 
     /**

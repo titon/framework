@@ -24,8 +24,8 @@ class TemplateEngineTest extends TestCase {
     }
 
     public function testOpen(): void {
-        $this->assertEquals('nested/include.tpl', $this->object->getEngine()->open('nested/include'));
-        $this->assertEquals('nested/include.tpl', $this->object->getEngine()->open('nested/include.tpl'));
+        $this->assertEquals('private.partials.nested.include', $this->object->getEngine()->open('nested/include'));
+        $this->assertEquals('private.partials.nested.include', $this->object->getEngine()->open('nested/include.tpl'));
         $this->assertEquals('Titon - partial - variables.tpl', $this->object->getEngine()->open('variables', Map {
             'name' => 'Titon',
             'type' => 'partial',
@@ -41,12 +41,12 @@ class TemplateEngineTest extends TestCase {
     }
 
     public function testRender(): void {
-        $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->getLocator()->locate('index/add')));
-        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->getLocator()->locate('index/test-include')));
+        $this->assertEquals('public.index.add', $this->object->renderTemplate($this->object->getLocator()->locate('index/add')));
+        $this->assertEquals('public.index.include - private.partials.nested.include', $this->object->renderTemplate($this->object->getLocator()->locate('index/include')));
     }
 
     public function testData(): void {
-        $this->assertEquals('add.tpl', $this->engine->render($this->object->getLocator()->locate('index/add'), Map {
+        $this->assertEquals('public.index.add', $this->engine->render($this->object->getLocator()->locate('index/add'), Map {
             'foo' => 'bar'
         }));
 

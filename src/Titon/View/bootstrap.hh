@@ -16,8 +16,6 @@
 namespace Titon\View {
     type DataMap = Map<string, mixed>;
     type HelperMap = Map<string, Helper>;
-    type LocaleList = Vector<string>;
-    type PathList = Vector<string>;
 }
 
 namespace Titon\View\Engine {
@@ -40,4 +38,9 @@ namespace Titon\View\Helper {
 
     // Breadcrumb
     type Breadcrumb = shape('title' => string, 'url' => string, 'attributes' => AttributeMap);
+}
+
+namespace Titon\View\Locator {
+    type LocaleList = Vector<string>;
+    type PathList = Vector<string>;
 }

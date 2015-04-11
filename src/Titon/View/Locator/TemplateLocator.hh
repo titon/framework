@@ -7,6 +7,11 @@
 
 namespace Titon\View\Locator;
 
+/**
+ * Default implementation for locating templates.
+ *
+ * @package Titon\View\Locator
+ */
 class TemplateLocator extends AbstractLocator {
 
 }

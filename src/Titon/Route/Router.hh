@@ -18,31 +18,20 @@ use Titon\Route\Event\MatchedEvent;
 use Titon\Route\Event\MatchingEvent;
 use Titon\Route\Exception\InvalidRouteActionException;
 use Titon\Route\Exception\MissingFilterException;
-use Titon\Route\Exception\MissingSegmentException;
 use Titon\Route\Exception\MissingRouteException;
 use Titon\Route\Exception\NoMatchException;
 use Titon\Route\Matcher\LoopMatcher;
 use Titon\Route\Mixin\MethodList;
 use Titon\Route\Group as RouteGroup; // Will fatal without alias
-use Titon\Utility\State\Get;
-use Titon\Utility\State\Server;
 use Titon\Utility\Registry;
 
 /**
- * The Router is tasked with the management of routes and filters, at which some point a route is matched against
- * a URL based on the current environment settings.
+ * The Router is tasked with the management of routes and matching of routes.
  *
  * @package Titon\Route
  */
 class Router implements Subject {
     use EmitsEvents;
-
-    /**
-     * Base folder structure if the application was placed within a directory.
-     *
-     * @var string
-     */
-    protected string $base = '/';
 
     /**
      * Have routes been loaded in from the cache?
@@ -107,13 +96,6 @@ class Router implements Subject {
     protected RouteMap $routes = Map {};
 
     /**
-     * The current URL broken up into multiple segments: protocol, host, route, query, base
-     *
-     * @var \Titon\Route\SegmentMap
-     */
-    protected SegmentMap $segments = Map {};
-
-    /**
      * Storage engine instance.
      *
      * @var \Titon\Cache\Storage
@@ -121,46 +103,15 @@ class Router implements Subject {
     protected ?Storage $storage;
 
     /**
-     * Parses the current environment settings into multiple segments and properties.
+     * Initialize the router and prepare for matching.
      */
     public function __construct() {
         $this->matcher = new LoopMatcher();
 
-        // Determine if app is within a base folder
-        $base = dirname(str_replace(Server::get('DOCUMENT_ROOT'), '', Server::get('SCRIPT_FILENAME')));
-
-        if ($base && $base !== '.') {
-            $this->base = rtrim(str_replace('\\', '/', $base), '/') ?: '/';
-        }
-
-        // Store the current URL and query as router segments
-        $this->segments = (new Map(parse_url(Server::get('REQUEST_URI'))))->setAll(Map {
-            'scheme' => (Server::get('HTTPS') === 'on') ? 'https' : 'http',
-            'query' => Get::all(),
-            'host' => Server::get('HTTP_HOST'),
-            'port' => Server::get('SERVER_PORT')
-        });
-
-        // Set caching events
+        // Set events
         $this->on('route.matching', inst_meth($this, 'doLoadRoutes'), 1);
         $this->on('route.matched', inst_meth($this, 'doCacheRoutes'), 1);
         $this->on('route.matched', inst_meth($this, 'doRunFilters'), 2);
-    }
-
-    /**
-     * Attempts to match a route based on the current path segment.
-     */
-    public function initialize(): void {
-        $this->match((string) $this->getSegment('path'));
-    }
-
-    /**
-     * Return the base URL if the app was not placed in the root directory.
-     *
-     * @return string
-     */
-    public function base(): string {
-        return $this->base;
     }
 
     /**
@@ -375,30 +326,6 @@ class Router implements Subject {
     }
 
     /**
-     * Return a segment by key.
-     *
-     * @param string $key
-     * @return mixed
-     * @throws \Titon\Route\Exception\MissingSegmentException
-     */
-    public function getSegment(string $key): mixed {
-        if ($this->segments->contains($key)) {
-            return $this->segments[$key];
-        }
-
-        throw new MissingSegmentException(sprintf('Routing segment %s does not exist', $key));
-    }
-
-    /**
-     * Return all segments.
-     *
-     * @return \Titon\Route\SegmentMap
-     */
-    public function getSegments(): SegmentMap {
-        return $this->segments;
-    }
-
-    /**
      * Get the storage engine.
      *
      * @return \Titon\Cache\Storage
@@ -419,7 +346,7 @@ class Router implements Subject {
 
         $this->groups[] = $group;
 
-        call_user_func_array($callback, [$this, $group]);
+        $callback($this, $group);
 
         $this->groups->pop();
 

@@ -69,28 +69,33 @@ namespace {
 namespace {
     use Titon\Route\ParamMap;
     use Titon\Route\QueryMap;
-    use Titon\Context\Depository;
     use Titon\Route\UrlBuilder;
+    use Titon\Context\Depository;
+
+    /**
+     * Make and return a UrlBuilder instance from the depository.
+     *
+     * @return \Titon\Route\UrlBuilder
+     */
+    function load_url_builder(): UrlBuilder {
+        $builder = Depository::getInstance()->make('Titon\Route\UrlBuilder');
+
+        invariant($builder instanceof UrlBuilder, 'Must be a UrlBuilder.');
+
+        return $builder;
+    }
 
     /**
      * @see Titon\Route\UrlBuilder::build()
      */
     function link_to(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        $builder = Depository::getInstance()->make('Titon\Route\UrlBuilder');
-
-        invariant($builder instanceof UrlBuilder, 'Must be a UrlBuilder.');
-
-        return $builder->build($key, $params, $query);
+        return load_url_builder()->build($key, $params, $query);
     }
 
     /**
      * @see Titon\Route\UrlBuilder::url()
      */
     function url(): string {
-        $builder = Depository::getInstance()->make('Titon\Route\UrlBuilder');
-
-        invariant($builder instanceof UrlBuilder, 'Must be a UrlBuilder.');
-
-        return $builder->url();
+        return load_url_builder()->url();
     }
 }

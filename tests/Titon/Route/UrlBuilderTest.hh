@@ -78,7 +78,7 @@ class UrlBuilderTest extends TestCase {
 
         $builder = new UrlBuilder($router);
 
-        $this->assertEquals('/base', $router->base());
+        $this->assertEquals('/base', $builder->getBase());
         $this->assertEquals('/base/users', $builder->build('module', Map {'module' => 'users'}));
     }
 
@@ -121,6 +121,115 @@ class UrlBuilderTest extends TestCase {
         $this->object->build('module');
     }
 
+    public function testSegments(): void {
+        $router = new Router();
+
+        $_SERVER['DOCUMENT_ROOT'] = '';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+        $_SERVER['SCRIPT_FILENAME'] = '/index.php';
+        $_SERVER['REQUEST_URI'] = '/';
+        Server::initialize($_SERVER);
+
+        $builder = new UrlBuilder($router);
+        $this->assertEquals('/', $builder->getBase());
+        $this->assertEquals('/', $builder->getSegment('path'));
+        $this->assertInstanceOf('HH\Map', $builder->getSegment('query'));
+        $this->assertEquals(Map {
+            'path' => '/',
+            'scheme' => 'http',
+            'query' => Map {},
+            'host' => 'localhost',
+            'port' => 80
+        }, $builder->getSegments());
+
+        // module, controller
+        $_SERVER['HTTP_HOST'] = 'domain.com';
+        $_SERVER['SCRIPT_FILENAME'] = '/index.php';
+        $_SERVER['REQUEST_URI'] = '/module/index';
+        Server::initialize($_SERVER);
+
+        $builder = new UrlBuilder($router);
+        $this->assertEquals('/', $builder->getBase());
+        $this->assertEquals('/module/index', $builder->getSegment('path'));
+        $this->assertInstanceOf('HH\Map', $builder->getSegment('query'));
+        $this->assertEquals(Map {
+            'path' => '/module/index',
+            'scheme' => 'http',
+            'query' => Map {},
+            'host' => 'domain.com',
+            'port' => 80
+        }, $builder->getSegments());
+
+        // module, controller, action, ext, base,
+        $_SERVER['HTTP_HOST'] = 'sub.domain.com';
+        $_SERVER['SCRIPT_FILENAME'] = '/root/dir/index.php';
+        $_SERVER['REQUEST_URI'] = '/module/controller/action.html';
+        Server::initialize($_SERVER);
+
+        $builder = new UrlBuilder($router);
+        $this->assertEquals('/root/dir', $builder->getBase());
+        $this->assertEquals('/module/controller/action.html', $builder->getSegment('path'));
+        $this->assertInstanceOf('HH\Map', $builder->getSegment('query'));
+        $this->assertEquals(Map {
+            'path' => '/module/controller/action.html',
+            'scheme' => 'http',
+            'query' => Map {},
+            'host' => 'sub.domain.com',
+            'port' => 80
+        }, $builder->getSegments());
+
+        // module, controller, action, ext, base, query, https
+        $_SERVER['HTTP_HOST'] = 'subber.sub.domain.com';
+        $_SERVER['SCRIPT_FILENAME'] = '/rooter/root/dir/index.php'; // query doesn't show up here
+        $_SERVER['REQUEST_URI'] = '/module/controller/action.html?foo=bar&int=123';
+        $_SERVER['HTTPS'] = 'on';
+        Server::initialize($_SERVER);
+
+        $_GET = ['foo' => 'bar', 'int' => 123];
+        Get::initialize($_GET);
+
+        $builder = new UrlBuilder($router);
+        $this->assertEquals('/rooter/root/dir', $builder->getBase());
+        $this->assertEquals('/module/controller/action.html', $builder->getSegment('path'));
+        $this->assertInstanceOf('HH\Map', $builder->getSegment('query'));
+        $this->assertEquals(Map {
+            'path' => '/module/controller/action.html',
+            'scheme' => 'https',
+            'query' => Map {'foo' => 'bar', 'int' => 123},
+            'host' => 'subber.sub.domain.com',
+            'port' => 80
+        }, $builder->getSegments());
+
+        // module, controller, action, ext, base, query, https, args
+        $_SERVER['HTTP_HOST'] = 'subbest.subber.sub.domain.com';
+        $_SERVER['SCRIPT_FILENAME'] = '/base/rooter/root/dir/index.php'; // query doesn't show up here
+        $_SERVER['REQUEST_URI'] = '/module/controller/action.html/123/abc?foo=bar&int=123';
+        $_SERVER['HTTPS'] = 'on';
+        Server::initialize($_SERVER);
+
+        $_GET = ['foo' => 'bar', 'int' => 123];
+        Get::initialize($_GET);
+
+        $builder = new UrlBuilder($router);
+        $this->assertEquals('/base/rooter/root/dir', $builder->getBase());
+        $this->assertEquals('/module/controller/action.html/123/abc', $builder->getSegment('path'));
+        $this->assertInstanceOf('HH\Map', $builder->getSegment('query'));
+        $this->assertEquals(Map {
+            'path' => '/module/controller/action.html/123/abc',
+            'scheme' => 'https',
+            'query' => Map {'foo' => 'bar', 'int' => 123},
+            'host' => 'subbest.subber.sub.domain.com',
+            'port' => 80
+        }, $builder->getSegments());
+    }
+
+    /**
+     * @expectedException \Titon\Route\Exception\MissingSegmentException
+     */
+    public function testSegmentsMissingKey(): void {
+        $this->object->getSegment('fakeKey');
+    }
+
     public function testUrl(): void {
         $_SERVER['DOCUMENT_ROOT'] = '/root';
         $_SERVER['HTTP_HOST'] = 'sub.domain.com';
@@ -132,13 +241,12 @@ class UrlBuilderTest extends TestCase {
         $_GET = ['foo' => 'bar'];
         Get::initialize($_GET);
 
-        $router = new Router();
-
-        $builder = new UrlBuilder($router);
+        $builder = new UrlBuilder(new Router());
 
         $this->assertEquals('https://sub.domain.com/base/app/module/controller/action.html/123?foo=bar', $builder->url());
+    }
 
-        // url() uses the one in the registry
+    public function testUrlGlobalFunction(): void {
         $this->assertEquals('http://localhost/', url());
     }
 

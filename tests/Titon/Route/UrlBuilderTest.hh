@@ -103,10 +103,6 @@ class UrlBuilderTest extends TestCase {
         $this->assertEquals('/users/profile/feed.json', $this->object->build('action.ext', Map {'module' => 'Users', 'controller' => 'ProfILE', 'action' => 'feeD', 'ext' => 'JSON'}));
     }
 
-    public function testBuildLinkToFunction(): void {
-        $this->assertEquals('/users/profile/feed.json', link_to('action.ext', Map {'module' => 'users', 'controller' => 'profile', 'action' => 'feed', 'ext' => 'json'}));
-    }
-
     /**
      * @expectedException \Titon\Route\Exception\MissingRouteException
      */
@@ -119,6 +115,22 @@ class UrlBuilderTest extends TestCase {
      */
     public function testBuildMissingToken(): void {
         $this->object->build('module');
+    }
+
+    public function testGetAbsoluteUrl(): void {
+        $_SERVER['DOCUMENT_ROOT'] = '/root';
+        $_SERVER['HTTP_HOST'] = 'sub.domain.com';
+        $_SERVER['SCRIPT_FILENAME'] = '/root/base/app/index.php';
+        $_SERVER['REQUEST_URI'] = '/module/controller/action.html/123?foo=bar';
+        $_SERVER['HTTPS'] = 'on';
+        Server::initialize($_SERVER);
+
+        $_GET = ['foo' => 'bar'];
+        Get::initialize($_GET);
+
+        $builder = new UrlBuilder(new Router());
+
+        $this->assertEquals('https://sub.domain.com/base/app/module/controller/action.html/123?foo=bar', $builder->getAbsoluteUrl());
     }
 
     public function testSegments(): void {
@@ -230,24 +242,12 @@ class UrlBuilderTest extends TestCase {
         $this->object->getSegment('fakeKey');
     }
 
-    public function testUrl(): void {
-        $_SERVER['DOCUMENT_ROOT'] = '/root';
-        $_SERVER['HTTP_HOST'] = 'sub.domain.com';
-        $_SERVER['SCRIPT_FILENAME'] = '/root/base/app/index.php';
-        $_SERVER['REQUEST_URI'] = '/module/controller/action.html/123?foo=bar';
-        $_SERVER['HTTPS'] = 'on';
-        Server::initialize($_SERVER);
-
-        $_GET = ['foo' => 'bar'];
-        Get::initialize($_GET);
-
-        $builder = new UrlBuilder(new Router());
-
-        $this->assertEquals('https://sub.domain.com/base/app/module/controller/action.html/123?foo=bar', $builder->url());
+    public function testUrlGlobalFunction(): void {
+        $this->assertEquals('/users/profile/feed.json', url('action.ext', Map {'module' => 'users', 'controller' => 'profile', 'action' => 'feed', 'ext' => 'json'}));
     }
 
-    public function testUrlGlobalFunction(): void {
-        $this->assertEquals('http://localhost/', url());
+    public function testCurrentUrlGlobalFunction(): void {
+        $this->assertEquals('http://localhost/', current_url());
     }
 
 }

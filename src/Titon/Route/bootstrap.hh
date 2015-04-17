@@ -73,11 +73,32 @@ namespace {
     use Titon\Context\Depository;
 
     /**
+     * @see Titon\Route\UrlBuilder::getAbsoluteUrl()
+     */
+    function current_url(): string {
+        return url_builder()->getAbsoluteUrl();
+    }
+
+    /**
+     * @see Titon\Route\UrlBuilder::build()
+     */
+    function url(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
+        return url_builder()->build($key, $params, $query);
+    }
+
+    /**
+     * @see Titon\Route\UrlBuilder::getSegment()
+     */
+    function url_segment(string $segment): mixed {
+        return url_builder()->getSegment($segment);
+    }
+
+    /**
      * Make and return a UrlBuilder instance from the depository.
      *
      * @return \Titon\Route\UrlBuilder
      */
-    function load_url_builder(): UrlBuilder {
+    function url_builder(): UrlBuilder {
         $builder = Depository::getInstance()->make('Titon\Route\UrlBuilder');
 
         invariant($builder instanceof UrlBuilder, 'Must be a UrlBuilder.');
@@ -85,17 +106,4 @@ namespace {
         return $builder;
     }
 
-    /**
-     * @see Titon\Route\UrlBuilder::build()
-     */
-    function link_to(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        return load_url_builder()->build($key, $params, $query);
-    }
-
-    /**
-     * @see Titon\Route\UrlBuilder::url()
-     */
-    function url(): string {
-        return load_url_builder()->url();
-    }
 }

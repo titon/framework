@@ -127,6 +127,29 @@ class UrlBuilder {
     }
 
     /**
+     * Return the current absolute URL.
+     *
+     * @return string
+     */
+    public function getAbsoluteUrl(): string {
+        $base = $this->getBase();
+        $segments = $this->getSegments();
+        $url = (string) $segments['scheme'] . '://' . (string) $segments['host'];
+
+        if ($base !== '/') {
+            $url .= $base;
+        }
+
+        $url .= (string) $segments['path'];
+
+        if ($segments['query']) {
+            $url .= '?' . http_build_query($segments['query']);
+        }
+
+        return $url;
+    }
+
+    /**
      * Return the base URL if the app was not placed in the root directory.
      *
      * @return string
@@ -166,29 +189,6 @@ class UrlBuilder {
      */
     public function getSegments(): SegmentMap {
         return $this->segments;
-    }
-
-    /**
-     * Return the current URL.
-     *
-     * @return string
-     */
-    public function url(): string {
-        $base = $this->getBase();
-        $segments = $this->getSegments();
-        $url = (string) $segments['scheme'] . '://' . (string) $segments['host'];
-
-        if ($base !== '/') {
-            $url .= $base;
-        }
-
-        $url .= (string) $segments['path'];
-
-        if ($segments['query']) {
-            $url .= '?' . http_build_query($segments['query']);
-        }
-
-        return $url;
     }
 
 }

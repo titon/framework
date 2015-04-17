@@ -41,4 +41,8 @@ class ControllerStub extends AbstractController {
         return null;
     }
 
+    public function viewPath(string $action): string {
+        return $this->buildViewPath($action);
+    }
+
 }

@@ -102,7 +102,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('lowercase', Inflector::snakeCase('lowercase'));
         $this->assertEquals('u_p_p_e_r_c_a_s_e', Inflector::snakeCase('UPPERCASE'));
         $this->assertEquals('under_score', Inflector::snakeCase('under_score'));
-        $this->assertEquals('dashes', Inflector::snakeCase('dash-es'));
+        $this->assertEquals('dash_es', Inflector::snakeCase('dash-es'));
         $this->assertEquals('123_numbers', Inflector::snakeCase('123 numbers'));
         $this->assertEquals('with_e_x_txml', Inflector::snakeCase('with EXT.xml'));
         $this->assertEquals('lots_of_white_space', Inflector::snakeCase('lots  of     white space'));
@@ -124,7 +124,7 @@ class InflectorTest extends TestCase {
         $this->assertEquals('lowercase', Inflector::underscore('lowercase'));
         $this->assertEquals('u_p_p_e_r_c_a_s_e', Inflector::underscore('UPPERCASE'));
         $this->assertEquals('under_score', Inflector::underscore('under_score'));
-        $this->assertEquals('dashes', Inflector::underscore('dash-es'));
+        $this->assertEquals('dash_es', Inflector::underscore('dash-es'));
         $this->assertEquals('123_numbers', Inflector::underscore('123 numbers'));
         $this->assertEquals('with_e_x_txml', Inflector::underscore('with EXT.xml'));
         $this->assertEquals('lots_of_white_space', Inflector::underscore('lots  of     white space'));

@@ -27,10 +27,9 @@ interface Controller {
      *
      * @param string $action
      * @param \Titon\Controller\ArgumentList $args
-     * @param bool $emit
      * @return \Psr\Http\Message\OutgoingResponseInterface
      */
-    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): OutgoingResponseInterface;
+    public function dispatchTo(string $action, ArgumentList $args): OutgoingResponseInterface;
 
     /**
      * Forward the current request to a new action, instead of doing an additional HTTP request.

@@ -88,63 +88,32 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function dispatchTo(string $action, ArgumentList $args, bool $emit = true): OutgoingResponseInterface {
+    public function dispatchTo(string $action, ArgumentList $args): OutgoingResponseInterface {
         $this->action = $action;
         $this->arguments[$action] = $args;
 
-        // Convert dashed actions to camel case
-        if (strpos($action, '-') !== false) {
-            $action = lcfirst(Inflector::camelCase($action));
-        }
-
         // Emit before event
-        if ($emit) {
-            $this->emit(new ProcessingEvent($this, $action, $args));
-        }
+        $this->emit(new ProcessingEvent($this, $action, $args));
 
-        // Attempt to dispatch to an action
-        try {
-
-            // Call `missingAction()` if the action does not exist
-            if (!method_exists($this, $action)) {
-                $response = $this->missingAction();
-
-            // Trigger action and generate response
-            } else {
-                // UNSAFE
-                // Since `inst_meth()` requires literal strings and we are passing variables
-                $handler = inst_meth($this, $action);
-                $response = $handler(...$args);
-            }
-
-            // If response is empty, render a view
-            if ($response === null) {
-                $response = $this->renderView();
-            }
-
-        // If an action throws an exception, render an error
-        } catch (HttpException $e) {
-            $response = $this->renderError($e);
-        }
-
-        // Handle the response
-        $response = $this->handleResponse($response);
+        // Handle the action
+        $response = $this->handleAction();
 
         // Emit after event
-        if ($emit) {
-            $event = new ProcessedEvent($this, $action, $response);
-            $this->emit($event);
-            $response = $event->getResponse();
-        }
+        $event = new ProcessedEvent($this, $action, $response);
+        $this->emit($event);
 
-        return $response;
+        return $event->getResponse();
     }
 
     /**
      * {@inheritdoc}
      */
     public function forwardTo(string $action, ArgumentList $args): OutgoingResponseInterface {
-        return $this->dispatchTo($action, $args, false);
+        $this->action = $action;
+        $this->arguments[$action] = $args;
+
+        // Handle the action
+        return $this->handleAction();
     }
 
     /**
@@ -300,6 +269,47 @@ abstract class AbstractController implements Controller, Subject {
         $prepare = ($path) ==> trim(str_replace(['_', 'controller'], ['-', ''], Inflector::underscore($path)), '-');
 
         return sprintf('%s/%s', $prepare(Path::className(static::class)), $prepare($action));
+    }
+
+    /**
+     * Handle an action by triggering the respective method and retrieving an output.
+     * Either set the output as the response, or render a view as the response.
+     *
+     * @return \Psr\Http\Message\OutgoingResponseInterface
+     */
+    protected function handleAction(): OutgoingResponseInterface {
+        $action = $this->getCurrentAction();
+        $arguments = $this->getActionArguments($action);
+
+        // Convert dashed actions to camel case
+        if (strpos($action, '-') !== false) {
+            $action = lcfirst(Inflector::camelCase($action));
+        }
+
+        try {
+            // Call `missingAction()` if the action does not exist
+            if (!method_exists($this, $action)) {
+                $response = $this->missingAction();
+
+            // Trigger action and generate response
+            } else {
+                // UNSAFE
+                // Since `inst_meth()` requires literal strings and we are passing variables
+                $handler = inst_meth($this, $action);
+                $response = $handler(...$arguments);
+            }
+
+            // If response is empty, render a view
+            if ($response === null) {
+                $response = $this->renderView();
+            }
+
+        // If an action throws an HTTP exception, render an error, else fall-through
+        } catch (HttpException $e) {
+            $response = $this->renderError($e);
+        }
+
+        return $this->handleResponse($response);
     }
 
     /**

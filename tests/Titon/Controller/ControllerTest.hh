@@ -46,6 +46,12 @@ class ControllerTest extends TestCase {
         $this->object->setView($view);
     }
 
+    public function testBuildViewPath(): void {
+        $this->assertEquals('stub/index', $this->object->viewPath('index'));
+        $this->assertEquals('stub/dashed-route', $this->object->viewPath('dashed-route'));
+        $this->assertEquals('stub/underscore-route', $this->object->viewPath('underscore_route'));
+    }
+
     public function testDispatchTo(): void {
         $this->assertEquals('actionNoArgs', (string) $this->object->dispatchTo('action-no-args', [])->getBody());
         $this->assertEquals('actionNoArgs', (string) $this->object->dispatchTo('actionNoArgs', [])->getBody());

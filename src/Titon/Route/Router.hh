@@ -633,7 +633,7 @@ class Router implements Subject {
         // Map resource routes if the annotation is on the class
         foreach ($reader->getClassAnnotations() as $annotation) {
             if ($annotation instanceof RouteAnnotation) {
-                $this->resource($annotation->getKey(), $this->buildAnnotationRoute($annotation, $class));
+                $this->resource($annotation->getKey(), $annotation->toRoute($class));
             }
         }
 
@@ -641,29 +641,12 @@ class Router implements Subject {
         foreach ($reader->getAnnotatedMethods() as $method => $annotations) {
             foreach ($annotations as $annotation) {
                 if ($annotation instanceof RouteAnnotation) {
-                    $this->map($annotation->getKey(), $this->buildAnnotationRoute($annotation, $class, $method));
+                    $this->map($annotation->getKey(), $annotation->toRoute($class, $method));
                 }
             }
         }
 
         return $this;
-    }
-
-    /**
-     * Build a route object from an annotation.
-     *
-     * @param \Titon\Route\Annotation\Route $annotation
-     * @param string $class
-     * @param string $method
-     * @return \Titon\Route\Route
-     */
-    protected function buildAnnotationRoute(RouteAnnotation $annotation, string $class, string $method = 'index'): Route {
-        $route = new Route($annotation->getPath(), static::buildAction(shape('class' => $class, 'action' => $method)));
-        $route->setMethods($annotation->getMethods());
-        $route->setFilters($annotation->getFilters());
-        $route->setPatterns($annotation->getPatterns());
-
-        return $route;
     }
 
 }

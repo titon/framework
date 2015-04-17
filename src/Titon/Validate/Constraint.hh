@@ -25,7 +25,7 @@ class Constraint extends Validate implements ConstraintProvider {
 
         foreach (get_class_methods($this) as $method) {
             // UNSAFE
-            // Since class_meth() requires literal strings and we are passing variables
+            // Since `class_meth()` requires literal strings and we are passing variables
             $constraints[$method] = class_meth($class, $method);
         }
 

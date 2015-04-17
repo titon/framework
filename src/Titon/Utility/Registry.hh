@@ -81,7 +81,7 @@ class Registry<T> {
 
             if (is_callable($object)) {
                 // UNSAFE
-                // Because you can't invariant() a callable
+                // Because you can't `invariant()` a callable
                 $object = static::set(call_user_func($object), $key);
             }
 
@@ -118,7 +118,7 @@ class Registry<T> {
      */
     public static function register(string $key, RegistryCallback<T> $callback): void {
         // UNSAFE
-        // Since the property generics is T while the callback is RegistryCallback<T>
+        // Since the property generics is `T` while the callback is `RegistryCallback<T>`
         static::$registered[$key] = $callback;
     }
 

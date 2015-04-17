@@ -225,7 +225,7 @@ abstract class AbstractController implements Controller, Subject {
         $action->setController($this);
 
         // UNSAFE
-        // Since inst_meth() requires literal strings and we are passing variables.
+        // Since `inst_meth()` requires literal strings and we are passing variables
         $callback = inst_meth($action, strtolower($this->getRequest()->getMethod()));
         $arguments = $this->getCurrentArguments();
 

@@ -183,7 +183,7 @@ class Folder extends Node {
      */
     public function files(bool $sort = false, bool $recursive = false): Vector<File> {
         // UNSAFE
-        // Because read() returns Vector<Node> while we need Vector<File>
+        // Because `read()` returns `Vector<Node>` while we need `Vector<File>`
         return $this->read($sort, $recursive, self::FILES);
     }
 
@@ -228,7 +228,7 @@ class Folder extends Node {
      */
     public function folders(bool $sort = false, bool $recursive = false): Vector<Folder> {
         // UNSAFE
-        // Because read() returns Vector<Node> while we need Vector<Folder>
+        // Because `read()` returns `Vector<Node>` while we need `Vector<Folder>`
         return $this->read($sort, $recursive, self::FOLDERS);
     }
 

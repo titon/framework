@@ -11,7 +11,7 @@ use Titon\Io\Reader;
 use Titon\Cache\Storage;
 
 /**
- * Interface for g11n string translators.
+ * Interface for message translators.
  *
  * @package Titon\G11n
  */
@@ -19,7 +19,7 @@ interface Translator {
 
     /**
      * Locate the key within the catalog. If the catalog has not been loaded,
-     * load it and cache the collection of strings.
+     * load it and cache the collection of messages.
      *
      * @param string $key
      * @return string
@@ -31,22 +31,22 @@ interface Translator {
      *
      * @return \Titon\Io\Reader
      */
-    public function getReader(): Reader;
+    public function getReader(): ?Reader;
 
     /**
      * Return the cache storage engine.
      *
      * @return \Titon\Cache\Storage
      */
-    public function getStorage(): Storage;
+    public function getStorage(): ?Storage;
 
     /**
-     * Parse out the domain, catalog and key for string lookup.
+     * Parse out the domain, catalog and key for a message lookup.
      *
      * @param string $key
-     * @return string
+     * @return \Titon\G11n\MessageKey
      */
-    public function parseKey(string $key): string;
+    public function parseKey(string $key): MessageKey;
 
     /**
      * Set the file reader to use for resource parsing.
@@ -65,12 +65,12 @@ interface Translator {
     public function setStorage(Storage $storage): this;
 
     /**
-     * Process the located string with dynamic parameters if necessary.
+     * Process the located message with dynamic parameters if necessary.
      *
      * @param string $key
-     * @param array $params
+     * @param \Titon\G11n\ParamList $params
      * @return string
      */
-    public function translate($key, array $params = []): string;
+    public function translate(string $key, ParamList $params = Vector {}): string;
 
 }

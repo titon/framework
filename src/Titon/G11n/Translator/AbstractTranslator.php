@@ -7,9 +7,6 @@
 
 namespace Titon\G11n\Translator;
 
-use Titon\Cache\Traits\StorageAware;
-use Titon\Common\Base;
-use Titon\Common\Traits\Cacheable;
 use Titon\Cache\Storage;
 use Titon\Io\Reader;
 use Titon\G11n\Translator;
@@ -18,25 +15,38 @@ use \MessageFormatter;
 use \Locale;
 
 /**
- * Abstract class that implements the string translation functionality for Translators.
+ * Abstract class that implements the message translation functionality for translators.
  *
  * @package Titon\G11n\Translator
  */
-abstract class AbstractTranslator extends Base implements Translator {
-    use Cacheable, StorageAware;
+abstract class AbstractTranslator implements Translator {
 
     /**
      * File reader used for parsing.
      *
      * @var \Titon\Io\Reader
      */
-    protected $_reader;
+    protected ?Reader $reader;
+
+    /**
+     * Storage engine used for caching.
+     *
+     * @var \Titon\Cache\Storage
+     */
+    protected ?Storage $storage;
 
     /**
      * {@inheritdoc}
      */
-    public function getReader() {
-        return $this->_reader;
+    public function getReader(): ?Reader {
+        return $this->reader;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getStorage(): ?Storage {
+        return $this->storage;
     }
 
     /**
@@ -44,34 +54,37 @@ abstract class AbstractTranslator extends Base implements Translator {
      *
      * @throws \Titon\G11n\Exception\InvalidCatalogException
      */
-    final public function parseKey($key) {
-        return $this->cache([__METHOD__, $key], function() use ($key) {
-            $parts = explode('.', preg_replace('/[^-a-z0-9\.]+/i', '', $key));
-            $count = count($parts);
-            $domain = 'core';
+    <<__Memoize>>
+    public function parseKey(string $key): MessageKey {
+        $parts = explode('.', preg_replace('/[^-a-z0-9\.]+/i', '', $key));
+        $count = count($parts);
+        $domain = 'core';
 
-            if ($count < 2) {
-                throw new InvalidCatalogException(sprintf('No domain or catalog present for %s key', $key));
+        if ($count < 2) {
+            throw new InvalidCatalogException(sprintf('No domain or catalog present for %s key', $key));
 
-            } else if ($count === 2) {
-                $catalog = $parts[0];
-                $key = $parts[1];
+        } else if ($count === 2) {
+            $catalog = $parts[0];
+            $key = $parts[1];
 
-            } else {
-                $domain = array_shift($parts);
-                $catalog = array_shift($parts);
-                $key = implode('.', $parts);
-            }
+        } else {
+            $domain = array_shift($parts);
+            $catalog = array_shift($parts);
+            $key = implode('.', $parts);
+        }
 
-            return [$domain, $catalog, $key];
-        });
+        return shape(
+            'domain' => $domain,
+            'catalog' => $catalog,
+            'key' => $key
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setReader(Reader $reader) {
-        $this->_reader = $reader;
+    public function setReader(Reader $reader): this {
+        $this->reader = $reader;
 
         return $this;
     }
@@ -79,8 +92,17 @@ abstract class AbstractTranslator extends Base implements Translator {
     /**
      * {@inheritdoc}
      */
-    public function translate($key, array $params = []) {
-        return MessageFormatter::formatMessage(Locale::DEFAULT_LOCALE, $this->getMessage($key), $params);
+    public function setStorage(Storage $storage): this {
+        $this->storage = $storage;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function translate(string $key, ParamList $params = Vector {}) {
+        return (string) MessageFormatter::formatMessage(Locale::DEFAULT_LOCALE, $this->getMessage($key), $params);
     }
 
 }

@@ -38,14 +38,6 @@ class G11n implements Subject {
     use EmitsEvents;
 
     /**
-     * Possible formats for locale keys.
-     */
-    const int FORMAT_1 = 1; // en-us (urls)
-    const int FORMAT_2 = 2; // en-US
-    const int FORMAT_3 = 3; // en_US (preferred)
-    const int FORMAT_4 = 4; // enUS
-
-    /**
      * Default configuration.
      *
      * @var array {
@@ -155,37 +147,6 @@ class G11n implements Subject {
     }
 
     /**
-     * Convert a locale key to 3 possible formats.
-     *
-     * @param string $key
-     * @param int $format
-     * @return string
-     */
-    public static function canonicalize(string $key, int $format = self::FORMAT_1): string {
-        $parts = explode('-', str_replace('_', '-', strtolower($key)));
-        $return = $parts[0];
-
-        if (array_key_exists(1, $parts)) {
-            switch ($format) {
-                case self::FORMAT_1:
-                    $return .= '-' . $parts[1];
-                break;
-                case self::FORMAT_2:
-                    $return .= '-' . strtoupper($parts[1]);
-                break;
-                case self::FORMAT_3:
-                    $return .= '_' . strtoupper($parts[1]);
-                break;
-                case self::FORMAT_4:
-                    $return .= strtoupper($parts[1]);
-                break;
-            }
-        }
-
-        return $return;
-    }
-
-    /**
      * Get a list of locales and fallback locales in descending order starting from the current locale.
      *
      * @return Vector<string>
@@ -210,36 +171,12 @@ class G11n implements Subject {
     }
 
     /**
-     * Takes an array of key-values and returns a correctly ordered and delimited locale ID.
-     *
-     * @uses Locale
-     *
-     * @param array $tags
-     * @return string
-     */
-    public static function compose(array $tags) {
-        return \Locale::composeLocale($tags);
-    }
-
-    /**
      * Return the current locale.
      *
      * @return \Titon\G11n\Locale
      */
     public function current(): ?Locale {
         return $this->current;
-    }
-
-    /**
-     * Parses a locale string and returns an array of key-value locale tags.
-     *
-     * @uses Locale
-     *
-     * @param string $locale
-     * @return string
-     */
-    public static function decompose($locale) {
-        return \Locale::parseLocale($locale);
     }
 
     /**

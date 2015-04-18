@@ -1,0 +1,37 @@
+{
+    "name": "titon/g11n",
+    "type": "library",
+    "description": "The G11n package handles the localization and internationalization of an application.",
+    "keywords": ["titon", "g11n", "l10n", "i18n", "locale", "intl", "translate", "message"],
+    "homepage": "http://titon.io",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "support": {
+        "irc": "irc://irc.freenode.org/titon",
+        "source": "https://github.com/titon/g11n"
+    },
+    "require": {
+        "hhvm": ">=3.4.0",
+        "ext-mbstring": "*",
+        "ext-intl": "*",
+        "titon/common": "*",
+        "titon/event": "*",
+        "titon/io": "*"
+    },
+    "suggest": {
+        "titon/cache": "Use a Storage engine to cache message bundles"
+    },
+    "autoload": {
+        "psr-4": {
+            "Titon\\G11n\\": ""
+        },
+        "files": [
+            "src/Titon/G11n/bootstrap.hh"
+        ]
+    }
+}

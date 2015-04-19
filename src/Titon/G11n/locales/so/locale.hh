@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'som',
     'timezone' => 'Africa/Mogadishu',
     'title' => 'Somali',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

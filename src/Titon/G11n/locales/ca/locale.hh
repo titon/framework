@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'cat',
     'timezone' => 'Europe/Andorra',
     'title' => 'Catalan',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

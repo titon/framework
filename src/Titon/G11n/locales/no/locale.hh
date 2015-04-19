@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'nor',
     'timezone' => 'Europe/Oslo',
     'title' => 'Norwegian',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

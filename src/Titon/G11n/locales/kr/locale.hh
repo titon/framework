@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'kau',
     'timezone' => 'Africa/Lagos',
     'title' => 'Kanuri',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

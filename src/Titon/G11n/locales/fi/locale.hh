@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'fin',
     'timezone' => 'Europe/Helsinki',
     'title' => 'Finnish',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

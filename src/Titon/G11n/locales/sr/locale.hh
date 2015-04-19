@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'scc',
     'timezone' => 'Europe/Belgrade',
     'title' => 'Serbian',
+    'plural' => Titon\G11n\PluralRule::RULE_4
 };

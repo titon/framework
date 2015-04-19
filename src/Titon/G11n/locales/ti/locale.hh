@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'tir',
     'timezone' => 'Africa/Asmara',
     'title' => 'Tigrinya',
+    'plural' => Titon\G11n\PluralRule::RULE_3
 };

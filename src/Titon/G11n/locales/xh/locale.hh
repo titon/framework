@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'xho',
     'timezone' => 'Africa/Johannesburg',
     'title' => 'Xhosa',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

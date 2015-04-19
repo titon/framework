@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'bul',
     'timezone' => 'Europe/Sofia',
     'title' => 'Bulgarian',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

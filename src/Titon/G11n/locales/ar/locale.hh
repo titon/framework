@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'ara',
     'timezone' => 'Africa/Cairo',
     'title' => 'Arabic',
+    'plural' => Titon\G11n\PluralRule::RULE_15
 };

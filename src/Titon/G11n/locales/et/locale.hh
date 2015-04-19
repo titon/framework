@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'est',
     'timezone' => 'Europe/Tallinn',
     'title' => 'Estonian',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'uzb',
     'timezone' => 'Asia/Tashkent',
     'title' => 'Uzbek',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

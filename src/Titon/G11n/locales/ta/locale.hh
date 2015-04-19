@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'tam',
     'timezone' => 'Asia/Calcutta',
     'title' => 'Tamil',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

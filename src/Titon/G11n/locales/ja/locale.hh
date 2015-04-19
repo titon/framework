@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'jpn',
     'timezone' => 'Asia/Tokyo',
     'title' => 'Japanese',
+    'plural' => Titon\G11n\PluralRule::RULE_0
 };

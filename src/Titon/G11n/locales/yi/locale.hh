@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'yid',
     'timezone' => 'Israel',
     'title' => 'Yiddish',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

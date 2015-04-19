@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'ukr',
     'timezone' => 'Europe/Kiev',
     'title' => 'Ukrainian',
+    'plural' => Titon\G11n\PluralRule::RULE_4
 };

@@ -7,4 +7,5 @@ return Map {
     'iso3' => Vector {'arm', 'hye'},
     'timezone' => 'Asia/Yerevan',
     'title' => 'Armenian',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

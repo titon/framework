@@ -7,4 +7,5 @@ return Map {
     'iso3' => Vector {'slk', 'slo'},
     'timezone' => 'Europe/Bratislava',
     'title' => 'Slovak',
+    'plural' => Titon\G11n\PluralRule::RULE_5
 };

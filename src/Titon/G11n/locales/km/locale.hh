@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'khm',
     'timezone' => 'Asia/Phnom_Penh',
     'title' => 'Central Khmer',
+    'plural' => Titon\G11n\PluralRule::RULE_0
 };

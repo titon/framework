@@ -7,4 +7,5 @@ return Map {
     'iso3' => Vector {'chi', 'zho'},
     'timezone' => 'Asia/Shanghai',
     'title' => 'Chinese',
+    'plural' => Titon\G11n\PluralRule::RULE_0
 };

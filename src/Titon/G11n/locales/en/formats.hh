@@ -29,11 +29,5 @@ return Map {
         'cents' => '#&cent;',
         'negative' => '(#)',
         'use' => 'dollar'
-    },
-
-    // Localization
-    'pluralForms' => 2,
-    'pluralRule' => function($n): int {
-        return $n != 1 ? 1 : 0;
     }
 };

@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'kan',
     'timezone' => 'Asia/Calcutta',
     'title' => 'Kannada',
+    'plural' => Titon\G11n\PluralRule::RULE_0
 };

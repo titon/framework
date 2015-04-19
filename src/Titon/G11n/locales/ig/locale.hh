@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'ibo',
     'timezone' => 'Africa/Lagos',
     'title' => 'Igbo',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

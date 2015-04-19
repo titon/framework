@@ -7,4 +7,5 @@ return Map {
     'iso3' => Vector {'tib', 'bod'},
     'timezone' => 'Asia/Kathmandu',
     'title' => 'Tibetan',
+    'plural' => Titon\G11n\PluralRule::RULE_0
 };

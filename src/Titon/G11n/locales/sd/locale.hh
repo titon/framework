@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'snd',
     'timezone' => 'Asia/Karachi',
     'title' => 'Sindhi',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

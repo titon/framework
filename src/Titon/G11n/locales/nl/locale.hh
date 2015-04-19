@@ -7,4 +7,5 @@ return Map {
     'iso3' => Vector {'nld', 'dut'},
     'timezone' => 'Europe/Amsterdam',
     'title' => 'Dutch (Standard)',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'kaz',
     'timezone' => 'Asia/Almaty',
     'title' => 'Kazakh',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

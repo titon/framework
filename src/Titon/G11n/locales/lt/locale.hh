@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'lit',
     'timezone' => 'Europe/Vilnius',
     'title' => 'Lithuanian',
+    'plural' => Titon\G11n\PluralRule::RULE_7
 };

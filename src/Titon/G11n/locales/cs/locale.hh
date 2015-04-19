@@ -7,4 +7,5 @@ return Map {
     'iso3' => Vector {'ces', 'cze'},
     'timezone' => 'Europe/Prague',
     'title' => 'Czech',
+    'plural' => Titon\G11n\PluralRule::RULE_5
 };

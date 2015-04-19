@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'ltz',
     'timezone' => 'Europe/Luxembourg',
     'title' => 'Luxembourgish',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

@@ -7,4 +7,5 @@ return Map {
     'iso3' => Vector {'msa', 'may'},
     'timezone' => 'Asia/Kuala_Lumpur',
     'title' => 'Malaysian',
+    'plural' => Titon\G11n\PluralRule::RULE_0
 };

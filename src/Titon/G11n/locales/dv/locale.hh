@@ -6,5 +6,6 @@ return Map {
     'iso2' => 'dv',
     'iso3' => 'div',
     'timezone' => 'Indian/Maldives',
-    'title' => 'Divehi',
+    'title' => 'Dhivehi',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

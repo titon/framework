@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'ven',
     'timezone' => 'Africa/Johannesburg',
     'title' => 'Venda',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'swe',
     'timezone' => 'Europe/Stockholm',
     'title' => 'Swedish',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'aze',
     'timezone' => 'Asia/Baku',
     'title' => 'Azerbaijani',
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

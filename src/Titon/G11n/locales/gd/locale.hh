@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'gla',
     'timezone' => 'Europe/London',
     'title' => 'Gaelic (Scots)',
+    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
 };

@@ -7,4 +7,5 @@ return Map {
     'iso3' => 'slv',
     'timezone' => 'Europe/Ljubljana',
     'title' => 'Slovenian',
+    'plural' => Titon\G11n\PluralRule::RULE_8
 };

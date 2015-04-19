@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'que',
     'timezone' => 'America/Lima',
     'title' => 'Quechua',
-    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
+    'plural' => Titon\G11n\PluralRule::RULE_1 // TODO
 };

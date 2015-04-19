@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'nep',
     'timezone' => 'Asia/Kathmandu',
     'title' => 'Nepali',
-    'plural' => Titon\G11n\PluralRule::RULE_1
+    'plural' => Titon\G11n\PluralRule::RULE_2
 };

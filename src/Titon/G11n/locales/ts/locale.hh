@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'tso',
     'timezone' => 'Africa/Maputo',
     'title' => 'Tsonga',
-    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
+    'plural' => Titon\G11n\PluralRule::RULE_1 // TODO
 };

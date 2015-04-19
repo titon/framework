@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'mal',
     'timezone' => 'Asia/Kolkata',
     'title' => 'Malayalam',
-    'plural' => Titon\G11n\PluralRule::RULE_1
+    'plural' => Titon\G11n\PluralRule::RULE_2
 };

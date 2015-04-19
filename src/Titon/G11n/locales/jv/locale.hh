@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'jav',
     'timezone' => 'Asia/Jakarta',
     'title' => 'Javanese',
-    'plural' => Titon\G11n\PluralRule::RULE_0
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

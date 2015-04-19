@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'tha',
     'timezone' => 'Asia/Bangkok',
     'title' => 'Thai',
-    'plural' => Titon\G11n\PluralRule::RULE_0
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'zul',
     'timezone' => 'Africa/Harare',
     'title' => 'Zulu',
-    'plural' => Titon\G11n\PluralRule::RULE_1
+    'plural' => Titon\G11n\PluralRule::RULE_2
 };

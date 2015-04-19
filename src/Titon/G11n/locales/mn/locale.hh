@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'mon',
     'timezone' => 'Asia/Ulan_Bator',
     'title' => 'Mongolian',
-    'plural' => Titon\G11n\PluralRule::RULE_1
+    'plural' => Titon\G11n\PluralRule::RULE_2
 };

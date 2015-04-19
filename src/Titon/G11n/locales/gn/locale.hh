@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'grn',
     'timezone' => 'America/Asuncion',
     'title' => 'Guarani',
-    'plural' => Titon\G11n\PluralRule::RULE_0 // TODO
+    'plural' => Titon\G11n\PluralRule::RULE_1 // TODO
 };

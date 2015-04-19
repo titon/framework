@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'fry',
     'timezone' => 'Europe/Amsterdam',
     'title' => 'Frisian',
-    'plural' => Titon\G11n\PluralRule::RULE_1
+    'plural' => Titon\G11n\PluralRule::RULE_2
 };

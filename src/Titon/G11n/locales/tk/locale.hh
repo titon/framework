@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'tuk',
     'timezone' => 'Asia/Ashgabat',
     'title' => 'Turkmen',
-    'plural' => Titon\G11n\PluralRule::RULE_1
+    'plural' => Titon\G11n\PluralRule::RULE_2
 };

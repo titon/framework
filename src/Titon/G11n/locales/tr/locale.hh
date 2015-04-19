@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'tur',
     'timezone' => 'Asia/Istanbul',
     'title' => 'Turkish',
-    'plural' => Titon\G11n\PluralRule::RULE_0
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

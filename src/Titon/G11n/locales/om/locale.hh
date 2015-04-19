@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'orm',
     'timezone' => 'Africa/Addis_Ababa',
     'title' => 'Oromo',
-    'plural' => Titon\G11n\PluralRule::RULE_1
+    'plural' => Titon\G11n\PluralRule::RULE_2
 };

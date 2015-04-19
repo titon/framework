@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'pus',
     'timezone' => 'Asia/Kabul',
     'title' => 'Pashto',
-    'plural' => Titon\G11n\PluralRule::RULE_1
+    'plural' => Titon\G11n\PluralRule::RULE_2
 };

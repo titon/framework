@@ -7,5 +7,5 @@ return Map {
     'iso3' => Vector {'alb', 'sqi'},
     'timezone' => 'Europe/Tirane',
     'title' => 'Albanian',
-    'plural' => Titon\G11n\PluralRule::RULE_1
+    'plural' => Titon\G11n\PluralRule::RULE_2
 };

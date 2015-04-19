@@ -7,5 +7,5 @@ return Map {
     'iso3' => 'vie',
     'timezone' => 'Asia/Ho_Chi_Minh',
     'title' => 'Vietnamese',
-    'plural' => Titon\G11n\PluralRule::RULE_0
+    'plural' => Titon\G11n\PluralRule::RULE_1
 };

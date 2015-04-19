@@ -170,7 +170,7 @@ class Emitter {
         foreach ($listener->subscribeToEvents() as $event => $options) {
             foreach ($this->parseListenerMap($options) as $opt) {
                 // UNSAFE
-                // Since inst_meth() requires literal strings and we are passing variables
+                // Since `inst_meth()` requires literal strings and we are passing variables
                 $this->subscribe($event, inst_meth($listener, $opt['method']), $opt['priority'], $opt['once']);
             }
         }
@@ -212,7 +212,7 @@ class Emitter {
         foreach ($listener->subscribeToEvents() as $event => $options) {
             foreach ($this->parseListenerMap($options) as $opt) {
                 // UNSAFE
-                // Since inst_meth() requires literal strings and we are passing variables
+                // Since `inst_meth()` requires literal strings and we are passing variables
                 $this->unsubscribe($event, inst_meth($listener, $opt['method']));
             }
         }

@@ -9,10 +9,12 @@ namespace Titon\View\Helper;
 
 use Titon\Event\Event;
 use Titon\Event\ListenerMap;
-use Titon\Utility\Registry;
 use Titon\Utility\Sanitize;
 use Titon\Utility\Str;
 use Titon\View\DataMap;
+use Titon\View\Event\RenderedEvent;
+use Titon\View\Event\RenderingEvent;
+use Titon\View\Exception\MissingHelperException;
 use Titon\View\Exception\MissingTagException;
 use Titon\View\Helper;
 use Titon\View\View;
@@ -114,16 +116,12 @@ abstract class AbstractHelper implements Helper {
     /**
      * {@inheritdoc}
      */
-    public function getHelper(string $name): Helper {
+    public function getHelper(string $key): Helper {
         if ($view = $this->getView()) {
-            return $view->getHelper($name);
+            return $view->getHelper($key);
         }
 
-        $helper = Registry::factory(sprintf('Titon\View\Helper\%sHelper', ucfirst(str_replace('Helper', '', $name))), []);
-
-        invariant($helper instanceof Helper, 'Must be a Helper');
-
-        return $helper;
+        throw new MissingHelperException(sprintf('Helper %s does not exist', $key));
     }
 
     /**
@@ -160,15 +158,19 @@ abstract class AbstractHelper implements Helper {
     /**
      * {@inheritdoc}
      */
-    public function preRender(Event $event, View $view, string $template): void {
-        $this->setView($view);
+    public function preRender(Event $event): void {
+        invariant($event instanceof RenderingEvent, 'Must be a RenderingEvent.');
+
+        $this->setView($event->getView());
     }
 
     /**
      * {@inheritdoc}
      */
-    public function postRender(Event $event, View $view, string $response): void {
-        $this->setView($view);
+    public function postRender(Event $event): void {
+        invariant($event instanceof RenderedEvent, 'Must be a RenderedEvent.');
+
+        $this->setView($event->getView());
     }
 
     /**

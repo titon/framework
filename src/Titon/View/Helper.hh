@@ -34,22 +34,18 @@ interface Helper extends Listener {
     public function getView(): ?View;
 
     /**
-     * Triggered before all templates are rendered at once.
+     * Triggered before a template (include layouts, wrappers, and partials) is rendered.
      *
      * @param \Titon\Event\Event $event
-     * @param \Titon\View\View $view
-     * @param string $template
      */
-    public function preRender(Event $event, View $view, string $template): void;
+    public function preRender(Event $event): void;
 
     /**
-     * Triggered after all templates are rendered at once.
+     * Triggered after a template is rendered.
      *
      * @param \Titon\Event\Event $event
-     * @param \Titon\View\View $view
-     * @param string $response
      */
-    public function postRender(Event $event, View $view, string $response): void;
+    public function postRender(Event $event): void;
 
     /**
      * Set the view manager.

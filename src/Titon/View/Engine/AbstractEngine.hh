@@ -99,11 +99,11 @@ abstract class AbstractEngine implements Engine {
         $view = $this->getView();
 
         if (!$view) {
-            throw new MissingViewException('View manager has not been set on this engine');
+            throw new MissingViewException('View has not been set on this engine');
         }
 
         return $this->render(
-            $view->locateTemplate($partial, Template::PARTIAL),
+            $view->getLocator()->locate($partial, Template::PARTIAL),
             $view->getVariables()->toMap()->setAll($variables)
         );
     }

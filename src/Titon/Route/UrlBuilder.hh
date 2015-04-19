@@ -7,9 +7,12 @@
 
 namespace Titon\Route;
 
+use Titon\Route\Exception\MissingSegmentException;
 use Titon\Route\Exception\MissingTokenException;
 use Titon\Utility\Config;
 use Titon\Utility\Inflector;
+use Titon\Utility\State\Get;
+use Titon\Utility\State\Server;
 
 /**
  * The UrlBuilder helps ease the process of building dynamic URLs based on the routes mapped in the Router.
@@ -20,11 +23,25 @@ use Titon\Utility\Inflector;
 class UrlBuilder {
 
     /**
+     * Base folder structure if the application was placed within a directory.
+     *
+     * @var string
+     */
+    protected string $base = '/';
+
+    /**
      * Router instance.
      *
      * @var \Titon\Route\Router
      */
     protected Router $router;
+
+    /**
+     * The current URL broken up into multiple segments: protocol, host, route, query, base, etc.
+     *
+     * @var \Titon\Route\SegmentMap
+     */
+    protected SegmentMap $segments = Map {};
 
     /**
      * Store the Router instance.
@@ -33,6 +50,21 @@ class UrlBuilder {
      */
     public function __construct(Router $router) {
         $this->router = $router;
+
+        // Determine if app is within a base folder
+        $base = dirname(str_replace(Server::get('DOCUMENT_ROOT'), '', Server::get('SCRIPT_FILENAME')));
+
+        if ($base && $base !== '.') {
+            $this->base = rtrim(str_replace('\\', '/', $base), '/') ?: '/';
+        }
+
+        // Store the current URL and query as router segments
+        $this->segments = (new Map(parse_url(Server::get('REQUEST_URI'))))->setAll(Map {
+            'scheme' => (Server::get('HTTPS') === 'on') ? 'https' : 'http',
+            'query' => Get::all(),
+            'host' => Server::get('HTTP_HOST'),
+            'port' => Server::get('SERVER_PORT')
+        });
     }
 
     /**
@@ -47,9 +79,8 @@ class UrlBuilder {
      */
     <<__Memoize>>
     public function build(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        $router = $this->getRouter();
-        $route = $router->getRoute($key);
-        $base = $router->base();
+        $base = $this->getBase();
+        $route = $this->getRouter()->getRoute($key);
         $url = str_replace([']', ')', '>'], '}', str_replace(['[', '(', '<'], '{', $route->getPath()));
 
         // Set the locale if it is missing
@@ -96,23 +127,13 @@ class UrlBuilder {
     }
 
     /**
-     * Return the Router instance.
-     *
-     * @return \Titon\Route\Router
-     */
-    public function getRouter(): Router {
-        return $this->router;
-    }
-
-    /**
-     * Return the current URL.
+     * Return the current absolute URL.
      *
      * @return string
      */
-    public function url(): string {
-        $router = $this->getRouter();
-        $segments = $router->getSegments();
-        $base = $router->base();
+    public function getAbsoluteUrl(): string {
+        $base = $this->getBase();
+        $segments = $this->getSegments();
         $url = (string) $segments['scheme'] . '://' . (string) $segments['host'];
 
         if ($base !== '/') {
@@ -126,6 +147,48 @@ class UrlBuilder {
         }
 
         return $url;
+    }
+
+    /**
+     * Return the base URL if the app was not placed in the root directory.
+     *
+     * @return string
+     */
+    public function getBase(): string {
+        return $this->base;
+    }
+
+    /**
+     * Return the Router instance.
+     *
+     * @return \Titon\Route\Router
+     */
+    public function getRouter(): Router {
+        return $this->router;
+    }
+
+    /**
+     * Return a segment by key.
+     *
+     * @param string $key
+     * @return mixed
+     * @throws \Titon\Route\Exception\MissingSegmentException
+     */
+    public function getSegment(string $key): mixed {
+        if ($this->segments->contains($key)) {
+            return $this->segments[$key];
+        }
+
+        throw new MissingSegmentException(sprintf('Routing segment %s does not exist', $key));
+    }
+
+    /**
+     * Return all segments.
+     *
+     * @return \Titon\Route\SegmentMap
+     */
+    public function getSegments(): SegmentMap {
+        return $this->segments;
     }
 
 }

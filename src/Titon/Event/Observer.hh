@@ -82,7 +82,8 @@ class Observer {
         $this->executed = true;
 
         // UNSAFE
-        // As the callback return type is not Awaitable<mixed> but simply mixed
+        // As the callback return type is not `Awaitable<mixed>` but simply mixed
+        // TODO
         return await call_user_func($this->getCallback(), $event);
     }
 

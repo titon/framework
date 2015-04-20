@@ -7,7 +7,7 @@
  */
 return Map {
     'ordinal' => Map {
-        'default' => '#th',
+        0 => '#th',
         1 => '#st',
         2 => '#nd',
         3 => '#rd'

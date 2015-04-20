@@ -22,6 +22,7 @@ if (defined('VENDOR_DIR')) {
 
 namespace Titon\G11n {
     type LocaleMap = Map<string, Locale>;
+    type LocaleTagMap = Map<string, string>;
     type MessageKey = shape('domain' => string, 'catalog' => string, 'key' => string);
     type ParamList = Vector<mixed>;
 }

@@ -19,7 +19,7 @@ return Map {
     'number' => Map {
         'thousands' => ',',
         'decimals' => '.',
-        'places' => 2
+        'places' => '2'
     },
 
     // Currency

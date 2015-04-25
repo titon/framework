@@ -57,12 +57,13 @@ class BundleTest extends TestCase {
         sort($paths);
 
         $this->assertEquals(Vector {
+            TEMP_DIR . '/io/hack.hh',
             TEMP_DIR . '/io/ini.ini',
             TEMP_DIR . '/io/json.json',
             TEMP_DIR . '/io/php.php',
             TEMP_DIR . '/io/po.po',
             TEMP_DIR . '/io/xml.xml',
-            TEMP_DIR . '/io/yaml.yaml'
+            TEMP_DIR . '/io/yaml.yml'
         }, $paths);
     }
 

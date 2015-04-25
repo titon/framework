@@ -9,28 +9,26 @@ namespace Titon\Io\Reader;
 
 use Titon\Test\TestCase;
 
-class YamlReaderTest extends TestCase {
+class HackReaderTest extends TestCase {
 
     public function testReadResource(): void {
-        if (!extension_loaded('yaml')) {
-            $this->markTestSkipped('YAML extension must be installed to use the YamlReader');
-        }
-
-        $reader = new YamlReader(TEMP_DIR . '/io/yaml.yml');
+        $reader = new HackReader(TEMP_DIR . '/io/hack.hh');
 
         $this->assertMapsEqual(Map {
             'integer' => 1234567890,
             'number' => '1234567890',
             'string' => 'abcdefg',
-            'true_' => true,
-            'false_' => false,
-            'null_' => null,
+            'false' => false,
+            'true' => true,
+            'null' => null,
             'zero' => 0,
             'map' => Map {
                 'one' => true,
-                'two' => false,
+                'two' => false
             },
-            'list' => Vector {'foo', 'bar'},
+            'map-empty' => Map {},
+            'list' => Vector {1, 2, 3},
+            'list-empty' => Vector {}
         }, $reader->readResource());
     }
 

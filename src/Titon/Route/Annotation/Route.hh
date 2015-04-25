@@ -11,6 +11,8 @@ use Titon\Annotation\Annotation;
 use Titon\Route\Mixin\FilterMixin;
 use Titon\Route\Mixin\MethodMixin;
 use Titon\Route\Mixin\PatternMixin;
+use Titon\Route\Route as BaseRoute;
+use Titon\Route\Router;
 use Titon\Utility\Col;
 
 /**
@@ -43,9 +45,9 @@ class Route extends Annotation {
      *
      * @param string $key
      * @param string $path
-     * @param mixed  $methods
-     * @param mixed  $filters
-     * @param mixed  $patterns
+     * @param mixed $methods
+     * @param mixed $filters
+     * @param mixed $patterns
      */
     public function __construct(string $key, string $path, mixed $methods = [], mixed $filters = [], array<string, string> $patterns = []) {
         $this->key = $key;
@@ -71,6 +73,22 @@ class Route extends Annotation {
      */
     public function getPath(): string {
         return $this->path;
+    }
+
+    /**
+     * Convert the annotation to a `Route` object.
+     *
+     * @param string $class
+     * @param string $action
+     * @return \Titon\Route\Route
+     */
+    public function toRoute(string $class, string $action = 'index'): BaseRoute {
+        $route = new BaseRoute($this->getPath(), Router::buildAction(shape('class' => $class, 'action' => $action)));
+        $route->setMethods($this->getMethods());
+        $route->setFilters($this->getFilters());
+        $route->setPatterns($this->getPatterns());
+
+        return $route;
     }
 
 }

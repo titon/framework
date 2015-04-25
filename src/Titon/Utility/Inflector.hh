@@ -180,7 +180,7 @@ class Inflector {
      */
     <<__Memoize>>
     public static function underscore(string $string): string {
-        return trim(mb_strtolower(str_replace('__', '_', preg_replace('/([A-Z]{1})/', '_$1', preg_replace('/[^_a-z0-9]+/i', '', preg_replace('/[\s]+/', '_', $string))))), '_');
+        return trim(mb_strtolower(str_replace('__', '_', preg_replace('/([A-Z]{1})/', '_$1', preg_replace('/[^_a-z0-9]+/i', '', preg_replace('/[\s\-]+/', '_', $string))))), '_');
     }
 
     /**

@@ -81,7 +81,7 @@ class Registry<T> {
 
             if (is_callable($object)) {
                 // UNSAFE
-                // Because you can't invariant() a callable
+                // Because you can't `invariant()` a callable
                 $object = static::set(call_user_func($object), $key);
             }
 

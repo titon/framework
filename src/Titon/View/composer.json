@@ -1,8 +1,8 @@
 {
     "name": "titon/view",
     "type": "library",
-    "description": "The view package provides template and helper management, and template rendering through engines.",
-    "keywords": ["titon", "view", "helper", "engine", "template", "renderer"],
+    "description": "The view package provides template helpers, lookup, and rendering through engines.",
+    "keywords": ["titon", "view", "helper", "engine", "template", "renderer", "locator"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
     "authors": [

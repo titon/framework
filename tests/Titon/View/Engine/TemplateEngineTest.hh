@@ -1,8 +1,10 @@
 <?hh
 namespace Titon\View\Engine;
 
-use Titon\View\EngineView;
 use Titon\Test\TestCase;
+use Titon\View\EngineView;
+use Titon\View\Locator\TemplateLocator;
+use Titon\View\ViewTest;
 
 /**
  * @property \Titon\View\EngineView $object
@@ -13,34 +15,17 @@ class TemplateEngineTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->vfs()->createStructure([
-            '/views/' => [
-                'private/' => [
-                    'partials/' => [
-                        'nested/' => [
-                            'include.tpl' => 'nested/include.tpl'
-                        ],
-                        'variables.tpl' => '<?php echo $name; ?> - <?php echo $type; ?> - <?php echo $filename; ?>'
-                    ]
-                ],
-                'public/' => [
-                    'index/' => [
-                        'add.tpl' => 'add.tpl',
-                        'test-include.tpl' => 'test-include.tpl <?php echo $this->open(\'nested/include\'); ?>'
-                    ]
-                ]
-            ]
-        ]);
+        $this->vfs()->createStructure(ViewTest::generateViewStructure());
 
         $this->engine = new TemplateEngine();
 
-        $this->object = new EngineView([$this->vfs()->path('/views')]);
+        $this->object = new EngineView(new TemplateLocator($this->vfs()->path('/views')));
         $this->object->setEngine($this->engine);
     }
 
     public function testOpen(): void {
-        $this->assertEquals('nested/include.tpl', $this->object->getEngine()->open('nested/include'));
-        $this->assertEquals('nested/include.tpl', $this->object->getEngine()->open('nested/include.tpl'));
+        $this->assertEquals('private.partials.nested.include', $this->object->getEngine()->open('nested/include'));
+        $this->assertEquals('private.partials.nested.include', $this->object->getEngine()->open('nested/include.tpl'));
         $this->assertEquals('Titon - partial - variables.tpl', $this->object->getEngine()->open('variables', Map {
             'name' => 'Titon',
             'type' => 'partial',
@@ -56,12 +41,12 @@ class TemplateEngineTest extends TestCase {
     }
 
     public function testRender(): void {
-        $this->assertEquals('add.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/add')));
-        $this->assertEquals('test-include.tpl nested/include.tpl', $this->object->renderTemplate($this->object->locateTemplate('index/test-include')));
+        $this->assertEquals('public.index.add', $this->object->renderTemplate($this->object->getLocator()->locate('index/add')));
+        $this->assertEquals('public.index.include - private.partials.nested.include', $this->object->renderTemplate($this->object->getLocator()->locate('index/include')));
     }
 
     public function testData(): void {
-        $this->assertEquals('add.tpl', $this->engine->render($this->object->locateTemplate('index/add'), Map {
+        $this->assertEquals('public.index.add', $this->engine->render($this->object->getLocator()->locate('index/add'), Map {
             'foo' => 'bar'
         }));
 

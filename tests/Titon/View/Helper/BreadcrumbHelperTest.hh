@@ -4,6 +4,7 @@ namespace Titon\View\Helper;
 use Titon\Test\TestCase;
 use Titon\Type\ArrayList;
 use Titon\View\EngineView;
+use Titon\View\Locator\TemplateLocator;
 
 /**
  * @property \Titon\View\Helper\BreadcrumbHelper $object
@@ -13,8 +14,8 @@ class BreadcrumbHelperTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $view = new EngineView(TEMP_DIR);
-        $view->addHelper('html', new HtmlHelper());
+        $view = new EngineView(new TemplateLocator(TEMP_DIR));
+        $view->setHelper('html', new HtmlHelper());
 
         $this->object = new BreadcrumbHelper();
         $this->object->setView($view);

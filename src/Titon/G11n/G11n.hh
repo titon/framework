@@ -102,21 +102,17 @@ class G11n implements Subject {
      * @return \Titon\G11n\Locale
      */
     public function addLocale(Locale $locale): Locale {
-        $key = static::canonicalize($locale->getCode());
+        $code = $locale->getCode();
 
-        if ($this->locales->contains($key)) {
-            return $this->locales[$key];
+        if ($this->locales->contains($code)) {
+            return $this->locales[$code];
         }
 
-        // Configure and initialize
-        foreach ($this->getResourcePaths() as $domain => $paths) {
-            $locale->addResourcePaths($domain, $paths);
-        }
-
-        $locale->initialize();
+        // Inherit resource paths
+        $locale->addResourcePaths($this->getResourcePaths());
 
         // Set the locale
-        $this->locales[$key] = $locale;
+        $this->locales[$code] = LocaleRegistry::set($locale);
 
         // Set the parent as well
         if ($parent = $locale->getParentLocale()) {
@@ -125,7 +121,7 @@ class G11n implements Subject {
 
         // Set fallback if none defined
         if (!$this->fallback) {
-            $this->setFallback($key);
+            $this->setFallback($code);
         }
 
         return $locale;

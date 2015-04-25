@@ -12,11 +12,8 @@ use Titon\G11n\Bag\FormatBag;
 use Titon\G11n\Bag\InflectionBag;
 use Titon\G11n\Bag\MetaBag;
 use Titon\G11n\Bag\ValidationBag;
-use Titon\G11n\Bundle\LocaleBundle;
-use Titon\G11n\Bundle\MessageBundle;
-use Titon\Io\ResourceMap;
-use Titon\Utility\Col;
-use Titon\Utility\Config;
+use Titon\Io\Bundle\ResourceBundle;
+use Titon\Io\Reader\HackReader;
 use \Locale as SystemLocale;
 
 /**
@@ -27,7 +24,7 @@ use \Locale as SystemLocale;
 class Locale {
 
     /**
-     * Possible formats for locale keys.
+     * Possible formats for locale codes.
      */
     const int FORMAT_1 = 1; // en-us (urls)
     const int FORMAT_2 = 2; // en-US
@@ -35,7 +32,14 @@ class Locale {
     const int FORMAT_4 = 4; // enUS
 
     /**
-     * Locale country code.
+     * Resource bundle.
+     *
+     * @var \Titon\Io\Bundle\ResourceBundle
+     */
+    protected ResourceBundle $bundle;
+
+    /**
+     * Locale code.
      *
      * @var string
      */
@@ -54,20 +58,6 @@ class Locale {
      * @var \Titon\G11n\Bag\InflectionBag
      */
     protected ?InflectionBag $inflectionBag;
-
-    /**
-     * Locale resource bundle.
-     *
-     * @var \Titon\G11n\Bundle\LocaleBundle
-     */
-    protected LocaleBundle $localeBundle;
-
-    /**
-     * Message resource bundle.
-     *
-     * @var \Titon\G11n\Bundle\MessageBundle
-     */
-    protected MessageBundle $messageBundle;
 
     /**
      * Metadata bag.
@@ -91,18 +81,21 @@ class Locale {
     protected ?ValidationBag $validationBag;
 
     /**
-     * Set locale code.
+     * Set locale code and optional bundle.
      *
      * @param string $code
+     * @param \Titon\Io\Bundle\ResourceBundle $bundle
      */
-    public function __construct(string $code) {
-        $this->code = $code;
-        $this->localeBundle = new LocaleBundle();
-        $this->messageBundle = new MessageBundle();
+    public function __construct(string $code, ?ResourceBundle $bundle = null) {
+        $this->code = $code = self::canonicalize($code);
+        $this->bundle = $bundle ?: new ResourceBundle();
 
-        // Add default resource paths
-        if ($paths = Config::get('titon.paths.resources')) {
-            $this->addResourcePaths(Col::toVector($paths));
+        // Add a `HackReader` as the built-in resource files are Hack
+        $bundle->addReader(new HackReader());
+
+        // We can infer the parent from the locale code
+        if (($pos = strpos($code, '_')) !== false) {
+            $this->parent = LocaleRegistry::factory(substr($code, 0, $pos));
         }
     }
 
@@ -116,11 +109,9 @@ class Locale {
         $path = rtrim($path, '/');
         $code = $this->getCode();
 
-        $this->getLocaleBundle()
-            ->addPath('core', sprintf('%s/locales/%s', $path, $code));
-
-        $this->getMessageBundle()
-            ->addPath('core', sprintf('%s/messages/%s', $path, $code));
+        $this->getResourceBundle()
+            ->addPath('locales', sprintf('%s/locales/%s', $path, $code))
+            ->addPath('messages', sprintf('%s/messages/%s', $path, $code));
 
         return $this;
     }
@@ -146,7 +137,7 @@ class Locale {
      * @param int $format
      * @return string
      */
-    public static function canonicalize(string $code, int $format = self::FORMAT_1): string {
+    public static function canonicalize(string $code, int $format = self::FORMAT_3): string {
         $parts = explode('-', str_replace('_', '-', strtolower($code)));
         $return = $parts[0];
 
@@ -213,9 +204,13 @@ class Locale {
             return $this->formatBag;
         }
 
-        $bag = $this->loadBag(new FormatBag(), 'formats', __FUNCTION__);
+        if ($parent = $this->getParentLocale()) {
+            $bag = clone $parent->getFormatPatterns();
+        } else {
+            $bag = new FormatBag();
+        }
 
-        invariant($bag instanceof FormatBag, 'Must be a FormatBag.');
+        $bag->add($this->getResourceBundle()->loadResource('locales', 'formats'));
 
         return $this->formatBag = $bag;
     }
@@ -230,9 +225,13 @@ class Locale {
             return $this->inflectionBag;
         }
 
-        $bag = $this->loadBag(new InflectionBag(), 'inflections', __FUNCTION__);
+        if ($parent = $this->getParentLocale()) {
+            $bag = clone $parent->getInflectionRules();
+        } else {
+            $bag = new InflectionBag();
+        }
 
-        invariant($bag instanceof InflectionBag, 'Must be an InflectionBag.');
+        $bag->add($this->getResourceBundle()->loadResource('locales', 'inflections'));
 
         return $this->inflectionBag = $bag;
     }
@@ -247,9 +246,15 @@ class Locale {
             return $this->metaBag;
         }
 
-        // Do not merge the bag with the parent in this call.
-        // Instead do it in `getParentLocale()`.
-        return $this->metaBag = new MetaBag($this->getLocaleBundle()->loadResource('core', 'locale'));
+        if ($parent = $this->getParentLocale()) {
+            $bag = clone $parent->getMetadata();
+        } else {
+            $bag = new MetaBag();
+        }
+
+        $bag->add($this->getResourceBundle()->loadResource('locales', 'locale'));
+
+        return $this->metaBag = $bag;
     }
 
     /**
@@ -262,9 +267,13 @@ class Locale {
             return $this->validationBag;
         }
 
-        $bag = $this->loadBag(new ValidationBag(), 'validations', __FUNCTION__);
+        if ($parent = $this->getParentLocale()) {
+            $bag = clone $parent->getValidationRules();
+        } else {
+            $bag = new ValidationBag();
+        }
 
-        invariant($bag instanceof ValidationBag, 'Must be a ValidationBag.');
+        $bag->add($this->getResourceBundle()->loadResource('locales', 'validations'));
 
         return $this->validationBag = $bag;
     }
@@ -272,80 +281,19 @@ class Locale {
     /**
      * Return the parent locale if it exists.
      *
-     * @uses Titon\G11n\Locale
-     *
      * @return \Titon\G11n\Locale
      */
     public function getParentLocale(): ?Locale {
-        if ($this->parent) {
-            return $this->parent;
-        }
-
-        $parentCode = $this->getMetadata()->getParentCode();
-
-        if (!$parentCode) {
-            return null;
-        }
-
-        $parent = new Locale($parentCode);
-
-        // Merge metadata from parent
-        $this->mergeBags($parent->getMetadata(), $this->getMetadata());
-
-        return $this->parent = $parent;
+        return $this->parent;
     }
 
     /**
-     * Return the locale bundle.
+     * Return the resource bundle.
      *
-     * @return \Titon\G11n\Bundle\LocaleBundle
+     * @return \Titon\Io\Bundle\ResourceBundle
      */
-    public function getLocaleBundle(): LocaleBundle {
-        return $this->localeBundle;
-    }
-
-    /**
-     * Return the message bundle.
-     *
-     * @return \Titon\G11n\Bundle\MessageBundle
-     */
-    public function getMessageBundle(): MessageBundle {
-        return $this->messageBundle;
-    }
-
-    /**
-     * Load the contents of a resource file into the bag and inherit the same resource from the parent.
-     *
-     * @param \Titon\Common\Bag $bag
-     * @param string $resource
-     * @param string $method
-     * @return \Titon\Common\Bag
-     */
-    protected function loadBag(Bag $bag, string $resource, string $method): Bag {
-        $bag->add($this->getLocaleBundle()->loadResource('core', $resource));
-
-        if ($parent = $this->getParentLocale()) {
-            $this->mergeBags(inst_meth($parent, $method), $bag);
-        }
-
-        return $bag;
-    }
-
-    /**
-     * Inherit fields from the parent bag that do not exist in the child bag.
-     *
-     * @param \Titon\Common\Bag $parentBag
-     * @param \Titon\Common\Bag $childBag
-     * @return \Titon\Common\Bag
-     */
-    protected function mergeBags(Bag $parentBag, Bag $childBag): Bag {
-        foreach ($parentBag as $key => $value) {
-            if (!$childBag->has($key)) {
-                $childBag->set($key, $value);
-            }
-        }
-
-        return $childBag;
+    public function getResourceBundle(): ResourceBundle {
+        return $this->bundle;
     }
 
 }

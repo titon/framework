@@ -37,10 +37,16 @@ class MetaBag extends AbstractBag<string, mixed> {
     /**
      * Return the ISO3 code.
      *
-     * @return string
+     * @return Vector<string>
      */
-    public function getISO3Code(): string {
-        return (string) $this->get('iso3', '');
+    public function getISO3Code(): Vector<string> {
+        $codes = $this->get('iso3', '');
+
+        if ($codes instanceof Vector) {
+            return $codes;
+        }
+
+        return new Vector([$codes]);
     }
 
     /**

@@ -7,10 +7,14 @@
 
 namespace Titon\G11n;
 
+use Titon\G11n\Event\DetectedEvent;
+use Titon\G11n\Event\DetectingEvent;
+use Titon\G11n\Event\GlobalizeEvent;
 use Titon\G11n\Exception\MissingLocaleException;
 use Titon\Io\PathList;
 use Titon\Utility\State\Cookie;
 use Titon\Utility\State\Server;
+use \Locale as SystemLocale;
 
 /**
  * The `Translator` class handles all the necessary functionality for internationalization and
@@ -141,7 +145,7 @@ class Translator {
         $cookieCode = Cookie::get('locale');
         $acceptLang = Server::get('HTTP_ACCEPT_LANGUAGE');
 
-        $this->emit('g11n.detecting', [$this]);
+        $this->emit(new DetectingEvent($this));
 
         // Determine via cookie
         if ($cookieCode && $this->locales->contains($cookieCode)) {
@@ -168,10 +172,12 @@ class Translator {
             $current = $this->getFallback()->getCode();
         }
 
-        $this->emit('g11n.detected', [$this, $current]);
+        $this->emit(new DetectedEvent($this, $current));
 
         // Apply the locale
-        $this->useLocale($current);
+        $this->globalize($current);
+
+        return $this;
     }
 
     /**
@@ -181,6 +187,21 @@ class Translator {
      */
     public function getFallback(): ?Locale {
         return $this->fallback;
+    }
+
+    /**
+     * Return a locale by code.
+     *
+     * @param string $code
+     * @return \Titon\G11n\Locale
+     * @throws \Titon\G11n\Exception\MissingLocaleException
+     */
+    public function getLocale(string $code): Locale {
+        if ($this->locales->contains($code)) {
+            return $this->locales[$code];
+        }
+
+        throw new MissingLocaleException(sprintf('Locale %s does not exist', $code));
     }
 
     /**
@@ -199,6 +220,69 @@ class Translator {
      */
     public function getResourcePaths(): PathList {
         return $this->paths;
+    }
+
+    /**
+     * Set the system and application locale using the built in `setlocale()`.
+     *
+     * @link http://php.net/setlocale
+     * @link http://php.net/manual/locale.setdefault.php
+     *
+     * @uses Titon\Utility\Config
+     *
+     * @param string $code
+     * @return \Titon\G11n\Locale
+     */
+    public function globalize(string $code): Locale {
+        $newLocale = $this->getLocale(Locale::canonicalize($code));
+        $locales = [$newLocale];
+        $options = [];
+
+        // Inherit from fallback if different than the new locale
+        if ($this->getFallback()->getCode() != $newLocale->getCode()) {
+            $locales[] = $this->getFallback();
+        }
+
+        // Generate a list of possible system locale names to set
+        foreach ($locales as $locale) {
+            $meta = $locale->getMetadata();
+
+            $options[] = $meta->getCode() . '.UTF8';
+            $options[] = $meta->getCode() . '.UTF-8';
+            $options[] = $meta->getCode();
+
+            foreach ($meta->getISO3Code() as $iso3) {
+                $options[] = $iso3 . '.UTF8';
+                $options[] = $iso3 . '.UTF-8';
+                $options[] = $iso3;
+            }
+
+            if ($iso2 = $meta->getISO2Code()) {
+                $options[] = $iso2 . '.UTF8';
+                $options[] = $iso2 . '.UTF-8';
+                $options[] = $iso2;
+            }
+        }
+
+        // Emit change event
+        $event = new GlobalizeEvent($this, $newLocale);
+        $this->emit($event);
+        $newLocale = $event->getLocale();
+
+        // Set system locale
+        $code = $newLocale->getCode();
+
+        putenv('LC_ALL=' . $code);
+        setlocale(LC_ALL, $options);
+
+        SystemLocale::setDefault($code);
+
+        $this->current = $newLocale;
+
+        Config::set('titon.locale.current', $code);
+        Config::set('titon.locale.cascade', $this->cascade());
+
+        return $newLocale;
     }
 
     /**
@@ -232,11 +316,7 @@ class Translator {
      * @throws \Titon\G11n\Exception\MissingLocaleException
      */
     public function setFallback(string $code): this {
-        if (!$this->locales->contains($code)) {
-            throw new MissingLocaleException(sprintf('Locale %s has not been setup', $code));
-        }
-
-        $this->fallback = $this->locales[$code];
+        $this->fallback = $this->getLocale($code);
 
         Config::set('titon.locale.fallback', $code);
 
@@ -253,71 +333,6 @@ class Translator {
     public function translate(string $key, ParamList $params = Vector {}): string {
         // return $this->getTranslator()->translate($key, $params);
         // TODO
-    }
-
-    /**
-     * Set the locale using the built in `setlocale()`.
-     *
-     * @link http://php.net/setlocale
-     * @link http://php.net/manual/locale.setdefault.php
-     *
-     * @uses Titon\Utility\Config
-     *
-     * @param string $code
-     * @return \Titon\G11n\Locale
-     * @throws \Titon\G11n\Exception\MissingLocaleException
-     */
-    public function useLocale(string $code): Locale {
-        $code = self::canonicalize($code);
-
-        if (!$this->locales->contains($code)) {
-            throw new MissingLocaleException(sprintf('Locale %s does not exist', $code));
-        }
-
-        $newLocale = $this->locales[$code];
-        $locales = [$newLocale];
-        $options = [];
-
-        if ($this->getFallback()->getCode() != $newLocale->getCode()) {
-            $locales[] = $this->getFallback();
-        }
-
-        foreach ($locales as $locale) {
-            $meta = $locale->getMetadata();
-
-            $options[] = $meta->getCode() . '.UTF8';
-            $options[] = $meta->getCode() . '.UTF-8';
-            $options[] = $meta->getCode();
-
-            foreach ((array) $meta->getISO3Code() as $iso3) {
-                $options[] = $iso3 . '.UTF8';
-                $options[] = $iso3 . '.UTF-8';
-                $options[] = $iso3;
-            }
-
-            if ($iso2 = $meta->getISO2Code()) {
-                $options[] = $iso2 . '.UTF8';
-                $options[] = $iso2 . '.UTF-8';
-                $options[] = $iso2;
-            }
-        }
-
-        // Set environment
-        $code = $newLocale->getCode();
-
-        putenv('LC_ALL=' . $code);
-        setlocale(LC_ALL, $options);
-
-        \Locale::setDefault($code);
-
-        $this->current = $newLocale;
-
-        Config::set('titon.locale.current', $code);
-        Config::set('titon.locale.cascade', $this->cascade());
-
-        $this->emit('g11n.use', [$this, $newLocale]);
-
-        return $newLocale;
     }
 
 }

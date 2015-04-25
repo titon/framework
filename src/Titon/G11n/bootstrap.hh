@@ -6,10 +6,19 @@
  */
 
 /**
- * Add G11n resources if VENDOR_DIR constant exists.
+ * --------------------------------------------------------------
+ *  Resource Paths
+ * --------------------------------------------------------------
+ *
+ * Defines default resource paths for the locales and messages
+ * provided by the globalization package.
  */
-if (defined('VENDOR_DIR')) {
-    //Config::add('titon.path.resources', VENDOR_DIR . '/titon/g11n/src/resources/');
+
+namespace {
+    use Titon\Utility\Config;
+
+    Config::add('titon.paths.locales', __DIR__ . '/locales/');
+    Config::add('titon.paths.messages', __DIR__ . '/messages/');
 }
 
 /**

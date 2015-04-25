@@ -7,14 +7,15 @@
 
 namespace Titon\G11n;
 
-use Titon\G11n\Exception\MissingTranslatorException;
 use Titon\G11n\Exception\MissingLocaleException;
 use Titon\Io\PathList;
+use Titon\Utility\State\Cookie;
+use Titon\Utility\State\Server;
 
 /**
- * The Globalization class handles all the necessary functionality for internationalization and
+ * The `Translator` class handles all the necessary functionality for internationalization and
  * localization. This includes defining which locales to support, loading translators,
- * parsing resource bundles and initializing environments.
+ * parsing resource bundles, and initializing environments.
  *
  * @link http://en.wikipedia.org/wiki/IETF_language_tag
  * @link http://en.wikipedia.org/wiki/ISO_639
@@ -22,10 +23,6 @@ use Titon\Io\PathList;
  * @link http://loc.gov/standards/iso639-2/php/code_list.php
  *
  * @package Titon\G11n
- * @events
- *      g11n.onInit(G11n $g11n, $code)
- *      g11n.onUse(G11n $g11n, Locale $locale)
- *      g11n.onCascade(G11n $g11n, array $cycle)
  */
 class Translator {
 
@@ -58,8 +55,7 @@ class Translator {
     protected PathList $paths = Map {};
 
     /**
-     * Sets up the application with the defined locale key; the key will be formatted to a lowercase dashed URL friendly format.
-     * The system will then attempt to load the locale resource bundle and finalize configuration settings.
+     * Map a locale to be supported during the locale detection and message translation process.
      *
      * @param \Titon\G11n\Locale $locale
      * @return \Titon\G11n\Locale
@@ -103,11 +99,10 @@ class Translator {
     }
 
     /**
-     * Gather a list of locales and fallback locales in descending order starting from the current locale.
+     * Gather a list of locale codes and fallback locale codes in descending order starting from the current locale.
      *
      * @return Vector<string>
      */
-    <<__Memoize>>
     public function cascade(): Vector<string> {
         $cycle = [];
 
@@ -123,12 +118,60 @@ class Translator {
     }
 
     /**
-     * Return the currently matched locale.
+     * Return the currently detected locale.
      *
      * @return \Titon\G11n\Locale
      */
     public function current(): ?Locale {
         return $this->current;
+    }
+
+    /**
+     * Detect which locale to use based on the clients Accept-Language header.
+     *
+     * @return $this
+     * @throws \Titon\G11n\Exception\MissingTranslatorException
+     */
+    public function detect(): this {
+        if (!$this->isEnabled()) {
+            return $this;
+        }
+
+        $current = null;
+        $cookieCode = Cookie::get('locale');
+        $acceptLang = Server::get('HTTP_ACCEPT_LANGUAGE');
+
+        $this->emit('g11n.detecting', [$this]);
+
+        // Determine via cookie
+        if ($cookieCode && $this->locales->contains($cookieCode)) {
+            $current = $cookieCode;
+
+        // Determine locale based on HTTP headers
+        } else if ($acceptLang) {
+            $header = mb_strtolower($acceptLang);
+
+            if (mb_strpos($header, ';') !== false) {
+                $header = mb_strstr($header, ';', true);
+            }
+
+            foreach (explode(',', $header) as $code) {
+                if ($this->locales->contains($code)) {
+                    $current = $code;
+                    break;
+                }
+            }
+        }
+
+        // Set current to the fallback if none found
+        if ($current === null) {
+            $current = $this->getFallback()->getCode();
+        }
+
+        $this->emit('g11n.detected', [$this, $current]);
+
+        // Apply the locale
+        $this->useLocale($current);
     }
 
     /**
@@ -150,7 +193,7 @@ class Translator {
     }
 
     /**
-     * Return all resource paths indexed by domain.
+     * Return all resource paths.
      *
      * @return \Titon\Io\PathList
      */
@@ -159,184 +202,122 @@ class Translator {
     }
 
     /**
-     * Detect which locale to use based on the clients Accept-Language header.
+     * Does the current locale match the passed code?
      *
-     * @throws \Titon\G11n\Exception\MissingTranslatorException
-     */
-    public function initialize() {
-        if (!$this->isEnabled()) {
-            return;
-        }
-
-        $current = null;
-
-        // Determine via cookie
-        if (!empty($_COOKIE['locale']) && isset($this->locales[$_COOKIE['locale']])) {
-            $current = $_COOKIE['locale'];
-
-        // Determine locale based on HTTP headers
-        } else if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $header = mb_strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-
-            if (mb_strpos($header, ';') !== false) {
-                $header = mb_strstr($header, ';', true);
-            }
-
-            $header = explode(',', $header);
-
-            if (count($header) > 0) {
-                foreach ($header as $key) {
-                    if (isset($this->locales[$key])) {
-                        $current = $key;
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Set current to the fallback if none found
-        if ($current === null) {
-            $current = $this->fallback->getCode();
-        }
-
-        // Check for a translator
-        if (!$this->translator) {
-            throw new MissingTranslatorException('A translator is required for G11n message parsing');
-        }
-
-        $this->emit('g11n.onInit', [$this, &$current]);
-
-        // Apply the locale
-        $this->useLocale($current);
-    }
-
-    /**
-     * Does the current locale matched the passed key?
-     *
-     * @param string $key
+     * @param string $code
      * @return bool
      */
-    public function is(string $key): bool {
-        $code = $this->current()?->getCode();
+    public function is(string $code): bool {
+        $currentCode = $this->current()?->getCode();
 
-        return ($code === $key || $this->canonicalize($code) === $key);
+        return ($currentCode === $code || Locale::canonicalize($code) === $currentCode);
     }
 
     /**
-     * G11n will be enabled if more than 1 locale has been setup.
+     * Globalization will be enabled if more than 1 locale has been setup.
      *
      * @return bool
      */
     public function isEnabled(): bool {
-        return (count($this->locales) > 0);
+        return !$this->locales->isEmpty();
     }
 
     /**
      * Define the fallback locale to use if none can be found or is not supported.
      *
-     * @uses Titon\Common\Config
+     * @uses Titon\Utility\Config
      *
-     * @param string $key
+     * @param string $code
      * @return $this
      * @throws \Titon\G11n\Exception\MissingLocaleException
      */
-    public function setFallback(string $key): this {
-        $key = $this->canonicalize($key);
-
-        if (!isset($this->locales[$key])) {
-            throw new MissingLocaleException(sprintf('Locale %s has not been setup', $key));
+    public function setFallback(string $code): this {
+        if (!$this->locales->contains($code)) {
+            throw new MissingLocaleException(sprintf('Locale %s has not been setup', $code));
         }
 
-        $this->fallback = $this->locales[$key];
+        $this->fallback = $this->locales[$code];
 
-        Config::set('titon.locale.fallback', $key);
+        Config::set('titon.locale.fallback', $code);
 
         return $this;
     }
 
     /**
-     * Return a translated string using the translator.
-     * If a storage engine is present, read and write from the cache.
+     * Return a translated message from the message catalogs and optional interpolate parameters.
      *
      * @param string $key
-     * @param array $params
+     * @param \Titon\G11n\ParamList $params
      * @return string
      */
-    public function translate($key, array $params = []) {
-        return $this->getTranslator()->translate($key, $params);
+    public function translate(string $key, ParamList $params = Vector {}): string {
+        // return $this->getTranslator()->translate($key, $params);
+        // TODO
     }
 
     /**
-     * Set the locale using PHPs built in setlocale().
+     * Set the locale using the built in `setlocale()`.
      *
      * @link http://php.net/setlocale
      * @link http://php.net/manual/locale.setdefault.php
      *
-     * @uses Titon\Common\Config
+     * @uses Titon\Utility\Config
      *
-     * @param string $key
+     * @param string $code
      * @return \Titon\G11n\Locale
      * @throws \Titon\G11n\Exception\MissingLocaleException
      */
-    public function useLocale($key) {
-        $key = self::canonicalize($key);
+    public function useLocale(string $code): Locale {
+        $code = self::canonicalize($code);
 
-        if (!isset($this->locales[$key])) {
-            throw new MissingLocaleException(sprintf('Locale %s does not exist', $key));
+        if (!$this->locales->contains($code)) {
+            throw new MissingLocaleException(sprintf('Locale %s does not exist', $code));
         }
 
-        $locale = $this->locales[$key];
-        $locales = [$locale];
+        $newLocale = $this->locales[$code];
+        $locales = [$newLocale];
         $options = [];
 
-        if ($this->getFallback()->getCode() != $locale->getCode()) {
+        if ($this->getFallback()->getCode() != $newLocale->getCode()) {
             $locales[] = $this->getFallback();
         }
 
-        /** @var \Titon\G11n\Locale $loc */
-        foreach ($locales as $loc) {
-            $config = $loc->allConfig();
+        foreach ($locales as $locale) {
+            $meta = $locale->getMetadata();
 
-            $options[] = $config['code'] . '.UTF8';
-            $options[] = $config['code'] . '.UTF-8';
-            $options[] = $config['code'];
+            $options[] = $meta->getCode() . '.UTF8';
+            $options[] = $meta->getCode() . '.UTF-8';
+            $options[] = $meta->getCode();
 
-            if (!empty($config['iso3'])) {
-                foreach ((array) $config['iso3'] as $iso3) {
-                    $options[] = $iso3 . '.UTF8';
-                    $options[] = $iso3 . '.UTF-8';
-                    $options[] = $iso3;
-                }
+            foreach ((array) $meta->getISO3Code() as $iso3) {
+                $options[] = $iso3 . '.UTF8';
+                $options[] = $iso3 . '.UTF-8';
+                $options[] = $iso3;
             }
 
-            if (!empty($config['iso2'])) {
-                $options[] = $config['iso2'] . '.UTF8';
-                $options[] = $config['iso2'] . '.UTF-8';
-                $options[] = $config['iso2'];
+            if ($iso2 = $meta->getISO2Code()) {
+                $options[] = $iso2 . '.UTF8';
+                $options[] = $iso2 . '.UTF-8';
+                $options[] = $iso2;
             }
         }
 
         // Set environment
-        $code = $locale->getCode();
+        $code = $newLocale->getCode();
 
         putenv('LC_ALL=' . $code);
         setlocale(LC_ALL, $options);
 
         \Locale::setDefault($code);
 
-        $this->current = $locale;
+        $this->current = $newLocale;
 
         Config::set('titon.locale.current', $code);
         Config::set('titon.locale.cascade', $this->cascade());
 
-        $this->emit('g11n.onUse', [$this, $locale]);
+        $this->emit('g11n.use', [$this, $newLocale]);
 
-        // Store via cookie
-        if ($this->getConfig('storeCookie')) {
-            $_COOKIE['locale'] = $key;
-        }
-
-        return $locale;
+        return $newLocale;
     }
 
 }

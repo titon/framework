@@ -1,8 +1,8 @@
 {
     "name": "titon/g11n",
     "type": "library",
-    "description": "The G11n package handles the localization and internationalization of an application.",
-    "keywords": ["titon", "g11n", "l10n", "i18n", "locale", "intl", "translate", "message"],
+    "description": "The G11n package provides tools for the localization and internationalization of an application.",
+    "keywords": ["titon", "g11n", "l10n", "i18n", "localization", "locale", "intl", "internationalization", "translate", "message"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
     "authors": [
@@ -24,7 +24,7 @@
         "titon/io": "*"
     },
     "suggest": {
-        "titon/cache": "Use a Storage engine to cache message bundles"
+        "titon/cache": "Cache message and locale lookups using the Cache package"
     },
     "autoload": {
         "psr-4": {

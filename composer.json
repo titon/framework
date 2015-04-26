@@ -45,6 +45,7 @@
             "src/Titon/Debug/bootstrap.hh",
             "src/Titon/Environment/bootstrap.hh",
             "src/Titon/Event/bootstrap.hh",
+            "src/Titon/G11n/bootstrap.hh",
             "src/Titon/Http/bootstrap.hh",
             "src/Titon/Io/bootstrap.hh",
             "src/Titon/Route/bootstrap.hh",

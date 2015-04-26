@@ -8,10 +8,10 @@
 namespace Titon\G11n\Exception;
 
 /**
- * Exception thrown when a catalog or domain key is invalid.
+ * Exception thrown when a message key is invalid.
  *
  * @package Titon\G11n\Exception
  */
-class InvalidCatalogException extends \InvalidArgumentException {
+class InvalidMessageKeyException extends \InvalidArgumentException {
 
 }

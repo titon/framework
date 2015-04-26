@@ -7,11 +7,12 @@
 
 namespace Titon\G11n;
 
-use Titon\G11n\Exception\InvalidCatalogException;
+use Titon\G11n\Exception\InvalidMessageKeyException;
 use Titon\G11n\Exception\MissingMessageException;
 
 /**
- * TODO
+ * The `Catalog` represents an accumulation of message strings for a specific domain and catalog
+ * from a list of defined resource bundles.
  *
  * @package Titon\G11n
  */
@@ -39,14 +40,16 @@ class Catalog {
     protected string $name;
 
     /**
-     * Store the domain and catalog name.
+     * Store the domain and catalog name and message strings.
      *
      * @param string $name
      * @param string $domain
+     * @param \Titon\G11n\MessageMap $messages
      */
-    public function __construct(string $name, string $domain) {
+    public function __construct(string $name, string $domain, MessageMap $messages) {
         $this->name = $name;
         $this->domain = $domain;
+        $this->messages = $messages;
     }
 
     /**
@@ -95,7 +98,7 @@ class Catalog {
      *
      * @param string $key
      * @return \Titon\G11n\MessageKey
-     * @throws \Titon\G11n\Exception\InvalidCatalogException
+     * @throws \Titon\G11n\Exception\InvalidMessageKeyException
      */
     <<__Memoize>>
     public static function parseKey(string $key): MessageKey {
@@ -104,7 +107,7 @@ class Catalog {
         $domain = 'common';
 
         if ($count < 2) {
-            throw new InvalidCatalogException(sprintf('No domain or catalog present for %s key', $key));
+            throw new InvalidMessageKeyException(sprintf('No domain or catalog present for %s key', $key));
 
         } else if ($count === 2) {
             $catalog = $parts[0];
@@ -121,18 +124,6 @@ class Catalog {
             'catalog' => $catalog,
             'key' => $key
         );
-    }
-
-    /**
-     * Set a list of messages.
-     *
-     * @param \Titon\G11n\MessageMap $messages
-     * @return $this
-     */
-    public function setMessages(MessageMap $messages): this {
-        $this->messages = $messages;
-
-        return $this;
     }
 
 }

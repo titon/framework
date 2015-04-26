@@ -93,46 +93,45 @@ class MessageLoader {
      * @return \Titon\G11n\Catalog
      */
     public function loadCatalog(string $domain, string $catalog): Catalog {
-        $catalogKey = $domain . ':' . $catalog;
+        $cacheKey = sprintf('g11n.%s.%s', $domain, $catalog);
 
         // Return the catalog if it has been loaded
-        if ($this->catalogs->contains($catalogKey)) {
-            return $this->catalogs[$catalogKey];
+        if ($this->catalogs->contains($cacheKey)) {
+            return $this->catalogs[$cacheKey];
         }
 
-        $catalog = new Catalog($catalog, $domain);
         $storage = $this->getStorage();
-        $translator = $this->getTranslator();
-        $messages = Map {};
+
+        // Check within the cache first
+        if ($storage && $storage->has($cacheKey)) {
+            $messages = $storage->get($cacheKey);
 
         // Cycle through each locale and load messages from each catalog
-        foreach ($translator->cascade() as $locale) {
-            $cacheKey = sprintf('g11n.%s.%s.%s', $domain, $catalog, $locale);
+        } else {
+            $translator = $this->getTranslator();
+            $messages = Map {};
 
-            // Check within the cache first
-            if ($storage && $storage->has($cacheKey)) {
-                $newMessages = $storage->get($cacheKey);
-
-            // Else check within the bundle
-            } else {
+            foreach ($translator->cascade() as $locale) {
                 $bundle = $translator->getLocale($locale)->getResourceBundle();
                 $bundle->addReader($this->getReader());
 
-                $newMessages = $bundle->loadResource($domain, $catalog);
+                $bundleMessages = $bundle->loadResource($domain, $catalog);
 
-                // Cache the messages
-                if ($newMessages && $storage) {
-                    $storage->set($cacheKey, $newMessages);
+                // Merge with the previous messages
+                if ($bundleMessages instanceof Map) {
+                    $messages->setAll($bundleMessages);
                 }
             }
 
-            // Merge with the previous messages
-            if ($newMessages instanceof Map) {
-                $messages->setAll($newMessages);
+            // Cache the messages
+            if ($messages && $storage) {
+                $storage->set($cacheKey, $messages);
             }
         }
 
-        return $this->catalogs[$catalogKey] = $catalog->setMessages($messages);
+        invariant($messages instanceof Map, 'Message strings must be a map.');
+
+        return $this->catalogs[$cacheKey] = new Catalog($catalog, $domain, $messages);
     }
 
     /**

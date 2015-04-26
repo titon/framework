@@ -30,9 +30,11 @@ namespace {
  */
 
 namespace Titon\G11n {
+    type CatalogMap = Map<string, Catalog>;
     type LocaleMap = Map<string, Locale>;
     type LocaleTagMap = Map<string, string>;
     type MessageKey = shape('domain' => string, 'catalog' => string, 'key' => string);
+    type MessageMap = Map<string, string>;
     type ParamList = Vector<mixed>;
 }
 

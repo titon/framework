@@ -45,6 +45,13 @@ class Translator {
     protected ?Locale $fallback;
 
     /**
+     * Message loader instance.
+     *
+     * @var \Titon\G11n\MessageLoader
+     */
+    protected MessageLoader $loader;
+
+    /**
      * Supported list of locales.
      *
      * @var \Titon\G11n\LocaleMap
@@ -57,6 +64,15 @@ class Translator {
      * @var \Titon\Io\PathList
      */
     protected PathList $paths = Map {};
+
+    /**
+     * Store the message loader.
+     *
+     * @param \Titon\G11n\MessageLoader $loader
+     */
+    public function __construct(MessageLoader $loader) {
+        $this->loader = $loader->setTranslator($this);
+    }
 
     /**
      * Map a locale to be supported during the locale detection and message translation process.
@@ -214,6 +230,15 @@ class Translator {
     }
 
     /**
+     * Return the message loader.
+     *
+     * @return \Titon\G11n\MessageLoader
+     */
+    public function getMessageLoader(): MessageLoader {
+        return $this->loader;
+    }
+
+    /**
      * Return all resource paths.
      *
      * @return \Titon\Io\PathList
@@ -331,8 +356,7 @@ class Translator {
      * @return string
      */
     public function translate(string $key, ParamList $params = Vector {}): string {
-        // return $this->getTranslator()->translate($key, $params);
-        // TODO
+        return $this->getMessageLoader()->translate($key, $params);
     }
 
 }

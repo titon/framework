@@ -12,8 +12,9 @@ use Titon\G11n\Bag\FormatBag;
 use Titon\G11n\Bag\InflectionBag;
 use Titon\G11n\Bag\MetaBag;
 use Titon\G11n\Bag\ValidationBag;
-use Titon\Io\Bundle\ResourceBundle;
-use Titon\Io\Reader\HackReader;
+use Titon\Io\PathList;
+use Titon\Utility\Col;
+use Titon\Utility\Config;
 use \Locale as SystemLocale;
 
 /**
@@ -30,13 +31,6 @@ class Locale {
     const int FORMAT_2 = 2; // en-US
     const int FORMAT_3 = 3; // en_US (preferred)
     const int FORMAT_4 = 4; // enUS
-
-    /**
-     * Resource bundle.
-     *
-     * @var \Titon\Io\Bundle\ResourceBundle
-     */
-    protected ResourceBundle $bundle;
 
     /**
      * Locale code.
@@ -58,6 +52,20 @@ class Locale {
      * @var \Titon\G11n\Bag\InflectionBag
      */
     protected ?InflectionBag $inflectionBag;
+
+    /**
+     * Locale bundle.
+     *
+     * @var \Titon\G11n\LocaleBundle
+     */
+    protected LocaleBundle $localeBundle;
+
+    /**
+     * Message bundle.
+     *
+     * @var \Titon\G11n\MessageBundle
+     */
+    protected MessageBundle $messageBundle;
 
     /**
      * Metadata bag.
@@ -84,34 +92,41 @@ class Locale {
      * Set locale code and optional bundle.
      *
      * @param string $code
-     * @param \Titon\Io\Bundle\ResourceBundle $bundle
+     * @param \Titon\G11n\LocaleBundle $localeBundle
+     * @param \Titon\G11n\MessageBundle $messageBundle
      */
-    public function __construct(string $code, ?ResourceBundle $bundle = null) {
+    public function __construct(string $code, ?LocaleBundle $localeBundle = null, ?MessageBundle $messageBundle = null) {
         $this->code = $code = self::canonicalize($code);
-        $this->bundle = $bundle ?: new ResourceBundle();
-
-        // Add a `HackReader` as the built-in resource files are Hack
-        $bundle->addReader(new HackReader());
+        $this->localeBundle = $localeBundle ?: new LocaleBundle();
+        $this->messageBundle = $messageBundle ?: new MessageBundle();
 
         // We can infer the parent from the locale code
         if (($pos = strpos($code, '_')) !== false) {
             $this->parent = LocaleRegistry::factory(substr($code, 0, $pos));
+        }
+
+        // Automatically add resource paths
+        if ($paths = Config::get('titon.paths.resources')) {
+            $this->addResourcePaths('core', Col::toVector($paths));
         }
     }
 
     /**
      * Add a resource lookup path for locales and messages.
      *
+     * @param string $domain
      * @param string $path
      * @return $this
      */
-    public function addResourcePath(string $path): this {
+    public function addResourcePath(string $domain, string $path): this {
         $path = rtrim($path, '/');
         $code = $this->getCode();
 
-        $this->getResourceBundle()
-            ->addPath('locales', sprintf('%s/locales/%s', $path, $code))
-            ->addPath('messages', sprintf('%s/messages/%s', $path, $code));
+        $this->getLocaleBundle()
+            ->addPath($domain, sprintf('%s/locales/%s', $path, $code));
+
+        $this->getMessageBundle()
+            ->addPath($domain, sprintf('%s/messages/%s', $path, $code));
 
         return $this;
     }
@@ -119,12 +134,13 @@ class Locale {
     /**
      * Add multiple resource lookup paths.
      *
+     * @param string $domain
      * @param \Titon\Io\PathList $paths
      * @return $this
      */
-    public function addResourcePaths(PathList $paths): this {
+    public function addResourcePaths(string $domain, PathList $paths): this {
         foreach ($paths as $path) {
-            $this->addResourcePath($path);
+            $this->addResourcePath($domain, $path);
         }
 
         return $this;
@@ -237,6 +253,24 @@ class Locale {
     }
 
     /**
+     * Return the locale bundle.
+     *
+     * @return \Titon\G11n\LocaleBundle
+     */
+    public function getLocaleBundle(): LocaleBundle {
+        return $this->localeBundle;
+    }
+
+    /**
+     * Return the message bundle.
+     *
+     * @return \Titon\G11n\MessageBundle
+     */
+    public function getMessageBundle(): MessageBundle {
+        return $this->messageBundle;
+    }
+
+    /**
      * Return the metadata from the locale bundle.
      *
      * @return \Titon\G11n\Bag\MetaBag
@@ -258,6 +292,15 @@ class Locale {
     }
 
     /**
+     * Return the parent locale if it exists.
+     *
+     * @return \Titon\G11n\Locale
+     */
+    public function getParentLocale(): ?Locale {
+        return $this->parent;
+    }
+
+    /**
      * Return the validation rules from the locale bundle.
      *
      * @return \Titon\G11n\Bag\ValidationBag
@@ -276,24 +319,6 @@ class Locale {
         $bag->add($this->getResourceBundle()->loadResource('locales', 'validations'));
 
         return $this->validationBag = $bag;
-    }
-
-    /**
-     * Return the parent locale if it exists.
-     *
-     * @return \Titon\G11n\Locale
-     */
-    public function getParentLocale(): ?Locale {
-        return $this->parent;
-    }
-
-    /**
-     * Return the resource bundle.
-     *
-     * @return \Titon\Io\Bundle\ResourceBundle
-     */
-    public function getResourceBundle(): ResourceBundle {
-        return $this->bundle;
     }
 
 }

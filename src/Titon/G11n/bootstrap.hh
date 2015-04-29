@@ -17,6 +17,7 @@
 namespace {
     use Titon\Utility\Config;
 
+    Config::add('titon.paths.resources', __DIR__);
     Config::add('titon.paths.locales', __DIR__ . '/locales/');
     Config::add('titon.paths.messages', __DIR__ . '/messages/');
 }

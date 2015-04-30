@@ -1,6 +1,9 @@
 <?hh
 namespace Titon\G11n;
 
+use Titon\G11n\Bag\FormatBag;
+use Titon\G11n\Bag\InflectionBag;
+use Titon\G11n\Bag\MetaBag;
 use Titon\Test\TestCase;
 use Titon\Utility\Config;
 
@@ -12,13 +15,12 @@ class LocaleTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        Config::add('titon.paths.resources', __DIR__);
-
-        $this->object = new Locale('en-us');
+        $this->object = new Locale('ex_CH');
+        $this->object->addResourcePath('core', TEMP_DIR . '/g11n/');
     }
 
     public function testCodeIsCanonicalized(): void {
-        $this->assertEquals('en_US', $this->object->getCode());
+        $this->assertEquals('ex_CH', $this->object->getCode());
     }
 
     public function testBundlesAreAutoInitialized(): void {
@@ -28,30 +30,34 @@ class LocaleTest extends TestCase {
 
     public function testParentIsAutoInitialized(): void {
         $this->assertInstanceOf('Titon\G11n\Locale', $this->object->getParentLocale());
-        $this->assertEquals('en', $this->object->getParentLocale()->getCode());
+        $this->assertEquals('ex', $this->object->getParentLocale()->getCode());
     }
 
     public function testPathsAreInherited(): void {
-        $this->assertEquals(Map {
-            'core' => Vector { __DIR__ . '/locales/en_US/' }
-        }, $this->object->getLocaleBundle()->getPaths());
+        Config::add('titon.paths.resources', __DIR__);
+
+        $locale = new Locale('ex_CH');
 
         $this->assertEquals(Map {
-            'core' => Vector { __DIR__ . '/messages/en_US/' }
-        }, $this->object->getMessageBundle()->getPaths());
+            'core' => Vector { __DIR__ . '/locales/ex_CH/' }
+        }, $locale->getLocaleBundle()->getPaths());
+
+        $this->assertEquals(Map {
+            'core' => Vector { __DIR__ . '/messages/ex_CH/' }
+        }, $locale->getMessageBundle()->getPaths());
     }
 
     public function testAddResourcePath(): void {
         $this->object->addResourcePath('foo', __DIR__);
 
         $this->assertEquals(Map {
-            'core' => Vector { __DIR__ . '/locales/en_US/' },
-            'foo' => Vector { __DIR__ . '/locales/en_US/' }
+            'core' => Vector { TEMP_DIR . '/g11n/locales/ex_CH/' },
+            'foo' => Vector { __DIR__ . '/locales/ex_CH/' }
         }, $this->object->getLocaleBundle()->getPaths());
 
         $this->assertEquals(Map {
-            'core' => Vector { __DIR__ . '/messages/en_US/' },
-            'foo' => Vector { __DIR__ . '/messages/en_US/' }
+            'core' => Vector { TEMP_DIR . '/g11n/messages/ex_CH/' },
+            'foo' => Vector { __DIR__ . '/messages/ex_CH/' }
         }, $this->object->getMessageBundle()->getPaths());
     }
 
@@ -62,13 +68,13 @@ class LocaleTest extends TestCase {
         });
 
         $this->assertEquals(Map {
-            'core' => Vector { __DIR__ . '/locales/en_US/' },
-            'bar' => Vector { __DIR__ . '/locales/en_US/', dirname(__DIR__) . '/locales/en_US/' }
+            'core' => Vector { TEMP_DIR . '/g11n/locales/ex_CH/' },
+            'bar' => Vector { __DIR__ . '/locales/ex_CH/', dirname(__DIR__) . '/locales/ex_CH/' }
         }, $this->object->getLocaleBundle()->getPaths());
 
         $this->assertEquals(Map {
-            'core' => Vector { __DIR__ . '/messages/en_US/' },
-            'bar' => Vector { __DIR__ . '/messages/en_US/', dirname(__DIR__) . '/messages/en_US/' }
+            'core' => Vector { TEMP_DIR . '/g11n/messages/ex_CH/' },
+            'bar' => Vector { __DIR__ . '/messages/ex_CH/', dirname(__DIR__) . '/messages/ex_CH/' }
         }, $this->object->getMessageBundle()->getPaths());
     }
 
@@ -140,8 +146,61 @@ class LocaleTest extends TestCase {
     }
 
     public function testGetCode(): void {
-        $this->assertEquals('en_US', $this->object->getCode());
-        $this->assertEquals('en', $this->object->getParentLocale()->getCode());
+        $this->assertEquals('ex_CH', $this->object->getCode());
+        $this->assertEquals('ex', $this->object->getParentLocale()->getCode());
+    }
+
+    public function testGetFormatPatterns(): void {
+        $this->assertEquals(new FormatBag(Map {
+            'date' => '%Y/%m/%d',
+            'time' => '%I:%M%p',
+            'datetime' => '%m/%d/%Y %I:%M%p',
+            'ssn' => '###-##-####'
+        }), $this->object->getFormatPatterns());
+
+        $this->assertEquals(new FormatBag(Map {
+            'date' => '%m/%d/%Y',
+            'time' => '%I:%M%p',
+            'datetime' => '%m/%d/%Y %I:%M%p',
+        }), $this->object->getParentLocale()->getFormatPatterns());
+    }
+
+    public function testGetInflectionRules(): void {
+        $this->assertEquals(new InflectionBag(Map {
+            'irregular' => Map {
+                'atlas' => 'atlases',
+                'hoof' => 'hoofs',
+            },
+            'uninflected' => Vector {'equipment', 'nankingese'}
+        }), $this->object->getInflectionRules());
+
+        $this->assertEquals(new InflectionBag(Map {
+            'irregular' => Map {
+                'atlas' => 'atlases'
+            },
+            'uninflected' => Vector {'equipment'}
+        }), $this->object->getParentLocale()->getInflectionRules());
+    }
+
+    public function testGetMetadata(): void {
+        $this->assertEquals(new MetaBag(Map {
+            'code' => 'ex_CH',
+            'iso2' => 'ex',
+            'iso3' => 'exa',
+            'timezone' => 'America/New_York',
+            'title' => 'Example Child',
+            'parent' => 'ex',
+            'plural' => PluralRule::RULE_1
+        }), $this->object->getMetadata());
+
+        $this->assertEquals(new MetaBag(Map {
+            'code' => 'ex',
+            'iso2' => 'ex',
+            'iso3' => 'exa',
+            'timezone' => 'America/New_York',
+            'title' => 'Example',
+            'plural' => PluralRule::RULE_1
+        }), $this->object->getParentLocale()->getMetadata());
     }
 
     public function testGetParentLocale(): void {

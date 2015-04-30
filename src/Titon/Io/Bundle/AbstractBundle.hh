@@ -55,7 +55,12 @@ abstract class AbstractBundle implements Bundle {
             $this->paths[$domain] = Vector {};
         }
 
-        $this->paths[$domain][] = Path::ds($path, true);
+        $path = Path::ds($path, true);
+
+        // Only store the path once
+        if ($this->paths[$domain]->linearSearch($path) < 0) {
+            $this->paths[$domain][] = $path;
+        }
 
         return $this;
     }

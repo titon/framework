@@ -346,10 +346,10 @@ class Col {
                     $current = $base[$key];
 
                     if ($value instanceof Vector && $current instanceof Vector) {
-                        $value = $current->addAll($value);
+                        $value = $current->addAll($value->toVector());
 
-                    } else if ($value instanceof Indexish && $current instanceof Indexish) {
-                        $value = static::merge($current, $value); // Map and array
+                    } else if ($value instanceof Map && $current instanceof Map) {
+                        $value = static::merge($current, $value->toMap());
                     }
                 }
 

@@ -128,6 +128,9 @@ class Locale {
         $this->getMessageBundle()
             ->addPath($domain, sprintf('%s/messages/%s', $path, $code));
 
+        // Pass it to the parent also
+        $this->getParentLocale()?->addResourcePath($domain, $path);
+
         return $this;
     }
 
@@ -220,15 +223,13 @@ class Locale {
             return $this->formatBag;
         }
 
+        $bag = $this->loadResource('formats');
+
         if ($parent = $this->getParentLocale()) {
-            $bag = clone $parent->getFormatPatterns();
-        } else {
-            $bag = new FormatBag();
+            $bag = Col::merge($parent->getFormatPatterns()->all(), $bag);
         }
 
-        $bag->add($this->getResourceBundle()->loadResource('locales', 'formats'));
-
-        return $this->formatBag = $bag;
+        return $this->formatBag = new FormatBag($bag);
     }
 
     /**
@@ -241,15 +242,13 @@ class Locale {
             return $this->inflectionBag;
         }
 
+        $bag = $this->loadResource('inflections');
+
         if ($parent = $this->getParentLocale()) {
-            $bag = clone $parent->getInflectionRules();
-        } else {
-            $bag = new InflectionBag();
+            $bag = Col::merge($parent->getInflectionRules()->all(), $bag);
         }
 
-        $bag->add($this->getResourceBundle()->loadResource('locales', 'inflections'));
-
-        return $this->inflectionBag = $bag;
+        return $this->inflectionBag = new InflectionBag($bag);
     }
 
     /**
@@ -280,15 +279,13 @@ class Locale {
             return $this->metaBag;
         }
 
+        $bag = $this->loadResource('locale');
+
         if ($parent = $this->getParentLocale()) {
-            $bag = clone $parent->getMetadata();
-        } else {
-            $bag = new MetaBag();
+            $bag = Col::merge($parent->getMetadata()->all(), $bag);
         }
 
-        $bag->add($this->getResourceBundle()->loadResource('locales', 'locale'));
-
-        return $this->metaBag = $bag;
+        return $this->metaBag = new MetaBag($bag);
     }
 
     /**
@@ -310,15 +307,24 @@ class Locale {
             return $this->validationBag;
         }
 
+        $bag = $this->loadResource('validations');
+
         if ($parent = $this->getParentLocale()) {
-            $bag = clone $parent->getValidationRules();
-        } else {
-            $bag = new ValidationBag();
+            $bag = Col::merge($parent->getValidationRules()->all(), $bag);
         }
 
-        $bag->add($this->getResourceBundle()->loadResource('locales', 'validations'));
+        return $this->validationBag = new ValidationBag($bag);
+    }
 
-        return $this->validationBag = $bag;
+    public function loadResource(string $catalog): Map<string, mixed> {
+        $resource = Map {};
+        $bundle = $this->getLocaleBundle();
+
+        foreach ($bundle->getDomains() as $domain) {
+            $resource = Col::merge($resource, $bundle->loadResource($domain, $catalog));
+        }
+
+        return $resource;
     }
 
 }

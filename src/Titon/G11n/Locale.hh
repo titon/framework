@@ -107,7 +107,7 @@ class Locale {
 
         // Automatically add resource paths
         if ($paths = Config::get('titon.paths.resources')) {
-            $this->addResourcePaths('core', Col::toVector($paths));
+            $this->addResourcePaths('core', Col::toSet($paths));
         }
     }
 
@@ -122,9 +122,11 @@ class Locale {
         $path = rtrim($path, '/');
         $code = $this->getCode();
 
+        // Locales don't need domains
         $this->getLocaleBundle()
-            ->addPath($domain, sprintf('%s/locales/%s', $path, $code));
+            ->addPath('core', sprintf('%s/locales/%s', $path, $code));
 
+        // But messages do
         $this->getMessageBundle()
             ->addPath($domain, sprintf('%s/messages/%s', $path, $code));
 
@@ -223,7 +225,7 @@ class Locale {
             return $this->formatBag;
         }
 
-        $bag = $this->loadResource('formats');
+        $bag = $this->getLocaleBundle()->loadResource('core', 'formats');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getFormatPatterns()->all(), $bag);
@@ -242,7 +244,7 @@ class Locale {
             return $this->inflectionBag;
         }
 
-        $bag = $this->loadResource('inflections');
+        $bag = $this->getLocaleBundle()->loadResource('core', 'inflections');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getInflectionRules()->all(), $bag);
@@ -279,7 +281,7 @@ class Locale {
             return $this->metaBag;
         }
 
-        $bag = $this->loadResource('locale');
+        $bag = $this->getLocaleBundle()->loadResource('core', 'locale');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getMetadata()->all(), $bag);
@@ -307,24 +309,13 @@ class Locale {
             return $this->validationBag;
         }
 
-        $bag = $this->loadResource('validations');
+        $bag = $this->getLocaleBundle()->loadResource('core', 'validations');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getValidationRules()->all(), $bag);
         }
 
         return $this->validationBag = new ValidationBag($bag);
-    }
-
-    public function loadResource(string $catalog): Map<string, mixed> {
-        $resource = Map {};
-        $bundle = $this->getLocaleBundle();
-
-        foreach ($bundle->getDomains() as $domain) {
-            $resource = Col::merge($resource, $bundle->loadResource($domain, $catalog));
-        }
-
-        return $resource;
     }
 
 }

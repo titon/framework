@@ -39,11 +39,11 @@ class LocaleTest extends TestCase {
         $locale = new Locale('ex_CH');
 
         $this->assertEquals(Map {
-            'core' => Vector { __DIR__ . '/locales/ex_CH/' }
+            'core' => Set { __DIR__ . '/locales/ex_CH/' }
         }, $locale->getLocaleBundle()->getPaths());
 
         $this->assertEquals(Map {
-            'core' => Vector { __DIR__ . '/messages/ex_CH/' }
+            'core' => Set { __DIR__ . '/messages/ex_CH/' }
         }, $locale->getMessageBundle()->getPaths());
     }
 
@@ -51,30 +51,32 @@ class LocaleTest extends TestCase {
         $this->object->addResourcePath('foo', __DIR__);
 
         $this->assertEquals(Map {
-            'core' => Vector { TEMP_DIR . '/g11n/locales/ex_CH/' },
-            'foo' => Vector { __DIR__ . '/locales/ex_CH/' }
+            'core' => Set { TEMP_DIR . '/g11n/locales/ex_CH/', __DIR__ . '/locales/ex_CH/' }
         }, $this->object->getLocaleBundle()->getPaths());
 
         $this->assertEquals(Map {
-            'core' => Vector { TEMP_DIR . '/g11n/messages/ex_CH/' },
-            'foo' => Vector { __DIR__ . '/messages/ex_CH/' }
+            'core' => Set { TEMP_DIR . '/g11n/messages/ex_CH/' },
+            'foo' => Set { __DIR__ . '/messages/ex_CH/' }
         }, $this->object->getMessageBundle()->getPaths());
     }
 
     public function testAddResourcePaths(): void {
-        $this->object->addResourcePaths('bar', Vector {
+        $this->object->addResourcePaths('bar', Set {
             __DIR__,
             dirname(__DIR__)
         });
 
         $this->assertEquals(Map {
-            'core' => Vector { TEMP_DIR . '/g11n/locales/ex_CH/' },
-            'bar' => Vector { __DIR__ . '/locales/ex_CH/', dirname(__DIR__) . '/locales/ex_CH/' }
+            'core' => Set {
+                TEMP_DIR . '/g11n/locales/ex_CH/',
+                __DIR__ . '/locales/ex_CH/',
+                dirname(__DIR__) . '/locales/ex_CH/'
+            }
         }, $this->object->getLocaleBundle()->getPaths());
 
         $this->assertEquals(Map {
-            'core' => Vector { TEMP_DIR . '/g11n/messages/ex_CH/' },
-            'bar' => Vector { __DIR__ . '/messages/ex_CH/', dirname(__DIR__) . '/messages/ex_CH/' }
+            'core' => Set { TEMP_DIR . '/g11n/messages/ex_CH/' },
+            'bar' => Set { __DIR__ . '/messages/ex_CH/', dirname(__DIR__) . '/messages/ex_CH/' }
         }, $this->object->getMessageBundle()->getPaths());
     }
 
@@ -171,14 +173,14 @@ class LocaleTest extends TestCase {
                 'atlas' => 'atlases',
                 'hoof' => 'hoofs',
             },
-            'uninflected' => Vector {'equipment', 'nankingese'}
+            'uninflected' => Set {'equipment', 'nankingese'}
         }), $this->object->getInflectionRules());
 
         $this->assertEquals(new InflectionBag(Map {
             'irregular' => Map {
                 'atlas' => 'atlases'
             },
-            'uninflected' => Vector {'equipment'}
+            'uninflected' => Set {'equipment'}
         }), $this->object->getParentLocale()->getInflectionRules());
     }
 

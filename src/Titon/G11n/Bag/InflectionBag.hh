@@ -94,16 +94,16 @@ class InflectionBag extends AbstractBag<string, mixed> {
     /**
      * Return the uninflected words list.
      *
-     * @return Map<string, string>
+     * @return Set<string>
      */
-    public function getUninflectedWords(): Vector<string> {
+    public function getUninflectedWords(): Set<string> {
         $uninflected = $this->get('uninflected');
 
-        if ($uninflected instanceof Vector) {
+        if ($uninflected instanceof Set) {
             return $uninflected;
         }
 
-        return Vector {};
+        return Set {};
     }
 
 }

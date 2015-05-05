@@ -45,7 +45,7 @@ return Map {
         'turf' => 'turfs',
         'woman' => 'women'
     },
-    'uninflected' => Vector {
+    'uninflected' => Set {
         'equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep',
         'amoyese', 'bison', 'borghese', 'bream', 'breeches', 'britches', 'buffalo', 'cantus',
         'carp', 'chassis', 'clippers', 'cod', 'coitus', 'congoese', 'contretemps', 'corps',

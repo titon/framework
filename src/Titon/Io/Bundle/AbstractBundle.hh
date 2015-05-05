@@ -52,15 +52,10 @@ abstract class AbstractBundle implements Bundle {
      */
     public function addPath(string $domain, string $path): this {
         if (!$this->getPaths()->contains($domain)) {
-            $this->paths[$domain] = Vector {};
+            $this->paths[$domain] = Set {};
         }
 
-        $path = Path::ds($path, true);
-
-        // Only store the path once
-        if ($this->paths[$domain]->linearSearch($path) < 0) {
-            $this->paths[$domain][] = $path;
-        }
+        $this->paths[$domain][] = Path::ds($path, true);
 
         return $this;
     }
@@ -91,7 +86,7 @@ abstract class AbstractBundle implements Bundle {
      * {@inheritdoc}
      */
     public function getContents(string $domain): PathList {
-        $contents = Vector {};
+        $contents = Set {};
 
         foreach ($this->getDomainPaths($domain) as $path) {
             foreach ((new Folder($path))->files() as $file) {

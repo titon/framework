@@ -25,19 +25,19 @@ class BundleTest extends TestCase {
         $this->object->addPath('foo', '/some/path');
 
         $this->assertEquals(Map {
-            'foo' => Vector {'/some/path/'}
+            'foo' => Set {'/some/path/'}
         }, $this->object->getPaths());
     }
 
     public function testAddPaths(): void {
         $this->assertEquals(Map {}, $this->object->getPaths());
 
-        $this->object->addPaths('foo', Vector {'/some/path', '/another/path'});
-        $this->object->addPaths('bar', Vector {'/one/more/path'});
+        $this->object->addPaths('foo', Set {'/some/path', '/another/path'});
+        $this->object->addPaths('bar', Set {'/one/more/path'});
 
         $this->assertEquals(Map {
-            'foo' => Vector {'/some/path/', '/another/path/'},
-            'bar' => Vector {'/one/more/path/'}
+            'foo' => Set {'/some/path/', '/another/path/', '/some/path/'},
+            'bar' => Set {'/one/more/path/'}
         }, $this->object->getPaths());
     }
 
@@ -54,9 +54,8 @@ class BundleTest extends TestCase {
         $this->object->addPath('test', TEMP_DIR . '/io');
 
         $paths = $this->object->getContents('test');
-        sort($paths);
 
-        $this->assertEquals(Vector {
+        $this->assertEquals(Set {
             TEMP_DIR . '/io/hack.hh',
             TEMP_DIR . '/io/ini.ini',
             TEMP_DIR . '/io/json.json',
@@ -77,11 +76,11 @@ class BundleTest extends TestCase {
     }
 
     public function testGetDomainPaths(): void {
-        $this->object->addPaths('foo', Vector {'/some/path', '/another/path'});
-        $this->object->addPaths('bar', Vector {'/one/more/path'});
+        $this->object->addPaths('foo', Set {'/some/path', '/another/path'});
+        $this->object->addPaths('bar', Set {'/one/more/path'});
 
-        $this->assertEquals(Vector {'/some/path/', '/another/path/'}, $this->object->getDomainPaths('foo'));
-        $this->assertEquals(Vector {'/one/more/path/'}, $this->object->getDomainPaths('bar'));
+        $this->assertEquals(Set {'/some/path/', '/another/path/'}, $this->object->getDomainPaths('foo'));
+        $this->assertEquals(Set {'/one/more/path/'}, $this->object->getDomainPaths('bar'));
     }
 
     /**
@@ -111,7 +110,7 @@ class BundleTest extends TestCase {
             ]
         ]);
 
-        $this->object->addPaths('foo', Vector {$this->vfs()->path('/bundle/foo1/'), $this->vfs()->path('/bundle/foo2/')});
+        $this->object->addPaths('foo', Set {$this->vfs()->path('/bundle/foo1/'), $this->vfs()->path('/bundle/foo2/')});
         $this->object->addReader(new PhpReader());
 
         $this->assertEquals(Map {
@@ -130,7 +129,7 @@ class BundleTest extends TestCase {
             ]
         ]);
 
-        $this->object->addPaths('foo', Vector {$this->vfs()->path('/bundle/foo1/'), $this->vfs()->path('/bundle/foo2/')});
+        $this->object->addPaths('foo', Set {$this->vfs()->path('/bundle/foo1/'), $this->vfs()->path('/bundle/foo2/')});
         $this->object->addReader(new PhpReader());
         $this->object->addReader(new JsonReader());
 

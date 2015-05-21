@@ -10,7 +10,7 @@ namespace Titon\G11n;
 use Titon\Common\Bag;
 use Titon\G11n\Bag\FormatBag;
 use Titon\G11n\Bag\InflectionBag;
-use Titon\G11n\Bag\MetaBag;
+use Titon\G11n\Bag\MetadataBag;
 use Titon\G11n\Bag\ValidationBag;
 use Titon\Io\PathList;
 use Titon\Utility\Col;
@@ -70,7 +70,7 @@ class Locale {
     /**
      * Metadata bag.
      *
-     * @var \Titon\G11n\Bag\MetaBag
+     * @var \Titon\G11n\Bag\MetadataBag
      */
     protected ?MetaBag $metaBag;
 
@@ -274,9 +274,9 @@ class Locale {
     /**
      * Return the metadata from the locale bundle.
      *
-     * @return \Titon\G11n\Bag\MetaBag
+     * @return \Titon\G11n\Bag\MetadataBag
      */
-    public function getMetadata(): MetaBag {
+    public function getMetadata(): MetadataBag {
         if ($this->metaBag) {
             return $this->metaBag;
         }
@@ -287,7 +287,7 @@ class Locale {
             $bag = Col::merge($parent->getMetadata()->all(), $bag);
         }
 
-        return $this->metaBag = new MetaBag($bag);
+        return $this->metaBag = new MetadataBag($bag);
     }
 
     /**

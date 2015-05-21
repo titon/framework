@@ -3,7 +3,8 @@ namespace Titon\G11n;
 
 use Titon\G11n\Bag\FormatBag;
 use Titon\G11n\Bag\InflectionBag;
-use Titon\G11n\Bag\MetaBag;
+use Titon\G11n\Bag\MetadataBag;
+use Titon\G11n\Bag\ValidationBag;
 use Titon\Test\TestCase;
 use Titon\Utility\Config;
 
@@ -185,7 +186,7 @@ class LocaleTest extends TestCase {
     }
 
     public function testGetMetadata(): void {
-        $this->assertEquals(new MetaBag(Map {
+        $this->assertEquals(new MetadataBag(Map {
             'code' => 'ex_CH',
             'iso2' => 'ex',
             'iso3' => 'exa',
@@ -195,7 +196,7 @@ class LocaleTest extends TestCase {
             'plural' => PluralRule::RULE_1
         }), $this->object->getMetadata());
 
-        $this->assertEquals(new MetaBag(Map {
+        $this->assertEquals(new MetadataBag(Map {
             'code' => 'ex',
             'iso2' => 'ex',
             'iso3' => 'exa',
@@ -208,6 +209,17 @@ class LocaleTest extends TestCase {
     public function testGetParentLocale(): void {
         $this->assertInstanceOf('Titon\G11n\Locale', $this->object->getParentLocale());
         $this->assertEquals(null, $this->object->getParentLocale()->getParentLocale());
+    }
+
+    public function testGetValidationRules(): void {
+        $this->assertEquals(new ValidationBag(Map {
+            'phone' => '/^([0-9]{7}$/'
+        }), $this->object->getValidationRules());
+
+        // No child file, so parent should match
+        $this->assertEquals(new ValidationBag(Map {
+            'phone' => '/^([0-9]{7}$/'
+        }), $this->object->getParentLocale()->getValidationRules());
     }
 
 }

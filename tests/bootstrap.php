@@ -12,6 +12,7 @@ date_default_timezone_set('UTC');
 const string TEST_DIR = __DIR__;
 const string TEMP_DIR = TEST_DIR . '/tmp';
 const string VENDOR_DIR = TEST_DIR . '/../vendor';
+const string SRC_DIR = TEST_DIR . '/../src';
 const string DS = DIRECTORY_SEPARATOR;
 
 // Start autoloader

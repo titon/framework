@@ -7,7 +7,7 @@
  */
 return Map {
     'ordinal' => Map {
-        0 => '#th',
+        -1 => '#th',
         1 => '#st',
         2 => '#nd',
         3 => '#rd'
@@ -73,11 +73,11 @@ return Map {
         '/([ti])um$/i' => '\1a',
         '/(buffal|tomat)o$/i' => '\1oes',
         '/(bu|campu)s$/i' => '\1ses',
-        '/(alias|status)/i'=> '\1es',
-        '/(octop|vir)us$/i'=> '\1i',
-        '/(ax|cris|test)is$/i'=> '\1es',
-        '/s$/i'=> 's',
-        '/$/'=> 's'
+        '/(alias|status)/i' => '\1es',
+        '/(octop|vir)us$/i' => '\1i',
+        '/(ax|cris|test)is$/i' => '\1es',
+        '/s$/i' => 's',
+        '/$/' => 's'
     },
     'singular' => Map {
         '/(quiz)zes$/i' => '\1',

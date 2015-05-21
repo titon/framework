@@ -14,7 +14,7 @@ use Titon\Common\Bag\AbstractBag;
  *
  * @package Titon\G11n\Bag
  */
-class MetaBag extends AbstractBag<string, mixed> {
+class MetadataBag extends AbstractBag<string, mixed> {
 
     /**
      * Return the locale code.
@@ -35,11 +35,11 @@ class MetaBag extends AbstractBag<string, mixed> {
     }
 
     /**
-     * Return the ISO3 code.
+     * Return the ISO3 code(s).
      *
      * @return Vector<string>
      */
-    public function getISO3Code(): Vector<string> {
+    public function getISO3Codes(): Vector<string> {
         $codes = $this->get('iso3', '');
 
         if ($codes instanceof Vector) {

@@ -16,7 +16,7 @@ use Titon\G11n\Translator;
  *
  * @package Titon\G11n\Event
  */
-class GlobalizeEvent extends Event {
+class LocalizeEvent extends Event {
 
     /**
      * The new locale.
@@ -42,7 +42,7 @@ class GlobalizeEvent extends Event {
         $this->translator = $translator;
         $this->locale = $locale;
 
-        parent::__construct('g11n.globalize');
+        parent::__construct('g11n.localize');
     }
 
     /**

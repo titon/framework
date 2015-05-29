@@ -48,35 +48,46 @@ namespace Titon\G11n {
  */
 
 namespace {
+    use Titon\Context\Depository;
+    use Titon\G11n\Translator;
 
     /**
-     * Convenience function for fetching a localized string.
-     * Uses a single combination key.
-     *
-     * @uses Titon\Common\Registry
-     *
-     * @param string $key
-     * @param array $params
-     * @return string
-     */
-    function msg($key, array $params = []) {
-        return G11n::registry()->translate($key, $params);
-    }
-
-    /**
-     * Convenience function for fetching a localized string.
-     * Uses separate values for key.
-     *
-     * @uses Titon\Common\Registry
+     * Helper function for fetching a localized string using separate key parts.
      *
      * @param string $id
      * @param string $catalog
      * @param string $domain
-     * @param array $params
+     * @param \Titon\G11n\ParamList $params
      * @return string
      */
-    function __($id, $catalog = 'default', $domain = 'core', array $params = []) {
-        return G11n::registry()->translate(sprintf('%s.%s.%s', $domain, $catalog, $id), $params);
+    function __($id, $catalog = 'default', $domain = 'common', ParamList $params = Vector {}): string {
+        return msg(sprintf('%s.%s.%s', $domain, $catalog, $id), $params);
+    }
+
+    /**
+     * Helper function for fetching a localized string using a single combination key.
+     *
+     * @uses Titon\Common\Registry
+     *
+     * @param string $key
+     * @param \Titon\G11n\ParamList $params
+     * @return string
+     */
+    function msg(string $key, ParamList $params = Vector {}): string {
+        return translator()->translate($key, $params);
+    }
+
+    /**
+     * Make and return a Translator instance from the depository.
+     *
+     * @return \Titon\G11n\Translator
+     */
+    function translator(): Translator {
+        $translator = Depository::getInstance()->make('Titon\G11n\Translator');
+
+        invariant($translator instanceof Translator, 'Must be a Translator.');
+
+        return $translator;
     }
 
 }

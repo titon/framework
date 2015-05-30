@@ -293,45 +293,29 @@ class Translator implements Subject {
      */
     public function localize(string $code): Locale {
         $newLocale = $this->getLocale(Locale::canonicalize($code));
-        $locales = [$newLocale];
-        $options = [];
-
-        // Inherit from fallback if different than the new locale
-        if ($this->getFallback()?->getCode() != $newLocale->getCode()) {
-            $locales[] = $this->getFallback();
-        }
-
-        // Generate a list of possible system locale names to set
-        foreach ($locales as $locale) {
-            $meta = $locale->getMetadata();
-
-            $options[] = $meta->getCode() . '.UTF8';
-            $options[] = $meta->getCode() . '.UTF-8';
-            $options[] = $meta->getCode();
-
-            foreach ($meta->getISO3Codes() as $iso3) {
-                $options[] = $iso3 . '.UTF8';
-                $options[] = $iso3 . '.UTF-8';
-                $options[] = $iso3;
-            }
-
-            if ($iso2 = $meta->getISO2Code()) {
-                $options[] = $iso2 . '.UTF8';
-                $options[] = $iso2 . '.UTF-8';
-                $options[] = $iso2;
-            }
-        }
 
         // Emit change event
         $event = new LocalizeEvent($this, $newLocale);
         $this->emit($event);
-        $newLocale = $event->getLocale();
 
-        // Set system locale
+        // The locale may have changed from the event
+        $newLocale = $event->getLocale();
         $code = $newLocale->getCode();
 
+        // Inherit from fallback if different than the new locale
+        $locales = [$newLocale, $this->getFallback()];
+        $option = '';
+
+        // Find the correct locale from the system
+        foreach ($locales as $locale) {
+            if (!$option && ($systemOption = shell_exec('locale -a | grep -i ' . $locale->getCode()))) {
+                $option = $systemOption;
+            }
+        }
+
+        // Set system locale
         putenv('LC_ALL=' . $code);
-        setlocale(LC_ALL, $options);
+        setlocale(LC_ALL, $option ?: $code);
 
         SystemLocale::setDefault($code);
 

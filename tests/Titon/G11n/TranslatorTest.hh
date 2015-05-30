@@ -252,8 +252,4 @@ class TranslatorTest extends TestCase {
         $this->assertEquals('en', Config::get('titon.locale.fallback'));
     }
 
-    public function testTranslate(): void {
-        $this->markTestIncomplete('skip');
-    }
-
 }

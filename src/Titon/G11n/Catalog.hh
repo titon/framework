@@ -66,6 +66,7 @@ class Catalog {
      *
      * @param string $key
      * @return string
+     * @throws \Titon\G11n\Exception\MissingMessageException
      */
     public function getMessage(string $key): string {
         if ($this->messages->contains($key)) {

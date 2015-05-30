@@ -7,13 +7,13 @@
 
 namespace Titon\G11n;
 
+use Titon\Cache\Item;
 use Titon\Cache\Storage;
 use Titon\Io\Reader;
-use \Locale as SystemLocale;
 use \MessageFormatter;
 
 /**
- * TODO
+ * The `MessageLoader` handles the loading and translating of messages found within catalogs.
  *
  * @package Titon\G11n
  */
@@ -24,7 +24,7 @@ class MessageLoader {
      *
      * @var \Titon\G11n\CatalogMap
      */
-    protected CatalogMap $catalogs;
+    protected CatalogMap $catalogs = Map {};
 
     /**
      * File reader used for parsing.
@@ -86,14 +86,18 @@ class MessageLoader {
     }
 
     /**
-     * TODO
+     * Load and generates a catalog of messages based on the defined domain and catalog.
+     * The method will attempt to loop through the list of cascading locales,
+     * loading and merging messages from each catalog resource file.
      *
      * @param string $domain
      * @param string $catalog
+     * @param mixed $ttl
      * @return \Titon\G11n\Catalog
      */
-    public function loadCatalog(string $domain, string $catalog): Catalog {
-        $cacheKey = sprintf('g11n.%s.%s', $domain, $catalog);
+    public function loadCatalog(string $domain, string $catalog, mixed $ttl = null): Catalog {
+        $translator = $this->getTranslator();
+        $cacheKey = sprintf('intl.catalog.%s.%s.%s', $domain, $catalog, $translator->current()->getCode());
 
         // Return the catalog if it has been loaded
         if ($this->catalogs->contains($cacheKey)) {
@@ -101,18 +105,24 @@ class MessageLoader {
         }
 
         $storage = $this->getStorage();
+        $messages = Map {};
 
         // Check within the cache first
         if ($storage && $storage->has($cacheKey)) {
-            $messages = $storage->get($cacheKey);
+            $item = $storage->getItem($cacheKey);
+
+            if ($item->isHit()) {
+                $messages = $item->get();
+            }
+        }
 
         // Cycle through each locale and load messages from each catalog
-        } else {
-            $translator = $this->getTranslator();
-            $messages = Map {};
+        if (!$messages) {
+            $locales = $translator->cascade()->toVector();
+            $locales->reverse(); // Reverse order so that parents are loaded first
 
-            foreach ($translator->cascade() as $locale) {
-                $bundle = $translator->getLocale($locale)->getResourceBundle();
+            foreach ($locales as $locale) {
+                $bundle = $translator->getLocale($locale)->getMessageBundle();
                 $bundle->addReader($this->getReader());
 
                 $bundleMessages = $bundle->loadResource($domain, $catalog);
@@ -124,8 +134,8 @@ class MessageLoader {
             }
 
             // Cache the messages
-            if ($messages && $storage) {
-                $storage->set($cacheKey, $messages);
+            if ($storage && $messages) {
+                $storage->save(new Item($cacheKey, $messages, $ttl));
             }
         }
 
@@ -171,19 +181,20 @@ class MessageLoader {
     }
 
     /**
-     * TODO
+     * Load a message from the defined domain catalog and interpolate parameters using the
+     * built-in `MessageFormatter`.
      *
      * @param string $key
      * @param \Titon\G11n\ParamList $params
      * @return string
      */
     public function translate(string $key, ParamList $params = Vector {}): string {
-        list($domain, $catalog, $id) = Catalog::parseKey($key);
+        list($domain, $catalog, $id) = array_values(Catalog::parseKey($key));
 
         return (string) MessageFormatter::formatMessage(
-            SystemLocale::DEFAULT_LOCALE,
+            $this->getTranslator()->current()->getCode(),
             $this->loadCatalog($domain, $catalog)->getMessage($id),
-            $params);
+            $params->toArray());
     }
 
 }

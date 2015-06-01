@@ -11,6 +11,7 @@ use Titon\Event\Event;
 use Titon\Event\Listener;
 use Titon\Event\ListenerMap;
 use Titon\Route\Event\MatchingEvent;
+use Titon\Route\LocaleRoute;
 use Titon\Route\UrlBuilder;
 
 /**
@@ -65,12 +66,28 @@ class RouteResolver implements Listener {
     }
 
     /**
-     * Register events.
+     * Resolve the current URL against the `Router`s matching event.
      *
-     * @return \Titon\Event\ListenerMap
+     * @param \Titon\Event\Event $event
      */
-    public function subscribeToEvents(): ListenerMap;
-        return Map {'route.matching' => 'resolve'};
+    public function onResolve(Event $event): void {
+        if (!$this->getTranslator()->isEnabled()) {
+            return;
+        }
+
+        invariant($event instanceof MatchingEvent, 'Must be a MatchingEvent.');
+
+        $this->resolve($event->getUrl());
+    }
+
+    /**
+     * Perform a redirect.
+     *
+     * @param string $redirectTo
+     */
+    public function redirect(string $redirectTo): void {
+        header('Location: ' . $redirectTo);
+        exit();
     }
 
     /**
@@ -78,36 +95,41 @@ class RouteResolver implements Listener {
      * If the locale exists, verify it. If either of these fail, redirect with the fallback locale.
      * This event must be bound to the router to work.
      *
-     * @param \Titon\Event\Event $event
+     * @param string $url
      */
-    public function resolve(Event $event) {
-        invariant($event instanceof MatchingEvent, 'Must be a MatchingEvent.');
-
+    public function resolve(string $url): void {
         $translator = $this->getTranslator();
-
-        if (PHP_SAPI === 'cli' || !$translator->isEnabled()) {
-            return;
-        }
-
-        $url = $event->getUrl();
         $redirectTo = $this->getUrlBuilder()->getBase() . $translator->getFallback()->getCode();
         $locales = $translator->getLocales();
         $matches = [];
 
         // Path doesn't start with a locale
-        if (!preg_match('/^\/' . LocaleRoute::LOCALE . '/', $url, $matches)) {
+        if (!preg_match('/^\/([a-z]{2}(?:-[a-z]{2})?)\/(.*?)$/', $url, $matches)) {
+            $possibleLocale = trim($url, '/');
+            $canonicalLocale = Locale::canonicalize($possibleLocale);
 
-            // Check for locales that don't pass because of no ending slash
-            if (!$locales->contains(trim($url, '/'))) {
-                header('Location: ' . $redirectTo . $url);
-                exit();
+            // URL is in locale format but is not a supported locale
+            if (preg_match('/^' . LocaleRoute::LOCALE . '$/', $possibleLocale) && !$locales->contains($canonicalLocale)) {
+                $this->redirect($redirectTo);
+
+            // If not in locale format, persist the path
+            } else if (!$locales->contains($canonicalLocale)) {
+                $this->redirect($redirectTo . $url);
             }
 
-        // Or if that locale is not supported
-        } else if (!$locales->contains($locales[$matches[1]])) {
-            header('Location: ' . $redirectTo . $matches[2]);
-            exit();
+        // Path does start with a locale but the locale is not supported
+        } else if (!$locales->contains(Locale::canonicalize($matches[1]))) {
+            $this->redirect($redirectTo . '/' . $matches[2]);
         }
+    }
+
+    /**
+     * Register events.
+     *
+     * @return \Titon\Event\ListenerMap
+     */
+    public function subscribeToEvents(): ListenerMap {
+        return Map {'route.matching' => 'resolve'};
     }
 
 }

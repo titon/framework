@@ -303,11 +303,10 @@ class Translator implements Subject {
         $code = $newLocale->getCode();
 
         // Inherit from fallback if different than the new locale
-        $locales = [$newLocale, $this->getFallback()];
         $option = '';
 
         // Find the correct locale from the system
-        foreach ($locales as $locale) {
+        foreach ([$newLocale, $this->getFallback()] as $locale) {
             if (!$option && ($systemOption = shell_exec('locale -a | grep -i ' . $locale->getCode()))) {
                 $option = $systemOption;
             }

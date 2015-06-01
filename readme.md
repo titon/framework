@@ -22,7 +22,7 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 
 ## Requirements ##
 
-* [HHVM 3.4.0+](http://hhvm.com/)
+* [HHVM 3.6.0](http://hhvm.com/)
 * [Hack](http://hacklang.org/)
 * [Composer](http://getcomposer.org)
 
@@ -30,25 +30,24 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 
 Upcoming features and release plan.
 
-* April
+* June
     * [G11N package](https://github.com/titon/g11n) - Internationalization and localization [IN PROGRESS]
     * [MVC package](https://github.com/titon/mvc) - Model-view-controller application [DELAYED UNTIL PSR-7]
-    * CommandBus package - Command bus layer
-* May - June
-    * [DB package](https://github.com/titon/db) - Database abstraction layer
 * July
-    * [Model package](https://github.com/titon/model) - Object relational mapper and active record for DB entities
+    * [DB package](https://github.com/titon/db) - Database abstraction layer
     * Beta release
 * August
-    * Session package - Custom session handler
+    * [Model package](https://github.com/titon/model) - Object relational mapper and active record for DB entities
 * September
-    * Queue package - Queue, job, and worker services
+    * CommandBus package - Command bus layer
 * October
-    * Mail package - Emailing layer
+    * Queue package - Queue, job, and worker services
+    * Session package - Custom session handler
 * November
-    * Auth package - Authentication and authorization
+    * Mail package - Emailing layer
 * December
     * ACL package - Access control lists
+    * Auth package - Authentication and authorization
 * January
     * ADR package - Action-domain-responder application
     * 0.1.0 release
@@ -62,7 +61,7 @@ Documentation is currently in the works, but in the mean time, check out the fol
 
 ## Contributing ##
 
-Titon is accepting any knowledgable PHP developers looking to get their feet wet in Hack. Chat with us over in [#titon](http://webchat.freenode.net/?channels=titon) for more information.
+Titon is accepting any knowledgeable PHP developers looking to get their feet wet in Hack. Chat with us over in [#titon](http://webchat.freenode.net/?channels=titon) for more information.
 
 ## Testing ##
 

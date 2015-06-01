@@ -20,7 +20,7 @@
         "source": "https://github.com/titon/context"
     },
     "require": {
-        "hhvm": ">=3.4.0"
+        "hhvm": ">=3.6.0"
     },
     "autoload": {
         "psr-4": {

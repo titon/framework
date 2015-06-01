@@ -22,7 +22,7 @@
         "source": "https://github.com/titon/framework"
     },
     "require": {
-        "hhvm": ">=3.4.0",
+        "hhvm": ">=3.6.0",
         "ext-mcrypt": "*",
         "ext-mbstring": "*",
         "ext-fileinfo": "*",

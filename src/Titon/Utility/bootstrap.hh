@@ -40,7 +40,6 @@ namespace {
     use Titon\Utility\State\Files;
     use Titon\Utility\State\Get;
     use Titon\Utility\State\Post;
-    use Titon\Utility\State\Request;
     use Titon\Utility\State\Server;
     use Titon\Utility\State\Session;
 
@@ -49,7 +48,6 @@ namespace {
     Files::initialize($_FILES);
     Get::initialize($_GET);
     Post::initialize($_POST);
-    Request::initialize($_REQUEST);
     Server::initialize($_SERVER);
     Session::initialize($_SESSION);
 }

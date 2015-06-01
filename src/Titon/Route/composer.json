@@ -30,7 +30,7 @@
             "Titon\\Route\\": ""
         },
         "files": [
-            "src/Titon/Route/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

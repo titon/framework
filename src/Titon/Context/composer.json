@@ -27,7 +27,7 @@
             "Titon\\Context\\": ""
         },
         "files": [
-            "src/Titon/Context/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

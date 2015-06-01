@@ -32,7 +32,7 @@
             "Titon\\Cache\\": ""
         },
         "files": [
-            "src/Titon/Cache/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

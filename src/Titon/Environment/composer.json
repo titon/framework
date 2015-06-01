@@ -26,7 +26,7 @@
             "Titon\\Environment\\": ""
         },
         "files": [
-            "src/Titon/Environment/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

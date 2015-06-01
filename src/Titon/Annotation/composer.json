@@ -23,7 +23,7 @@
             "Titon\\Annotation\\": ""
         },
         "files": [
-            "src/Titon/Annotation/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

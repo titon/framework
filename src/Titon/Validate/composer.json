@@ -24,7 +24,7 @@
             "Titon\\Validate\\": ""
         },
         "files": [
-            "src/Titon/Validate/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

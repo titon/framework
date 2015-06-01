@@ -30,7 +30,7 @@
             "Titon\\View\\": ""
         },
         "files": [
-            "src/Titon/View/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

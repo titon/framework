@@ -30,7 +30,7 @@
             "Titon\\Http\\": ""
         },
         "files": [
-            "src/Titon/Http/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

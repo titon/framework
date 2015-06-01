@@ -24,7 +24,7 @@
             "Titon\\Common\\": ""
         },
         "files": [
-            "src/Titon/Common/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

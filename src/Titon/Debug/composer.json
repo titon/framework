@@ -29,7 +29,7 @@
             "Titon\\Debug\\": ""
         },
         "files": [
-            "src/Titon/Debug/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

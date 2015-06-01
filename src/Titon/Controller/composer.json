@@ -30,7 +30,7 @@
             "Titon\\Controller\\": ""
         },
         "files": [
-            "src/Titon/Controller/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

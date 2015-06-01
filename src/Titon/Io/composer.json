@@ -29,7 +29,7 @@
             "Titon\\Io\\": ""
         },
         "files": [
-            "src/Titon/Io/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

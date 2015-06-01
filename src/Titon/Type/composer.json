@@ -29,7 +29,7 @@
             "Titon\\Type\\": ""
         },
         "files": [
-            "src/Titon/Type/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

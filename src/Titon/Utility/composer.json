@@ -33,7 +33,7 @@
             "Titon\\Utility\\": ""
         },
         "files": [
-            "src/Titon/Utility/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

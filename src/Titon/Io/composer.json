@@ -16,7 +16,7 @@
         "source": "https://github.com/titon/io"
     },
     "require": {
-        "hhvm": ">=3.4.0",
+        "hhvm": ">=3.6.0",
         "ext-mbstring": "*",
         "ext-fileinfo": "*",
         "titon/utility": "*"
@@ -29,7 +29,7 @@
             "Titon\\Io\\": ""
         },
         "files": [
-            "src/Titon/Io/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

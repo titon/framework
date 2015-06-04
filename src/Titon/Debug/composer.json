@@ -16,7 +16,7 @@
         "source": "https://github.com/titon/debug"
     },
     "require": {
-        "hhvm": ">=3.4.0",
+        "hhvm": ">=3.6.0",
         "titon/utility": "*",
         "psr/log": "~1.0.0"
     },
@@ -29,7 +29,7 @@
             "Titon\\Debug\\": ""
         },
         "files": [
-            "src/Titon/Debug/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

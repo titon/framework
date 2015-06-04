@@ -16,7 +16,7 @@
         "source": "https://github.com/titon/env"
     },
     "require": {
-        "hhvm": ">=3.4.0"
+        "hhvm": ">=3.6.0"
     },
     "suggest": {
         "titon/context": "Utilize global environment functions using the Context package"
@@ -26,7 +26,7 @@
             "Titon\\Environment\\": ""
         },
         "files": [
-            "src/Titon/Environment/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

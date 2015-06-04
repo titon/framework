@@ -16,7 +16,7 @@
         "source": "https://github.com/titon/route"
     },
     "require": {
-        "hhvm": ">=3.4.0",
+        "hhvm": ">=3.6.0",
         "titon/event": "*",
         "titon/utility": "*"
     },
@@ -30,7 +30,7 @@
             "Titon\\Route\\": ""
         },
         "files": [
-            "src/Titon/Route/bootstrap.hh"
+            "bootstrap.hh"
         ]
     }
 }

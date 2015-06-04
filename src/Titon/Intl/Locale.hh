@@ -107,6 +107,66 @@ class Locale {
     }
 
     /**
+     * Add a locale lookup path.
+     *
+     * @param string $path
+     * @return $this
+     */
+    public function addLocalePath(string $path): this {
+        $this->getLocaleBundle()->addPath('common', $path . '/' . $this->getCode());
+
+        // Pass it to the parent also
+        $this->getParentLocale()?->addLocalePath($path);
+
+        return $this;
+    }
+
+    /**
+     * Add multiple locale lookup paths.
+     *
+     * @param \Titon\Io\PathList $paths
+     * @return $this
+     */
+    public function addLocalePaths(PathList $paths): this {
+        foreach ($paths as $path) {
+            $this->addLocalePath($path);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a message lookup path.
+     *
+     * @param string $domain
+     * @param string $path
+     * @return $this
+     */
+    public function addMessagePath(string $domain, string $path): this {
+        $this->getMessageBundle()->addPath($domain, $path . '/' . $this->getCode());
+
+        // Pass it to the parent also
+        $this->getParentLocale()?->addMessagePath($domain, $path);
+
+        return $this;
+    }
+
+    /**
+     * Add multiple message lookup paths.
+     *
+     * @param string $domain
+     * @param \Titon\Io\PathList $paths
+     * @return $this
+     */
+    public function addMessagePaths(string $domain, PathList $paths): this {
+        foreach ($paths as $path) {
+            $this->addMessagePath($domain, $path);
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a resource lookup path for locales and messages.
      *
      * @param string $domain
@@ -115,18 +175,9 @@ class Locale {
      */
     public function addResourcePath(string $domain, string $path): this {
         $path = rtrim($path, '/');
-        $code = $this->getCode();
 
-        // Locales don't need domains
-        $this->getLocaleBundle()
-            ->addPath('common', sprintf('%s/locales/%s', $path, $code));
-
-        // But messages do
-        $this->getMessageBundle()
-            ->addPath($domain, sprintf('%s/messages/%s', $path, $code));
-
-        // Pass it to the parent also
-        $this->getParentLocale()?->addResourcePath($domain, $path);
+        $this->addLocalePath(sprintf('%s/locales', $path));
+        $this->addMessagePath($domain, sprintf('%s/messages', $path));
 
         return $this;
     }

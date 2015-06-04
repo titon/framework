@@ -64,11 +64,18 @@ class Translator implements Subject {
     protected LocaleMap $locales = Map {};
 
     /**
-     * Resource lookup paths.
+     * Locale lookup paths.
      *
      * @var \Titon\Io\PathList
      */
-    protected DomainPathMap $paths = Map {};
+    protected PathList $localePaths = Set {};
+
+    /**
+     * Message lookup paths.
+     *
+     * @var \Titon\Io\DomainPathMap
+     */
+    protected DomainPathMap $messagePaths = Map {};
 
     /**
      * Store the message loader.
@@ -93,8 +100,10 @@ class Translator implements Subject {
         }
 
         // Inherit resource paths
-        foreach ($this->getResourcePaths() as $domain => $paths) {
-            $locale->addResourcePaths($domain, $paths);
+        $locale->addLocalePaths($this->getLocalePaths());
+
+        foreach ($this->getMessagePaths() as $domain => $paths) {
+            $locale->addMessagePaths($domain, $paths);
         }
 
         // Set the locale
@@ -114,18 +123,46 @@ class Translator implements Subject {
     }
 
     /**
-     * Add multiple resource lookup paths to pass along to all locales.
+     * Add multiple locale lookup paths.
+     *
+     * @param string $domain
+     * @param \Titon\Io\PathList $paths
+     * @return $this
+     */
+    public function addLocalePaths(PathList $paths): this {
+        $this->localePaths->addAll($paths);
+
+        return $this;
+    }
+
+    /**
+     * Add multiple message lookup paths.
+     *
+     * @param string $domain
+     * @param \Titon\Io\PathList $paths
+     * @return $this
+     */
+    public function addMessagePaths(string $domain, PathList $paths): this {
+        if (!$this->messagePaths->contains($domain)) {
+            $this->messagePaths[$domain] = Set {};
+        }
+
+        $this->messagePaths[$domain]->addAll($paths);
+
+        return $this;
+    }
+
+    /**
+     * Add multiple resource lookup paths that will automatically set locale and message paths.
      *
      * @param string $domain
      * @param \Titon\Io\PathList $paths
      * @return $this
      */
     public function addResourcePaths(string $domain, PathList $paths): this {
-        if (!$this->paths->contains($domain)) {
-            $this->paths[$domain] = Set {};
-        }
+        $this->addLocalePaths($paths->map($path ==> sprintf('%s/locales', $path)));
 
-        $this->paths[$domain]->addAll($paths);
+        $this->addMessagePaths($domain, $paths->map($path ==> sprintf('%s/messages', $path)));
 
         return $this;
     }
@@ -242,6 +279,15 @@ class Translator implements Subject {
     }
 
     /**
+     * Return all locale paths.
+     *
+     * @return \Titon\Io\PathList
+     */
+    public function getLocalePaths(): PathList {
+        return $this->localePaths;
+    }
+
+    /**
      * Return the message loader.
      *
      * @return \Titon\Intl\MessageLoader
@@ -251,12 +297,12 @@ class Translator implements Subject {
     }
 
     /**
-     * Return all resource paths.
+     * Return all message paths.
      *
      * @return \Titon\Io\DomainPathMap
      */
-    public function getResourcePaths(): DomainPathMap {
-        return $this->paths;
+    public function getMessagePaths(): DomainPathMap {
+        return $this->messagePaths;
     }
 
     /**

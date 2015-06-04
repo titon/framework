@@ -34,7 +34,7 @@ class LocaleTest extends TestCase {
         $this->assertEquals('ex', $this->object->getParentLocale()->getCode());
     }
 
-    public function testAddResourcePath(): void {
+    public function testAddPath(): void {
         $this->object->addResourcePath('foo', __DIR__);
 
         $this->assertEquals(Map {
@@ -47,7 +47,7 @@ class LocaleTest extends TestCase {
         }, $this->object->getMessageBundle()->getPaths());
     }
 
-    public function testAddResourcePaths(): void {
+    public function testAddPaths(): void {
         $this->object->addResourcePaths('bar', Set {
             __DIR__,
             dirname(__DIR__)

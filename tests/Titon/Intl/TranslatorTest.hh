@@ -17,7 +17,7 @@ class TranslatorTest extends TestCase {
 
         $this->loader = new MessageLoader(new HackReader());
         $this->object = new Translator($this->loader);
-        $this->object->addResourcePaths('core', Set {SRC_DIR . '/Titon/Intl/'});
+        $this->object->addResourcePaths('common', Set {SRC_DIR . '/Titon/Intl/'});
     }
 
     public function testAddGetLocale(): void {
@@ -54,12 +54,12 @@ class TranslatorTest extends TestCase {
         $this->object->addLocale($locale);
 
         $this->assertEquals(Map {
-            'core' => Set {'/foo/locales/en/', SRC_DIR . '/Titon/Intl/locales/en/'}
+            'common' => Set {'/foo/locales/en/', SRC_DIR . '/Titon/Intl/locales/en/'}
         }, $locale->getLocaleBundle()->getPaths());
 
         $this->assertEquals(Map {
             'foo' => Set {'/foo/messages/en/'},
-            'core' => Set {SRC_DIR . '/Titon/Intl/messages/en/'}
+            'common' => Set {SRC_DIR . '/Titon/Intl/messages/en/'}
         }, $locale->getMessageBundle()->getPaths());
     }
 
@@ -87,7 +87,7 @@ class TranslatorTest extends TestCase {
         $this->assertEquals(Map {
             'foo' => Set {'/foo', '/oof'},
             'bar' => Set {'/bar'},
-            'core' => Set {SRC_DIR . '/Titon/Intl/'}
+            'common' => Set {SRC_DIR . '/Titon/Intl/'}
         }, $this->object->getResourcePaths());
     }
 

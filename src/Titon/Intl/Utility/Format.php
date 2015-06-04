@@ -64,7 +64,7 @@ class Format extends \Titon\Utility\Format {
     public static function relativeTime($time, array $options = array()) {
         $g11n = G11n::registry();
         $msg = function($key) use ($g11n) {
-            return $g11n->translate('core.format.relativeTime.' . $key);
+            return $g11n->translate('common.format.relativeTime.' . $key);
         };
 
         // TODO Find a more optimized way to do this.

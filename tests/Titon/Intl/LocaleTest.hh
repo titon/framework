@@ -17,7 +17,7 @@ class LocaleTest extends TestCase {
         parent::setUp();
 
         $this->object = new Locale('ex_CH');
-        $this->object->addResourcePath('core', TEMP_DIR . '/intl/');
+        $this->object->addResourcePath('common', TEMP_DIR . '/intl/');
     }
 
     public function testCodeIsCanonicalized(): void {
@@ -34,29 +34,15 @@ class LocaleTest extends TestCase {
         $this->assertEquals('ex', $this->object->getParentLocale()->getCode());
     }
 
-    public function testPathsAreInherited(): void {
-        Config::add('titon.paths.resources', __DIR__);
-
-        $locale = new Locale('ex_CH');
-
-        $this->assertEquals(Map {
-            'core' => Set { __DIR__ . '/locales/ex_CH/' }
-        }, $locale->getLocaleBundle()->getPaths());
-
-        $this->assertEquals(Map {
-            'core' => Set { __DIR__ . '/messages/ex_CH/' }
-        }, $locale->getMessageBundle()->getPaths());
-    }
-
     public function testAddResourcePath(): void {
         $this->object->addResourcePath('foo', __DIR__);
 
         $this->assertEquals(Map {
-            'core' => Set { TEMP_DIR . '/intl/locales/ex_CH/', __DIR__ . '/locales/ex_CH/' }
+            'common' => Set { TEMP_DIR . '/intl/locales/ex_CH/', __DIR__ . '/locales/ex_CH/' }
         }, $this->object->getLocaleBundle()->getPaths());
 
         $this->assertEquals(Map {
-            'core' => Set { TEMP_DIR . '/intl/messages/ex_CH/' },
+            'common' => Set { TEMP_DIR . '/intl/messages/ex_CH/' },
             'foo' => Set { __DIR__ . '/messages/ex_CH/' }
         }, $this->object->getMessageBundle()->getPaths());
     }
@@ -68,7 +54,7 @@ class LocaleTest extends TestCase {
         });
 
         $this->assertEquals(Map {
-            'core' => Set {
+            'common' => Set {
                 TEMP_DIR . '/intl/locales/ex_CH/',
                 __DIR__ . '/locales/ex_CH/',
                 dirname(__DIR__) . '/locales/ex_CH/'
@@ -76,7 +62,7 @@ class LocaleTest extends TestCase {
         }, $this->object->getLocaleBundle()->getPaths());
 
         $this->assertEquals(Map {
-            'core' => Set { TEMP_DIR . '/intl/messages/ex_CH/' },
+            'common' => Set { TEMP_DIR . '/intl/messages/ex_CH/' },
             'bar' => Set { __DIR__ . '/messages/ex_CH/', dirname(__DIR__) . '/messages/ex_CH/' }
         }, $this->object->getMessageBundle()->getPaths());
     }

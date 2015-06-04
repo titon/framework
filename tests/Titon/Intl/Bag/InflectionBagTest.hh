@@ -13,7 +13,7 @@ class InflectionBagTest extends TestCase {
         parent::setUp();
 
         $locale = new Locale('en');
-        $locale->addResourcePath('core', SRC_DIR . '/Titon/Intl/');
+        $locale->addResourcePath('common', SRC_DIR . '/Titon/Intl/');
 
         $this->object = $locale->getInflectionRules();
     }

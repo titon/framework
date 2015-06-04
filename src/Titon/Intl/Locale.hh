@@ -104,11 +104,6 @@ class Locale {
         if (($pos = strpos($code, '_')) !== false) {
             $this->parent = LocaleRegistry::factory(substr($code, 0, $pos));
         }
-
-        // Automatically add resource paths
-        if ($paths = Config::get('titon.paths.resources')) {
-            $this->addResourcePaths('core', Col::toSet($paths));
-        }
     }
 
     /**
@@ -124,7 +119,7 @@ class Locale {
 
         // Locales don't need domains
         $this->getLocaleBundle()
-            ->addPath('core', sprintf('%s/locales/%s', $path, $code));
+            ->addPath('common', sprintf('%s/locales/%s', $path, $code));
 
         // But messages do
         $this->getMessageBundle()
@@ -225,7 +220,7 @@ class Locale {
             return $this->formatBag;
         }
 
-        $bag = $this->getLocaleBundle()->loadResource('core', 'formats');
+        $bag = $this->getLocaleBundle()->loadResource('common', 'formats');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getFormatPatterns()->all(), $bag);
@@ -244,7 +239,7 @@ class Locale {
             return $this->inflectionBag;
         }
 
-        $bag = $this->getLocaleBundle()->loadResource('core', 'inflections');
+        $bag = $this->getLocaleBundle()->loadResource('common', 'inflections');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getInflectionRules()->all(), $bag);
@@ -281,7 +276,7 @@ class Locale {
             return $this->metaBag;
         }
 
-        $bag = $this->getLocaleBundle()->loadResource('core', 'locale');
+        $bag = $this->getLocaleBundle()->loadResource('common', 'locale');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getMetadata()->all(), $bag);
@@ -309,7 +304,7 @@ class Locale {
             return $this->validationBag;
         }
 
-        $bag = $this->getLocaleBundle()->loadResource('core', 'validations');
+        $bag = $this->getLocaleBundle()->loadResource('common', 'validations');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getValidationRules()->all(), $bag);

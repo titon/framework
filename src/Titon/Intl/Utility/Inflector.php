@@ -7,8 +7,6 @@
 
 namespace Titon\Intl\Utility;
 
-use Titon\Intl\Intl;
-
 /**
  * Enhance the parent Inflector class by providing localized inflection rule support.
  *
@@ -19,202 +17,146 @@ class Inflector extends \Titon\Utility\Inflector {
     /**
      * {@inheritdoc}
      */
-    public static function className($string) {
-        return static::cache([__METHOD__, $string], function() use ($string) {
-            return Inflector::camelCase(Inflector::singularize($string));
-        });
-    }
+    public static function ordinal(string $number): string {
+        $translator = translator();
 
-    /**
-     * {@inheritdoc}
-     *
-     * @uses Titon\Common\Registry
-     */
-    public static function ordinal($number) {
-        $g11n = G11n::registry();
-
-        if (!$g11n->isEnabled()) {
+        if (!$translator->isEnabled()) {
             return $number;
         }
 
-        return static::cache([__METHOD__, $number], function() use ($number, $g11n) {
-            $inflections = $g11n->current()->getInflectionRules();
-            $number = (int) $number;
+        $suffixes = $translator->current()?->getInflectionRules()?->getOrdinalSuffixes();
 
-            if (!$inflections || empty($inflections['ordinal'])) {
-                return $number;
-            }
-
-            $ordinal = $inflections['ordinal'];
-
-            // Teens 11-13
-            if (in_array(($number % 100), range(11, 13)) && isset($ordinal['default'])) {
-                return str_replace('#', $number, $ordinal['default']);
-            }
-
-            // First, second, third
-            $modNumber = $number % 10;
-
-            foreach ($ordinal as $i => $format) {
-                if (is_numeric($i) && $modNumber === $i) {
-                    return str_replace('#', $number, $ordinal[$i]);
-                }
-            }
-
-            // Fallback
-            if (isset($ordinal['default'])) {
-                return str_replace('#', $number, $ordinal['default']);
-            }
-
+        if ($suffixes === null) {
             return $number;
-        });
+        }
+
+        $number = (int) $number;
+
+        // 11-13
+        if (in_array(($number % 100), range(11, 13)) && $suffixes->contains(-1)) {
+            return str_replace('#', $number, $suffixes[-1]);
+        }
+
+        // 1, 2, 3
+        $modNumber = $number % 10;
+
+        foreach ($suffixes as $i => $format) {
+            if ($modNumber === $i) {
+                return str_replace('#', $number, $suffixes[$i]);
+            }
+        }
+
+        // Fallback
+        if ($suffixes->contains(-1)) {
+            return str_replace('#', $number, $suffixes[-1]);
+        }
+
+        return (string) $number;
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Common\Registry
      */
-    public static function pluralize($string) {
-        $g11n = G11n::registry();
+    public static function pluralize(string $string): string {
+        $translator = translator();
 
-        if (!$g11n->isEnabled()) {
+        if (!$translator->isEnabled()) {
             return $string;
         }
 
-        return static::cache([__METHOD__, $string], function() use ($string, $g11n) {
-            $string = mb_strtolower($string);
-            $result = null;
-            $inflections = $g11n->current()->getInflectionRules();
+        $rules = $translator->current()?->getInflectionRules();
 
-            if (!$inflections) {
-                return $string;
+        if ($rules === null) {
+            return $string;
+        }
 
-            } else if (!empty($inflections['uninflected']) && in_array($string, $inflections['uninflected'])) {
-                $result = $string;
+        $string = mb_strtolower($string);
+        $uninflected = $rules->getUninflectedWords();
+        $irregular = $rules->getIrregularWords();
+        $plurals = $rules->getPluralPatterns();
 
-            } else if (!empty($inflections['irregular']) && isset($inflections['irregular'][$string])) {
-                $result = $inflections['irregular'][$string];
+        if ($uninflected->contains($string)) {
+            return $string;
 
-            } else if (!empty($inflections['irregular']) && in_array($string, $inflections['irregular'])) {
-                $result = $string;
+        } else if ($irregular->contains($string)) {
+            return $irregular[$string];
 
-            } else if (!empty($inflections['plural'])) {
-                foreach ($inflections['plural'] as $pattern => $replacement) {
-                    if (preg_match($pattern, $string)) {
-                        $result = preg_replace($pattern, $replacement, $string);
-                        break;
-                    }
+        } else if ($irregular->toVector()->linearSearch($string) >= 0) {
+            return $string;
+
+        } else if ($plurals) {
+            foreach ($plurals as $pattern => $replacement) {
+                if (preg_match($pattern, $string)) {
+                    return preg_replace($pattern, $replacement, $string);
                 }
             }
+        }
 
-            if (empty($result)) {
-                $result = $string;
-            }
-
-            return $result;
-        });
+        return $string;
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Common\Registry
      */
-    public static function singularize($string) {
-        $g11n = G11n::registry();
+    public static function singularize(string $string): string {
+        $translator = translator();
 
-        if (!$g11n->isEnabled()) {
+        if (!$translator->isEnabled()) {
             return $string;
         }
 
-        return static::cache([__METHOD__, $string], function() use ($string, $g11n) {
-            $string = mb_strtolower($string);
-            $result = null;
-            $inflections = $g11n->current()->getInflectionRules();
+        $rules = $translator->current()?->getInflectionRules();
 
-            if (!$inflections) {
-                return $string;
+        if ($rules === null) {
+            return $string;
+        }
 
-            } else if (!empty($inflections['uninflected']) && in_array($string, $inflections['uninflected'])) {
-                $result = $string;
+        $string = mb_strtolower($string);
+        $uninflected = $rules->getUninflectedWords();
+        $irregular = $rules->getIrregularWords();
+        $singulars = $rules->getSingularPatterns();
 
-            } else if (!empty($inflections['irregular']) && in_array($string, $inflections['irregular'])) {
-                $result = array_search($string, $inflections['irregular']);
+        if ($uninflected->contains($string)) {
+            return $string;
 
-            } else if (!empty($inflections['irregular']) && isset($inflections['irregular'][$string])) {
-                $result = $string;
+        } else if ($irregular->contains($string)) {
+            return $irregular[$string];
 
-            } else if (!empty($inflections['singular'])) {
-                foreach ($inflections['singular'] as $pattern => $replacement) {
-                    if (preg_match($pattern, $string)) {
-                        $result = preg_replace($pattern, $replacement, $string);
-                        break;
-                    }
+        } else if ($irregular->toVector()->linearSearch($string) >= 0) {
+            return $string;
+
+        } else if ($singulars) {
+            foreach ($singulars as $pattern => $replacement) {
+                if (preg_match($pattern, $string)) {
+                    return preg_replace($pattern, $replacement, $string);
                 }
             }
+        }
 
-            if (empty($result)) {
-                $result = $string;
-            }
-
-            return $result;
-        });
+        return $string;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function slug($string) {
-        return static::cache([__METHOD__, $string], function() use ($string) {
-            // Revert entities
-            $string = html_entity_decode($string, ENT_QUOTES, 'UTF-8');
+    public static function transliterate(string $string): string {
+        $translator = translator();
 
-            // Remove non-ascii characters
-            $string = preg_replace('/[^-a-z0-9\.\s]+/i', '', Inflector::transliterate($string));
-
-            // Replace dashes and underscores
-            $string = str_replace(' ', '-', str_replace('-', '_', $string));
-
-            return mb_strtolower($string);
-        });
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName($string) {
-        return static::cache([__METHOD__, $string], function() use ($string) {
-            return lcfirst(Inflector::camelCase(Inflector::pluralize($string)));
-        });
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @uses Titon\Common\Registry
-     */
-    public static function transliterate($string) {
-        $g11n = G11n::registry();
-
-        if (!$g11n->isEnabled()) {
+        if (!$translator->isEnabled()) {
             return $string;
         }
 
-        return static::cache([__METHOD__, $string], function() use ($string, $g11n) {
-            $inflections = $g11n->current()->getInflectionRules();
+        $transliterations = $translator->current()?->getInflectionRules()?->getTransliterations();
 
-            if (!$inflections || empty($inflections['transliteration'])) {
-                return $string;
-            }
+        if ($transliterations === null) {
+            return $string;
+        }
 
-            // Replace with ASCII characters
-            $transliterations = $inflections['transliteration'];
-            $string = str_replace(array_keys($transliterations), array_values($transliterations), $string);
+        // Replace with ASCII characters
+        $string = str_replace($transliterations->keys(), $transliterations->values(), $string);
 
-            // Remove any left over non 7bit ASCII
-            return preg_replace('/[^\x09\x0A\x0D\x20-\x7E]/', '', $string);
-        });
+        // Remove any left over non 7bit ASCII
+        return preg_replace('/[^\x09\x0A\x0D\x20-\x7E]/', '', $string);
     }
 
 }

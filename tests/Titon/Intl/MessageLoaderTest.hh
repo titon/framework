@@ -93,7 +93,7 @@ class MessageLoaderTest extends TestCase {
         $this->translator->localize('ex_CH');
 
         $this->assertEquals('{0} health, {1} energy, {2} damage', $this->translator->translate('test.bar.format'));
-        $this->assertEquals('1337 health, 666 energy, 255 damage', $this->translator->translate('test.bar.format', Vector {1337, 666, 255}));
+        $this->assertEquals('1,337 health, 666 energy, 255 damage', $this->translator->translate('test.bar.format', Vector {1337, 666, 255}));
     }
 
     /**

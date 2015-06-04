@@ -32,7 +32,7 @@ class PhpWriter extends AbstractWriter {
         $data = Col::toArray($data);
 
         if (class_exists('Titon\Debug\Debugger')) {
-            $export = Debugger::export($data, true);
+            $export = Debugger::export($data);
         } else {
             $export = var_export($data, true);
         }

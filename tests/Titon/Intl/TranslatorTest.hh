@@ -71,13 +71,11 @@ class TranslatorTest extends TestCase {
     }
 
     public function testAddLocaleSetsFallbackIfNoneSet(): void {
-        $this->assertEquals(null, $this->object->getFallback());
-
         $locale = new Locale('en');
 
         $this->object->addLocale($locale);
 
-        $this->assertEquals($locale, $this->object->getFallback());
+        $this->assertSame($locale, $this->object->getFallback());
     }
 
     public function testAddGetPaths(): void {
@@ -156,8 +154,6 @@ class TranslatorTest extends TestCase {
     }
 
     public function testGetSetFallback(): void {
-        $this->assertEquals(null, $this->object->getFallback());
-
         $en = new Locale('en');
         $fr = new Locale('fr');
 

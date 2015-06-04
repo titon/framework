@@ -14,7 +14,7 @@ use Titon\Common\Bag\AbstractBag;
  *
  * @package Titon\Intl\Bag
  */
-class ValidationBag extends AbstractBag<string, string> {
+class ValidationBag extends AbstractBag<string, mixed> {
 
     /**
      * Return the currency rule.

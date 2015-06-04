@@ -49,6 +49,7 @@ namespace Titon\Intl {
 
 namespace {
     use Titon\Context\Depository;
+    use Titon\Intl\ParamList;
     use Titon\Intl\Translator;
 
     /**
@@ -60,7 +61,7 @@ namespace {
      * @param \Titon\Intl\ParamList $params
      * @return string
      */
-    function __($id, $catalog = 'default', $domain = 'common', ParamList $params = Vector {}): string {
+    function __(string $id, string $catalog = 'default', string $domain = 'common', ParamList $params = Vector {}): string {
         return msg(sprintf('%s.%s.%s', $domain, $catalog, $id), $params);
     }
 

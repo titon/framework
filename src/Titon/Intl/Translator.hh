@@ -83,7 +83,8 @@ class Translator implements Subject {
      * @param \Titon\Intl\MessageLoader $loader
      */
     public function __construct(MessageLoader $loader) {
-        $this->loader = $loader->setTranslator($this);
+        $this->loader = $loader;
+        $this->loader->setTranslator($this);
     }
 
     /**
@@ -207,8 +208,8 @@ class Translator implements Subject {
         }
 
         $current = null;
-        $cookieCode = Cookie::get('locale');
-        $acceptLang = Server::get('HTTP_ACCEPT_LANGUAGE');
+        $cookieCode = (string) Cookie::get('locale');
+        $acceptLang = (string) Server::get('HTTP_ACCEPT_LANGUAGE');
 
         $this->emit(new DetectingEvent($this));
 
@@ -238,9 +239,14 @@ class Translator implements Subject {
         }
 
         // Apply the locale
-        $this->localize($current);
+        $this->localize((string) $current);
 
-        $this->emit(new DetectedEvent($this, $this->current()));
+        // Emit an event
+        $newLocale = $this->current();
+
+        invariant($newLocale !== null, 'Locale must be detected.');
+
+        $this->emit(new DetectedEvent($this, $newLocale));
 
         return $this;
     }
@@ -250,7 +256,9 @@ class Translator implements Subject {
      *
      * @return \Titon\Intl\Locale
      */
-    public function getFallback(): ?Locale {
+    public function getFallback(): Locale {
+        invariant($this->fallback !== null, 'A fallback Locale must be set.');
+
         return $this->fallback;
     }
 

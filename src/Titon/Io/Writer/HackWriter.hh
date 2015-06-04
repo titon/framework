@@ -29,7 +29,7 @@ class HackWriter extends AbstractWriter {
      */
     public function writeResource(ResourceMap $data): bool {
         if (class_exists('Titon\Debug\Debugger')) {
-            $export = Debugger::export($data, true);
+            $export = Debugger::export($data);
         } else {
             $export = var_export($data, true);
         }

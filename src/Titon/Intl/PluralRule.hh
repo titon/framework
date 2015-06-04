@@ -117,6 +117,8 @@ class PluralRule {
                                 : (($number % 100 >= 11 && $number % 100 <= 99) ? 4
                                     : 5))));
         }
+
+        return 0;
     }
 
 }

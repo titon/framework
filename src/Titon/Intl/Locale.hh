@@ -14,7 +14,6 @@ use Titon\Intl\Bag\MetadataBag;
 use Titon\Intl\Bag\ValidationBag;
 use Titon\Io\PathList;
 use Titon\Utility\Col;
-use Titon\Utility\Config;
 use \Locale as SystemLocale;
 
 /**
@@ -72,7 +71,7 @@ class Locale {
      *
      * @var \Titon\Intl\Bag\MetadataBag
      */
-    protected ?MetaBag $metaBag;
+    protected ?MetadataBag $metaBag;
 
     /**
      * Parent locale.
@@ -248,7 +247,7 @@ class Locale {
      * @param string $locale
      * @return \Titon\Intl\LocaleTagMap
      */
-    public static function decompose($locale): LocaleTagMap {
+    public static function decompose(string $locale): LocaleTagMap {
         return new Map(SystemLocale::parseLocale($locale));
     }
 

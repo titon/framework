@@ -46,7 +46,7 @@ class MetadataBag extends AbstractBag<string, mixed> {
             return $codes;
         }
 
-        return new Vector([$codes]);
+        return new Vector([(string) $codes]);
     }
 
     /**

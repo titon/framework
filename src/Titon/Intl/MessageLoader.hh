@@ -9,6 +9,7 @@ namespace Titon\Intl;
 
 use Titon\Cache\Item;
 use Titon\Cache\Storage;
+use Titon\Intl\Exception\UndetectedLocaleException;
 use Titon\Io\Reader;
 use \MessageFormatter;
 
@@ -82,6 +83,8 @@ class MessageLoader {
      * @return \Titon\Intl\Translator
      */
     public function getTranslator(): Translator {
+        invariant($this->translator !== null, 'Translator must be defined.');
+
         return $this->translator;
     }
 
@@ -97,7 +100,12 @@ class MessageLoader {
      */
     public function loadCatalog(string $domain, string $catalog, mixed $ttl = null): Catalog {
         $translator = $this->getTranslator();
-        $cacheKey = sprintf('intl.catalog.%s.%s.%s', $domain, $catalog, $translator->current()->getCode());
+        $code = $translator->current()?->getCode();
+        $cacheKey = sprintf('intl.catalog.%s.%s.%s', $domain, $catalog, $code);
+
+        if ($code === null) {
+            throw new UndetectedLocaleException('No locale has been detected. Cannot load messages.');
+        }
 
         // Return the catalog if it has been loaded
         if ($this->catalogs->contains($cacheKey)) {
@@ -128,7 +136,7 @@ class MessageLoader {
                 $bundleMessages = $bundle->loadResource($domain, $catalog);
 
                 // Merge with the previous messages
-                if ($bundleMessages instanceof Map) {
+                if ($bundleMessages instanceof Map && $messages instanceof Map) {
                     $messages->setAll($bundleMessages);
                 }
             }
@@ -189,11 +197,11 @@ class MessageLoader {
      * @return string
      */
     public function translate(string $key, ParamList $params = Vector {}): string {
-        list($domain, $catalog, $id) = array_values(Catalog::parseKey($key));
+        $key = Catalog::parseKey($key);
 
         return (string) MessageFormatter::formatMessage(
-            $this->getTranslator()->current()->getCode(),
-            $this->loadCatalog($domain, $catalog)->getMessage($id),
+            (string) $this->getTranslator()->current()?->getCode(),
+            $this->loadCatalog($key['domain'], $key['catalog'])->getMessage($key['key']),
             $params->toArray());
     }
 

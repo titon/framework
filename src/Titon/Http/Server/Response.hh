@@ -265,7 +265,7 @@ class Response extends Message implements OutgoingResponse {
     }
 
     /**
-     * Set the Content-Language header. Attempt to use the locales set in G11n.
+     * Set the Content-Language header.
      *
      * @param string $locales
      * @return $this

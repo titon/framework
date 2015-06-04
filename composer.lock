@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f9e011acdfcb9f380fb0f3306178a923",
+    "hash": "335e772a5feaf54d00e639f727df8e35",
     "packages": [
         {
             "name": "psr/http-message",
@@ -198,16 +198,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "2.1.1",
+            "version": "2.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "60991776b3994cd8297b861e8ddc7f9c9500dedc"
+                "reference": "28a6b34e91d789b2608072ab3c82eaae7cdb973c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/60991776b3994cd8297b861e8ddc7f9c9500dedc",
-                "reference": "60991776b3994cd8297b861e8ddc7f9c9500dedc",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/28a6b34e91d789b2608072ab3c82eaae7cdb973c",
+                "reference": "28a6b34e91d789b2608072ab3c82eaae7cdb973c",
                 "shasum": ""
             },
             "require": {
@@ -256,7 +256,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-05-31 03:14:06"
+            "time": "2015-06-03 07:01:01"
         },
         {
             "name": "phpunit/php-file-iterator",

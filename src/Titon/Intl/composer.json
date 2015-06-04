@@ -1,0 +1,37 @@
+{
+    "name": "titon/intl",
+    "type": "library",
+    "description": "The Intl package provides tools for the localization and internationalization of an application.",
+    "keywords": ["titon", "intl", "g11n", "globalization", "l10n", "localization", "i18n", "internationalization", "locale", "translate", "message", "resource", "bundle"],
+    "homepage": "http://titon.io",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "support": {
+        "irc": "irc://irc.freenode.org/titon",
+        "source": "https://github.com/titon/intl"
+    },
+    "require": {
+        "hhvm": ">=3.6.0",
+        "ext-mbstring": "*",
+        "ext-intl": "*",
+        "titon/common": "*",
+        "titon/event": "*",
+        "titon/io": "*"
+    },
+    "suggest": {
+        "titon/cache": "Cache message and locale lookups using the Cache package"
+    },
+    "autoload": {
+        "psr-4": {
+            "Titon\\Intl\\": ""
+        },
+        "files": [
+            "src/Titon/Intl/bootstrap.hh"
+        ]
+    }
+}

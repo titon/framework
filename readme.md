@@ -31,7 +31,7 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 Upcoming features and release plan.
 
 * June
-    * [G11N package](https://github.com/titon/g11n) - Internationalization and localization [IN PROGRESS]
+    * [Intl package](https://github.com/titon/g11n) - Internationalization and localization [IN PROGRESS]
     * [MVC package](https://github.com/titon/mvc) - Model-view-controller application [DELAYED UNTIL PSR-7]
 * July
     * [DB package](https://github.com/titon/db) - Database abstraction layer

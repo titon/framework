@@ -22,27 +22,35 @@ class Format extends \Titon\Utility\Format {
     /**
      * {@inheritdoc}
      */
-    public static function date(mixed $time, string $format = '%Y-%m-%d'): string {
+    public static function date(mixed $time, string $format = ''): string {
         $patterns = static::loadFormatPatterns();
 
         if ($patterns !== null) {
-            $format = $patterns->getDate() ?: $format;
+            $format = $patterns->getDate();
         }
 
-        return parent::date($time, $format);
+        if ($format) {
+            return parent::date($time, $format);
+        }
+
+        return parent::date($time);
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function datetime(mixed $time, string $format = '%Y-%m-%d %H:%M:%S'): string {
+    public static function datetime(mixed $time, string $format = ''): string {
         $patterns = static::loadFormatPatterns();
 
         if ($patterns !== null) {
-            $format = $patterns->getDatetime() ?: $format;
+            $format = $patterns->getDatetime();
         }
 
-        return parent::datetime($time, $format);
+        if ($format) {
+            return parent::datetime($time, $format);
+        }
+
+        return parent::datetime($time);
     }
 
     /**
@@ -136,11 +144,11 @@ class Format extends \Titon\Utility\Format {
     /**
      * {@inheritdoc}
      */
-    public static function ssn(string $value, string $format = '###-##-####'): string {
+    public static function ssn(string $value, string $format = ''): string {
         $patterns = static::loadFormatPatterns();
 
         if ($patterns !== null) {
-            $format = $patterns->getSSN() ?: $format;
+            $format = $patterns->getSSN();
         }
 
         return parent::ssn($value, $format);
@@ -149,14 +157,18 @@ class Format extends \Titon\Utility\Format {
     /**
      * {@inheritdoc}
      */
-    public static function time(mixed $time, string $format = '%H:%M:%S'): string {
+    public static function time(mixed $time, string $format = ''): string {
         $patterns = static::loadFormatPatterns();
 
         if ($patterns !== null) {
-            $format = $patterns->getTime() ?: $format;
+            $format = $patterns->getTime();
         }
 
-        return parent::time($time, $format);
+        if ($format) {
+            return parent::time($time, $format);
+        }
+
+        return parent::time($time);
     }
 
 }

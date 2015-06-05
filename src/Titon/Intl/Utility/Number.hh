@@ -7,11 +7,11 @@
 
 namespace Titon\Intl\Utility;
 
-use Titon\Common\Registry;
-use Titon\Intl\Intl;
+use Titon\Utility\Col;
+use Titon\Utility\OptionMap;
 
 /**
- * Enhance the parent Number class by providing localized currency and number rule support.
+ * Enhances the parent `Number` class by providing localized currency and number rule support.
  *
  * @package Titon\Intl\Utility
  */
@@ -19,18 +19,12 @@ class Number extends \Titon\Utility\Number {
 
     /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Common\Registry
      */
-    public static function currency($number, array $options = []) {
-        $g11n = G11n::registry();
+    public static function currency(num $number, OptionMap $options = Map {}): string {
+        $patterns = Format::loadFormatPatterns();
 
-        if ($g11n->isEnabled()) {
-            $options = array_merge(
-                $g11n->current()->getFormatPatterns('number'),
-                $g11n->current()->getFormatPatterns('currency'),
-                $options
-            );
+        if ($patterns !== null) {
+            $options = Col::merge($patterns->getNumber(), $patterns->getCurrency(), $options);
         }
 
         return parent::currency($number, $options);
@@ -38,21 +32,12 @@ class Number extends \Titon\Utility\Number {
 
     /**
      * {@inheritdoc}
-     *
-     * @uses Titon\Common\Registry
      */
-    public static function percentage($number, $options = []) {
-        if (is_numeric($options)) {
-            $options = ['places' => $options];
-        }
+    public static function percentage(num $number, OptionMap $options = Map {}): string {
+        $patterns = Format::loadFormatPatterns();
 
-        $g11n = G11n::registry();
-
-        if ($g11n->isEnabled()) {
-            $options = array_merge(
-                $g11n->current()->getFormatPatterns('number'),
-                $options
-            );
+        if ($patterns !== null) {
+            $options = Col::merge($patterns->getNumber(), $options);
         }
 
         return parent::percentage($number, $options);

@@ -10,6 +10,7 @@ namespace Titon\Intl\Utility;
 use Titon\Common\Registry;
 use Titon\Intl\Intl;
 use Titon\Intl\Exception\MissingPatternException;
+use Titon\Intl\Bag\FormatBag;
 
 /**
  * Enhance the parent Format class by providing localized formatting rule support.
@@ -47,6 +48,22 @@ class Format extends \Titon\Utility\Format {
         }
 
         return $pattern;
+    }
+
+    /**
+     * Load and return a `FormatBag` from the currently detected locale.
+     * If no locale is found, or the translator is not enabled, return null.
+     *
+     * @return \Titon\Intl\Bag\FormatBag
+     */
+    public static function loadFormatPatterns(): ?FormatBag {
+        $translator = translator();
+
+        if (!$translator->isEnabled()) {
+            return null;
+        }
+
+        return $translator->current()?->getFormatPatterns();
     }
 
     /**

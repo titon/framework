@@ -90,7 +90,9 @@ class MessageLoaderTest extends TestCase {
     }
 
     public function testTranslate(): void {
-        $this->translator->localize('ex_CH');
+        $this->translator->addResourcePaths('test', Set {SRC_DIR . '/Titon/Intl/'});
+        $this->translator->addLocale(new Locale('en_US'));
+        $this->translator->localize('en_US');
 
         $this->assertEquals('{0} health, {1} energy, {2} damage', $this->translator->translate('test.bar.format'));
         $this->assertEquals('1,337 health, 666 energy, 255 damage', $this->translator->translate('test.bar.format', Vector {1337, 666, 255}));

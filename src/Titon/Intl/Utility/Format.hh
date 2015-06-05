@@ -7,10 +7,10 @@
 
 namespace Titon\Intl\Utility;
 
-use Titon\Common\Registry;
-use Titon\Intl\Intl;
-use Titon\Intl\Exception\MissingPatternException;
 use Titon\Intl\Bag\FormatBag;
+use Titon\Utility\Col;
+use Titon\Utility\OptionMap;
+use Titon\Utility\TimeMessageMap;
 
 /**
  * Enhance the parent Format class by providing localized formatting rule support.
@@ -22,32 +22,27 @@ class Format extends \Titon\Utility\Format {
     /**
      * {@inheritdoc}
      */
-    public static function date($time, $format = '%Y-%m-%d') {
-        return parent::date($time, self::get('date', $format));
-    }
+    public static function date(mixed $time, string $format = '%Y-%m-%d'): string {
+        $patterns = static::loadFormatPatterns();
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function datetime($time, $format = '%Y-%m-%d %H:%M:%S') {
-        return parent::datetime($time, self::get('datetime', $format));
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @uses Titon\Common\Registry
-     *
-     * @throws \Titon\Intl\Exception\MissingPatternException
-     */
-    public static function get($key, $fallback = null) {
-        $pattern = G11n::registry()->current()->getFormatPatterns($key) ?: $fallback;
-
-        if (!$pattern) {
-            throw new MissingPatternException(sprintf('Format pattern %s does not exist', $key));
+        if ($patterns !== null) {
+            $format = $patterns->getDate() ?: $format;
         }
 
-        return $pattern;
+        return parent::date($time, $format);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function datetime(mixed $time, string $format = '%Y-%m-%d %H:%M:%S'): string {
+        $patterns = static::loadFormatPatterns();
+
+        if ($patterns !== null) {
+            $format = $patterns->getDatetime() ?: $format;
+        }
+
+        return parent::datetime($time, $format);
     }
 
     /**
@@ -69,50 +64,99 @@ class Format extends \Titon\Utility\Format {
     /**
      * {@inheritdoc}
      */
-    public static function phone($value, $format = null) {
-        return parent::phone($value, self::get('phone', $format));
-    }
+    public static function phone(string $value, mixed $format = ''): string {
+        $patterns = static::loadFormatPatterns();
 
-    /**
-     * {@inheritdoc}
-     *
-     * @uses Titon\Common\Registry
-     */
-    public static function relativeTime($time, array $options = array()) {
-        $g11n = G11n::registry();
-        $msg = function($key) use ($g11n) {
-            return $g11n->translate('common.format.relativeTime.' . $key);
-        };
+        if ($patterns !== null) {
+            if ($map = $patterns->getPhone()) {
+                if ($format instanceof Map) {
+                    $format = Col::merge($map, $format);
+                } else {
+                    $format = $map;
+                }
+            }
+        }
 
-        // TODO Find a more optimized way to do this.
-        $options = $options + array(
-            'seconds' => array($msg('sec'), $msg('second'), $msg('seconds')),
-            'minutes' => array($msg('min'), $msg('minute'), $msg('minutes')),
-            'hours' => array($msg('hr'), $msg('hour'), $msg('hours')),
-            'days' => array($msg('dy'), $msg('day'), $msg('days')),
-            'weeks' => array($msg('wk'), $msg('week'), $msg('weeks')),
-            'months' => array($msg('mon'), $msg('month'), $msg('months')),
-            'years' => array($msg('yr'), $msg('year'), $msg('years')),
-            'now' => $msg('now'),
-            'in' => $msg('in'),
-            'ago' => $msg('ago')
-        );
-
-        return parent::relativeTime($time, $options);
+        return parent::phone($value, $format);
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function ssn($value, $format = null) {
-        return parent::ssn($value, self::get('ssn', $format));
+    public static function relativeTime(mixed $time, OptionMap $options = Map {}, TimeMessageMap $messages = Map {}): string {
+        $translator = translator();
+
+        if ($translator->isEnabled() && $translator->current() !== null) {
+            $catalog = $translator->getMessageLoader()->loadCatalog('common', 'format');
+            $formatMessages = $catalog->getMessages();
+
+            // Find option messages
+            $optionKeys = Vector {'now', 'in', 'ago'};
+
+            foreach ($optionKeys as $optionKey) {
+                if (!$options->contains($optionKey) && $formatMessages->contains('time.relative.' . $optionKey)) {
+                    $options[$optionKey] = $formatMessages['time.relative.' . $optionKey];
+                }
+            }
+
+            // Find messages
+            $messageKeys = Map {
+                'seconds'   => Vector {'sec', 'second', 'seconds'},
+                'minutes'   => Vector {'min', 'minute', 'minutes'},
+                'hours'     => Vector {'hr', 'hour', 'hours'},
+                'days'      => Vector {'dy', 'day', 'days'},
+                'weeks'     => Vector {'wk', 'week', 'weeks'},
+                'months'    => Vector {'mon', 'month', 'months'},
+                'years'     => Vector {'yr', 'year', 'years'}
+            };
+
+            foreach ($messageKeys as $parentKey => $childKeys) {
+                foreach ($childKeys as $i => $childKey) {
+                    $messageKey = 'time.relative.' . $childKey;
+
+                    // Don't overwrite custom messages
+                    if ($messages->contains($parentKey) && $messages[$parentKey]->containsKey($i)) {
+                        continue;
+                    }
+
+                    if ($formatMessages->contains($messageKey)) {
+                        if (!$messages->contains($parentKey)) {
+                            $messages[$parentKey] = Map {};
+                        }
+
+                        $messages[$parentKey][$i] = $formatMessages[$messageKey];
+                    }
+                }
+            }
+        }
+
+        return parent::relativeTime($time, $options, $messages);
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function time($time, $format = '%H:%M:%S') {
-        return parent::time($time, self::get('time', $format));
+    public static function ssn(string $value, string $format = '###-##-####'): string {
+        $patterns = static::loadFormatPatterns();
+
+        if ($patterns !== null) {
+            $format = $patterns->getSSN() ?: $format;
+        }
+
+        return parent::ssn($value, $format);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function time(mixed $time, string $format = '%H:%M:%S'): string {
+        $patterns = static::loadFormatPatterns();
+
+        if ($patterns !== null) {
+            $format = $patterns->getTime() ?: $format;
+        }
+
+        return parent::time($time, $format);
     }
 
 }

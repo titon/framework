@@ -2,7 +2,7 @@
     "name": "titon/intl",
     "type": "library",
     "description": "The Intl package provides tools for the localization and internationalization of an application.",
-    "keywords": ["titon", "intl", "g11n", "globalization", "l10n", "localization", "i18n", "internationalization", "locale", "translate", "message", "resource", "bundle"],
+    "keywords": ["titon", "intl", "g11n", "globalization", "l10n", "localization", "i18n", "internationalization", "locale", "translate", "message", "resource", "bundle", "domain", "catalog"],
     "homepage": "http://titon.io",
     "license": "BSD-3-Clause",
     "authors": [
@@ -21,10 +21,13 @@
         "ext-intl": "*",
         "titon/common": "*",
         "titon/event": "*",
-        "titon/io": "*"
+        "titon/io": "*",
+        "titon/utility": "*"
     },
     "suggest": {
-        "titon/cache": "Cache message and locale lookups using the Cache package"
+        "titon/cache": "Cache message and locale lookups using the Cache package",
+        "titon/context": "Utilize global intl functions using the Context package",
+        "titon/route": "Resolve locale based routes using the Route package"
     },
     "autoload": {
         "psr-4": {

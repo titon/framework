@@ -28,6 +28,8 @@ class LocaleRegistry {
      * @return \Titon\Intl\Locale
      */
     public static function factory(string $code): Locale {
+        $code = Locale::canonicalize($code);
+
         if (static::$locales->contains($code)) {
             return static::$locales[$code];
         }

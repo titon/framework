@@ -7,24 +7,36 @@
 
 namespace Titon\Intl\Utility;
 
+use Titon\Intl\Bag\InflectionBag;
+
 /**
- * Enhance the parent Inflector class by providing localized inflection rule support.
+ * Enhances the parent `Inflector` class by providing localized inflection rule support.
  *
  * @package Titon\Intl\Utility
  */
 class Inflector extends \Titon\Utility\Inflector {
 
     /**
-     * {@inheritdoc}
+     * Load and return an `InflectionBag` from the currently detected locale.
+     * If no locale is found, or the translator is not enabled, return null.
+     *
+     * @return \Titon\Intl\Bag\InflectionBag
      */
-    public static function ordinal(string $number): string {
+    public static function loadInflectionRules(): ?InflectionBag {
         $translator = translator();
 
         if (!$translator->isEnabled()) {
-            return $number;
+            return null;
         }
 
-        $suffixes = $translator->current()?->getInflectionRules()?->getOrdinalSuffixes();
+        return $translator->current()?->getInflectionRules();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function ordinal(string $number): string {
+        $suffixes = static::loadInflectionRules()?->getOrdinalSuffixes();
 
         if ($suffixes === null) {
             return $number;
@@ -33,7 +45,9 @@ class Inflector extends \Titon\Utility\Inflector {
         $number = (int) $number;
 
         // 11-13
-        if (in_array(($number % 100), range(11, 13)) && $suffixes->contains(-1)) {
+        $teenNumber = $number % 100;
+
+        if (($teenNumber >= 11 && $teenNumber <= 19) && $suffixes->contains(-1)) {
             return str_replace('#', $number, $suffixes[-1]);
         }
 
@@ -58,13 +72,7 @@ class Inflector extends \Titon\Utility\Inflector {
      * {@inheritdoc}
      */
     public static function pluralize(string $string): string {
-        $translator = translator();
-
-        if (!$translator->isEnabled()) {
-            return $string;
-        }
-
-        $rules = $translator->current()?->getInflectionRules();
+        $rules = static::loadInflectionRules();
 
         if ($rules === null) {
             return $string;
@@ -75,12 +83,15 @@ class Inflector extends \Titon\Utility\Inflector {
         $irregular = $rules->getIrregularWords();
         $plurals = $rules->getPluralPatterns();
 
+        // Does not change
         if ($uninflected->contains($string)) {
             return $string;
 
+        // Is singular, use the plural
         } else if ($irregular->contains($string)) {
             return $irregular[$string];
 
+        // Is plural already
         } else if ($irregular->toVector()->linearSearch($string) >= 0) {
             return $string;
 
@@ -99,13 +110,7 @@ class Inflector extends \Titon\Utility\Inflector {
      * {@inheritdoc}
      */
     public static function singularize(string $string): string {
-        $translator = translator();
-
-        if (!$translator->isEnabled()) {
-            return $string;
-        }
-
-        $rules = $translator->current()?->getInflectionRules();
+        $rules = static::loadInflectionRules();
 
         if ($rules === null) {
             return $string;
@@ -113,15 +118,18 @@ class Inflector extends \Titon\Utility\Inflector {
 
         $string = mb_strtolower($string);
         $uninflected = $rules->getUninflectedWords();
-        $irregular = $rules->getIrregularWords();
+        $irregular = new Map(array_flip($rules->getIrregularWords()->toArray()));
         $singulars = $rules->getSingularPatterns();
 
+        // Does not change
         if ($uninflected->contains($string)) {
             return $string;
 
+        // Is plural, use the singular
         } else if ($irregular->contains($string)) {
             return $irregular[$string];
 
+        // Is singular already
         } else if ($irregular->toVector()->linearSearch($string) >= 0) {
             return $string;
 
@@ -140,13 +148,7 @@ class Inflector extends \Titon\Utility\Inflector {
      * {@inheritdoc}
      */
     public static function transliterate(string $string): string {
-        $translator = translator();
-
-        if (!$translator->isEnabled()) {
-            return $string;
-        }
-
-        $transliterations = $translator->current()?->getInflectionRules()?->getTransliterations();
+        $transliterations = static::loadInflectionRules()?->getTransliterations();
 
         if ($transliterations === null) {
             return $string;

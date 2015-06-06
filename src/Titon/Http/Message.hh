@@ -9,7 +9,7 @@
 namespace Titon\Http;
 
 use Psr\Http\Message\MessageInterface;
-use Psr\Http\Message\StreamableInterface;
+use Psr\Http\Message\StreamInterface;
 use Titon\Http\Bag\HeaderBag;
 
 /**
@@ -29,9 +29,9 @@ class Message implements MessageInterface {
     /**
      * The request or response body.
      *
-     * @var \Psr\Http\Message\StreamableInterface
+     * @var \Psr\Http\Message\StreamInterface
      */
-    protected ?StreamableInterface $body = null;
+    protected ?StreamInterface $body = null;
 
     /**
      * Instantiate a new header bag.
@@ -43,22 +43,22 @@ class Message implements MessageInterface {
     /**
      * {@inheritdoc}
      */
-    public function getBody(): ?StreamableInterface {
+    public function getBody(): ?StreamInterface {
         return $this->body;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getHeader($key): string {
-        return implode(', ', $this->getHeaderAsArray($key));
+    public function getHeader($header): string {
+        return implode(', ', $this->getHeaderAsArray($header));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getHeaderAsArray($key): array<string> {
-        return $this->headers->get($key) ?: [];
+    public function getHeaderAsArray($header): array<string> {
+        return $this->headers->get($header) ?: [];
     }
 
     /**
@@ -78,8 +78,8 @@ class Message implements MessageInterface {
     /**
      * {@inheritdoc}
      */
-    public function hasHeader($key): bool {
-        return $this->headers->has($key);
+    public function hasHeader($header): bool {
+        return $this->headers->has($header);
     }
 
 }

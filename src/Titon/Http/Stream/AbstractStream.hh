@@ -8,15 +8,16 @@
 
 namespace Titon\Http\Stream;
 
-use Psr\Http\Message\StreamableInterface;
+use Psr\Http\Message\StreamInterface;
 use Titon\Common\CacheMap;
+use RuntimeException;
 
 /**
  * Defines shared functionality for an HTTP resource stream.
  *
  * @package Titon\Http\Stream
  */
-abstract class AbstractStream implements StreamableInterface {
+abstract class AbstractStream implements StreamInterface {
 
     /**
      * Cached meta data.
@@ -35,7 +36,7 @@ abstract class AbstractStream implements StreamableInterface {
     /**
      * Close the resource on destruction.
      */
-    public function __destruct() {
+    public function __destruct(): void {
         $this->close();
     }
 
@@ -111,7 +112,7 @@ abstract class AbstractStream implements StreamableInterface {
      */
     public function getContents($maxLength = -1): string {
         if (!$this->isReadable() || (!$this->isSeekable() && $this->eof())) {
-            return '';
+            throw new RuntimeException('Stream is not readable');
         }
 
         // Save cursor position before reading
@@ -122,7 +123,11 @@ abstract class AbstractStream implements StreamableInterface {
         // Reset cursor position
         $this->seek($tell);
 
-        return ($buffer === false) ? '' : $buffer;
+        if ($buffer === false) {
+            throw new RuntimeException('Failed to read stream contents');
+        }
+
+        return $buffer;
     }
 
     /**
@@ -163,7 +168,7 @@ abstract class AbstractStream implements StreamableInterface {
             }
         }
 
-        return mb_strlen($this->getContents());
+        return (int) mb_strlen($this->getContents());
     }
 
     /**
@@ -226,14 +231,12 @@ abstract class AbstractStream implements StreamableInterface {
     /**
      * {@inheritdoc}
      */
-    public function read($length): ?string {
-        if (!$this->isReadable()) {
-            return null;
+    public function read($length): string {
+        if ($this->isReadable() && ($buffer = fread($this->getStream(), $length)) !== false) {
+            return $buffer;
         }
 
-        $buffer = fread($this->getStream(), $length);
-
-        return ($buffer === false) ? null : $buffer;
+        throw new RuntimeException('Failed to read from stream');
     }
 
     /**
@@ -242,7 +245,11 @@ abstract class AbstractStream implements StreamableInterface {
      * @return bool
      */
     public function rewind(): bool {
-        return $this->seek(0);
+        if ($this->isSeekable()) {
+            return $this->seek(0);
+        }
+
+        throw new RuntimeException('Cannot rewind as stream is not seekable');
     }
 
     /**
@@ -268,23 +275,25 @@ abstract class AbstractStream implements StreamableInterface {
     /**
      * {@inheritdoc}
      */
-    public function tell(): ?int {
+    public function tell(): int {
         $tell = ftell($this->getStream());
 
-        return ($tell === false) ? null : $tell;
+        if ($tell === false) {
+            throw new RuntimeException('Failed to find stream position');
+        }
+
+        return $tell;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($string): ?int {
-        if (!$this->isWritable()) {
-            return null;
+    public function write($string): int {
+        if ($this->isWritable() && ($write = fwrite($this->getStream(), $string)) !== false) {
+            return $write;
         }
 
-        $write = fwrite($this->getStream(), $string);
-
-        return ($write === false) ? null : $write;
+        throw new RuntimeException('Failed to write to stream');
     }
 
 }

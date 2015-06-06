@@ -8,14 +8,14 @@
 
 namespace Titon\Http;
 
-use Psr\Http\Message\OutgoingResponseInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Represents an outgoing server HTTP response.
  *
  * @package Titon\Http
  */
-interface OutgoingResponse extends OutgoingResponseInterface {
+interface OutgoingResponse extends ResponseInterface {
 
     /**
      * Pass the current request to the response so that the response

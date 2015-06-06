@@ -8,7 +8,7 @@
 
 namespace Titon\Http\Server;
 
-use Psr\Http\Message\StreamableInterface;
+use Psr\Http\Message\StreamInterface;
 use Titon\Http\Http;
 use Titon\Http\Exception\MalformedResponseException;
 use Titon\Http\Stream\MemoryStream;
@@ -44,7 +44,7 @@ class JsonResponse extends Response {
             $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
         }
 
-        if (!$body instanceof StreamableInterface) {
+        if (!$body instanceof StreamInterface) {
             $body = new MemoryStream(json_encode($body, $flags));
         }
 

@@ -10,10 +10,10 @@ namespace Titon\Io\Bundle;
 use Titon\Io\Bundle;
 use Titon\Io\DomainList;
 use Titon\Io\DomainPathMap;
-use Titon\Io\File;
 use Titon\Io\Folder;
 use Titon\Io\PathList;
 use Titon\Io\Reader;
+use Titon\Io\ReaderList;
 use Titon\Io\ReaderMap;
 use Titon\Io\ResourceMap;
 use Titon\Io\Exception\MissingDomainException;
@@ -78,6 +78,17 @@ abstract class AbstractBundle implements Bundle {
      */
     public function addReader(Reader $reader): this {
         $this->readers[$reader->getResourceExt()] = $reader;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addReaders(ReaderList $readers): this {
+        foreach ($readers as $reader) {
+            $this->addReader($reader);
+        }
 
         return $this;
     }

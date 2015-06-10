@@ -15,7 +15,7 @@ class TranslatorTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->loader = new MessageLoader(new HackReader());
+        $this->loader = new MessageLoader(Vector {new HackReader()});
         $this->object = new Translator($this->loader);
         $this->object->addResourcePaths('common', Set {SRC_DIR . '/Titon/Intl'});
     }

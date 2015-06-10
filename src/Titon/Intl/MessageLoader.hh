@@ -11,6 +11,7 @@ use Titon\Cache\Item;
 use Titon\Cache\Storage;
 use Titon\Intl\Exception\UndetectedLocaleException;
 use Titon\Io\Reader;
+use Titon\Io\ReaderList;
 use \MessageFormatter;
 
 /**
@@ -28,11 +29,11 @@ class MessageLoader {
     protected CatalogMap $catalogs = Map {};
 
     /**
-     * File reader used for parsing.
+     * File readers used for parsing.
      *
-     * @var \Titon\Io\Reader
+     * @var \Titon\Io\ReaderList
      */
-    protected Reader $reader;
+    protected ReaderList $readers = Vector {};
 
     /**
      * Storage engine used for caching.
@@ -51,21 +52,45 @@ class MessageLoader {
     /**
      * Store the reader and optional storage.
      *
-     * @param \Titon\Io\Reader $reader
+     * @param \Titon\Io\ReaderList $readers
      * @param \Titon\Cache\Storage $storage
      */
-    public function __construct(Reader $reader, ?Storage $storage = null) {
-        $this->reader = $reader;
+    public function __construct(ReaderList $readers, ?Storage $storage = null) {
+        $this->readers = $readers;
         $this->storage = $storage;
     }
 
     /**
-     * Return the file reader.
+     * Add a file reader to use for resource parsing.
      *
-     * @return \Titon\Io\Reader
+     * @param \Titon\Io\Reader $reader
+     * @return \Titon\Intl\Translator
      */
-    public function getReader(): Reader {
-        return $this->reader;
+    public function addReader(Reader $reader): this {
+        $this->readers[] = $reader;
+
+        return $this;
+    }
+
+    /**
+     * Add multiple file readers.
+     *
+     * @param \Titon\Io\ReaderList $readers
+     * @return \Titon\Intl\Translator
+     */
+    public function addReaders(ReaderList $readers): this {
+        $this->readers->addAll($readers);
+
+        return $this;
+    }
+
+    /**
+     * Return the file readers.
+     *
+     * @return \Titon\Io\ReaderList
+     */
+    public function getReaders(): ReaderList {
+        return $this->readers;
     }
 
     /**
@@ -131,7 +156,7 @@ class MessageLoader {
 
             foreach ($locales as $locale) {
                 $bundle = $translator->getLocale($locale)->getMessageBundle();
-                $bundle->addReader($this->getReader());
+                $bundle->addReaders($this->getReaders());
 
                 $bundleMessages = $bundle->loadResource($domain, $catalog);
 
@@ -150,18 +175,6 @@ class MessageLoader {
         invariant($messages instanceof Map, 'Message strings must be a map.');
 
         return $this->catalogs[$cacheKey] = new Catalog($catalog, $domain, $messages);
-    }
-
-    /**
-     * Set the file reader to use for resource parsing.
-     *
-     * @param \Titon\Io\Reader $reader
-     * @return \Titon\Intl\Translator
-     */
-    public function setReader(Reader $reader): this {
-        $this->reader = $reader;
-
-        return $this;
     }
 
     /**

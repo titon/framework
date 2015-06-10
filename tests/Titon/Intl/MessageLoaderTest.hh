@@ -3,6 +3,8 @@ namespace Titon\Intl;
 
 use Titon\Cache\Storage\MemoryStorage;
 use Titon\Io\Reader\HackReader;
+use Titon\Io\Reader\IniReader;
+use Titon\Io\Reader\JsonReader;
 use Titon\Io\Reader\PhpReader;
 use Titon\Test\TestCase;
 
@@ -14,20 +16,27 @@ class MessageLoaderTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->object = new MessageLoader(new HackReader());
+        $this->object = new MessageLoader(Vector {new HackReader()});
 
         $this->translator = new Translator($this->object);
         $this->translator->addResourcePaths('test', Set {TEMP_DIR . '/intl/'});
         $this->translator->addLocale(new Locale('ex_CH'));
     }
 
-    public function testGetSetReader(): void {
-        $this->assertEquals(new HackReader(), $this->object->getReader());
+    public function testGetAddReader(): void {
+        $reader1 = new HackReader();
+        $this->assertEquals(Vector {$reader1}, $this->object->getReaders());
 
-        $reader = new PhpReader();
-        $this->object->setReader($reader);
+        $reader2 = new PhpReader();
+        $this->object->addReader($reader2);
 
-        $this->assertEquals($reader, $this->object->getReader());
+        $this->assertEquals(Vector {$reader1, $reader2}, $this->object->getReaders());
+
+        $reader3 = new IniReader();
+        $reader4 = new JsonReader();
+        $this->object->addReaders(Vector {$reader3, $reader4});
+
+        $this->assertEquals(Vector {$reader1, $reader2, $reader3, $reader4}, $this->object->getReaders());
     }
 
     public function testGetSetStorage(): void {

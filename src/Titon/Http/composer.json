@@ -20,7 +20,7 @@
         "ext-mbstring": "*",
         "titon/common": "*",
         "titon/utility": "*",
-        "psr/http-message": "~0.5.0"
+        "psr/http-message": "0.5.0"
     },
     "suggest": {
         "titon/type": "Output XML responses using the Type package"

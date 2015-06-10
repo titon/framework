@@ -15,7 +15,7 @@ class RouteResolverTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->translator = new Translator(new MessageLoader(new HackReader()));
+        $this->translator = new Translator(new MessageLoader(Vector {new HackReader()}));
         $this->translator->addLocale(new Locale('en_US'));
         $this->translator->addLocale(new Locale('fr'));
         $this->translator->setFallback('en');

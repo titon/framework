@@ -671,7 +671,7 @@ class Response extends Message implements OutgoingResponse {
     /**
      * {@inheritdoc}
      */
-    public function setBody(StreamableInterface $body): this {
+    public function setBody(StreamableInterface $body = null): this {
         $this->body = $body;
 
         return $this;

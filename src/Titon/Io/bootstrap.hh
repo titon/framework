@@ -17,6 +17,7 @@ namespace Titon\Io {
     type DomainList = Vector<string>;
     type DomainPathMap = Map<string, PathList>;
     type PathList = Set<string>;
+    type ReaderList = Vector<Reader>;
     type ReaderMap = Map<string, Reader>;
     type ResourceMap = Map<string, mixed>;
     type WriterMap = Map<string, Writer>;

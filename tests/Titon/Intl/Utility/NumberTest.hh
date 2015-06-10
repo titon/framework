@@ -16,7 +16,7 @@ class NumberTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->object = new Translator(new MessageLoader(new HackReader()));
+        $this->object = new Translator(new MessageLoader(Vector {new HackReader()}));
         $this->object->addResourcePaths('common', Set {SRC_DIR . '/Titon/Intl/'});
         $this->object->addLocale(new Locale('en_US'));
         $this->object->localize('en_US');

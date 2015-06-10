@@ -68,22 +68,22 @@ namespace {
     /**
      * Helper function for fetching a localized string using a single combination key.
      *
-     * @uses Titon\Common\Registry
+     * @uses Titon\Intl\MessageLoader::translate()
      *
      * @param string $key
      * @param \Titon\Intl\ParamList $params
      * @return string
      */
     function msg(string $key, ParamList $params = Vector {}): string {
-        return translator()->translate($key, $params);
+        return translator_context()->translate($key, $params);
     }
 
     /**
-     * Make and return a Translator instance from the depository.
+     * Make and return a `Translator` instance from the depository.
      *
      * @return \Titon\Intl\Translator
      */
-    function translator(): Translator {
+    function translator_context(): Translator {
         $translator = Depository::getInstance()->make('Titon\Intl\Translator');
 
         invariant($translator instanceof Translator, 'Must be a Translator.');

@@ -76,29 +76,29 @@ namespace {
      * @see Titon\Route\UrlBuilder::getAbsoluteUrl()
      */
     function current_url(): string {
-        return url_builder()->getAbsoluteUrl();
+        return builder_context()->getAbsoluteUrl();
     }
 
     /**
      * @see Titon\Route\UrlBuilder::build()
      */
     function url(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        return url_builder()->build($key, $params, $query);
+        return builder_context()->build($key, $params, $query);
     }
 
     /**
      * @see Titon\Route\UrlBuilder::getSegment()
      */
     function url_segment(string $segment): mixed {
-        return url_builder()->getSegment($segment);
+        return builder_context()->getSegment($segment);
     }
 
     /**
-     * Make and return a UrlBuilder instance from the depository.
+     * Make and return a `UrlBuilder` instance from the depository.
      *
      * @return \Titon\Route\UrlBuilder
      */
-    function url_builder(): UrlBuilder {
+    function builder_context(): UrlBuilder {
         $builder = Depository::getInstance()->make('Titon\Route\UrlBuilder');
 
         invariant($builder instanceof UrlBuilder, 'Must be a UrlBuilder.');

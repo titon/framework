@@ -370,7 +370,7 @@ class Translator implements Subject {
         putenv('LC_ALL=' . $code);
         setlocale(LC_ALL, $option ?: $code);
 
-        SystemLocale::setDefault($code);
+        SystemLocale::setDefault(Locale::canonicalize($code, Locale::FORMAT_2));
 
         $this->current = $newLocale;
 

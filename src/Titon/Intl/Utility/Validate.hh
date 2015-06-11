@@ -20,10 +20,10 @@ class Validate extends \Titon\Utility\Validate {
      * {@inheritdoc}
      */
     public static function currency(string $input, string $format = ''): bool {
-        $rules = static::loadValidationRules();
+        $patterns = static::loadValidationPatterns();
 
-        if ($rules !== null) {
-            $format = $rules->getCurrency();
+        if ($patterns !== null) {
+            $format = $patterns->getCurrency();
         }
 
         if ($format) {
@@ -39,24 +39,24 @@ class Validate extends \Titon\Utility\Validate {
      *
      * @return \Titon\Intl\Bag\ValidationBag
      */
-    public static function loadValidationRules(): ?ValidationBag {
-        $translator = translator();
+    public static function loadValidationPatterns(): ?ValidationBag {
+        $translator = translator_context();
 
         if (!$translator->isEnabled()) {
             return null;
         }
 
-        return $translator->current()?->getValidationRules();
+        return $translator->current()?->getValidationPatterns();
     }
 
     /**
      * {@inheritdoc}
      */
     public static function phone(string $input, string $format = ''): bool {
-        $rules = static::loadValidationRules();
+        $patterns = static::loadValidationPatterns();
 
-        if ($rules !== null) {
-            $format = $rules->getPhone();
+        if ($patterns !== null) {
+            $format = $patterns->getPhone();
         }
 
         if ($format) {
@@ -70,10 +70,10 @@ class Validate extends \Titon\Utility\Validate {
      * {@inheritdoc}
      */
     public static function postalCode(string $input, string $format = ''): bool {
-        $rules = static::loadValidationRules();
+        $patterns = static::loadValidationPatterns();
 
-        if ($rules !== null) {
-            $format = $rules->getPostalCode();
+        if ($patterns !== null) {
+            $format = $patterns->getPostalCode();
         }
 
         if ($format) {
@@ -87,10 +87,10 @@ class Validate extends \Titon\Utility\Validate {
      * {@inheritdoc}
      */
     public static function ssn(string $input, string $format = ''): bool {
-        $rules = static::loadValidationRules();
+        $patterns = static::loadValidationPatterns();
 
-        if ($rules !== null) {
-            $format = $rules->getSSN();
+        if ($patterns !== null) {
+            $format = $patterns->getSSN();
         }
 
         if ($format) {

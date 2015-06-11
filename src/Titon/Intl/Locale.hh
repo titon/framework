@@ -81,7 +81,7 @@ class Locale {
     protected ?Locale $parent;
 
     /**
-     * Validation rules bag.
+     * Validation patterns bag.
      *
      * @var \Titon\Intl\Bag\ValidationBag
      */
@@ -345,11 +345,11 @@ class Locale {
     }
 
     /**
-     * Return the validation rules from the locale bundle.
+     * Return the validation patterns from the locale bundle.
      *
      * @return \Titon\Intl\Bag\ValidationBag
      */
-    public function getValidationRules(): ValidationBag {
+    public function getValidationPatterns(): ValidationBag {
         if ($this->validationBag) {
             return $this->validationBag;
         }
@@ -357,7 +357,7 @@ class Locale {
         $bag = $this->getLocaleBundle()->loadResource('common', 'validations');
 
         if ($parent = $this->getParentLocale()) {
-            $bag = Col::merge($parent->getValidationRules()->all(), $bag);
+            $bag = Col::merge($parent->getValidationPatterns()->all(), $bag);
         }
 
         return $this->validationBag = new ValidationBag($bag);

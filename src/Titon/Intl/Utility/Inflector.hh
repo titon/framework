@@ -23,7 +23,7 @@ class Inflector extends \Titon\Utility\Inflector {
      * @return \Titon\Intl\Bag\InflectionBag
      */
     public static function loadInflectionRules(): ?InflectionBag {
-        $translator = translator();
+        $translator = translator_context();
 
         if (!$translator->isEnabled()) {
             return null;
@@ -42,27 +42,13 @@ class Inflector extends \Titon\Utility\Inflector {
             return $number;
         }
 
+        // Strip any characters
         $number = (int) $number;
 
-        // 11-13
-        $teenNumber = $number % 100;
-
-        if (($teenNumber >= 11 && $teenNumber <= 19) && $suffixes->contains(-1)) {
-            return str_replace('#', $number, $suffixes[-1]);
-        }
-
-        // 1, 2, 3
-        $modNumber = $number % 10;
-
-        foreach ($suffixes as $i => $format) {
-            if ($modNumber === $i) {
-                return str_replace('#', $number, $suffixes[$i]);
+        foreach ($suffixes as $pattern => $suffix) {
+            if (preg_match($pattern, $number)) {
+                return str_replace('#', $number, $suffix);
             }
-        }
-
-        // Fallback
-        if ($suffixes->contains(-1)) {
-            return str_replace('#', $number, $suffixes[-1]);
         }
 
         return (string) $number;

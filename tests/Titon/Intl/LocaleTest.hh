@@ -197,15 +197,15 @@ class LocaleTest extends TestCase {
         $this->assertEquals(null, $this->object->getParentLocale()->getParentLocale());
     }
 
-    public function testGetValidationRules(): void {
+    public function testGetValidationPatterns(): void {
         $this->assertEquals(new ValidationBag(Map {
             'phone' => '/^([0-9]{7}$/'
-        }), $this->object->getValidationRules());
+        }), $this->object->getValidationPatterns());
 
         // No child file, so parent should match
         $this->assertEquals(new ValidationBag(Map {
             'phone' => '/^([0-9]{7}$/'
-        }), $this->object->getParentLocale()->getValidationRules());
+        }), $this->object->getParentLocale()->getValidationPatterns());
     }
 
 }

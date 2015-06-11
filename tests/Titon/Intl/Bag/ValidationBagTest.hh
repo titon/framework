@@ -15,7 +15,7 @@ class ValidationBagTest extends TestCase {
         $locale = new Locale('en');
         $locale->addResourcePath('common', SRC_DIR . '/Titon/Intl/');
 
-        $this->object = $locale->getValidationRules();
+        $this->object = $locale->getValidationPatterns();
     }
 
     public function testGetCurrency(): void {

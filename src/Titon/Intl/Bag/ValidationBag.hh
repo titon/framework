@@ -10,14 +10,14 @@ namespace Titon\Intl\Bag;
 use Titon\Common\Bag\AbstractBag;
 
 /**
- * A bag for locale specific validation rules.
+ * A bag for locale specific validation patterns.
  *
  * @package Titon\Intl\Bag
  */
 class ValidationBag extends AbstractBag<string, mixed> {
 
     /**
-     * Return the currency rule.
+     * Return the currency pattern.
      *
      * @return string
      */
@@ -26,7 +26,7 @@ class ValidationBag extends AbstractBag<string, mixed> {
     }
 
     /**
-     * Return the phone rule.
+     * Return the phone pattern.
      *
      * @return string
      */
@@ -35,7 +35,7 @@ class ValidationBag extends AbstractBag<string, mixed> {
     }
 
     /**
-     * Return the postal code rule.
+     * Return the postal code pattern.
      *
      * @return string
      */
@@ -44,7 +44,7 @@ class ValidationBag extends AbstractBag<string, mixed> {
     }
 
     /**
-     * Return the SSN rule.
+     * Return the SSN pattern.
      *
      * @return string
      */

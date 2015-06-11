@@ -60,7 +60,7 @@ class Format extends \Titon\Utility\Format {
      * @return \Titon\Intl\Bag\FormatBag
      */
     public static function loadFormatPatterns(): ?FormatBag {
-        $translator = translator();
+        $translator = translator_context();
 
         if (!$translator->isEnabled()) {
             return null;
@@ -92,7 +92,7 @@ class Format extends \Titon\Utility\Format {
      * {@inheritdoc}
      */
     public static function relativeTime(mixed $time, OptionMap $options = Map {}, TimeMessageMap $messages = Map {}): string {
-        $translator = translator();
+        $translator = translator_context();
 
         if ($translator->isEnabled() && $translator->current() !== null) {
             $catalog = $translator->getMessageLoader()->loadCatalog('common', 'format');

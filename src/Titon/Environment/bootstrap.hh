@@ -50,7 +50,7 @@ namespace {
      *
      * @return \Titon\Environment\Detector
      */
-    function detector_context(): Translator {
+    function detector_context(): Detector {
         $detector = Depository::getInstance()->make('Titon\Environment\Detector');
 
         invariant($detector instanceof Detector, 'Must be an environment Detector.');

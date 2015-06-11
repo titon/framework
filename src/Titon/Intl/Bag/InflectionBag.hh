@@ -34,9 +34,9 @@ class InflectionBag extends AbstractBag<string, mixed> {
     /**
      * Return the ordinal suffixes map.
      *
-     * @return Map<int, string>
+     * @return Map<string, string>
      */
-    public function getOrdinalSuffixes(): Map<int, string> {
+    public function getOrdinalSuffixes(): Map<string, string> {
         $suffixes = $this->get('ordinal');
 
         if ($suffixes instanceof Map) {

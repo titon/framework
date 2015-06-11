@@ -29,14 +29,18 @@ class InflectorTest extends TestCase {
     }
 
     public function testOrdinal(): void {
+        $this->assertEquals('0', Inflector::ordinal('0'));
         $this->assertEquals('1st', Inflector::ordinal('1'));
         $this->assertEquals('2nd', Inflector::ordinal('2'));
         $this->assertEquals('3rd', Inflector::ordinal('3'));
         $this->assertEquals('4th', Inflector::ordinal('4'));
         $this->assertEquals('5th', Inflector::ordinal('5'));
+        $this->assertEquals('10th', Inflector::ordinal('10'));
 
         // teens
+        $this->assertEquals('11th', Inflector::ordinal('11'));
         $this->assertEquals('12th', Inflector::ordinal('12'));
+        $this->assertEquals('14th', Inflector::ordinal('14'));
         $this->assertEquals('15th', Inflector::ordinal('15'));
         $this->assertEquals('18th', Inflector::ordinal('18'));
         $this->assertEquals('20th', Inflector::ordinal('20'));
@@ -47,6 +51,12 @@ class InflectorTest extends TestCase {
         $this->assertEquals('8534th', Inflector::ordinal('8534'));
         $this->assertEquals('92343rd', Inflector::ordinal('92343'));
         $this->assertEquals('678420th', Inflector::ordinal('678420'));
+
+        // negative
+        $this->assertEquals('-1st', Inflector::ordinal('-1'));
+        $this->assertEquals('-22nd', Inflector::ordinal('-22'));
+        $this->assertEquals('-333rd', Inflector::ordinal('-333'));
+        $this->assertEquals('-16th', Inflector::ordinal('-16'));
 
         // casting
         $this->assertEquals('11th', Inflector::ordinal('11th'));

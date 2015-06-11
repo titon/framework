@@ -56,10 +56,12 @@ class InflectionBagTest extends TestCase {
 
     public function testGetOrdinalSuffixes(): void {
         $this->assertEquals(Map {
-            -1 => '#th',
-            1 => '#st',
-            2 => '#nd',
-            3 => '#rd'
+            '/^0$/' => '#',
+            '/^-?1[1-9]$/' => '#th',
+            '/1$/' => '#st',
+            '/2$/' => '#nd',
+            '/3$/' => '#rd',
+            '/$/' => '#th'
         }, $this->object->getOrdinalSuffixes());
     }
 

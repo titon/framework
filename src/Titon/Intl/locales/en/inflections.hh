@@ -6,12 +6,20 @@
  * FuelPHP: http://fuelphp.com
  */
 return Map {
+
+    // Ordinal suffixes appended to numbers
+    // The map key is the pattern of the number to apply the ordinal to
     'ordinal' => Map {
-        -1 => '#th',
-        1 => '#st',
-        2 => '#nd',
-        3 => '#rd'
+        '/^0$/' => '#', // Zero has no suffix
+        '/^-?1[1-9]$/' => '#th', // Teens are a special case
+        '/1$/' => '#st',
+        '/2$/' => '#nd',
+        '/3$/' => '#rd',
+        '/$/' => '#th'  // Catch all, must be last
     },
+
+    // Words that have irregular plural or singular forms
+    // The map key is the singular form while the value is the plural form
     'irregular' => Map {
         'atlas' => 'atlases',
         'beef' => 'beefs',
@@ -45,6 +53,8 @@ return Map {
         'turf' => 'turfs',
         'woman' => 'women'
     },
+
+    // Words that have no plural or singular form
     'uninflected' => Set {
         'equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep',
         'amoyese', 'bison', 'borghese', 'bream', 'breeches', 'britches', 'buffalo', 'cantus',
@@ -59,6 +69,8 @@ return Map {
         'seabass', 'series', 'shavese', 'shears', 'siemens', 'species', 'swine', 'testes',
         'trousers', 'trout', 'tuna', 'vermontese', 'wenchowese', 'whiting', 'wildebeest',
     },
+
+    // Plural find and replace patterns
     'plural' => Map {
         '/(quiz)$/i' => '\1zes',
         '/^(ox)$/i' => '\1en',
@@ -77,8 +89,10 @@ return Map {
         '/(octop|vir)us$/i' => '\1i',
         '/(ax|cris|test)is$/i' => '\1es',
         '/s$/i' => 's',
-        '/$/' => 's'
+        '/$/' => 's' // Catch all, must be last
     },
+
+    // Singular find and replace patterns
     'singular' => Map {
         '/(quiz)zes$/i' => '\1',
         '/(matr)ices$/i' => '\1ix',
@@ -103,8 +117,10 @@ return Map {
         '/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/i' => '\1\2sis',
         '/([ti])a$/i' => '\1um',
         '/(n)ews$/i' => '\1ews',
-        '/s$/i' => ''
+        '/s$/i' => '' // Catch all, must be last
     },
+
+    // Accented characters that should be normalized when passed to slug() or similar methods
     'transliteration' => Map {
         'Æ' => 'AE',
         'Ǽ' => 'AE',

@@ -1,6 +1,6 @@
 # Intl Package #
 
-The Intl package provides tools for the localization and internationalization of an application through the use of message loaders, domain catalogs, and resource bundles. Furthermore, the package extends a handful of [Utility](../utility/index.md) classes to automatically proved localized strings and parameters.
+The Intl package provides tools for the localization and internationalization of an application through the use of message loaders, domain catalogs, and resource bundles. Furthermore, the package extends a handful of [Utility](../utility/index.md) classes to automatically provide localized strings and parameters.
 
 ### Requirements ###
 

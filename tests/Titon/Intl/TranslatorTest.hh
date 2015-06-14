@@ -17,7 +17,6 @@ class TranslatorTest extends TestCase {
 
         $this->loader = new MessageLoader(Vector {new HackReader()});
         $this->object = new Translator($this->loader);
-        $this->object->addResourcePaths('common', Set {SRC_DIR . '/Titon/Intl'});
     }
 
     public function testAddGetLocale(): void {

@@ -168,7 +168,7 @@ class MessageLoader {
 
             // Cache the messages
             if ($storage && $messages) {
-                $storage->save(new Item($cacheKey, $messages, $ttl));
+                $storage->save(new Item($cacheKey, $messages, $ttl)); // TODO customize TTL
             }
         }
 

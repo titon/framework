@@ -1,10 +1,51 @@
 # Translating #
 
-@TODO
+The `Titon\Intl\Translator` is the sole class required for translation and message lookups -- it's the only class that should be interacted with directly. To begin, instantiate a new `Translator` instance while passing a `Titon\Intl\MessageLoader` as the only argument. The `MessageLoader` requires a list of `Titon\Io\Reader` instances, which dictate the types of files that messages will reside in. The internal messages provided by Titon are written in Hack and will require a `Titon\Io\Reader\HackReader`.
+
+```hack
+use Titon\Intl\MessageLoader;
+use Titon\Intl\Translator;
+use Titon\Io\Reader\HackReader;
+use Titon\Io\Reader\PhpReader;
+
+$translator = new Translator(new MessageLoader(Vector {
+    new HackReader(),   // Internal messages are written in Hack
+    new PhpReader()     // Application messages are written in PHP
+}));
+```
+
+Message lookups can be pretty resource intensive and time consuming as the process has to constantly traverse the filesystem and merge datasets. To mitigate this issue, the message catalogs can be cached. To enable caching, pass a `Titon\Cache\Storage` instance as the 2nd argument to `MessageLoader`. This will require the [Cache package](../cache/index.md). 
+
+```hack
+use Titon\Cache\Storage\MemoryStorage;
+
+$translator = new Translator(new MessageLoader($readers, new MemoryStorage()));
+```
 
 ## Configuring Paths ##
 
-@TODO
+Before messages can be translated, resource paths must be defined for lookups. These paths dictate the locations on the filesystem where [message catalogs](messages.md) and [locale configurations](locales.md) exist. Resource paths can be defined using `addResourcePaths()`, which requires a domain name and a set of paths.
+
+```hack
+$translator
+    ->addResourcePaths('blog', Set {'/path/to/blog/resources'})
+    ->addResourcePaths('forum', Set {
+        '/path/to/forum/resources',
+        '/another/path/from/vendor/forum/resources'
+    });
+```
+
+<div class="notice is-info">
+    A resource folder requires a "locales" and or "messages" folder to exist. These folders will contain the lookup files.
+</div>
+
+To define an individual locale or message path, the `addLocalePaths()` or `addMessagePaths()` methods can be used respectively.
+
+```hack
+$translator
+    ->addLocalePaths(Set {'/path/to/resources/locales'}) // Doesn't require a domain
+    ->addMessagePaths('user', Set {'/path/to/user/resources/messages'});
+```
 
 ## Adding Locales ##
 

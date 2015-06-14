@@ -85,6 +85,9 @@ class Translator implements Subject {
     public function __construct(MessageLoader $loader) {
         $this->loader = $loader;
         $this->loader->setTranslator($this);
+
+        // Load internal resources
+        $this->addResourcePaths('common', Set {__DIR__});
     }
 
     /**

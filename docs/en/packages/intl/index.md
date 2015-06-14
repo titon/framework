@@ -18,9 +18,11 @@ composer require titon/intl:*
 ### Documentation ###
 
 * [Locales](locales.md)
+* [Messages](messages.md)
 * [Translating](translating.md)
-* [Message Formats](messages.md)
 * [Utility Classes](utility.md)
 
+
+* [Events](events.md)
 * [Global Functions](functions.md)
 * [Type Aliases](types.md)

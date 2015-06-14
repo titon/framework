@@ -15,5 +15,6 @@ composer require titon/env:*
 * [Environment Detection](detection.md)
 * [Secure Variables](variables.md)
 
+
 * [Global Functions](functions.md)
 * [Type Aliases](types.md)

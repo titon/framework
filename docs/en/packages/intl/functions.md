@@ -24,4 +24,4 @@ $message = __('key', 'catalog', 'domain');
 
 ### translator_context(): `Titon\Intl\Translator` ###
 
-Returns the `Translator` instance found in the `Titon\Context\Depository` container. If no instance exists, it will attempt to make one.
+Returns the `Titon\Intl\Translator` instance found in the `Titon\Context\Depository` container. If no instance exists, it will attempt to make one.

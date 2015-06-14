@@ -239,11 +239,9 @@ class Translator implements Subject {
         }
 
         // Apply the locale
-        $this->localize((string) $current);
+        $newLocale = $this->localize((string) $current);
 
         // Emit an event
-        $newLocale = $this->current();
-
         invariant($newLocale !== null, 'Locale must be detected.');
 
         $this->emit(new DetectedEvent($this, $newLocale));

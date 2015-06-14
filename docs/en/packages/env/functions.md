@@ -24,4 +24,4 @@ is_env('local'); // true
 
 ### detector_context(): `Titon\Environment\Detector` ###
 
-Returns the `Detector` instance found in the `Titon\Context\Depository` container. If no instance exists, it will attempt to make one.
+Returns the `Titon\Environment\Detector` instance found in the `Titon\Context\Depository` container. If no instance exists, it will attempt to make one.

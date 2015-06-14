@@ -1,6 +1,6 @@
 # Translating #
 
-The `Titon\Intl\Translator` is the sole class required for translation and message lookups -- it's the only class that should be interacted with directly. To begin, instantiate a new `Translator` instance while passing a `Titon\Intl\MessageLoader` as the only argument. The `MessageLoader` requires a list of `Titon\Io\Reader` instances, which dictate the types of files that messages will reside in. The internal messages provided by Titon are written in Hack and will require a `Titon\Io\Reader\HackReader`.
+The `Titon\Intl\Translator` is the sole class that handles translation and message lookups -- it's the only class that should be interacted with directly. To begin, instantiate a new `Translator` instance while passing a `Titon\Intl\MessageLoader` as the only argument. The `MessageLoader` requires a list of `Titon\Io\Reader` instances, which dictate the types of files that messages will be written in. The internal messages provided by Titon are written in Hack and will require a `Titon\Io\Reader\HackReader`.
 
 ```hack
 use Titon\Intl\MessageLoader;
@@ -46,6 +46,10 @@ $translator
     ->addLocalePaths(Set {'/path/to/resources/locales'}) // Doesn't require a domain
     ->addMessagePaths('user', Set {'/path/to/user/resources/messages'});
 ```
+
+<div class="notice is-info">
+    Internal messages provided by Titon use the "common" domain.
+</div>
 
 ## Adding Locales ##
 
@@ -116,12 +120,12 @@ $translator->cascade(); // Set {'es_MX', 'es', 'en_US', 'en'}
 To fetch a localized message from the `Translator` and subsequently the `MessageLoader`, use the `translate()` method. This method requires a unique message key, composed of a domain, catalog, and ID in dot notated format. A domain is a [lookup group for paths](#configuring-paths) that also contain catalog files. A catalog is a file within a domain that contains a mapping of messages. An ID is the unique key to locate a message in a catalog.
 
 ```hack
-$message = $translator->translate('domain.catalog.id');
+$message = $translator->translate('forum.topic.locked');
 
-// catalog.hh
+// forum/resources/messages/topic.hh
 return Map {
-    'id' => 'This is a message',
-    'sub.nested.id' => 'This is also a message' // Keys can also contain periods
+    'locked' => 'This topic is locked.',
+    'locked.mod' => 'This topic is locked for everyone but moderators.' // Keys can also contain periods
 };
 ```
 
@@ -132,9 +136,9 @@ Message formatting makes use of PHP's built-in [MessageFormatter](http://php.net
 A vector of parameters can be passed as the 2nd argument to `translate()`, which will interpolate into the message based on the index number.
 
 ```hack
-$message = $translator->translate('domain.catalog.hello', Vector {'Titon'}); // Hello Titon
+$message = $translator->translate('user.dashboard.hello', Vector {'Titon'}); // Hello Titon
 
-// catalog.hh
+// user/resources/messages/dashboard.hh
 return Map {
     'hello' => 'Hello {0}'
 };
@@ -145,12 +149,22 @@ return Map {
 For cases where different wording must be used based on the length of a parameter, the built-in ICU formatting rules can be used. For more information on these formatting rules, check out the official [ICU documentation](http://userguide.icu-project.org/formatparse).
 
 ```hack
-$message = $translator->translate('domain.catalog.choice', Vector {0}); // 0 results
-$message = $translator->translate('domain.catalog.choice', Vector {1}); // 1 result
-$message = $translator->translate('domain.catalog.choice', Vector {9}); // 9 results
+$message = $translator->translate('blog.search.results', Vector {0}); // 0 results
+$message = $translator->translate('blog.search.results', Vector {1}); // 1 result
+$message = $translator->translate('blog.search.results', Vector {9}); // 9 results
 
-// catalog.hh
+// blog/resources/messages/search.hh
 return Map {
-    'choice' => '{0,choice,0#0 results|1#1 result|1<{0,number} results}'
+    'results' => '{0,choice,0#0 results|1#1 result|1<{0,number} results}'
 };
+```
+
+## Resolving Routes ##
+
+The `Translator` can also be tied into the [Route package](../route/index.md) to provide automatic route resolving. This process will check the URL being matched for the existence of a locale, and that the locale is supported. If an error occurs, the URL will be redirected to a new locale or the fallback locale. To make use of this, simply set `Titon\Intl\RouteResolver` as a listener to `Titon\Route\Router` while passing the `Translator`.
+
+```hack
+use Titon\Intl\RouteResolver;
+
+$router->on(new RouteResolver($translator));
 ```

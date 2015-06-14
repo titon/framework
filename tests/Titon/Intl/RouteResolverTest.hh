@@ -15,19 +15,18 @@ class RouteResolverTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $this->translator = new Translator(new MessageLoader(Vector {new HackReader()}));
-        $this->translator->addLocale(new Locale('en_US'));
-        $this->translator->addLocale(new Locale('fr'));
-        $this->translator->setFallback('en');
+        $translator = new Translator(new MessageLoader(Vector {new HackReader()}));
+        $translator->addLocale(new Locale('en_US'));
+        $translator->addLocale(new Locale('fr'));
+        $translator->setFallback('en');
 
         $this->builder = new UrlBuilder(new Router());
-
-        $this->object = new RouteResolverStub($this->translator, $this->builder);
+        $this->object = new RouteResolverStub($translator);
     }
 
     public function testNoLocaleRedirectsToFallback(): void {
         ob_start();
-        $this->object->resolve('/foo');
+        $this->object->resolve('/foo', $this->builder);
         $redirect = ob_get_clean();
 
         $this->assertEquals('/en/foo', $redirect);
@@ -35,7 +34,7 @@ class RouteResolverTest extends TestCase {
 
     public function testUnsupportedLocaleRedirectsToFallback(): void {
         ob_start();
-        $this->object->resolve('/es');
+        $this->object->resolve('/es', $this->builder);
         $redirect = ob_get_clean();
 
         $this->assertEquals('/en', $redirect);
@@ -43,7 +42,7 @@ class RouteResolverTest extends TestCase {
 
     public function testUnsupportedLocaleWithPathRedirectsToFallback(): void {
         ob_start();
-        $this->object->resolve('/es/foo');
+        $this->object->resolve('/es/foo', $this->builder);
         $redirect = ob_get_clean();
 
         $this->assertEquals('/en/foo', $redirect);
@@ -51,7 +50,7 @@ class RouteResolverTest extends TestCase {
 
     public function testSupportedLocaleResolves(): void {
         ob_start();
-        $this->object->resolve('/en/foo');
+        $this->object->resolve('/en/foo', $this->builder);
         $redirect = ob_get_clean();
 
         $this->assertEquals('', $redirect);
@@ -59,7 +58,7 @@ class RouteResolverTest extends TestCase {
 
     public function testSupportedLocaleDoubleCodeResolves(): void {
         ob_start();
-        $this->object->resolve('/en-us/foo');
+        $this->object->resolve('/en-us/foo', $this->builder);
         $redirect = ob_get_clean();
 
         $this->assertEquals('', $redirect);
@@ -67,7 +66,7 @@ class RouteResolverTest extends TestCase {
 
     public function testLocaleOnlyResolves(): void {
         ob_start();
-        $this->object->resolve('/en');
+        $this->object->resolve('/en', $this->builder);
         $redirect = ob_get_clean();
 
         $this->assertEquals('', $redirect);
@@ -75,7 +74,7 @@ class RouteResolverTest extends TestCase {
 
     public function testLocaleDoubleCodeOnlyResolves(): void {
         ob_start();
-        $this->object->resolve('/en-us');
+        $this->object->resolve('/en-us', $this->builder);
         $redirect = ob_get_clean();
 
         $this->assertEquals('', $redirect);

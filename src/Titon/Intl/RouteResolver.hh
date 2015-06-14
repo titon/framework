@@ -30,21 +30,12 @@ class RouteResolver implements Listener {
     protected Translator $translator;
 
     /**
-     * URL builder instance.
-     *
-     * @var \Titon\Route\UrlBuilder
-     */
-    protected UrlBuilder $urlBuilder;
-
-    /**
      * Store the translator.
      *
      * @param \Titon\Intl\Translator $translator
-     * @param \Titon\Route\UrlBuilder $urlBuilder
      */
-    public function __construct(Translator $translator, UrlBuilder $urlBuilder) {
+    public function __construct(Translator $translator) {
         $this->translator = $translator;
-        $this->urlBuilder = $urlBuilder;
     }
 
     /**
@@ -54,15 +45,6 @@ class RouteResolver implements Listener {
      */
     public function getTranslator(): Translator {
         return $this->translator;
-    }
-
-    /**
-     * Return the URL builder.
-     *
-     * @return \Titon\Route\UrlBuilder
-     */
-    public function getUrlBuilder(): UrlBuilder {
-        return $this->urlBuilder;
     }
 
     /**
@@ -77,7 +59,7 @@ class RouteResolver implements Listener {
 
         invariant($event instanceof MatchingEvent, 'Must be a MatchingEvent.');
 
-        $this->resolve($event->getUrl());
+        $this->resolve($event->getUrl(), new UrlBuilder($event->getRouter()));
     }
 
     /**
@@ -96,10 +78,11 @@ class RouteResolver implements Listener {
      * This event must be bound to the router to work.
      *
      * @param string $url
+     * @param \Titon\Route\UrlBuilder
      */
-    public function resolve(string $url): void {
+    public function resolve(string $url, UrlBuilder $urlBuilder): void {
         $translator = $this->getTranslator();
-        $redirectTo = $this->getUrlBuilder()->getBase() . $translator->getFallback()->getCode();
+        $redirectTo = $urlBuilder->getBase() . $translator->getFallback()->getCode();
         $locales = $translator->getLocales();
         $matches = [];
 
@@ -129,7 +112,9 @@ class RouteResolver implements Listener {
      * @return \Titon\Event\ListenerMap
      */
     public function subscribeToEvents(): ListenerMap {
-        return Map {'route.matching' => 'resolve'};
+        return Map {
+            'route.matching' => Map {'method' => 'onResolve', 'priority' => 2}
+        };
     }
 
 }

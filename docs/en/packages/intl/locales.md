@@ -1,18 +1,6 @@
 # Locales #
 
-A `Titon\Intl\Locale` represents a set of parameters and metadata for a language, a country, and an array of other variances and preferences. When used in the context of an application, it defines a languages that will provide translated messages. 
-
-A `Locale` and an associated code can be setup through `Titon\Intl\Translator::addLocale()`. [More information on translating can be found here](translating.md). When a region/territory based locale code is used (the value after _ in the locale code), the parent locale will automatically be setup as well.
-
-```hack
-$translator->addLocale(new Locale('en_US')); // Will also add "en"
-```
-
-The parent `Locale` can be accessed using `getParentLocale()`. If no parent exists, it will return `null`.
-
-```hack
-$parent = $locale->getParentLocale();
-```
+A `Titon\Intl\Locale` represents a set of parameters and metadata for a language, a country, and an array of other variances and preferences. When used in the context of an application, it defines a languages that will provide translated messages. A `Locale` and an associated code can be setup through `Titon\Intl\Translator` for [translating messages](translating.md).
 
 ## Supported Locales ##
 

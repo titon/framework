@@ -91,13 +91,13 @@ class Translator implements Subject {
      * Map a locale to be supported during the locale detection and message translation process.
      *
      * @param \Titon\Intl\Locale $locale
-     * @return \Titon\Intl\Locale
+     * @return $this
      */
-    public function addLocale(Locale $locale): Locale {
+    public function addLocale(Locale $locale): this {
         $code = $locale->getCode();
 
         if ($this->locales->contains($code)) {
-            return $this->locales[$code];
+            return $this;
         }
 
         // Inherit resource paths
@@ -120,7 +120,7 @@ class Translator implements Subject {
             $this->setFallback($code);
         }
 
-        return $locale;
+        return $this;
     }
 
     /**

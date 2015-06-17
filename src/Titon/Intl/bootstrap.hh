@@ -34,7 +34,7 @@ namespace Titon\Intl {
     type CatalogMap = Map<string, Catalog>;
     type LocaleMap = Map<string, Locale>;
     type LocaleTagMap = Map<string, string>;
-    type MessageKey = shape('domain' => string, 'catalog' => string, 'key' => string);
+    type MessageKey = shape('domain' => string, 'catalog' => string, 'id' => string);
     type MessageMap = Map<string, string>;
     type ParamList = Vector<mixed>;
 }
@@ -49,6 +49,7 @@ namespace Titon\Intl {
 
 namespace {
     use Titon\Context\Depository;
+    use Titon\Intl\MessageLoader;
     use Titon\Intl\ParamList;
     use Titon\Intl\Translator;
 
@@ -61,7 +62,7 @@ namespace {
      * @param \Titon\Intl\ParamList $params
      * @return string
      */
-    function __(string $id, string $catalog = 'default', string $domain = 'common', ParamList $params = Vector {}): string {
+    function __(string $id, string $catalog = MessageLoader::DEFAULT_CATALOG, string $domain = MessageLoader::DEFAULT_DOMAIN, ParamList $params = Vector {}): string {
         return msg(sprintf('%s.%s.%s', $domain, $catalog, $id), $params);
     }
 

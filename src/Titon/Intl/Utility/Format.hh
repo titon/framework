@@ -8,6 +8,7 @@
 namespace Titon\Intl\Utility;
 
 use Titon\Intl\Bag\FormatBag;
+use Titon\Intl\MessageLoader;
 use Titon\Utility\Col;
 use Titon\Utility\OptionMap;
 use Titon\Utility\TimeMessageMap;
@@ -95,7 +96,7 @@ class Format extends \Titon\Utility\Format {
         $translator = translator_context();
 
         if ($translator->isEnabled() && $translator->current() !== null) {
-            $catalog = $translator->getMessageLoader()->loadCatalog('common', 'format');
+            $catalog = $translator->getMessageLoader()->loadCatalog(MessageLoader::DEFAULT_DOMAIN, 'format');
             $formatMessages = $catalog->getMessages();
 
             // Find option messages

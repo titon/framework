@@ -103,27 +103,31 @@ class Catalog {
      */
     <<__Memoize>>
     public static function parseKey(string $key): MessageKey {
-        $parts = explode('.', preg_replace('/[^-_a-z0-9\.]+/i', '', $key));
+        $parts = explode('.', preg_replace('/[^-_a-z0-9\.]+/i', '', $key), 3);
         $count = count($parts);
-        $domain = 'common';
+        $domain = MessageLoader::DEFAULT_DOMAIN;
+        $catalog = MessageLoader::DEFAULT_CATALOG;
 
-        if ($count < 2) {
+        if (!$key || $count === 0) {
             throw new InvalidMessageKeyException(sprintf('No domain or catalog present for %s key', $key));
+
+        } else if ($count === 1) {
+            $key = $parts[0];
 
         } else if ($count === 2) {
             $catalog = $parts[0];
             $key = $parts[1];
 
         } else {
-            $domain = array_shift($parts);
-            $catalog = array_shift($parts);
-            $key = implode('.', $parts);
+            $domain = $parts[0];
+            $catalog = $parts[1];
+            $key = $parts[2];
         }
 
         return shape(
             'domain' => $domain,
             'catalog' => $catalog,
-            'key' => $key
+            'id' => $key
         );
     }
 

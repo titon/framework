@@ -112,7 +112,7 @@ class Locale {
      * @return $this
      */
     public function addLocalePath(string $path): this {
-        $this->getLocaleBundle()->addPath('common', $path . '/' . $this->getCode());
+        $this->getLocaleBundle()->addPath(MessageLoader::DEFAULT_DOMAIN, $path . '/' . $this->getCode());
 
         // Pass it to the parent also
         $this->getParentLocale()?->addLocalePath($path);
@@ -270,7 +270,7 @@ class Locale {
             return $this->formatBag;
         }
 
-        $bag = $this->getLocaleBundle()->loadResource('common', 'formats');
+        $bag = $this->getLocaleBundle()->loadResource(MessageLoader::DEFAULT_DOMAIN, 'formats');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getFormatPatterns()->all(), $bag);
@@ -289,7 +289,7 @@ class Locale {
             return $this->inflectionBag;
         }
 
-        $bag = $this->getLocaleBundle()->loadResource('common', 'inflections');
+        $bag = $this->getLocaleBundle()->loadResource(MessageLoader::DEFAULT_DOMAIN, 'inflections');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getInflectionRules()->all(), $bag);
@@ -326,7 +326,7 @@ class Locale {
             return $this->metaBag;
         }
 
-        $bag = $this->getLocaleBundle()->loadResource('common', 'locale');
+        $bag = $this->getLocaleBundle()->loadResource(MessageLoader::DEFAULT_DOMAIN, 'locale');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getMetadata()->all(), $bag);
@@ -354,7 +354,7 @@ class Locale {
             return $this->validationBag;
         }
 
-        $bag = $this->getLocaleBundle()->loadResource('common', 'validations');
+        $bag = $this->getLocaleBundle()->loadResource(MessageLoader::DEFAULT_DOMAIN, 'validations');
 
         if ($parent = $this->getParentLocale()) {
             $bag = Col::merge($parent->getValidationPatterns()->all(), $bag);

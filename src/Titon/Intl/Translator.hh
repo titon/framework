@@ -87,7 +87,7 @@ class Translator implements Subject {
         $this->loader->setTranslator($this);
 
         // Load internal resources
-        $this->addResourcePaths('common', Set {__DIR__});
+        $this->addResourcePaths(MessageLoader::DEFAULT_DOMAIN, Set {__DIR__});
     }
 
     /**

@@ -21,6 +21,9 @@ use \MessageFormatter;
  */
 class MessageLoader {
 
+    const string DEFAULT_DOMAIN = 'common';
+    const string DEFAULT_CATALOG = 'default';
+
     /**
      * Loaded catalogs.
      *
@@ -214,7 +217,7 @@ class MessageLoader {
 
         return (string) MessageFormatter::formatMessage(
             (string) $this->getTranslator()->current()?->getCode(),
-            $this->loadCatalog($key['domain'], $key['catalog'])->getMessage($key['key']),
+            $this->loadCatalog($key['domain'], $key['catalog'])->getMessage($key['id']),
             $params->toArray());
     }
 

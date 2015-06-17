@@ -117,7 +117,7 @@ $translator->cascade(); // Set {'es_MX', 'es', 'en_US', 'en'}
 
 ## Translating Messages ##
 
-To fetch a localized message from the `Translator` and subsequently the `MessageLoader`, use the `translate()` method. This method requires a unique message key, composed of a domain, catalog, and ID in dot notated format. A domain is a [lookup group for paths](#configuring-paths) that also contain catalog files. A catalog is a file within a domain that contains a mapping of messages. An ID is the unique key to locate a message in a catalog.
+To fetch a localized message from the `Translator` and subsequently the `MessageLoader`, use the `translate()` method. This method requires a [unique message key](messages.md#message-keys).
 
 ```hack
 $message = $translator->translate('forum.topic.locked');

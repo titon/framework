@@ -20,6 +20,14 @@ As writers are used for writing files, a [reader](readers.md) can be used for re
 
 The following types of writers are supported.
 
+### Hack ###
+
+The `Titon\Io\Writer\HackWriter` can be used in writing Hack files.
+
+```hack
+$writer = new Titon\Io\Writer\HackWriter('/path/to/file.hh');
+```
+
 ### PHP ###
 
 The `Titon\Io\Writer\PhpWriter` can be used in writing PHP files by converting a map to an array.

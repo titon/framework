@@ -109,18 +109,23 @@ class Format extends \Titon\Utility\Format {
 
             // Find messages
             $messageKeys = Map {
-                'seconds'   => Vector {'sec', 'second', 'seconds'},
-                'minutes'   => Vector {'min', 'minute', 'minutes'},
-                'hours'     => Vector {'hr', 'hour', 'hours'},
-                'days'      => Vector {'dy', 'day', 'days'},
-                'weeks'     => Vector {'wk', 'week', 'weeks'},
-                'months'    => Vector {'mon', 'month', 'months'},
-                'years'     => Vector {'yr', 'year', 'years'}
+                'seconds'   => Vector {'second', 'second', 'seconds'},
+                'minutes'   => Vector {'minute', 'minute', 'minutes'},
+                'hours'     => Vector {'hour', 'hour', 'hours'},
+                'days'      => Vector {'day', 'day', 'days'},
+                'weeks'     => Vector {'week', 'week', 'weeks'},
+                'months'    => Vector {'month', 'month', 'months'},
+                'years'     => Vector {'year', 'year', 'years'}
             };
 
             foreach ($messageKeys as $parentKey => $childKeys) {
                 foreach ($childKeys as $i => $childKey) {
                     $messageKey = 'time.relative.' . $childKey;
+
+                    // First key is shorthand
+                    if ($i === 0) {
+                        $messageKey .= '.short';
+                    }
 
                     // Don't overwrite custom messages
                     if ($messages->contains($parentKey) && $messages[$parentKey]->containsKey($i)) {

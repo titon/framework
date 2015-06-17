@@ -2,7 +2,7 @@
 
 The Common package provides a few global functions that solve scenarios that do not pass Hack's strict mode.
 
-### include_file(`string $path`): `array<Tk, Tv>` ###
+### include_file`<Tk, Tv>`(`string $path`): `Map<Tk, Tv>` ###
 
 Include a file defined at the given path and return the response of the include. This is primarily used for 
 including PHP configuration files that return arrays. If the file does not exist, a `Titon\Common\Exception\MissingFileException` 
@@ -12,7 +12,7 @@ is thrown.
 $data = include_file('/path/to/config.php');
 ```
 
-### render_template(`string $path`[, `array<string, Tv> $variables`]): `string` ###
+### render_template`<Tv>`(`string $path`[, `array<string, Tv> $variables`]): `string` ###
 
 Render a template defined at the given path and return the rendered response. An optional array of variables can 
 be defined that will be available in the template. If the template does not exist, a `Titon\Common\Exception\MissingFileException` 

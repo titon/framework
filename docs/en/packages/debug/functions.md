@@ -40,7 +40,7 @@ Output the stack trace, file path, line number, and metadata of an exception.
 inspect($e);
 ```
 
-### export(`mixed $var`[, `bool $short`]): `void` ###
+### export(`mixed $var`): `void` ###
 
 Output the variable into a PHP/Hack usable format.
 

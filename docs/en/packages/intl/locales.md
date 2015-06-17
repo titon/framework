@@ -72,7 +72,7 @@ The static `canonicalize()` method will accept a locale code and convert it to 1
 
 * `FORMAT_1` - Will convert to dashed lower format (`en-us`). Used in routes and URLs.
 * `FORMAT_2` - Will convert to dashed, lower language, upper region format (`en-US`). Used by PHP and the OS.
-* `FORMAT_3` - Will convert to underscored, lower language, upper region format (`en_US`). Used internally by Titon. (default)
+* `FORMAT_3` - Will convert to underscored, lower language, upper region format (`en_US`). Used internally by Titon (default).
 * `FORMAT_4` - Will convert to spaceless, lower language, upper region format (`enUS`).
 
 ```hack

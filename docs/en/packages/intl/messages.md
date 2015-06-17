@@ -41,7 +41,7 @@ $key = Catalog::parseKey('user.dashboard.welcome.message'); // shape('domain' =>
 
 ### Shared & Shorthand Keys ###
 
-Messages provided internally by Titon and messages that should be shared throughout the entire application use the "common" domain. This common domain provides special functionality that allows for shorthand keys to be used when [translating](translating.md#translating-messages) and [parsing](#catalogs). The following statements are equivalent:
+Messages provided internally by Titon and messages that should be shared throughout the entire application use the "common" domain. This common domain provides special functionality that allows for shorthand keys to be used when [translating](translating.md#translating-messages) and [parsing](#parsing-keys). The following statements are equivalent:
 
 ```hack
 $translator->translate('common.validation.date');

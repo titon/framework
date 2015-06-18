@@ -26,7 +26,7 @@ class Format extends \Titon\Utility\Format {
     public static function date(mixed $time, string $format = ''): string {
         $patterns = static::loadFormatPatterns();
 
-        if ($patterns !== null) {
+        if ($patterns !== null && !$format) {
             $format = $patterns->getDate();
         }
 
@@ -43,7 +43,7 @@ class Format extends \Titon\Utility\Format {
     public static function datetime(mixed $time, string $format = ''): string {
         $patterns = static::loadFormatPatterns();
 
-        if ($patterns !== null) {
+        if ($patterns !== null && !$format) {
             $format = $patterns->getDatetime();
         }
 
@@ -153,7 +153,7 @@ class Format extends \Titon\Utility\Format {
     public static function ssn(string $value, string $format = ''): string {
         $patterns = static::loadFormatPatterns();
 
-        if ($patterns !== null) {
+        if ($patterns !== null && !$format) {
             $format = $patterns->getSSN();
         }
 
@@ -166,7 +166,7 @@ class Format extends \Titon\Utility\Format {
     public static function time(mixed $time, string $format = ''): string {
         $patterns = static::loadFormatPatterns();
 
-        if ($patterns !== null) {
+        if ($patterns !== null && !$format) {
             $format = $patterns->getTime();
         }
 

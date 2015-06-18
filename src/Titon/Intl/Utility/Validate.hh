@@ -22,7 +22,7 @@ class Validate extends \Titon\Utility\Validate {
     public static function currency(string $input, string $format = ''): bool {
         $patterns = static::loadValidationPatterns();
 
-        if ($patterns !== null) {
+        if ($patterns !== null && !$format) {
             $format = $patterns->getCurrency();
         }
 
@@ -55,7 +55,7 @@ class Validate extends \Titon\Utility\Validate {
     public static function phone(string $input, string $format = ''): bool {
         $patterns = static::loadValidationPatterns();
 
-        if ($patterns !== null) {
+        if ($patterns !== null && !$format) {
             $format = $patterns->getPhone();
         }
 
@@ -72,7 +72,7 @@ class Validate extends \Titon\Utility\Validate {
     public static function postalCode(string $input, string $format = ''): bool {
         $patterns = static::loadValidationPatterns();
 
-        if ($patterns !== null) {
+        if ($patterns !== null && !$format) {
             $format = $patterns->getPostalCode();
         }
 
@@ -89,7 +89,7 @@ class Validate extends \Titon\Utility\Validate {
     public static function ssn(string $input, string $format = ''): bool {
         $patterns = static::loadValidationPatterns();
 
-        if ($patterns !== null) {
+        if ($patterns !== null && !$format) {
             $format = $patterns->getSSN();
         }
 

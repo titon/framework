@@ -30,10 +30,12 @@ class FormatTest extends TestCase {
 
     public function testDate(): void {
         $this->assertEquals('02/26/1988', Format::date(mktime(16, 35, 0, 2, 26, 1988)));
+        $this->assertEquals('1988-02-26', Format::date(mktime(16, 35, 0, 2, 26, 1988), '%Y-%m-%d'));
     }
 
     public function testDatetime(): void {
         $this->assertEquals('02/26/1988 04:35PM', Format::datetime(mktime(16, 35, 0, 2, 26, 1988)));
+        $this->assertEquals('1988-02-26 16:35:00', Format::datetime(mktime(16, 35, 0, 2, 26, 1988), '%Y-%m-%d %H:%M:%S'));
     }
 
     public function testPhone(): void {
@@ -85,10 +87,12 @@ class FormatTest extends TestCase {
 
     public function testSsn(): void {
         $this->assertEquals('998-29-3841', Format::ssn('998293841'));
+        $this->assertEquals('998-293-841', Format::ssn('998293841', '###-###-###'));
     }
 
     public function testTime(): void {
         $this->assertEquals('04:35PM', Format::time(mktime(16, 35, 0, 2, 26, 1988)));
+        $this->assertEquals('16:35', Format::time(mktime(16, 35, 0, 2, 26, 1988), '%H:%M'));
     }
 
 }

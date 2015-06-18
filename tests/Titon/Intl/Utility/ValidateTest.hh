@@ -37,6 +37,8 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::currency('2325'));
         $this->assertFalse(Validate::currency('$ten'));
         $this->assertFalse(Validate::currency('$1923.2'));
+
+        $this->assertTrue(Validate::currency('$1923.2', '/^\$[0-9\.]+$/'));
     }
 
     public function testPhone(): void {
@@ -50,6 +52,8 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::phone('888-666.1337'));
         $this->assertFalse(Validate::phone('1 888.666.1337'));
         $this->assertFalse(Validate::phone('666-ABMS'));
+
+        $this->assertTrue(Validate::phone('666.1337', '/^[0-9]{3}\.[0-9]{4}$/'));
     }
 
     public function testPostalCode(): void {
@@ -59,6 +63,8 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::postalCode('3842'));
         $this->assertFalse(Validate::postalCode('38842.0384'));
         $this->assertFalse(Validate::postalCode('AksiS-0384'));
+
+        $this->assertTrue(Validate::postalCode('AksiS-0384', '/^[a-z]{5}\-[0-9]{4}$/i'));
     }
 
     public function testSsn(): void {
@@ -69,6 +75,8 @@ class ValidateTest extends TestCase {
         $this->assertFalse(Validate::ssn('384-29-341'));
         $this->assertFalse(Validate::ssn('666.10.1337'));
         $this->assertFalse(Validate::ssn('AHE-29-34P1'));
+
+        $this->assertTrue(Validate::ssn('666.10.1337', '/^[0-9\.]{11}$/'));
     }
 
 }

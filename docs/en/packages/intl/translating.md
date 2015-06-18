@@ -122,7 +122,7 @@ To fetch a localized message from the `Translator` and subsequently the `Message
 ```hack
 $message = $translator->translate('forum.topic.locked');
 
-// forum/resources/messages/topic.hh
+// forum/resources/messages/en_US/topic.hh
 return Map {
     'locked' => 'This topic is locked.',
     'locked.mod' => 'This topic is locked for everyone but moderators.' // Keys can also contain periods
@@ -138,7 +138,7 @@ A vector of parameters can be passed as the 2nd argument to `translate()`, which
 ```hack
 $message = $translator->translate('user.dashboard.hello', Vector {'Titon'}); // Hello Titon
 
-// user/resources/messages/dashboard.hh
+// user/resources/messages/en_US/dashboard.hh
 return Map {
     'hello' => 'Hello {0}'
 };
@@ -153,7 +153,7 @@ $message = $translator->translate('blog.search.results', Vector {0}); // 0 resul
 $message = $translator->translate('blog.search.results', Vector {1}); // 1 result
 $message = $translator->translate('blog.search.results', Vector {9}); // 9 results
 
-// blog/resources/messages/search.hh
+// blog/resources/messages/en_US/search.hh
 return Map {
     'results' => '{0,choice,0#0 results|1#1 result|1<{0,number} results}'
 };

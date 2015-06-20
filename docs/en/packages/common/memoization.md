@@ -1,7 +1,6 @@
 # Memoization #
 
-Memoization is an optimization technique that caches the result of expensive processes for the duration of the request.
-This type of caching is handled by the `Titon\Common\Cacheable` and `Titon\Common\StaticCacheable` traits.
+Memoization is an optimization technique that caches the result of expensive processes for the duration of the request. This type of caching is handled by the `Titon\Common\Cacheable` and `Titon\Common\StaticCacheable` traits.
 
 ```hack
 class Foo {
@@ -20,8 +19,7 @@ class Bar {
 
 ## Caching Data ##
 
-There are 2 ways to cache data in the class -- the first being the preferred way, using `cache()`. 
-The `cache()` method handles the automatic checking, fetching, and caching of data through a callback.
+There are 2 ways to cache data in the class -- the first being the preferred way, using `cache()`. The `cache()` method handles the automatic checking, fetching, and caching of data through a callback.
 
 ```hack
 public function doExpensiveProcess(): mixed {
@@ -31,15 +29,13 @@ public function doExpensiveProcess(): mixed {
 }
 ```
 
-In the example above, if the key defined by `__METHOD__` exists, then the cached result is returned, 
-else it is set using the value from the defined callback.
+In the example above, if the key defined by `__METHOD__` exists, then the cached result is returned, else it is set using the value from the defined callback.
 
 <div class="notice is-info">
     The class instance is passed as the 1st argument to the callback. This does not apply when using <code>StaticCacheable</code>.
 </div>
 
-The other way to cache data, is with the `setCache()` method. This method is useful when you want to manually handle the 
-entire checking and fetching process using different steps. The following example is functionality equivalent to `cache()`.
+The other way to cache data, is with the `setCache()` method. This method is useful when you want to manually handle the entire checking and fetching process using different steps. The following example is functionality equivalent to `cache()`.
 
 ```hack
 public function doExpensiveProcess(): mixed {
@@ -57,8 +53,7 @@ public function doExpensiveProcess(): mixed {
 
 ## Retrieving Data ##
 
-Besides the `cache()` method mentioned previously, the `getCache()` method is used for retrieving an item by a unique key. 
-If the key does not exist, then `null` is returned.
+Besides the `cache()` method mentioned previously, the `getCache()` method is used for retrieving an item by a unique key. If the key does not exist, then `null` is returned.
 
 ```hack
 $this->getCache('foo'); // Cached value or null
@@ -80,8 +75,7 @@ $this->flushCache();
 
 ## Toggling Caching ##
 
-There may be times where caching needs to be disabled for a short duration. This can be achieved with the `toggleCache()` method. 
-The method accepts a boolean, which either enables or disables caching.
+There may be times where caching needs to be disabled for a short duration. This can be achieved with the `toggleCache()` method. The method accepts a boolean, which either enables or disables caching.
 
 ```hack
 $this->toggleCache(false); // Disable
@@ -95,8 +89,7 @@ To check the state of caching, use the `isCacheEnabled()` method.
 
 ## Creating Unique Keys ##
 
-To create a unique cache key, one can use the `createCacheKey()` method. This method accepts scalar and traversable values. 
-When a traversable is used, each item is separated with a `-` and optionally hashed.
+To create a unique cache key, one can use the `createCacheKey()` method. This method accepts scalar and traversable values. When a traversable is used, each item is separated with a `-` and optionally hashed.
 
 ```hack
 $this->createCacheKey('foo'); // foo

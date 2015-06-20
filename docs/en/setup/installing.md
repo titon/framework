@@ -12,8 +12,7 @@ The following system dependencies are required.
 
 ### Using Nexus ###
 
-We suggest using [Nexus](https://github.com/titon/nexus), an all-in-one Vagrant development environment. 
-It's an official Titon project that provides up-to-date support for Hack and HHVM development.
+We suggest using [Nexus](https://github.com/titon/nexus), an all-in-one Vagrant development environment. It's an official Titon project that provides up-to-date support for Hack and HHVM development.
 
 If you prefer not to use Nexus, continue reading, else jump down to the installation chapter.
 
@@ -32,8 +31,7 @@ sudo apt-get update
 sudo apt-get install hhvm
 ```
 
-If you need to install HHVM on another distro, or are encountering installation errors, 
-[please refer to the official docs](https://github.com/facebook/hhvm/wiki/Prebuilt%20Packages%20for%20HHVM).
+If you need to install HHVM on another distro, or are encountering installation errors, [please refer to the official docs](https://github.com/facebook/hhvm/wiki/Prebuilt%20Packages%20for%20HHVM).
 
 ### Installing Composer ###
 
@@ -67,16 +65,14 @@ If you are still having issues, [please refer to the official docs](https://getc
 
 ## Installation ##
 
-Once the requirements are in place, we can proceed with installing Titon.
-The preferred way of using Titon is by installing it as a vendor through Composer.
+Once the requirements are in place, we can proceed with installing Titon. The preferred way of using Titon is by installing it as a vendor through Composer.
 
 ```shell
 composer require titon/framework:*
 composer update
 ```
 
-If you prefer to not use the entire framework, Titon also comes bundled as individual packages.
-Check out [Packagist](https://packagist.org/packages/titon/) for a list of supported packages.
+If you prefer to not use the entire framework, Titon also comes bundled as individual packages. Check out [Packagist](https://packagist.org/packages/titon/) for a list of supported packages.
 
 ```shell
 composer require titon/event:*

@@ -1,8 +1,6 @@
 # Bags #
 
-The `Titon\Common\Bag` interface provides an easy object oriented approach for managing a set of parameters. 
-An abstract class exists at `Titon\Common\Bag\AbstractBag` that can be inherited for immediate functionality. 
-This class inherits most of its functionality from the [Titon\Common\Mutable](traits.md) trait.
+The `Titon\Common\Bag` interface provides an easy object oriented approach for managing a set of parameters. An abstract class exists at `Titon\Common\Bag\AbstractBag` that can be inherited for immediate functionality. This class inherits most of its functionality from the [Titon\Common\Mutable](traits.md) trait.
 
 ```hack
 class ExampleBag extends Titon\Common\Bag\AbstractBag<string, array<string>> {
@@ -22,8 +20,7 @@ $bag = new ExampleBag();
 
 ## Adding Parameters ##
 
-There are 2 methods for adding parameters to a bag, the first with `set()`, which accepts a key and value. 
-Using the example above, our key must be a `string` and our value must be an `array<string>`.
+There are 2 methods for adding parameters to a bag, the first with `set()`, which accepts a key and value. Using the example above, our key must be a `string` and our value must be an `array<string>`.
 
 ```hack
 $bag->set('foo', ['bar']);

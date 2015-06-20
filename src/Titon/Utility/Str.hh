@@ -121,6 +121,19 @@ class Str {
     }
 
     /**
+     * Return a hashed string using one of the built in ciphers (md5, sha1, sha256, etc) and use the config salt if it has been set.
+     * Can also supply an optional second salt for increased security.
+     *
+     * @param string $cipher
+     * @param string $string
+     * @param string $salt
+     * @return string
+     */
+    public static function hash(string $string, string $cipher, string $salt = ''): string {
+        return hash_hmac($cipher, $string, $salt);
+    }
+
+    /**
      * Grab the index of the first matched character. Returns -1 when the needle is not found.
      *
      * @param string $string
@@ -209,6 +222,25 @@ class Str {
         $items = $items . $glue . $lastItem;
 
         return $items;
+    }
+
+    /**
+     * Scrambles the source of a string.
+     *
+     * @param string $string
+     * @return string
+     */
+    public static function obfuscate(string $string): string {
+        $length = mb_strlen($string);
+        $scrambled = '';
+
+        if ($length > 0) {
+            for ($i = 0; $i < $length; $i++) {
+                $scrambled .= '&#' . ord($string[$i]) . ';';
+            }
+        }
+
+        return $scrambled;
     }
 
     /**

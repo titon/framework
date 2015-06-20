@@ -19,31 +19,4 @@ class CryptTest extends TestCase {
         $this->assertEquals($this->string, $d);
     }*/
 
-    public function testHash(): void {
-        $md51 = Crypt::hash('md5', $this->string);
-        $md52 = Crypt::hash('md5', $this->string, 'md5.salt');
-
-        $this->assertTrue(strlen($md51) === 32);
-        $this->assertTrue(strlen($md52) === 32);
-        $this->assertNotEquals($md51, $md52);
-
-        $sha1 = Crypt::hash('sha1', $this->string);
-        $sha2 = Crypt::hash('sha1', $this->string, 'sha1.salt');
-
-        $this->assertTrue(strlen($sha1) === 40);
-        $this->assertTrue(strlen($sha2) === 40);
-        $this->assertNotEquals($sha1, $sha2);
-
-        $sha1 = Crypt::hash('sha256', $this->string);
-        $sha2 = Crypt::hash('sha256', $this->string, 'sha256.salt');
-
-        $this->assertTrue(strlen($sha1) === 64);
-        $this->assertTrue(strlen($sha2) === 64);
-        $this->assertNotEquals($sha1, $sha2);
-    }
-
-    public function testObfuscate(): void {
-        $this->assertEquals('&#84;&#105;&#116;&#111;&#110;&#32;&#70;&#114;&#97;&#109;&#101;&#119;&#111;&#114;&#107;', Crypt::obfuscate('Titon Framework'));
-    }
-
 }

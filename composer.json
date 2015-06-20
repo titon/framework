@@ -35,7 +35,7 @@
         "php-vfs/php-vfs": "~1.2"
     },
     "autoload": {
-        "psr-4": { "": "src/" },
+        "psr-4": { "Titon\\": "src/Titon/" },
         "files": [
             "src/Titon/Annotation/bootstrap.hh",
             "src/Titon/Cache/bootstrap.hh",
@@ -56,6 +56,6 @@
         ]
     },
     "autoload-dev": {
-        "psr-4": { "": "tests/" }
+        "psr-4": { "Titon\\": "tests/Titon/" }
     }
 }

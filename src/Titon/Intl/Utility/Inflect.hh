@@ -57,7 +57,7 @@ class Inflect extends \Titon\Utility\Inflect {
     /**
      * {@inheritdoc}
      */
-    public static function pluralize(string $string): string {
+    public static function plural(string $string): string {
         $rules = static::loadInflectionRules();
 
         if ($rules === null) {
@@ -95,7 +95,7 @@ class Inflect extends \Titon\Utility\Inflect {
     /**
      * {@inheritdoc}
      */
-    public static function singularize(string $string): string {
+    public static function singular(string $string): string {
         $rules = static::loadInflectionRules();
 
         if ($rules === null) {

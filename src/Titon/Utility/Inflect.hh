@@ -34,7 +34,7 @@ class Inflect {
      */
     <<__Memoize>>
     public static function className(string $string): string {
-        return static::camelCase(static::singularize($string));
+        return static::camelCase(static::singular($string));
     }
 
     /**
@@ -96,7 +96,7 @@ class Inflect {
      * @param string $string
      * @return string
      */
-    public static function pluralize(string $string): string {
+    public static function plural(string $string): string {
         return $string;
     }
 
@@ -117,7 +117,7 @@ class Inflect {
      * @param string $string
      * @return string
      */
-    public static function singularize(string $string): string {
+    public static function singular(string $string): string {
         return $string;
     }
 

@@ -65,64 +65,64 @@ class InflectorTest extends TestCase {
         $this->assertEquals('-12th', Inflect::ordinal('-12$'));
     }
 
-    public function testPluralize(): void {
+    public function testPlural(): void {
         // irregular
-        $this->assertEquals('opuses', Inflect::pluralize('opus'));
-        $this->assertEquals('penises', Inflect::pluralize('penis'));
-        $this->assertEquals('loaves', Inflect::pluralize('loaf'));
-        $this->assertEquals('mythoi', Inflect::pluralize('mythos'));
-        $this->assertEquals('men', Inflect::pluralize('man'));
+        $this->assertEquals('opuses', Inflect::plural('opus'));
+        $this->assertEquals('penises', Inflect::plural('penis'));
+        $this->assertEquals('loaves', Inflect::plural('loaf'));
+        $this->assertEquals('mythoi', Inflect::plural('mythos'));
+        $this->assertEquals('men', Inflect::plural('man'));
 
         // uninflected
-        $this->assertEquals('information', Inflect::pluralize('information'));
-        $this->assertEquals('corps', Inflect::pluralize('corps'));
-        $this->assertEquals('gallows', Inflect::pluralize('gallows'));
-        $this->assertEquals('maltese', Inflect::pluralize('maltese'));
-        $this->assertEquals('rice', Inflect::pluralize('rice'));
+        $this->assertEquals('information', Inflect::plural('information'));
+        $this->assertEquals('corps', Inflect::plural('corps'));
+        $this->assertEquals('gallows', Inflect::plural('gallows'));
+        $this->assertEquals('maltese', Inflect::plural('maltese'));
+        $this->assertEquals('rice', Inflect::plural('rice'));
 
         // plural
-        $this->assertEquals('matrices', Inflect::pluralize('matrix'));
-        $this->assertEquals('buses', Inflect::pluralize('bus'));
-        $this->assertEquals('perches', Inflect::pluralize('perch'));
-        $this->assertEquals('people', Inflect::pluralize('person'));
-        $this->assertEquals('bananas', Inflect::pluralize('banana'));
+        $this->assertEquals('matrices', Inflect::plural('matrix'));
+        $this->assertEquals('buses', Inflect::plural('bus'));
+        $this->assertEquals('perches', Inflect::plural('perch'));
+        $this->assertEquals('people', Inflect::plural('person'));
+        $this->assertEquals('bananas', Inflect::plural('banana'));
 
         // already plural
-        $this->assertEquals('opuses', Inflect::pluralize('opuses'));
-        $this->assertEquals('penises', Inflect::pluralize('penises'));
-        $this->assertEquals('loaves', Inflect::pluralize('loaves'));
-        $this->assertEquals('mythoi', Inflect::pluralize('mythoi'));
-        $this->assertEquals('men', Inflect::pluralize('men'));
+        $this->assertEquals('opuses', Inflect::plural('opuses'));
+        $this->assertEquals('penises', Inflect::plural('penises'));
+        $this->assertEquals('loaves', Inflect::plural('loaves'));
+        $this->assertEquals('mythoi', Inflect::plural('mythoi'));
+        $this->assertEquals('men', Inflect::plural('men'));
     }
 
-    public function testSingularize(): void {
+    public function testSingular(): void {
         // irregular
-        $this->assertEquals('atlas', Inflect::singularize('atlases'));
-        $this->assertEquals('corpus', Inflect::singularize('corpuses'));
-        $this->assertEquals('octopus', Inflect::singularize('octopuses'));
-        $this->assertEquals('ox', Inflect::singularize('oxen'));
-        $this->assertEquals('goose', Inflect::singularize('geese'));
+        $this->assertEquals('atlas', Inflect::singular('atlases'));
+        $this->assertEquals('corpus', Inflect::singular('corpuses'));
+        $this->assertEquals('octopus', Inflect::singular('octopuses'));
+        $this->assertEquals('ox', Inflect::singular('oxen'));
+        $this->assertEquals('goose', Inflect::singular('geese'));
 
         // uninflected
-        $this->assertEquals('money', Inflect::singularize('money'));
-        $this->assertEquals('flounder', Inflect::singularize('flounder'));
-        $this->assertEquals('moose', Inflect::singularize('moose'));
-        $this->assertEquals('species', Inflect::singularize('species'));
-        $this->assertEquals('wildebeest', Inflect::singularize('wildebeest'));
+        $this->assertEquals('money', Inflect::singular('money'));
+        $this->assertEquals('flounder', Inflect::singular('flounder'));
+        $this->assertEquals('moose', Inflect::singular('moose'));
+        $this->assertEquals('species', Inflect::singular('species'));
+        $this->assertEquals('wildebeest', Inflect::singular('wildebeest'));
 
         // singular
-        $this->assertEquals('quiz', Inflect::singularize('quizzes'));
-        $this->assertEquals('alias', Inflect::singularize('aliases'));
-        $this->assertEquals('shoe', Inflect::singularize('shoes'));
-        $this->assertEquals('person', Inflect::singularize('people'));
-        $this->assertEquals('apple', Inflect::singularize('apples'));
+        $this->assertEquals('quiz', Inflect::singular('quizzes'));
+        $this->assertEquals('alias', Inflect::singular('aliases'));
+        $this->assertEquals('shoe', Inflect::singular('shoes'));
+        $this->assertEquals('person', Inflect::singular('people'));
+        $this->assertEquals('apple', Inflect::singular('apples'));
 
         // already singular
-        $this->assertEquals('atlas', Inflect::singularize('atlas'));
-        $this->assertEquals('corpus', Inflect::singularize('corpus'));
-        $this->assertEquals('octopus', Inflect::singularize('octopus'));
-        $this->assertEquals('ox', Inflect::singularize('ox'));
-        $this->assertEquals('goose', Inflect::singularize('goose'));
+        $this->assertEquals('atlas', Inflect::singular('atlas'));
+        $this->assertEquals('corpus', Inflect::singular('corpus'));
+        $this->assertEquals('octopus', Inflect::singular('octopus'));
+        $this->assertEquals('ox', Inflect::singular('ox'));
+        $this->assertEquals('goose', Inflect::singular('goose'));
     }
 
     public function testTransliterate(): void {

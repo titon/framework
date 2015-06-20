@@ -22,12 +22,12 @@ Titon\Intl\Utility\Format::relativeTime($date); // 1 week ago
 The `Titon\Intl\Utility\Inflect` class extends `Titon\Utility\Inflect` and provides automatic localization and enforcement of [inflection rules](locales.md#inflection-rules) for the following methods:
 
 * `ordinal()` - Loads the `ordinal` rule.
-* `pluralize()` - Loads the `plural`, `irregular`, and `uninflected` rules.
-* `singularize()` - Loads the `singular`, `irregular`, and `uninflected` rules.
+* `plural()` - Loads the `plural`, `irregular`, and `uninflected` rules.
+* `singular()` - Loads the `singular`, `irregular`, and `uninflected` rules.
 * `transliterate()` - Loads the `transliteration` rule.
 
 ```hack
-Titon\Intl\Utility\Inflect::pluralize('quiz'); // quizzes
+Titon\Intl\Utility\Inflect::plural('quiz'); // quizzes
 ```
 
 ## Number ##

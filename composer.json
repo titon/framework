@@ -23,7 +23,7 @@
     },
     "require": {
         "hhvm": ">=3.6.0",
-        "ext-mcrypt": "*",
+        "ext-openssl": "*",
         "ext-mbstring": "*",
         "ext-fileinfo": "*",
         "ext-simplexml": "*",

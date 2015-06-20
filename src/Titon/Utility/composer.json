@@ -23,7 +23,7 @@
         "ext-mbstring": "*"
     },
     "suggest": {
-        "ext-mcrypt": "Encrypt and decrypt data with the Utility\\Crypt class",
+        "ext-openssl": "Encrypt and decrypt data with the Utility\\Crypt class",
         "ext-fileinfo": "Validate file mime types with the Utility\\Validate class",
         "titon/common": "Convert from maps, arrays, and vectors using the Common package",
         "titon/io": "Load configuration files using an Io\\Reader class"

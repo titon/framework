@@ -15,71 +15,42 @@ namespace Titon\Utility;
  */
 class Crypt {
 
-    /**
-     * Default ciphers.
-     */
-    const string BLOWFISH = MCRYPT_BLOWFISH;
-    const string DES = MCRYPT_DES;
-    const string RIJNDAEL = MCRYPT_RIJNDAEL_128; // AES compliant
-    const string TRIPLEDES = MCRYPT_3DES;
-
-    /**
-     * Operations.
-     */
-    const int DECRYPT = MCRYPT_DECRYPT;
-    const int ENCRYPT = MCRYPT_ENCRYPT;
-
-    /**
-     * Framework salt.
-     */
     const string SALT = 'dDFUMG4gZlI0bTNXMFJr';
 
     /**
-     * Encrypt and decrypt a string using the Blowfish algorithm with CBC mode.
+     * Check if a cipher method is supported.
      *
-     * @param string $string
-     * @param string $key
-     * @param int $operation
+     * @param string $cipher
      * @return string
      */
-    public static function blowfish(string $string, string $key, int $operation = self::ENCRYPT): string {
-        if ($operation === self::ENCRYPT) {
-            return static::encrypt($string, $key, self::BLOWFISH);
-        } else {
-            return static::decrypt($string, $key, self::BLOWFISH);
+    public static function checkCipher(string $cipher): string {
+        if (!in_array($cipher, openssl_get_cipher_methods())) {
+            throw new UnsupportedCipherException(sprintf('Unsupported cipher [%s]', $cipher));
         }
+
+        return $cipher;
+    }
+
+    /**
+     * Generate an IV to use for encryption and decryption.
+     *
+     * @return string
+     */
+    public static function createIV(): string {
+        return openssl_random_pseudo_bytes(16);
     }
 
     /**
      * Decrypt an encrypted string using the passed cipher and mode.
      * Additional types of ciphers and modes can be used that aren't constants of this class.
      *
-     * @param string $string
-     * @param string $key
-     * @param string $cipher
-     * @param string $mode
+     * @param string $payload
      * @return string
      */
-    public static function decrypt(string $string, string $key, string $cipher, string $mode = MCRYPT_MODE_CBC): string {
-        list($key, $iv) = static::vector($key, $cipher, $mode);
+    public static function decrypt(string $payload): string {
+        $payload = json_decode(base64_decode($payload));
 
-        return rtrim(mcrypt_decrypt($cipher, $key, $string, $mode, $iv), "\0");
-    }
-
-    /**
-     * Encrypt and decrypt a string using the DES (data encryption standard) algorithm with CBC mode.
-     *
-     * @param string $string
-     * @param string $key
-     * @param int $operation
-     * @return string
-     */
-    public static function des(string $string, string $key, int $operation = self::ENCRYPT): string {
-        if ($operation === self::ENCRYPT) {
-            return static::encrypt($string, $key, self::DES);
-        } else {
-            return static::decrypt($string, $key, self::DES);
-        }
+        return openssl_decrypt($payload->value, $payload->cipher, $payload->key, OPENSSL_RAW_DATA, $payload->iv);
     }
 
     /**
@@ -89,13 +60,19 @@ class Crypt {
      * @param string $string
      * @param string $key
      * @param string $cipher
-     * @param string $mode
      * @return string
      */
-    public static function encrypt(string $string, string $key, string $cipher, string $mode = MCRYPT_MODE_CBC): string {
-        list($key, $iv) = static::vector($key, $cipher, $mode);
+    public static function encrypt(string $string, string $key, string $cipher): string {
+        $iv = static::createIV(16);
+        $cipher = static::checkCipher($cipher);
+        $value = openssl_encrypt($string, $cipher, $key, OPENSSL_RAW_DATA, $iv);
 
-        return mcrypt_encrypt($cipher, $key, $string, $mode, $iv);
+        return base64_encode(json_encode([
+            'iv' => $iv,
+            'key' => $key,
+            'cipher' => $cipher,
+            'value' => $value
+        ]));
     }
 
     /**
@@ -128,65 +105,6 @@ class Crypt {
         }
 
         return $scrambled;
-    }
-
-    /**
-     * Encrypt and decrypt a string using the Rijndael 128 algorithm with CBC mode.
-     *
-     * @param string $string
-     * @param string $key
-     * @param int $operation
-     * @return string
-     */
-    public static function rijndael(string $string, string $key, int $operation = self::ENCRYPT): string {
-        if ($operation === self::ENCRYPT) {
-            return static::encrypt($string, $key, self::RIJNDAEL);
-        } else {
-            return static::decrypt($string, $key, self::RIJNDAEL);
-        }
-    }
-
-    /**
-     * Encrypt and decrypt a string using the 3DES (triple data encryption standard) algorithm with CBC mode.
-     *
-     * @param string $string
-     * @param string $key
-     * @param int $operation
-     * @return string
-     */
-    public static function tripledes(string $string, string $key, int $operation = self::ENCRYPT): string {
-        if ($operation === self::ENCRYPT) {
-            return static::encrypt($string, $key, self::TRIPLEDES);
-        } else {
-            return static::decrypt($string, $key, self::TRIPLEDES);
-        }
-    }
-
-    /**
-     * Prepare for en/decryption by generating persistent keys and IVs.
-     * We can't use randomization as the key/iv needs to be the same for both encrypt and decrypt.
-     *
-     * @param string $key
-     * @param string $cipher
-     * @param string $mode
-     * @return (string, string)
-     */
-    public static function vector(string $key, string $cipher, string $mode): (string, string) {
-        $keySize = mcrypt_get_key_size($cipher, $mode);
-        $key = str_pad(static::hash('md5', $key), $keySize, mb_substr($cipher, -1), STR_PAD_BOTH);
-
-        if (mb_strlen($key) > $keySize) {
-            $key = mb_substr($key, 0, $keySize);
-        }
-
-        $ivSize = mcrypt_get_iv_size($cipher, $mode);
-        $iv = str_pad(static::hash('md5', $key, $mode), $ivSize, mb_substr($cipher, 0, 1), STR_PAD_BOTH);
-
-        if (mb_strlen($iv) > $ivSize) {
-            $iv = mb_substr($iv, 0, $ivSize);
-        }
-
-        return tuple($key, $iv);
     }
 
 }

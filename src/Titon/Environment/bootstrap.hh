@@ -35,22 +35,27 @@ namespace {
      * @see Titon\Environment\Detector::getVariable()
      */
     function env(string $key): mixed {
-        $env = Depository::getInstance()->make('Titon\Environment\Detector');
-
-        invariant($env instanceof Detector, 'Must be an environment Detector.');
-
-        return $env->getVariable($key);
+        return detector_context()->getVariable($key);
     }
 
     /**
      * @see Titon\Environment\Detector::is()
      */
     function is_env(string $key): bool {
-        $env = Depository::getInstance()->make('Titon\Environment\Detector');
+        return detector_context()->is($key);
+    }
 
-        invariant($env instanceof Detector, 'Must be an environment Detector.');
+    /**
+     * Make and return a `Detector` instance from the depository.
+     *
+     * @return \Titon\Environment\Detector
+     */
+    function detector_context(): Detector {
+        $detector = Depository::getInstance()->make('Titon\Environment\Detector');
 
-        return $env->is($key);
+        invariant($detector instanceof Detector, 'Must be an environment Detector.');
+
+        return $detector;
     }
 
 }

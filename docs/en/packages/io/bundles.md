@@ -48,7 +48,7 @@ $bundle->addPath('foo', 'cms/foo/');
 We can also add multiple paths using `addPaths()`.
 
 ```hack
-$bundle->addPaths('foo', Vector {'blog/foo/', 'forum/foo/'});
+$bundle->addPaths('foo', Set {'blog/foo/', 'forum/foo/'});
 ```
 
 Catalog files should only contain data that can be converted into a map. For example, 

@@ -16,7 +16,7 @@ class YamlReaderTest extends TestCase {
             $this->markTestSkipped('YAML extension must be installed to use the YamlReader');
         }
 
-        $reader = new YamlReader(TEMP_DIR . '/io/yaml.yaml');
+        $reader = new YamlReader(TEMP_DIR . '/io/yaml.yml');
 
         $this->assertMapsEqual(Map {
             'integer' => 1234567890,

@@ -29,4 +29,11 @@ abstract class AbstractBag<Tk, Tv> implements Bag<Tk, Tv>, IteratorAggregate<Tv>
         $this->add($data);
     }
 
+    /**
+     * Clone the data to avoid references.
+     */
+    public function __clone(): void {
+        $this->data = $this->data->toMap();
+    }
+
 }

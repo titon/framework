@@ -16,7 +16,7 @@ class YamlWriterTest extends TestCase {
     }
 
     public function testWriteResource(): void {
-        $path = $this->vfs()->path('/writer/yaml.yaml');
+        $path = $this->vfs()->path('/writer/yaml.yml');
 
         $writer = new YamlWriter($path, true);
         $writer->writeResource(Map {

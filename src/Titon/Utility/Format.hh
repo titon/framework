@@ -144,10 +144,10 @@ class Format {
      *
      * @param string|int $time
      * @param \Titon\Utility\OptionMap $options
-     * @param Map<string, Map<int, string>> $messages
+     * @param \Titon\Utility\TimeMessageMap $messages
      * @return string
      */
-    public static function relativeTime(mixed $time, OptionMap $options = Map {}, Map<string, Map<int, string>> $messages = Map {}): string {
+    public static function relativeTime(mixed $time, OptionMap $options = Map {}, TimeMessageMap $messages = Map {}): string {
         $options = (Map {
             'now' => 'just now',
             'in' => 'in {time}',
@@ -158,7 +158,8 @@ class Format {
             'time' => time()
         })->setAll($options);
 
-        $messages = (Map {
+        // Merged child messages
+        $baseMessages = Map {
             'seconds'   => Map {0 => '{count}s', 1 => '{count} second', 2 => '{count} seconds'},
             'minutes'   => Map {0 => '{count}m', 1 => '{count} minute', 2 => '{count} minutes'},
             'hours'     => Map {0 => '{count}h', 1 => '{count} hour', 2 => '{count} hours'},
@@ -166,8 +167,13 @@ class Format {
             'weeks'     => Map {0 => '{count}w', 1 => '{count} week', 2 => '{count} weeks'},
             'months'    => Map {0 => '{count}m', 1 => '{count} month', 2 => '{count} months'},
             'years'     => Map {0 => '{count}y', 1 => '{count} year', 2 => '{count} years'}
-        })->setAll($messages);
+        };
 
+        foreach ($messages as $timeFrame => $childMessages) {
+            $baseMessages[$timeFrame]->setAll($childMessages);
+        }
+
+        $messages = $baseMessages;
         $diff = Time::difference($options['time'], Time::toUnix($time));
 
         // Present tense

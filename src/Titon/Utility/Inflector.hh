@@ -34,7 +34,7 @@ class Inflector {
      */
     <<__Memoize>>
     public static function className(string $string): string {
-        return Inflector::camelCase(Inflector::singularize($string));
+        return static::camelCase(static::singularize($string));
     }
 
     /**
@@ -108,7 +108,7 @@ class Inflector {
      */
     <<__Memoize>>
     public static function route(string $string): string {
-        return mb_strtolower(Inflector::hyphenate(str_replace('_', '-', preg_replace('/[^-_a-z0-9\s\.]+/i', '', $string))));
+        return mb_strtolower(static::hyphenate(str_replace('_', '-', preg_replace('/[^-_a-z0-9\s\.]+/i', '', $string))));
     }
 
     /**
@@ -133,7 +133,7 @@ class Inflector {
         $string = html_entity_decode($string, ENT_QUOTES, 'UTF-8');
 
         // Remove non-ascii characters
-        $string = preg_replace('/[^-a-z0-9\.\s]+/i', '', Inflector::transliterate($string));
+        $string = preg_replace('/[^-a-z0-9\.\s]+/i', '', static::transliterate($string));
 
         // Replace dashes and underscores
         $string = str_replace(' ', '-', str_replace('-', '_', $string));

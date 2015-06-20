@@ -9,10 +9,11 @@
 date_default_timezone_set('UTC');
 
 // Set testing constants
-const string TEST_DIR = __DIR__;
-const string TEMP_DIR = TEST_DIR . '/tmp';
-const string VENDOR_DIR = TEST_DIR . '/../vendor';
-const string DS = DIRECTORY_SEPARATOR;
+define('TEST_DIR', __DIR__);
+define('TEMP_DIR', TEST_DIR . '/tmp');
+define('VENDOR_DIR', dirname(TEST_DIR) . '/vendor');
+define('SRC_DIR', dirname(TEST_DIR) . '/src');
+define('DS', DIRECTORY_SEPARATOR);
 
 // Start autoloader
 if (!file_exists(VENDOR_DIR . '/autoload.php')) {
@@ -27,7 +28,7 @@ Titon\Debug\Debugger::enable();
 // Temporary fix until the PHPUnit patch is merged in
 // Issue: https://github.com/sebastianbergmann/phpunit/issues/1389
 // Patch: https://github.com/sebastianbergmann/phpunit/pull/1391
-$suitePath = __DIR__ . '/../vendor/phpunit/phpunit/src/Framework/TestSuite.php';
+$suitePath = VENDOR_DIR . '/phpunit/phpunit/src/Framework/TestSuite.php';
 $suiteContents = file_get_contents($suitePath);
 
 if (strpos($suiteContents, 'basename(basename') === false) {

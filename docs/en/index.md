@@ -13,6 +13,7 @@ Packages
 * [Environment](packages/environment/index.md)
 * [Event](packages/event/index.md)
 * [HTTP](packages/http/index.md)
+* [Intl](packages/intl/index.md)
 * [IO](packages/io/index.md)
 * [Route](packages/route/index.md)
 * [Type](packages/type/index.md)

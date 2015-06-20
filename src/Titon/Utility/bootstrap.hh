@@ -19,6 +19,7 @@ namespace Titon\Utility {
     type OptionMap = Map<string, mixed>;
     type RegistryCallback<T> = (function(): T);
     type RegistryMap<T> = Map<string, T>;
+    type TimeMessageMap = Map<string, Map<int, string>>;
 }
 
 namespace Titon\Utility\State {

@@ -10,10 +10,10 @@ namespace Titon\Io\Bundle;
 use Titon\Io\Bundle;
 use Titon\Io\DomainList;
 use Titon\Io\DomainPathMap;
-use Titon\Io\File;
 use Titon\Io\Folder;
 use Titon\Io\PathList;
 use Titon\Io\Reader;
+use Titon\Io\ReaderList;
 use Titon\Io\ReaderMap;
 use Titon\Io\ResourceMap;
 use Titon\Io\Exception\MissingDomainException;
@@ -52,7 +52,7 @@ abstract class AbstractBundle implements Bundle {
      */
     public function addPath(string $domain, string $path): this {
         if (!$this->getPaths()->contains($domain)) {
-            $this->paths[$domain] = Vector {};
+            $this->paths[$domain] = Set {};
         }
 
         $this->paths[$domain][] = Path::ds($path, true);
@@ -85,8 +85,19 @@ abstract class AbstractBundle implements Bundle {
     /**
      * {@inheritdoc}
      */
+    public function addReaders(ReaderList $readers): this {
+        foreach ($readers as $reader) {
+            $this->addReader($reader);
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getContents(string $domain): PathList {
-        $contents = Vector {};
+        $contents = Set {};
 
         foreach ($this->getDomainPaths($domain) as $path) {
             foreach ((new Folder($path))->files() as $file) {

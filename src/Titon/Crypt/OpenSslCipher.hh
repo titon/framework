@@ -7,17 +7,35 @@
 
 namespace Titon\Crypt;
 
+/**
+ * @todo
+ *
+ * @package Titon\Crypt
+ */
 class OpenSslCipher extends AbstractCipher {
 
-    public function decrypt(string $payload): string {
+    const string AES_128_CBC = 'AES-128-CBC';
+    const string AES_256_CBC = 'AES-256-CBC';
+
+    public function decrypt(string $payload): mixed {
         $payload = json_decode(base64_decode($payload));
 
-        return openssl_decrypt($payload->value, $this->getMethod(), $this->getKey(), OPENSSL_RAW_DATA, $payload->iv);
+        $value = openssl_decrypt($payload->value, $this->getMethod(), $this->getKey(), OPENSSL_RAW_DATA, $payload->iv);
+
+        if ($iv === false) {
+            throw new \RuntimeException('todo');
+        }
+
+        return unserialize($value);
     }
 
-    public function encrypt(string $string): string {
+    public function encrypt(mixed $string): string {
         $iv = openssl_random_pseudo_bytes(16);
-        $value = openssl_encrypt($string, $this->getMethod(), $this->getKey(), OPENSSL_RAW_DATA, $iv);
+        $value = openssl_encrypt(serialize($string), $this->getMethod(), $this->getKey(), OPENSSL_RAW_DATA, $iv);
+
+        if ($iv === false) {
+            throw new \RuntimeException('todo');
+        }
 
         return base64_encode(json_encode([
             'iv' => $iv,

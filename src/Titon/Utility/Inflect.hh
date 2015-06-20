@@ -13,7 +13,7 @@ namespace Titon\Utility;
  *
  * @package Titon\Utility
  */
-class Inflector {
+class Inflect {
 
     /**
      * Inflect a word to a camel case form with the first letter being capitalized.

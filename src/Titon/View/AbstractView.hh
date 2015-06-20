@@ -11,7 +11,7 @@ use Titon\Cache\Storage;
 use Titon\Event\EmitsEvents;
 use Titon\Event\Listener;
 use Titon\Event\Subject;
-use Titon\Utility\Inflector;
+use Titon\Utility\Inflect;
 use Titon\Utility\Registry;
 use Titon\View\Exception\MissingHelperException;
 use Titon\View\Helper;
@@ -145,7 +145,7 @@ abstract class AbstractView implements View, Subject {
      * {@inheritdoc}
      */
     public function setVariable(string $key, mixed $value): this {
-        $this->data[Inflector::variable($key)] = $value;
+        $this->data[Inflect::variable($key)] = $value;
 
         return $this;
     }

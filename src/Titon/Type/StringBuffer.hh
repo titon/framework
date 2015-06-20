@@ -7,7 +7,7 @@
 
 namespace Titon\Type;
 
-use Titon\Utility\Inflector;
+use Titon\Utility\Inflect;
 use Titon\Utility\Sanitize;
 use Titon\Utility\Str;
 use \Serializable;
@@ -373,7 +373,7 @@ class StringBuffer implements Serializable {
      * @return \Titon\Type\StringBuffer
      */
     public function toCamelCase(): StringBuffer {
-        return new static(Inflector::camelCase($this->value()));
+        return new static(Inflect::camelCase($this->value()));
     }
 
     /**

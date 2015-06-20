@@ -17,9 +17,9 @@ The `Titon\Intl\Utility\Format` class extends `Titon\Utility\Format` and provide
 Titon\Intl\Utility\Format::relativeTime($date); // 1 week ago
 ```
 
-## Inflector ##
+## Inflect ##
 
-The `Titon\Intl\Utility\Inflector` class extends `Titon\Utility\Inflector` and provides automatic localization and enforcement of [inflection rules](locales.md#inflection-rules) for the following methods:
+The `Titon\Intl\Utility\Inflect` class extends `Titon\Utility\Inflect` and provides automatic localization and enforcement of [inflection rules](locales.md#inflection-rules) for the following methods:
 
 * `ordinal()` - Loads the `ordinal` rule.
 * `pluralize()` - Loads the `plural`, `irregular`, and `uninflected` rules.
@@ -27,7 +27,7 @@ The `Titon\Intl\Utility\Inflector` class extends `Titon\Utility\Inflector` and p
 * `transliterate()` - Loads the `transliteration` rule.
 
 ```hack
-Titon\Intl\Utility\Inflector::pluralize('quiz'); // quizzes
+Titon\Intl\Utility\Inflect::pluralize('quiz'); // quizzes
 ```
 
 ## Number ##

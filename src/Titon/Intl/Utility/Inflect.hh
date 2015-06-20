@@ -10,11 +10,11 @@ namespace Titon\Intl\Utility;
 use Titon\Intl\Bag\InflectionBag;
 
 /**
- * Enhances the parent `Inflector` class by providing localized inflection rule support.
+ * Enhances the parent `Inflect` class by providing localized inflection rule support.
  *
  * @package Titon\Intl\Utility
  */
-class Inflector extends \Titon\Utility\Inflector {
+class Inflect extends \Titon\Utility\Inflect {
 
     /**
      * Load and return an `InflectionBag` from the currently detected locale.

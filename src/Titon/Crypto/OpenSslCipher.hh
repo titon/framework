@@ -11,7 +11,7 @@ use Titon\Crypto\Exception\DecryptException;
 use Titon\Crypto\Exception\EncryptException;
 
 /**
- * @todo
+ * The `OpenSslCipher` provides encryption and decryption through the OpenSSL extension.
  *
  * @package Titon\Crypto
  */

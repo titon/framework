@@ -8,7 +8,9 @@
 namespace Titon\Crypto;
 
 /**
- * @todo
+ * The `Cipher` interface represents a single cipher method (and mode), paired with a unique key,
+ * to be used for encryption and decryption. The process uses a unique payload structure to
+ * ensure security and integrity.
  *
  * @package Titon\Crypto
  */

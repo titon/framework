@@ -11,7 +11,8 @@ use Titon\Crypto\Exception\DecryptException;
 use Titon\Crypto\Exception\EncryptException;
 
 /**
- * @todo
+ * The `McryptCipher` provides encryption and decryption through the MCrypt extension.
+ * The MCrypt extension is very outdated, and should be avoided where possible.
  *
  * @package Titon\Crypto
  */

@@ -12,7 +12,7 @@ use Titon\Crypto\Exception\InvalidPayloadException;
 use Titon\Crypto\Exception\UnsupportedCipherException;
 
 /**
- * @todo
+ * Implements shared functionality for all `Cipher`s, primarily payload logic.
  *
  * @package Titon\Crypto
  */

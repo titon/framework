@@ -67,6 +67,13 @@ interface Cipher {
     public function getMethod(): string;
 
     /**
+     * Return the cipher mode being used.
+     *
+     * @return string
+     */
+    public function getMode(): string;
+
+    /**
      * Return a list of supported cipher methods.
      *
      * @return Vector<string>

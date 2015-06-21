@@ -18,12 +18,32 @@ use Titon\Crypto\Exception\UnsupportedCipherException;
  */
 abstract class AbstractCipher implements Cipher {
 
+    const string AES_128_CBC = 'AES-128-CBC';
+    const string AES_128_CFB = 'AES-128-CFB';
+    const string AES_128_OFB = 'AES-128-OFB';
+    const string AES_192_CBC = 'AES-192-CBC';
+    const string AES_192_CFB = 'AES-192-CFB';
+    const string AES_192_OFB = 'AES-192-OFB';
+    const string AES_256_CBC = 'AES-256-CBC';
+    const string AES_256_CFB = 'AES-256-CFB';
+    const string AES_256_OFB = 'AES-256-OFB';
+    const string BLOWFISH_CBC = 'BF-CBC';
+    const string BLOWFISH_CFB = 'BF-CFB';
+    const string BLOWFISH_OFB = 'BF-OFB';
+
     /**
      * The cipher method.
      *
      * @var string
      */
     protected string $method;
+
+    /**
+     * The cipher mode.
+     *
+     * @var string
+     */
+    protected string $mode;
 
     /**
      * The unique key.
@@ -48,6 +68,7 @@ abstract class AbstractCipher implements Cipher {
 
         $this->key = $key;
         $this->method = $method;
+        $this->mode = substr($method, -3);
     }
 
     /**
@@ -96,6 +117,40 @@ abstract class AbstractCipher implements Cipher {
      */
     public function getMethod(): string {
         return $this->method;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMode(): string {
+        return $this->mode;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getSupportedMethods(): Vector<string> {
+        return Vector {
+            self::AES_128_CBC,
+            self::AES_128_CFB,
+            self::AES_128_OFB,
+            self::AES_192_CBC,
+            self::AES_192_CFB,
+            self::AES_192_OFB,
+            self::AES_256_CBC,
+            self::AES_256_CFB,
+            self::AES_256_OFB,
+            self::BLOWFISH_CBC,
+            self::BLOWFISH_CFB,
+            self::BLOWFISH_OFB
+        };
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function isSupportedMethod(string $method): bool {
+        return in_array($method, static::getSupportedMethods());
     }
 
     /**

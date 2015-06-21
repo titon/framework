@@ -1,0 +1,33 @@
+{
+    "name": "titon/crypto",
+    "type": "library",
+    "description": "The crypto package provides secure ecrypting and decrypting of data.",
+    "keywords": ["titon", "crypto", "encrypt", "decrypt", "cipher", "digest", "encode", "decode", "payload"],
+    "homepage": "http://titon.io",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Miles Johnson",
+            "homepage": "http://milesj.me"
+        }
+    ],
+    "support": {
+        "irc": "irc://irc.freenode.org/titon",
+        "source": "https://github.com/titon/crypto"
+    },
+    "require": {
+        "hhvm": ">=3.6.0"
+    },
+    "suggest": {
+        "ext-openssl": "Encrypt and decrypt data using the OpenSSL extension (suggested)",
+        "ext-mcrypt": "Encrypt and decrypt data using the MCrypt extension (outdated)"
+    },
+    "autoload": {
+        "psr-4": {
+            "Titon\\Crypto\\": ""
+        },
+        "files": [
+            "bootstrap.hh"
+        ]
+    }
+}

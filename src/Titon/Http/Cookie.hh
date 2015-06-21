@@ -8,7 +8,6 @@
 namespace Titon\Http;
 
 use Titon\Common\Exception\InvalidArgumentException;
-use Titon\Utility\Crypt;
 use Titon\Utility\Time;
 
 /**
@@ -131,7 +130,7 @@ class Cookie {
      * @return string.
      */
     public function getDecryptedValue(): string {
-        return unserialize(Crypt::decrypt(base64_decode(urldecode($this->getValue())), $this->getName(), Crypt::RIJNDAEL));
+        return unserialize(base64_decode(urldecode($this->getValue())));
     }
 
     /**
@@ -149,7 +148,7 @@ class Cookie {
      * @return string.
      */
     public function getEncryptedValue(): string {
-        return urlencode(base64_encode(Crypt::encrypt(serialize($this->getValue()), $this->getName(), Crypt::RIJNDAEL)));
+        return urlencode(base64_encode(serialize($this->getValue())));
     }
 
     /**

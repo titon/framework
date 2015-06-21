@@ -8,7 +8,7 @@
 namespace Titon\View\Helper;
 
 use Titon\Utility\Config;
-use Titon\Utility\Crypt;
+use Titon\Utility\Str;
 
 /**
  * The HtmlHelper is primarily used for dynamic HTML tag creation within templates.
@@ -113,7 +113,7 @@ class HtmlHelper extends AbstractHelper {
      * @return string
      */
     public function mailto(string $email, AttributeMap $attributes = Map {}): string {
-        $email = Crypt::obfuscate($email);
+        $email = Str::obfuscate($email);
 
         if (!$attributes->contains('title')) {
             $attributes['title'] = '';

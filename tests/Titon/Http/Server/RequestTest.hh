@@ -275,13 +275,13 @@ class RequestTest extends TestCase {
 
     public function testGetCookie(): void {
         $this->assertEquals(null, $this->object->getCookie('key'));
-        $this->assertEquals(new Cookie('foo', '5hxAThObwiiTyh0mhfxIKw%3D%3D'), $this->object->getCookie('foo'));
+        $this->assertEquals(new Cookie('foo', 'czozOiJiYXIiOw%3D%3D'), $this->object->getCookie('foo'));
         $this->assertEquals('bar', $this->object->getCookie('foo')->getDecryptedValue());
     }
 
     public function testGetCookies(): void {
         $this->assertEquals(Map {
-            'foo' => new Cookie('foo', '5hxAThObwiiTyh0mhfxIKw%3D%3D') // Object version
+            'foo' => new Cookie('foo', 'czozOiJiYXIiOw%3D%3D') // Object version
         }, $this->object->getCookies());
     }
 

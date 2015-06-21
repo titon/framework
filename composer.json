@@ -42,6 +42,7 @@
             "src/Titon/Common/bootstrap.hh",
             "src/Titon/Context/bootstrap.hh",
             "src/Titon/Controller/bootstrap.hh",
+            "src/Titon/Crypto/bootstrap.hh",
             "src/Titon/Debug/bootstrap.hh",
             "src/Titon/Environment/bootstrap.hh",
             "src/Titon/Event/bootstrap.hh",

@@ -5,12 +5,12 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Crypt\Exception;
+namespace Titon\Crypto\Exception;
 
 /**
  * Exception thrown when a specific cipher is not supported.
  *
- * @package Titon\Crypt\Exception
+ * @package Titon\Crypto\Exception
  */
 class UnsupportedCipherException extends \RuntimeException {
 

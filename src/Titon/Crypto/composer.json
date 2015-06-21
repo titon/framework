@@ -19,8 +19,8 @@
         "hhvm": ">=3.6.0"
     },
     "suggest": {
-        "ext-openssl": "Encrypt and decrypt data using the OpenSSL extension (suggested)",
-        "ext-mcrypt": "Encrypt and decrypt data using the MCrypt extension (outdated)"
+        "ext-openssl": "Encrypt and decrypt data using OpenSSL (suggested)",
+        "ext-mcrypt": "Encrypt and decrypt data using MCrypt (outdated)"
     },
     "autoload": {
         "psr-4": {

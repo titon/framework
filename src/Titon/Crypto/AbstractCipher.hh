@@ -64,11 +64,17 @@ abstract class AbstractCipher implements Cipher {
     public function decodePayload(string $payload): Payload {
         $payload = json_decode(base64_decode($payload), true);
 
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($payload)) {
+            throw new InvalidPayloadException('Failed to decode payload');
+        }
+
         $this->validatePayload($payload);
+        $this->validateMAC($payload);
 
         return shape(
             'iv' => $payload['iv'],
-            'data' => $payload['data']
+            'data' => $payload['data'],
+            'mac' => $payload['mac']
         );
     }
 
@@ -78,7 +84,8 @@ abstract class AbstractCipher implements Cipher {
     public function encodePayload(string $data, string $iv): string {
         return base64_encode(json_encode([
             'iv' => $iv,
-            'data' => $data
+            'data' => $data,
+            'mac' => $this->hashMAC($data, $iv)
         ]));
     }
 
@@ -138,15 +145,37 @@ abstract class AbstractCipher implements Cipher {
     }
 
     /**
-     * Validate that the decoded payload is legitimate.
+     * Generate a unique MAC (message authentication code) hash.
      *
-     * @param mixed $payload
+     * @param string $data
+     * @param string $iv
+     * @return string
      */
-    protected function validatePayload(mixed $payload): void {
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new InvalidPayloadException('Failed to decode payload');
+    protected function hashMAC(string $data, string $iv): string {
+        return hash_hmac('sha256', $data . $iv, $this->getKey());
+    }
+
+    /**
+     * Validate the MAC hash is an exact match.
+     *
+     * @param array<string, string> $payload
+     */
+    protected function validateMAC(array<string, string> $payload): void {
+        if (!array_key_exists('mac', $payload) || !$payload['mac']) {
+            throw new InvalidPayloadException('No MAC hash detected while decoding payload');
         }
 
+        if ($payload['mac'] !== $this->hashMAC($payload['data'], $payload['iv'])) {
+            throw new InvalidPayloadException('Invalid MAC hash detected');
+        }
+    }
+
+    /**
+     * Validate that the decoded payload is legitimate.
+     *
+     * @param array<string, string> $payload
+     */
+    protected function validatePayload(array<string, string> $payload): void {
         if (!array_key_exists('iv', $payload) || !$payload['iv']) {
             throw new InvalidPayloadException('Invalid IV detected while decoding payload');
         }

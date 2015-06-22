@@ -14,5 +14,5 @@
  */
 
 namespace Titon\Crypto {
-    type Payload = shape('data' => string, 'iv' => string);
+    type Payload = shape('data' => string, 'iv' => string, 'mac' => string);
 }

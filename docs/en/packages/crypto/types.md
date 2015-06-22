@@ -13,7 +13,7 @@ The following type aliases are available in the Crypto package.
     <tbody>
         <tr>
             <td>Titon\Crypto\Payload</td>
-            <td>shape('data' =&gt; string, 'iv' =&gt; string)</td>
+            <td>shape('data' =&gt; string, 'iv' =&gt; string, 'mac' =&gt; string)</td>
             <td>A shape that represents a decoded payload.</td>
         </tr>
     </tbody>

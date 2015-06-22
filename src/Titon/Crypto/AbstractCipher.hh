@@ -18,19 +18,6 @@ use Titon\Crypto\Exception\UnsupportedCipherException;
  */
 abstract class AbstractCipher implements Cipher {
 
-    const string AES_128_CBC = 'AES-128-CBC';
-    const string AES_128_CFB = 'AES-128-CFB';
-    const string AES_128_OFB = 'AES-128-OFB';
-    const string AES_192_CBC = 'AES-192-CBC';
-    const string AES_192_CFB = 'AES-192-CFB';
-    const string AES_192_OFB = 'AES-192-OFB';
-    const string AES_256_CBC = 'AES-256-CBC';
-    const string AES_256_CFB = 'AES-256-CFB';
-    const string AES_256_OFB = 'AES-256-OFB';
-    const string BLOWFISH_CBC = 'BF-CBC';
-    const string BLOWFISH_CFB = 'BF-CFB';
-    const string BLOWFISH_OFB = 'BF-OFB';
-
     /**
      * The cipher method.
      *
@@ -58,7 +45,7 @@ abstract class AbstractCipher implements Cipher {
      * @param string $key
      * @param string $method
      */
-    public function __construct(string $key, string $method) {
+    public function __construct(string $key, string $method = self::AES_256_CBC) {
         if (!static::isSupportedMethod($method)) {
             throw new UnsupportedCipherException(sprintf('Unsupported cipher [%s] for [%s]', $method, static::class));
 
@@ -77,17 +64,7 @@ abstract class AbstractCipher implements Cipher {
     public function decodePayload(string $payload): Payload {
         $payload = json_decode(base64_decode($payload), true);
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new InvalidPayloadException('Failed to decode payload');
-        }
-
-        if (!array_key_exists('iv', $payload) || !$payload['iv']) {
-            throw new InvalidPayloadException('Invalid IV detected while decoding payload');
-        }
-
-        if (!array_key_exists('data', $payload) || !$payload['data']) {
-            throw new InvalidPayloadException('No data detected while decoding payload');
-        }
+        $this->validatePayload($payload);
 
         return shape(
             'iv' => $payload['iv'],
@@ -158,6 +135,25 @@ abstract class AbstractCipher implements Cipher {
      */
     public static function isValidKey(string $key): bool {
         return (mb_strlen($key, '8bit') >= 32);
+    }
+
+    /**
+     * Validate that the decoded payload is legitimate.
+     *
+     * @param mixed $payload
+     */
+    protected function validatePayload(mixed $payload): void {
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new InvalidPayloadException('Failed to decode payload');
+        }
+
+        if (!array_key_exists('iv', $payload) || !$payload['iv']) {
+            throw new InvalidPayloadException('Invalid IV detected while decoding payload');
+        }
+
+        if (!array_key_exists('data', $payload) || !$payload['data']) {
+            throw new InvalidPayloadException('No data detected while decoding payload');
+        }
     }
 
 }

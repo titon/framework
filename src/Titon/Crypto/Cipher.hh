@@ -16,6 +16,19 @@ namespace Titon\Crypto;
  */
 interface Cipher {
 
+    const string AES_128_CBC = 'AES-128-CBC';
+    const string AES_128_CFB = 'AES-128-CFB';
+    const string AES_128_OFB = 'AES-128-OFB';
+    const string AES_192_CBC = 'AES-192-CBC';
+    const string AES_192_CFB = 'AES-192-CFB';
+    const string AES_192_OFB = 'AES-192-OFB';
+    const string AES_256_CBC = 'AES-256-CBC';
+    const string AES_256_CFB = 'AES-256-CFB';
+    const string AES_256_OFB = 'AES-256-OFB';
+    const string BLOWFISH_CBC = 'BF-CBC';
+    const string BLOWFISH_CFB = 'BF-CFB';
+    const string BLOWFISH_OFB = 'BF-OFB';
+
     /**
      * Decode the payload string into a container of data and IV.
      * Verify the payload during this process and exit early if an error occurs.

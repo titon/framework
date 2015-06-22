@@ -68,6 +68,13 @@ interface Cipher {
     public function encrypt(mixed $data, bool $strong = false): string;
 
     /**
+     * Return the cipher algorithm name.
+     *
+     * @return string
+     */
+    public function getAlgorithm(): string;
+
+    /**
      * Return the unique key.
      *
      * @return string
@@ -75,14 +82,14 @@ interface Cipher {
     public function getKey(): string;
 
     /**
-     * Return the cipher method being used.
+     * Return the cipher algorithm and mode method.
      *
      * @return string
      */
     public function getMethod(): string;
 
     /**
-     * Return the cipher mode being used.
+     * Return the cipher mode.
      *
      * @return string
      */

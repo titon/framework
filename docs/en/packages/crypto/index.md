@@ -13,7 +13,6 @@ composer require titon/crypto:*
 ### Documentation ###
 
 * [Ciphers](ciphers.md)
-* [Encrypting & Decrypting](crypting.md)
 
 
 * [Type Aliases](types.md)

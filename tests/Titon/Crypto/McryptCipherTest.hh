@@ -24,6 +24,15 @@ class McryptCipherTest extends TestCase {
         }, McryptCipher::getSupportedMethods());
     }
 
+    public function testGetAlgorithmMethodMode(): void {
+        $cipher = new McryptCipher(md5('RandOmStringKeyHere'), 'AES-128-CBC');
+
+        $this->assertEquals('AES-128-CBC', $cipher->getMethod());
+        $this->assertEquals('AES-128', $cipher->getAlgorithm());
+        $this->assertEquals('CBC', $cipher->getMode());
+        $this->assertEquals('rijndael-128', $cipher->getMcryptAlgorithm());
+    }
+
     public function testIsSupportedMethod(): void {
         $this->assertTrue(McryptCipher::isSupportedMethod('AES-256-CBC'));
         $this->assertFalse(McryptCipher::isSupportedMethod('foo'));

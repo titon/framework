@@ -24,6 +24,14 @@ class OpenSslCipherTest extends TestCase {
         }, OpenSslCipher::getSupportedMethods());
     }
 
+    public function testGetAlgorithmMethodMode(): void {
+        $cipher = new OpenSslCipher(md5('RandOmStringKeyHere'), 'AES-128-CBC');
+
+        $this->assertEquals('AES-128-CBC', $cipher->getMethod());
+        $this->assertEquals('AES-128', $cipher->getAlgorithm());
+        $this->assertEquals('CBC', $cipher->getMode());
+    }
+
     public function testIsSupportedMethod(): void {
         $this->assertTrue(OpenSslCipher::isSupportedMethod('AES-128-CBC'));
         $this->assertFalse(OpenSslCipher::isSupportedMethod('foo'));

@@ -19,7 +19,14 @@ use Titon\Crypto\Exception\UnsupportedCipherException;
 abstract class AbstractCipher implements Cipher {
 
     /**
-     * The cipher method.
+     * The cipher algorithm.
+     *
+     * @var string
+     */
+    protected string $algorithm;
+
+    /**
+     * The cipher and mode method.
      *
      * @var string
      */
@@ -55,6 +62,7 @@ abstract class AbstractCipher implements Cipher {
 
         $this->key = $key;
         $this->method = $method;
+        $this->algorithm = substr($method, 0, strlen($method) - 4);
         $this->mode = substr($method, -3);
     }
 
@@ -87,6 +95,13 @@ abstract class AbstractCipher implements Cipher {
             'data' => $data,
             'mac' => $this->hashMAC($data, $iv)
         ]));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlgorithm(): string {
+        return $this->algorithm;
     }
 
     /**

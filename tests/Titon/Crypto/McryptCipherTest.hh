@@ -30,7 +30,8 @@ class McryptCipherTest extends TestCase {
         $this->assertEquals('AES-128-CBC', $cipher->getMethod());
         $this->assertEquals('AES-128', $cipher->getAlgorithm());
         $this->assertEquals('CBC', $cipher->getMode());
-        $this->assertEquals('rijndael-128', $cipher->getMcryptAlgorithm());
+        $this->assertEquals('rijndael-128', $cipher->getAdaptedAlgorithm());
+        $this->assertEquals('cbc', $cipher->getAdaptedMode());
     }
 
     public function testIsSupportedMethod(): void {

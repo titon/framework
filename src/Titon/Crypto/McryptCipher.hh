@@ -23,7 +23,7 @@ class McryptCipher extends AbstractCipher {
      */
     public function decrypt(string $payload): mixed {
         $payload = $this->decodePayload($payload);
-        $value = mcrypt_decrypt($this->getMcryptAlgorithm(), $this->getKey(), hex2bin($payload['data']), strtolower($this->getMode()), hex2bin($payload['iv']));
+        $value = mcrypt_decrypt($this->getAdaptedAlgorithm(), $this->getKey(), hex2bin($payload['data']), $this->getAdaptedMode(), hex2bin($payload['iv']));
 
         if ($value === false) {
             throw new DecryptException(sprintf('Decryption with [%s] method has failed', $this->getMethod()));
@@ -36,8 +36,8 @@ class McryptCipher extends AbstractCipher {
      * {@inheritdoc}
      */
     public function encrypt(mixed $data, bool $strong = false): string {
-        $method = $this->getMcryptAlgorithm();
-        $mode = strtolower($this->getMode());
+        $method = $this->getAdaptedAlgorithm();
+        $mode = $this->getAdaptedMode();
         $ivLength = mcrypt_get_iv_size($method, $mode);
         $iv = mcrypt_create_iv($ivLength === false ? 16 : $ivLength, MCRYPT_DEV_URANDOM);
 
@@ -59,7 +59,7 @@ class McryptCipher extends AbstractCipher {
      *
      * @return string
      */
-    public function getMcryptAlgorithm(): string {
+    public function getAdaptedAlgorithm(): string {
         switch ($this->algorithm) {
             case 'BF': return MCRYPT_BLOWFISH; break;
             case 'AES-128': return MCRYPT_RIJNDAEL_128; break;
@@ -68,6 +68,15 @@ class McryptCipher extends AbstractCipher {
         }
 
         return $this->algorithm;
+    }
+
+    /**
+     * Return the mcrypt specific mode.
+     *
+     * @return string
+     */
+    public function getAdaptedMode(): string {
+        return strtolower($this->getMode());
     }
 
 }

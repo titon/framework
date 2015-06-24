@@ -7,6 +7,9 @@
 
 namespace Titon\Console;
 
+use Titon\Console\Bag\ArgumentBag;
+use Titon\Console\Bag\FlagBag;
+use Titon\Console\Bag\OptionBag;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
@@ -24,9 +27,9 @@ class HelpScreen {
     /**
      * The available `Argument` objects accepted.
      *
-     * @var \Titon\Console\InputBag<Argument>
+     * @var \Titon\Console\Bag\ArgumentBag
      */
-    protected InputBag<Argument> $arguments;
+    protected ArgumentBag $arguments;
 
     /**
      * The current `Command` the `HelpScreen` refers to.
@@ -52,9 +55,9 @@ class HelpScreen {
     /**
      * The available `Flag` objects accepted.
      *
-     * @var \Titon\Console\InputBag<Flag>
+     * @var \Titon\Console\Bag\FlagBag
      */
-    protected InputBag<Flag> $flags;
+    protected FlagBag $flags;
 
     /**
      * The optional `name` of the application when not outputting a `HelpScreen`
@@ -67,9 +70,9 @@ class HelpScreen {
     /**
      * The available `Option` objects accepted.
      *
-     * @var \Titon\Console\InputBag<Option>
+     * @var \Titon\Console\Bag\OptionBag
      */
-    protected InputBag<Option> $options;
+    protected OptionBag $options;
 
     /**
      * Construct a new instance of the `HelpScreen`.
@@ -327,11 +330,11 @@ class HelpScreen {
     /**
      * Set the `Argument` objects to render information for.
      *
-     * @param \Titon\Console\InputBag<Argument> $arguments The `Argument` objects avaiable
+     * @param \Titon\Console\Bag\ArgumentBag $arguments The `Argument` objects avaiable
      *
      * @return $this
      */
-    public function setArguments(InputBag<Argument> $arguments): this {
+    public function setArguments(ArgumentBag $arguments): this {
         $this->arguments = $arguments;
 
         return $this;
@@ -366,11 +369,11 @@ class HelpScreen {
     /**
      * Set the `Flag` objects to render information for.
      *
-     * @param \Titon\Console\InputBag<Flag> $arguments The `Flag` objects avaiable
+     * @param \Titon\Console\Bag\FlagBag $arguments The `Flag` objects avaiable
      *
      * @return $this
      */
-    public function setFlags(InputBag<Flag> $flags): this {
+    public function setFlags(FlagBag $flags): this {
         $this->flags = $flags;
 
         return $this;
@@ -410,11 +413,11 @@ class HelpScreen {
     /**
      * Set the `Option` objects to render information for.
      *
-     * @param \Titon\Console\InputBag<Option> $arguments The `Option` objects avaiable
+     * @param \Titon\Console\Bag\OptionBag $arguments The `Option` objects avaiable
      *
      * @return $this
      */
-    public function setOptions(InputBag<Option> $options): this {
+    public function setOptions(OptionBag $options): this {
         $this->options = $options;
 
         return $this;

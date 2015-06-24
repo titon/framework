@@ -7,6 +7,9 @@
 
 namespace Titon\Console;
 
+use Titon\Console\Bag\ArgumentBag;
+use Titon\Console\Bag\FlagBag;
+use Titon\Console\Bag\OptionBag;
 use Titon\Utility\State\Server;
 use Titon\Kernel\Input as KernelInput;
 use Titon\Console\InputDefinition\AbstractInputDefinition;
@@ -31,9 +34,9 @@ class Input implements KernelInput {
     /**
      * Bag container holding all registered `Argument` objects
      *
-     * @var \Titon\Console\InputBag<Argument>
+     * @var \Titon\Console\Bag\ArgumentBag
      */
-    protected InputBag<Argument> $arguments;
+    protected ArgumentBag $arguments;
 
     /**
      * The `Command` (if any) that is parsed from the provided input.
@@ -52,9 +55,9 @@ class Input implements KernelInput {
     /**
      * Bag container holding all registered `Flag` objects
      *
-     * @var \Titon\Console\InputBag<Flag>
+     * @var \Titon\Console\Bag\FlagBag
      */
-    protected InputBag<Flag> $flags;
+    protected FlagBag $flags;
 
     /**
      * The `InputLexer` that will traverse and help parse the provided input.
@@ -81,9 +84,9 @@ class Input implements KernelInput {
     /**
      * Bag container holding all registered `Option` objects
      *
-     * @var \Titon\Console\InputBag<Option>
+     * @var \Titon\Console\Bag\OptionBag
      */
-    protected InputBag<Option> $options;
+    protected OptionBag $options;
 
     /**
      * Boolean if the provided input has already been parsed or not.
@@ -126,9 +129,9 @@ class Input implements KernelInput {
 
         $this->rawInput = $args;
         $this->input = new InputLexer($args);
-        $this->flags = new InputBag();
-        $this->options = new InputBag();
-        $this->arguments = new InputBag();
+        $this->flags = new FlagBag();
+        $this->options = new OptionBag();
+        $this->arguments = new ArgumentBag();
         $this->strict = $strict;
         $this->stdin = fopen(Input::STREAM_STDIN, 'r');
     }
@@ -234,9 +237,9 @@ class Input implements KernelInput {
     /**
      * Retrieve all `Argument` candidates.
      *
-     * @return \Titon\Console\InputBag<Argument>
+     * @return \Titon\Console\Bag\ArgumentBag
      */
-    public function getArguments(): InputBag<Argument> {
+    public function getArguments(): ArgumentBag {
         return $this->arguments;
     }
 
@@ -280,9 +283,9 @@ class Input implements KernelInput {
     /**
      * Retrieve all `Flag` candidates.
      *
-     * @return \Titon\Console\InputBag<Flag>
+     * @return \Titon\Console\Bag\FlagBag
      */
-    public function getFlags(): InputBag<Flag> {
+    public function getFlags(): FlagBag {
         return $this->flags;
     }
 
@@ -319,9 +322,9 @@ class Input implements KernelInput {
     /**
      * Retrieve all `Option` candidates.
      *
-     * @return \Titon\Console\InputBag<Option>
+     * @return \Titon\Console\Bag\OptionBag
      */
-    public function getOptions(): InputBag<Option> {
+    public function getOptions(): OptionBag {
         return $this->options;
     }
 
@@ -522,11 +525,11 @@ class Input implements KernelInput {
     /**
      * Set the arguments of the `Input`. This will override all existing arguments.
      *
-     * @param InputBag<Argument> $options The arguments to set
+     * @param \Titon\Console\Bag\ArgumentBag $options The arguments to set
      *
      * @return $this
      */
-    public function setArguments(InputBag<Argument> $arguments): this {
+    public function setArguments(ArgumentBag $arguments): this {
         $this->arguments = $arguments;
 
         return $this;
@@ -535,11 +538,11 @@ class Input implements KernelInput {
     /**
      * Set the flags of the `Input`. This will override all existing flags.
      *
-     * @param InputBag<Flag> $options   The flags to set
+     * @param \Titon\Console\Bag\FlagBag $options   The flags to set
      *
      * @return $this
      */
-    public function setFlags(InputBag<Flag> $flags): this {
+    public function setFlags(FlagBag $flags): this {
         $this->flags = $flags;
 
         return $this;
@@ -564,11 +567,11 @@ class Input implements KernelInput {
     /**
      * Set the options of the `Input`. This will override all existing options.
      *
-     * @param InputBag<Option> $options The options to set
+     * @param \Titon\Console\Bag\OptionBag $options The options to set
      *
      * @return $this
      */
-    public function setOptions(InputBag<Option> $options): this {
+    public function setOptions(OptionBag $options): this {
         $this->options = $options;
 
         return $this;

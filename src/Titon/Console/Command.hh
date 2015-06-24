@@ -7,11 +7,14 @@
 
 namespace Titon\Console;
 
+use Titon\Console\Bag\ArgumentBag;
+use Titon\Console\Bag\FlagBag;
+use Titon\Console\Bag\OptionBag;
 use Titon\Console\Input;
-use Titon\Console\Output;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
+use Titon\Console\Output;
 
 /**
  * A `Command` is a user-defined class that can to register user input and run
@@ -33,9 +36,9 @@ interface Command {
      * Retrieve all of the `Argument` objects registered specifically for this
      * command.
      *
-     * @return \Titon\Console\InputBag<Argument>
+     * @return \Titon\Console\Bag\ArgumentBag
      */
-    public function getArguments(): InputBag<Argument>;
+    public function getArguments(): ArgumentBag;
 
     /**
      * Retrieve the description of the `Command`.
@@ -47,9 +50,9 @@ interface Command {
     /**
      * Retrieve all of the `Flag` objects registered specifically for this command.
      *
-     * @return \Titon\Console\InputBag<Flag>
+     * @return \Titon\Console\Bag\FlagBag
      */
-    public function getFlags(): InputBag<Flag>;
+    public function getFlags(): FlagBag;
 
     /**
      * Retrieve the name of the `Command`.
@@ -61,9 +64,9 @@ interface Command {
     /**
      * Retrieve all of the `Option` objects registered specifically for this command.
      *
-     * @return \Titon\Console\InputBag<Option>
+     * @return \Titon\Console\Bag\OptionBag
      */
-    public function getOptions(): InputBag<Option>;
+    public function getOptions(): OptionBag;
 
     /**
      * This method prepares the command for execution by registering all of its

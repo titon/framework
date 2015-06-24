@@ -7,6 +7,9 @@
 
 namespace Titon\Console\Command;
 
+use Titon\Console\Bag\ArgumentBag;
+use Titon\Console\Bag\FlagBag;
+use Titon\Console\Bag\OptionBag;
 use Titon\Console\Feedback\ProgressBarFeedback;
 use Titon\Console\Feedback\WaitFeedback;
 use Titon\Console\InputBag;
@@ -31,9 +34,9 @@ abstract class AbstractCommand implements Command {
     /**
      * Bag container holding all registered `Argument` objects
      *
-     * @var \Titon\Console\InputBag<Argument>
+     * @var \Titon\Console\Bag\ArgumentBag
      */
-    protected InputBag<Argument> $arguments;
+    protected ArgumentBag $arguments;
 
     /**
      * The description of the command used when rendering its help screen.
@@ -45,9 +48,9 @@ abstract class AbstractCommand implements Command {
     /**
      * Bag container holding all registered `Flag` objects
      *
-     * @var \Titon\Console\InputBag<Flag>
+     * @var \Titon\Console\Bag\FlagBag
      */
-    protected InputBag<Flag> $flags;
+    protected FlagBag $flags;
 
     /**
      * The `Input` object containing all registered and parsed command line
@@ -67,9 +70,9 @@ abstract class AbstractCommand implements Command {
     /**
      * Bag container holding all registered `Option` objects
      *
-     * @var \Titon\Console\InputBag<Option>
+     * @var \Titon\Console\Bag\OptionBag
      */
-    protected InputBag<Option> $options;
+    protected OptionBag $options;
 
     /**
      * The `Output` object to handle output to the user.
@@ -82,9 +85,9 @@ abstract class AbstractCommand implements Command {
      * Construct a new instance of a command.
      */
     public function __construct() {
-        $this->arguments = new InputBag();
-        $this->flags = new InputBag();
-        $this->options = new InputBag();
+        $this->arguments = new ArgumentBag();
+        $this->flags = new FlagBag();
+        $this->options = new OptionBag();
     }
 
     /**
@@ -165,9 +168,9 @@ abstract class AbstractCommand implements Command {
     /**
      * Retrieve all `Argument` objects registered specifically to this command.
      *
-     * @return \Titon\Console\InputBag<Argument>
+     * @return \Titon\Console\Bag\ArgumentBag
      */
-    public function getArguments(): InputBag<Argument> {
+    public function getArguments(): ArgumentBag {
         return $this->arguments;
     }
 
@@ -194,9 +197,9 @@ abstract class AbstractCommand implements Command {
     /**
      * Retrieve all `Flag` objects registered specifically to this command.
      *
-     * @return \Titon\Console\InputBag<Flag>
+     * @return \Titon\Console\Bag\FlagBag
      */
-    public function getFlags(): InputBag<Flag> {
+    public function getFlags(): FlagBag {
         return $this->flags;
     }
 
@@ -223,9 +226,9 @@ abstract class AbstractCommand implements Command {
     /**
      * Retrieve all `Option` objects registered specifically to this command.
      *
-     * @return \Titon\Console\InputBag<Option>
+     * @return \Titon\Console\Bag\OptionBag
      */
-    public function getOptions(): InputBag<Option> {
+    public function getOptions(): OptionBag {
         return $this->options;
     }
 
@@ -287,19 +290,19 @@ abstract class AbstractCommand implements Command {
      * {@inheritdoc}
      */
     public function registerInput(): this {
-        $arguments = (new InputBag())->add($this->arguments->all());
+        $arguments = (new ArgumentBag())->add($this->arguments->all());
         foreach ($this->input->getArguments() as $name => $argument) {
             $arguments[$name] = $argument;
         }
         $this->input->setArguments($arguments);
 
-        $flags = (new InputBag())->add($this->flags->all());
+        $flags = (new FlagBag())->add($this->flags->all());
         foreach ($this->input->getFlags() as $name => $flag) {
             $flags->set($name, $flag);
         }
         $this->input->setFlags($flags);
 
-        $options = (new InputBag())->add($this->options->all());
+        $options = (new OptionBag())->add($this->options->all());
         foreach ($this->input->getOptions() as $name => $option) {
             $options->set($name, $option);
         }

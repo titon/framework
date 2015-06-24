@@ -55,19 +55,18 @@ class RouterTest extends TestCase {
 
         $this->assertFalse($storage->has('routes'));
 
-        $router1->initialize();
+        $router1->match('/');
 
         $this->assertTrue($storage->has('routes'));
 
         // Now load another instance
-
         $router2 = new Router();
         $router2->setStorage($storage);
 
         $this->assertEquals(Map {}, $router2->getRoutes());
 
         $router2->map('root', new Route('/foobar', 'Module\Controller@action'));
-        $router2->initialize();
+        $router2->match('/');
 
         $this->assertEquals(Map {'module' => $route1, 'root' => $route2}, $router2->getRoutes());
 
@@ -481,7 +480,7 @@ class RouterTest extends TestCase {
         $this->assertEquals(Vector {'delete', 'post'}, $routes['rest.delete']->getMethods());
     }
 
-    public function TestRouteStubs(): void {
+    public function testRouteStubs(): void {
         $route = new Route('/', 'Controller@action');
         $router = new Router();
         $router->map('key', $route);
@@ -493,115 +492,8 @@ class RouterTest extends TestCase {
     /**
      * @expectedException \Titon\Route\Exception\MissingRouteException
      */
-    public function TestRouteStubsMissingKey(): void {
+    public function testRouteStubsMissingKey(): void {
         $this->object->getRoute('fakeKey');
-    }
-
-    public function testSegments(): void {
-        $_SERVER['DOCUMENT_ROOT'] = '';
-        $_SERVER['HTTP_HOST'] = 'localhost';
-        $_SERVER['SCRIPT_FILENAME'] = '/index.php';
-        $_SERVER['REQUEST_URI'] = '/';
-        Server::initialize($_SERVER);
-
-        $router = new Router();
-        $this->assertEquals('/', $router->base());
-        $this->assertEquals('/', $router->getSegment('path'));
-        $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
-        $this->assertEquals(Map {
-            'path' => '/',
-            'scheme' => 'http',
-            'query' => Map {},
-            'host' => 'localhost',
-            'port' => 80
-        }, $router->getSegments());
-
-        // module, controller
-        $_SERVER['HTTP_HOST'] = 'domain.com';
-        $_SERVER['SCRIPT_FILENAME'] = '/index.php';
-        $_SERVER['REQUEST_URI'] = '/module/index';
-        Server::initialize($_SERVER);
-
-        $router = new Router();
-        $this->assertEquals('/', $router->base());
-        $this->assertEquals('/module/index', $router->getSegment('path'));
-        $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
-        $this->assertEquals(Map {
-            'path' => '/module/index',
-            'scheme' => 'http',
-            'query' => Map {},
-            'host' => 'domain.com',
-            'port' => 80
-        }, $router->getSegments());
-
-        // module, controller, action, ext, base,
-        $_SERVER['HTTP_HOST'] = 'sub.domain.com';
-        $_SERVER['SCRIPT_FILENAME'] = '/root/dir/index.php';
-        $_SERVER['REQUEST_URI'] = '/module/controller/action.html';
-        Server::initialize($_SERVER);
-
-        $router = new Router();
-        $this->assertEquals('/root/dir', $router->base());
-        $this->assertEquals('/module/controller/action.html', $router->getSegment('path'));
-        $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
-        $this->assertEquals(Map {
-            'path' => '/module/controller/action.html',
-            'scheme' => 'http',
-            'query' => Map {},
-            'host' => 'sub.domain.com',
-            'port' => 80
-        }, $router->getSegments());
-
-        // module, controller, action, ext, base, query, https
-        $_SERVER['HTTP_HOST'] = 'subber.sub.domain.com';
-        $_SERVER['SCRIPT_FILENAME'] = '/rooter/root/dir/index.php'; // query doesn't show up here
-        $_SERVER['REQUEST_URI'] = '/module/controller/action.html?foo=bar&int=123';
-        $_SERVER['HTTPS'] = 'on';
-        Server::initialize($_SERVER);
-
-        $_GET = ['foo' => 'bar', 'int' => 123];
-        Get::initialize($_GET);
-
-        $router = new Router();
-        $this->assertEquals('/rooter/root/dir', $router->base());
-        $this->assertEquals('/module/controller/action.html', $router->getSegment('path'));
-        $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
-        $this->assertEquals(Map {
-            'path' => '/module/controller/action.html',
-            'scheme' => 'https',
-            'query' => Map {'foo' => 'bar', 'int' => 123},
-            'host' => 'subber.sub.domain.com',
-            'port' => 80
-        }, $router->getSegments());
-
-        // module, controller, action, ext, base, query, https, args
-        $_SERVER['HTTP_HOST'] = 'subbest.subber.sub.domain.com';
-        $_SERVER['SCRIPT_FILENAME'] = '/base/rooter/root/dir/index.php'; // query doesn't show up here
-        $_SERVER['REQUEST_URI'] = '/module/controller/action.html/123/abc?foo=bar&int=123';
-        $_SERVER['HTTPS'] = 'on';
-        Server::initialize($_SERVER);
-
-        $_GET = ['foo' => 'bar', 'int' => 123];
-        Get::initialize($_GET);
-
-        $router = new Router();
-        $this->assertEquals('/base/rooter/root/dir', $router->base());
-        $this->assertEquals('/module/controller/action.html/123/abc', $router->getSegment('path'));
-        $this->assertInstanceOf('HH\Map', $router->getSegment('query'));
-        $this->assertEquals(Map {
-            'path' => '/module/controller/action.html/123/abc',
-            'scheme' => 'https',
-            'query' => Map {'foo' => 'bar', 'int' => 123},
-            'host' => 'subbest.subber.sub.domain.com',
-            'port' => 80
-        }, $router->getSegments());
-    }
-
-    /**
-     * @expectedException \Titon\Route\Exception\MissingSegmentException
-     */
-    public function testSegmentsMissingKey(): void {
-        $this->object->getSegment('fakeKey');
     }
 
     public function testWireClassMapping(): void {

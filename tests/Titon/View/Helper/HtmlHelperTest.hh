@@ -4,6 +4,7 @@ namespace Titon\View\Helper;
 use Titon\Test\TestCase;
 use Titon\Utility\Crypt;
 use Titon\View\EngineView;
+use Titon\View\Locator\TemplateLocator;
 
 /**
  * @property \Titon\View\Helper\HtmlHelper $object
@@ -104,7 +105,7 @@ class HtmlHelperTest extends TestCase {
     }
 
     public function testTitle(): void {
-        $view = new EngineView(Vector {'/'});
+        $view = new EngineView(new TemplateLocator('/'));
         $this->object->setView($view);
 
         $view->setVariable('pageTitle', 'Page Title');

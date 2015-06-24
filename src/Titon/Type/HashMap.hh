@@ -101,7 +101,7 @@ class HashMap<Tk, Tv> implements
             if (in_array($method, $this->chainable)) {
 
                 // UNSAFE
-                // Since inst_meth() requires literal strings and we are passing variables
+                // Since `inst_meth()` requires literal strings and we are passing variables
                 call_user_func_array(inst_meth($map, $method), $args);
 
                 return $this;
@@ -113,7 +113,7 @@ class HashMap<Tk, Tv> implements
                 $clonedList = $map->toMap();
 
                 // UNSAFE
-                // Since inst_meth() requires literal strings and we are passing variables
+                // Since `inst_meth()` requires literal strings and we are passing variables
                 $mutatedList = call_user_func_array(inst_meth($clonedList, $method), $args);
 
                 // Some methods return void/null so use the cloned list
@@ -591,7 +591,7 @@ class HashMap<Tk, Tv> implements
      */
     public function toXml(string $root = 'document'): string {
         // UNSAFE
-        // The HashMap value is Map<Tk, Tv> while the XmlMap is Map<string, mixed>.
+        // The HashMap value is `Map<Tk, Tv>` while the XmlMap is `Map<string, mixed>`
         return Xml::fromMap($root, $this->value())->toString();
     }
 

@@ -69,28 +69,41 @@ namespace {
 namespace {
     use Titon\Route\ParamMap;
     use Titon\Route\QueryMap;
-    use Titon\Context\Depository;
     use Titon\Route\UrlBuilder;
+    use Titon\Context\Depository;
+
+    /**
+     * @see Titon\Route\UrlBuilder::getAbsoluteUrl()
+     */
+    function current_url(): string {
+        return builder_context()->getAbsoluteUrl();
+    }
 
     /**
      * @see Titon\Route\UrlBuilder::build()
      */
-    function link_to(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
-        $builder = Depository::getInstance()->make('Titon\Route\UrlBuilder');
-
-        invariant($builder instanceof UrlBuilder, 'Must be a UrlBuilder.');
-
-        return $builder->build($key, $params, $query);
+    function url(string $key, ParamMap $params = Map {}, QueryMap $query = Map {}): string {
+        return builder_context()->build($key, $params, $query);
     }
 
     /**
-     * @see Titon\Route\UrlBuilder::url()
+     * @see Titon\Route\UrlBuilder::getSegment()
      */
-    function url(): string {
+    function url_segment(string $segment): mixed {
+        return builder_context()->getSegment($segment);
+    }
+
+    /**
+     * Make and return a `UrlBuilder` instance from the depository.
+     *
+     * @return \Titon\Route\UrlBuilder
+     */
+    function builder_context(): UrlBuilder {
         $builder = Depository::getInstance()->make('Titon\Route\UrlBuilder');
 
         invariant($builder instanceof UrlBuilder, 'Must be a UrlBuilder.');
 
-        return $builder->url();
+        return $builder;
     }
+
 }

@@ -38,7 +38,7 @@ class Monitor extends Annotation implements Wireable {
      */
     public function __construct(string $callback = '') {
         // UNSAFE
-        // Since both `fun()` and `class_meth()` require literal strings and we're passing variables.
+        // Since both `fun()` and `class_meth()` require literal strings and we're passing variables
         if (strpos($callback, '::')) {
             list($class, $method) = explode('::', $callback);
 

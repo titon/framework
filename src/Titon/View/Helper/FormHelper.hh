@@ -9,7 +9,7 @@ namespace Titon\View\Helper;
 
 use Titon\Model\Model;
 use Titon\Utility\Config;
-use Titon\Utility\Inflector;
+use Titon\Utility\Inflect;
 use Titon\Utility\Col;
 use Titon\Utility\Path;
 use Titon\Utility\State\Files;
@@ -160,7 +160,7 @@ class FormHelper extends AbstractHelper {
 
         foreach ($options as $option) {
             $attribs = $attributes->toMap(); // Clone it
-            $attribs['id'] = $id . '-' . Inflector::slug($option);
+            $attribs['id'] = $id . '-' . Inflect::slug($option);
             $attribs['name'] = $name . '.[]';
 
             $checkboxes[] = $this->checkbox($name, $option, $attribs);
@@ -281,7 +281,7 @@ class FormHelper extends AbstractHelper {
 
         foreach ($parts as $part) {
             if ($part !== '') {
-                $id[] = Inflector::slug($part);
+                $id[] = Inflect::slug($part);
             }
         }
 
@@ -812,7 +812,7 @@ class FormHelper extends AbstractHelper {
 
         foreach ($options as $option) {
             $attribs = $attributes->toMap(); // Clone it
-            $attribs['id'] = $id . '-' . Inflector::slug($option);
+            $attribs['id'] = $id . '-' . Inflect::slug($option);
 
             $radios[] = $this->radio($name, $option, $attribs);
         }

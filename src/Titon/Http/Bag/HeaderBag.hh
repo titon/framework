@@ -9,7 +9,7 @@ namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
 use Titon\Utility\Col;
-use Titon\Utility\Inflector;
+use Titon\Utility\Inflect;
 
 /**
  * Bag for interacting with request and response headers.
@@ -40,7 +40,7 @@ class HeaderBag extends AbstractBag<string, array<string>> {
      * @return string
      */
     public function key(string $key): string {
-        $key = str_replace([' ', '-', '_'], '-', Inflector::titleCase($key));
+        $key = str_replace([' ', '-', '_'], '-', Inflect::titleCase($key));
 
         // Special cases
         if ($key === 'Etag') {

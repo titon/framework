@@ -15,6 +15,21 @@ As readers are used for reading files, a [writer](writers.md) can be used for wr
 
 The following types of readers are supported.
 
+### Hack ###
+
+The `Titon\Io\Reader\HackReader` can be used in reading Hack files. 
+
+```hack
+$reader = new Titon\Io\Reader\HackReader('/path/to/file.hh');
+```
+
+A Hack file must return a map to be valid.
+
+```hack
+<?hh
+return Map {'key' => 'value'};
+```
+
 ### PHP ###
 
 The `Titon\Io\Reader\PhpReader` can be used in reading PHP files. 

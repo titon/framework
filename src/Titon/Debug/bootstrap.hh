@@ -74,9 +74,9 @@ namespace {
     /**
      * @see Titon\Debug\Debugger::export()
      */
-    function export(mixed $var, bool $short = true): void {
+    function export(mixed $var): void {
         if (Debugger::isOn()) {
-            echo Debugger::export($var, $short);
+            echo Debugger::export($var);
         }
     }
 

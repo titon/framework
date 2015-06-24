@@ -13,7 +13,7 @@ namespace Titon\Utility;
  *
  * @package Titon\Utility
  */
-class Inflector {
+class Inflect {
 
     /**
      * Inflect a word to a camel case form with the first letter being capitalized.
@@ -34,7 +34,7 @@ class Inflector {
      */
     <<__Memoize>>
     public static function className(string $string): string {
-        return Inflector::camelCase(Inflector::singularize($string));
+        return static::camelCase(static::singular($string));
     }
 
     /**
@@ -96,7 +96,7 @@ class Inflector {
      * @param string $string
      * @return string
      */
-    public static function pluralize(string $string): string {
+    public static function plural(string $string): string {
         return $string;
     }
 
@@ -108,7 +108,7 @@ class Inflector {
      */
     <<__Memoize>>
     public static function route(string $string): string {
-        return mb_strtolower(Inflector::hyphenate(str_replace('_', '-', preg_replace('/[^-_a-z0-9\s\.]+/i', '', $string))));
+        return mb_strtolower(static::hyphenate(str_replace('_', '-', preg_replace('/[^-_a-z0-9\s\.]+/i', '', $string))));
     }
 
     /**
@@ -117,7 +117,7 @@ class Inflector {
      * @param string $string
      * @return string
      */
-    public static function singularize(string $string): string {
+    public static function singular(string $string): string {
         return $string;
     }
 
@@ -133,7 +133,7 @@ class Inflector {
         $string = html_entity_decode($string, ENT_QUOTES, 'UTF-8');
 
         // Remove non-ascii characters
-        $string = preg_replace('/[^-a-z0-9\.\s]+/i', '', Inflector::transliterate($string));
+        $string = preg_replace('/[^-a-z0-9\.\s]+/i', '', static::transliterate($string));
 
         // Replace dashes and underscores
         $string = str_replace(' ', '-', str_replace('-', '_', $string));
@@ -180,7 +180,7 @@ class Inflector {
      */
     <<__Memoize>>
     public static function underscore(string $string): string {
-        return trim(mb_strtolower(str_replace('__', '_', preg_replace('/([A-Z]{1})/', '_$1', preg_replace('/[^_a-z0-9]+/i', '', preg_replace('/[\s]+/', '_', $string))))), '_');
+        return trim(mb_strtolower(str_replace('__', '_', preg_replace('/([A-Z]{1})/', '_$1', preg_replace('/[^_a-z0-9]+/i', '', preg_replace('/[\s\-]+/', '_', $string))))), '_');
     }
 
     /**

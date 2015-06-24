@@ -346,10 +346,13 @@ class Col {
                     $current = $base[$key];
 
                     if ($value instanceof Vector && $current instanceof Vector) {
-                        $value = $current->addAll($value);
+                        $value = $current->toVector()->addAll($value->toVector());
 
-                    } else if ($value instanceof Indexish && $current instanceof Indexish) {
-                        $value = static::merge($current, $value); // Map and array
+                    } else if ($value instanceof Set && $current instanceof Set) {
+                        $value = $current->toSet()->addAll($value->toSet());
+
+                    } else if ($value instanceof Map && $current instanceof Map) {
+                        $value = static::merge($current, $value->toMap());
                     }
                 }
 
@@ -542,6 +545,40 @@ class Col {
         // UNSAFE
         // Since the values in the map are more than just `Tv`
         return $map;
+    }
+
+    /**
+     * Recursively convert a resource into a set.
+     *
+     * @param Tr $resource
+     * @return Set<Tv>
+     */
+    public static function toSet<Tv, Tr>(Tr $resource): Set<Tv> {
+         if (!$resource instanceof Indexish) {
+            // UNSAFE
+            // Since we are returning a `Tr` instead of `Tv`
+            return new Set([$resource]);
+        }
+
+        invariant($resource instanceof Indexish, 'Resource must be traversable');
+
+        $set = Set {};
+
+        foreach ($resource as $value) {
+            if ($value instanceof Map || (is_array($value) && !Col::isNumeric(array_keys($value)))) {
+                $set[] = static::toMap($value);
+
+            } else if ($value instanceof Indexish || $value instanceof Set) {
+                $set[] = static::toSet($value);
+
+            } else {
+                $set[] = $value;
+            }
+        }
+
+        // UNSAFE
+        // Since the values in the set are more than just `Tv`
+        return $set;
     }
 
     /**

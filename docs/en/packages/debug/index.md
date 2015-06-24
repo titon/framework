@@ -1,7 +1,6 @@
 # Debug Package #
 
-The Debug package provides a debugging and logging layer that is easy to integrate and easy to configure. The debugger toggles environment settings, replaces errors with exceptions, handles uncaught exceptions,
-intercepts fatal errors, analyzes data for debugging, and much more.
+The Debug package provides a debugging and logging layer that is easy to integrate and easy to configure. The debugger toggles environment settings, replaces errors with exceptions, handles uncaught exceptions, intercepts fatal errors, analyzes data for debugging, and much more.
 
 ### Installation ###
 
@@ -16,6 +15,7 @@ composer require titon/debug:*
 * [Debugging](debugging.md)
 * [Logging](logging.md)
 * [Benchmarking](benchmarking.md)
+
 
 * [Annotations](annotations.md)
 * [Global Functions](functions.md)

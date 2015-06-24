@@ -21,8 +21,7 @@ Titon follows the majority of the official [PSR-2 Style Guide](http://www.php-fi
 
 ## PSR-4 ##
 
-All packages follow the official [PSR-4 Autoloader Standard](http://www.php-fig.org/psr/psr-4/). 
-Each package must have a `composer.json` within the root of the package folder.
+All packages follow the official [PSR-4 Autoloader Standard](http://www.php-fig.org/psr/psr-4/). Each package must have a `composer.json` within the root of the package folder.
 
 ## Namespace Organization ##
 
@@ -73,7 +72,7 @@ The following actions should be used within the correct naming context, but are 
 * `parse` - Extract values.
 * `build` - Combine values.
 * `run` - Process a value.
-* `do` - Special case for event callbacks.
+* `do`, `on` - Special case for event callbacks.
 
 ### Properties ###
 
@@ -89,9 +88,7 @@ Nullable types should be used sparingly.
 
 ## Type Aliases ##
 
-All type aliases must be declared in StudlyCaps (similar to classes) within the current namespace. 
-The declaration must reside in the `bootstrap.hh` file found at the root of the package; 
-opaque type aliases are except from this rule as they must be declared in the class file that uses them.
+All type aliases must be declared in StudlyCaps (similar to classes) within the current namespace. The declaration must reside in the `bootstrap.hh` file found at the root of the package; opaque type aliases are except from this rule as they must be declared in the class file that uses them.
 
 ```hack
 namespace Titon\Package {
@@ -114,8 +111,8 @@ public function doAction(FooBar $map): void {}
 When naming a type alias, the following suffixes and conventions must be adhered to.
 
 * Must use `Callback` suffix when declaring a callable.
-* Must use `Container` suffix when declaring a map that contains another map, vector, set, pair, or array.
-* Must use `List` suffix when declaring a vector.
+* Must use `Container` suffix when declaring a map that contains another collection.
+* Must use `List` suffix when declaring a vector or set.
 * Must use `Map` suffix when declaring a map.
 * Must use nouns (a thing) when declaring a shape.
 
@@ -125,8 +122,7 @@ All packages should have an `Exception` folder and namespace.
 
 ## Global Functions ##
 
-All global functions must be declared in the `bootstrap.hh` file found at the root of the package. 
-Function names should be written in snake case (lowercase and underscores).
+All global functions must be declared in the `bootstrap.hh` file found at the root of the package. Function names should be written in snake case (lowercase and underscores).
 
 ```hack
 namespace {

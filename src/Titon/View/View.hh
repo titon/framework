@@ -18,46 +18,6 @@ use Titon\Cache\Storage;
 interface View {
 
     /**
-     * Add a view helper.
-     *
-     * @param string $key
-     * @param \Titon\View\Helper $helper
-     * @return $this
-     */
-    public function addHelper(string $key, Helper $helper): this;
-
-    /**
-     * Add a lookup path.
-     *
-     * @param string $path
-     * @return $this
-     */
-    public function addPath(string $path): this;
-
-    /**
-     * Add multiple lookup paths.
-     *
-     * @param \Titon\View\PathList $paths
-     * @return $this
-     */
-    public function addPaths(PathList $paths): this;
-
-    /**
-     * Format the current template path by converting slashes and removing extensions.
-     *
-     * @param string $template
-     * @return string
-     */
-    public function formatPath(string $template): string;
-
-    /**
-     * Return the template file extension.
-     *
-     * @return string
-     */
-    public function getExtension(): string;
-
-    /**
      * Return a helper by key.
      *
      * @param string $key
@@ -73,11 +33,11 @@ interface View {
     public function getHelpers(): HelperMap;
 
     /**
-     * Return all lookup paths.
+     * Return the template locator instance.
      *
-     * @return \Titon\View\PathList
+     * @return \Titon\View\Locator
      */
-    public function getPaths(): PathList;
+    public function getLocator(): Locator;
 
     /**
      * Return a variable by key.
@@ -93,15 +53,6 @@ interface View {
      * @return \Titon\View\DataMap
      */
     public function getVariables(): DataMap;
-
-    /**
-     * Locate a template within the lookup paths and organize based on the type of template.
-     *
-     * @param string $template
-     * @param \Titon\View\Template $type
-     * @return string
-     */
-    public function locateTemplate(string $template, Template $type = Template::OPEN): string;
 
     /**
      * The all-in-one rendering method that pieces together the layout, wrapper, and template,
@@ -126,20 +77,13 @@ interface View {
     public function renderTemplate(string $path, DataMap $variables = Map {}): string;
 
     /**
-     * Set the template file extension.
+     * Set a view helper.
      *
-     * @param string $ext
+     * @param string $key
+     * @param \Titon\View\Helper $helper
      * @return $this
      */
-    public function setExtension(string $ext): this;
-
-    /**
-     * Set a list of lookup paths and overwrite any previously defined paths.
-     *
-     * @param \Titon\View\PathList $paths
-     * @return $this
-     */
-    public function setPaths(PathList $paths): this;
+    public function setHelper(string $key, Helper $helper): this;
 
     /**
      * Set a view variable.

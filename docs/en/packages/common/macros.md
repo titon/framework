@@ -1,7 +1,6 @@
 # Macros #
 
-Macros allow for static class methods to be defined and called at runtime. 
-To begin, add the `Titon\Common\Macroable` trait to a class.
+Macros allow for static class methods to be defined and called at runtime. To begin, add the `Titon\Common\Macroable` trait to a class.
 
 ```hack
 class Foo {

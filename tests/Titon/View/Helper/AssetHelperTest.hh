@@ -3,6 +3,7 @@ namespace Titon\View\Helper;
 
 use Titon\Test\TestCase;
 use Titon\View\EngineView;
+use Titon\View\Locator\TemplateLocator;
 
 /**
  * @property \Titon\View\Helper\AssetHelper $object
@@ -15,8 +16,8 @@ class AssetHelperTest extends TestCase {
         $this->vfs()->createDirectory('/css/');
         $this->vfs()->createFile('/css/test.css');
 
-        $view = new EngineView(TEMP_DIR);
-        $view->addHelper('html', new HtmlHelper());
+        $view = new EngineView(new TemplateLocator(TEMP_DIR));
+        $view->setHelper('html', new HtmlHelper());
 
         $this->object = new AssetHelper($this->vfs()->path('/'));
         $this->object->setView($view);

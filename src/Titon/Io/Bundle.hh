@@ -41,6 +41,14 @@ interface Bundle {
     public function addReader(Reader $reader): this;
 
     /**
+     * Add multiple file readers.
+     *
+     * @param \Titon\Io\ReaderList $readers
+     * @return $this
+     */
+    public function addReaders(ReaderList $readers): this;
+
+    /**
      * Return a list of all files within a specific domain.
      *
      * @param string $domain

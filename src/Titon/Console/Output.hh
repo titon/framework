@@ -130,7 +130,7 @@ class Output implements KernelOutput {
      *
      * @return $this
      */
-        public function setForceAnsi(bool $force): this {
+    public function setForceAnsi(bool $force): this {
         $this->forceAnsi = $force;
 
         return $this;
@@ -148,7 +148,7 @@ class Output implements KernelOutput {
         $retval = $message;
         foreach ($parsedTags as $xmlTag) {
             if (!is_null($this->styles->get($xmlTag))) {
-                $outputAnsi = $this->getAnsiAllowed();
+                $outputAnsi = $this->isAnsiAllowed();
 
                 $style = $this->styles[$xmlTag];
                 $retval = $style->format($xmlTag, $retval, $outputAnsi);
@@ -167,7 +167,7 @@ class Output implements KernelOutput {
         return $retval;
     }
 
-    public function getAnsiAllowed(): bool {
+    public function isAnsiAllowed(): bool {
         $allowed = false;
         if ($this->forceAnsi === true) {
             $allowed = true;

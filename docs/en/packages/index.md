@@ -5,10 +5,11 @@ The Titon Framework aims to be extremely modular by encapsulating similar functi
 * [Annotation](annotation/index.md) - Class and method metadata annotating
 * [Cache](cache/index.md) - Data caching through storage engines
 * [Common](common/index.md) - Common interfaces, traits, and abstract implementations
+* [Console](console/index.md) - Command line applications
 * [Context](context/index.md) - Dependency containers and service providers
 * [Controller](controller/index.md) - Controllers and actions in the dispatch cycle
 * [Debug](debug/index.md) - Debugging, logging, and benchmarking
-* [Environment](environment/index.md) - Environment detection and host bootstrapping
+* [Environment](env/index.md) - Environment detection and host bootstrapping
 * [Event](event/index.md) - Observers, listeners, and event emitting
 * [HTTP](http/index.md) - Request and response handling
 * [Intl](intl/index.md) - Internationalization and localization

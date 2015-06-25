@@ -100,4 +100,5 @@ abstract class AbstractUserInput<T> implements UserInput {
 
         return $this;
     }
+
 }

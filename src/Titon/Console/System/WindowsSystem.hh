@@ -27,7 +27,7 @@ class WindowsSystem extends AbstractSystem {
     public function getHeight(): int {
         $this->getStats();
 
-        return (int)$this->modeOutput[0];
+        return (int) $this->modeOutput[0];
     }
 
     /**
@@ -36,7 +36,7 @@ class WindowsSystem extends AbstractSystem {
     public function getWidth(): int {
         $this->getStats();
 
-        return (int)$this->modeOutput[1];
+        return (int) $this->modeOutput[1];
     }
 
     /**
@@ -64,4 +64,5 @@ class WindowsSystem extends AbstractSystem {
     public function supportsAnsi(): bool {
         return (getenv('ANSICON') === true || getenv('ConEmuANSI') === 'ON');
     }
+
 }

@@ -158,6 +158,7 @@ class Input implements KernelInput {
      */
     public function addCommand(Command $command): this {
         $command->configure();
+
         $this->commands[$command->getName()] = $command;
 
         return $this;
@@ -204,6 +205,7 @@ class Input implements KernelInput {
         }
 
         $input = new Vector($this->rawInput);
+
         foreach ($input as $index => $value) {
             if (!is_null($command = $this->commands->get($value))) {
                 $input->removeKey($index);

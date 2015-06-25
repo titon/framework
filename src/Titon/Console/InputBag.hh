@@ -27,7 +27,6 @@ class InputBag<T as InputDefinition> extends AbstractBag<string, T> {
      * @return T|null
      */
     public function get(string $key, ?T $default = null): ?T {
-        $arg = null;
         if (is_null($arg = parent::get($key))) {
             foreach ($this as $val) {
                 if ($key === $val->getAlias()) {
@@ -36,6 +35,6 @@ class InputBag<T as InputDefinition> extends AbstractBag<string, T> {
             }
         }
 
-        return $arg;
+        return $default;
     }
 }

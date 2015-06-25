@@ -56,10 +56,12 @@ abstract class AbstractSystem implements System {
      */
     public function isPiped(): bool {
         $shellPipe = getenv('SHELL_PIPE');
+
         if ($shellPipe !== false) {
             return filter_var($shellPipe, FILTER_VALIDATE_BOOLEAN);
         } else {
             return function_exists('posix_isatty') && !@posix_isatty(STDOUT);
         }
     }
+
 }

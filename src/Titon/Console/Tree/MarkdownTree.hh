@@ -24,20 +24,21 @@ class MarkdownTree extends AbstractTree {
             $tree = $this->data;
         }
 
-        $retval = [];
+        $output = [];
 
         foreach ($tree as $label => $branch) {
             if (is_string($branch)) {
                 $label = $branch;
             }
 
-            $retval[] = "$prefix- $label";
+            $output[] = "$prefix- $label";
 
             if (is_array($branch)) {
-                $retval[] = $this->build($branch, "$prefix  ");
+                $output[] = $this->build($branch, "$prefix  ");
             }
         }
 
-        return implode("\n", $retval);
+        return implode("\n", $output);
     }
+
 }

@@ -360,9 +360,9 @@ abstract class AbstractCommand implements Command {
      *
      * @param int    $total     The total number of cycles of the process
      * @param string $message   The message presented with the feedback
-     * @param int    $interval  The time inverval the feedback should update
+     * @param int    $interval  The time interval the feedback should update
      */
     protected function wait(int $total = 0, string $message = '', int $interval = 100): WaitFeedback {
-        return new  WaitFeedback($this->output, $total, $message, $interval);
+        return new WaitFeedback($this->output, $total, $message, $interval);
     }
 }

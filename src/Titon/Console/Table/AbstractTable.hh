@@ -63,8 +63,8 @@ abstract class AbstractTable implements Table {
     protected function setColumnWidths(Vector<mixed> $row): void {
         foreach ($row as $index => $value) {
             $width = strlen($value);
-
             $currentWidth = 0;
+
             if ($this->columnWidths->containsKey($index)) {
                 $currentWidth = $this->columnWidths[$index];
             }
@@ -85,6 +85,7 @@ abstract class AbstractTable implements Table {
     public function setData(Vector<Map<string, mixed>> $data): this {
         $rows = Vector {};
         $headers = Vector {};
+
         foreach ($data as $row) {
             foreach ($row as $column => $value) {
                 if ($headers->linearSearch($column) < 0) {
@@ -116,10 +117,12 @@ abstract class AbstractTable implements Table {
      */
     public function setRows(Vector<Vector<mixed>> $rows): this {
         $this->rows->clear();
+
         foreach ($rows as $row) {
             $this->addRow($row);
         }
 
         return $this;
     }
+
 }

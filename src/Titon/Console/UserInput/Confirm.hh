@@ -10,16 +10,22 @@ namespace Titon\Console\UserInput;
 use Titon\Console\Input;
 use Titon\Console\Output;
 
+/**
+ * @todo
+ */
 class Confirm extends AbstractUserInput<bool> {
 
     /**
-     * The message to be appened to the prompt message containing the accepted
+     * The message to be appended to the prompt message containing the accepted
      * values.
      *
      * @var string
      */
     protected string $message = '';
 
+    /**
+     * @todo
+     */
     public function __construct(Input $input, Output $output) {
         parent::__construct($input, $output);
 
@@ -57,6 +63,7 @@ class Confirm extends AbstractUserInput<bool> {
         do {
             $this->output->out("$message ", Output::VERBOSITY_NORMAL, 0);
             $input = $this->input->getUserInput();
+
             if ($input === '' && $this->default !== '') {
                 $input = $this->default;
             }
@@ -90,4 +97,5 @@ class Confirm extends AbstractUserInput<bool> {
 
         return $this;
     }
+
 }

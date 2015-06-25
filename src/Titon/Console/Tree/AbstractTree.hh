@@ -43,7 +43,7 @@ abstract class AbstractTree implements Tree {
      * @param \Titon\Console\TreeData $tree The tree or branch to build
      * @param string $prefix        The markup prefix for the tree / branch
      *
-     * @retun string
+     * @return string
      */
     abstract protected function build(TreeData $tree, string $prefix = ''): string;
 
@@ -73,4 +73,5 @@ abstract class AbstractTree implements Tree {
 
         return $this;
     }
+
 }

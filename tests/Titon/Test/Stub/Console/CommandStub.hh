@@ -39,19 +39,24 @@ class CommandStub extends AbstractCommand {
         if (($type = $this->getOption('tree', '')) !== '') {
             invariant(is_string($type), 'Must be a string.');
             $this->runTreeExample($type);
+
         } else if ($this->getFlag('table') === 1) {
             $this->runTableExample();
+
         } else if ($this->getFlag('greet')) {
             if (($name = $this->getArgument('name', '')) !== '') {
                 $this->out(sprintf('Hello, %s!', $name));
             } else {
                 $this->out('Hello, world!');
             }
+
         } else if (($type = $this->getOption('feedback', '')) !== '') {
             invariant(is_string($type), 'Must be a string.');
             $this->runFeedbackExample($type);
+
         } else if ($this->getFlag('menu')) {
             $this->runUserInputExamples();
+
         } else {
             $this->runUserInputExamples();
         }

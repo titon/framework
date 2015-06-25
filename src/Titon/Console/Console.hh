@@ -25,4 +25,5 @@ class Console extends AbstractKernel<Application, Input, Output> {
 
         return $output;
     }
+
 }

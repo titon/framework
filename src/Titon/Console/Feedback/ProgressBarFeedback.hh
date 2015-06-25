@@ -38,8 +38,7 @@ class ProgressBarFeedback extends AbstractFeedback {
         $completed = $this->getPercentageComplete();
         $variables = $this->buildOutputVariables();
 
-        // Need to make prefix and suffix before the bar so we know how long
-        // to render it.
+        // Need to make prefix and suffix before the bar so we know how long to render it.
         $prefix = Str::insert($this->prefix, $variables);
         $suffix = Str::insert($this->suffix, $variables);
 
@@ -59,14 +58,11 @@ class ProgressBarFeedback extends AbstractFeedback {
             'suffix'   => $suffix
         };
 
-        if ($this->output->getAnsiAllowed() === false) {
+        if (!$this->output->isAnsiAllowed()) {
             return;
         }
 
-        $eol = Output::CR;
-        if ($finish === true) {
-            $eol = Output::LF;
-        }
+        $eol = ($finish === true) ? Output::LF : Output::CR;
 
         $this->output->out(Str::insert($this->format, $variables, Map {'escape' => false}), Output::VERBOSITY_NORMAL, 1, $eol);
     }
@@ -83,4 +79,5 @@ class ProgressBarFeedback extends AbstractFeedback {
 
         return $this;
     }
+
 }

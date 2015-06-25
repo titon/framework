@@ -41,4 +41,5 @@ interface System {
      * @return bool
      */
     public function supportsAnsi(): bool;
+
 }

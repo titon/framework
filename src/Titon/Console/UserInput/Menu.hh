@@ -34,6 +34,7 @@ class Menu extends AbstractUserInput<string> {
         if ($this->message !== '') {
             $this->output->out($this->message);
         }
+
         foreach ($values as $index => $item) {
             $this->output->out(sprintf('  %d. %s', $index + 1, (string)$item));
         }
@@ -47,6 +48,7 @@ class Menu extends AbstractUserInput<string> {
             if (is_numeric($input)) {
                 $input = (int)$input;
                 $input--;
+
                 if (!is_null($values[$input])) {
                     return $keys[$input];
                 }
@@ -70,4 +72,5 @@ class Menu extends AbstractUserInput<string> {
 
         return $this;
     }
+
 }

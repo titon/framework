@@ -24,10 +24,10 @@ class AsciiTree extends AbstractTree {
             $tree = $this->data;
         }
 
-        $retval = [];
-
+        $output = [];
         $keys = array_keys($tree);
         $branch = array_values($tree);
+
         for ($i = 0, $count = count($branch); $i < $count; ++$i) {
             $itemPrefix = $prefix;
             $next = $branch[$i];
@@ -47,16 +47,17 @@ class AsciiTree extends AbstractTree {
             }
 
             if (is_array($branch[$i])) {
-                $retval[] = $itemPrefix . (string)$keys[$i];
+                $output[] = $itemPrefix . (string) $keys[$i];
             } else {
-                $retval[] = $itemPrefix . (string)$branch[$i];
+                $output[] = $itemPrefix . (string) $branch[$i];
             }
 
             if (is_array($next)) {
-                $retval[] = $this->build($next, $prefix . ($i == $count - 1 ? '  ' : '| '));
+                $output[] = $this->build($next, $prefix . ($i == $count - 1 ? '  ' : '| '));
             }
         }
 
-        return implode("\n", $retval);
+        return implode("\n", $output);
     }
+
 }

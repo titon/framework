@@ -64,6 +64,7 @@ class AsciiTable extends AbstractTable {
     protected function buildBorder(): string {
         if (is_null($this->border)) {
             $this->border = '+';
+
             foreach ($this->columnWidths as $width) {
                 $this->border .= $this->characters['padding'];
                 $this->border .= str_repeat('-', $width);
@@ -97,9 +98,11 @@ class AsciiTable extends AbstractTable {
      */
     protected function buildRow(Vector<mixed> $data): string {
         $row = [];
+
         foreach ($data as $index => $value) {
-            $row[] = $this->buildCell((string)$value, $index);
+            $row[] = $this->buildCell((string) $value, $index);
         }
+
         $row = $this->pad(implode($this->characters['border'], $row), $this->characters['border']);
 
         return $row;
@@ -126,21 +129,22 @@ class AsciiTable extends AbstractTable {
      * @return string
      */
     public function render(): string {
-        $retval = Vector {};
+        $output = Vector {};
 
         if ($header = $this->buildRow($this->headers)) {
-            $retval[] = $this->buildBorder();
-            $retval[] = $header;
+            $output[] = $this->buildBorder();
+            $output[] = $header;
         }
 
-        $retval[] = $this->buildBorder();
+        $output[] = $this->buildBorder();
 
         foreach ($this->rows as $row) {
-            $retval[] = $this->buildRow($row);
+            $output[] = $this->buildRow($row);
         }
 
-        $retval[] = $this->buildBorder();
+        $output[] = $this->buildBorder();
 
-        return implode("\n", $retval);
+        return implode("\n", $output);
     }
+
 }

@@ -236,12 +236,12 @@ class Application implements KernelApplication {
 
         if ($this->input->getFlag('version')->getValue() === 1) {
             $this->renderVersionInformation();
-
             return;
         }
 
         if ($this->input->getFlag('ansi')->getValue() === 1) {
             $this->output->setForceAnsi(true);
+
         } else if ($this->input->getFlag('no-ansi')->getValue() === 1) {
             $this->output->setSuppressAnsi(true);
         }

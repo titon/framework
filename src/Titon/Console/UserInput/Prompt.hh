@@ -31,12 +31,13 @@ class Prompt extends AbstractUserInput<string> {
     public function prompt(string $message): mixed {
         $keys = $this->acceptedValues->keys();
         $values = $this->acceptedValues->values();
+
         if ($this->hint !== '') {
             $message .= " $this->hint";
         }
 
         while (true) {
-            $this->output->out("$message: ", Output::VERBOSITY_NORMAL, 0);
+            $this->output->out($message, Output::VERBOSITY_NORMAL, 0);
             $input = $this->input->getUserInput();
 
             if ($input === '' && $this->default !== '') {
@@ -50,6 +51,7 @@ class Prompt extends AbstractUserInput<string> {
             if (is_numeric($input)) {
                 $input = (int)$input;
                 $input--;
+
                 if (!is_null($values[$input])) {
                     return $keys[$input];
                 }
@@ -83,17 +85,15 @@ class Prompt extends AbstractUserInput<string> {
      */
     public function showHints(bool $showHint = true): this {
         if ($showHint === true) {
-            $retval = Vector {};
-            foreach ($this->acceptedValues as $k => $v) {
-                $retval[] = $v;
-            }
-            $retval = implode('/', $retval);
+            $output = $this->acceptedValues->toVector();
+            $output = implode('/', $output);
 
-            $this->hint = "[$retval]";
+            $this->hint = "[$output]";
         } else {
             $this->hint = '';
         }
 
         return $this;
     }
+
 }

@@ -18,14 +18,14 @@ class LinuxSystem extends AbstractSystem {
      * {@inheritdoc}
      */
     public function getHeight(): int {
-        return (int)exec('tput lines');
+        return (int) exec('tput lines');
     }
 
     /**
      * {@inheritdoc}
      */
     public function getWidth(): int {
-        return (int)exec('tput cols');
+        return (int) exec('tput cols');
     }
 
     /**
@@ -34,4 +34,5 @@ class LinuxSystem extends AbstractSystem {
     public function supportsAnsi(): bool {
         return (function_exists('posix_isatty') && @posix_isatty(STDOUT));
     }
+
 }

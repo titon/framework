@@ -21,13 +21,14 @@ class TabDelimitedTable extends AbstractTable {
      * @return string
      */
     public function render(): string {
-        $retval = Vector {};
+        $output = Vector {};
+        $output[] = implode("\t", $this->headers);
 
-        $retval[] = implode("\t", $this->headers);
         foreach ($this->rows as $row) {
-            $retval[] = implode("\t", $row);
+            $output[] = implode("\t", $row);
         }
 
-        return trim(implode("\n", $retval));
+        return trim(implode("\n", $output));
     }
+
 }

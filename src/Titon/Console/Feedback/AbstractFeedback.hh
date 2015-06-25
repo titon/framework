@@ -242,7 +242,7 @@ abstract class AbstractFeedback implements Feedback {
             return 1.0;
         }
 
-        return (float)($this->current / $this->total);
+        return (float) ($this->current / $this->total);
     }
 
     /**
@@ -261,6 +261,7 @@ abstract class AbstractFeedback implements Feedback {
 
         $now = microtime(true);
         $span = $now - $this->tick;
+
         if ($span > 1) {
             $this->iteration++;
             $this->tick = $now;
@@ -374,4 +375,5 @@ abstract class AbstractFeedback implements Feedback {
 
         return false;
     }
+
 }

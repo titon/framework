@@ -64,7 +64,7 @@ class WaitFeedback extends AbstractFeedback {
             'suffix'   => $suffix
         };
 
-        if ($this->output->getAnsiAllowed() === false) {
+        if (!$this->output->isAnsiAllowed()) {
             return;
         }
 

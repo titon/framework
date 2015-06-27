@@ -12,10 +12,10 @@ composer require titon/console:*
 
 ### Documentation ###
 
+* [Application](application.md)
 * [Input](input.md)
 * [Output](output.md)
 * [Commands](commands.md)
-* [Application](application.md)
 
 
 * [Type Aliases](types.md)

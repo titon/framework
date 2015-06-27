@@ -11,7 +11,8 @@ use Titon\Console\Application;
 use Titon\Console\Console;
 use Titon\Console\Input;
 use Titon\Console\Output;
-use Titon\Kernel\Middleware\Pipeline;use Titon\Test\Stub\Console\CommandStub;
+use Titon\Kernel\Middleware\Pipeline;
+use Titon\Test\Stub\Console\CommandStub;
 
 $banner = <<<'BANNER'
  ______  ______   ______   __    __   ______   __    __   ______   ______   __  __

@@ -7,12 +7,12 @@
 
 namespace Titon\Console;
 
-use Exception;
 use Titon\Console\Input;
 use Titon\Console\Output;
 use Titon\Console\InputDefinition\Flag;
-use ReflectionClass;
 use Titon\Kernel\Application as KernelApplication;
+use Exception;
+use ReflectionClass;
 
 /**
  * The `Application` class bootstraps and handles Input and Output to process and

@@ -22,29 +22,7 @@ Once a new application has been created, add commands by calling `addCommand` an
 $app->addCommand(new MyCommand());
 ```
 
-## Running the Application ##
-
-Once all necessary commands have been added, calling `run` on the `Application` object will execute the application. Again, when used with the `Console` package, this is all handled when the `Console` itself is ran.
-
-```hack
-$app->run();
-```
-
-When executing the application from the command line, the `Application` object will handle the following situations:
-
-* If no command is provided or the `help` flag is present, the help screen of the application will be presented listing all global flags, global options, and available commands.
-* If a command is present and the `help` flag is present, the help screen of the given command will be presented listing all available options, flags, and arguments as well as the usage of the command and its description.
-* If the command is present with valid parameters, the application will execute the `run` command of the `Command`.
-
 ## Automatic Setup ##
-
-The `Console` class will automatically bootstrap and set up global parameters and output styles ready for use. The following parameters are readily available:
-
-* --help (-h): The `help` flag to automatically render the help screen of the application or given command.
-* --quiet (-q): Set the verbosity of the application to 0, suppressing all output.
-* --verbose (-v) [stackable]: Set the verbosity level of the application. This is stackable, so each instance of `v` will increase the verbosity level by 1.
-* --ansi: Force ANSI output
-* --no-ansi: Suppress all ANSI output
 
 The following style tags are also readily available for formatting output (see [`StyleDefinition`](style-definition.md) for more information):
 

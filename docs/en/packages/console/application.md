@@ -1,6 +1,6 @@
 # Application #
 
-There are two distinct parts to a console application, the first being `Titon\Console\Application`, which is the application itself. The application handles the [reading of input](#input-output), [sending of output](#input-output), and the [registering and running of commands](commands.md).
+There are two distinct parts to a console application, the first being `Titon\Console\Application`, which is the application itself. The application handles the [reading of input](input.md), [sending of output](output.md), and the [registering and running of commands](commands.md).
 
 ```hack
 $app = new Titon\Console\Application();
@@ -14,7 +14,7 @@ $app->setVersion('1.0.0');
 $app->setBanner($banner);
 ```
 
-The second part to a console application is the [kernel](../kernel/index.md), represented with `Titon\Console\Console`. The kernel provides a pipeline for [executing middleware](#middleware) in the context of the command line, as well as running the application mentioned previously. The `Application` must be passed as the 1st argument.
+The second part to a console application is the [kernel](../kernel/index.md), represented with `Titon\Console\Console`. The kernel provides a pipeline for executing middleware in the context of the command line, as well as running the application mentioned previously. The `Application` must be passed as the 1st argument.
 
 ```hack
 $console = new Titon\Console\Console($app);

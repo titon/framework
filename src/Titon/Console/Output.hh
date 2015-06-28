@@ -7,9 +7,9 @@
 
 namespace Titon\Console;
 
-use Exception;
 use Titon\Kernel\Output as KernelOutput;
 use Titon\Console\System\SystemFactory;
+use Exception;
 
 /**
  * The `Output` class handles formatting and sending data to the ouput stream.
@@ -21,8 +21,10 @@ class Output implements KernelOutput {
     const int VERBOSITY_QUIET = 0;
     const int VERBOSITY_NORMAL = 1;
     const int VERBOSITY_VERBOSE = 3;
+
     const string STREAM_STDOUT = 'php://stdout';
     const string STREAM_STDERR = 'php://stderr';
+
     const string ANSI_CLEAR_LINE = "\033[K";
     const string LF = PHP_EOL;
     const string CR = "\r";
@@ -108,19 +110,22 @@ class Output implements KernelOutput {
      * Send output to the error stream.
      *
      * @param string $output        The contents to output
-     * @param int    $verbosity     The verbosity level of the output
      * @param int    $newLines      The number of new lines to append to the output
+     * @param int    $verbosity     The verbosity level of the output
      * @param string $newlineChar   The new line character to use
+     * @return $this
      */
-    public function error(string $output = '', int $verbosity = Output::VERBOSITY_NORMAL, int $newLines = 1, string $newlineChar = Output::LF): void {
+    public function error(string $output = '', int $newLines = 1, int $verbosity = Output::VERBOSITY_NORMAL, string $newlineChar = Output::LF): this {
         if (!$this->shouldOutput($verbosity)) {
-            return;
+            return $this;
         }
 
         $output = $this->format($output);
         $output .= str_repeat("\n", $newLines);
 
         fwrite($this->stderr, $output);
+
+        return $this;
     }
 
     /**
@@ -144,36 +149,42 @@ class Output implements KernelOutput {
      * @string
      */
     public function format(string $message): string {
-        $parsedTags = array_unique($this->parseTags($message));
-        $retval = $message;
+        $parsedTags = $this->parseTags($message);
+        $output = $message;
+
         foreach ($parsedTags as $xmlTag) {
             if (!is_null($this->styles->get($xmlTag))) {
                 $outputAnsi = $this->isAnsiAllowed();
-
                 $style = $this->styles[$xmlTag];
-                $retval = $style->format($xmlTag, $retval, $outputAnsi);
+                $output = $style->format($xmlTag, $output, $outputAnsi);
 
                 $matches = [];
-                $retval = preg_replace_callback('#<[\w-]+?>.*<\/[\w-]+?>#', ($matches) ==> {
-                    if ($outputAnsi === true) {
+                $output = preg_replace_callback('#<[\w-]+?>.*<\/[\w-]+?>#', $matches ==> {
+                    if ($outputAnsi) {
                         return sprintf("%s%s%s", $style->getEndCode(), $this->format($matches[0]), $style->getStartCode());
                     }
 
                     return sprintf("%s", $this->format($matches[0]));
-                }, $retval);
+                }, $output);
             }
         }
 
-        return $retval;
+        return $output;
     }
 
+    /**
+     * Detect the current state of ANSI.
+     *
+     * @return bool
+     */
     public function isAnsiAllowed(): bool {
         $allowed = false;
-        if ($this->forceAnsi === true) {
+
+        if ($this->forceAnsi) {
             $allowed = true;
-        } else if ($this->suppressAnsi === true) {
+        } else if ($this->suppressAnsi) {
             $allowed = false;
-        } else if (SystemFactory::factory()->supportsAnsi() === true) {
+        } else if (SystemFactory::factory()->supportsAnsi()) {
             $allowed = true;
         }
 
@@ -197,19 +208,22 @@ class Output implements KernelOutput {
      * Send output to the standard output stream.
      *
      * @param string $output        The contents to output
-     * @param int    $verbosity     The verbosity level of the output
      * @param int    $newLines      The number of new lines to append to the output
+     * @param int    $verbosity     The verbosity level of the output
      * @param string $newlineChar   The new line character to use
+     * @return $this
      */
-    public function out(string $output = '', int $verbosity = Output::VERBOSITY_NORMAL, int $newLines = 1, string $newlineChar = Output::LF): void {
+    public function out(string $output = '', int $newLines = 1, int $verbosity = Output::VERBOSITY_NORMAL, string $newlineChar = Output::LF): this {
         if (!$this->shouldOutput($verbosity)) {
-            return;
+            return $this;
         }
 
         $output = $this->format($output);
         $output .= str_repeat($newlineChar, $newLines);
 
         fwrite($this->stdout, $output);
+
+        return $this;
     }
 
     /**
@@ -217,13 +231,13 @@ class Output implements KernelOutput {
      *
      * @param string $stringToParse The contents to parse
      *
-     * @return array<string>
+     * @return Set<string>
      */
-    protected function parseTags(string $stringToParse): array<string> {
+    protected function parseTags(string $stringToParse): Set<string> {
         $tagsMatched = [];
         preg_match_all('#<([\w-]*?)>#', $stringToParse, $tagsMatched);
 
-        return $tagsMatched[1];
+        return new Set($tagsMatched[1]);
     }
 
     /**
@@ -239,9 +253,7 @@ class Output implements KernelOutput {
         $message = explode('{{BREAK}}', wordwrap($exception->getMessage(), 40, "{{BREAK}}"));
         array_unshift($message, "[$class]");
 
-        $length = max(array_map(($key) ==> {
-            return strlen($key);
-        }, $message));
+        $length = max(array_map($key ==> strlen($key), $message));
 
         $this->error(Output::LF);
         $this->error("<exception>  " . str_pad("", $length) . "  </exception>");
@@ -259,7 +271,6 @@ class Output implements KernelOutput {
      * Currently unused: Send the response through the given output stream.
      */
     public function send(): void {
-
     }
 
     /**
@@ -308,10 +319,7 @@ class Output implements KernelOutput {
      * @return bool
      */
     protected function shouldOutput(int $verbosity): bool {
-        if ($verbosity <= $this->verbosity) {
-            return true;
-        }
-
-        return false;
+        return ($verbosity <= $this->verbosity);
     }
+
 }

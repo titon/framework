@@ -21,12 +21,3 @@ Once a new application has been created, add commands by calling `addCommand` an
 ````hack
 $app->addCommand(new MyCommand());
 ```
-
-## Automatic Setup ##
-
-The following style tags are also readily available for formatting output (see [`StyleDefinition`](style-definition.md) for more information):
-
-* `<info>`: Green text, default background
-* `<warning>`: Yellow text, default background
-* `<error>`: Red text, default background
-* `<exception>`: White text, red background

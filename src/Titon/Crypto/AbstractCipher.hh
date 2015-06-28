@@ -149,7 +149,7 @@ abstract class AbstractCipher implements Cipher {
      * {@inheritdoc}
      */
     public static function isSupportedMethod(string $method): bool {
-        return in_array($method, static::getSupportedMethods());
+        return (static::getSupportedMethods()->linearSearch($method) >= 0);
     }
 
     /**

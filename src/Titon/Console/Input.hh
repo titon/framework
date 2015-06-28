@@ -12,7 +12,6 @@ use Titon\Console\Bag\FlagBag;
 use Titon\Console\Bag\OptionBag;
 use Titon\Utility\State\Server;
 use Titon\Kernel\Input as KernelInput;
-use Titon\Console\InputDefinition\AbstractInputDefinition;
 use Titon\Console\InputDefinition\Argument;
 use Titon\Console\InputDefinition\Flag;
 use Titon\Console\InputDefinition\Option;
@@ -139,7 +138,7 @@ class Input implements KernelInput {
     /**
      * Add a new `Argument` candidate to be parsed from input.
      *
-     * @param \Titon\Console\Argument $argument The `Argument` to add
+     * @param \Titon\Console\InputDefinition\Argument $argument The `Argument` to add
      *
      * @return $this
      */
@@ -167,7 +166,7 @@ class Input implements KernelInput {
     /**
      * Add a new `Flag` candidate to be parsed from input.
      *
-     * @param \Titon\Console\Flag $flag The `Flag` to add
+     * @param \Titon\Console\InputDefinition\Flag $flag The `Flag` to add
      *
      * @return $this
      */
@@ -180,7 +179,7 @@ class Input implements KernelInput {
     /**
      * Add a new `Option` candidate to be parsed from input.
      *
-     * @param \Titon\Console\Option $option The `Option` to add
+     * @param \Titon\Console\InputDefinition\Option $option The `Option` to add
      *
      * @return $this
      */
@@ -209,6 +208,7 @@ class Input implements KernelInput {
         foreach ($input as $index => $value) {
             if (!is_null($command = $this->commands->get($value))) {
                 $input->removeKey($index);
+
                 $this->setInput($input);
                 $this->command = $command;
 
@@ -224,7 +224,7 @@ class Input implements KernelInput {
      *
      * @param string $key The key or alias of the `Argument`
      *
-     * @return \Titon\Console\Argument
+     * @return \Titon\Console\InputDefinition\Argument
      */
     public function getArgument(string $key): Argument {
         if (is_null($argument = $this->arguments->get($key))) {
@@ -270,7 +270,7 @@ class Input implements KernelInput {
      *
      * @param string $key The key or alias of the `Flag`
      *
-     * @return \Titon\Console\Flag
+     * @return \Titon\Console\InputDefinition\Flag
      */
     public function getFlag(string $key): Flag {
         if (is_null($flag = $this->flags->get($key))) {
@@ -309,7 +309,7 @@ class Input implements KernelInput {
      *
      * @param string $key The key or alias of the `Option`
      *
-     * @return \Titon\Console\Option
+     * @return \Titon\Console\InputDefinition\Option
      */
     public function getOption(string $key): Option {
         if (is_null($option = $this->options->get($key))) {

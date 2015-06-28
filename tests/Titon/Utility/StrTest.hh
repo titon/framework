@@ -67,6 +67,29 @@ class StrTest extends TestCase {
         $this->assertTrue(strlen(Str::generate(5)) == 5);
     }
 
+    public function testHash(): void {
+        $md51 = Str::hash($this->string, 'md5');
+        $md52 = Str::hash($this->string, 'md5', 'md5.salt');
+
+        $this->assertTrue(strlen($md51) === 32);
+        $this->assertTrue(strlen($md52) === 32);
+        $this->assertNotEquals($md51, $md52);
+
+        $sha1 = Str::hash($this->string, 'sha1');
+        $sha2 = Str::hash($this->string, 'sha1', 'sha1.salt');
+
+        $this->assertTrue(strlen($sha1) === 40);
+        $this->assertTrue(strlen($sha2) === 40);
+        $this->assertNotEquals($sha1, $sha2);
+
+        $sha1 = Str::hash($this->string, 'sha256');
+        $sha2 = Str::hash($this->string, 'sha256', 'sha256.salt');
+
+        $this->assertTrue(strlen($sha1) === 64);
+        $this->assertTrue(strlen($sha2) === 64);
+        $this->assertNotEquals($sha1, $sha2);
+    }
+
     public function testIndexOf(): void {
         $this->assertEquals(0, Str::indexOf($this->string, 'T'));
         $this->assertEquals(2, Str::indexOf($this->string, 't'));
@@ -130,6 +153,10 @@ class StrTest extends TestCase {
         // custom
         $this->assertEquals('red, blue, and green', Str::listing(Vector {'red', 'blue', 'green'}, ', and '));
         $this->assertEquals('red - blue and green', Str::listing(Vector {'red', 'blue', 'green'}, ' and ', ' - '));
+    }
+
+    public function testObfuscate(): void {
+        $this->assertEquals('&#84;&#105;&#116;&#111;&#110;&#32;&#70;&#114;&#97;&#109;&#101;&#119;&#111;&#114;&#107;', Str::obfuscate('Titon Framework'));
     }
 
     public function testShorten(): void {

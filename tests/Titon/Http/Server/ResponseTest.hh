@@ -389,7 +389,7 @@ class ResponseTest extends TestCase {
     public function testSetCookie(): void {
         $time = strtotime('+1 week');
         $this->object->setCookie('foo', 'bar', $time);
-        $this->assertEquals('foo=5hxAThObwiiTyh0mhfxIKw%3D%3D; Expires=' . gmdate(Http::DATE_FORMAT, $time) . '; Path=/; HttpOnly', $this->object->getHeader('Set-Cookie'));
+        $this->assertEquals('foo=czozOiJiYXIiOw%3D%3D; Expires=' . gmdate(Http::DATE_FORMAT, $time) . '; Path=/; HttpOnly', $this->object->getHeader('Set-Cookie'));
     }
 
     public function testSetProtocolVersion(): void {

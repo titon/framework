@@ -10,6 +10,7 @@ Packages
 * [Console](packages/console/index.md)
 * [Context](packages/context/index.md)
 * [Controller](packages/controller/index.md)
+* [Crypto](packages/crypto/index.md)
 * [Debug](packages/debug/index.md)
 * [Environment](packages/env/index.md)
 * [Event](packages/event/index.md)

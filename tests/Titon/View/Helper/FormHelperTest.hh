@@ -32,20 +32,16 @@ class FormHelperTest extends TestCase {
     }
 
     public function testValueOverrides(): void {
-        if (!class_exists('Titon\Model\Model')) {
-            $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
-        }
-
         $this->assertEquals('<input id="text" name="text" type="text" value="">' . PHP_EOL, $this->object->text('text'));
 
         // Value set through argument
         $this->assertEquals('<input id="text" name="text" type="text" value="default">' . PHP_EOL, $this->object->text('text', 'default'));
 
         // Value set through default attribute
-        $this->assertEquals('<input id="text" name="text" type="text" value="default">' . PHP_EOL, $this->object->text('text', null, ['default' => 'default']));
+        $this->assertEquals('<input id="text" name="text" type="text" value="default">' . PHP_EOL, $this->object->text('text', '', Map {'default' => 'default'}));
 
         // Model value should take precedence before default value
-        $this->object->setModel(new Model(['text' => 'model']));
+        $this->object->setModel(new Model(Map {'text' => 'model'}));
 
         $this->assertEquals('<input id="model-text" name="text" type="text" value="model">' . PHP_EOL, $this->object->text('text', 'default'));
 
@@ -601,10 +597,6 @@ class FormHelperTest extends TestCase {
     }
 
     public function testFormatIDWithModel(): void {
-        if (!class_exists('Titon\Model\Model')) {
-            $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
-        }
-
         $this->object->setModel(new Model());
 
         $this->assertEquals('model-key', $this->object->formatID('key'));
@@ -647,15 +639,11 @@ class FormHelperTest extends TestCase {
     }
 
     public function testGetValueModel(): void {
-        if (!class_exists('Titon\Model\Model')) {
-            $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
-        }
-
-        $model = new Model([
+        $model = new Model(Map {
             'foo' => 'bar',
             'key' => 123,
-            'Test' => ['foo' => 'baz']
-        ]);
+            'Test' => Map {'foo' => 'baz'}
+        });
 
         $this->object->setModel($model);
 
@@ -1106,10 +1094,6 @@ class FormHelperTest extends TestCase {
     }
 
     public function testModel(): void {
-        if (!class_exists('Titon\Model\Model')) {
-            $this->markTestSkipped('Test skipped; Please install titon/model via Composer');
-        }
-
         $model = new Model();
 
         $this->assertEquals('<form accept-charset="UTF-8" action="/" enctype="application/x-www-form-urlencoded" id="model-form-2" method="POST">' . PHP_EOL, $this->object->model($model, '/'));

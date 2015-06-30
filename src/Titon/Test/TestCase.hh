@@ -86,7 +86,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     protected function tearDown(): void {
         parent::tearDown();
 
-        $this->unloadFixtures();
+        //$this->unloadFixtures();
         $this->destroyVFS();
 
         // Flush static helpers

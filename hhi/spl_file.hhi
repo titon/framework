@@ -26,7 +26,7 @@ class FilesystemIterator extends DirectoryIterator {
     public function setFlags($flags = null);
 }
 
-class RecursiveDirectoryIterator<Tv> extends FilesystemIterator implements RecursiveIterator<Tv> {
+class RecursiveDirectoryIterator extends FilesystemIterator implements RecursiveIterator<DirectoryIterator> {
     public function __construct($path, $flags);
     public function getChildren(): this;
     public function hasChildren(): bool;

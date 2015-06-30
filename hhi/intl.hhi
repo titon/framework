@@ -179,6 +179,7 @@ function transliterator_transliterate($transliterator, $subject, $start = null, 
 function transliterator_get_error_code(Transliterator $trans);
 function transliterator_get_error_message(Transliterator $trans);
 
+/*
 class Locale {
     const ACTUAL_LOCALE = 0;
     const VALID_LOCALE = 1;
@@ -210,6 +211,7 @@ class Locale {
     public static function canonicalize($locale);
     public static function acceptFromHttp($header);
 }
+*/
 
 class MessageFormatter {
     public function __construct($locale, $pattern);
@@ -257,7 +259,7 @@ class IntlDateFormatter {
     public function getErrorMessage();
 }
 
-class ResourceBundle implements Traversable {
+class ResourceBundle<T> implements Traversable<T> {
     public function __construct($locale, $bundlename, $fallback);
     public static function create($locale, $bundlename, $fallback = null);
     public function get($index);
@@ -374,7 +376,12 @@ class IntlCalendar {
     public function toDateTime();
 }
 
-class IntlIterator implements Iterator {
+class IntlIterator<T> implements Iterator<T> {
+    public function current();
+    public function next();
+    public function key();
+    public function valid();
+    public function rewind();
 }
 
 class IntlTimeZone {
@@ -401,7 +408,7 @@ class IntlTimeZone {
     public function useDaylightTime();
 }
 
-class IntlBreakIterator implements Traversable {
+class IntlBreakIterator<T> implements Traversable<T> {
     const DONE = -1;
     const WORD_NONE = 0;
     const WORD_NONE_LIMIT = 100;
@@ -421,7 +428,6 @@ class IntlBreakIterator implements Traversable {
     const SENTENCE_TERM_LIMIT = 100;
     const SENTENCE_SEP = 100;
     const SENTENCE_SEP_LIMIT = 200;
-    private function __construct();
     public static function createCharacterInstance($locale);
     public static function createCodePointInstance();
     public static function createLineInstance($locale);
@@ -444,7 +450,7 @@ class IntlBreakIterator implements Traversable {
     public function setText($text);
 }
 
-class IntlRuleBasedBreakIterator extends IntlBreakIterator implements Traversable {
+class IntlRuleBasedBreakIterator<T> extends IntlBreakIterator<T> {
     public function __construct($rules, $areCompiled);
     public static function createCharacterInstance($locale);
     public static function createCodePointInstance();
@@ -458,6 +464,6 @@ class IntlRuleBasedBreakIterator extends IntlBreakIterator implements Traversabl
     public function getRuleStatusVec();
 }
 
-class IntlCodePointBreakIterator extends IntlBreakIterator implements Traversable {
+class IntlCodePointBreakIterator<T> extends IntlBreakIterator<T> {
     public function getLastCodePoint();
 }

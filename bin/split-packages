@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-WORK_DIR=~/titon-framework-subsplit
+#WORK_DIR=~/titon-framework-subsplit
 
 # Either clone or update the subsplit repo
-if [ ! -d "$WORK_DIR" ]; then
-    git subsplit init git@github.com:titon/framework.git
-else
-    git subsplit update
-fi
+#if [ ! -d "$WORK_DIR" ]; then
+#    git subsplit init git@github.com:titon/framework.git
+#else
+#    git subsplit update
+#fi
+
+git subsplit init git@github.com:titon/framework.git
 
 # Split packages to their own repo
 git subsplit publish --heads="master" src/Titon/Annotation:git@github.com:titon/annotation.git
@@ -15,11 +17,13 @@ git subsplit publish --heads="master" src/Titon/Cache:git@github.com:titon/cache
 git subsplit publish --heads="master" src/Titon/Common:git@github.com:titon/common.git
 git subsplit publish --heads="master" src/Titon/Context:git@github.com:titon/context.git
 git subsplit publish --heads="master" src/Titon/Controller:git@github.com:titon/controller.git
+git subsplit publish --heads="master" src/Titon/Crypto:git@github.com:titon/crypto.git
 git subsplit publish --heads="master" src/Titon/Debug:git@github.com:titon/debug.git
 git subsplit publish --heads="master" src/Titon/Environment:git@github.com:titon/env.git
 git subsplit publish --heads="master" src/Titon/Event:git@github.com:titon/event.git
 git subsplit publish --heads="master" src/Titon/Http:git@github.com:titon/http.git
 git subsplit publish --heads="master" src/Titon/Io:git@github.com:titon/io.git
+git subsplit publish --heads="master" src/Titon/Intl:git@github.com:titon/intl.git
 git subsplit publish --heads="master" src/Titon/Kernel:git@github.com:titon/kernel.git
 git subsplit publish --heads="master" src/Titon/Route:git@github.com:titon/route.git
 git subsplit publish --heads="master" src/Titon/Type:git@github.com:titon/type.git

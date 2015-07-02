@@ -119,7 +119,7 @@ class UrlBuilder {
             $url .= '?' . http_build_query($query);
         }
 
-        if ($fragment) {
+        if ($fragment !== null) {
             $url .= '#' . (($fragment instanceof Traversable) ? http_build_query($fragment) : urlencode($fragment));
         }
 

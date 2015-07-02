@@ -11,7 +11,7 @@ Packages
 * [Controller](packages/controller/index.md)
 * [Crypto](packages/crypto/index.md)
 * [Debug](packages/debug/index.md)
-* [Environment](packages/environment/index.md)
+* [Environment](packages/env/index.md)
 * [Event](packages/event/index.md)
 * [HTTP](packages/http/index.md)
 * [Intl](packages/intl/index.md)

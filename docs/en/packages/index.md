@@ -9,7 +9,7 @@ The Titon Framework aims to be extremely modular by encapsulating similar functi
 * [Controller](controller/index.md) - Controllers and actions in the dispatch cycle
 * [Crypto](crypto/index.md) - Secure data encryption and decryption
 * [Debug](debug/index.md) - Debugging, logging, and benchmarking
-* [Environment](environment/index.md) - Environment detection and host bootstrapping
+* [Environment](env/index.md) - Environment detection and host bootstrapping
 * [Event](event/index.md) - Observers, listeners, and event emitting
 * [HTTP](http/index.md) - Request and response handling
 * [Intl](intl/index.md) - Internationalization and localization

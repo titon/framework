@@ -30,13 +30,12 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 
 Upcoming features and release plan.
 
-* June
-    * [Intl package](https://github.com/titon/g11n) - Internationalization and localization [IN PROGRESS]
-    * [MVC package](https://github.com/titon/mvc) - Model-view-controller application [DELAYED UNTIL PSR-7]
 * July
-    * [DB package](https://github.com/titon/db) - Database abstraction layer
-    * Beta release
+    * Console package - Command line application [DELAYED]
+    * HTTP package - Updated for PSR-7 support
+    * [MVC package](https://github.com/titon/mvc) - Model-view-controller application [DELAYED UNTIL PSR-7]
 * August
+    * [DB package](https://github.com/titon/db) - Database abstraction layer
     * [Model package](https://github.com/titon/model) - Object relational mapper and active record for DB entities
 * September
     * CommandBus package - Command bus layer
@@ -50,7 +49,7 @@ Upcoming features and release plan.
     * Auth package - Authentication and authorization
 * January
     * ADR package - Action-domain-responder application
-    * 0.1.0 release
+    * Beta release
 
 ## Usage ##
 

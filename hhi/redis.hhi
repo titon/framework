@@ -10,27 +10,25 @@
  */
 
 class Redis {
-    const AFTER = 'after';
-    const BEFORE = 'before';
-    const OPT_SERIALIZER = 1;
-    const OPT_PREFIX = 2;
-    const OPT_READ_TIMEOUT = 3;
-    const OPT_SCAN = 4;
-    const SERIALIZER_NONE = 0;
-    const SERIALIZER_PHP = 1;
-    const SERIALIZER_IGBINARY = 2;
-    const ATOMIC = 0;
-    const MULTI = 1;
-    const PIPELINE = 2;
-    const REDIS_NOT_FOUND = 0;
-    const REDIS_STRING = 1;
-    const REDIS_SET = 2;
-    const REDIS_LIST = 3;
-    const REDIS_ZSET = 4;
-    const REDIS_HASH = 5;
-    const SCAN_NORETRY = 0;
-    const SCAN_RETRY = 1;
-
+    const int REDIS_NOT_FOUND = 0;
+    const int REDIS_STRING = 1;
+    const int REDIS_SET = 2;
+    const int REDIS_LIST = 3;
+    const int REDIS_ZSET = 4;
+    const int REDIS_HASH = 5;
+    const int ATOMIC = 0;
+    const int MULTI = 1;
+    const int PIPELINE = 2;
+    const int OPT_SERIALIZER = 1;
+    const int OPT_PREFIX = 2;
+    const int OPT_READ_TIMEOUT = 3;
+    const int SERIALIZER_NONE = 0;
+    const int SERIALIZER_PHP = 1;
+    const int OPT_SCAN = 4;
+    const int SCAN_RETRY = 1;
+    const int SCAN_NORETRY = 0;
+    const string AFTER = 'after';
+    const string BEFORE = 'before';
     public function __construct();
     public function connect($host, $port = 6379, $timeout = 0.0);
     public function psetex($key, $ttl, $value);
@@ -198,14 +196,35 @@ class Redis {
     public function time();
 }
 
-class RedisException extends Exception {
-
+class RedisException extends RuntimeException {
 }
 
 class RedisArray {
+    public function __call($function_name, $arguments);
     public function __construct($name = '', array $hosts = [], array $opts = []);
-    public function _hosts();
+    public function _distributor();
     public function _function();
-    public function _target($key);
+    public function _hosts();
+    public function _instance();
     public function _rehash();
+    public function _target();
+    public function bgsave();
+    public function del();
+    public function delete();
+    public function discard();
+    public function exec();
+    public function flushall();
+    public function flushdb();
+    public function getMultiple();
+    public function getOption();
+    public function info();
+    public function keys();
+    public function mget();
+    public function mset();
+    public function multi();
+    public function ping();
+    public function save();
+    public function select();
+    public function setOption();
+    public function unwatch();
 }

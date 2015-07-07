@@ -1,5 +1,4 @@
-<?hh // partial
-// Because of PSR.
+<?hh // strict
 /**
  * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -300,7 +299,7 @@ class Debugger {
      * @param array $args
      */
     public static function handleInvariant(string $message, /* HH_FIXME[4033]: variadic + strict */ ...$args): void {
-        static::getLogger()?->log(Logger::INFO, $message, $args);
+        static::getLogger()?->log(Logger::INFO, $message);
     }
 
     /**

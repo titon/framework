@@ -11,36 +11,66 @@
 
 namespace Psr\Log;
 
+abstract class AbstractLogger implements LoggerInterface {
+  public function alert(string $message, array<string, mixed> $context = []): void {}
+  public function critical(string $message, array<string, mixed> $context = []): void {}
+  public function debug(string $message, array<string, mixed> $context = []): void {}
+  public function emergency(string $message, array<string, mixed> $context = []): void {}
+  public function error(string $message, array<string, mixed> $context = []): void {}
+  public function info(string $message, array<string, mixed> $context = []): void {}
+  public function notice(string $message, array<string, mixed> $context = []): void {}
+  public function warning(string $message, array<string, mixed> $context = []): void {}
+}
+
+class InvalidArgumentException extends \InvalidArgumentException {
+
+}
+
 class LogLevel {
-    const string EMERGENCY = 'emergency';
-    const string ALERT = 'alert';
-    const string CRITICAL = 'critical';
-    const string ERROR = 'error';
-    const string WARNING = 'warning';
-    const string NOTICE = 'notice';
-    const string INFO = 'info';
-    const string DEBUG = 'debug';
+  const string EMERGENCY = "emergency";
+  const string ALERT = "alert";
+  const string CRITICAL = "critical";
+  const string ERROR = "error";
+  const string WARNING = "warning";
+  const string NOTICE = "notice";
+  const string INFO = "info";
+  const string DEBUG = "debug";
+}
+
+interface LoggerAwareInterface {
+  public function setLogger(LoggerInterface $logger): this;
+}
+
+trait LoggerAwareTrait {
+  protected ?LoggerInterface $logger = null;
+  public function setLogger(LoggerInterface $logger): this {}
 }
 
 interface LoggerInterface {
-    public function emergency(string $message, array<string, mixed> $context = []): void;
-    public function alert(string $message, array<string, mixed> $context = []): void;
-    public function critical(string $message, array<string, mixed> $context = []): void;
-    public function error(string $message, array<string, mixed> $context = []): void;
-    public function warning(string $message, array<string, mixed> $context = []): void;
-    public function notice(string $message, array<string, mixed> $context = []): void;
-    public function info(string $message, array<string, mixed> $context = []): void;
-    public function debug(string $message, array<string, mixed> $context = []): void;
-    public function log(mixed $level, string $message, array<string, mixed> $context = []): void;
+  public function alert(string $message, array<string, mixed> $context = []): void;
+  public function critical(string $message, array<string, mixed> $context = []): void;
+  public function debug(string $message, array<string, mixed> $context = []): void;
+  public function emergency(string $message, array<string, mixed> $context = []): void;
+  public function error(string $message, array<string, mixed> $context = []): void;
+  public function info(string $message, array<string, mixed> $context = []): void;
+  public function log(mixed $level, string $message, array<string, mixed> $context = []): void;
+  public function notice(string $message, array<string, mixed> $context = []): void;
+  public function warning(string $message, array<string, mixed> $context = []): void;
 }
 
-abstract class AbstractLogger implements LoggerInterface {
-    public function emergency(string $message, array<string, mixed> $context = []): void {}
-    public function alert(string $message, array<string, mixed> $context = []): void {}
-    public function critical(string $message, array<string, mixed> $context = []): void {}
-    public function error(string $message, array<string, mixed> $context = []): void {}
-    public function warning(string $message, array<string, mixed> $context = []): void {}
-    public function notice(string $message, array<string, mixed> $context = []): void {}
-    public function info(string $message, array<string, mixed> $context = []): void {}
-    public function debug(string $message, array<string, mixed> $context = []): void {}
+trait LoggerTrait {
+  public function alert(string $message, array<string, mixed> $context = []): void {}
+  public function critical(string $message, array<string, mixed> $context = []): void {}
+  public function debug(string $message, array<string, mixed> $context = []): void {}
+  public function emergency(string $message, array<string, mixed> $context = []): void {}
+  public function error(string $message, array<string, mixed> $context = []): void {}
+  public function info(string $message, array<string, mixed> $context = []): void {}
+  abstract public function log(mixed $level, string $message, array<string, mixed> $context = []): void;
+  public function notice(string $message, array<string, mixed> $context = []): void {}
+  public function warning(string $message, array<string, mixed> $context = []): void {}
 }
+
+class NullLogger extends AbstractLogger {
+  public function log(mixed $level, string $message, array<string, mixed> $context = []): void {}
+}
+

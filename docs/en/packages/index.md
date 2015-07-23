@@ -5,6 +5,7 @@ The Titon Framework aims to be extremely modular by encapsulating similar functi
 * [Annotation](annotation/index.md) - Class and method metadata annotating
 * [Cache](cache/index.md) - Data caching through storage engines
 * [Common](common/index.md) - Common interfaces, traits, and abstract implementations
+* [Console](console/index.md) - Command line applications
 * [Context](context/index.md) - Dependency containers and service providers
 * [Controller](controller/index.md) - Controllers and actions in the dispatch cycle
 * [Crypto](crypto/index.md) - Secure data encryption and decryption

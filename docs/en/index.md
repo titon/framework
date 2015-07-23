@@ -7,6 +7,7 @@ Packages
 * [Annotation](packages/annotation/index.md)
 * [Cache](packages/cache/index.md)
 * [Common](packages/common/index.md)
+* [Console](packages/console/index.md)
 * [Context](packages/context/index.md)
 * [Controller](packages/controller/index.md)
 * [Crypto](packages/crypto/index.md)

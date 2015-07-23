@@ -83,7 +83,7 @@ class Logger extends AbstractLogger {
      * @param array $context
      * @return void
      */
-    public function log(mixed $level, string $message, array<string, mixed> $context = []): void {
+    public function log(/* HH_FIXME[4032]: no type hint */ $level, /* HH_FIXME[4032]: no type hint */ $message, array<string, mixed> $context = []): void {
         file_put_contents(
             sprintf('%s%s-%s.log', $this->getDirectory(), $level, date('Y-m-d')),
             static::createMessage($level, $message, $context),

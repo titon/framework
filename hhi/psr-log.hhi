@@ -11,6 +11,18 @@
 
 namespace Psr\Log;
 
+interface LoggerInterface {
+  public function alert(string $message, array<string, mixed> $context = []): void;
+  public function critical(string $message, array<string, mixed> $context = []): void;
+  public function debug(string $message, array<string, mixed> $context = []): void;
+  public function emergency(string $message, array<string, mixed> $context = []): void;
+  public function error(string $message, array<string, mixed> $context = []): void;
+  public function info(string $message, array<string, mixed> $context = []): void;
+  public function log(mixed $level, string $message, array<string, mixed> $context = []): void;
+  public function notice(string $message, array<string, mixed> $context = []): void;
+  public function warning(string $message, array<string, mixed> $context = []): void;
+}
+
 abstract class AbstractLogger implements LoggerInterface {
   public function alert(string $message, array<string, mixed> $context = []): void {}
   public function critical(string $message, array<string, mixed> $context = []): void {}
@@ -22,8 +34,8 @@ abstract class AbstractLogger implements LoggerInterface {
   public function warning(string $message, array<string, mixed> $context = []): void {}
 }
 
-class InvalidArgumentException extends \InvalidArgumentException {
-
+class NullLogger extends AbstractLogger {
+  public function log(mixed $level, string $message, array<string, mixed> $context = []): void {}
 }
 
 class LogLevel {
@@ -42,20 +54,10 @@ interface LoggerAwareInterface {
 }
 
 trait LoggerAwareTrait {
+  require implements LoggerAwareInterface;
+
   protected ?LoggerInterface $logger = null;
   public function setLogger(LoggerInterface $logger): this {}
-}
-
-interface LoggerInterface {
-  public function alert(string $message, array<string, mixed> $context = []): void;
-  public function critical(string $message, array<string, mixed> $context = []): void;
-  public function debug(string $message, array<string, mixed> $context = []): void;
-  public function emergency(string $message, array<string, mixed> $context = []): void;
-  public function error(string $message, array<string, mixed> $context = []): void;
-  public function info(string $message, array<string, mixed> $context = []): void;
-  public function log(mixed $level, string $message, array<string, mixed> $context = []): void;
-  public function notice(string $message, array<string, mixed> $context = []): void;
-  public function warning(string $message, array<string, mixed> $context = []): void;
 }
 
 trait LoggerTrait {
@@ -70,7 +72,6 @@ trait LoggerTrait {
   public function warning(string $message, array<string, mixed> $context = []): void {}
 }
 
-class NullLogger extends AbstractLogger {
-  public function log(mixed $level, string $message, array<string, mixed> $context = []): void {}
-}
+class InvalidArgumentException extends \InvalidArgumentException {
 
+}

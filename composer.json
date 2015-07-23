@@ -29,7 +29,7 @@
         "psr/http-message": "0.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.6",
+        "phpunit/phpunit": "~4.7",
         "php-vfs/php-vfs": "~1.2"
     },
     "suggest": {

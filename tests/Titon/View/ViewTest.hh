@@ -32,17 +32,17 @@ class ViewTest extends TestCase {
                         '404.tpl' => 'private.errors.404'
                     ],
                     'layouts/' => [
-                        'default.tpl' => '<layout><?= $this->getContent(); ?></layout>'
+                        'default.tpl' => '<layout><?php echo $this->getContent(); ?></layout>'
                     ],
                     'partials/' => [
                         'nested/' => [
                             'include.tpl' => 'private.partials.nested.include'
                         ],
                         'include.tpl' => 'private.partials.include',
-                        'variables.tpl' => '<?= $name; ?> - <?= $type; ?> - <?= $filename; ?>'
+                        'variables.tpl' => '<?php echo $name; ?> - <?php echo $type; ?> - <?php echo $filename; ?>'
                     ],
                     'wrappers/' => [
-                        'wrapper.tpl' => '<wrapper><?= $this->getContent(); ?></wrapper>'
+                        'wrapper.tpl' => '<wrapper><?php echo $this->getContent(); ?></wrapper>'
                     ],
                     'root.tpl' => 'private.root'
                 ],
@@ -51,7 +51,7 @@ class ViewTest extends TestCase {
                         'add.tpl' => 'public.index.add',
                         'edit.tpl' => 'public.index.edit',
                         'index.tpl' => 'public.index.index',
-                        'include.tpl' => 'public.index.include - <?= $this->open(\'nested/include\'); ?>',
+                        'include.tpl' => 'public.index.include - <?php echo $this->open(\'nested/include\'); ?>',
                         'view.tpl' => 'public.index.view',
                         'view.xml.tpl' => 'public.index.view.xml',
                     ],
@@ -70,10 +70,10 @@ class ViewTest extends TestCase {
                         'example.html.tpl' => "<!DOCTYPE html>\n<html>\n<body>\n    This is an example email template.<br>\n    It is an <b>HTML</b> specific <i>template</i>.<br>\n    - Titon\n</body>\n</html>",
                     ],
                     'layouts/' => [
-                        'fallback.tpl' => '<fallbackLayout><?= $this->getContent(); ?></fallbackLayout>'
+                        'fallback.tpl' => '<fallbackLayout><?php echo $this->getContent(); ?></fallbackLayout>'
                     ],
                     'wrappers/' => [
-                        'fallback.tpl' => '<fallbackWrapper><?= $this->getContent(); ?></fallbackWrapper>'
+                        'fallback.tpl' => '<fallbackWrapper><?php echo $this->getContent(); ?></fallbackWrapper>'
                     ]
                 ]
             ]

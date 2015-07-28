@@ -10,7 +10,7 @@ namespace Titon\Route;
 use Titon\Route\Exception\MissingSegmentException;
 use Titon\Route\Exception\MissingTokenException;
 use Titon\Utility\Config;
-use Titon\Utility\Inflector;
+use Titon\Utility\Inflect;
 use Titon\Utility\State\Get;
 use Titon\Utility\State\Server;
 
@@ -93,7 +93,7 @@ class UrlBuilder {
             $tokenKey = $token['token'];
 
             if ($params->contains($tokenKey) || $token['optional']) {
-                $url = str_replace(sprintf('{%s}', $tokenKey . ($token['optional'] ? '?' : '')), Inflector::route((string) $params->get($tokenKey) ?: ''), $url);
+                $url = str_replace(sprintf('{%s}', $tokenKey . ($token['optional'] ? '?' : '')), Inflect::route((string) $params->get($tokenKey) ?: ''), $url);
 
             } else {
                 throw new MissingTokenException(sprintf('Missing %s parameter for the %s route', $tokenKey, $key));
@@ -119,7 +119,7 @@ class UrlBuilder {
             $url .= '?' . http_build_query($query);
         }
 
-        if ($fragment) {
+        if ($fragment !== null) {
             $url .= '#' . (($fragment instanceof Traversable) ? http_build_query($fragment) : urlencode($fragment));
         }
 

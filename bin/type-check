@@ -20,8 +20,9 @@ if (args.path):
 os.chdir(path)
 
 # Create .hhconfig file
-config = open('.hhconfig', 'w+')
-config.close()
+if (args.path):
+    config = open('.hhconfig', 'w+')
+    config.close()
 
 # Run the checker
 print Fore.GREEN + 'Running type checker...\n' + Fore.RESET
@@ -30,4 +31,5 @@ os.system('hh_client restart')
 os.system('hh_client check')
 
 # Delete the .hhconfig file
-os.remove('.hhconfig')
+if (args.path):
+    os.remove('.hhconfig')

@@ -22,11 +22,11 @@ class ControllerTest extends TestCase {
             '/views/' => [
                 'private/' => [
                     'errors/' => [
-                        'error.tpl' => '<?= $message; ?>',
-                        'http.tpl' => '<?= $code . \': \' . $message; ?>'
+                        'error.tpl' => '<?php echo $message; ?>',
+                        'http.tpl' => '<?php echo $code . \': \' . $message; ?>'
                     ],
                     'layouts/' => [
-                        'default.tpl' => '<?= $this->getContent(); ?>'
+                        'default.tpl' => '<?php echo $this->getContent(); ?>'
                     ]
                 ],
                 'public/' => [

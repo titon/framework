@@ -86,7 +86,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     protected function tearDown(): void {
         parent::tearDown();
 
-        $this->unloadFixtures();
+        //$this->unloadFixtures();
         $this->destroyVFS();
 
         // Flush static helpers
@@ -121,63 +121,63 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @return \Titon\Test\Fixture
      * @throws \Exception
      */
-    public function getFixture(string $name): Fixture {
-        if ($this->getFixtures()->contains($name)) {
-            return $this->fixtures[$name];
-        }
-
-        throw new \Exception(sprintf('Fixture %s does not exist', $name));
-    }
+//    public function getFixture(string $name): Fixture {
+//        if ($this->getFixtures()->contains($name)) {
+//            return $this->fixtures[$name];
+//        }
+//
+//        throw new \Exception(sprintf('Fixture %s does not exist', $name));
+//    }
 
     /**
      * Return all fixtures.
      *
      * @return \Titon\Test\FixtureMap
      */
-    public function getFixtures(): FixtureMap {
-        return $this->fixtures;
-    }
+//    public function getFixtures(): FixtureMap {
+//        return $this->fixtures;
+//    }
 
     /**
      * Load fixtures and generate database records.
      *
      * @return $this
      */
-    public function loadFixtures(): this {
-        $fixtures = func_get_args();
-
-        if (is_array($fixtures[0])) {
-            $fixtures = $fixtures[0];
-        }
-
-        foreach ($fixtures as $fixture) {
-            $className = sprintf('Titon\Test\Fixture\%sFixture', $fixture);
-
-            /** @var \Titon\Test\Fixture $object */
-            $object = new $className();
-            $object->createTable();
-            $object->insertRecords();
-
-            $this->fixtures[$fixture] = $object;
-        }
-
-        return $this;
-    }
+//    public function loadFixtures(): this {
+//        $fixtures = func_get_args();
+//
+//        if (is_array($fixtures[0])) {
+//            $fixtures = $fixtures[0];
+//        }
+//
+//        foreach ($fixtures as $fixture) {
+//            $className = sprintf('Titon\Test\Fixture\%sFixture', $fixture);
+//
+//            /** @var \Titon\Test\Fixture $object */
+//            $object = new $className();
+//            $object->createTable();
+//            $object->insertRecords();
+//
+//            $this->fixtures[$fixture] = $object;
+//        }
+//
+//        return $this;
+//    }
 
     /**
      * Delete the fixture and drop the related table.
      *
      * @return $this
      */
-    public function unloadFixtures(): this {
-        foreach ($this->getFixtures() as $name => $fixture) {
-            $fixture->dropTable();
-        }
-
-        $this->getFixtures()->clear();
-
-        return $this;
-    }
+//    public function unloadFixtures(): this {
+//        foreach ($this->getFixtures() as $name => $fixture) {
+//            $fixture->dropTable();
+//        }
+//
+//        $this->getFixtures()->clear();
+//
+//        return $this;
+//    }
 
     /**
      * Instantiate a new virtual file system.
@@ -205,30 +205,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
      * @return \VirtualFileSystem\FileSystem
      */
     public function vfs(): FileSystem {
-        if ($this->vfs) {
-            return $this->vfs;
-        }
-
-        return $this->setupVFS();
-    }
-
-    /**
-     * Assert that two array values are equal, disregarding the order.
-     *
-     * @param array<Tk, Tv> $expected
-     * @param array<Tk, Tv> $actual
-     * @param bool $key
-     */
-    public function assertArraysEqual<Tk, Tv>(array<Tk, Tv> $expected, array<Tk, Tv> $actual, bool $key = false): void {
-        if ($key) {
-            ksort($actual);
-            ksort($expected);
-        } else {
-            sort($actual);
-            sort($expected);
-        }
-
-        $this->assertEquals($expected, $actual);
+        return ($this->vfs) ? $this->vfs : $this->setupVFS();
     }
 
     /**

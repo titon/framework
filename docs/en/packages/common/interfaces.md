@@ -19,8 +19,7 @@ $foo->toArray();
 
 ## Jsonable ##
 
-The `Jsonable` interface provides a `toJson()` method that returns a JSON string. 
-An optional [JSON flag](http://php.net/manual/en/json.constants.php) can be passed to the 1st argument. 
+The `Jsonable` interface provides a `toJson()` method that returns a JSON string. An optional [JSON flag](http://php.net/manual/en/json.constants.php) can be passed to the 1st argument. 
 
 ```hack
 class Foo implements Titon\Common\Jsonable {
@@ -65,8 +64,7 @@ $foo->toVector();
 
 ## Xmlable ##
 
-The `Xmlable` interface provides a `toXml()` method that returns an XML structured string.
-We suggest using the built-in [XML class](../type/xml.md).
+The `Xmlable` interface provides a `toXml()` method that returns an XML structured string. We suggest using the built-in [XML class](../type/xml.md).
 
 ```hack
 class Foo implements Titon\Common\Xmlable {

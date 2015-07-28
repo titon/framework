@@ -1,13 +1,10 @@
 # Traits #
 
-There are a few traits found in the Common package that cannot be grouped with the other guides, but are helpful 
-nonetheless.
+There are a few traits found in the Common package that cannot be grouped with the other guides, but are helpful nonetheless.
 
 ## Mutable<`Tk`, `Tv`> ##
 
-The `Mutable` trait allows for data to be read and written to from within the class layer. 
-The data is represented as a `Map<Tk, Tv>` with generics that should be defined when inheriting the trait.
-It could also be coupled with the `IteratorAggregate<Tv>` and `Countable` interfaces for better usability.
+The `Mutable` trait allows for data to be read and written to from within the class layer. The data is represented as a `Map<Tk, Tv>` with generics that should be defined when inheriting the trait. It could also be coupled with the `IteratorAggregate<Tv>` and `Countable` interfaces for better usability.
 
 ```hack
 class Foo implements IteratorAggregate<int>, Countable {

@@ -1,5 +1,4 @@
-<?hh // partial
-// Because of PSR Log
+<?hh // strict
 /**
  * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -79,13 +78,13 @@ class Logger extends AbstractLogger {
      * @link https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
      * @link http://tools.ietf.org/html/rfc5424
      *
-     * @param string $level
+     * @param mixed $level
      * @param string $message
      * @param array $context
-     * @return bool
+     * @return void
      */
-    public function log($level, $message, array<string, mixed> $context = []): bool { // No type hints as it inherits from PSR
-        return (bool) file_put_contents(
+    public function log(/* HH_FIXME[4032]: no type hint */ $level, /* HH_FIXME[4032]: no type hint */ $message, array<string, mixed> $context = []): void {
+        file_put_contents(
             sprintf('%s%s-%s.log', $this->getDirectory(), $level, date('Y-m-d')),
             static::createMessage($level, $message, $context),
             FILE_APPEND);
@@ -96,12 +95,12 @@ class Logger extends AbstractLogger {
      *
      * @uses Titon\Utility\Str
      *
-     * @param string $level
+     * @param mixed $level
      * @param string $message
      * @param array $context
      * @return string
      */
-    public static function createMessage(string $level, string $message, array<string, mixed> $context = []): string {
+    public static function createMessage(mixed $level, string $message, array<string, mixed> $context = []): string {
         $exception = null;
         $url = '';
 

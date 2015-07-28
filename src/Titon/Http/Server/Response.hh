@@ -8,7 +8,7 @@
 
 namespace Titon\Http\Server;
 
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\StreamableInterface;
 use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Http\Cookie;
 use Titon\Http\Message;
@@ -63,10 +63,10 @@ class Response extends Message implements OutgoingResponse {
     /**
      * Set body and status during initialization.
      *
-     * @param \Psr\Http\Message\StreamInterface $body
+     * @param \Psr\Http\Message\StreamableInterface $body
      * @param int $status
      */
-    public function __construct(?StreamInterface $body = null, int $status = Http::OK) {
+    public function __construct(?StreamableInterface $body = null, int $status = Http::OK) {
         parent::__construct();
 
         $this
@@ -142,10 +142,10 @@ class Response extends Message implements OutgoingResponse {
     /**
      * Alias for setBody().
      *
-     * @param \Psr\Http\Message\StreamInterface $body
+     * @param \Psr\Http\Message\StreamableInterface $body
      * @return $this
      */
-    public function body(StreamInterface $body): this {
+    public function body(StreamableInterface $body): this {
         return $this->setBody($body);
     }
 
@@ -265,7 +265,7 @@ class Response extends Message implements OutgoingResponse {
     }
 
     /**
-     * Set the Content-Language header. Attempt to use the locales set in G11n.
+     * Set the Content-Language header.
      *
      * @param string $locales
      * @return $this
@@ -671,7 +671,7 @@ class Response extends Message implements OutgoingResponse {
     /**
      * {@inheritdoc}
      */
-    public function setBody(StreamInterface $body): this {
+    public function setBody(?StreamableInterface $body = null): this {
         $this->body = $body;
 
         return $this;
@@ -762,20 +762,6 @@ class Response extends Message implements OutgoingResponse {
      */
     public function vary(string $variances): this {
         return $this->setHeader('Vary', $variances);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function withStatus($code, $reasonPhrase = ''): OutgoingResponse {
-        $response = clone $this;
-        $response->status = (int) $code;
-
-        if ($reasonPhrase) {
-            $response->headers['Reason-Phrase'] = [$reasonPhrase];
-        }
-
-        return $response;
     }
 
     /**

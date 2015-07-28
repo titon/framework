@@ -347,17 +347,40 @@ class ColTest extends TestCase {
             'a' => 1,
             'b' => Map {
                 'c' => 2,
-                'd' => 3
-            }
+                'd' => 3,
+                'e' => Vector {1, 2, 3},
+                'f' => Map {
+                    'g' => Set {1, 2, 3},
+                    'h' => 4
+                }
+            },
         };
 
         $two = Map {
             'a' => 10,
             'b' => Map {
-                'c' => 20
+                'c' => 20,
+                'e' => Vector {1, 4, 5},
+                'f' => Map {
+                    'g' => Set {1, 2, 3},
+                    'h' => 40
+                }
             },
-            'e' => Map {
-                'f' => 5
+            'i' => Map {
+                'j' => 5
+            }
+        };
+
+        $three = Map {
+            'b' => Map {
+                'd' => 30,
+                'e' => Vector {6},
+                'f' => Map {
+                    'k' => Pair {true, false}
+                }
+            },
+            'i' => Map {
+                'j' => 50
             }
         };
 
@@ -365,12 +388,18 @@ class ColTest extends TestCase {
             'a' => 10,
             'b' => Map {
                 'c' => 20,
-                'd' => 3
+                'd' => 30,
+                'e' => Vector {1, 2, 3, 1, 4, 5, 6},
+                'f' => Map {
+                    'g' => Set {1, 2, 3},
+                    'h' => 40,
+                    'k' => Pair {true, false}
+                }
             },
-            'e' => Map {
-                'f' => 5
+            'i' => Map {
+                'j' => 50
             }
-        }, Col::merge($one, $two));
+        }, Col::merge($one, $two, $three));
     }
 
     public function testMergeWithVector(): void {
@@ -626,6 +655,15 @@ class ColTest extends TestCase {
         $this->assertEquals($expected, Col::toMap($actual));
     }
 
+    public function testToSet(): void {
+        $this->assertEquals(Set {}, Col::toSet(Vector {}));
+        $this->assertEquals(Set {'foo'}, Col::toSet(Vector {'foo'}));
+        $this->assertEquals(Set {}, Col::toSet([]));
+        $this->assertEquals(Set {'foo'}, Col::toSet(['foo']));
+        $this->assertEquals(Set {'foo'}, Col::toSet('foo'));
+        $this->assertEquals(Set {123}, Col::toSet(123));
+    }
+
     public function testToVector(): void {
         $this->assertEquals(Vector {}, Col::toVector(Vector {}));
         $this->assertEquals(Vector {'foo'}, Col::toVector(Vector {'foo'}));
@@ -648,7 +686,7 @@ class ColTest extends TestCase {
             'nested' => Map {
             'array' => [4, 5, 6],
                 'nested-array' => [
-                Map {},
+                    Map {},
                     Vector {}
                 ],
                 'integer' => 123456,

@@ -22,7 +22,7 @@
         "titon/utility": "*"
     },
     "suggest": {
-        "ext-simplexml": "Read and Write XML files using the Type\\Xml classes"
+        "ext-simplexml": "Read and write XML files using the Type\\Xml classes"
     },
     "autoload": {
         "psr-4": {

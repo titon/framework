@@ -19,6 +19,7 @@ namespace Titon\Utility {
     type OptionMap = Map<string, mixed>;
     type RegistryCallback<T> = (function(): T);
     type RegistryMap<T> = Map<string, T>;
+    type TimeMessageMap = Map<string, Map<int, string>>;
 }
 
 namespace Titon\Utility\State {
@@ -64,7 +65,7 @@ namespace {
     use Titon\Utility\ArgumentList;
     use Titon\Utility\Col;
     use Titon\Utility\Config;
-    use Titon\Utility\Inflector;
+    use Titon\Utility\Inflect;
     use Titon\Utility\Path;
     use Titon\Utility\Sanitize;
     use Titon\Utility\Registry;
@@ -289,56 +290,56 @@ namespace {
      * @see Titon\Utility\Inflector::camelCase()
      */
     function camel_case(string $string): string {
-        return Inflector::camelCase($string);
+        return Inflect::camelCase($string);
     }
 
     /**
      * @see Titon\Utility\Inflector::fileName()
      */
     function file_name(string $string, string $ext = 'php'): string {
-        return Inflector::fileName($string, $ext);
+        return Inflect::fileName($string, $ext);
     }
 
     /**
      * @see Titon\Utility\Inflector::hyphenate()
      */
     function hyphenate(string $string): string {
-        return Inflector::hyphenate($string);
+        return Inflect::hyphenate($string);
     }
 
     /**
      * @see Titon\Utility\Inflector::normalCase()
      */
     function normal_case(string $string): string {
-        return Inflector::normalCase($string);
+        return Inflect::normalCase($string);
     }
 
     /**
      * @see Titon\Utility\Inflector::slug()
      */
     function slug(string $string): string {
-        return Inflector::slug($string);
+        return Inflect::slug($string);
     }
 
     /**
      * @see Titon\Utility\Inflector::snakeCase()
      */
     function snake_case(string $string): string {
-        return Inflector::snakeCase($string);
+        return Inflect::snakeCase($string);
     }
 
     /**
      * @see Titon\Utility\Inflector::titleCase()
      */
     function title_case(string $string): string {
-        return Inflector::titleCase($string);
+        return Inflect::titleCase($string);
     }
 
     /**
      * @see Titon\Utility\Inflector::underscore()
      */
     function underscore(string $string): string {
-        return Inflector::underscore($string);
+        return Inflect::underscore($string);
     }
 
     /**

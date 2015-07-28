@@ -22,30 +22,40 @@
         "source": "https://github.com/titon/framework"
     },
     "require": {
-        "hhvm": ">=3.6.0",
-        "ext-mcrypt": "*",
+        "hhvm": ">=3.8.0",
         "ext-mbstring": "*",
         "ext-fileinfo": "*",
-        "ext-simplexml": "*",
         "psr/log": "~1.0",
-        "psr/http-message": "~1.0"
+        "psr/http-message": "0.5"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.7",
         "php-vfs/php-vfs": "~1.2"
     },
+    "suggest": {
+        "ext-apc": "Cache data using APC",
+        "ext-redis": "Cache data using Redis",
+        "ext-memcached": "Cache data using Memcache",
+        "ext-openssl": "Encrypt and decrypt data using OpenSSL (suggested)",
+        "ext-mcrypt": "Encrypt and decrypt data using MCrypt (outdated)",
+        "ext-intl": "Localize messages using the Intl extension",
+        "ext-simplexml": "Read and write XML files",
+        "ext-yaml": "Read and write YAML files"
+    },
     "autoload": {
-        "psr-4": { "": "src/" },
+        "psr-4": { "Titon\\": "src/Titon/" },
         "files": [
             "src/Titon/Annotation/bootstrap.hh",
             "src/Titon/Cache/bootstrap.hh",
             "src/Titon/Common/bootstrap.hh",
             "src/Titon/Context/bootstrap.hh",
             "src/Titon/Controller/bootstrap.hh",
+            "src/Titon/Crypto/bootstrap.hh",
             "src/Titon/Debug/bootstrap.hh",
             "src/Titon/Environment/bootstrap.hh",
             "src/Titon/Event/bootstrap.hh",
             "src/Titon/Http/bootstrap.hh",
+            "src/Titon/Intl/bootstrap.hh",
             "src/Titon/Io/bootstrap.hh",
             "src/Titon/Route/bootstrap.hh",
             "src/Titon/Type/bootstrap.hh",
@@ -55,6 +65,6 @@
         ]
     },
     "autoload-dev": {
-        "psr-4": { "": "tests/" }
+        "psr-4": { "Titon\\": "tests/Titon/" }
     }
 }

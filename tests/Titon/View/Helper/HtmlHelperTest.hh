@@ -2,7 +2,7 @@
 namespace Titon\View\Helper;
 
 use Titon\Test\TestCase;
-use Titon\Utility\Crypt;
+use Titon\Utility\Str;
 use Titon\View\EngineView;
 use Titon\View\Locator\TemplateLocator;
 
@@ -51,7 +51,7 @@ class HtmlHelperTest extends TestCase {
     }
 
     public function testMailto(): void {
-        $domain = Crypt::obfuscate('test@domain.com');
+        $domain = Str::obfuscate('test@domain.com');
 
         $this->assertEquals('<a href="mailto:' . $domain . '" title="">' . $domain . '</a>' . PHP_EOL, $this->object->mailto('test@domain.com'));
         $this->assertEquals('<a href="mailto:' . $domain . '" title="Email me!">' . $domain . '</a>' . PHP_EOL, $this->object->mailto('test@domain.com', Map {'title' => 'Email me!'}));

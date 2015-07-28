@@ -20,7 +20,7 @@ use Titon\Http\Exception\HttpException;
 use Titon\Http\Exception\NotFoundException;
 use Titon\Http\Http;
 use Titon\Http\Stream\MemoryStream;
-use Titon\Utility\Inflector;
+use Titon\Utility\Inflect;
 use Titon\Utility\Path;
 use Titon\View\View;
 use \Exception;
@@ -266,7 +266,7 @@ abstract class AbstractController implements Controller, Subject {
      * @return string
      */
     protected function buildViewPath(string $action): string {
-        $prepare = ($path) ==> trim(str_replace(['_', 'controller'], ['-', ''], Inflector::underscore($path)), '-');
+        $prepare = ($path) ==> trim(str_replace(['_', 'controller'], ['-', ''], Inflect::underscore($path)), '-');
 
         return sprintf('%s/%s', $prepare(Path::className(static::class)), $prepare($action));
     }
@@ -283,7 +283,7 @@ abstract class AbstractController implements Controller, Subject {
 
         // Convert dashed actions to camel case
         if (strpos($action, '-') !== false) {
-            $action = lcfirst(Inflector::camelCase($action));
+            $action = lcfirst(Inflect::camelCase($action));
         }
 
         try {

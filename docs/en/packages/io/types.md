@@ -33,6 +33,13 @@ The following type aliases are available in the IO package.
             </td>
         </tr>
         <tr>
+            <td>Titon\Io\ReaderList</td>
+            <td>Vector&lt;Titon\Io\Reader&gt;</td>
+            <td>
+                A list of <code>Titon\Io\Reader</code> objects.
+            </td>
+        </tr>
+        <tr>
             <td>Titon\Io\ReaderMap</td>
             <td>Map&lt;string, Titon\Io\Reader&gt;</td>
             <td>

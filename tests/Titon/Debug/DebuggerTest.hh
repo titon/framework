@@ -31,7 +31,6 @@ class DebuggerTest extends TestCase {
     public function testExport(): void {
         $this->assertEquals(123, Debugger::export(123));
         $this->assertEquals("[\n\t0 => 123,\n]", Debugger::export([123]));
-        $this->assertEquals("array(\n\t0 => 123,\n)", Debugger::export([123], false));
     }
 
     public function testGetError(): void {

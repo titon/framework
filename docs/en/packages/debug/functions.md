@@ -1,7 +1,6 @@
 # Global Functions #
 
-The following global functions are available with the Debug package. [Learn more information about these functions 
-in the dumping variables chapter](debugging.md#dumping-variables). 
+The following global functions are available with the Debug package. [Learn more information about these functions in the dumping variables chapter](debugging.md#dumping-variables). 
 
 <div class="notice is-info">
     If error reporting is off, these functions will not output anything.
@@ -40,7 +39,7 @@ Output the stack trace, file path, line number, and metadata of an exception.
 inspect($e);
 ```
 
-### export(`mixed $var`[, `bool $short`]): `void` ###
+### export(`mixed $var`): `void` ###
 
 Output the variable into a PHP/Hack usable format.
 

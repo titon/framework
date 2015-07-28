@@ -22,6 +22,7 @@
         "titon/utility": "*"
     },
     "suggest": {
+        "ext-yaml": "Read and write YAML files",
         "titon/type": "Read and write XML files using the Type package"
     },
     "autoload": {

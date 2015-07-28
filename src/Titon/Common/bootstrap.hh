@@ -37,15 +37,17 @@ namespace {
      * Include a file at a given path and return the response of the include.
      *
      * @param string $path
-     * @return array<Tk, Tv>
+     * @return Map<Tk, Tv>
      * @throws \Titon\Common\Exception\MissingFileException
      */
-    function include_file<Tk, Tv>(string $path): array<Tk, Tv> {
+    function include_file<Tk, Tv>(string $path): Map<Tk, Tv> {
         if (!file_exists($path)) {
             throw new MissingFileException(sprintf('File %s does not exist', $path));
         }
 
-        return include $path;
+        $data = include $path;
+
+        return ($data instanceof Map) ? $data : new Map($data);
     }
 
     /**

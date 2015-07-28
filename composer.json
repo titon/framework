@@ -22,7 +22,7 @@
         "source": "https://github.com/titon/framework"
     },
     "require": {
-        "hhvm": ">=3.6.0",
+        "hhvm": ">=3.8.0",
         "ext-mbstring": "*",
         "ext-fileinfo": "*",
         "psr/log": "~1.0",
@@ -39,7 +39,8 @@
         "ext-openssl": "Encrypt and decrypt data using OpenSSL (suggested)",
         "ext-mcrypt": "Encrypt and decrypt data using MCrypt (outdated)",
         "ext-intl": "Localize messages using the Intl extension",
-        "ext-simplexml": "Read and Write XML files"
+        "ext-simplexml": "Read and write XML files",
+        "ext-yaml": "Read and write YAML files"
     },
     "autoload": {
         "psr-4": { "Titon\\": "src/Titon/" },

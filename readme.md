@@ -1,9 +1,9 @@
 ```
- ______  ______   ______   __    __   ______   __    __   ______   ______   __  __    
-/\  ___\/\  __ \ /\  __ \ /\ '-./  \ /\  ___\ /\ \ __\ \ /\  __ \ /\  __ \ /\ \/ /_   
-\ \  __\\ \  __< \ \  __ \\ \ \._/\ \\ \  __\ \ \ \| \\ \\ \ \/\ \\ \  __< \ \  _  \  
- \ \_\/  \ \_\ \_\\ \_\ \_\\ \_\/\ \_\\ \_____\\ \__/_.__\\ \_____\\ \_\ \_\\ \_\ \_\ 
-  \/_/    \/_/\/_/ \/_/\/_/ \/_/  \/_/ \/_____/ \/_/  \/_/ \/_____/ \/_/\/_/ \/_/\/_/ 
+ ______  ______   ______   __    __   ______   __    __   ______   ______   __  __
+/\  ___\/\  __ \ /\  __ \ /\ '-./  \ /\  ___\ /\ \ __\ \ /\  __ \ /\  __ \ /\ \/ /_
+\ \  __\\ \  __< \ \  __ \\ \ \._/\ \\ \  __\ \ \ \| \\ \\ \ \/\ \\ \  __< \ \  _  \
+ \ \_\/  \ \_\ \_\\ \_\ \_\\ \_\/\ \_\\ \_____\\ \__/_.__\\ \_____\\ \_\ \_\\ \_\ \_\
+  \/_/    \/_/\/_/ \/_/\/_/ \/_/  \/_/ \/_____/ \/_/  \/_/ \/_____/ \/_/\/_/ \/_/\/_/
 ```
 
 # Titon Framework #
@@ -22,7 +22,7 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 
 ## Requirements ##
 
-* [HHVM 3.6.0](http://hhvm.com/)
+* [HHVM 3.8.0](http://hhvm.com/)
 * [Hack](http://hacklang.org/)
 * [Composer](http://getcomposer.org)
 
@@ -30,25 +30,25 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 
 Upcoming features and release plan.
 
-* July
+* August
     * Console package - Command line application [DELAYED]
     * HTTP package - Updated for PSR-7 support
     * [MVC package](https://github.com/titon/mvc) - Model-view-controller application [DELAYED UNTIL PSR-7]
-* August
+* September
     * [DB package](https://github.com/titon/db) - Database abstraction layer
     * [Model package](https://github.com/titon/model) - Object relational mapper and active record for DB entities
-* September
-    * CommandBus package - Command bus layer
 * October
     * Queue package - Queue, job, and worker services
     * Session package - Custom session handler
 * November
     * Mail package - Emailing layer
+    * CommandBus package - Command bus layer
 * December
     * ACL package - Access control lists
     * Auth package - Authentication and authorization
 * January
     * ADR package - Action-domain-responder application
+    * WebSocket package - Web socket based application
     * Beta release
 
 ## Usage ##
@@ -60,7 +60,7 @@ Documentation is currently in the works, but in the mean time, check out the fol
 
 ## Contributing ##
 
-Titon is accepting any knowledgeable PHP developers looking to get their feet wet in Hack. Chat with us over in [#titon](http://webchat.freenode.net/?channels=titon) for more information.
+Titon is accepting any knowledgeable PHP developers looking to get their hands and feet wet in Hack. Chat with us over in [#titon](http://webchat.freenode.net/?channels=titon) for more information.
 
 ## Testing ##
 
@@ -84,7 +84,7 @@ Or filter tests based on class or method name.
 
 #### Hack Strict Mode ####
 
-For the most part, Titon strives to be strict mode only. This can be very challenging, but with Hack's built-in type checker, it couldn't be easier. Simply run the following command to check for strict issues.
+For the most part, Titon strives to be strict compliant. This can be very challenging, but with Hack's built-in type checker, it couldn't be easier. Simply run the following command to check for strict issues.
 
 ```bash
 /vagrant/bin/type-check

@@ -4,7 +4,7 @@
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the 'hack' directory of this source tree. An additional grant
+ * LICENSE file in the "hack" directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  */
@@ -47,12 +47,12 @@ interface ServerRequestInterface extends RequestInterface {
   public function getParsedBody(): mixed;
   public function getQueryParams(): array<string, mixed>;
   public function getServerParams(): array<string, mixed>;
-  public function getUploadedFiles(): array<UploadedFileInterface>;
+  public function getUploadedFiles(): array<string, UploadedFileInterface>;
   public function withAttribute(string $name, mixed $value): this;
   public function withCookieParams(array<string, mixed> $cookies): this;
   public function withParsedBody(mixed $data): this;
   public function withQueryParams(array<string, mixed> $query): this;
-  public function withUploadedFiles(array<UploadedFileInterface> $uploadedFiles): this;
+  public function withUploadedFiles(array<string, UploadedFileInterface> $uploadedFiles): this;
   public function withoutAttribute(string $name): this;
 }
 
@@ -62,14 +62,14 @@ interface StreamInterface {
   public function detach(): ?resource;
   public function eof(): bool;
   public function getContents(): string;
-  public function getMetadata(string $key = ''): mixed;
+  public function getMetadata(string $key = ""): mixed;
   public function getSize(): int;
   public function isReadable(): bool;
   public function isSeekable(): bool;
   public function isWritable(): bool;
   public function read(int $length): string;
-  public function rewind(): bool;
-  public function seek(int $offset, int $whence = SEEK_SET): bool;
+  public function rewind(): void;
+  public function seek(int $offset, int $whence = SEEK_SET): void;
   public function tell(): int;
   public function write(string $string): int;
 }
@@ -99,5 +99,5 @@ interface UriInterface {
   public function withPort(?int $port): this;
   public function withQuery(string $query): this;
   public function withScheme(string $scheme): this;
-  public function withUserInfo(string $user, ?string $password = null): this;
+  public function withUserInfo(string $user, string $password = ""): this;
 }

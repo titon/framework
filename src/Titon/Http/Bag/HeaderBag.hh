@@ -20,6 +20,22 @@ use Titon\Utility\Inflect;
 class HeaderBag extends AbstractBag<string, array<string>> {
 
     /**
+     * Append a value to the array of a specific header.
+     *
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    public function append(string $key, string $value): this {
+        $array = $this->get($key) ?: [];
+        $array[] = $value;
+
+        $this->set($key, $value);
+
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function get(string $key, ?array<string> $default = []): ?array<string> {

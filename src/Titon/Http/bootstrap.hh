@@ -14,8 +14,8 @@
  */
 
 namespace Titon\Http {
-    type HeaderList = Vector<string>;
-    type MethodList = Vector<string>;
+    type HeaderList = Set<string>;
+    type MethodList = Set<string>;
     type MimeMap = Map<string, string>;
     type StatusCodeMap = Map<int, string>;
 }

@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Exception;
 
-use Titon\Http\Http;
+use Titon\Http\StatusCode;
 use \Exception;
 
 /**
@@ -20,7 +20,7 @@ class ForbiddenException extends HttpException {
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $message = 'Forbidden', int $code = Http::FORBIDDEN, ?Exception $previous = null) {
+    public function __construct(string $message = 'Forbidden', int $code = StatusCode::FORBIDDEN, ?Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

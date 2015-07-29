@@ -14,7 +14,7 @@ use Titon\Http\Exception\InvalidExtensionException;
  *
  * @package Titon\Http
  */
-class Mime {
+class MimeType {
 
     /**
      * Top level types.

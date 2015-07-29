@@ -11,8 +11,8 @@ use Titon\Common\Exception\MissingFileException;
 use Titon\Http\Exception\InvalidExtensionException;
 use Titon\Http\Exception\InvalidFileException;
 use Titon\Http\Exception\MalformedRequestException;
-use Titon\Http\Http;
-use Titon\Http\Mime;
+use Titon\Http\MimeType;
+use Titon\Http\StatusCode;
 use Titon\Http\Stream\FileStream;
 use Titon\Utility\Path;
 
@@ -38,7 +38,7 @@ class DownloadResponse extends Response {
      * @throws \Titon\Common\Exception\MissingFileException
      * @throws \Titon\Http\Exception\InvalidFileException
      */
-    public function __construct(string $path, int $status = Http::OK) {
+    public function __construct(string $path, int $status = StatusCode::OK) {
         parent::__construct(null, $status);
 
         if (!file_exists($path)) {
@@ -86,11 +86,11 @@ class DownloadResponse extends Response {
         $length = $end - $start + 1;
 
         if ($start < 0 || $end > $size || $start > $size || $start > $end) {
-            $this->statusCode(Http::REQUESTED_RANGE_NOT_SATISFIABLE);
+            $this->statusCode(StatusCode::REQUESTED_RANGE_NOT_SATISFIABLE);
 
         } else {
             $this
-                ->statusCode(Http::PARTIAL_CONTENT)
+                ->statusCode(StatusCode::PARTIAL_CONTENT)
                 ->contentLength($length)
                 ->contentRange($start, $end, $size);
         }
@@ -107,7 +107,7 @@ class DownloadResponse extends Response {
         $path = $this->getPath();
 
         try {
-            $contentType = Mime::getTypeByExt(Path::ext($path));
+            $contentType = MimeType::getTypeByExt(Path::ext($path));
         } catch (InvalidExtensionException $e) {
             $contentType = 'application/octet-stream';
         }

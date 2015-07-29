@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Exception;
 
-use Titon\Http\Http;
+use Titon\Http\StatusCode;
 use \Exception;
 
 /**
@@ -20,7 +20,7 @@ class ServiceUnavailableException extends HttpException {
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $message = 'Service Unavailable', int $code = Http::SERVICE_UNAVAILABLE, ?Exception $previous = null) {
+    public function __construct(string $message = 'Service Unavailable', int $code = StatusCode::SERVICE_UNAVAILABLE, ?Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

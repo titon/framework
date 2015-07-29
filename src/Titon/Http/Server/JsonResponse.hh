@@ -9,8 +9,8 @@
 namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamInterface;
-use Titon\Http\Http;
 use Titon\Http\Exception\MalformedResponseException;
+use Titon\Http\StatusCode;
 use Titon\Http\Stream\MemoryStream;
 
 /**
@@ -39,7 +39,7 @@ class JsonResponse extends Response {
      * @param string $callback
      * @throws \Titon\Http\Exception\MalformedResponseException
      */
-    public function __construct(mixed $body, int $status = Http::OK, int $flags = -1, string $callback = '') {
+    public function __construct(mixed $body, int $status = StatusCode::OK, int $flags = -1, string $callback = '') {
         if ($flags === -1) {
             $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
         }

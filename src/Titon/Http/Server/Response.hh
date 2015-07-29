@@ -11,12 +11,9 @@ namespace Titon\Http\Server;
 use Psr\Http\Message\StreamableInterface;
 use Titon\Common\Exception\InvalidArgumentException;
 use Titon\Http\Cookie;
-use Titon\Http\Message;
 use Titon\Http\Http;
-use Titon\Http\Mime;
-use Titon\Http\OutgoingResponse;
-use Titon\Http\IncomingRequest;
-use Titon\Http\IncomingRequestAware;
+use Titon\Http\MimeType;
+use Titon\Http\StatusCode;
 use Titon\Utility\Config;
 use Titon\Utility\Format;
 use Titon\Utility\Number;
@@ -58,7 +55,7 @@ class Response extends Message implements OutgoingResponse {
      *
      * @var int
      */
-    protected int $status = Http::OK;
+    protected int $status = StatusCode::OK;
 
     /**
      * Set body and status during initialization.
@@ -66,7 +63,7 @@ class Response extends Message implements OutgoingResponse {
      * @param \Psr\Http\Message\StreamableInterface $body
      * @param int $status
      */
-    public function __construct(?StreamableInterface $body = null, int $status = Http::OK) {
+    public function __construct(?StreamableInterface $body = null, int $status = StatusCode::OK) {
         parent::__construct();
 
         $this
@@ -343,17 +340,17 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function contentType(string $type): this {
-        if (in_array($this->status, [Http::NOT_MODIFIED, Http::NO_CONTENT])) {
+        if (in_array($this->status, [StatusCode::NOT_MODIFIED, StatusCode::NO_CONTENT])) {
             return $this;
         }
 
         if (strpos($type, '/') === false) {
-            $type = Mime::getTypeByExt($type);
+            $type = MimeType::getTypeByExt($type);
         }
 
         $charset = Config::encoding();
 
-        if ($charset && (Str::startsWith($type, Mime::TEXT) ||
+        if ($charset && (Str::startsWith($type, MimeType::TEXT) ||
             in_array($type, ['application/javascript', 'application/json', 'application/xml', 'application/rss+xml']))) {
             $type .= '; charset=' . $charset;
         }
@@ -394,7 +391,7 @@ class Response extends Message implements OutgoingResponse {
      * @return \Titon\Http\Server\DownloadResponse
      */
     public static function download(string $path, string $name = '', bool $autoEtag = false, bool $autoModified = true): DownloadResponse {
-        $download = new DownloadResponse($path, Http::OK);
+        $download = new DownloadResponse($path, StatusCode::OK);
 
         if ($name) {
             $download->contentDisposition($name);
@@ -445,7 +442,7 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function getReasonPhrase(): string {
-        return $this->getHeader('Reason-Phrase') ?: Http::getStatusCode($this->getStatusCode());
+        return $this->getHeader('Reason-Phrase') ?: StatusCode::get($this->getStatusCode());
     }
 
     /**
@@ -474,7 +471,7 @@ class Response extends Message implements OutgoingResponse {
      * @return \Titon\Http\Server\JsonResponse
      */
     public static function json(mixed $data, int $flags = 0, string $callback = ''): JsonResponse {
-        return new JsonResponse($data, Http::OK, $flags, $callback);
+        return new JsonResponse($data, StatusCode::OK, $flags, $callback);
     }
 
     /**
@@ -514,7 +511,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function notModified(): this {
-        $this->statusCode(Http::NOT_MODIFIED)->removeHeaders([
+        $this->statusCode(StatusCode::NOT_MODIFIED)->removeHeaders([
             'Allow',
             'Content-Disposition',
             'Content-Encoding',
@@ -544,7 +541,7 @@ class Response extends Message implements OutgoingResponse {
      * @param int $status
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function redirect(string $url, int $status = Http::FOUND): RedirectResponse {
+    public static function redirect(string $url, int $status = StatusCode::FOUND): RedirectResponse {
         return new RedirectResponse($url, $status);
     }
 
@@ -737,7 +734,7 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function setStatus($code, $reasonPhrase = null): this {
-        if (Http::getStatusCode($code)) {
+        if (StatusCode::get($code)) {
             $this->status = $code;
         }
 
@@ -782,7 +779,7 @@ class Response extends Message implements OutgoingResponse {
      * @return \Titon\Http\Server\XmlResponse
      */
     public static function xml(mixed $data, string $root = 'root'): XmlResponse {
-        return new XmlResponse($data, Http::OK, $root);
+        return new XmlResponse($data, StatusCode::OK, $root);
     }
 
 }

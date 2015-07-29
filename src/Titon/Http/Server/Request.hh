@@ -14,7 +14,7 @@ use Titon\Http\Bag\CookieBag;
 use Titon\Http\Bag\ParameterBag;
 use Titon\Http\Exception\InvalidMethodException;
 use Titon\Http\Http;
-use Titon\Http\Mime;
+use Titon\Http\MimeType;
 use Titon\Http\IncomingRequest;
 use Titon\Utility\State\Cookie as CookieGlobal;
 use Titon\Utility\State\Files;
@@ -176,7 +176,7 @@ class Request extends Message implements IncomingRequest {
         } else if (strpos($type, '/') !== false) {
             $contentType = [$type];
         } else {
-            $contentType = [Mime::getTypeByExt((string) $type)];
+            $contentType = [MimeType::getTypeByExt((string) $type)];
         }
 
         foreach ($this->extractAcceptHeaders('Accept') as $accept) {

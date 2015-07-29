@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Server;
 
-use Titon\Http\Http;
+use Titon\Http\StatusCode;
 
 /**
  * The Redirector bundles convenience methods for redirecting to new URLs using HTTP headers.
@@ -32,7 +32,7 @@ class Redirector {
      * @param \Titon\Http\Server\RedirectCallback $callback
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function back(int $status = Http::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
+    public static function back(int $status = StatusCode::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
         return static::to(Request::createFromGlobals()->getReferrer(), $status, $callback);
     }
 
@@ -43,7 +43,7 @@ class Redirector {
      * @param \Titon\Http\Server\RedirectCallback $callback
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function home(int $status = Http::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
+    public static function home(int $status = StatusCode::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
         return static::to('/', $status, $callback);
     }
 
@@ -54,12 +54,12 @@ class Redirector {
      * @param \Titon\Http\Server\RedirectCallback $callback
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function refresh(int $status = Http::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
+    public static function refresh(int $status = StatusCode::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
         return static::to(Request::createFromGlobals()->getUrl(), $status, $callback);
     }
 
     /**
-     * Redirect to a URL with optional status code (defaults to Http::FOUND FOUND).
+     * Redirect to a URL with optional status code (defaults to StatusCode::FOUND).
      * If a callback is defined, pass the response object for modification.
      *
      * @param string $url
@@ -67,7 +67,7 @@ class Redirector {
      * @param \Titon\Http\Server\RedirectCallback $callback
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function to(string $url, int $status = Http::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
+    public static function to(string $url, int $status = StatusCode::FOUND, ?RedirectCallback $callback = null): RedirectResponse {
         $response = new RedirectResponse($url, $status);
 
         if ($callback) {

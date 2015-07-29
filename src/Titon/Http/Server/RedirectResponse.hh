@@ -8,7 +8,7 @@
 namespace Titon\Http\Server;
 
 use Titon\Http\Exception\MalformedResponseException;
-use Titon\Http\Http;
+use Titon\Http\StatusCode;
 use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Sanitize;
 
@@ -25,7 +25,7 @@ class RedirectResponse extends Response {
      * @param string $url
      * @param int $status
      */
-    public function __construct(string $url, int $status = Http::FOUND) {
+    public function __construct(string $url, int $status = StatusCode::FOUND) {
         parent::__construct(null, $status);
 
         $this->headers->flush();

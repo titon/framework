@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Exception;
 
-use Titon\Http\Http;
+use Titon\Http\StatusCode;
 use \Exception;
 
 /**
@@ -20,7 +20,7 @@ class NotFoundException extends HttpException {
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $message = 'Not Found', int $code = Http::NOT_FOUND, ?Exception $previous = null) {
+    public function __construct(string $message = 'Not Found', int $code = StatusCode::NOT_FOUND, ?Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

@@ -9,7 +9,7 @@
 namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamInterface;
-use Titon\Http\Http;
+use Titon\Http\StatusCode;
 use Titon\Http\Stream\MemoryStream;
 use Titon\Type\Xml;
 
@@ -28,7 +28,7 @@ class XmlResponse extends Response {
      * @param int $status
      * @param string $root
      */
-    public function __construct(mixed $body = null, int $status = Http::OK, string $root = 'root') {
+    public function __construct(mixed $body = null, int $status = StatusCode::OK, string $root = 'root') {
         if (!$body instanceof StreamInterface) {
             $body = new MemoryStream( Xml::from($body, $root)->toString() );
         }

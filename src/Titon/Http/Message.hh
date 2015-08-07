@@ -10,14 +10,14 @@ namespace Titon\Http;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 use Titon\Http\Bag\HeaderBag;
+use Titon\Http\Stream\MemoryStream;
 
 /**
  * Provides shared message functionality for request and response classes.
  *
  * @package Titon\Http
  */
-trait SupportsMessages {
-    require implements MessageInterface;
+class Message implements MessageInterface {
 
     /**
      * Headers to include in the request or response.
@@ -39,6 +39,26 @@ trait SupportsMessages {
      * @var string
      */
     protected string $protocolVersion = '1.1';
+
+    /**
+     * Store and create a new stream instance.
+     *
+     * @param Psr\Http\Message\StreamInterface $stream
+     */
+    public function __construct(?StreamInterface $stream = null) {
+        if (!$stream) {
+            $stream = new MemoryStream();
+        }
+
+        $this->body = $stream;
+    }
+
+    /**
+     * Clone all bags.
+     */
+    public function __clone() {
+        $this->headers = clone $this->headers;
+    }
 
     /**
      * {@inheritdoc}

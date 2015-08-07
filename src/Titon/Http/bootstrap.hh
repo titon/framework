@@ -16,7 +16,6 @@
 namespace Titon\Http {
     type HeaderList = Set<string>;
     type MethodList = Set<string>;
-    type MimeMap = Map<string, string>;
     type StatusCodeMap = Map<int, string>;
 }
 

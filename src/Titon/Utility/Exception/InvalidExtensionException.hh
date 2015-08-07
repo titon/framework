@@ -5,12 +5,12 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Http\Exception;
+namespace Titon\Utility\Exception;
 
 /**
  * Exception throw for undefined extension.
  *
- * @package Titon\Http\Exception
+ * @package Titon\Utility\Exception
  */
 class InvalidExtensionException extends \OutOfBoundsException {
 

@@ -8,13 +8,13 @@
 namespace Titon\Http\Server;
 
 use Titon\Common\Exception\MissingFileException;
-use Titon\Http\Exception\InvalidExtensionException;
 use Titon\Http\Exception\InvalidFileException;
 use Titon\Http\Exception\MalformedRequestException;
-use Titon\Http\MimeType;
 use Titon\Http\StatusCode;
 use Titon\Http\Stream\FileStream;
+use Titon\Utility\MimeType;
 use Titon\Utility\Path;
+use Titon\Utility\Exception\InvalidExtensionException;
 
 /**
  * Force a file download by passing in a file path and setting all appropriate HTTP headers.

@@ -5,14 +5,14 @@
  * @link        http://titon.io
  */
 
-namespace Titon\Http;
+namespace Titon\Utility;
 
-use Titon\Http\Exception\InvalidExtensionException;
+use Titon\Utility\Exception\InvalidExtensionException;
 
 /**
  * MIME type related constants and static variables.
  *
- * @package Titon\Http
+ * @package Titon\Utility
  */
 class MimeType {
 
@@ -30,7 +30,7 @@ class MimeType {
     /**
      * List of all mime types.
      *
-     * @var \Titon\Http\MimeMap
+     * @var \Titon\Utility\MimeMap
      */
     protected static MimeMap $types = Map {
         '3dml' => 'text/vnd.in3d.3dml',
@@ -945,7 +945,7 @@ class MimeType {
     /**
      * Return all types.
      *
-     * @return \Titon\Http\MimeMap
+     * @return \Titon\Utility\MimeMap
      */
     public static function getAll(): MimeMap {
         return static::$types;
@@ -955,7 +955,7 @@ class MimeType {
      * Return all by top level type.
      *
      * @param string $type
-     * @return \Titon\Http\MimeMap
+     * @return \Titon\Utility\MimeMap
      */
     <<__Memoize>>
     public static function getAllByType(string $type): MimeMap {
@@ -994,7 +994,7 @@ class MimeType {
      *
      * @param string $ext
      * @return string
-     * @throws \Titon\Http\Exception\InvalidExtensionException
+     * @throws \Titon\Utility\Exception\InvalidExtensionException
      */
     public static function getTypeByExt(string $ext): string {
         if (static::$types->contains($ext)) {

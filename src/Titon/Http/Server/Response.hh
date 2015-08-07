@@ -442,7 +442,7 @@ class Response extends Message implements OutgoingResponse {
      * {@inheritdoc}
      */
     public function getReasonPhrase(): string {
-        return $this->getHeader('Reason-Phrase') ?: StatusCode::get($this->getStatusCode());
+        return $this->getHeader('Reason-Phrase') ?: StatusCode::getReasonPhrase($this->getStatusCode());
     }
 
     /**

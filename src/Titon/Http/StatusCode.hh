@@ -136,7 +136,7 @@ class StatusCode {
      * @return string
      * @throws \Titon\Http\Exception\InvalidStatusException
      */
-    public static function get(int $code): string {
+    public static function getReasonPhrase(int $code): string {
         if (static::$statusCodes->contains($code)) {
             return static::$statusCodes[$code];
         }

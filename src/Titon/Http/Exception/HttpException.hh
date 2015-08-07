@@ -28,7 +28,7 @@ class HttpException extends Exception {
     public function __construct(string $message = '', int $code = 0, ?Exception $previous = null) {
         if (!$message) {
             try {
-                $message = StatusCode::get($code);
+                $message = StatusCode::getReasonPhrase($code);
             } catch (InvalidStatusException $e) {
                 $code = 0;
             }

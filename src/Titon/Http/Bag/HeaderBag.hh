@@ -8,12 +8,10 @@
 namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
-use Titon\Utility\Col;
 use Titon\Utility\Inflect;
 
 /**
- * Bag for interacting with request and response headers.
- * Keys should be case-insensitive.
+ * Bag for interacting with HTTP headers. Keys should be case-insensitive.
  *
  * @package Titon\Http\Bag
  */
@@ -30,7 +28,9 @@ class HeaderBag extends AbstractBag<string, array<string>> {
         $array = $this->get($key) ?: [];
         $array[] = $value;
 
-        $this->set($key, $value);
+        invariant(is_array($array), 'Header value must be an array.');
+
+        $this->set($key, $array);
 
         return $this;
     }

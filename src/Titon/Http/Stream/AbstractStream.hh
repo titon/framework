@@ -1,5 +1,4 @@
-<?hh // partial
-// Because of PSR HTTP Message
+<?hh // strict
 /**
  * @copyright   2010-2015, The Titon Project
  * @license     http://opensource.org/licenses/bsd-license.php
@@ -9,7 +8,7 @@
 namespace Titon\Http\Stream;
 
 use Psr\Http\Message\StreamInterface;
-use Titon\Common\CacheMap;
+use Titon\Http\MetaDataMap;
 use RuntimeException;
 
 /**
@@ -22,9 +21,9 @@ abstract class AbstractStream implements StreamInterface {
     /**
      * Cached meta data.
      *
-     * @var \Titon\Common\CacheMap
+     * @var \Titon\Http\MetaDataMap
      */
-    protected CacheMap $cache = Map {};
+    protected MetaDataMap $metadata = Map {};
 
     /**
      * The stream resource.
@@ -48,20 +47,20 @@ abstract class AbstractStream implements StreamInterface {
     }
 
     /**
-     * Build a meta cache for the current stream.
+     * Build a meta metadata for the current stream.
      *
      * @return $this
      */
-    public function buildCache(): this {
-        $cache = stream_get_meta_data($this->getStream());
-        $cache['local'] = stream_is_local($this->getStream());
+    public function buildMetaData(): this {
+        $metadata = stream_get_meta_data($this->getStream());
+        $metadata['local'] = stream_is_local($this->getStream());
 
-        $mode = str_replace('b', '', $cache['mode']);
+        $mode = str_replace('b', '', $metadata['mode']);
 
-        $cache['readable'] = !in_array($mode, ['w', 'a', 'x', 'c']);
-        $cache['writable'] = ($mode !== 'r');
+        $metadata['readable'] = !in_array($mode, ['w', 'a', 'x', 'c']);
+        $metadata['writable'] = ($mode !== 'r');
 
-        $this->cache = new Map($cache);
+        $this->metadata = new Map($metadata);
 
         return $this;
     }
@@ -69,15 +68,15 @@ abstract class AbstractStream implements StreamInterface {
     /**
      * {@inheritdoc}
      */
-    public function close(): bool {
-        if (is_resource($this->getStream()) && fclose($this->getStream())) {
-            $this->cache['readable'] = false;
-            $this->cache['writable'] = false;
+    public function close(): void {
+        $stream = $this->getStream();
 
-            return true;
+        if (is_resource($stream) && fclose($stream)) {
+            $this->metadata['readable'] = false;
+            $this->metadata['writable'] = false;
+
+            $this->detach();
         }
-
-        return false;
     }
 
     /**
@@ -99,15 +98,6 @@ abstract class AbstractStream implements StreamInterface {
     }
 
     /**
-     * Return the cached meta data.
-     *
-     * @return \Titon\Common\CacheMap
-     */
-    public function getCache(): CacheMap {
-        return $this->cache;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function getContents($maxLength = -1): string {
@@ -117,7 +107,6 @@ abstract class AbstractStream implements StreamInterface {
 
         // Save cursor position before reading
         $tell = $this->tell();
-
         $buffer = stream_get_contents($this->getStream(), $maxLength, 0);
 
         // Reset cursor position
@@ -135,10 +124,10 @@ abstract class AbstractStream implements StreamInterface {
      */
     public function getMetadata($key = null): mixed {
         if ($key === null) {
-            return $this->cache;
+            return $this->metadata->toArray();
         }
 
-        return $this->cache->get($key);
+        return $this->metadata->get($key);
     }
 
     /**
@@ -147,7 +136,7 @@ abstract class AbstractStream implements StreamInterface {
      * @return string
      */
     public function getMode(): string {
-        return (string) $this->cache['mode'];
+        return (string) $this->metadata['mode'];
     }
 
     /**
@@ -157,10 +146,10 @@ abstract class AbstractStream implements StreamInterface {
         if ($this->isLocal()) {
             // UNSAFE
             // HHVM only has the 1st argument
-            clearstatcache(true, $this->cache['uri']);
+            clearstatcache(true, $this->metadata['uri']);
         }
 
-        if ($this->cache['wrapper_type'] !== 'PHP') {
+        if ($this->metadata['wrapper_type'] !== 'PHP') {
             $stat = fstat($this->getStream());
 
             if (array_key_exists('size', $stat)) {
@@ -195,14 +184,14 @@ abstract class AbstractStream implements StreamInterface {
      * @return bool
      */
     public function isLocal(): bool {
-        return (bool) $this->cache['local'];
+        return (bool) $this->metadata['local'];
     }
 
     /**
      * {@inheritdoc}
      */
     public function isReadable(): bool {
-        return (bool) $this->cache['readable'];
+        return (bool) $this->metadata['readable'];
     }
 
     /**
@@ -218,14 +207,14 @@ abstract class AbstractStream implements StreamInterface {
      * {@inheritdoc}
      */
     public function isSeekable(): bool {
-        return (bool) $this->cache['seekable'];
+        return (bool) $this->metadata['seekable'];
     }
 
     /**
      * {@inheritdoc}
      */
     public function isWritable(): bool {
-        return (bool) $this->cache['writable'];
+        return (bool) $this->metadata['writable'];
     }
 
     /**
@@ -240,13 +229,12 @@ abstract class AbstractStream implements StreamInterface {
     }
 
     /**
-     * Rewind the pointer to the beginning.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
-    public function rewind(): bool {
+    public function rewind(): void {
         if ($this->isSeekable()) {
-            return $this->seek(0);
+            $this->seek(0);
+            return;
         }
 
         throw new RuntimeException('Cannot rewind as stream is not seekable');
@@ -255,8 +243,10 @@ abstract class AbstractStream implements StreamInterface {
     /**
      * {@inheritdoc}
      */
-    public function seek($offset, $whence = SEEK_SET): bool {
-        return $this->isSeekable() ? (fseek($this->getStream(), $offset, $whence) === 0) : false;
+    public function seek($offset, $whence = SEEK_SET): void {
+        if ($this->isSeekable() && fseek($this->getStream(), $offset, $whence) !== 0) {
+            throw new RuntimeException('Failed to seek on stream');
+        }
     }
 
     /**
@@ -267,7 +257,7 @@ abstract class AbstractStream implements StreamInterface {
      */
     public function setStream(resource $stream): this {
         $this->stream = $stream;
-        $this->buildCache();
+        $this->buildMetaData();
 
         return $this;
     }

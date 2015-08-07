@@ -8,6 +8,7 @@
 namespace Titon\Http;
 
 use Titon\Common\Exception\InvalidArgumentException;
+use Titon\Crypto\Cipher;
 use Titon\Utility\Time;
 
 /**
@@ -77,7 +78,7 @@ class Cookie {
      * @param bool $httpOnly
      * @param bool $secure
      */
-    public function __construct(string $name, string $value, mixed $expires = 0, string $path = '/', string $domain = '', bool $httpOnly = true, bool $secure = false) {
+    public function __construct(string $name, string $value = '', mixed $expires = 0, string $path = '/', string $domain = '', bool $httpOnly = true, bool $secure = false) {
         $this->setName($name);
         $this->setValue($value);
         $this->setExpires($expires);
@@ -98,7 +99,7 @@ class Cookie {
         if ($expires <= time()) {
             $value = 'deleted';
         } else {
-            $value = $this->getEncryptedValue();
+            $value = $this->getValue();
         }
 
         // Build the cookie
@@ -125,30 +126,12 @@ class Cookie {
     }
 
     /**
-     * Return the decrypted value.
-     *
-     * @return string.
-     */
-    public function getDecryptedValue(): string {
-        return unserialize(base64_decode(urldecode($this->getValue())));
-    }
-
-    /**
      * Return the domain.
      *
      * @return string
      */
     public function getDomain(): string {
         return $this->domain;
-    }
-
-    /**
-     * Return the encrypted value.
-     *
-     * @return string.
-     */
-    public function getEncryptedValue(): string {
-        return urlencode(base64_encode(serialize($this->getValue())));
     }
 
     /**
@@ -179,12 +162,19 @@ class Cookie {
     }
 
     /**
-     * Return the cookie value.
+     * Return the cookie value. If a `Cipher` is passed, decrypt the value.
      *
+     * @param \Titon\Crypto\Cipher $cipher
      * @return string
      */
-    public function getValue(): string {
-        return $this->value;
+    public function getValue(?Cipher $cipher = null): string {
+        $value = $this->value;
+
+        if ($cipher !== null) {
+            $value = (string) $cipher->decrypt($value);
+        }
+
+        return $value;
     }
 
     /**
@@ -282,12 +272,17 @@ class Cookie {
     }
 
     /**
-     * Set the cookie value.
+     * Set the cookie value. If a `Cipher` is passed, encrypt the value.
      *
      * @param string $value
+     * @param \Titon\Crypto\Cipher $cipher
      * @return $this
      */
-    public function setValue(string $value): this {
+    public function setValue(string $value, ?Cipher $cipher = null): this {
+        if ($cipher !== null) {
+            $value = $cipher->encrypt($value);
+        }
+
         $this->value = $value;
 
         return $this;

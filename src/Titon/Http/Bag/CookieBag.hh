@@ -8,6 +8,7 @@
 namespace Titon\Http\Bag;
 
 use Titon\Common\Bag\AbstractBag;
+use Titon\Crypto\Cipher;
 use Titon\Http\Cookie;
 use Titon\Utility\State\GlobalMap;
 
@@ -22,12 +23,13 @@ class CookieBag extends AbstractBag<string, Cookie> {
      * Instantiate a new Cookie class for every cookie in the map.
      *
      * @param \Titon\Utility\State\GlobalMap $data
+     * @param \Titon\Crypto\Cipher $cipher
      */
-    public function __construct(GlobalMap $data) {
+    public function __construct(GlobalMap $data, ?Cipher $cipher = null) {
         $map = Map {};
 
         foreach ($data as $key => $value) {
-            $map[$key] = new Cookie($key, (string) $value);
+            $map[$key] = (new Cookie($key))->setValue((string) $value, $cipher);
         }
 
         parent::__construct($map);

@@ -679,6 +679,7 @@ class Response extends Message implements OutgoingResponse {
      *
      * @param string $name
      * @param string $value
+     * @param \Titon\Crypto\Cipher $cipher
      * @param mixed $expires
      * @param string $path
      * @param string $domain
@@ -686,8 +687,8 @@ class Response extends Message implements OutgoingResponse {
      * @param bool $secure
      * @return $this
      */
-    public function setCookie(string $name, string $value, mixed $expires = 0, string $path = '/', string $domain = '', bool $httpOnly = true, bool $secure = false): this {
-        return $this->addHeader('Set-Cookie', (string) new Cookie($name, $value, $expires, $path, $domain, $httpOnly, $secure));
+    public function setCookie(string $name, string $value, ?Cipher $cipher = null, mixed $expires = 0, string $path = '/', string $domain = '', bool $httpOnly = true, bool $secure = false): this {
+        return $this->addHeader('Set-Cookie', (string) (new Cookie($name, '', $expires, $path, $domain, $httpOnly, $secure))->setValue($value, $cipher));
     }
 
     /**

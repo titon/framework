@@ -72,9 +72,6 @@ abstract class AbstractStream implements StreamInterface {
         $stream = $this->getStream();
 
         if (is_resource($stream) && fclose($stream)) {
-            $this->metadata['readable'] = false;
-            $this->metadata['writable'] = false;
-
             $this->detach();
         }
     }
@@ -86,6 +83,9 @@ abstract class AbstractStream implements StreamInterface {
         $resource = $this->stream;
 
         $this->stream = null;
+        $this->metadata['readable'] = false;
+        $this->metadata['writable'] = false;
+        $this->metadata['seekable'] = false;
 
         return $resource;
     }
@@ -100,14 +100,14 @@ abstract class AbstractStream implements StreamInterface {
     /**
      * {@inheritdoc}
      */
-    public function getContents($maxLength = -1): string {
+    public function getContents(): string {
         if (!$this->isReadable() || (!$this->isSeekable() && $this->eof())) {
             throw new RuntimeException('Stream is not readable');
         }
 
         // Save cursor position before reading
         $tell = $this->tell();
-        $buffer = stream_get_contents($this->getStream(), $maxLength, 0);
+        $buffer = stream_get_contents($this->getStream(), -1, 0);
 
         // Reset cursor position
         $this->seek($tell);
@@ -232,12 +232,7 @@ abstract class AbstractStream implements StreamInterface {
      * {@inheritdoc}
      */
     public function rewind(): void {
-        if ($this->isSeekable()) {
-            $this->seek(0);
-            return;
-        }
-
-        throw new RuntimeException('Cannot rewind as stream is not seekable');
+        $this->seek(0);
     }
 
     /**

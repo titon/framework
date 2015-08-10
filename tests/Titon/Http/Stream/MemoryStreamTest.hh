@@ -51,7 +51,6 @@ class MemoryStreamTest extends TestCase {
 
     public function testGetContents(): void {
         $this->assertEquals('foo', $this->object->getContents());
-        $this->assertEquals('fo', $this->object->getContents(2));
     }
 
     public function testGetMetaData(): void {

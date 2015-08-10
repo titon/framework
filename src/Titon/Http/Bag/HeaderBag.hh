@@ -55,6 +55,7 @@ class HeaderBag extends AbstractBag<string, array<string>> {
      * @param string $key
      * @return string
      */
+    <<__Memoize>>
     public function key(string $key): string {
         $key = str_replace([' ', '-', '_'], '-', Inflect::titleCase($key));
 
@@ -79,7 +80,7 @@ class HeaderBag extends AbstractBag<string, array<string>> {
      * {@inheritdoc}
      */
     public function set(string $key, array<string> $value): this {
-        return parent::set($this->key($key), $value);
+        return parent::set($this->key($key), array_map(fun('trim'), $value));
     }
 
 }

@@ -10,21 +10,13 @@ namespace Titon\Http;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 use Titon\Http\Bag\HeaderBag;
-use Titon\Http\Stream\MemoryStream;
 
 /**
  * Provides shared message functionality for request and response classes.
  *
  * @package Titon\Http
  */
-class Message implements MessageInterface {
-
-    /**
-     * Headers to include in the request or response.
-     *
-     * @var \Titon\Http\Bag\HeaderBag
-     */
-    public HeaderBag $headers;
+abstract class AbstractMessage implements MessageInterface {
 
     /**
      * The request or response body.
@@ -32,6 +24,13 @@ class Message implements MessageInterface {
      * @var \Psr\Http\Message\StreamInterface
      */
     protected StreamInterface $body;
+
+    /**
+     * Headers to include in the request or response.
+     *
+     * @var \Titon\Http\Bag\HeaderBag
+     */
+    protected HeaderBag $headers;
 
     /**
      * The HTTP protocol version.
@@ -43,20 +42,18 @@ class Message implements MessageInterface {
     /**
      * Store and create a new stream instance.
      *
-     * @param Psr\Http\Message\StreamInterface $stream
+     * @param \Psr\Http\Message\StreamInterface $body
      */
-    public function __construct(?StreamInterface $stream = null) {
-        if (!$stream) {
-            $stream = new MemoryStream();
-        }
-
-        $this->body = $stream;
+    public function __construct(StreamInterface $body = null) {
+        $this->body = $body;
+        $this->headers = new HeaderBag();
     }
 
     /**
-     * Clone all bags.
+     * Clone all bags and streams.
      */
     public function __clone() {
+        $this->body = clone $this->body;
         $this->headers = clone $this->headers;
     }
 
@@ -70,14 +67,14 @@ class Message implements MessageInterface {
     /**
      * {@inheritdoc}
      */
-    public function getHeader(string $name): array<string> {
-        return $this->headers->get($name) ?: [];
+    public function getHeader($name): array<string> {
+        return $this->headers->get((string) $name) ?: [];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getHeaderLine(string $name): string {
+    public function getHeaderLine($name): string {
         return implode(', ', $this->getHeader($name));
     }
 
@@ -98,15 +95,20 @@ class Message implements MessageInterface {
     /**
      * {@inheritdoc}
      */
-    public function hasHeader(string $name): bool {
-        return $this->headers->has($name);
+    public function hasHeader($name): bool {
+        return $this->headers->has((string) $name);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function withAddedHeader(string $name, mixed $value): this {
+    public function withAddedHeader($name, $value): this {
+        if (!$this->hasHeader($name)) {
+            return $this->withHeader($name, $value);
+        }
+
         $self = clone $this;
+        $name = (string) $name;
 
         if (is_array($value)) {
             foreach ($value as $val) {
@@ -123,22 +125,12 @@ class Message implements MessageInterface {
      * {@inheritdoc}
      */
     public function withBody(StreamInterface $body): this {
-        $self = clone $this;
-        $self->body = $body;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function withHeader(string $name, mixed $value): this {
-        if (!is_array($value)) {
-            $value = [ (string) $value ];
+        if ($this->body === $body) {
+            return $this;
         }
 
         $self = clone $this;
-        $self->headers->set($name, $value);
+        $self->body = $body;
 
         return $self;
     }
@@ -146,9 +138,13 @@ class Message implements MessageInterface {
     /**
      * {@inheritdoc}
      */
-    public function withProtocolVersion(string $version): this {
+    public function withHeader($name, $value): this {
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+
         $self = clone $this;
-        $self->protocolVersion = $version;
+        $self->headers->set((string) $name, array_map(fun('strval'), $value));
 
         return $self;
     }
@@ -156,9 +152,23 @@ class Message implements MessageInterface {
     /**
      * {@inheritdoc}
      */
-    public function withoutHeader(string $name): this {
+    public function withProtocolVersion($version): this {
         $self = clone $this;
-        $self->headers->remove($name);
+        $self->protocolVersion = (string) $version;
+
+        return $self;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function withoutHeader($name): this {
+        if (!$this->hasHeader($name)) {
+            return $this;
+        }
+
+        $self = clone $this;
+        $self->headers->remove((string) $name);
 
         return $self;
     }

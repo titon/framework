@@ -18,6 +18,21 @@ use InvalidArgumentException;
  */
 class Uri implements UriInterface {
 
+    /**
+     * General delimiters.
+     */
+    const GEN_DELIMS = ':\/\?\#\[\]@';
+
+    /**
+     * Sub-component delimiters.
+     */
+    const SUB_DELIMS = '!\$&\'\(\)\*\+,;=';
+
+    /**
+     * Unreserved characters.
+     */
+    const UNRESERVED = 'a-zA-Z0-9\-\._~';
+
     /** @var string */
     protected string $fragment = '';
 
@@ -30,7 +45,7 @@ class Uri implements UriInterface {
     /** @var string */
     protected string $path = '';
 
-    /** @var int */
+    /** @var int|null */
     protected ?int $port = null;
 
     /** @var string */
@@ -141,11 +156,7 @@ class Uri implements UriInterface {
      * {@inheritdoc}
      */
     public function getPort(): ?int {
-        if ($this->isStandardPort($this->port, $this->getScheme())) {
-            return null;
-        }
-
-        return $this->port;
+        return (!$this->port || $this->isStandardPort($this->port, $this->getScheme())) ? null :$this->port;
     }
 
     /**
@@ -200,7 +211,7 @@ class Uri implements UriInterface {
         }
 
         $self = clone $this;
-        $self->fragment = $self->filterFragment((string) $fragment);
+        $self->fragment = $self->filterFragment($fragment);
 
         return $self;
     }
@@ -214,7 +225,7 @@ class Uri implements UriInterface {
         }
 
         $self = clone $this;
-        $self->host = $self->filterHost((string) $host);
+        $self->host = $self->filterHost($host);
 
         return $self;
     }
@@ -228,9 +239,9 @@ class Uri implements UriInterface {
         }
 
         $self = clone $this;
-        $self->path = $self->filterPath((string) $path);
+        $self->path = $self->filterPath($path);
 
-        return $self; // TODO - error checking
+        return $self;
     }
 
     /**
@@ -248,13 +259,7 @@ class Uri implements UriInterface {
             return $self;
         }
 
-        $port = $self->filterPort((string) $port);
-
-        if ($port < 1 || $port > 65535) {
-            throw new InvalidArgumentException(sprintf('Invalid port [%d] specified; must fall within the valid TCP/UDP port range.', $port));
-        }
-
-        $self->port = $port;
+        $self->port = $self->filterPort($port);
 
         return $self;
     }
@@ -268,9 +273,9 @@ class Uri implements UriInterface {
         }
 
         $self = clone $this;
-        $self->query = $self->filterQuery((string) $query);
+        $self->query = $self->filterQuery($query);
 
-        return $self; // TODO - error checking
+        return $self;
     }
 
     /**
@@ -282,7 +287,8 @@ class Uri implements UriInterface {
         }
 
         $self = clone $this;
-        $self->scheme = $self->filterScheme((string) $scheme);
+        $self->scheme = $self->filterScheme($scheme);
+        $self->port = null;
 
         return $self;
     }
@@ -292,14 +298,34 @@ class Uri implements UriInterface {
      */
     public function withUserInfo($user, $password = null): this {
         $self = clone $this;
-        $self->user = $self->filterUser((string) $user);
+        $self->user = $self->filterUser($user);
         $self->password = '';
 
         if ($password) {
-            $self->password = $self->filterPassword((string) $password);
+            $self->password = $self->filterPassword($password);
         }
 
         return $self;
+    }
+
+    /**
+     * Encode the URI based on RFC 3986, and attempt to avoid double encodings.
+     *
+     * @param string $uri
+     * @return string
+     */
+    protected function encode(string $uri): string {
+        if (!$uri) {
+            return $uri;
+        }
+
+        // If they match, the string was either decoded correctly, or not encoded before
+        if ($uri === rawurldecode($uri)) {
+            return rawurlencode($uri);
+        }
+
+        // We can assume that the URI has been encoded previously
+        return $uri;
     }
 
     /**
@@ -327,84 +353,149 @@ class Uri implements UriInterface {
     /**
      * Filter the fragment by removing the leading hash.
      *
-     * @param string $fragment
+     * @param mixed $fragment
      * @return string
      */
-    protected function filterFragment(string $fragment): string {
+    protected function filterFragment(mixed $fragment): string {
+        $fragment = trim((string) $fragment);
+
+        if (!$fragment) {
+            return '';
+        }
+
         if ($fragment[0] === '#') {
             $fragment = substr($fragment, 1);
         }
 
-        return $fragment;
+        return $this->encode($fragment);
     }
 
     /**
      * Filter the host name.
      *
-     * @param string $host
+     * @param mixed $host
      * @return string
+     * @throws \InvalidArgumentException
      */
-    protected function filterHost(string $host): string {
-        return strtolower($host);
+    protected function filterHost(mixed $host): string {
+        $host = strtolower(trim((string) $host));
+
+        if (!preg_match('/[-a-z0-9\.]+/', $host) || $host[0] === '-' || substr($host, -1) === '-') {
+            throw new InvalidArgumentException(sprintf('Invalid host [%s] specified; may only contain letters, numbers, periods, and hyphens.', $host));
+        }
+
+        return $host;
     }
 
     /**
      * Filter the user password.
      *
-     * @param string $password
+     * @param mixed $password
      * @return string
      */
-    protected function filterPassword(string $password): string {
-        return (string) $password;
+    protected function filterPassword(mixed $password): string {
+        return $this->encode(trim((string) $password));
     }
 
     /**
-     * Filter the path. @todo
+     * Filter the path.
      *
-     * @param string $path
+     * @param mixed $path
      * @return string
+     * @throws \InvalidArgumentException
      */
-    protected function filterPath(string $path): string {
-        return (string) $path; // TODO
+    protected function filterPath(mixed $path): string {
+        $path = trim((string) $path);
+
+        if (strpos($path, '?') !== false || strpos($path, '#') !== false) {
+            throw new InvalidArgumentException(sprintf('Invalid path [%s] specified; must not contain a query string or fragment.', $path));
+        }
+
+        // Return early for empty or root paths
+        if ($path === '' || $path === '/') {
+            return $path;
+        }
+
+        return $this->encode($path);
     }
 
     /**
      * Filter the port and convert to an integer.
      *
-     * @param string $port
-     * @return string
+     * @param mixed $port
+     * @return int
+     * @throws \InvalidArgumentException
      */
-    protected function filterPort(string $port): int {
-        return (int) $port;
+    protected function filterPort(mixed $port): int {
+        $port = (int) $port;
+
+        if ($port < 1 || $port > 65535) {
+            throw new InvalidArgumentException(sprintf('Invalid port [%d] specified; must fall within the valid TCP/UDP port range.', $port));
+        }
+
+        return $port;
     }
 
     /**
-     * Filter the query. @todo
+     * Filter the query.
      *
-     * @param string $query
+     * @param mixed $query
      * @return string
      */
-    protected function filterQuery(string $query): string {
-        return (string) $query; // TODO
+    protected function filterQuery(mixed $query): string {
+        $query = trim((string) $query);
+
+        if (!$query) {
+            return '';
+        }
+
+        if ($query[0] === '?') {
+            $query = substr($query, 1);
+        }
+
+        $parts = [];
+
+        foreach (explode('&', $query) as $part) {
+            $data = explode('=', $part, 2);
+
+            if (array_key_exists(1, $data)) {
+                $parts[] = sprintf('%s=%s', $this->encode($data[0]), $this->encode($data[1]));
+            } else {
+                $parts[] = $this->encode($data[0]);
+            }
+        }
+
+        return implode('&', $parts);
     }
 
     /**
      * Filter the scheme and remove any unnecessary scheme artifacts.
      *
-     * @param string $scheme
+     * @param mixed $scheme
      * @return string
+     * @throws \InvalidArgumentException
      */
-    protected function filterScheme(string $scheme): string {
-        return strtolower(str_replace([':', '//'], '', $scheme));
+    protected function filterScheme(mixed $scheme): string {
+        $scheme = strtolower(preg_replace('/:(\/\/)?$/', '', trim((string) $scheme)));
+
+        if (!$scheme) {
+            return '';
+        }
+
+        if (!preg_match('/^[a-z]{1}[-a-z0-9\.\+]+/', $scheme)) {
+            throw new InvalidArgumentException(sprintf('Invalid scheme [%s] specified; may only contain letters, numbers, periods, hyphens, and plus signs.', $scheme));
+        }
+
+        return $scheme;
     }
 
     /**
      * Filter the user name.
      *
-     * @param string $user
+     * @param mixed $user
      * @return string
      */
-    protected function filterUser(string $user): string {
-        return (string) $user;
+    protected function filterUser(mixed $user): string {
+        return $this->encode(trim((string) $user));
     }
 }

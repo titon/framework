@@ -30,26 +30,32 @@ Looking for more information? Find us in [#titon](http://webchat.freenode.net/?c
 
 Upcoming features and release plan.
 
-* August
+* Q4 2015
     * Console package - Command line application [DELAYED]
     * HTTP package - Updated for PSR-7 support
     * [MVC package](https://github.com/titon/mvc) - Model-view-controller application [DELAYED UNTIL PSR-7]
-* September
-    * [DB package](https://github.com/titon/db) - Database abstraction layer
-    * [Model package](https://github.com/titon/model) - Object relational mapper and active record for DB entities
-* October
+    * Pipeline package - Piped command streams
+* Q1 2016
+    * CommandBus package - Command bus layer
     * Queue package - Queue, job, and worker services
     * Session package - Custom session handler
-* November
+* Q2 2016
+    * [DB package](https://github.com/titon/db) - Database abstraction layer
+    * [Model package](https://github.com/titon/model) - Object relational mapper and active record for DB entities
+* Q3 2016
     * Mail package - Emailing layer
-    * CommandBus package - Command bus layer
-* December
     * ACL package - Access control lists
     * Auth package - Authentication and authorization
-* January
+* Q4 2016
     * ADR package - Action-domain-responder application
     * WebSocket package - Web socket based application
-    * Beta release
+
+Features and additions currently in discussion.
+
+* Separate Type\Xml into its own package
+* Rewrite the Type package into a data structure oriented package
+* Implement a custom Yaml package that doesn't rely own Zend compat mode
+* Possibly merge Utility and Common packages
 
 ## Usage ##
 

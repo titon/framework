@@ -22,8 +22,13 @@ class Constraint extends Validate implements ConstraintProvider {
     public function getConstraints(): ConstraintMap {
         $constraints = Map {};
         $class = static::class;
+        $methods = get_class_methods($this);
 
-        foreach (get_class_methods($this) as $method) {
+        if (!$methods) {
+            return $constraints;
+        }
+
+        foreach ($methods as $method) {
             // UNSAFE
             // Since `class_meth()` requires literal strings and we are passing variables
             $constraints[$method] = class_meth($class, $method);

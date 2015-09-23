@@ -12,7 +12,7 @@ use Titon\Http\Exception\MalformedUrlException;
 use InvalidArgumentException;
 
 /**
- * @todo
+ * Implements a URI according to the PSR specification.
  *
  * @package Titon\Http
  */
@@ -73,6 +73,26 @@ class Uri implements UriInterface {
      */
     public function __toString(): string {
         return $this->format();
+    }
+
+    /**
+     * Encode the URI based on RFC 3986, and attempt to avoid double encodings.
+     *
+     * @param string $uri
+     * @return string
+     */
+    public function encode(string $uri): string {
+        if (!$uri) {
+            return $uri;
+        }
+
+        // If they match, the string was either decoded correctly, or not encoded before
+        if ($uri === rawurldecode($uri)) {
+            return rawurlencode($uri);
+        }
+
+        // We can assume that the URI has been encoded previously
+        return $uri;
     }
 
     /**
@@ -156,7 +176,7 @@ class Uri implements UriInterface {
      * {@inheritdoc}
      */
     public function getPort(): ?int {
-        return (!$this->port || $this->isStandardPort($this->port, $this->getScheme())) ? null :$this->port;
+        return (!$this->port || $this->isStandardPort($this->port, $this->getScheme())) ? null : $this->port;
     }
 
     /**
@@ -206,10 +226,6 @@ class Uri implements UriInterface {
      * {@inheritdoc}
      */
     public function withFragment($fragment): this {
-        if ($fragment === $this->getFragment()) {
-            return $this;
-        }
-
         $self = clone $this;
         $self->fragment = $self->filterFragment($fragment);
 
@@ -220,10 +236,6 @@ class Uri implements UriInterface {
      * {@inheritdoc}
      */
     public function withHost($host): this {
-        if ($host === $this->getHost()) {
-            return $this;
-        }
-
         $self = clone $this;
         $self->host = $self->filterHost($host);
 
@@ -234,10 +246,6 @@ class Uri implements UriInterface {
      * {@inheritdoc}
      */
     public function withPath($path): this {
-        if ($path === $this->getPath()) {
-            return $this;
-        }
-
         $self = clone $this;
         $self->path = $self->filterPath($path);
 
@@ -248,10 +256,6 @@ class Uri implements UriInterface {
      * {@inheritdoc}
      */
     public function withPort($port): this {
-        if ($port === $this->getPort()) {
-            return $this;
-        }
-
         $self = clone $this;
         $self->port = null;
 
@@ -268,10 +272,6 @@ class Uri implements UriInterface {
      * {@inheritdoc}
      */
     public function withQuery($query): this {
-        if ($query === $this->getQuery()) {
-            return $this;
-        }
-
         $self = clone $this;
         $self->query = $self->filterQuery($query);
 
@@ -282,10 +282,6 @@ class Uri implements UriInterface {
      * {@inheritdoc}
      */
     public function withScheme($scheme): this {
-        if ($scheme === $this->getScheme()) {
-            return $this;
-        }
-
         $self = clone $this;
         $self->scheme = $self->filterScheme($scheme);
         $self->port = null;
@@ -306,26 +302,6 @@ class Uri implements UriInterface {
         }
 
         return $self;
-    }
-
-    /**
-     * Encode the URI based on RFC 3986, and attempt to avoid double encodings.
-     *
-     * @param string $uri
-     * @return string
-     */
-    protected function encode(string $uri): string {
-        if (!$uri) {
-            return $uri;
-        }
-
-        // If they match, the string was either decoded correctly, or not encoded before
-        if ($uri === rawurldecode($uri)) {
-            return rawurlencode($uri);
-        }
-
-        // We can assume that the URI has been encoded previously
-        return $uri;
     }
 
     /**
@@ -380,7 +356,11 @@ class Uri implements UriInterface {
     protected function filterHost(mixed $host): string {
         $host = strtolower(trim((string) $host));
 
-        if (!preg_match('/[-a-z0-9\.]+/', $host) || $host[0] === '-' || substr($host, -1) === '-') {
+        if (!$host) {
+            return '';
+        }
+
+        if (!preg_match('/^[-a-z0-9\.]+$/', $host) || $host[0] === '-' || substr($host, -1) === '-') {
             throw new InvalidArgumentException(sprintf('Invalid host [%s] specified; may only contain letters, numbers, periods, and hyphens.', $host));
         }
 
@@ -411,12 +391,12 @@ class Uri implements UriInterface {
             throw new InvalidArgumentException(sprintf('Invalid path [%s] specified; must not contain a query string or fragment.', $path));
         }
 
-        // Return early for empty or root paths
         if ($path === '' || $path === '/') {
             return $path;
         }
 
-        return $this->encode($path);
+        // Only encode each segment, not the separators
+        return implode('/', array_map([$this, 'encode'], explode('/', $path)));
     }
 
     /**
@@ -482,7 +462,7 @@ class Uri implements UriInterface {
             return '';
         }
 
-        if (!preg_match('/^[a-z]{1}[-a-z0-9\.\+]+/', $scheme)) {
+        if (!preg_match('/^[a-z]{1}[-a-z0-9\.\+]+$/', $scheme)) {
             throw new InvalidArgumentException(sprintf('Invalid scheme [%s] specified; may only contain letters, numbers, periods, hyphens, and plus signs.', $scheme));
         }
 

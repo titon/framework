@@ -78,7 +78,8 @@ class HttpTest extends TestCase {
             'HEAD',
             'TRACE',
             'OPTIONS',
-            'CONNECT'
+            'CONNECT',
+            'PATCH'
         }, Http::getMethodTypes());
     }
 

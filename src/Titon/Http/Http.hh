@@ -98,7 +98,8 @@ class Http {
         'HEAD',
         'TRACE',
         'OPTIONS',
-        'CONNECT'
+        'CONNECT',
+        'PATCH'
     };
 
     /**

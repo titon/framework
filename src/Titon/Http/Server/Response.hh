@@ -432,27 +432,6 @@ class Response extends Message implements OutgoingResponse {
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getProtocolVersion(): string {
-        return $this->protocolVersion;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getReasonPhrase(): string {
-        return $this->getHeader('Reason-Phrase') ?: StatusCode::getReasonPhrase($this->getStatusCode());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getStatusCode(): int {
-        return $this->status;
-    }
-
-    /**
      * Return true if we are debugging.
      *
      * @return bool

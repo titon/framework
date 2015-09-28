@@ -22,6 +22,21 @@ class MessageTest extends TestCase {
         $this->assertInstanceOf('Psr\Http\Message\StreamInterface', $this->object->getBody());
     }
 
+    public function testBodyIsCloned(): void {
+        $this->assertSame($this->object->getBody(), $this->object->getBody());
+
+        $object = clone $this->object;
+
+        $this->assertNotSame($object->getBody(), $this->object->getBody());
+    }
+
+    public function testNoBodyIsCreated(): void {
+        $object = new MessageStub();
+
+        $this->assertNotNull($object->getBody());
+        $this->assertInstanceOf(MemoryStream::class, $object->getBody());
+    }
+
     public function testBagsAreCloned(): void {
         $this->assertTrue($this->object->getHeaderBag() === $this->object->getHeaderBag());
 

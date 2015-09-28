@@ -10,6 +10,7 @@ namespace Titon\Http;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 use Titon\Http\Bag\HeaderBag;
+use Titon\Http\Stream\MemoryStream;
 
 /**
  * Provides shared message functionality for request and response classes.
@@ -45,6 +46,10 @@ abstract class AbstractMessage implements MessageInterface {
      * @param \Psr\Http\Message\StreamInterface $body
      */
     public function __construct(StreamInterface $body = null) {
+        if ($body === null) {
+            $body = new MemoryStream();
+        }
+
         $this->body = $body;
         $this->headers = new HeaderBag();
     }

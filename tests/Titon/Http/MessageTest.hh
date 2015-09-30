@@ -20,8 +20,8 @@ class MessageTest extends TestCase {
 
     public function testConstructorSetsHeaders(): void {
         $object = new MessageStub(null, Map {
-            'Content-Type' => 'text/html',
-            'Content-Length' => '125'
+            'Content-Type' => ['text/html'],
+            'Content-Length' => ['125']
         });
 
         $this->assertEquals([

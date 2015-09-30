@@ -10,7 +10,6 @@ namespace Titon\Http\Server;
 use Titon\Http\Exception\MalformedResponseException;
 use Titon\Http\HeaderMap;
 use Titon\Http\StatusCode;
-use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Sanitize;
 
 /**
@@ -33,8 +32,10 @@ class RedirectResponse extends Response {
             throw new MalformedResponseException('Redirect URL cannot be empty');
         }
 
+        parent::__construct(null, $status, $headers);
+
         $type = $this->validateContentType('html');
-        $body = new MemoryStream(sprintf('<!DOCTYPE html>
+        $body = sprintf('<!DOCTYPE html>
             <html>
             <head>
                 <meta http-equiv="Content-Type" content="%s">
@@ -42,12 +43,12 @@ class RedirectResponse extends Response {
                 <title>Redirecting</title>
             </head>
             <body></body>
-            </html>', $type, Sanitize::escape($url)));
+            </html>', $type, Sanitize::escape($url));
 
-        $headers['Location'] = [$url];
-        $headers['Content-Type'] = [$type];
-
-        parent::__construct($body, $status, $headers);
+        // Update state
+        $this->body->write($body);
+        $this->headers->set('Location', [$url]);
+        $this->headers->set('Content-Type', [$type]);
     }
 
 }

@@ -25,7 +25,7 @@ class CookieBag extends AbstractBag<string, Cookie> {
      * @param \Titon\Utility\State\GlobalMap $data
      * @param \Titon\Crypto\Cipher $cipher
      */
-    public function __construct(GlobalMap $data, ?Cipher $cipher = null) {
+    public function __construct(GlobalMap $data = Map {}, ?Cipher $cipher = null) {
         $map = Map {};
 
         foreach ($data as $key => $value) {

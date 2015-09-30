@@ -47,12 +47,12 @@ interface ServerRequestInterface extends RequestInterface {
   public function getParsedBody(): mixed;
   public function getQueryParams(): array<string, mixed>;
   public function getServerParams(): array<string, mixed>;
-  public function getUploadedFiles(): array<string, UploadedFileInterface>;
+  public function getUploadedFiles(): array<string, mixed>;
   public function withAttribute(string $name, mixed $value): this;
   public function withCookieParams(array<string, mixed> $cookies): this;
   public function withParsedBody(mixed $data): this;
   public function withQueryParams(array<string, mixed> $query): this;
-  public function withUploadedFiles(array<string, UploadedFileInterface> $uploadedFiles): this;
+  public function withUploadedFiles(array<string, mixed> $uploadedFiles): this;
   public function withoutAttribute(string $name): this;
 }
 

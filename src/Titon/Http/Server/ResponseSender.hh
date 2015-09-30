@@ -28,8 +28,8 @@ class ResponseSender {
     /**
      * {@inheritdoc}
      */
-    public function send2(): string {
-        $body = $this->getBody();
+    public function send2(): void {
+        /*$body = $this->getBody();
         $contents = (string) $body?->getContents();
 
         // Create an MD5 digest?
@@ -49,7 +49,7 @@ class ResponseSender {
             fastcgi_finish_request();
         }
 
-        return $contents;
+        return $contents;*/
     }
 
     /**
@@ -58,8 +58,8 @@ class ResponseSender {
      *
      * @return $this
      */
-    public function sendBody(): this {
-        $body = $this->getBody();
+    public function sendBody(): void {
+        /*$body = $this->getBody();
 
         if ($body) {
             $chunks = str_split($body->getContents(), 8192);
@@ -69,7 +69,7 @@ class ResponseSender {
             }
         }
 
-        return $this;
+        return $this;*/
     }
 
     /**
@@ -77,8 +77,8 @@ class ResponseSender {
      *
      * @return $this
      */
-    public function sendHeaders(): this {
-        if (headers_sent()) {
+    public function sendHeaders(): void {
+        /*if (headers_sent()) {
             return $this;
         }
 
@@ -92,6 +92,6 @@ class ResponseSender {
             }
         }
 
-        return $this;
+        return $this;*/
     }
 }

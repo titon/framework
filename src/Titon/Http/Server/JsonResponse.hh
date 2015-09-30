@@ -41,24 +41,25 @@ class JsonResponse extends Response {
      * @param \Titon\Http\HeaderMap $headers
      */
     public function __construct(mixed $body, int $status = StatusCode::OK, int $flags = -1, string $callback = '', HeaderMap $headers = Map {}) {
+        parent::__construct(null, $status, $headers);
+
         $this->callback = $callback;
 
         // Convert the body to JSON
-        if (!$body instanceof StreamInterface) {
-            $body = new MemoryStream($this->encode($body, $flags));
-        }
+        $data = $this->encode($body, $flags);
 
-        // Wrap the body if the callback is defined
+        // Wrap the body in a JSONP callback
         if ($callback) {
-            $body = new MemoryStream(sprintf('%s(%s);', $callback, (string) $body));
-            $headers['Content-Type'] = [$this->validateContentType('js')]; // Older browsers
+            $data = sprintf('%s(%s);', $callback, $data);
+            $type = $this->validateContentType('js'); // Older browsers
 
         } else {
-            $headers['Content-Type'] = [$this->validateContentType('json')];
+            $type = $this->validateContentType('json');
         }
 
-        parent::__construct($body, $status, $headers);
-
+        // Update state
+        $this->body->write($data);
+        $this->headers->set('Content-Type', [$type]);
     }
 
     /**
@@ -105,7 +106,7 @@ class JsonResponse extends Response {
      * @return string
      * @throws \Titon\Http\Exception\MalformedResponseException
      */
-    public function encode(mixed $data, int $flags = -1): string {
+    protected function encode(mixed $data, int $flags = -1): string {
         if ($flags === -1) {
             $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
         }

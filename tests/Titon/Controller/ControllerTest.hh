@@ -2,7 +2,7 @@
 namespace Titon\Controller;
 
 use Titon\Http\Exception\NotFoundException;
-use Titon\Http\Server\Request;
+use Titon\Http\Server\RequestFactory;
 use Titon\Http\Server\Response;
 use Titon\Test\Stub\Controller\ControllerStub;
 use Titon\Test\TestCase;
@@ -42,7 +42,7 @@ class ControllerTest extends TestCase {
         $view = new EngineView(new TemplateLocator($this->vfs()->path('/views/')));
         $view->setEngine(new TemplateEngine());
 
-        $this->object = new ControllerStub(Request::createFromGlobals(), new Response());
+        $this->object = new ControllerStub(RequestFactory::createFromGlobals(), new Response());
         $this->object->setView($view);
     }
 

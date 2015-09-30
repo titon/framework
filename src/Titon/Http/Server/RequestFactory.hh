@@ -7,6 +7,7 @@
 
 namespace Titon\Http\Server;
 
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Titon\Http\Cookie as CookieObject;
 use Titon\Http\HeaderMap;
@@ -29,13 +30,14 @@ class RequestFactory {
     /**
      * Instantiate a new request and package the URI and body stream accordingly.
      *
+     * @param \Titon\Utility\State\GlobalMap $server
      * @param \Psr\Http\Message\UriInterface|string $uri
      * @param string $method
      * @param \Psr\Http\Message\StreamInterface $body
      * @param \Titon\Http\HeaderMap $headers
      * @return \Titon\Http\Server\Request
      */
-    public static function create(mixed $uri, string $method = 'GET', ?StreamInterface $body = null, HeaderMap $headers = Map {}): Request {
+    public static function create(GlobalMap $server, mixed $uri, string $method = 'GET', ?StreamInterface $body = null, HeaderMap $headers = Map {}): Request {
         if (!$uri instanceof UriInterface) {
             $uri = new Uri((string) $uri);
         }
@@ -44,7 +46,9 @@ class RequestFactory {
             $body = new ResourceStream(fopen('php://input', 'r+'));
         }
 
-        return new Request($uri, $method, $body, $headers);
+        $headers->setAll(static::extractHeaders($server));
+
+        return new Request($server, $uri, $method, $body, $headers);
     }
 
     /**
@@ -53,8 +57,7 @@ class RequestFactory {
      * @return \Titon\Http\Server\Request
      */
     public static function createFromGlobals(): Request {
-        $server = Server::all();
-        $request = static::create($server, static::getUrl(), static::getMethod(), null, static::extractHeaders($server));
+        $request = static::create(Server::all(), static::getUrl(), static::getMethod());
 
         if ($cookie = static::getCookieParams()) {
             $request = $request->withCookieParams($cookie);
@@ -104,13 +107,13 @@ class RequestFactory {
     /**
      * Return all cookies wrapped in a `Cookie` object.
      *
-     * @return \Titon\Http\ParamArray
+     * @return array<string, mixed>
      */
-    public static function getCookieParams(): ParamArray {
+    public static function getCookieParams(): array<string, mixed> {
         $cookies = [];
 
         foreach (Cookie::all() as $key => $value) {
-            $cookies[$key] = new CookieObject($key, $value);
+            $cookies[$key] = new CookieObject($key, (string) $value);
         }
 
         return $cookies;
@@ -119,27 +122,27 @@ class RequestFactory {
     /**
      * Return all query parameters.
      *
-     * @return \Titon\Http\ParamArray
+     * @return array<string, mixed>
      */
-    public static function getQueryParams(): ParamArray {
+    public static function getQueryParams(): array<string, mixed> {
         return Get::all()->toArray();
     }
 
     /**
      * Return all post parameters.
      *
-     * @return \Titon\Http\ParamArray
+     * @return array<string, mixed>
      */
-    public static function getPostParams(): ParamArray {
+    public static function getPostParams(): array<string, mixed> {
         return Post::all()->toArray();
     }
 
     /**
      * Return all files wrapped in a `UploadedFile` object.
      *
-     * @return \Titon\Http\ParamArray
+     * @return array<string, mixed>
      */
-    public static function getUploadedFiles(): ParamArray {
+    public static function getUploadedFiles(): array<string, mixed> {
         return Files::all()->toArray();
     }
 

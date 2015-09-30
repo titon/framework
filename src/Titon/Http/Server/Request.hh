@@ -9,11 +9,13 @@
 namespace Titon\Http\Server;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 use Titon\Http\AbstractRequest;
 use Titon\Http\Bag\CookieBag;
 use Titon\Http\Bag\ParameterBag;
-use Titon\Http\ParamArray;
-use Titon\Utility\MimeType;
+use Titon\Http\HeaderMap;
+use Titon\Utility\State\GlobalMap;
 
 /**
  * The Request object is the primary source of data and state management for the environment.
@@ -107,86 +109,6 @@ class Request extends AbstractRequest implements ServerRequestInterface {
     }
 
     /**
-     * Checks to see if the client accepts a certain content type, based on the Accept header.
-     *
-     * @uses Titon\Http\Mime
-     *
-     * @param string $type
-     * @return \Titon\Http\AcceptHeader
-     */
-    public function accepts(mixed $type): ?AcceptHeader {
-        if (is_array($type)) {
-            $contentType = $type;
-        } else if (strpos($type, '/') !== false) {
-            $contentType = [$type];
-        } else {
-            $contentType = [MimeType::getTypeByExt((string) $type)];
-        }
-
-        foreach ($this->extractAcceptHeaders('Accept') as $accept) {
-            foreach ($contentType as $cType) {
-                if ($cType === $accept['value'] || $accept['value'] === '*/*') {
-                    return $accept;
-
-                // Wildcard matching
-                } else if (strpos($accept['value'], '/*') && strpos($cType, trim($accept['value'], '*')) === 0) {
-                    return $accept;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Checks to see if the client accepts a certain charset, based on the Accept-Charset header.
-     *
-     * @param string $charset
-     * @return \Titon\Http\AcceptHeader
-     */
-    public function acceptsCharset(string $charset): ?AcceptHeader {
-        foreach ($this->extractAcceptHeaders('Accept-Charset') as $accept) {
-            if (strtolower($charset) === $accept['value'] || $accept['value'] === '*') {
-                return $accept;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Checks to see if the client accepts a certain encoding, based on the Accept-Encoding header.
-     *
-     * @param string $encoding
-     * @return \Titon\Http\AcceptHeader
-     */
-    public function acceptsEncoding(string $encoding): ?AcceptHeader {
-        foreach ($this->extractAcceptHeaders('Accept-Encoding') as $accept) {
-            if (strtolower($encoding) === $accept['value'] || $accept['value'] === '*') {
-                return $accept;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Checks to see if the client accepts a certain charset, based on the Accept-Language header.
-     *
-     * @param string $language
-     * @return \Titon\Http\AcceptHeader
-     */
-    public function acceptsLanguage(string $language): ?AcceptHeader {
-        foreach ($this->extractAcceptHeaders('Accept-Language') as $accept) {
-            if (strtolower($language) === $accept['value'] || $accept['value'] === '*') {
-                return $accept;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Do not trust the headers from proxies.
      *
      * @return $this;
@@ -200,14 +122,14 @@ class Request extends AbstractRequest implements ServerRequestInterface {
     /**
      * {@inheritdoc}
      */
-    public function getAttribute($attribute, $default = null): mixed {
-        return $this->attributes->get($attribute, $default);
+    public function getAttribute($key, $default = null): mixed {
+        return $this->attributes->get($key, $default);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAttributes(): ParamArray {
+    public function getAttributes(): array<string, mixed> {
         return $this->attributes->all()->toArray();
     }
 
@@ -241,8 +163,8 @@ class Request extends AbstractRequest implements ServerRequestInterface {
     /**
      * {@inheritdoc}
      */
-    public function getCookieParams(): ParamArray {
-        return $this->cookies->toArray();
+    public function getCookieParams(): array<string, mixed> {
+        return $this->cookies->all()->toArray();
     }
 
     /**
@@ -268,7 +190,7 @@ class Request extends AbstractRequest implements ServerRequestInterface {
     /**
      * {@inheritdoc}
      */
-    public function getParsedBody(): ParamArray {
+    public function getParsedBody(): array<string, mixed> {
         return $this->post->toArray();
     }
 
@@ -318,8 +240,8 @@ class Request extends AbstractRequest implements ServerRequestInterface {
     /**
      * {@inheritdoc}
      */
-    public function getQueryParams(): ParamArray {
-        return $this->query->toArray();
+    public function getQueryParams(): array<string, mixed> {
+        return $this->query->all()->toArray();
     }
 
     /**
@@ -362,14 +284,14 @@ class Request extends AbstractRequest implements ServerRequestInterface {
     /**
      * {@inheritdoc}
      */
-    public function getServerParams(): ParamArray {
+    public function getServerParams(): array<string, mixed> {
         return $this->server->toArray();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUploadedFiles(): ParamArray {
+    public function getUploadedFiles(): array<string, mixed> {
         return $this->files->toArray();
     }
 
@@ -584,38 +506,6 @@ class Request extends AbstractRequest implements ServerRequestInterface {
      */
     public function withoutAttribute($name): this {
         return $this;
-    }
-
-    /**
-     * Lazy loading functionality for extracting Accept header information and parsing it.
-     *
-     * @param string $header
-     * @return Vector<Titon\Http\AcceptHeader>
-     */
-    protected function extractAcceptHeaders(string $header): Vector<AcceptHeader> {
-        $data = Vector {};
-
-        if ($accepts = $this->headers->get($header)) {
-            invariant($accepts instanceof Traversable, 'Accepts header must be traversable.');
-
-            foreach ($accepts as $accept) {
-                foreach (explode(',', $accept) as $type) {
-                    $type = trim($type);
-                    $quality = 1;
-
-                    if (strpos($type, ';') !== false) {
-                        list($type, $quality) = explode(';', $type);
-                    }
-
-                    $data[] = shape(
-                        'value' => strtolower($type),
-                        'quality' => (float) str_replace('q=', '', $quality)
-                    );
-                }
-            }
-        }
-
-        return $data;
     }
 
 }

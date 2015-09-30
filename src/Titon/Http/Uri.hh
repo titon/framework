@@ -144,7 +144,7 @@ class Uri implements UriInterface {
             $authority = $userInfo . '@' . $authority;
         }
 
-        if ($port = $this->getPort()) {
+        if (($port = $this->getPort()) !== null) {
             $authority .= ':' . $port;
         }
 
@@ -176,7 +176,7 @@ class Uri implements UriInterface {
      * {@inheritdoc}
      */
     public function getPort(): ?int {
-        return (!$this->port || $this->isStandardPort($this->port, $this->getScheme())) ? null : $this->port;
+        return ($this->port === null || $this->isStandardPort($this->port, $this->getScheme())) ? null : $this->port;
     }
 
     /**
@@ -213,7 +213,7 @@ class Uri implements UriInterface {
      * @param string $scheme
      * @return bool
      */
-    public function isStandardPort(int $port, string $scheme) {
+    public function isStandardPort(int $port, string $scheme): bool {
         $standard = Map {
             'http' => 80,
             'https' => 443
@@ -292,7 +292,7 @@ class Uri implements UriInterface {
     /**
      * {@inheritdoc}
      */
-    public function withUserInfo($user, $password = null): this {
+    public function withUserInfo($user, $password = ''): this {
         $self = clone $this;
         $self->user = $self->filterUser($user);
         $self->password = '';
@@ -396,7 +396,7 @@ class Uri implements UriInterface {
         }
 
         // Only encode each segment, not the separators
-        return implode('/', array_map([$this, 'encode'], explode('/', $path)));
+        return implode('/', array_map(inst_meth($this, 'encode'), explode('/', $path)));
     }
 
     /**

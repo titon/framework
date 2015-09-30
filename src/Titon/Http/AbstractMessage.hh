@@ -58,7 +58,7 @@ abstract class AbstractMessage implements MessageInterface {
     /**
      * Clone all bags and streams.
      */
-    public function __clone() {
+    public function __clone(): void {
         $this->body = clone $this->body;
         $this->headers = clone $this->headers;
     }

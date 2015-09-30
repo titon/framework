@@ -108,7 +108,7 @@ class ResponseFactory {
      * @return \Titon\Http\Server\RedirectResponse
      */
     public static function redirectBack(int $status = StatusCode::FOUND, HeaderMap $headers = Map {}): RedirectResponse {
-        return static::redirect(Request::createFromGlobals()->getReferrer(), $status, $headers);
+        return static::redirect(RequestFactory::createFromGlobals()->getReferrer(), $status, $headers);
     }
 
     /**
@@ -130,7 +130,7 @@ class ResponseFactory {
      * @return \Titon\Http\Server\RedirectResponse
      */
     public static function refresh(int $status = StatusCode::FOUND, HeaderMap $headers = Map {}): RedirectResponse {
-        return static::redirect(Request::createFromGlobals()->getUrl(), $status, $headers);
+        return static::redirect((string) RequestFactory::createFromGlobals()->getUri(), $status, $headers);
     }
 
     /**

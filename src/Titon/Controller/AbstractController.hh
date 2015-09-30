@@ -8,9 +8,9 @@
 
 namespace Titon\Controller;
 
-use Psr\Http\Message\IncomingRequestInterface;
-use Psr\Http\Message\OutgoingResponseInterface;
-use Psr\Http\Message\StreamableInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Titon\Controller\Event\ErrorEvent;
 use Titon\Controller\Event\ProcessedEvent;
 use Titon\Controller\Event\ProcessingEvent;
@@ -18,7 +18,7 @@ use Titon\Event\EmitsEvents;
 use Titon\Event\Subject;
 use Titon\Http\Exception\HttpException;
 use Titon\Http\Exception\NotFoundException;
-use Titon\Http\Http;
+use Titon\Http\StatusCode;
 use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Inflect;
 use Titon\Utility\Path;
@@ -56,16 +56,16 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * Request object.
      *
-     * @var \Psr\Http\Message\IncomingRequestInterface
+     * @var \Psr\Http\Message\ServerRequestInterface
      */
-    protected IncomingRequestInterface $request;
+    protected ServerRequestInterface $request;
 
     /**
      * Response object.
      *
-     * @var \Psr\Http\Message\OutgoingResponseInterface
+     * @var \Psr\Http\Message\ResponseInterface
      */
-    protected OutgoingResponseInterface $response;
+    protected ResponseInterface $response;
 
     /**
      * View instance.
@@ -77,10 +77,10 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * Store the request and response.
      *
-     * @param \Psr\Http\Message\IncomingRequestInterface $request
-     * @param \Psr\Http\Message\OutgoingResponseInterface $response
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      */
-    public function __construct(IncomingRequestInterface $request, OutgoingResponseInterface $response) {
+    public function __construct(ServerRequestInterface $request, ResponseInterface $response) {
         $this->request = $request;
         $this->response = $response;
     }
@@ -88,7 +88,7 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function dispatchTo(string $action, ArgumentList $args): OutgoingResponseInterface {
+    public function dispatchTo(string $action, ArgumentList $args): ResponseInterface {
         $this->action = $action;
         $this->arguments[$action] = $args;
 
@@ -108,7 +108,7 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function forwardTo(string $action, ArgumentList $args): OutgoingResponseInterface {
+    public function forwardTo(string $action, ArgumentList $args): ResponseInterface {
         $this->action = $action;
         $this->arguments[$action] = $args;
 
@@ -151,14 +151,14 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function getRequest(): IncomingRequestInterface {
+    public function getRequest(): ServerRequestInterface {
         return $this->request;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getResponse(): OutgoingResponseInterface {
+    public function getResponse(): ResponseInterface {
         return $this->response;
     }
 
@@ -196,17 +196,17 @@ abstract class AbstractController implements Controller, Subject {
         if ($view = $this->getView()) {
             $response = $view
                 ->setVariables(Map {
-                    'pageTitle' => Http::getStatusCode($status),
+                    'pageTitle' => StatusCode::getReasonPhrase($status),
                     'error' => $exception,
                     'code' => $status,
                     'message' => $exception->getMessage(),
-                    'url' => $this->getRequest()->getUrl()
+                    'url' => (string) $this->getRequest()->getUri()
                 })
                 ->render('errors/' . $template, true);
         }
 
         // Set the response status code
-        $this->getResponse()->setStatus($status);
+        $this->response = $this->getResponse()->withStatus($status);
 
         return $response;
     }
@@ -235,7 +235,7 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function setRequest(IncomingRequestInterface $request): this {
+    public function setRequest(ServerRequestInterface $request): this {
         $this->request = $request;
 
         return $this;
@@ -244,7 +244,7 @@ abstract class AbstractController implements Controller, Subject {
     /**
      * {@inheritdoc}
      */
-    public function setResponse(OutgoingResponseInterface $response): this {
+    public function setResponse(ResponseInterface $response): this {
         $this->response = $response;
 
         return $this;
@@ -275,9 +275,9 @@ abstract class AbstractController implements Controller, Subject {
      * Handle an action by triggering the respective method and retrieving an output.
      * Either set the output as the response, or render a view as the response.
      *
-     * @return \Psr\Http\Message\OutgoingResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function handleAction(): OutgoingResponseInterface {
+    protected function handleAction(): ResponseInterface {
         $action = $this->getCurrentAction();
         $arguments = $this->getActionArguments($action);
 
@@ -317,32 +317,27 @@ abstract class AbstractController implements Controller, Subject {
      * or setting a new response.
      *
      * @param mixed $output
-     * @return \Psr\Http\Message\OutgoingResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function handleResponse(mixed $output): OutgoingResponseInterface {
-        $response = $this->getResponse();
+    protected function handleResponse(mixed $output): ResponseInterface {
 
         // If the return of an action is a response object
         // We should overwrite the original one and return the new one
-        if ($output instanceof OutgoingResponseInterface) {
+        if ($output instanceof ResponseInterface) {
             $this->setResponse($output);
-
-            return $output;
-        }
 
         // If the return of an action is a stream object
         // Set the body of the response directly
-        if ($output instanceof StreamableInterface) {
-            $response->setBody($output);
-
-            return $response;
-        }
+        } else if ($output instanceof StreamInterface) {
+            $this->setResponse($this->getResponse()->withBody($output));
 
         // Else the output is a string (or should be cast to one)
         // So set the body on the current response and return it
-        $response->setBody(new MemoryStream((string) $output));
+        } else {
+            $this->setResponse($this->getResponse()->withBody(new MemoryStream((string) $output)));
+        }
 
-        return $response;
+        return $this->getResponse();
     }
 
 }

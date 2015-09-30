@@ -8,6 +8,7 @@
 namespace Titon\Http\Server;
 
 use Titon\Http\Exception\MalformedResponseException;
+use Titon\Http\HeaderMap;
 use Titon\Http\StatusCode;
 use Titon\Http\Stream\MemoryStream;
 use Titon\Utility\Sanitize;
@@ -24,34 +25,19 @@ class RedirectResponse extends Response {
      *
      * @param string $url
      * @param int $status
-     */
-    public function __construct(string $url, int $status = StatusCode::FOUND) {
-        parent::__construct(null, $status);
-
-        $this->headers->flush();
-
-        $this
-            ->date(time())
-            ->location($url)
-            ->statusCode($status);
-    }
-
-    /**
-     * Validate the URL before sending.
-     *
-     * @return string
+     * @param \Titon\Http\HeaderMap $headers
      * @throws \Titon\Http\Exception\MalformedResponseException
      */
-    public function send(): string {
-        $url = $this->getHeader('Location');
-
+    public function __construct(string $url, int $status = StatusCode::FOUND, HeaderMap $headers = Map {}) {
         if (!$url) {
             throw new MalformedResponseException('Redirect URL cannot be empty');
         }
 
-        $url = Sanitize::escape($url);
+        $headers['Location'] = [$url];
+        $headers['Content-Type'] [$this->validateContentType('html')];
 
-        $this->setBody(new MemoryStream(sprintf('<!DOCTYPE html>
+        $url = Sanitize::escape($url);
+        $body = new MemoryStream(sprintf('<!DOCTYPE html>
             <html>
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -59,9 +45,9 @@ class RedirectResponse extends Response {
                 <title>Redirecting to %s</title>
             </head>
             <body></body>
-            </html>', $url, $url)));
+            </html>', $url, $url));
 
-        return parent::send();
+        parent::__construct($body, $status, $headers);
     }
 
 }

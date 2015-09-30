@@ -141,7 +141,7 @@ class StatusCode {
             return static::$statusCodes[$code];
         }
 
-        throw new InvalidStatusException(sprintf('Status code %s is not supported', $code));
+        throw new InvalidStatusException(sprintf('Status code [%d] is not supported', $code));
     }
 
     /**
@@ -151,6 +151,21 @@ class StatusCode {
      */
     public static function getAll(): StatusCodeMap {
         return static::$statusCodes;
+    }
+
+    /**
+     * Validate the status code is legitimate.
+     *
+     * @param int $code
+     * @return int
+     * @throws \Titon\Http\Exception\InvalidStatusException
+     */
+    public static function isValid(int $code): int {
+        if (static::$statusCodes->contains($code)) {
+            return $code;
+        }
+
+        throw new InvalidStatusException(sprintf('Status code [%d] is not supported', $code));
     }
 
 }

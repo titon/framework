@@ -47,7 +47,7 @@ abstract class AbstractRequest extends AbstractMessage implements RequestInterfa
      * @param string $method
      * @param \Psr\Http\Message\StreamInterface $body
      */
-    public function __construct(UriInterface $uri, string $method = 'GET', StreamInterface $body = null) {
+    public function __construct(UriInterface $uri, string $method = 'GET', ?StreamInterface $body = null) {
         parent::__construct($body);
 
         $this->uri = $uri;

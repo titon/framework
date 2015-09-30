@@ -9,6 +9,7 @@
 namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamInterface;
+use Titon\Http\HeaderMap;
 use Titon\Http\StatusCode;
 use Titon\Http\Stream\MemoryStream;
 use Titon\Type\Xml;
@@ -27,28 +28,16 @@ class XmlResponse extends Response {
      * @param mixed $body
      * @param int $status
      * @param string $root
+     * @param \Titon\Http\HeaderMap $headers
      */
-    public function __construct(mixed $body = null, int $status = StatusCode::OK, string $root = 'root') {
+    public function __construct(mixed $body = null, int $status = StatusCode::OK, string $root = 'root', HeaderMap $headers = Map {}) {
         if (!$body instanceof StreamInterface) {
             $body = new MemoryStream( Xml::from($body, $root)->toString() );
         }
 
-        parent::__construct($body, $status);
-    }
+        $headers['Content-Type'] = [$this->validateContentType('xml')];
 
-    /**
-     * Set the content type and length before sending.
-     *
-     * @return string
-     */
-    public function send(): string {
-        $this->contentType('xml');
-
-        if ($body = $this->getBody()) {
-            $this->contentLength($body->getSize());
-        }
-
-        return parent::send();
+        parent::__construct($body, $status, $headers);
     }
 
 }

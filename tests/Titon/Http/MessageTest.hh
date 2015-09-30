@@ -18,7 +18,19 @@ class MessageTest extends TestCase {
         $this->object->getHeaderBag()->set('Content-Length', ['1337']);
     }
 
-    public function testConstructCreatesStream(): void {
+    public function testConstructorSetsHeaders(): void {
+        $object = new MessageStub(null, Map {
+            'Content-Type' => 'text/html',
+            'Content-Length' => '125'
+        });
+
+        $this->assertEquals([
+            'Content-Type' => ['text/html'],
+            'Content-Length' => ['125']
+        ], $object->getHeaders());
+    }
+
+    public function testConstructorCreatesStream(): void {
         $this->assertInstanceOf('Psr\Http\Message\StreamInterface', $this->object->getBody());
     }
 

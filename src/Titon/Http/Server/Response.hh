@@ -8,9 +8,10 @@
 
 namespace Titon\Http\Server;
 
-use Psr\Http\Message\StreamableInterface;
-use Titon\Common\Exception\InvalidArgumentException;
+use Psr\Http\Message\StreamInterface;
+use Titon\Http\AbstractResponse;
 use Titon\Http\Cookie;
+use Titon\Http\HeaderMap;
 use Titon\Http\Http;
 use Titon\Http\StatusCode;
 use Titon\Utility\Config;
@@ -19,62 +20,27 @@ use Titon\Utility\MimeType;
 use Titon\Utility\Number;
 use Titon\Utility\Str;
 use Titon\Utility\Time;
+use InvalidArgumentException;
 
 /**
- * The Response object handles the collection and output of data to the browser. It stores a list of HTTP headers,
- * the content body, the content type and an associated status code to print out.
+ * The Response object handles the collection and output of data to the browser.
+ * It stores a list of HTTP headers, the content body, the content type, and an associated status code.
  *
  * @package Titon\Http\Server
  */
-class Response extends Message implements OutgoingResponse {
-    use IncomingRequestAware;
-
-    /**
-     * Will return the response as a string instead of sending output.
-     *
-     * @var bool
-     */
-    protected bool $debug = false;
-
-    /**
-     * Will add a Content-MD5 header based on the body.
-     *
-     * @var bool
-     */
-    protected bool $md5 = false;
-
-    /**
-     * The HTTP protocol version.
-     *
-     * @var string
-     */
-    protected string $protocolVersion = '1.1';
-
-    /**
-     * HTTP status code to output.
-     *
-     * @var int
-     */
-    protected int $status = StatusCode::OK;
+class Response extends AbstractResponse {
 
     /**
      * Set body and status during initialization.
      *
-     * @param \Psr\Http\Message\StreamableInterface $body
+     * @param \Psr\Http\Message\StreamInterface $body
      * @param int $status
+     * @param \Titon\Http\HeaderMap $headers
      */
-    public function __construct(?StreamableInterface $body = null, int $status = StatusCode::OK) {
-        parent::__construct();
+    public function __construct(?StreamInterface $body = null, int $status = StatusCode::OK, HeaderMap $headers = Map {}) {
+        parent::__construct($body, $headers);
 
-        $this
-            ->date(time())
-            ->connection(true)
-            ->contentType('text/html')
-            ->setStatus($status);
-
-        if ($body) {
-            $this->setBody($body);
-        }
+        $this->status = $status;
     }
 
     /**
@@ -84,30 +50,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function acceptRanges(string $range = 'bytes'): this {
-        return $this->setHeader('Accept-Ranges', $range);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addHeader($key, $value): this {
-        $values = $this->getHeaderAsArray($key);
-        $values[] = $value;
-
-        $this->headers->set($key, $values);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addHeaders(array $headers): this {
-        foreach ($headers as $key => $value) {
-            $this->addHeader($key, $value);
-        }
-
-        return $this;
+        return $this->withHeader('Accept-Ranges', $range);
     }
 
     /**
@@ -123,27 +66,29 @@ class Response extends Message implements OutgoingResponse {
             $time = Time::toUnix($time) - time();
         }
 
-        return $this->setHeader('Age', $time);
+        return $this->withHeader('Age', $time);
     }
 
     /**
      * Set the Allow header.
      *
-     * @param Vector<string> $methods
+     * @param Set<string> $methods
      * @return $this
      */
-    public function allow(Vector<string> $methods): this {
-        return $this->setHeader('Allow', array_intersect(array_map(fun('strtoupper'), $methods), Http::getMethodTypes()));
+    public function allow(Set<string> $methods): this {
+        $methods = array_intersect(array_map(fun('strtoupper'), $methods), Http::getMethodTypes());
+
+        return $this->withHeader('Allow', $methods);
     }
 
     /**
-     * Alias for setBody().
+     * Alias for `withBody()`.
      *
-     * @param \Psr\Http\Message\StreamableInterface $body
+     * @param \Psr\Http\Message\StreamInterface $body
      * @return $this
      */
-    public function body(StreamableInterface $body): this {
-        return $this->setBody($body);
+    public function body(StreamInterface $body): this {
+        return $this->withBody($body);
     }
 
     /**
@@ -158,6 +103,7 @@ class Response extends Message implements OutgoingResponse {
      */
     public function cache(string $directive, mixed $expires = '+24 hours', bool $proxy = true, Map<string, mixed> $options = Map {}): this {
         $expires = Time::toUnix($expires);
+        $self = $this;
 
         if ($directive === 'none') {
             $control = Map {
@@ -170,10 +116,11 @@ class Response extends Message implements OutgoingResponse {
                 $control['proxy-revalidate'] = true;
             }
 
-            $this->setHeader('Pragma', 'no-cache');
+            $self = $self->withHeader('Pragma', 'no-cache');
 
         } else if ($directive === 'public' || $directive === 'private') {
-            $control = Map {$directive => true};
+            $control = Map {};
+            $control[$directive] = true;
             $ttl = $expires - time();
 
             if ($ttl > 0) {
@@ -187,13 +134,13 @@ class Response extends Message implements OutgoingResponse {
             throw new InvalidArgumentException(sprintf('Invalid cache directive %s', $directive));
         }
 
-        return $this->expires($expires)->cacheControl($control->setAll($options));
+        return $self
+            ->expires($expires)
+            ->cacheControl($control->setAll($options));
     }
 
     /**
      * Set the Cache-Control header.
-     *
-     * @uses Titon\Utility\Time
      *
      * @param Map<string, mixed> $values
      * @return $this
@@ -215,7 +162,7 @@ class Response extends Message implements OutgoingResponse {
             }
         }
 
-        return $this->setHeader('Cache-Control', $header);
+        return $this->withHeader('Cache-Control', $header);
     }
 
     /**
@@ -232,7 +179,7 @@ class Response extends Message implements OutgoingResponse {
             $status = 'close';
         }
 
-        return $this->setHeader('Connection', $status);
+        return $this->withHeader('Connection', $status);
     }
 
     /**
@@ -248,7 +195,7 @@ class Response extends Message implements OutgoingResponse {
             throw new InvalidArgumentException('Disposition type must be either "attachment" or "inline"');
         }
 
-        return $this->setHeader('Content-Disposition', sprintf('%s; filename="%s"', $type, $file));
+        return $this->withHeader('Content-Disposition', sprintf('%s; filename="%s"', $type, $file));
     }
 
     /**
@@ -258,7 +205,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function contentEncoding(string $encoding): this {
-        return $this->setHeader('Content-Encoding', $encoding);
+        return $this->withHeader('Content-Encoding', $encoding);
     }
 
     /**
@@ -268,7 +215,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function contentLanguage(string $locales): this {
-        return $this->setHeader('Content-Language', $locales);
+        return $this->withHeader('Content-Language', $locales);
     }
 
     /**
@@ -278,7 +225,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function contentLocation(string $location): this {
-        return $this->setHeader('Content-Location', $location);
+        return $this->withHeader('Content-Location', $location);
     }
 
     /**
@@ -298,23 +245,17 @@ class Response extends Message implements OutgoingResponse {
             $length = Number::bytesFrom((string) $length);
         }
 
-        return $this->setHeader('Content-Length', $length);
+        return $this->withHeader('Content-Length', $length);
     }
 
     /**
      * Set the Content-MD5 header.
      *
-     * @param bool|string $content
+     * @param string $content
      * @return $this
      */
-    public function contentMD5(mixed $content): this {
-        if (is_bool($content)) {
-            $this->md5 = $content;
-        } else {
-            $this->setHeader('Content-MD5', $content);
-        }
-
-        return $this;
+    public function contentMD5(string $content): this {
+        return $this->withHeader('Content-MD5', $content);
     }
 
     /**
@@ -326,15 +267,11 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function contentRange(int $start, int $end, int $size): this {
-        return $this->setHeader('Content-Range', sprintf('bytes %s-%s/%s', $start, $end, $size));
+        return $this->withHeader('Content-Range', sprintf('bytes %s-%s/%s', $start, $end, $size));
     }
 
     /**
-     * Set the Content-Type header. If the type is text based, include the app charset.
-     *
-     * @uses Titon\Utility\Config
-     * @uses Titon\Http\Mime
-     * @uses Titon\Utility\Str
+     * Set the Content-Type header.
      *
      * @param string $type
      * @return $this
@@ -344,18 +281,7 @@ class Response extends Message implements OutgoingResponse {
             return $this;
         }
 
-        if (strpos($type, '/') === false) {
-            $type = MimeType::getTypeByExt($type);
-        }
-
-        $charset = Config::encoding();
-
-        if ($charset && (Str::startsWith($type, MimeType::TEXT) ||
-            in_array($type, ['application/javascript', 'application/json', 'application/xml', 'application/rss+xml']))) {
-            $type .= '; charset=' . $charset;
-        }
-
-        return $this->setHeader('Content-Type', $type);
+        return $this->withHeader('Content-Type', $this->validateContentType($type));
     }
 
     /**
@@ -367,45 +293,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function date(mixed $time): this {
-        return $this->setHeader('Date', Format::http($time));
-    }
-
-    /**
-     * Enable debugging.
-     *
-     * @return $this
-     */
-    public function debug(): this {
-        $this->debug = true;
-
-        return $this;
-    }
-
-    /**
-     * Load a file and force a download using HTTP headers.
-     *
-     * @param string $path
-     * @param string $name
-     * @param bool $autoEtag
-     * @param bool $autoModified
-     * @return \Titon\Http\Server\DownloadResponse
-     */
-    public static function download(string $path, string $name = '', bool $autoEtag = false, bool $autoModified = true): DownloadResponse {
-        $download = new DownloadResponse($path, StatusCode::OK);
-
-        if ($name) {
-            $download->contentDisposition($name);
-        }
-
-        if ($autoEtag) {
-            $download->etag(sha1_file($path));
-        }
-
-        if ($autoModified) {
-            $download->lastModified(filemtime($path));
-        }
-
-        return $download;
+        return $this->withHeader('Date', Format::http($time));
     }
 
     /**
@@ -416,7 +304,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function etag(string $tag, bool $weak = false): this {
-        return $this->setHeader('ETag', sprintf('%s"%s"', ($weak ? 'W/' : ''), $tag));
+        return $this->withHeader('ETag', sprintf('%s"%s"', ($weak ? 'W/' : ''), $tag));
     }
 
     /**
@@ -428,29 +316,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function expires(mixed $expires = '+24 hours'): this {
-        return $this->setHeader('Expires', Format::http($expires));
-    }
-
-    /**
-     * Return true if we are debugging.
-     *
-     * @return bool
-     */
-    public function isDebugging(): bool {
-        return $this->debug;
-    }
-
-    /**
-     * Convert a resource to JSON by instantiating a JsonResponse.
-     * Can optionally pass encoding options, and a JSONP callback.
-     *
-     * @param mixed $data
-     * @param int $flags
-     * @param string $callback
-     * @return \Titon\Http\Server\JsonResponse
-     */
-    public static function json(mixed $data, int $flags = 0, string $callback = ''): JsonResponse {
-        return new JsonResponse($data, StatusCode::OK, $flags, $callback);
+        return $this->withHeader('Expires', Format::http($expires));
     }
 
     /**
@@ -462,7 +328,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function lastModified(mixed $time = null): this {
-        return $this->setHeader('Last-Modified', Format::http($time));
+        return $this->withHeader('Last-Modified', Format::http($time));
     }
 
     /**
@@ -472,7 +338,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function location(string $url): this {
-        return $this->setHeader('Location', $url);
+        return $this->withHeader('Location', $url);
     }
 
     /**
@@ -490,38 +356,15 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function notModified(): this {
-        $this->statusCode(StatusCode::NOT_MODIFIED)->removeHeaders([
-            'Allow',
-            'Content-Disposition',
-            'Content-Encoding',
-            'Content-Language',
-            'Content-Length',
-            'Content-MD5',
-            'Content-Type',
-            'Last-Modified'
-        ]);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function prepare(IncomingRequest $request): this {
-        $this->setRequest($request);
-
-        return $this;
-    }
-
-    /**
-     * Redirect to another URL by instantiating a new RedirectResponse.
-     *
-     * @param string $url
-     * @param int $status
-     * @return \Titon\Http\Server\RedirectResponse
-     */
-    public static function redirect(string $url, int $status = StatusCode::FOUND): RedirectResponse {
-        return new RedirectResponse($url, $status);
+        return $this->statusCode(StatusCode::NOT_MODIFIED)
+            ->withoutHeader('Allow')
+            ->withoutHeader('Content-Disposition')
+            ->withoutHeader('Content-Encoding')
+            ->withoutHeader('Content-Language')
+            ->withoutHeader('Content-Length')
+            ->withoutHeader('Content-MD5')
+            ->withoutHeader('Content-Type')
+            ->withoutHeader('Last-Modified');
     }
 
     /**
@@ -535,27 +378,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function removeCookie(string $name, string $path = '/', string $domain = '', bool $httpOnly = true, bool $secure = false): this {
-        return $this->setCookie($name, '', time(), $path, $domain, $httpOnly, $secure);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function removeHeader($key): this {
-        $this->headers->remove($key);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function removeHeaders(array $keys): this {
-        foreach ($keys as $key) {
-            $this->removeHeader($key);
-        }
-
-        return $this;
+        return $this->setCookie($name, '', null, time(), $path, $domain, $httpOnly, $secure);
     }
 
     /**
@@ -571,86 +394,7 @@ class Response extends Message implements OutgoingResponse {
             $length = Format::http($length);
         }
 
-        return $this->setHeader('Retry-After', $length);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function send(): string {
-        $body = $this->getBody();
-        $contents = (string) $body?->getContents();
-
-        // Create an MD5 digest?
-        if ($contents && $this->md5) {
-            $this->setHeader('Content-MD5', base64_encode(pack('H*', md5($contents))));
-        }
-
-        // Return while in debug
-        if ($this->isDebugging()) {
-            return $contents;
-        }
-
-        $this->sendHeaders();
-        $this->sendBody();
-
-        if (function_exists('fastcgi_finish_request')) {
-            fastcgi_finish_request();
-        }
-
-        return $contents;
-    }
-
-    /**
-     * Output the body by echoing its contents.
-     * If a buffer is set, chunk the body into parts.
-     *
-     * @return $this
-     */
-    public function sendBody(): this {
-        $body = $this->getBody();
-
-        if ($body) {
-            $chunks = str_split($body->getContents(), 8192);
-
-            foreach ($chunks as $chunk) {
-                echo $chunk;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Output headers and cookies defined for the current response.
-     *
-     * @return $this
-     */
-    public function sendHeaders(): this {
-        if (headers_sent()) {
-            return $this;
-        }
-
-        $status = $this->getStatusCode();
-
-        header(sprintf('HTTP/%s %s %s', $this->getProtocolVersion(), $status, $this->getReasonPhrase()), true, $status);
-
-        foreach ($this->getHeaders() as $header => $values) {
-            foreach ($values as $value) {
-                header($header . ': ' . $value, false, $status);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setBody(?StreamableInterface $body = null): this {
-        $this->body = $body;
-
-        return $this;
+        return $this->withHeader('Retry-After', $length);
     }
 
     /**
@@ -667,68 +411,17 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function setCookie(string $name, string $value, ?Cipher $cipher = null, mixed $expires = 0, string $path = '/', string $domain = '', bool $httpOnly = true, bool $secure = false): this {
-        return $this->addHeader('Set-Cookie', (string) (new Cookie($name, '', $expires, $path, $domain, $httpOnly, $secure))->setValue($value, $cipher));
+        return $this->withAddedHeader('Set-Cookie', (string) (new Cookie($name, '', $expires, $path, $domain, $httpOnly, $secure))->setValue($value, $cipher));
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function setHeader($key, $value): this {
-        if (!is_array($value)) {
-            $value = [$value];
-        }
-
-        $this->headers->set($key, $value);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setHeaders(array $headers): this {
-        foreach ($headers as $key => $value) {
-            $this->setHeader($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setProtocolVersion($version): this {
-        $this->protocolVersion = $version;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setReasonPhrase($phrase): this {
-        return $this->setHeader('Reason-Phrase', $phrase);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setStatus($code, $reasonPhrase = null): this {
-        if (StatusCode::get($code)) {
-            $this->status = $code;
-        }
-
-        return $this->setHeader('Status-Code', $code . ' ' . ($reasonPhrase ?: $this->getReasonPhrase()));
-    }
-
-    /**
-     * Alias for setStatus().
+     * Alias for `withStatus()`.
      *
      * @param int $code
      * @return $this
      */
     public function statusCode(int $code): this {
-        return $this->setStatus($code);
+        return $this->withStatus($code);
     }
 
     /**
@@ -738,7 +431,7 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function vary(string $variances): this {
-        return $this->setHeader('Vary', $variances);
+        return $this->withHeader('Vary', $variances);
     }
 
     /**
@@ -748,18 +441,33 @@ class Response extends Message implements OutgoingResponse {
      * @return $this
      */
     public function wwwAuthenticate(string $scheme): this {
-        return $this->setHeader('WWW-Authenticate', $scheme);
+        return $this->withHeader('WWW-Authenticate', $scheme);
     }
 
     /**
-     * Convert a resource to XML by instantiating a XmlResponse.
+     * Validate a content type and return the entire mime type string.
+     * If an extension is passed, attempt to determine the mime type.
+     * If the mime type supports a charset, include it.
      *
-     * @param mixed $data
-     * @param string $root
-     * @return \Titon\Http\Server\XmlResponse
+     * @uses Titon\Utility\Config
+     * @uses Titon\Utility\MimeType
+     * @uses Titon\Utility\Str
+     *
+     * @param string $type
+     * @return $this
      */
-    public static function xml(mixed $data, string $root = 'root'): XmlResponse {
-        return new XmlResponse($data, StatusCode::OK, $root);
-    }
+    protected function validateContentType(string $type): string {
+        if (strpos($type, '/') === false) {
+            $type = MimeType::getTypeByExt($type);
+        }
 
+        $charset = Config::encoding();
+
+        if ($charset && (Str::startsWith($type, MimeType::TEXT) ||
+                in_array($type, ['application/javascript', 'application/json', 'application/xml', 'application/rss+xml']))) {
+            $type .= '; charset=' . $charset;
+        }
+
+        return $type;
+    }
 }

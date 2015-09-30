@@ -44,14 +44,15 @@ abstract class AbstractMessage implements MessageInterface {
      * Store and create a new stream instance.
      *
      * @param \Psr\Http\Message\StreamInterface $body
+     * @param \Titon\Http\HeaderMap $headers
      */
-    public function __construct(StreamInterface $body = null) {
+    public function __construct(?StreamInterface $body = null, HeaderMap $headers = Map {}) {
         if ($body === null) {
             $body = new MemoryStream();
         }
 
         $this->body = $body;
-        $this->headers = new HeaderBag();
+        $this->headers = new HeaderBag($headers);
     }
 
     /**

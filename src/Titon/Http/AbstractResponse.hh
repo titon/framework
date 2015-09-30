@@ -42,7 +42,7 @@ abstract class AbstractResponse extends AbstractMessage implements ResponseInter
      */
     public function withStatus($code, $reasonPhrase = ''): this {
         $self = clone $this;
-        $self->status = (int) $code;
+        $self->status = StatusCode::isValid((int) $code);
 
         if ($reasonPhrase) {
             $self->headers->set('Reason-Phrase', [(string) $reasonPhrase]);

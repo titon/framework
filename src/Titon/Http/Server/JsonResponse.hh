@@ -10,6 +10,7 @@ namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamInterface;
 use Titon\Http\Exception\MalformedResponseException;
+use Titon\Http\HeaderMap;
 use Titon\Http\StatusCode;
 use Titon\Http\Stream\MemoryStream;
 
@@ -37,24 +38,36 @@ class JsonResponse extends Response {
      * @param int $status
      * @param int $flags
      * @param string $callback
+     * @param \Titon\Http\HeaderMap $headers
      * @throws \Titon\Http\Exception\MalformedResponseException
      */
-    public function __construct(mixed $body, int $status = StatusCode::OK, int $flags = -1, string $callback = '') {
-        if ($flags === -1) {
-            $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
-        }
+    public function __construct(mixed $body, int $status = StatusCode::OK, int $flags = -1, string $callback = '', HeaderMap $headers = Map {}) {
+        $this->callback = $callback;
 
+        // Convert the body to JSON
         if (!$body instanceof StreamInterface) {
+            if ($flags === -1) {
+                $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
+            }
+
             $body = new MemoryStream(json_encode($body, $flags));
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new MalformedResponseException($this->getErrorMessage());
+            }
         }
 
-        parent::__construct($body, $status);
+        // Wrap the body if the callback is defined
+        if ($callback) {
+            $body = new MemoryStream(sprintf('%s(%s);', $callback, (string) $body));
+            $headers['Content-Type'] = [$this->validateContentType('js')]; // Older browsers
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new MalformedResponseException($this->getErrorMessage());
+        } else {
+            $headers['Content-Type'] = [$this->validateContentType('json')];
         }
 
-        $this->setCallback($callback);
+        parent::__construct($body, $status, $headers);
+
     }
 
     /**
@@ -91,39 +104,6 @@ class JsonResponse extends Response {
         }
 
         return sprintf('Unknown error (%s)', $error);
-    }
-
-    /**
-     * Set the JSONP callback function name.
-     *
-     * @param string $callback
-     * @return $this
-     */
-    public function setCallback(string $callback): this {
-        $this->callback = $callback;
-
-        return $this;
-    }
-
-    /**
-     * Before sending, wrap the body in the JSONP callback if one has been defined.
-     * Update the content type and length depending on the type of operation.
-     *
-     * @return string
-     */
-    public function send(): string {
-        if ($callback = $this->getCallback()) {
-            $this->setBody(new MemoryStream(sprintf('%s(%s);', $callback, (string) $this->getBody())));
-            $this->contentType('text/javascript'); // Older browsers
-        } else {
-            $this->contentType('application/json');
-        }
-
-        if ($body = $this->getBody()) {
-            $this->contentLength($body->getSize());
-        }
-
-        return parent::send();
     }
 
 }

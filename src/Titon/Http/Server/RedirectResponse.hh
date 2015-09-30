@@ -33,19 +33,19 @@ class RedirectResponse extends Response {
             throw new MalformedResponseException('Redirect URL cannot be empty');
         }
 
-        $headers['Location'] = [$url];
-        $headers['Content-Type'] [$this->validateContentType('html')];
-
-        $url = Sanitize::escape($url);
+        $type = $this->validateContentType('html');
         $body = new MemoryStream(sprintf('<!DOCTYPE html>
             <html>
             <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                <meta http-equiv="Content-Type" content="%s">
                 <meta http-equiv="refresh" content="0; url=%s">
-                <title>Redirecting to %s</title>
+                <title>Redirecting</title>
             </head>
             <body></body>
-            </html>', $url, $url));
+            </html>', $type, Sanitize::escape($url)));
+
+        $headers['Location'] = [$url];
+        $headers['Content-Type'] = [$type];
 
         parent::__construct($body, $status, $headers);
     }

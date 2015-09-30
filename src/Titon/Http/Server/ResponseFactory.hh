@@ -8,6 +8,7 @@
 namespace Titon\Http\Server;
 
 use Psr\Http\Message\StreamInterface;
+use Titon\Http\HeaderMap;
 use Titon\Http\StatusCode;
 use Titon\Http\Stream\MemoryStream;
 use Titon\Http\Stream\ResourceStream;
@@ -25,9 +26,10 @@ class ResponseFactory {
      *
      * @param mixed $body
      * @param int $status
+     * @param \Titon\Http\HeaderMap $headers
      * @return \Titon\Http\Server\Response
      */
-    public static function create(mixed $body, int $status = StatusCode::OK): Response {
+    public static function create(mixed $body, int $status = StatusCode::OK, HeaderMap $headers = Map {}): Response {
         if (!$body instanceof StreamInterface) {
             if (is_string($body)) {
                 $body = new MemoryStream($body);
@@ -40,7 +42,7 @@ class ResponseFactory {
             }
         }
 
-        return new Response($body, $status);
+        return new Response($body, $status, $headers);
     }
 
     /**
@@ -50,10 +52,11 @@ class ResponseFactory {
      * @param string $name
      * @param bool $autoEtag
      * @param bool $autoModified
+     * @param \Titon\Http\HeaderMap $headers
      * @return \Titon\Http\Server\DownloadResponse
      */
-    public static function download(string $path, string $name = '', bool $autoEtag = false, bool $autoModified = true): DownloadResponse {
-        $response = new DownloadResponse($path, StatusCode::OK);
+    public static function download(string $path, string $name = '', bool $autoEtag = false, bool $autoModified = true, HeaderMap $headers = Map {}): DownloadResponse {
+        $response = new DownloadResponse($path, StatusCode::OK, $headers);
 
         if ($name) {
             $response = $response->contentDisposition($name);
@@ -78,10 +81,11 @@ class ResponseFactory {
      * @param int $status
      * @param int $flags
      * @param string $callback
+     * @param \Titon\Http\HeaderMap $headers
      * @return \Titon\Http\Server\JsonResponse
      */
-    public static function json(mixed $data, int $status = StatusCode::OK, int $flags = 0, string $callback = ''): JsonResponse {
-        return new JsonResponse($data, $status, $flags, $callback);
+    public static function json(mixed $data, int $status = StatusCode::OK, int $flags = -1, string $callback = '', HeaderMap $headers = Map {}): JsonResponse {
+        return new JsonResponse($data, $status, $flags, $callback, $headers);
     }
 
     /**
@@ -89,10 +93,44 @@ class ResponseFactory {
      *
      * @param string $url
      * @param int $status
+     * @param \Titon\Http\HeaderMap $headers
      * @return \Titon\Http\Server\RedirectResponse
      */
-    public static function redirect(string $url, int $status = StatusCode::FOUND): RedirectResponse {
-        return new RedirectResponse($url, $status);
+    public static function redirect(string $url, int $status = StatusCode::FOUND, HeaderMap $headers = Map {}): RedirectResponse {
+        return new RedirectResponse($url, $status, $headers);
+    }
+
+    /**
+     * Redirect to the previous page using the REFERER HTTP header.
+     *
+     * @param int $status
+     * @param \Titon\Http\HeaderMap $headers
+     * @return \Titon\Http\Server\RedirectResponse
+     */
+    public static function redirectBack(int $status = StatusCode::FOUND, HeaderMap $headers = Map {}): RedirectResponse {
+        return static::redirect(Request::createFromGlobals()->getReferrer(), $status, $headers);
+    }
+
+    /**
+     * Redirect to the home page.
+     *
+     * @param int $status
+     * @param \Titon\Http\HeaderMap $headers
+     * @return \Titon\Http\Server\RedirectResponse
+     */
+    public static function redirectHome(int $status = StatusCode::FOUND, HeaderMap $headers = Map {}): RedirectResponse {
+        return static::redirect('/', $status, $headers);
+    }
+
+    /**
+     * Refresh the current page.
+     *
+     * @param int $status
+     * @param \Titon\Http\HeaderMap $headers
+     * @return \Titon\Http\Server\RedirectResponse
+     */
+    public static function refresh(int $status = StatusCode::FOUND, HeaderMap $headers = Map {}): RedirectResponse {
+        return static::redirect(Request::createFromGlobals()->getUrl(), $status, $headers);
     }
 
     /**
@@ -101,9 +139,10 @@ class ResponseFactory {
      * @param mixed $data
      * @param int $status
      * @param string $root
+     * @param \Titon\Http\HeaderMap $headers
      * @return \Titon\Http\Server\XmlResponse
      */
-    public static function xml(mixed $data, int $status = StatusCode::OK, string $root = 'root'): XmlResponse {
-        return new XmlResponse($data, $status, $root);
+    public static function xml(mixed $data, int $status = StatusCode::OK, string $root = 'root', HeaderMap $headers = Map {}): XmlResponse {
+        return new XmlResponse($data, $status, $root, $headers);
     }
 }

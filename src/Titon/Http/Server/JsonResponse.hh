@@ -39,22 +39,13 @@ class JsonResponse extends Response {
      * @param int $flags
      * @param string $callback
      * @param \Titon\Http\HeaderMap $headers
-     * @throws \Titon\Http\Exception\MalformedResponseException
      */
     public function __construct(mixed $body, int $status = StatusCode::OK, int $flags = -1, string $callback = '', HeaderMap $headers = Map {}) {
         $this->callback = $callback;
 
         // Convert the body to JSON
         if (!$body instanceof StreamInterface) {
-            if ($flags === -1) {
-                $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
-            }
-
-            $body = new MemoryStream(json_encode($body, $flags));
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new MalformedResponseException($this->getErrorMessage());
-            }
+            $body = new MemoryStream($this->encode($body, $flags));
         }
 
         // Wrap the body if the callback is defined
@@ -104,6 +95,28 @@ class JsonResponse extends Response {
         }
 
         return sprintf('Unknown error (%s)', $error);
+    }
+
+    /**
+     * Encode the data into valid JSON.
+     *
+     * @param mixed $data
+     * @param int $flags
+     * @return string
+     * @throws \Titon\Http\Exception\MalformedResponseException
+     */
+    public function encode(mixed $data, int $flags = -1): string {
+        if ($flags === -1) {
+            $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
+        }
+
+        $json = json_encode($data, $flags);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new MalformedResponseException($this->getErrorMessage());
+        }
+
+        return $json;
     }
 
 }

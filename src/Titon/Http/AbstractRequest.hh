@@ -10,6 +10,7 @@ namespace Titon\Http;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Titon\Http\HeaderMap;
 use Titon\Http\Exception\InvalidMethodException;
 
 /**
@@ -46,9 +47,10 @@ abstract class AbstractRequest extends AbstractMessage implements RequestInterfa
      * @param \Psr\Http\Message\UriInterface $uri
      * @param string $method
      * @param \Psr\Http\Message\StreamInterface $body
+     * @param \Titon\Http\HeaderMap $headers
      */
-    public function __construct(UriInterface $uri, string $method = 'GET', ?StreamInterface $body = null) {
-        parent::__construct($body);
+    public function __construct(UriInterface $uri, string $method = 'GET', ?StreamInterface $body = null, HeaderMap $headers = Map {}) {
+        parent::__construct($body, $headers);
 
         $this->uri = $uri;
         $this->method = $this->validateMethod($method);

@@ -7,12 +7,28 @@
 
 namespace Titon\Http\Server;
 
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
 class ResponseSender {
+
+    protected ResponseInterface $response;
+
+    protected RequestInterface $request;
+
+    public function __construct(RequestInterface $request, ResponseInterface $response) {
+        $this->request = $request;
+        $this->response = $response;
+    }
+
+    public function send(): void {
+
+    }
 
     /**
      * {@inheritdoc}
      */
-    public function send(): string {
+    public function send2(): string {
         $body = $this->getBody();
         $contents = (string) $body?->getContents();
 

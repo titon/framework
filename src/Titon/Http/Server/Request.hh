@@ -8,22 +8,12 @@
 
 namespace Titon\Http\Server;
 
-use Titon\Http\Cookie;
-use Titon\Http\Message;
+use Psr\Http\Message\ServerRequestInterface;
+use Titon\Http\AbstractRequest;
 use Titon\Http\Bag\CookieBag;
 use Titon\Http\Bag\ParameterBag;
-use Titon\Http\Exception\InvalidMethodException;
-use Titon\Http\Http;
-use Titon\Http\IncomingRequest;
+use Titon\Http\ParamArray;
 use Titon\Utility\MimeType;
-use Titon\Utility\State\Cookie as CookieGlobal;
-use Titon\Utility\State\Files;
-use Titon\Utility\State\Get;
-use Titon\Utility\State\GlobalMap;
-use Titon\Utility\State\Post;
-use Titon\Utility\State\Server;
-
-newtype AcceptHeader = shape('value' => string, 'quality' => float);
 
 /**
  * The Request object is the primary source of data and state management for the environment.
@@ -31,57 +21,49 @@ newtype AcceptHeader = shape('value' => string, 'quality' => float);
  *
  * @package Titon\Http\Server
  */
-<<__ConsistentConstruct>>
-class Request extends Message implements IncomingRequest {
+class Request extends AbstractRequest implements ServerRequestInterface {
 
     /**
      * Custom attributes for the request.
      *
      * @var \Titon\Http\Bag\ParameterBag
      */
-    public ParameterBag $attributes;
+    protected ParameterBag $attributes;
 
     /**
      * COOKIE data for the request.
      *
      * @var \Titon\Http\Bag\CookieBag
      */
-    public CookieBag $cookies;
+    protected CookieBag $cookies;
 
     /**
      * FILES data for the request.
      *
      * @var \Titon\Http\Bag\ParameterBag
      */
-    public ParameterBag $files;
+    protected ParameterBag $files;
 
     /**
      * POST data for the request.
      *
      * @var \Titon\Http\Bag\ParameterBag
      */
-    public ParameterBag $post;
+    protected ParameterBag $post;
 
     /**
      * GET data for the request.
      *
      * @var \Titon\Http\Bag\ParameterBag
      */
-    public ParameterBag $query;
+    protected ParameterBag $query;
 
     /**
      * SERVER environment variables.
      *
      * @var \Titon\Http\Bag\ParameterBag
      */
-    public ParameterBag $server;
-
-    /**
-     * The current type of request method.
-     *
-     * @var string
-     */
-    protected string $method = '';
+    protected ParameterBag $server;
 
     /**
      * When enabled, will use applicable HTTP headers set by proxies.
@@ -91,53 +73,23 @@ class Request extends Message implements IncomingRequest {
     protected bool $trustProxies = true;
 
     /**
-     * The current URL for the request.
+     * Setup the request and instantiate all bags.
      *
-     * @var string
-     */
-    protected string $url = '';
-
-    /**
-     * Load post data, query data, files data, cookies, server and environment settings.
-     *
-     * @param \Titon\Utility\State\GlobalMap $query
-     * @param \Titon\Utility\State\GlobalMap $post
-     * @param \Titon\Utility\State\GlobalMap $files
-     * @param \Titon\Utility\State\GlobalMap $cookies
      * @param \Titon\Utility\State\GlobalMap $server
+     * @param \Psr\Http\Message\UriInterface $uri
+     * @param string $method
+     * @param \Psr\Http\Message\StreamInterface $body
+     * @param \Titon\Http\HeaderMap $headers
      */
-    public function __construct(GlobalMap $query = Map {}, GlobalMap $post = Map {}, GlobalMap $files = Map {}, GlobalMap $cookies = Map {}, GlobalMap $server = Map {}) {
-        parent::__construct();
+    public function __construct(GlobalMap $server, UriInterface $uri, string $method = 'GET', ?StreamInterface $body = null, HeaderMap $headers = Map {}) {
+        parent::__construct($uri, $method, $body, $headers);
 
-        // Fix method overrides
-        if ($post->contains('_method')) {
-            $server['HTTP_X_METHOD_OVERRIDE'] = $post['_method'];
-            $post->remove('_method');
-        }
-
-        // Create bags
         $this->attributes = new ParameterBag();
-        $this->cookies = new CookieBag($cookies);
-        $this->files = new ParameterBag($files);
-        $this->post = new ParameterBag($post);
-        $this->query = new ParameterBag($query);
+        $this->cookies = new CookieBag();
+        $this->files = new ParameterBag();
+        $this->post = new ParameterBag();
+        $this->query = new ParameterBag();
         $this->server = new ParameterBag($server);
-
-        // Extract headers from server
-        $headers = Map {};
-
-        foreach ($server as $key => $value) {
-            if (substr($key, 0, 5) === 'HTTP_') {
-                $key = substr($key, 5);
-
-            } else if (!in_array($key, ['CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'])) {
-                continue;
-            }
-
-            $headers[$key] = explode(',', (string) $value);
-        }
-
-        $this->headers->add($headers);
     }
 
     /**
@@ -145,21 +97,13 @@ class Request extends Message implements IncomingRequest {
      */
     public function __clone(): void {
         $this->attributes = clone $this->attributes;
+        $this->body = clone $this->body;
         $this->cookies = clone $this->cookies;
         $this->files = clone $this->files;
         $this->headers = clone $this->headers;
         $this->post = clone $this->post;
         $this->query = clone $this->query;
         $this->server = clone $this->server;
-    }
-
-    /**
-     * Create a request object based off the super globals.
-     *
-     * @return $this
-     */
-    public static function createFromGlobals(): Request {
-        return new static(Get::all(), Post::all(), Files::all(), CookieGlobal::all(), Server::all());
     }
 
     /**
@@ -263,15 +207,8 @@ class Request extends Message implements IncomingRequest {
     /**
      * {@inheritdoc}
      */
-    public function getAttributes(): array<string, mixed> {
+    public function getAttributes(): ParamArray {
         return $this->attributes->all()->toArray();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBodyParams(): array<string, mixed> {
-        return $this->post->toArray();
     }
 
     /**
@@ -302,42 +239,10 @@ class Request extends Message implements IncomingRequest {
     }
 
     /**
-     * Return an HTTP cookie as a Cookie class defined by key/name.
-     *
-     * @param string $key
-     * @return \Titon\Http\Cookie
-     */
-    public function getCookie(string $key): ?Cookie {
-        return $this->cookies->get($key);
-    }
-
-    /**
-     * Return all HTTP cookies as Cookie classes.
-     *
-     * @return Map<string, Cookie>
-     */
-    public function getCookies(): Map<string, Cookie> {
-        return $this->cookies->all();
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function getCookieParams(): array<string, mixed> {
-        $array = [];
-
-        foreach ($this->getCookies() as $key => $cookie) {
-            $array[$key] = $cookie->getDecryptedValue();
-        }
-
-        return $array;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getFileParams(): array<string, mixed> {
-        return $this->files->toArray();
+    public function getCookieParams(): ParamArray {
+        return $this->cookies->toArray();
     }
 
     /**
@@ -363,26 +268,18 @@ class Request extends Message implements IncomingRequest {
     /**
      * {@inheritdoc}
      */
-    public function getMethod(): string {
-        if (!$this->method) {
-            $method = strtoupper($this->server->get('REQUEST_METHOD', 'GET'));
-
-            if ($method === 'POST') {
-                if ($override = $this->server->get('HTTP_X_METHOD_OVERRIDE')) {
-                    $method = strtoupper($override);
-                }
-            }
-
-            $this->setMethod($method);
-        }
-
-        return $this->method;
+    public function getParsedBody(): ParamArray {
+        return $this->post->toArray();
     }
 
     /**
      * {@inheritdoc}
      */
     public function getProtocolVersion(): string {
+        if ($protocol = parent::getProtocolVersion()) {
+            return $protocol;
+        }
+
         return (string) $this->server->get('SERVER_PROTOCOL', '1.1');
     }
 
@@ -411,13 +308,17 @@ class Request extends Message implements IncomingRequest {
             return ($this->getScheme() === 'https') ? 443 : 80;
         }
 
+        if ($port = $this->getUri()->getPort()) {
+            return $port;
+        }
+
         return (int) $this->server->get('SERVER_PORT');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getQueryParams(): array<string, mixed> {
+    public function getQueryParams(): ParamArray {
         return $this->query->toArray();
     }
 
@@ -461,69 +362,24 @@ class Request extends Message implements IncomingRequest {
     /**
      * {@inheritdoc}
      */
-    public function getServerParams(): array<string, mixed> {
+    public function getServerParams(): ParamArray {
         return $this->server->toArray();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUrl(): string {
-        if (!$this->url) {
-            $server = $this->server;
-            $script = str_replace($server->get('DOCUMENT_ROOT'), '', $server->get('SCRIPT_FILENAME'));
-            $base = dirname($script);
-            $url = '/';
-
-            // Proper URL defined by the web server
-            if ($path = $server->get('PATH_INFO')) {
-                $url = (string) $path;
-
-            // Strip off the query string if it exists
-            } else if ($path = $server->get('REQUEST_URI')) {
-                $url = explode('?', (string) $path)[0];
-
-            // Remove the base folder and index file
-            } else if ($path = $server->get('PHP_SELF')) {
-                $url = str_replace($script, '', (string) $path);
-            }
-
-            if ($base !== '/' && $base !== '\\') {
-                $url = $base . $url;
-            }
-
-            $this->setUrl($url);
-        }
-
-        return $this->url;
+    public function getUploadedFiles(): ParamArray {
+        return $this->files->toArray();
     }
 
     /**
-     * Grabs information about the browser, os and other client information.
-     * Must have browscap installed for $explicit use.
+     * Grabs information about the browser, the OS, and other client information.
      *
-     * @link http://php.net/get_browser
-     * @link http://php.net/manual/misc.configuration.php#ini.browscap
-     *
-     * @param bool $explicit
-     * @return array|string
+     * @return string
      */
-    public function getUserAgent(bool $explicit = false): mixed {
-        $agent = $this->server->get('HTTP_USER_AGENT');
-
-        if ($explicit && function_exists('get_browser')) {
-            $browser = get_browser($agent, true);
-
-            return [
-                'browser' => $browser['browser'],
-                'version' => $browser['version'],
-                'cookies' => $browser['cookies'],
-                'agent' => $agent,
-                'os' => $browser['platform']
-            ];
-        }
-
-        return $agent;
+    public function getUserAgent(): string {
+        return (string) $this->server->get('HTTP_USER_AGENT') ?: '';
     }
 
     /**
@@ -568,7 +424,7 @@ class Request extends Message implements IncomingRequest {
      * @return bool
      */
     public function isFlash(): bool {
-        return (bool) preg_match('/^(shockwave|adobe) flash/i', $this->getUserAgent(false));
+        return (bool) preg_match('/^(shockwave|adobe) flash/i', $this->getUserAgent());
     }
 
     /**
@@ -630,7 +486,7 @@ class Request extends Message implements IncomingRequest {
         $versions .= 'up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|';
         $versions .= '81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-';
 
-        $agent = $this->getUserAgent(false);
+        $agent = $this->getUserAgent();
 
         return (preg_match('/' . $mobiles . '/i', $agent) || preg_match('/' . $versions . '/i', substr($agent, 0, 4)));
     }
@@ -678,51 +534,6 @@ class Request extends Message implements IncomingRequest {
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function setAttribute($attribute, $value): this {
-        $this->attributes->set($attribute, $value);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setAttributes(array $attributes): this {
-        foreach ($attributes as $attribute => $value) {
-            $this->attributes->set($attribute, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setMethod($method): this {
-        $method = strtoupper($method);
-
-        if (!in_array($method, Http::getMethodTypes())) {
-            throw new InvalidMethodException(sprintf('Invalid method %s', $method));
-        }
-
-        $this->method = $method;
-        $this->server->set('REQUEST_METHOD', $method);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUrl($url): this {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    /**
      * Trust the headers from proxies.
      *
      * @return $this;
@@ -730,6 +541,48 @@ class Request extends Message implements IncomingRequest {
     public function trustProxies(): this {
         $this->trustProxies = true;
 
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function withCookieParams(array $cookies): this {
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function withQueryParams(array $query): this {
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function withUploadedFiles(array $files): this {
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function withParsedBody($data): this {
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function withAttribute($name, $value): this {
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function withoutAttribute($name): this {
         return $this;
     }
 

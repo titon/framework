@@ -14,11 +14,13 @@
  */
 
 namespace Titon\Http {
+    type AcceptHeader = shape('value' => string, 'quality' => float);
     type HeaderList = Set<string>;
     type HeaderMap = Map<string, array<string>>;
-    type MethodList = Set<string>;
-    type StatusCodeMap = Map<int, string>;
     type MetaDataMap = Map<string, mixed>;
+    type MethodList = Set<string>;
+    type ParamArray = array<string, mixed>;
+    type StatusCodeMap = Map<int, string>;
 }
 
 namespace Titon\Http\Server {

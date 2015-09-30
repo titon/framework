@@ -15,7 +15,7 @@ use Titon\Http\Stream\ResourceStream;
 use InvalidArgumentException;
 
 /**
- * The `ResponseFactory` can be used in the creation of specialized responses.
+ * The `ResponseFactory` can be used in the creation of specialized server responses.
  *
  * @package Titon\Http\Server
  */

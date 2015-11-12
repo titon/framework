@@ -143,7 +143,7 @@ class Time {
             $timezone = date_default_timezone_get();
         }
 
-        return new DateTimeZone($timezone);
+        return new DateTimeZone((string) $timezone);
     }
 
     /**

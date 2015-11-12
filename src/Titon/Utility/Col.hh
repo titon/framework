@@ -507,6 +507,8 @@ class Col {
             }
         }
 
+        // UNSAFE
+        // Since the values in the array are more than just `Tv`
         return $array;
     }
 

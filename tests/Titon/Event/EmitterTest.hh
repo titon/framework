@@ -35,7 +35,7 @@ class EmitterTest extends TestCase {
 
     public function testGetObservers(): void {
         $ob1 = ($event) ==> { };
-        $ob2 = [new ListenerStub(), 'noop1'];
+        $ob2 = inst_meth(new ListenerStub(), 'noop1');
 
         $this->object->subscribe('event.test', $ob1, 20);
         $this->object->subscribe('event.test', $ob2, 15);
@@ -49,9 +49,9 @@ class EmitterTest extends TestCase {
 
     public function testGetCallStack(): void {
         $ob1 = ($event) ==> { };
-        $ob2 = [new ListenerStub(), 'noop2'];
+        $ob2 = inst_meth(new ListenerStub(), 'noop2');
         $ob3 = ($event) ==> { };
-        $ob4 = [new ListenerStub(), 'noop3'];
+        $ob4 = inst_meth(new ListenerStub(), 'noop3');
 
         $this->object->subscribe('event.test', $ob1, 20);
         $this->object->subscribe('event.test', $ob2, 25);
@@ -77,7 +77,7 @@ class EmitterTest extends TestCase {
 
     public function testGetSortedObservers(): void {
         $ob1 = ($event) ==> { };
-        $ob2 = [new ListenerStub(), 'noop1'];
+        $ob2 = inst_meth(new ListenerStub(), 'noop1');
         $ob3 = ($event) ==> { };
 
         $this->object->subscribe('event.test', $ob1, 20);

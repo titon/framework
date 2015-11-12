@@ -27,38 +27,7 @@ use Titon\Utility\State\Server;
  */
 class RequestFactory {
 
-    /**
-     * Instantiate a new request and package the URI and body stream accordingly.
-     *
-     * @param \Titon\Utility\State\GlobalMap $server
-     * @param \Psr\Http\Message\UriInterface|string $uri
-     * @param string $method
-     * @param \Psr\Http\Message\StreamInterface $body
-     * @param \Titon\Http\HeaderMap $headers
-     * @return \Titon\Http\Server\Request
-     */
-    public static function create(GlobalMap $server, mixed $uri, string $method = 'GET', ?StreamInterface $body = null, HeaderMap $headers = Map {}): Request {
-        if (!$uri instanceof UriInterface) {
-            $uri = new Uri((string) $uri);
-        }
-
-        if ($body === null) {
-            $body = new ResourceStream(fopen('php://input', 'r+'));
-        }
-
-        $headers->setAll(static::extractHeaders($server));
-
-        return new Request($server, $uri, $method, $body, $headers);
-    }
-
-    /**
-     * Create a request object based off the current super globals.
-     *
-     * @return \Titon\Http\Server\Request
-     */
-    public static function createFromGlobals(): Request {
-        $request = static::create(Server::all(), static::getUrl(), static::getMethod());
-
+    public static function applyGlobals(Request $request): Request {
         if ($cookie = static::getCookieParams()) {
             $request = $request->withCookieParams($cookie);
         }
@@ -76,6 +45,39 @@ class RequestFactory {
         }
 
         return $request;
+    }
+
+    /**
+     * Instantiate a new request and package the URI and body stream accordingly.
+     *
+     * @param \Titon\Utility\State\GlobalMap $server
+     * @param \Psr\Http\Message\UriInterface|string $uri
+     * @param string $method
+     * @param \Titon\Http\HeaderMap $headers
+     * @return \Titon\Http\Server\Request
+     */
+    public static function create(GlobalMap $server, mixed $uri, string $method = 'GET', HeaderMap $headers = Map {}): Request {
+        if (!$uri instanceof UriInterface) {
+            $uri = new Uri((string) $uri);
+        }
+
+        $body = new ResourceStream(fopen('php://input', 'r+'));
+
+        $serverHeaders = static::extractHeaders($server);
+        $serverHeaders->setAll($headers);
+
+        return new Request($server, $uri, $method, $body, $serverHeaders);
+    }
+
+    /**
+     * Create a request object based off the current super globals.
+     *
+     * @return \Titon\Http\Server\Request
+     */
+    public static function createFromGlobals(): Request {
+        return static::applyGlobals(
+            static::create(Server::all(), static::getUrl(), static::getMethod())
+        );
     }
 
     /**

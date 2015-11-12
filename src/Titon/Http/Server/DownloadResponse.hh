@@ -21,7 +21,7 @@ use Titon\Utility\Exception\InvalidExtensionException;
  *
  * @package Titon\Http\Server
  */
-//class DownloadResponse extends Response {
+class DownloadResponse extends Response {
 //
 //    /**
 //     * Path to the file.
@@ -121,4 +121,4 @@ use Titon\Utility\Exception\InvalidExtensionException;
 //        return parent::send();
 //    }
 //
-//}
+}

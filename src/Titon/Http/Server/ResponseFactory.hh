@@ -55,7 +55,7 @@ class ResponseFactory {
      * @param \Titon\Http\HeaderMap $headers
      * @return \Titon\Http\Server\DownloadResponse
      */
-    public static function download(string $path, string $name = '', bool $autoEtag = false, bool $autoModified = true, HeaderMap $headers = Map {}): DownloadResponse {
+    /*public static function download(string $path, string $name = '', bool $autoEtag = false, bool $autoModified = true, HeaderMap $headers = Map {}): DownloadResponse {
         $response = new DownloadResponse($path, StatusCode::OK, $headers);
 
         if ($name) {
@@ -71,7 +71,7 @@ class ResponseFactory {
         }
 
         return $response;
-    }
+    }*/
 
     /**
      * Convert a resource to JSON by instantiating a JsonResponse.

@@ -8,8 +8,8 @@
 
 namespace Titon\Controller;
 
-use Psr\Http\Message\OutgoingResponseInterface;
-use Psr\Http\Message\IncomingRequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Titon\Controller\Action;
 use Titon\View\View;
 use \Exception;
@@ -27,32 +27,32 @@ interface Controller {
      *
      * @param string $action
      * @param \Titon\Controller\ArgumentList $args
-     * @return \Psr\Http\Message\OutgoingResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function dispatchTo(string $action, ArgumentList $args): OutgoingResponseInterface;
+    public function dispatchTo(string $action, ArgumentList $args): ResponseInterface;
 
     /**
      * Forward the current request to a new action, instead of doing an additional HTTP request.
      *
      * @param string $action
      * @param \Titon\Controller\ArgumentList $args
-     * @return \Psr\Http\Message\OutgoingResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function forwardTo(string $action, ArgumentList $args): OutgoingResponseInterface;
+    public function forwardTo(string $action, ArgumentList $args): ResponseInterface;
 
     /**
      * Return the request object.
      *
-     * @return \Psr\Http\Message\IncomingRequestInterface
+     * @return \Psr\Http\Message\ServerRequestInterface
      */
-    public function getRequest(): IncomingRequestInterface;
+    public function getRequest(): ServerRequestInterface;
 
     /**
      * Return the response object.
      *
-     * @return \Psr\Http\Message\OutgoingResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getResponse(): OutgoingResponseInterface;
+    public function getResponse(): ResponseInterface;
 
     /**
      * Return the view object.
@@ -94,18 +94,18 @@ interface Controller {
     /**
      * Set the request object.
      *
-     * @param \Psr\Http\Message\IncomingRequestInterface $request
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      * @return $this
      */
-    public function setRequest(IncomingRequestInterface $request): this;
+    public function setRequest(ServerRequestInterface $request): this;
 
     /**
      * Set the response object.
      *
-     * @param \Psr\Http\Message\OutgoingResponseInterface $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      * @return $this
      */
-    public function setResponse(OutgoingResponseInterface $response): this;
+    public function setResponse(ResponseInterface $response): this;
 
     /**
      * Set the view object.

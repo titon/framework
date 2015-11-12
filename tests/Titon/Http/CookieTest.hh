@@ -1,6 +1,7 @@
 <?hh
 namespace Titon\Http;
 
+use Titon\Crypto\OpenSslCipher;
 use Titon\Test\TestCase;
 
 class CookieTest extends TestCase {
@@ -8,19 +9,17 @@ class CookieTest extends TestCase {
     public function testSetupState(): void {
         $cookie = new Cookie('foo', 'bar', '+10 minutes', '/baz', 'domain.com');
 
-        $this->assertEquals('foo=czozOiJiYXIiOw%3D%3D; Expires=' . gmdate('D, d M Y H:i:s T', $cookie->getExpires()) . '; Path=/baz; Domain=domain.com; HttpOnly', (string) $cookie);
+        $this->assertEquals('foo=bar; Expires=' . gmdate('D, d M Y H:i:s T', $cookie->getExpires()) . '; Path=/baz; Domain=domain.com; HttpOnly', (string) $cookie);
     }
 
     public function testValueCanBeEncryptedAndDecrypted(): void {
-        $cookie = new Cookie('foo', 'bar');
+        $cipher = new OpenSslCipher(md5('CookieTestSalt'));
 
-        $this->assertEquals('bar', $cookie->getValue());
-        $this->assertEquals('czozOiJiYXIiOw%3D%3D', $cookie->getEncryptedValue());
+        $cookie = new Cookie('foo');
+        $cookie->setValue('bar', $cipher);
 
-        $cookie = new Cookie('foo', 'czozOiJiYXIiOw%3D%3D');
-
-        $this->assertEquals('czozOiJiYXIiOw%3D%3D', $cookie->getValue());
-        $this->assertEquals('bar', $cookie->getDecryptedValue());
+        $this->assertNotEquals('bar', $cookie->getValue());
+        $this->assertEquals('bar', $cookie->getValue($cipher));
     }
 
     public function testFlagsAlterOutputString(): void {

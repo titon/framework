@@ -8,7 +8,7 @@
 
 namespace Titon\Controller\Event;
 
-use Psr\Http\Message\OutgoingResponseInterface;
+use Psr\Http\Message\ResponseInterface;
 use Titon\Controller\Controller;
 use Titon\Event\Event;
 
@@ -37,18 +37,18 @@ class ProcessedEvent extends Event {
     /**
      * The response instance.
      *
-     * @var \Psr\Http\Message\OutgoingResponseInterface
+     * @var \Psr\Http\Message\ResponseInterface
      */
-    protected OutgoingResponseInterface $response;
+    protected ResponseInterface $response;
 
     /**
      * Store the event settings.
      *
      * @param \Titon\Controller\Controller $controller
      * @param string $action
-     * @param \Psr\Http\Message\OutgoingResponseInterface $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      */
-    public function __construct(Controller $controller, string $action, OutgoingResponseInterface $response) {
+    public function __construct(Controller $controller, string $action, ResponseInterface $response) {
         $this->controller = $controller;
         $this->action = $action;
         $this->response = $response;
@@ -77,19 +77,19 @@ class ProcessedEvent extends Event {
     /**
      * Return the response.
      *
-     * @return \Psr\Http\Message\OutgoingResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getResponse(): OutgoingResponseInterface {
+    public function getResponse(): ResponseInterface {
         return $this->response;
     }
 
     /**
      * Set a new response.
      *
-     * @param \Psr\Http\Message\OutgoingResponseInterface $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      * @return $this
      */
-    public function setResponse(OutgoingResponseInterface $response): this {
+    public function setResponse(ResponseInterface $response): this {
         $this->response = $response;
 
         return $this;

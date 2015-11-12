@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Exception;
 
-use Titon\Http\Http;
+use Titon\Http\StatusCode;
 use \Exception;
 
 /**
@@ -20,7 +20,7 @@ class MethodNotAllowedException extends HttpException {
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $message = 'Method Not Allowed', int $code = Http::METHOD_NOT_ALLOWED, ?Exception $previous = null) {
+    public function __construct(string $message = 'Method Not Allowed', int $code = StatusCode::METHOD_NOT_ALLOWED, ?Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

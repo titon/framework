@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Exception;
 
-use Titon\Http\Http;
+use Titon\Http\StatusCode;
 use \Exception;
 
 /**
@@ -20,7 +20,7 @@ class BadRequestException extends HttpException {
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $message = 'Bad Request', int $code = Http::BAD_REQUEST, ?Exception $previous = null) {
+    public function __construct(string $message = 'Bad Request', int $code = StatusCode::BAD_REQUEST, ?Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

@@ -17,6 +17,7 @@ namespace Titon\Utility {
     type ArgumentList = array<mixed>;
     type ConfigMap = Map<string, mixed>;
     type OptionMap = Map<string, mixed>;
+    type MimeMap = Map<string, string>;
     type RegistryCallback<T> = (function(): T);
     type RegistryMap<T> = Map<string, T>;
     type TimeMessageMap = Map<string, Map<int, string>>;

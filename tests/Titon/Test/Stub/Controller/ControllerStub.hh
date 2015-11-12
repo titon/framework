@@ -2,7 +2,7 @@
 namespace Titon\Test\Stub\Controller;
 
 use Titon\Controller\AbstractController;
-use Titon\Http\Server\Response;
+use Titon\Http\Server\ResponseFactory;
 use Titon\Http\Stream\MemoryStream;
 
 class ControllerStub extends AbstractController {
@@ -34,7 +34,7 @@ class ControllerStub extends AbstractController {
     }
 
     public function returnsResponse(): mixed {
-        return Response::json(['returnsResponse']);
+        return ResponseFactory::json(['returnsResponse']);
     }
 
     public function returnsNothing(): mixed {

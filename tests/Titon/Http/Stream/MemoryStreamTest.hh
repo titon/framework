@@ -33,14 +33,14 @@ class MemoryStreamTest extends TestCase {
     }
 
     public function testClose(): void {
-        $this->assertTrue($this->object->close());
-        $this->assertFalse($this->object->close());
+        $this->object->close();
+        $this->assertNull($this->object->getStream());
     }
 
     public function testDetach(): void {
         $this->assertTrue(is_resource($this->object->getStream()));
         $this->object->detach();
-        $this->assertEquals(null, $this->object->getStream());
+        $this->assertNull($this->object->getStream());
     }
 
     public function testEof(): void {
@@ -51,7 +51,11 @@ class MemoryStreamTest extends TestCase {
 
     public function testGetContents(): void {
         $this->assertEquals('foo', $this->object->getContents());
-        $this->assertEquals('fo', $this->object->getContents(2));
+    }
+
+    public function testGetMetaData(): void {
+        $this->assertTrue($this->object->getMetadata('readable'));
+        $this->assertTrue(is_array($this->object->getMetadata()));
     }
 
     public function testGetSize(): void {
@@ -67,7 +71,6 @@ class MemoryStreamTest extends TestCase {
     public function testRead(): void {
         $this->object->rewind();
         $this->assertEquals('fo', $this->object->read(2));
-
         $this->assertEquals('o', $this->object->read(3));
 
         $this->object->rewind();

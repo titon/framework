@@ -34,7 +34,7 @@ class RequestTest extends TestCase {
         ];
 
         $_COOKIE = [
-            'foo' => (new Cookie('foo', 'bar'))->getEncryptedValue()
+            'foo' => 'bar'
         ];
 
         $_FILES = [
@@ -106,7 +106,7 @@ class RequestTest extends TestCase {
         Post::initialize($_POST);
         Server::initialize($_SERVER);
 
-        $this->object = Request::createFromGlobals();
+        $this->object = RequestFactory::createFromGlobals();
     }
 
     public function testInitialize(): void {
@@ -346,7 +346,7 @@ class RequestTest extends TestCase {
 
         Server::initialize($_SERVER);
 
-        $this->assertEquals('DELETE', Request::createFromGlobals()->getMethod());
+        $this->assertEquals('DELETE', RequestFactory::createFromGlobals()->getMethod());
     }
 
     public function testGetProtocolVersion(): void {

@@ -14,9 +14,11 @@
  */
 
 namespace Titon\Http {
-    type HeaderList = Vector<string>;
-    type MethodList = Vector<string>;
-    type MimeMap = Map<string, string>;
+    type AcceptHeader = shape('value' => string, 'quality' => float);
+    type HeaderList = Set<string>;
+    type HeaderMap = Map<string, array<string>>;
+    type MetaDataMap = Map<string, mixed>;
+    type MethodList = Set<string>;
     type StatusCodeMap = Map<int, string>;
 }
 

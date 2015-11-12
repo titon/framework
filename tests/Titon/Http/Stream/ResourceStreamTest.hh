@@ -36,16 +36,25 @@ class ResourceStreamTest extends TestCase {
         $this->assertFalse(is_resource($handle));
     }
 
-    public function testGetContentsNotReadableReturnsEmpty(): void {
-        $this->assertEquals('', $this->makeStream('w', 'foo')->getContents());
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testGetContentsThrowsErrorNotReadable(): void {
+        $this->makeStream('w', 'foo')->getContents();
     }
 
-    public function testReadReturnsNullNonReadable(): void {
-        $this->assertEquals(null, $this->makeStream('w', 'foo')->read(3));
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testReadThrowsErrorNonReadable(): void {
+        $this->makeStream('w', 'foo')->read(3);
     }
 
-    public function testWriteReturnsNullNonWritable(): void {
-        $this->assertEquals(null, $this->makeStream('r')->write('foo'));
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testWriteThrowsErrorNonWritable(): void {
+        $this->makeStream('r')->write('foo');
     }
 
 }

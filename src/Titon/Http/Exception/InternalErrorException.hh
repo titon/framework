@@ -7,7 +7,7 @@
 
 namespace Titon\Http\Exception;
 
-use Titon\Http\Http;
+use Titon\Http\StatusCode;
 use \Exception;
 
 /**
@@ -20,7 +20,7 @@ class InternalErrorException extends HttpException {
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $message = 'Internal Error', int $code = Http::INTERNAL_SERVER_ERROR, ?Exception $previous = null) {
+    public function __construct(string $message = 'Internal Error', int $code = StatusCode::INTERNAL_SERVER_ERROR, ?Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

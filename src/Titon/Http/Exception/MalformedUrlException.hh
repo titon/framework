@@ -8,10 +8,10 @@
 namespace Titon\Http\Exception;
 
 /**
- * Exception throw for undefined extension.
+ * Exception thrown when a URL is malformed.
  *
  * @package Titon\Http\Exception
  */
-class InvalidExtensionException extends \OutOfBoundsException {
+class MalformedUrlException extends \RuntimeException {
 
 }

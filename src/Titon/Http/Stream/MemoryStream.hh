@@ -20,7 +20,7 @@ class MemoryStream extends AbstractStream {
      * @param string $content
      */
     public function __construct(string $content = '') {
-        $this->setStream(fopen('php://memory', 'r+b'));
+        $this->setStream(fopen('php://memory', 'r+'));
 
         if ($content) {
             $this->write($content);

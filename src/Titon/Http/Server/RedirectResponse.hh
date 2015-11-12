@@ -8,8 +8,8 @@
 namespace Titon\Http\Server;
 
 use Titon\Http\Exception\MalformedResponseException;
-use Titon\Http\Http;
-use Titon\Http\Stream\MemoryStream;
+use Titon\Http\HeaderMap;
+use Titon\Http\StatusCode;
 use Titon\Utility\Sanitize;
 
 /**
@@ -24,44 +24,31 @@ class RedirectResponse extends Response {
      *
      * @param string $url
      * @param int $status
-     */
-    public function __construct(string $url, int $status = Http::FOUND) {
-        parent::__construct(null, $status);
-
-        $this->headers->flush();
-
-        $this
-            ->date(time())
-            ->location($url)
-            ->statusCode($status);
-    }
-
-    /**
-     * Validate the URL before sending.
-     *
-     * @return string
+     * @param \Titon\Http\HeaderMap $headers
      * @throws \Titon\Http\Exception\MalformedResponseException
      */
-    public function send(): string {
-        $url = $this->getHeader('Location');
-
+    public function __construct(string $url, int $status = StatusCode::FOUND, HeaderMap $headers = Map {}) {
         if (!$url) {
             throw new MalformedResponseException('Redirect URL cannot be empty');
         }
 
-        $url = Sanitize::escape($url);
+        parent::__construct(null, $status, $headers);
 
-        $this->setBody(new MemoryStream(sprintf('<!DOCTYPE html>
+        $type = $this->validateContentType('html');
+        $body = sprintf('<!DOCTYPE html>
             <html>
             <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                <meta http-equiv="Content-Type" content="%s">
                 <meta http-equiv="refresh" content="0; url=%s">
-                <title>Redirecting to %s</title>
+                <title>Redirecting</title>
             </head>
             <body></body>
-            </html>', $url, $url)));
+            </html>', $type, Sanitize::escape($url));
 
-        return parent::send();
+        // Update state
+        $this->body->write($body);
+        $this->headers->set('Location', [$url]);
+        $this->headers->set('Content-Type', [$type]);
     }
 
 }

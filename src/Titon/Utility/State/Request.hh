@@ -72,10 +72,14 @@ abstract class Request {
      * Initialize the class by supplying an array of data that recursively gets converted to a map.
      * That data should only be initialized once, unless it is running through the command line.
      *
-     * @param array<string, mixed> $data
+     * @param array<string, mixed>|null $data
      */
-    public static function initialize(array<string, mixed> $data): void {
+    public static function initialize(?array<string, mixed> $data): void {
         $class = static::class;
+
+        if (null === $data) {
+            $data = [];
+        }
 
         if (php_sapi_name() === 'cli' || !static::$loaded->contains($class)) {
             static::$data[$class] = static::package($data);
